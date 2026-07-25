@@ -589,6 +589,34 @@ def main():
             skw = 1; sid = 'D13'
         tenkai.append(saten)
 
+        # ①(bo[0])の下振れ要因の事実提示（スコア・判定には非関与・追加のみ）。※波及IDの分岐で参照するため前倒しで算出。
+        #   条件1 ①のinWinRate<15（nullは判定対象外）／条件2 ①の機力<25／条件3 当場が①着外率20%以上
+        _df_items = []
+        _in1_rate = (_inrate.get(bo[0]['登録番号']) or {}).get('rate')
+        if _in1_rate is not None and _in1_rate < 15:
+            _df_items.append("①の1着率 {}%".format(_in1_rate))
+        _in1_mtr = bo[0]['_mtr'] if (use_m and bo[0]['_mtr'] > 0) else None
+        if _in1_mtr is not None and _in1_mtr < 25:
+            _df_items.append("①のモーター2連率 {}%".format(round(_in1_mtr, 1)))
+        if bo[0]['場コード'] in _DOWN_VENUES:
+            _df_items.append("当場は①着外率20%以上（{}）".format(ba))
+        downFactors = {'count': len(_df_items), 'items': _df_items}
+
+        # ①が崩れる時の「崩れ方」場別分布（当場・過去1年の実数。①着外レースの内訳）。※波及IDの分岐でも参照。
+        #   確率/買い目/予想ではない。母数不足(patterns=null)の場は top=null。追加のみ・スコア非関与。
+        _cp = _collapse.get(bo[0]['場コード'])
+        if _cp:
+            _cp_pats = _cp.get('patterns')
+            collapse = {
+                'top': (_cp_pats[0] if _cp_pats else None),
+                'patterns': (_cp_pats[:3] if _cp_pats else None),  # 表示用 上位3（母数不足はnull）
+                'n': _cp.get('n'),
+                'inOutRate': _cp.get('inOutRate'),
+                'kimariteSum': _cp.get('kimariteSum') or {}
+            }
+        else:
+            collapse = None
+
         # --- 波及の連鎖（主役の決まり手型×場×イン強弱で分岐。同文を散らす）---
         out4 = any(t['w'] >= 4 for t in threats)
         kt_h = _kt_of(head_w) if (head_w and head_w >= 4) else None
@@ -602,7 +630,24 @@ def main():
         elif out4 and kt_h == 'sashi':
             suji = f"{K[head_w-1]}{boat_meta[head_w]['nm']}がまくり差しに構えれば①②の間が割れ、差された内は着を落とす連鎖。"; fid = 'S4'
         elif out4 and head_w and head_w >= 4:
-            suji = f"{K[head_w-1]}{boat_meta[head_w]['nm']}が仕掛ければ②③は外に張られ、空いた内を逃げ残りの①{n1}や⑤が拾う波及。"; fid = 'S5'
+            # ①が崩れる構図を実数根拠つきで分岐（S10/S8/S9で S5 の独占を解消）。
+            # 場タイプは collapsePattern の kimariteSum(まくり+まくり差し / 差し)から動的判定（閾値ハードコードなし）。
+            _ks = (collapse or {}).get('kimariteSum') or {}
+            _mak = round(_ks.get('まくり', 0) + _ks.get('まくり差し', 0), 1)  # まくり系
+            _sas = _ks.get('差し', 0)
+            _cn = (collapse or {}).get('n')
+            _ctop = (collapse or {}).get('top') or {}
+            if downFactors['count'] == 0:
+                suji = "①に崩れる材料は見当たらない。下振れ要因ゼロのレースで①が着外に沈んだのは過去1年で11.9%、9回に1回に留まる。"; fid = 'S10'
+            elif collapse and _mak >= 72 and _ctop.get('boat'):
+                suji = f"崩れるなら外の一撃。当場で①が着外に沈んだ{_cn}戦のうち{_mak}%がまくり決着で、差しは{_sas}%。狙いは{_ctop['boat']}号艇の踏み込み。"; fid = 'S8'
+            elif collapse and _sas >= 22:
+                # 差しパターンは full patterns(上位5)から拾う（表示用top3にはまくりしか無い場があるため）。
+                _sp = next((p for p in ((_cp or {}).get('patterns') or []) if p.get('kimarite') == '差し'), None)
+                _spt = f"{_sp['boat']}号艇の差し{_sp['pct']}%" if _sp else "内の差し"
+                suji = f"内から崩れる余地もある。当場の①着外時は差しが{_sas}%を占め、{_spt}が目立つ形。"; fid = 'S9'
+            else:
+                suji = f"{K[head_w-1]}{boat_meta[head_w]['nm']}が仕掛ければ②③は外に張られ、空いた内を逃げ残りの①{n1}や⑤が拾う波及。"; fid = 'S5'
         elif out4:
             ow = o4[0]['w'] if o4 else 4
             suji = f"{K[ow-1]}{boat_meta[ow]['nm']}が仕掛ければ②③は外に張られ、空いた内を⑤や逃げ残りの①{n1}が拾う波及。外決着なら内の連は薄れる。"; fid = 'S6'
@@ -655,34 +700,6 @@ def main():
                 'まくりさされ率': y.get('まくりさされ率'), 'イン数': y.get('イン数'),
                 'inWinRate': (_inrate.get(b['登録番号']) or {}).get('rate')  # 追加:①1着率(null許容)
             })
-
-        # ①(bo[0])の下振れ要因の事実提示（スコア・判定には非関与・追加のみ）。
-        #   条件1 ①のinWinRate<15（nullは判定対象外）／条件2 ①の機力<25／条件3 当場が①着外率20%以上
-        _df_items = []
-        _in1_rate = (_inrate.get(bo[0]['登録番号']) or {}).get('rate')
-        if _in1_rate is not None and _in1_rate < 15:
-            _df_items.append("①の1着率 {}%".format(_in1_rate))
-        _in1_mtr = bo[0]['_mtr'] if (use_m and bo[0]['_mtr'] > 0) else None
-        if _in1_mtr is not None and _in1_mtr < 25:
-            _df_items.append("①のモーター2連率 {}%".format(round(_in1_mtr, 1)))
-        if bo[0]['場コード'] in _DOWN_VENUES:
-            _df_items.append("当場は①着外率20%以上（{}）".format(ba))
-        downFactors = {'count': len(_df_items), 'items': _df_items}
-
-        # ①が崩れる時の「崩れ方」場別分布（当場・過去1年の実数。①着外レースの内訳）。
-        #   確率/買い目/予想ではない。母数不足(patterns=null)の場は top=null。追加のみ・スコア非関与。
-        _cp = _collapse.get(bo[0]['場コード'])
-        if _cp:
-            _cp_pats = _cp.get('patterns')
-            collapse = {
-                'top': (_cp_pats[0] if _cp_pats else None),
-                'patterns': (_cp_pats[:3] if _cp_pats else None),  # 表示用 上位3（母数不足はnull）
-                'n': _cp.get('n'),
-                'inOutRate': _cp.get('inOutRate'),
-                'kimariteSum': _cp.get('kimariteSum') or {}
-            }
-        else:
-            collapse = None
 
         out_entry = {
             '場名': ba, '場コード': bo[0]['場コード'], 'レース': rc,
