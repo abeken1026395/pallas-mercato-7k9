@@ -88,6 +88,7 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .collapse-fact .cf-list{margin-top:5px;display:flex;flex-wrap:wrap;gap:6px 12px}
 .collapse-fact .cf-p{white-space:nowrap}
 .collapse-fact .cf-p b{color:#c9d9e8;font-weight:700}
+.collapse-fact .cf-today{margin-top:5px;font-size:11px;color:#a9c6dd}
 .collapse-fact .cf-note{margin-top:6px;font-size:10px;color:#7d94a8;opacity:.85}
 .wk{width:20px;height:20px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0}
 .wk1{background:var(--w1);color:#000}.wk2{background:var(--w2);color:#fff}.wk3{background:var(--w3);color:#fff}.wk4{background:var(--w4);color:#fff}.wk5{background:var(--w5);color:#000}.wk6{background:var(--w6);color:#fff}
@@ -655,7 +656,11 @@ function collapseHtml(r){
   if(!pats || !pats.length) return '';        // 母数不足（patterns=null）の場は非表示
   const lines = pats.map(p=>`<span class="cf-p"><b>${p.boat}号艇の${p.kimarite}</b> ${Math.round(p.pct)}%</span>`).join('');
   const note = `※①が着外だった${cp.n}レースの内訳。①が着外になるのは全体の${cp.inOutRate}%`;
-  return `<div class="collapse-fact"><div class="cf-h">①が崩れるときの形<span class="cf-sub">（当場・過去1年）</span></div><div class="cf-list">${lines}</div><div class="cf-note">${note}</div></div>`;
+  // B案：最多パターンの艇について今日の該当実績を事実併記（実数のみ・因果は示唆しない）。データ無しは非表示。
+  const tv = cp['todayRival'];
+  const today = (tv && tv.rate!=null)
+    ? `<div class="cf-today">今日の${tv.boat}号艇の${tv.label} ${Math.round(tv.rate)}%</div>` : '';
+  return `<div class="collapse-fact"><div class="cf-h">①が崩れるときの形<span class="cf-sub">（当場・過去1年）</span></div><div class="cf-list">${lines}</div>${today}<div class="cf-note">${note}</div></div>`;
 }
 
 function bProfHTML(no, boat){

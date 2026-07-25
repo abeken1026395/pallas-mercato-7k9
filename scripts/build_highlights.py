@@ -352,14 +352,14 @@ def main():
         if bo[0]['場コード'] in _DOWN_VENUES:
             _df_items.append("当場は①着外率20%以上（{}）".format(ba))
         downFactors = {'count': len(_df_items), 'items': _df_items}
-        # 見立ての「名指し」用 短縮クローズ（downFactors本体と同条件・同順・同数。本体は無改変）
-        _df_cl = []
+        # 見立ての「名指し」用 短縮クローズ（downFactors本体と同条件。本体は無改変）。
+        # 選手要因(1着率/機力)は①主語で連結、場要因(当場)は主語が違うので独立節に分ける（文法破綻回避）。
+        _pf = []   # 選手属性（同一主語①で「に加え」連結可）
         if _in1_rate is not None and _in1_rate < 15:
-            _df_cl.append("1着率{}%".format(_in1_rate))
+            _pf.append("1着率{}%".format(_in1_rate))
         if _in1_mtr is not None and _in1_mtr < 25:
-            _df_cl.append("機力{}%".format(round(_in1_mtr)))
-        if bo[0]['場コード'] in _DOWN_VENUES:
-            _df_cl.append("当場はインが残りにくい")
+            _pf.append("機力{}%".format(round(_in1_mtr)))
+        _vf = "当場はインが残りにくい" if bo[0]['場コード'] in _DOWN_VENUES else None  # 場属性（独立節）
 
         # --- 見立て見出し（scoreトーン×主役、断定しない。downFactorsで“崩れる理由”を書き分け） ---
         # score(diff)で①中心/難解/外主役のトーンを決め、その上に主役艇名を乗せる。判定・diffには非関与。
@@ -388,12 +388,20 @@ def main():
         #   0個=①自体に材料薄い→理由を相手側に置く(M14)／1個=要因を名指し(M15)／2個+=要因を重ねる(M16)。
         # 「①に不安」の断定を廃し、下振れ要因ゼロのレースでは“不安”を書かない（事実ブロックと整合）。
         n1h = nm(in1['氏名'])
+        def _dfpre():
+            # 要因の名指し節を作る。選手要因は「①名は…に加え…」で同一主語連結、場要因は独立節。
+            if _pf:
+                s = "①" + n1h + "は" + "に加え".join(_pf)
+                if _vf:
+                    s += "。当場もインが残りにくい"
+                return s + "。"
+            return "当場はインが残りにくく、"   # 場のみ該当＝場を主語にする
         def _fuan(rival):
             if downFactors['count'] == 0:
                 return f"①{n1h}自体に崩れる材料は薄いが、{rival}", 'M14'
             if downFactors['count'] == 1:
-                return f"①{n1h}は{_df_cl[0]}。{rival}", 'M15'
-            return f"①{n1h}は{_df_cl[0]}に加え{_df_cl[1]}。{rival}", 'M16'
+                return f"{_dfpre()}{rival}", 'M15'
+            return f"{_dfpre()}{rival}", 'M16'
         def _k5rk():
             return f"{K[o4s[0]['w']-1]}{o4s[0]['nm']}" if o4s else "外"
         if in_strong and diff >= tk_ba:
@@ -440,9 +448,9 @@ def main():
             if downFactors['count'] == 0:
                 headline = f"①の出方ひとつ、{_rv}"; hid = ('M13' if w0.get('mhi') else 'M6')
             elif downFactors['count'] == 1:
-                headline = f"①{n1h}は{_df_cl[0]}。{_rv}"; hid = 'M15'
+                headline = f"{_dfpre()}{_rv}"; hid = 'M15'
             else:
-                headline = f"①{n1h}は{_df_cl[0]}に加え{_df_cl[1]}。{_rv}"; hid = 'M16'
+                headline = f"{_dfpre()}{_rv}"; hid = 'M16'
         else:
             headline = "軸を絞りにくい難解戦。展示のSで傾きを見たい"; hid = 'M7'
 
@@ -645,6 +653,22 @@ def main():
                 'inOutRate': _cp.get('inOutRate'),
                 'kimariteSum': _cp.get('kimariteSum') or {}
             }
+            # B案：最多パターン(top)の艇について、今日の該当実績(まくり率/差し率)を事実併記する。
+            # 因果は主張しない（実数の併記のみ）。データ無し(母数不足)なら併記しない＝todayRival=None。
+            _tv = None
+            _tp = collapse['top']
+            if _tp and _tp.get('boat') and 1 <= _tp['boat'] <= len(bo):
+                _tk = _tp.get('kimarite') or ''
+                _ty = yarare.get(bo[_tp['boat'] - 1]['登録番号']) or {}
+                if 'まくり' in _tk:
+                    _tr, _tl = _ty.get('まくり率'), 'まくり率'
+                elif '差し' in _tk:
+                    _tr, _tl = _ty.get('差し率'), '差し率'
+                else:
+                    _tr, _tl = None, None
+                if _tr is not None:
+                    _tv = {'boat': _tp['boat'], 'label': _tl, 'rate': round(_tr, 1)}
+            collapse['todayRival'] = _tv
         else:
             collapse = None
 
@@ -729,6 +753,7 @@ def main():
                 '当地優位': loc > 0 and loc > nat,
                 'さされ率': y.get('さされ率'), 'まくられ率': y.get('まくられ率'),
                 'まくりさされ率': y.get('まくりさされ率'), 'イン数': y.get('イン数'),
+                'まくり率': y.get('まくり率'), '差し率': y.get('差し率'),  # 追加:B案の事実併記用(null許容)
                 'inWinRate': (_inrate.get(b['登録番号']) or {}).get('rate')  # 追加:①1着率(null許容)
             })
 
