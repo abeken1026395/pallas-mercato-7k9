@@ -340,8 +340,29 @@ def main():
         elif it <= 50: seeds += 1
         if ba in MAKURI: seeds += 1
 
-        # --- 見立て見出し（scoreトーン×主役、断定しない） ---
-        # score(diff)で①中心/難解/外主役のトーンを決め、その上に主役艇名を乗せる。
+        # ①(bo[0])の下振れ要因の事実提示（スコア・判定には非関与・追加のみ）。※見出し/波及の書き分けで参照するため前倒しで算出。
+        #   条件1 ①のinWinRate<15（nullは判定対象外）／条件2 ①の機力<25／条件3 当場が①着外率20%以上
+        _df_items = []
+        _in1_rate = (_inrate.get(bo[0]['登録番号']) or {}).get('rate')
+        if _in1_rate is not None and _in1_rate < 15:
+            _df_items.append("①の1着率 {}%".format(_in1_rate))
+        _in1_mtr = bo[0]['_mtr'] if (use_m and bo[0]['_mtr'] > 0) else None
+        if _in1_mtr is not None and _in1_mtr < 25:
+            _df_items.append("①のモーター2連率 {}%".format(round(_in1_mtr, 1)))
+        if bo[0]['場コード'] in _DOWN_VENUES:
+            _df_items.append("当場は①着外率20%以上（{}）".format(ba))
+        downFactors = {'count': len(_df_items), 'items': _df_items}
+        # 見立ての「名指し」用 短縮クローズ（downFactors本体と同条件・同順・同数。本体は無改変）
+        _df_cl = []
+        if _in1_rate is not None and _in1_rate < 15:
+            _df_cl.append("1着率{}%".format(_in1_rate))
+        if _in1_mtr is not None and _in1_mtr < 25:
+            _df_cl.append("機力{}%".format(round(_in1_mtr)))
+        if bo[0]['場コード'] in _DOWN_VENUES:
+            _df_cl.append("当場はインが残りにくい")
+
+        # --- 見立て見出し（scoreトーン×主役、断定しない。downFactorsで“崩れる理由”を書き分け） ---
+        # score(diff)で①中心/難解/外主役のトーンを決め、その上に主役艇名を乗せる。判定・diffには非関与。
         o4 = sorted([t for t in threats if t['w'] >= 4], key=lambda x: x['w'])
         inn = sorted([t for t in threats if t['w'] < 4], key=lambda x: x['w'])
         # 見出しの外主役はスコア順（カド⑤が④より上位スコアなら⑤主役文）。判定(hero/verdict)・スコアは不変。
@@ -363,42 +384,65 @@ def main():
             if w == 4:
                 return ('はカドから連に押し込む形', 'H7' if strong else 'M11')
             return ('はダッシュから連絡み、連軸を脅かす', 'H8' if strong else 'M12')
+        # downFactorsで“①が崩れる理由”を書き分ける（判定・head_w・述語は不変。文面/IDのみ）。
+        #   0個=①自体に材料薄い→理由を相手側に置く(M14)／1個=要因を名指し(M15)／2個+=要因を重ねる(M16)。
+        # 「①に不安」の断定を廃し、下振れ要因ゼロのレースでは“不安”を書かない（事実ブロックと整合）。
+        n1h = nm(in1['氏名'])
+        def _fuan(rival):
+            if downFactors['count'] == 0:
+                return f"①{n1h}自体に崩れる材料は薄いが、{rival}", 'M14'
+            if downFactors['count'] == 1:
+                return f"①{n1h}は{_df_cl[0]}。{rival}", 'M15'
+            return f"①{n1h}は{_df_cl[0]}に加え{_df_cl[1]}。{rival}", 'M16'
+        def _k5rk():
+            return f"{K[o4s[0]['w']-1]}{o4s[0]['nm']}" if o4s else "外"
         if in_strong and diff >= tk_ba:
-            if diff >= 0.30:
-                headline = f"①{nm(in1['氏名'])}の信頼厚し。相手探しの一戦"; hid = 'K1'
+            if downFactors['count'] == 0:
+                headline = f"①{n1h}に崩れる材料は乏しい。相手を{_k5rk()}に求める形"; hid = 'K5'
+            elif diff >= 0.30:
+                headline = f"①{n1h}の信頼厚し。相手探しの一戦"; hid = 'K1'
             elif it >= 60:
-                headline = f"①{nm(in1['氏名'])}中心。水面も後押しし、崩れは考えにくい"; hid = 'K2'
+                headline = f"①{n1h}中心。水面も後押しし、崩れは考えにくい"; hid = 'K2'
             else:
-                headline = f"①{nm(in1['氏名'])}中心。外の一発をどこまで測るか"; hid = 'K3'
+                headline = f"①{n1h}中心。外の一発をどこまで測るか"; hid = 'K3'
         elif o4 and ((in_weak and diff <= th_ba) or (in_strong and verdict == '波乱')):
             # 波乱×外主役（①不安 or in_strongでも④優勢）。述語は連絡み寄り。カド⑤優位なら⑤主役。
-            w0 = o4s[0]; suf, hid = _out_pred(w0, True)
-            headline = f"①に不安。{K[w0['w']-1]}{w0['nm']}{suf}"
+            w0 = o4s[0]; suf, _ = _out_pred(w0, True)
+            headline, hid = _fuan(f"{K[w0['w']-1]}{w0['nm']}{suf}")
             head_w = w0['w']
         elif in_strong:
-            headline = f"①{nm(in1['氏名'])}の逃げが軸。外の一発をどこまで測るか"; hid = 'K4'
+            if downFactors['count'] == 0:
+                headline = f"①{n1h}に崩れる材料は乏しい。相手を{_k5rk()}に求める形"; hid = 'K5'
+            else:
+                headline = f"①{n1h}の逃げが軸。外の一発をどこまで測るか"; hid = 'K4'
         elif in_weak and o4:
             # 混戦寄り×外主役。連絡み寄りの主役候補文。カド⑤優位なら⑤主役。
-            w0 = o4s[0]; suf, hid = _out_pred(w0, False)
-            headline = f"①に不安、{K[w0['w']-1]}{w0['nm']}{suf}"
+            w0 = o4s[0]; suf, _ = _out_pred(w0, False)
+            headline, hid = _fuan(f"{K[w0['w']-1]}{w0['nm']}{suf}")
             head_w = w0['w']
         elif in_weak and mid_hi_w:
             # 機力上位の中団②③が連に突け入る（実装テーブル：中団警戒）
             mw = mid_hi_w[0]
-            headline = f"①に不安、{K[mw-1]}{nm(bo[mw-1]['氏名'])}の機力上位が中団から連に突け入る"; hid = 'N1'
+            headline, hid = _fuan(f"{K[mw-1]}{nm(bo[mw-1]['氏名'])}の機力上位が中団から連に突け入る")
             head_w = mw
         elif in_weak and inn:
-            headline = f"①に不安、{K[inn[0]['w']-1]}{inn[0]['nm']}の差しが突け入る一戦"; hid = 'M4'
+            headline, hid = _fuan(f"{K[inn[0]['w']-1]}{inn[0]['nm']}の差しが突け入る一戦")
             head_w = inn[0]['w']
         elif in_weak:
-            headline = "①に不安、外の仕掛け待ちで波乱含み"; hid = 'M5'
+            headline, hid = _fuan("外の仕掛け待ちで波乱含み")
         elif o4:
-            w0 = o4s[0]
+            w0 = o4s[0]; head_w = w0['w']
             if w0.get('mhi'):
-                headline = f"①の出方ひとつ、{K[w0['w']-1]}{w0['nm']}の機力上位が連に絡む余地"; hid = 'M13'
+                _rv = f"{K[w0['w']-1]}{w0['nm']}の機力上位が連に絡む余地"
             else:
-                headline = f"①の出方ひとつ、{K[w0['w']-1]}{w0['nm']}のまくりが連に絡む余地"; hid = 'M6'
-            head_w = w0['w']
+                _rv = f"{K[w0['w']-1]}{w0['nm']}のまくりが連に絡む余地"
+            # 「①の出方ひとつ」は downFactors=0 のときのみ許容。1以上なら要因を名指し(M15/M16)。
+            if downFactors['count'] == 0:
+                headline = f"①の出方ひとつ、{_rv}"; hid = ('M13' if w0.get('mhi') else 'M6')
+            elif downFactors['count'] == 1:
+                headline = f"①{n1h}は{_df_cl[0]}。{_rv}"; hid = 'M15'
+            else:
+                headline = f"①{n1h}は{_df_cl[0]}に加え{_df_cl[1]}。{_rv}"; hid = 'M16'
         else:
             headline = "軸を絞りにくい難解戦。展示のSで傾きを見たい"; hid = 'M7'
 
@@ -588,19 +632,6 @@ def main():
             saten = "内が壁を作れば波及は内で収まり、荒れの芽は限られる。"
             skw = 1; sid = 'D13'
         tenkai.append(saten)
-
-        # ①(bo[0])の下振れ要因の事実提示（スコア・判定には非関与・追加のみ）。※波及IDの分岐で参照するため前倒しで算出。
-        #   条件1 ①のinWinRate<15（nullは判定対象外）／条件2 ①の機力<25／条件3 当場が①着外率20%以上
-        _df_items = []
-        _in1_rate = (_inrate.get(bo[0]['登録番号']) or {}).get('rate')
-        if _in1_rate is not None and _in1_rate < 15:
-            _df_items.append("①の1着率 {}%".format(_in1_rate))
-        _in1_mtr = bo[0]['_mtr'] if (use_m and bo[0]['_mtr'] > 0) else None
-        if _in1_mtr is not None and _in1_mtr < 25:
-            _df_items.append("①のモーター2連率 {}%".format(round(_in1_mtr, 1)))
-        if bo[0]['場コード'] in _DOWN_VENUES:
-            _df_items.append("当場は①着外率20%以上（{}）".format(ba))
-        downFactors = {'count': len(_df_items), 'items': _df_items}
 
         # ①が崩れる時の「崩れ方」場別分布（当場・過去1年の実数。①着外レースの内訳）。※波及IDの分岐でも参照。
         #   確率/買い目/予想ではない。母数不足(patterns=null)の場は top=null。追加のみ・スコア非関与。
