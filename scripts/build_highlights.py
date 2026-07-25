@@ -185,6 +185,11 @@ def main():
             return None
     yarare = {}
     try:
+        def _iv(x):
+            try:
+                return int(x)
+            except Exception:
+                return None
         for k in load_csv(KIM):
             in1 = k.get('イン進入数', '')
             try:
@@ -198,6 +203,9 @@ def main():
                 'イン数': in1,
                 'まくり率': fr(k.get('まくり率', '')),
                 '差し率': fr(k.get('差し率', '')),
+                '1着数': _iv(k.get('1着数', '')),          # B案の母数ガード・分母表示用
+                'まくり数': _iv(k.get('まくり', '')),        # まくり1着数（生カウント）
+                '差し数': _iv(k.get('差し', '')),            # 差し1着数（生カウント）
             }
     except Exception:
         yarare = {}
@@ -653,21 +661,24 @@ def main():
                 'inOutRate': _cp.get('inOutRate'),
                 'kimariteSum': _cp.get('kimariteSum') or {}
             }
-            # B案：最多パターン(top)の艇について、今日の該当実績(まくり率/差し率)を事実併記する。
-            # 因果は主張しない（実数の併記のみ）。データ無し(母数不足)なら併記しない＝todayRival=None。
+            # B案：最多パターン(top)の艇について、今日の“勝ち方の内訳”を事実併記する（実数のみ・因果は主張しない）。
+            # まくり率＝まくり1着数÷1着数で「勝ち方の内訳」であり「仕掛ける頻度」ではない。誤解回避のため
+            #   ①母数ガード：1着数<10 は併記しない ②分母(1着数)を必ず見せる（「{勝}勝中{該当}勝が{手}」）。
             _tv = None
             _tp = collapse['top']
             if _tp and _tp.get('boat') and 1 <= _tp['boat'] <= len(bo):
                 _tk = _tp.get('kimarite') or ''
                 _ty = yarare.get(bo[_tp['boat'] - 1]['登録番号']) or {}
+                _wins = _ty.get('1着数')
                 if 'まくり' in _tk:
-                    _tr, _tl = _ty.get('まくり率'), 'まくり率'
+                    _num, _lbl = _ty.get('まくり数'), 'まくり'
                 elif '差し' in _tk:
-                    _tr, _tl = _ty.get('差し率'), '差し率'
+                    _num, _lbl = _ty.get('差し数'), '差し'
                 else:
-                    _tr, _tl = None, None
-                if _tr is not None:
-                    _tv = {'boat': _tp['boat'], 'label': _tl, 'rate': round(_tr, 1)}
+                    _num, _lbl = None, None
+                # 1着数10以上（＝勝ち方の傾向が言える程度に勝っている）かつ該当数が取れる場合のみ併記
+                if _wins is not None and _wins >= 10 and _num is not None:
+                    _tv = {'boat': _tp['boat'], 'kimarite': _lbl, 'wins': _wins, 'num': _num}
             collapse['todayRival'] = _tv
         else:
             collapse = None
@@ -754,6 +765,7 @@ def main():
                 'さされ率': y.get('さされ率'), 'まくられ率': y.get('まくられ率'),
                 'まくりさされ率': y.get('まくりさされ率'), 'イン数': y.get('イン数'),
                 'まくり率': y.get('まくり率'), '差し率': y.get('差し率'),  # 追加:B案の事実併記用(null許容)
+                '1着数': y.get('1着数'), 'まくり数': y.get('まくり数'), '差し数': y.get('差し数'),  # 追加:母数/分母(null許容)
                 'inWinRate': (_inrate.get(b['登録番号']) or {}).get('rate')  # 追加:①1着率(null許容)
             })
 

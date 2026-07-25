@@ -656,10 +656,12 @@ function collapseHtml(r){
   if(!pats || !pats.length) return '';        // 母数不足（patterns=null）の場は非表示
   const lines = pats.map(p=>`<span class="cf-p"><b>${p.boat}号艇の${p.kimarite}</b> ${Math.round(p.pct)}%</span>`).join('');
   const note = `※①が着外だった${cp.n}レースの内訳。①が着外になるのは全体の${cp.inOutRate}%`;
-  // B案：最多パターンの艇について今日の該当実績を事実併記（実数のみ・因果は示唆しない）。データ無しは非表示。
+  // B案：最多パターンの艇の“今日の勝ち方の内訳”を事実併記（実数のみ・因果は示唆しない）。
+  //   まくり率は「勝ち方の内訳」であり「仕掛ける頻度」ではない誤解を避けるため、分母(1着数)を必ず見せる。
+  //   母数不足(1着数<10)やデータ無しは build 側で todayRival=null → 非表示。
   const tv = cp['todayRival'];
-  const today = (tv && tv.rate!=null)
-    ? `<div class="cf-today">今日の${tv.boat}号艇の${tv.label} ${Math.round(tv.rate)}%</div>` : '';
+  const today = (tv && tv.wins!=null && tv.num!=null)
+    ? `<div class="cf-today">今日の${tv.boat}号艇は${tv.wins}勝中${tv.num}勝が${tv.kimarite}</div>` : '';
   return `<div class="collapse-fact"><div class="cf-h">①が崩れるときの形<span class="cf-sub">（当場・過去1年）</span></div><div class="cf-list">${lines}</div>${today}<div class="cf-note">${note}</div></div>`;
 }
 
