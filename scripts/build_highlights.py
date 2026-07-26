@@ -281,6 +281,10 @@ def main():
 
     out_races = []
     pred_list = []
+    # 場内 構文ローテーション用。場ごとに直近使用した型を保持し、直前2つを避ける（決定的・再現性あり）。
+    # racesは CSV(場→R→枠)順＝場内R順で処理されるため、R順の同一構文連続を機械的に断つ。
+    m14_hist = defaultdict(list)   # M14（①材料薄い）の型A/B/C/D
+    dek_hist = defaultdict(list)   # 出方ひとつ（M6/M13）の型A/B
     # 部分成功許容：1レース(場)分の生成を関数に切り出し、呼び出し側で例外を握る。
     # 一部の場/レースが壊れても「取れた分だけ」出力し、失敗はログする（全滅時のみ点1の自己検査で非ゼロ）。
     def _one(ba, rc, bo):
@@ -399,9 +403,39 @@ def main():
         # 見立ての書き分けは「①自身の選手要因(_pf: 1着率/機力)」のみで行う。場の条件(_vf)は
         # 場ごと・その日ごとに固定で全レース同文になり、かつ事実ブロックに既出のため、見立てには書かない。
         # 原則: レースごとに変わる要素（相手艇・述語・①の実数）を先に置き、固定情報は事実ブロックで1回だけ。
+        # M14（①自身に崩れる材料が薄く、外に脅威）の構文分散。言い換えでなく主語・語順を変える。
+        #   A=①主語／B=相手主語／C=①の1着率を出す(inWinRate有時)／D=①の機力を出す(機力上位帯時)。
+        #   場内で直前2つと同じ型を避け、決定的に選ぶ（無ければA/B交互）。情報量も増える(C/D)。
+        _m14_hi = (use_m and bo[0]['_mtr'] > 0 and hi(mt[0]))
+        _m14_mv = round(bo[0]['_mtr']) if (use_m and bo[0]['_mtr'] > 0) else None
+        def _m14(rival):
+            cands = [('A', f"①{n1h}自体に崩れる材料は薄いが、{rival}"),
+                     ('B', f"{rival}。①{n1h}に目立つ穴はない")]
+            if _in1_rate is not None:
+                cands.append(('C', f"①{n1h}は1着率{_in1_rate}%。ただ{rival}"))
+            if _m14_hi:
+                cands.append(('D', f"①{n1h}は機力上位（{_m14_mv}%）。{rival}"))
+            hist = m14_hist[ba]
+            avoid2 = set(hist[-2:])
+            pick = next((c for c in cands if c[0] not in avoid2), None)
+            if pick is None:  # 全候補が直前2に被る→直前1つだけ避けてA/B等で交互に
+                avoid1 = set(hist[-1:])
+                pick = next((c for c in cands if c[0] not in avoid1), cands[0])
+            m14_hist[ba].append(pick[0])
+            return pick[1], 'M14'
+        def _dekata(rv):
+            # 「①の出方ひとつ」（df=0の混戦×外脅威）も構文が連続しやすいので型A/Bを場内ローテ。
+            cands = [('A', f"①の出方ひとつ、{rv}"), ('B', f"{rv}。①がどこまで残すか")]
+            hist = dek_hist[ba]
+            avoid2 = set(hist[-2:])
+            pick = next((c for c in cands if c[0] not in avoid2), None)
+            if pick is None:
+                pick = next((c for c in cands if c[0] not in set(hist[-1:])), cands[0])
+            dek_hist[ba].append(pick[0])
+            return pick[1]
         def _fuan(rival):
-            if not _pf:            # 選手自身の材料なし（要因ゼロ or 場のみ該当）→ 理由を相手側に置く
-                return f"①{n1h}自体に崩れる材料は薄いが、{rival}", 'M14'
+            if not _pf:            # 選手自身の材料なし（要因ゼロ or 場のみ該当）→ 理由を相手側に置く（構文分散）
+                return _m14(rival)
             if len(_pf) == 1:
                 return f"①{n1h}は{_pf[0]}。{rival}", 'M15'
             return f"①{n1h}は{_pf[0]}に加え{_pf[1]}。{rival}", 'M16'
@@ -450,9 +484,9 @@ def main():
             # 「①の出方ひとつ」は downFactors=0 のときのみ許容。選手要因があれば名指し(M15/M16)、
             # 場のみ該当（_pf空でdf>=1）は場を書かず相手側へ(M14相当)。場の条件は見立てに書かない。
             if downFactors['count'] == 0:
-                headline = f"①の出方ひとつ、{_rv}"; hid = ('M13' if w0.get('mhi') else 'M6')
+                headline = _dekata(_rv); hid = ('M13' if w0.get('mhi') else 'M6')
             elif not _pf:
-                headline = f"①{n1h}自体に崩れる材料は薄いが、{_rv}"; hid = 'M14'
+                headline, hid = _m14(_rv)   # 場のみ該当も M14 として構文分散＋場内ローテーション
             elif len(_pf) == 1:
                 headline = f"①{n1h}は{_pf[0]}。{_rv}"; hid = 'M15'
             else:
