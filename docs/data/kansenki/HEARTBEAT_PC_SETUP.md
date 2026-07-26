@@ -12,7 +12,7 @@ heartbeat が時刻帯で nightlyPipeline / writeKansenki を内部起動する�
 
 ```
 schtasks /Create /TN "boatrace-heartbeat" ^
-  /TR "cmd /c gh api repos/abeken1026395/lumen-vortax-4z2/actions/workflows/heartbeat.yml/dispatches -f ref=main" ^
+  /TR "cmd /c gh api repos/abeken1026395/pallas-mercato-7k9/actions/workflows/heartbeat.yml/dispatches -f ref=main" ^
   /SC HOURLY /MO 1 /ST 00:00 /F
 ```
 
@@ -21,7 +21,7 @@ schtasks /Create /TN "boatrace-heartbeat" ^
 
 ```powershell
 $act = New-ScheduledTaskAction -Execute "gh.exe" `
-  -Argument "api repos/abeken1026395/lumen-vortax-4z2/actions/workflows/heartbeat.yml/dispatches -f ref=main"
+  -Argument "api repos/abeken1026395/pallas-mercato-7k9/actions/workflows/heartbeat.yml/dispatches -f ref=main"
 $trg = New-ScheduledTaskTrigger -Once -At 00:00 `
   -RepetitionInterval (New-TimeSpan -Hours 1) -RepetitionDuration ([TimeSpan]::MaxValue)
 $set = New-ScheduledTaskSettingsSet -StartWhenAvailable `
@@ -32,7 +32,7 @@ Register-ScheduledTask -TaskName "boatrace-heartbeat" -Action $act -Trigger $trg
 ## 登録後の確認
 - 次の毎時0分を待つ、または即時実行：`schtasks /Run /TN "boatrace-heartbeat"`
 - Actions 履歴で heartbeat が撃たれたか確認：
-  https://github.com/abeken1026395/lumen-vortax-4z2/actions/workflows/heartbeat.yml
+  https://github.com/abeken1026395/pallas-mercato-7k9/actions/workflows/heartbeat.yml
 - heartbeat run が success で、時刻帯に応じ nightlyPipeline / writeKansenki が
   workflow_dispatch で起動していれば成立（本日 2026-07-15 に GITHUB_TOKEN 内部起動は実証済み）。
 

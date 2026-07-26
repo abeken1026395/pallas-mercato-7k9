@@ -14,8 +14,8 @@
    （万一キーが漏れても被害が上限で止まる）
 
 ## 2. リポジトリに Secret 登録
-1. GitHub のリポジトリを開く（**`abeken1026395/lumen-vortax-4z2`**）
-   ※旧ドキュメントの `boatrace` は誤り。実リポ名は `lumen-vortax-4z2`。
+1. GitHub のリポジトリを開く（**`abeken1026395/pallas-mercato-7k9`**）
+   ※旧ドキュメントの `boatrace` は誤り。実リポ名は `pallas-mercato-7k9`。
 2. **Settings** → **Secrets and variables** → **Actions**
 3. 既存の場合は `ANTHROPIC_API_KEY` の **鉛筆(Update)**、無ければ **New repository secret**
 4. **Name**：`ANTHROPIC_API_KEY`（この名前で固定・変更しない）
