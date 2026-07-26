@@ -410,12 +410,15 @@ def main():
         _m14_mv = round(bo[0]['_mtr']) if (use_m and bo[0]['_mtr'] > 0) else None
         _typ = {'v': None}   # 選ばれた型(A/B/C/D)を捕捉→公開の「見立て構文ID」に反映（誰が測っても同じ数字に）
         def _m14(rival):
-            cands = [('A', f"①{n1h}自体に崩れる材料は薄いが、{rival}"),
-                     ('B', f"{rival}。①{n1h}に目立つ穴はない")]
+            # 候補順 C,D,A,B：実数を出す型（C=1着率・D=機力）を優先し、曖昧な型A/Bはフォールバック。
+            # ※Dの発火条件（機力が平均+5超）は不変。候補順のみ変更。
+            cands = []
             if _in1_rate is not None:
                 cands.append(('C', f"①{n1h}は1着率{_in1_rate}%。ただ{rival}"))
             if _m14_hi:
                 cands.append(('D', f"①{n1h}は機力上位（{_m14_mv}%）。{rival}"))
+            cands.append(('A', f"①{n1h}自体に崩れる材料は薄いが、{rival}"))
+            cands.append(('B', f"{rival}。①{n1h}に目立つ穴はない"))
             hist = m14_hist[ba]
             avoid2 = set(hist[-2:])
             pick = next((c for c in cands if c[0] not in avoid2), None)
