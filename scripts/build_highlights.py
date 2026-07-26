@@ -408,6 +408,7 @@ def main():
         #   場内で直前2つと同じ型を避け、決定的に選ぶ（無ければA/B交互）。情報量も増える(C/D)。
         _m14_hi = (use_m and bo[0]['_mtr'] > 0 and hi(mt[0]))
         _m14_mv = round(bo[0]['_mtr']) if (use_m and bo[0]['_mtr'] > 0) else None
+        _typ = {'v': None}   # 選ばれた型(A/B/C/D)を捕捉→公開の「見立て構文ID」に反映（誰が測っても同じ数字に）
         def _m14(rival):
             cands = [('A', f"①{n1h}自体に崩れる材料は薄いが、{rival}"),
                      ('B', f"{rival}。①{n1h}に目立つ穴はない")]
@@ -421,7 +422,7 @@ def main():
             if pick is None:  # 全候補が直前2に被る→直前1つだけ避けてA/B等で交互に
                 avoid1 = set(hist[-1:])
                 pick = next((c for c in cands if c[0] not in avoid1), cands[0])
-            m14_hist[ba].append(pick[0])
+            m14_hist[ba].append(pick[0]); _typ['v'] = pick[0]
             return pick[1], 'M14'
         def _dekata(rv):
             # 「①の出方ひとつ」（df=0の混戦×外脅威）も構文が連続しやすいので型A/Bを場内ローテ。
@@ -431,7 +432,7 @@ def main():
             pick = next((c for c in cands if c[0] not in avoid2), None)
             if pick is None:
                 pick = next((c for c in cands if c[0] not in set(hist[-1:])), cands[0])
-            dek_hist[ba].append(pick[0])
+            dek_hist[ba].append(pick[0]); _typ['v'] = pick[0]
             return pick[1]
         def _fuan(rival):
             if not _pf:            # 選手自身の材料なし（要因ゼロ or 場のみ該当）→ 理由を相手側に置く（構文分散）
@@ -801,6 +802,9 @@ def main():
                 'inWinRate': (_inrate.get(b['登録番号']) or {}).get('rate')  # 追加:①1着率(null許容)
             })
 
+        # 見立て構文ID（公開・測定基準の固定用）。見出しID(hid)に型(A/B/C/D)を付す＝誰が測っても同じ数字。
+        #   例) M14-A / M14-B / M14-C / M14-D / M6-A / M6-B / M13-A / M13-B / M15 / M16 / K1..K5 / M7。
+        synt_id = hid + ('-' + _typ['v'] if _typ['v'] else '')
         out_entry = {
             '場名': ba, '場コード': bo[0]['場コード'], 'レース': rc,
             '締切時刻': bo[0].get('締切時刻', ''),
@@ -809,7 +813,8 @@ def main():
             '波乱': seeds, 'イン堅': in_strong, 'モーター使用': use_m, 'イン1着率': it,
             '艇': boats, '見立て': headline, '展開': tenkai, '波及': suji,
             'downFactors': downFactors,  # 追加:①の下振れ要因（事実提示・確率/買い目なし）
-            'collapse': collapse  # 追加:①の崩れ方（場別実数・確率/買い目なし。①着外レースの内訳）
+            'collapse': collapse,  # 追加:①の崩れ方（場別実数・確率/買い目なし。①着外レースの内訳）
+            '見立て構文ID': synt_id  # 追加:見立ての構文ID（測定基準の固定・公開）
         }
         return out_entry, pred_entry
 
