@@ -360,14 +360,14 @@ def main():
         if bo[0]['場コード'] in _DOWN_VENUES:
             _df_items.append("当場は①着外率20%以上（{}）".format(ba))
         downFactors = {'count': len(_df_items), 'items': _df_items}
-        # 見立ての「名指し」用 短縮クローズ（downFactors本体と同条件。本体は無改変）。
-        # 選手要因(1着率/機力)は①主語で連結、場要因(当場)は主語が違うので独立節に分ける（文法破綻回避）。
+        # 見立ての「名指し」用は①自身の選手要因(1着率/機力)のみ（downFactors本体は無改変）。
+        # 場の条件(当場が①着外率20%以上)は場ごと固定で全レース同文になり事実ブロックにも既出のため、
+        # 見立てには書かない（downFactorsの判定・count・事実ブロック表示はそのまま）。
         _pf = []   # 選手属性（同一主語①で「に加え」連結可）
         if _in1_rate is not None and _in1_rate < 15:
             _pf.append("1着率{}%".format(_in1_rate))
         if _in1_mtr is not None and _in1_mtr < 25:
             _pf.append("機力{}%".format(round(_in1_mtr)))
-        _vf = "当場はインが残りにくい" if bo[0]['場コード'] in _DOWN_VENUES else None  # 場属性（独立節）
 
         # --- 見立て見出し（scoreトーン×主役、断定しない。downFactorsで“崩れる理由”を書き分け） ---
         # score(diff)で①中心/難解/外主役のトーンを決め、その上に主役艇名を乗せる。判定・diffには非関与。
@@ -396,20 +396,15 @@ def main():
         #   0個=①自体に材料薄い→理由を相手側に置く(M14)／1個=要因を名指し(M15)／2個+=要因を重ねる(M16)。
         # 「①に不安」の断定を廃し、下振れ要因ゼロのレースでは“不安”を書かない（事実ブロックと整合）。
         n1h = nm(in1['氏名'])
-        def _dfpre():
-            # 要因の名指し節を作る。選手要因は「①名は…に加え…」で同一主語連結、場要因は独立節。
-            if _pf:
-                s = "①" + n1h + "は" + "に加え".join(_pf)
-                if _vf:
-                    s += "。当場もインが残りにくい"
-                return s + "。"
-            return "当場はインが残りにくく、"   # 場のみ該当＝場を主語にする
+        # 見立ての書き分けは「①自身の選手要因(_pf: 1着率/機力)」のみで行う。場の条件(_vf)は
+        # 場ごと・その日ごとに固定で全レース同文になり、かつ事実ブロックに既出のため、見立てには書かない。
+        # 原則: レースごとに変わる要素（相手艇・述語・①の実数）を先に置き、固定情報は事実ブロックで1回だけ。
         def _fuan(rival):
-            if downFactors['count'] == 0:
+            if not _pf:            # 選手自身の材料なし（要因ゼロ or 場のみ該当）→ 理由を相手側に置く
                 return f"①{n1h}自体に崩れる材料は薄いが、{rival}", 'M14'
-            if downFactors['count'] == 1:
-                return f"{_dfpre()}{rival}", 'M15'
-            return f"{_dfpre()}{rival}", 'M16'
+            if len(_pf) == 1:
+                return f"①{n1h}は{_pf[0]}。{rival}", 'M15'
+            return f"①{n1h}は{_pf[0]}に加え{_pf[1]}。{rival}", 'M16'
         def _k5rk():
             return f"{K[o4s[0]['w']-1]}{o4s[0]['nm']}" if o4s else "外"
         if in_strong and diff >= tk_ba:
@@ -452,13 +447,16 @@ def main():
                 _rv = f"{K[w0['w']-1]}{w0['nm']}の機力上位が連に絡む余地"
             else:
                 _rv = f"{K[w0['w']-1]}{w0['nm']}のまくりが連に絡む余地"
-            # 「①の出方ひとつ」は downFactors=0 のときのみ許容。1以上なら要因を名指し(M15/M16)。
+            # 「①の出方ひとつ」は downFactors=0 のときのみ許容。選手要因があれば名指し(M15/M16)、
+            # 場のみ該当（_pf空でdf>=1）は場を書かず相手側へ(M14相当)。場の条件は見立てに書かない。
             if downFactors['count'] == 0:
                 headline = f"①の出方ひとつ、{_rv}"; hid = ('M13' if w0.get('mhi') else 'M6')
-            elif downFactors['count'] == 1:
-                headline = f"{_dfpre()}{_rv}"; hid = 'M15'
+            elif not _pf:
+                headline = f"①{n1h}自体に崩れる材料は薄いが、{_rv}"; hid = 'M14'
+            elif len(_pf) == 1:
+                headline = f"①{n1h}は{_pf[0]}。{_rv}"; hid = 'M15'
             else:
-                headline = f"{_dfpre()}{_rv}"; hid = 'M16'
+                headline = f"①{n1h}は{_pf[0]}に加え{_pf[1]}。{_rv}"; hid = 'M16'
         else:
             headline = "軸を絞りにくい難解戦。展示のSで傾きを見たい"; hid = 'M7'
 
