@@ -20,6 +20,8 @@ $Repo = 'C:\Users\USER\boatrace'
 # py.exe は WindowsApps のアプリ実行エイリアスで非対話だと不安定なため実体を直に指す。
 $Py  = 'C:\Users\USER\AppData\Local\Python\pythoncore-3.14-64\python.exe'
 $Git = 'C:\Program Files\Git\cmd\git.exe'
+$Ps    = "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe"  # 破壊防止ガード呼び出し用
+$Guard = 'C:\Users\USER\boatrace\scripts\checkRepoGuard.ps1'               # ガード本体（pull前後で呼ぶ）
 
 $LookbackDays = 7   # 取りこぼし吸収。既存ファイルはfetch側でスキップされるので実質差分だけ落ちる
 $LogDir       = Join-Path $Repo 'scripts\logs'
@@ -87,12 +89,16 @@ try {
     # --- 0.5) 最新originへ同期 -------------------------------------------
     # motorParts.json は Actions側 fetchPartsExchange が随時追記するため、最新状態に対して補填する。
     # クリーンツリー・0先行なので fast-forward 相当。衝突時は中止して手動確認に委ねる。
+    # 破壊防止ガード1（pull前）: remoteが想定リポか検証。旧URL(空リポ)なら非0で中断。
+    Invoke-Step 'ガード1(remote検証)' { & $Ps -NoProfile -ExecutionPolicy Bypass -File $Guard -Stage pre -Repo $Repo -LogFile $LogFile -Git $Git } | Out-Null
     try {
         Invoke-Step 'git pull --rebase (開始時同期)' { & $Git pull --rebase origin main } | Out-Null
     } catch {
         Invoke-Native { & $Git rebase --abort } | Out-Null
         throw "開始時 git pull --rebase が衝突。中止した（手動確認が必要）"
     }
+    # 破壊防止ガード2（pull直後）: 必須ファイル消失＝作業ツリー破壊なら非0で中断（自動復旧しない）。
+    Invoke-Step 'ガード2(worktree健全性)' { & $Ps -NoProfile -ExecutionPolicy Bypass -File $Guard -Stage post -Repo $Repo -LogFile $LogFile } | Out-Null
 
     # --- 1) Kファイル差分収集（共有） -----------------------------------
     $env:START = (Get-Date).AddDays(-$LookbackDays).ToString('yyyyMMdd')
