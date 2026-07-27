@@ -275,6 +275,7 @@ header .sub { font-size:11px; color:#8a94a3; margin-top:4px; }
 .oshi-cnt { font-size:11px; color:#0b1219; background:#ffd166; border-radius:10px; padding:0 7px; font-weight:bold; }
 .oshi-empty { font-size:11px; color:#8a7a4a; margin-top:6px; }
 .oshi-note { font-size:10px; color:#7a6c44; margin-top:8px; line-height:1.6; }
+.pin-mk { margin-right:4px; font-size:12px; }
 .oshi-nick { font-size:10px; color:#c8a24a; font-style:italic; font-weight:normal; }
 .oshibtn { margin-left:auto; font-size:16px; line-height:1; color:#5c6773; cursor:pointer; flex:none; padding:2px 3px; transition:transform .12s; }
 .oshibtn.on { color:#ffd166; }
@@ -583,6 +584,11 @@ function yomiBox(v,rno){
 }
 
 /* ===== 推し選手フォロー（localStorage。人への愛着で毎日開く理由をつくる） ===== */
+/* ===== 場フォロー（場ページ /stadium/ と共有。キー br_stadium ／ 形式 [{code,name}] ／ code は2桁文字列） ===== */
+var PIN=lsGet("br_stadium",[]);
+function pinCode(c){ var t=String(c==null?"":c); return t.length===1 ? "0"+t : t; }
+function isPin(code){ return PIN.some(function(p){ return p && pinCode(p.code)===pinCode(code); }); }
+
 var OSHI=lsGet("br_oshi",[]);   /* [{toban, name}] */
 function isOshi(toban){ return OSHI.some(function(o){return String(o.toban)===String(toban);}); }
 function toggleOshi(toban,name){
@@ -760,7 +766,7 @@ function renderVenues(app,crumb,keys){
   var todayJST=(function(){ var n=nowJST(); return n.getUTCFullYear()+("0"+(n.getUTCMonth()+1)).slice(-2)+("0"+n.getUTCDate()).slice(-2); })();
   var html=buildOshiToday()+buildMyPanel()+buildFortune();
   dates.forEach(function(hd){
-    var list=byDate[hd].sort(function(a,b){return a.jcd<b.jcd?-1:1;});
+    var list=byDate[hd].sort(function(a,b){ var pa=isPin(a.jcd)?0:1, pb=isPin(b.jcd)?0:1; if(pa!==pb) return pa-pb; return a.jcd<b.jcd?-1:1; });
     var mm=hd.slice(4,6),dd=hd.slice(6,8);
     var dow=["日","月","火","水","木","金","土"][new Date(parseInt(hd.slice(0,4)),parseInt(mm)-1,parseInt(dd)).getDay()];
     html+='<div class="date-head">'+esc((hd===todayJST?"本日":"翌日")+" "+mm+"/"+dd+"("+dow+")")+'</div>';
@@ -769,7 +775,7 @@ function renderVenues(app,crumb,keys){
       var first=v.races[rs[0]],last=v.races[rs[rs.length-1]];
       var fix=HL_META.fix.indexOf(v.name)>=0?'<span class="chip chip-fix" style="margin-left:6px">進入固定</span>':'';
       return '<div class="venue-card" data-k="'+esc(v.key)+'">'
-        +'<div class="venue-name">'+esc(v.name)+'</div>'
+        +'<div class="venue-name">'+(isPin(v.jcd)?'<span class="pin-mk">📍</span>':'')+esc(v.name)+'</div>'
         +'<div class="venue-meta">'+esc(v.setsu)+fix+'<br>'+rs.length+'R｜'+esc(first.deadline)+'〜'+esc(last.deadline)+'</div>'
         +'<div class="venue-day">'+esc(v.day)+'</div></div>';
     }).join("");
