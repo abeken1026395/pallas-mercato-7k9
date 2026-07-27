@@ -1109,7 +1109,7 @@ function renderRace(app,crumb,v){
     el.onclick=function(e){ e.stopPropagation(); toggleOshi(el.getAttribute("data-toban"),el.getAttribute("data-name")); render(); };
   });
   Array.prototype.forEach.call(app.querySelectorAll(".yomibtn"),function(el){
-    el.onclick=function(){ yomiSet(v.jcd,view.rno,parseInt(el.getAttribute("data-y"),10)); render(); };
+    el.onclick=function(){ yomiSet(v,view.rno,parseInt(el.getAttribute("data-y"),10)); render(); };
   });
 }
 
