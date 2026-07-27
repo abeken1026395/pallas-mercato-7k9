@@ -95,6 +95,15 @@ header .sub { font-size:11px; color:#8a94a3; margin-top:4px; }
 .panel-down ul { margin:2px 0 0 16px; color:#c2d0dc; }
 .panel-down ul li.none { color:#7d94a8; }
 .panel-down .note { font-size:10px; color:#7d94a8; margin-top:5px; }
+.panel-yomi { background:#131c26; border:1px solid #26384a; }
+.panel-yomi .ttl { color:#9fb8cc; }
+.yomi-btns { display:flex; gap:8px; margin-top:7px; }
+.yomibtn { flex:1; text-align:center; padding:10px 0; border:1px solid #2d4356; border-radius:8px; color:#c2d0dc; font-size:13px; cursor:pointer; }
+.yomibtn.on { background:#1d2b3a; border-color:#4a6b86; color:#e6eef5; }
+.yomi-line { font-size:12px; color:#c2d0dc; margin-top:5px; }
+.yomi-verdict { font-size:12px; color:#9fb8cc; margin-top:7px; }
+.panel-yomi .note { font-size:10px; color:#7d94a8; margin-top:6px; }
+.my-sec.yomi .my-note { margin-top:4px; }
 .panel-tenkai { background:#0f1c17; border:1px solid #1e4033; }
 .panel-tenkai .ttl { color:#7fe0a0; }
 .panel-tenkai ul { margin:3px 0 0 16px; color:#bcd6c8; }
@@ -106,15 +115,6 @@ header .sub { font-size:11px; color:#8a94a3; margin-top:4px; }
 .panel-tide .ttl { color:#7fe0c8; }
 .panel-tide .note { font-size:10px; color:#6f8a82; margin-top:5px; }
 .lv-高 { color:#ff6b6b; font-weight:bold; } .lv-中 { color:#ffd166; font-weight:bold; } .lv-低 { color:#69db7c; font-weight:bold; }
-/* 読者ログ（①は残る/崩れるの自己記録・答え合わせ。予想・買い目ではない） */
-.panel-yomi { background:#151022; border:1px solid #3a2b57; }
-.panel-yomi .ttl { color:#c9a9ff; }
-.yomi-btns { display:flex; gap:8px; margin-top:8px; }
-.yomi-btn { flex:1; text-align:center; padding:10px 6px; border-radius:8px; border:1px solid #3a2b57; background:#1c1530; color:#cdd6e0; font-size:13px; font-weight:bold; cursor:pointer; }
-.yomi-btn.on { background:#3a2b57; border-color:#c9a9ff; color:#e9dcff; }
-.yomi-btn.correct { border-color:#1e5c38; color:#7fe0a0; }
-.yomi-btn.wrong { border-color:#5a2b2b; color:#ff9c9c; }
-.yomi-note { font-size:10px; color:#8a7da8; margin-top:6px; }
 
 /* 並び替え */
 .sortbar { display:flex; gap:6px; margin-top:10px; flex-wrap:wrap; }
@@ -370,7 +370,6 @@ var PROF={};       /* 登録番号 -> あだ名/note */
 var HL_META={fix:[], hd:""};
 var E30=null, E30META=null;  /* E30該当場成績（生データ・事実提示のみ） */
 var tide=null;               /* 当日干満（tideToday.json・潮汐場のみ・事実提示のみ） */
-var INSURV=null;             /* ①残存フラグ（inSurvival.json）・読者ログの答え合わせ用（事実の生データのみ） */
 
 function loadJSON(u){ return fetch(u).then(function(r){return r.json();}); }
 function loadText(u){ return fetch(u).then(function(r){return r.text();}); }
@@ -382,7 +381,7 @@ loadJSON("../players/profile.json").then(function(j){PROF=j||{};rerender();}).ca
 loadText("../players/racerKimarite.csv").then(function(t){ parseKimarite(t); rerender(); }).catch(function(){});
 loadJSON("../highlights/highlights.json").then(function(j){ parseHL(j); rerender(); }).catch(function(){});
 loadJSON("../data/tideToday.json").then(function(j){ tide=j||null; rerender(); }).catch(function(){});
-loadJSON("../data/inSurvival.json").then(function(j){ INSURV=j||null; rerender(); }).catch(function(){});
+loadJSON("../data/inSurvival.json").then(function(j){ ISV=j||null; yomiSync(); rerender(); }).catch(function(){});
 
 function parseKimarite(txt){
   var lines=txt.replace(/\r/g,"").split("\n").filter(function(l){return l.length;});
@@ -487,6 +486,101 @@ function harvestList(){
   return out;
 }
 
+/* ===== 読者ログ（自分の読み） =====
+   締切前に「①は残る / 崩れる」の二択だけを記録し、
+   結果確定後に docs/data/inSurvival.json で自動照合する。
+   買い目は記録しない。連勝・ランキング・報酬は置かない。
+   保持は専用キー br_yomi（pruneOld の間引き対象外・直近200件ローリング）。*/
+var YOMI=lsGet("br_yomi",[]);   /* [{jcd,hd,rno,venue,y,ts,res}] y:1=崩れる / 0=残る, res:null/0/1 */
+var ISV=null;                   /* inSurvival.json */
+var YOMI_MAX=200;               /* localStorage容量対策の上限 */
+var YOMI_MIN=10;                /* これ未満は傾向を出さない */
+var YOMI_BASE=19.2;             /* 過去1年の①着外率。見どころのREFと同一 */
+var YOMI_TOL=5.0;               /* 実測に近いとみなす幅（±pt） */
+
+function yomiFind(jcd,hd,rno){
+  var k=rkey(jcd,hd,rno);
+  for(var i=0;i<YOMI.length;i++){ if(rkey(YOMI[i].jcd,YOMI[i].hd,YOMI[i].rno)===k) return YOMI[i]; }
+  return null;
+}
+/* 締切前のみ記録・変更可。締切後は一切受け付けない（結果を見る前に確定保存の鉄則）。*/
+function yomiSet(v,rno,y){
+  var rc=v.races[rno]; if(!rc) return;
+  if(isClosed(v.hd,rc.deadline)) return;
+  var e=yomiFind(v.jcd,v.hd,rno);
+  if(e){
+    if(e.y===y){ YOMI=YOMI.filter(function(x){ return x!==e; }); }   /* 同じボタンで取消 */
+    else { e.y=y; e.ts=Date.now(); }
+  }else{
+    YOMI.unshift({jcd:v.jcd,hd:v.hd,rno:rno,venue:v.name,y:y,ts:Date.now(),res:null});
+  }
+  if(YOMI.length>YOMI_MAX) YOMI=YOMI.slice(0,YOMI_MAX);
+  lsSet("br_yomi",YOMI);
+}
+/* 結果確定分だけ res を埋める。一度埋まった値は変えない。*/
+function yomiSync(){
+  if(!ISV||!ISV["日"]||!YOMI.length) return;
+  var ch=false;
+  YOMI.forEach(function(e){
+    if(e.res===0||e.res===1) return;
+    var d=ISV["日"][e.hd]; if(!d) return;
+    var s=d[e.jcd]; if(!s||s.length<e.rno) return;
+    var c=s.charAt(e.rno-1);
+    if(c==="0"||c==="1"){ e.res=parseInt(c,10); ch=true; }
+  });
+  if(ch) lsSet("br_yomi",YOMI);
+}
+function yomiStats(){
+  var j=YOMI.filter(function(e){ return e.res===0||e.res===1; });
+  var n=j.length, kz=0, same=0;
+  j.forEach(function(e){ if(e.y===1) kz++; if(e.y===e.res) same++; });
+  return { n:n, total:YOMI.length, kuzure:kz,
+           rate:n?(100*kz/n):0, same:n?(100*same/n):0 };
+}
+function yomiVerdict(r){
+  if(r.rate>YOMI_BASE+YOMI_TOL) return "崩れる側に寄りやすい傾向があります";
+  if(r.rate<YOMI_BASE-YOMI_TOL) return "残る側に寄りやすい傾向があります";
+  return "実測に近い読み方です";
+}
+/* 集計パネル（主役は偏り。一致率は注記に従で置く）*/
+function yomiPanel(){
+  if(!YOMI.length) return "";
+  var r=yomiStats();
+  var h='<div class="my-sec yomi"><div class="my-h">📝 自分の読み</div>';
+  if(r.n<YOMI_MIN){
+    h+='<div class="my-note">記録 '+r.total+'件（判定済み '+r.n+'件）。あと'+(YOMI_MIN-r.n)+'件で傾向が出ます。</div>';
+    return h+'</div>';
+  }
+  h+='<div class="yomi-line">「崩れる」と読んだ：<b>'+r.kuzure+'回</b>（'+r.rate.toFixed(1)+'%）</div>'
+   +'<div class="yomi-line">実際に①が着外だった：<b>'+YOMI_BASE.toFixed(1)+'%</b></div>'
+   +'<div class="yomi-verdict">── '+yomiVerdict(r)+'</div>'
+   +'<div class="my-note">判定済み '+r.n+'件／読みと結果が一致 '+r.same.toFixed(0)+'%。'
+   +'比較値は過去1年の①着外率（全体19.2%）。</div>';
+  return h+'</div>';
+}
+/* レース詳細の記録UI。○×・色での正誤表現はしない（煽らない）。*/
+function yomiBox(v,rno){
+  var rc=v.races[rno]; if(!rc) return "";
+  var closed=isClosed(v.hd,rc.deadline);
+  var e=yomiFind(v.jcd,v.hd,rno);
+  var mine=e?e.y:null;
+  var h='<div class="panel panel-yomi"><div class="ttl">このレースの自分の読み</div>';
+  if(!closed){
+    h+='<div class="yomi-btns">'
+      +'<span class="yomibtn'+(mine===0?' on':'')+'" data-y="0">①は残る</span>'
+      +'<span class="yomibtn'+(mine===1?' on':'')+'" data-y="1">①は崩れる</span></div>'
+      +'<div class="note">締切前のみ記録できます（締切後は変更不可）。買い目は記録しません。記録はこの端末にのみ保存されます。</div>';
+  }else{
+    h+='<div class="yomi-line">'+(mine===null?'記録なし（締切後のため記録できません）':'記録：'+(mine===1?'①は崩れる':'①は残る'))+'</div>';
+    if(e&&(e.res===0||e.res===1)){
+      h+='<div class="yomi-line">結果：'+(e.res===1?'①は着外（4着以下）':'①は3着以内')+'</div>';
+    }else if(mine!==null){
+      h+='<div class="note">結果確定後に自動で照合されます。</div>';
+    }
+  }
+  return h+'</div>';
+}
+
 /* ===== 推し選手フォロー（localStorage。人への愛着で毎日開く理由をつくる） ===== */
 var OSHI=lsGet("br_oshi",[]);   /* [{toban, name}] */
 function isOshi(toban){ return OSHI.some(function(o){return String(o.toban)===String(toban);}); }
@@ -509,72 +603,6 @@ function oshiEntries(){
   });
   out.sort(function(a,b){ return (a.hd+("0"+a.deadline).slice(-5)) < (b.hd+("0"+b.deadline).slice(-5)) ? -1 : 1; });
   return out;
-}
-
-/* ===== 読者ログ（①は残る/崩れる の自己記録・答え合わせ） =====
-   読者が締切前に記録した自分用のメモ。docs/data/inSurvival.json（①残存フラグの実測）
-   と突き合わせて自己採点するだけで、サイト側が勝敗を予想・提示することはない。 */
-var YOMI=lsGet("br_yomi",{});   /* jcd_hd_rno -> "0"(①残る)/"1"(①崩れる)。読者自身の記録 */
-function yomiKey(jcd,hd,rno){ return jcd+"_"+hd+"_"+rno; }
-function yomiSet(jcd,hd,rno,val){
-  var k=yomiKey(jcd,hd,rno);
-  YOMI[k]=val;
-  var keys=Object.keys(YOMI);
-  if(keys.length>500){                  /* 肥大防止（既存の間引きとは独立管理） */
-    keys.sort().slice(0,keys.length-500).forEach(function(kk){ delete YOMI[kk]; });
-  }
-  lsSet("br_yomi",YOMI);
-}
-function yomiBox(jcd,hd,rno){
-  var k=yomiKey(jcd,hd,rno), saved=YOMI[k];
-  var b0=saved==="0"?" on":"", b1=saved==="1"?" on":"";
-  return '<div class="yomi-btns">'
-    +'<span class="yomi-btn'+b0+'" data-yomi="0" data-k="'+esc(k)+'">①は残る</span>'
-    +'<span class="yomi-btn'+b1+'" data-yomi="1" data-k="'+esc(k)+'">①は崩れる</span>'
-    +'</div>';
-}
-/* inSurvival.json（①残存フラグの実測）から該当レースの値だけを読む。新規集計はしない */
-function yomiActual(jcd,hd,rno){
-  if(!INSURV||!INSURV["日"]) return null;
-  var day=INSURV["日"][hd]; if(!day) return null;
-  var s=day[jcd]; if(!s||s.length<rno) return null;
-  var v=s.charAt(rno-1);
-  return (v==="0"||v==="1")?v:null;
-}
-function yomiSync(jcd,hd,rno){
-  var k=yomiKey(jcd,hd,rno), saved=YOMI[k];
-  if(saved==null) return null;
-  var actual=yomiActual(jcd,hd,rno);
-  if(actual==null) return {saved:saved, actual:null};
-  return {saved:saved, actual:actual, hit:saved===actual};
-}
-function yomiPanel(v,rno){
-  var hd=v.hd, jcd=v.jcd, rc=v.races[rno];
-  var closed=isClosed(hd,rc.deadline);
-  var body;
-  if(!closed){
-    body=yomiBox(jcd,hd,rno)
-      +'<div class="yomi-note">締切前に記録できます。予想・買い目ではなく、あなた自身の見立てメモです。</div>';
-  } else {
-    var sync=yomiSync(jcd,hd,rno);
-    if(!sync){
-      body='<div class="yomi-note">記録なし（締切後のため、新規の記録はできません）。</div>';
-    } else if(sync.actual==null){
-      body='<div class="yomi-note">あなたの記録：'+(sync.saved==="0"?"①は残る":"①は崩れる")+'（結果データ反映待ち）</div>';
-    } else {
-      var cls=sync.hit?"correct":"wrong", hitTxt=sync.hit?"一致":"不一致";
-      body='<div class="yomi-btns">'
-        +'<span class="yomi-btn'+(sync.saved==="0"?" on "+cls:"")+'">①は残る</span>'
-        +'<span class="yomi-btn'+(sync.saved==="1"?" on "+cls:"")+'">①は崩れる</span>'
-        +'</div><div class="yomi-note">あなたの記録は実測と'+hitTxt+'（実測：①は'+(sync.actual==="0"?"残る":"崩れる")+'）</div>';
-    }
-  }
-  return '<div class="panel panel-yomi"><div class="ttl">①は残る／①は崩れる（あなたの記録）</div>'+body+'</div>';
-}
-function wireYomi(app,v,rno){
-  Array.prototype.forEach.call(app.querySelectorAll(".yomi-btn[data-yomi]"),function(el){
-    el.onclick=function(){ yomiSet(v.jcd,v.hd,rno,el.getAttribute("data-yomi")); render(); };
-  });
 }
 
 /* ===== 今日の運勢（あそび・エンタメ。勝敗予想や買い目ではありません） =====
@@ -759,8 +787,9 @@ function buildMyPanel(){
   var waiting=WATCH.filter(function(x){ return raceStatus(x.hd,x.deadline)==='pre'; });
   var hset={}; harvest.forEach(function(x){ hset[rkey(x.jcd,x.hd,x.rno)]=1; });
   var recent=VIEWED.filter(function(x){ return !hset[rkey(x.jcd,x.hd,x.rno)]; }).slice(0,8);
-  if(!harvest.length && !waiting.length && !recent.length) return "";
+  if(!harvest.length && !waiting.length && !recent.length && !YOMI.length) return "";
   var h='<div class="my">';
+  h+=yomiPanel();
   if(harvest.length){
     var oshiN=harvest.filter(function(x){return x.oshi;}).length;
     h+='<div class="my-sec harvest"><div class="my-h">🏁 結果を見る<span class="cnt">'+harvest.length+'</span>'
@@ -1065,10 +1094,8 @@ function renderRace(app,crumb,v){
 
   html+=boats.map(function(row){ return boatCard(row,v,hl,minST,maxST,maxMotor); }).join("");
 
+  html+=yomiBox(v,view.rno);
   html+='<div class="legend-note">出典: BOATRACE公式出走表（勝率・モーター・今節成績）｜決まり手・被され率は直近183日集計｜機力評価・展開・荒れ指数は当ポータル生成｜風はOpen-Meteo。<br>本ページは水面傾向・展開の可視化に留め、勝敗の断定・買い目・確率は提示しません。</div>';
-
-  /* 読者ログ（①は残る/崩れる）：締切前は記録、締切後は自己採点のみ。予想・買い目ではない。最下部に配置 */
-  html+=yomiPanel(v,view.rno);
 
   app.innerHTML=html;
   document.getElementById("back0").onclick=function(e){e.preventDefault();view={page:"venues",sort:view.sort};render();};
@@ -1081,7 +1108,9 @@ function renderRace(app,crumb,v){
   Array.prototype.forEach.call(app.querySelectorAll(".oshibtn"),function(el){
     el.onclick=function(e){ e.stopPropagation(); toggleOshi(el.getAttribute("data-toban"),el.getAttribute("data-name")); render(); };
   });
-  wireYomi(app,v,view.rno);
+  Array.prototype.forEach.call(app.querySelectorAll(".yomibtn"),function(el){
+    el.onclick=function(){ yomiSet(v.jcd,view.rno,parseInt(el.getAttribute("data-y"),10)); render(); };
+  });
 }
 
 function boatCard(row,v,hl,minST,maxST,maxMotor){
