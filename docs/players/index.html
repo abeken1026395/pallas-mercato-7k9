@@ -19,6 +19,15 @@
 <script type="text/babel">
 const { useState, useMemo, useEffect } = React;
 const R = window.__D;
+/* ===== 推しフォロー（出走表 template_racers.html と共有。キー br_oshi ／ 形式 [{toban,name}] ／ toban は文字列） ===== */
+function lsGet(k,d){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+function loadOshi(){ var a=lsGet("br_oshi",[]); return Array.isArray(a)?a:[]; }
+function hasOshi(list,toban){ return list.some(function(o){ return o && String(o.toban)===String(toban); }); }
+function nextOshi(list,toban,name){
+  if(hasOshi(list,toban)) return list.filter(function(o){ return o && String(o.toban)!==String(toban); });
+  return [{toban:String(toban),name:name||""}].concat(list);  /* 出走表と同じ先頭追加 */
+}
 // 級別バッジ色（旧版踏襲: A1=赤系で目立たせる）
 const RANK_BADGE = { "A1":"#e5484d", "A2":"#4593e5", "B1":"#7d8da0", "B2":"#5a6878" };
 const RANK_LINE  = { "A1":"#e5484d", "A2":"#4593e5", "B1":"#7d8da0", "B2":"#3a4550" };
@@ -242,6 +251,9 @@ function App() {
   const [e30, setE30] = useState(null);
   const [e30Meta, setE30Meta] = useState(null);
   const [e30All, setE30All] = useState(false);
+  const [oshi, setOshi] = useState(loadOshi);
+  const [oshiOnly, setOshiOnly] = useState(false);
+  const toggleOshi = (toban, name) => { const nx = nextOshi(oshi, toban, name); setOshi(nx); lsSet("br_oshi", nx); };
   useEffect(()=>{
     fetch("racerKimarite.csv").then(r=>r.ok?r.text():Promise.reject()).then(t=>{
       const lines=t.trim().split(/\r?\n/); if(lines.length<2) return;
@@ -306,6 +318,7 @@ function App() {
       if (rankF!=="ALL" && p.rank!==rankF) return false;
       if (branchF!=="ALL" && p.branch!==branchF) return false;
       if (femaleOnly && !p.female) return false;
+      if (oshiOnly && !hasOshi(oshi, p.no)) return false;
       if (q) {
         const ql=q.trim();
         const qKata=ql.replace(/[\u3041-\u3096]/g,c=>String.fromCharCode(c.charCodeAt(0)+0x60));
@@ -331,7 +344,7 @@ function App() {
       return 0;
     });
     return rows;
-  }, [q, rankF, branchF, sortKey, femaleOnly, tab, kim]);
+  }, [q, rankF, branchF, sortKey, femaleOnly, tab, kim, oshiOnly, oshi]);
 
   return (
     <div style={{minHeight:"100vh",padding:"14px 12px 40px",maxWidth:760,margin:"0 auto"}}>
@@ -365,9 +378,11 @@ function App() {
           <option value="yusyo">優勝数順</option>
         </select>}
         <button onClick={()=>setFemaleOnly(v=>!v)} style={{padding:"7px 14px",fontSize:13,fontWeight:700,borderRadius:8,cursor:"pointer",border:"1px solid "+(femaleOnly?"#ff7eb6":"#2a3d52"),background:femaleOnly?"#ff7eb622":"#162232",color:femaleOnly?"#ff7eb6":"#8faabe"}}>♥ 女子</button>
+        <button onClick={()=>setOshiOnly(v=>!v)} style={{padding:"7px 14px",fontSize:13,fontWeight:700,borderRadius:8,cursor:"pointer",border:"1px solid "+(oshiOnly?"#ffd166":"#2a3d52"),background:oshiOnly?"#ffd16622":"#162232",color:oshiOnly?"#ffd166":"#8faabe"}}>{oshi.length?"⭐":"☆"} 推し{oshi.length?" "+oshi.length:""}</button>
         <span style={{marginLeft:"auto",fontSize:12,color:"#6b7f95"}}>{(tab==="makuri"||tab==="sashi")&&<span style={{color:"#8faabe"}}>1着10本以上・{tab==="makuri"?"まくり":"差し"}率順　</span>}{tab==="branch"?"18支部":filtered.length+"名"}</span>
       </div>
 
+      <div style={{fontSize:11,color:"#6b7f95",lineHeight:1.7,marginBottom:12,padding:"9px 11px",background:"#131e2a",border:"1px solid #1e2d3d",borderRadius:8}}>☆を押すと推しフォロー。フォローした選手は出走表の「⭐ 推しの本日」に出ます。フォローはこの端末にのみ保存され、外部には送信されません。</div>
       {tab==="branch" && <BranchPanel bsort={bsort} setBsort={setBsort} kim={kim}/>}
       <div style={{display:"flex",flexDirection:"column",gap:9}}>
         {tab!=="branch" && filtered.slice(0,300).map((p,idx)=>{
@@ -379,6 +394,7 @@ function App() {
               {/* 一覧行（旧版踏襲: バッジ＋名前＋右に大きな数字2列） */}
               <div style={{display:"flex",alignItems:"center",padding:"14px 16px",gap:12}}>
                 {tab!=="list" && <span style={{fontSize:15,fontWeight:900,color:"#ffd166",minWidth:26,textAlign:"center",flexShrink:0}}>{idx+1}</span>}
+                <span onClick={e=>{e.stopPropagation();toggleOshi(p.no,p.name);}} title="推しフォロー" style={{fontSize:18,lineHeight:1,color:hasOshi(oshi,p.no)?"#ffd166":"#5c6773",cursor:"pointer",flexShrink:0,padding:"2px 4px",userSelect:"none"}}>{hasOshi(oshi,p.no)?"⭐":"☆"}</span>
                 <span style={{fontSize:13,fontWeight:800,padding:"4px 9px",borderRadius:8,background:RANK_BADGE[p.rank],color:"#fff",flexShrink:0}}>{p.rank}</span>
                 <div style={{minWidth:0,flex:1}}>
                   {pf&&(pf.tagline||pf.nickname)&&<div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:3}}>
