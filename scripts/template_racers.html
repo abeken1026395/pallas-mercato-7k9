@@ -70,6 +70,10 @@ header .sub { font-size:11px; color:#8a94a3; margin-top:4px; }
 .chip-arare-中 { border-color:#5a4a1a; color:#ffd166; }
 .chip-arare-低 { border-color:#1e5c38; color:#7fe0a0; }
 .chip-fix { border-color:#3a4d63; color:#cdd6e0; }
+/* ①の下振れ要因（事実提示・件数のみ。荒れ判定と混同させないため赤系は使わない） */
+.chip-down-1 { border-color:#33465c; color:#9fb8cc; }
+.chip-down-2 { border-color:#3a3a5c; color:#b3a9dd; }
+.rbtn .rbtn-down { display:inline-flex; margin-top:4px; font-size:9px; padding:1px 6px; }
 /* ファン化：見どころへの導線チップ */
 .chip-link { border-color:#4a370f; color:#ffd166; text-decoration:none; background:rgba(255,209,102,.06); }
 /* ファン化：読む派の一言 */
@@ -86,6 +90,11 @@ header .sub { font-size:11px; color:#8a94a3; margin-top:4px; }
 .panel-arare { background:#231a12; border:1px solid #4a370f; }
 .panel-arare .ttl { color:#ffd166; }
 .panel-arare ul { margin:2px 0 0 16px; color:#d8c9a5; }
+.panel-down { background:#131c26; border:1px solid #26384a; }
+.panel-down .ttl { color:#9fb8cc; }
+.panel-down ul { margin:2px 0 0 16px; color:#c2d0dc; }
+.panel-down ul li.none { color:#7d94a8; }
+.panel-down .note { font-size:10px; color:#7d94a8; margin-top:5px; }
 .panel-tenkai { background:#0f1c17; border:1px solid #1e4033; }
 .panel-tenkai .ttl { color:#7fe0a0; }
 .panel-tenkai ul { margin:3px 0 0 16px; color:#bcd6c8; }
@@ -388,7 +397,7 @@ function parseHL(j){
     var boats={};
     (r["艇"]||[]).forEach(function(b){ boats[b["枠"]]=b; });
     HL[key]={ haran:r["波乱"], inkata:r["イン堅"], in1:r["イン1着率"], motor:r["モーター使用"],
-              tenkai:r["展開"]||[], boats:boats };
+              tenkai:r["展開"]||[], boats:boats, df:r["downFactors"]||null };
   });
 }
 
@@ -732,7 +741,10 @@ function renderRaces(app,crumb,v){
     var ar=findArare(v.jcd,r,v.hd);
     var dot=ar?'<span class="dot dot-'+esc(ar.level)+'"></span>':'';
     if(ar) anyDot=true;
-    return '<div class="rbtn'+cl+'" data-r="'+r+'">'+dot+'<div class="rno">'+r+'R</div><div class="dl">'+esc(rc.deadline||"")+'</div></div>';
+    var hlR=(HL[v.jcd+"_"+r+"R"]&&HL_META.hd===v.hd)?HL[v.jcd+"_"+r+"R"]:null;
+    var dfN=(hlR&&hlR.df)?(hlR.df.count||0):0;
+    var dfBadge=dfN>=1?'<div class="chip chip-down-'+(dfN>=2?2:1)+' rbtn-down">下振れ要因 <b>'+dfN+'</b></div>':'';
+    return '<div class="rbtn'+cl+'" data-r="'+r+'">'+dot+'<div class="rno">'+r+'R</div><div class="dl">'+esc(rc.deadline||"")+'</div>'+dfBadge+'</div>';
   }).join("");
   var legend=anyDot
     ?'<div class="legend-note">右上のドット＝荒れ指数（<span class="lv-高">高</span>/<span class="lv-中">中</span>/<span class="lv-低">低</span>）</div>'
@@ -859,6 +871,20 @@ function shuTable(row){
     +'<table class="shu"><tr>'+head+'</tr><tr>'+cells.join("")+'</tr></table></div>';
 }
 
+/* ①の下振れ要因パネル。見どころページ(docs/highlights/index.html)のdownFactorHtmlと
+   文言・出典・集計期間を揃える（新規集計なし・highlights.jsonの値をそのまま表示）。*/
+function downFactorPanel(df){
+  var n=(df&&df.count)||0;
+  var items=(df&&df.items)||[];
+  var dispN=n>=2?2:n;
+  var REF={0:'11.9%',1:'27.2%',2:'33.1%'};
+  var list=n>0
+    ? '<ul>'+items.map(function(it){return '<li>'+esc(it)+'</li>';}).join("")+'</ul>'
+    : '<ul><li class="none">該当なし</li></ul>';
+  var note='過去1年、該当'+dispN+'つのレースの①着外率は'+REF[dispN]+'（全体19.2%）';
+  return '<div class="panel panel-down"><div class="ttl">①の下振れ要因</div>'+list+'<div class="note">'+note+'</div></div>';
+}
+
 function renderRace(app,crumb,v){
   var rc=v.races[view.rno];
   if(!rc){ view={page:"races",key:view.key,sort:view.sort}; render(); return; }
@@ -910,6 +936,8 @@ function renderRace(app,crumb,v){
   if(ar&&ar.factors&&ar.factors.length){
     html+='<div class="panel panel-arare"><div class="ttl">荒れサイン</div><ul>'+ar.factors.map(function(f){return '<li>'+esc(f)+'</li>';}).join("")+'</ul></div>';
   }
+  /* ①の下振れ要因（highlights.json の値をそのまま表示。新規集計はしない） */
+  if(hl&&hl.df) html+=downFactorPanel(hl.df);
   /* 展開（複数シナリオ・断定なし。見立て/波及は非表示） */
   if(hl&&hl.tenkai&&hl.tenkai.length){
     html+='<div class="panel panel-tenkai"><div class="ttl">展開の見どころ</div><ul>'
