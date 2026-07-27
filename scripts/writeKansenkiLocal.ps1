@@ -24,6 +24,8 @@ $Py      = 'C:\Users\USER\AppData\Local\Python\pythoncore-3.14-64\python.exe'
 $Git     = 'C:\Program Files\Git\cmd\git.exe'
 $Claude  = 'C:\Users\USER\.local\bin\claude.exe'
 $PyDir   = Split-Path $Py   # claude 内部の Bash が叩く `python scripts/...` を実体に解決させるため PATH 先頭へ
+$Ps      = "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe"  # 破壊防止ガード呼び出し用
+$Guard   = 'C:\Users\USER\boatrace\scripts\checkRepoGuard.ps1'               # ガード本体（pull前後で呼ぶ）
 
 $Pubdate = (Get-Date).ToString('yyyyMMdd')   # 掲載日＝当日（JST）。source/articles もこの日付。
 $LogDir  = Join-Path $Repo 'scripts\logs'    # .gitignore 済み（logは決してcommitしない）
@@ -89,7 +91,11 @@ try {
         Log ("追跡ファイルに未コミット変更があるため何もせず終了:`n{0}" -f ($dirty | Out-String).TrimEnd())
         exit 0
     }
+    # 破壊防止ガード1（pull前）: remoteが想定リポか検証。旧URL(空リポ)なら非0で中断。
+    Invoke-Step 'ガード1(remote検証)' { & $Ps -NoProfile -ExecutionPolicy Bypass -File $Guard -Stage pre -Repo $Repo -LogFile $LogFile -Git $Git } | Out-Null
     Invoke-Step 'git pull origin main' { & $Git pull origin main } | Out-Null
+    # 破壊防止ガード2（pull直後）: 必須ファイル消失＝作業ツリー破壊なら非0で中断（自動復旧しない）。
+    Invoke-Step 'ガード2(worktree健全性)' { & $Ps -NoProfile -ExecutionPolicy Bypass -File $Guard -Stage post -Repo $Repo -LogFile $LogFile } | Out-Null
 
     # --- b) 執筆計画（未執筆かつ書ける場） -------------------------------
     $planPath = Join-Path $env:TEMP 'plan.json'
