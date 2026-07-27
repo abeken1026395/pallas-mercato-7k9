@@ -45,6 +45,9 @@ jobs:
       - name: build results site data (docs/results/)
         run: python scripts/buildResultsSite.py
 
+      - name: build inSurvival (読者ログ照合用・最小データ)
+        run: python scripts/buildInSurvival.py
+
       - name: verify predictions
         run: python scripts/verifyPredictions.py
         env:
@@ -73,6 +76,7 @@ jobs:
           git config user.email "actions@github.com"
           git add results/ 2>/dev/null || true
           git add docs/results/data/ 2>/dev/null || true
+          git add docs/data/inSurvival.json 2>/dev/null || true
           git add verify_log.csv 2>/dev/null || true
           git add docs/data/verify_summary.json 2>/dev/null || true
           git add docs/data/playerMonthly.json 2>/dev/null || true
