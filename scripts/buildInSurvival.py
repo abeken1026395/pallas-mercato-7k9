@@ -24,7 +24,7 @@ import datetime
 
 IN_DIR = "results"
 OUT_PATH = os.path.join("docs", "data", "inSurvival.json")
-KEEP_DAYS = 30
+KEEP_DAYS = 60
 MAX_R = 12
 
 DEF_TEXT = (
