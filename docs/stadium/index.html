@@ -19,6 +19,16 @@
 <script type="text/babel">
 const { useState, useMemo, useEffect } = React;
 const R = window.__D;
+/* ===== 場フォロー（出走表・モーター・見どころと共有。キー br_stadium ／ 形式 [{code,name}] ／ code は2桁文字列） ===== */
+function lsGet(k,d){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+function pinCode(c){ var t=String(c==null?"":c); return t.length===1 ? "0"+t : t; }
+function loadPin(){ var a=lsGet("br_stadium",[]); return Array.isArray(a)?a:[]; }
+function hasPin(list,code){ return list.some(function(p){ return p && pinCode(p.code)===pinCode(code); }); }
+function nextPin(list,code,name){
+  if(hasPin(list,code)) return list.filter(function(p){ return p && pinCode(p.code)!==pinCode(code); });
+  return [{code:pinCode(code),name:name||""}].concat(list);
+}
 const HEAD = {"01": "南", "02": "南東", "03": "北東", "04": "北", "05": "西", "06": "北", "07": "南西", "08": "北西", "09": "北西", "10": "南", "11": "南", "12": "南", "13": "南西", "14": "南東", "15": "北", "16": "南", "17": "南西", "18": "北西", "19": "西", "20": "西", "21": "東", "22": "東", "23": "南西", "24": "東"};
 const TIDE = {"03": "日本唯一の河川コース。潮の満ち引き＋川の流れが複合。上げ潮はスロー有利、下げ潮はダッシュ有利。満潮時は2マーク側の河川方面から逆流しうねりが出る。風と複合で大荒れ。当地経験の有無が大きい。", "04": "運河を介すため海と直結せず干満差は小さめ。基本は満潮=イン寄り/干潮=アウト寄りだが影響は限定的。大潮の満潮時のみうねりに注意。", "06": "汽水で潮の影響あり。満潮・上げ潮=イン寄り、干潮・下げ潮=アウト寄り。風の影響が大きい水面なので潮と風を合わせて見る。", "07": "汽水で潮の影響あり。満潮・上げ潮=イン寄り、干潮・下げ潮=アウト寄り。普段はイン堅めの静水面寄り。", "08": "海水で潮あり。満潮・上げ潮=イン寄り、干潮・下げ潮=アウト寄り。横風(伊勢湾)の影響も受ける。", "14": "海水で潮あり(鳴門海峡の潮流域)。満潮・上げ潮=イン寄り、干潮・下げ潮=アウト寄り。大潮は影響強。小潮は潮より番組・場特性(終盤R荒れ)が優先。", "15": "海水で潮あり。満潮・上げ潮=イン寄り、干潮・下げ潮=アウト寄り。ナイター。", "16": "海水で潮あり。満潮・上げ潮=イン寄り、干潮・下げ潮=アウト寄り。", "17": "海水で潮あり。満潮・上げ潮=イン寄り、干潮・下げ潮=アウト寄り。瀬戸内の潮流・横風に注意。", "18": "海水で潮あり(潮見表あり)。満潮・上げ潮=イン寄り、干潮・下げ潮=アウト寄り。元々イン1着率が高い場で、満潮はさらにイン優勢。", "19": "堤防で仕切られ干満差は小さめ。基本は満潮=イン寄り/干潮=アウト寄りだが影響は限定的。", "20": "2マーク付近が洞海湾と直結し潮流をもろに受ける。上げ潮はイン2艇有利、下げ潮はセンター有利。満潮時は1マークが潮溜まりになり全速ターンが決めにくくイン優勢、干潮・下げ潮はセンターまくりが増える。", "22": "汽水(那珂川河口)で潮＋川の流れの影響。満潮・上げ潮=イン寄り、干潮・下げ潮=アウト寄り。うねりが出ると難水面。", "24": "防波堤で仕切られ干満差は小さめ。元々全国一イン1着率が高い静水面。潮の影響は限定的だが、時間で風向きが変わりやすい。"};
 const ARARE_COLOR = { "低":"#3fb950", "中":"#d29922", "高":"#f85149" };
@@ -44,6 +54,9 @@ function App() {
   const [b1second, setB1second] = useState(null);
   const [champ, setChamp] = useState(null);
   const [champOpen, setChampOpen] = useState(null);
+  const [pins, setPins] = useState(loadPin);
+  const [pinOnly, setPinOnly] = useState(false);
+  const togglePin = (code, name) => { const nx = nextPin(pins, code, name); setPins(nx); lsSet("br_stadium", nx); };
 
   useEffect(() => {
     fetch("../announcers/announcers.json?v=" + Date.now())
@@ -81,12 +94,13 @@ function App() {
   const areas = useMemo(() => [...new Set(R.stadiums.map(s => s.area))], []);
   const filtered = useMemo(() => {
     return R.stadiums.filter(s => {
+      if (pinOnly && !hasPin(pins, s.code)) return false;
       if (areaF !== "ALL" && s.area !== areaF) return false;
       if (arareF !== "ALL" && s.arare !== arareF) return false;
       if (q) { const t = (parseInt(s.code,10)+s.name+s.feature+s.sign+s.water+s.area).toLowerCase(); if (!t.includes(q.toLowerCase())) return false; }
       return true;
     });
-  }, [q, areaF, arareF]);
+  }, [q, areaF, arareF, pinOnly, pins]);
 
   return (
     <div style={{minHeight:"100vh",padding:"12px",maxWidth:900,margin:"0 auto"}}>
@@ -109,8 +123,10 @@ function App() {
           <option value="中">標準(中)</option>
           <option value="高">荒れる(高)</option>
         </select>
+        <button onClick={()=>setPinOnly(v=>!v)} style={{padding:"7px 12px",fontSize:13,fontWeight:700,borderRadius:6,cursor:"pointer",border:"1px solid "+(pinOnly?"#ffd166":"#1e2d3d"),background:pinOnly?"#ffd16622":"#162232",color:pinOnly?"#ffd166":"#8faabe",whiteSpace:"nowrap"}}>📍 フォロー中{pins.length?" "+pins.length:""}</button>
       </div>
 
+      <div style={{fontSize:11,color:"#6b7f95",lineHeight:1.7,marginBottom:10,padding:"9px 11px",background:"#131e2a",border:"1px solid #1e2d3d",borderRadius:8}}>📍を押すと場をフォロー。フォローした場は出走表の場一覧で先頭に並びます。フォローはこの端末にのみ保存され、外部には送信されません。</div>
       <div style={{display:"flex",gap:14,fontSize:11,color:"#8faabe",marginBottom:10,flexWrap:"wrap"}}>
         <span><span style={{color:ARARE_COLOR["低"]}}>●</span> 低=堅い/イン強</span>
         <span><span style={{color:ARARE_COLOR["中"]}}>●</span> 中=標準</span>
@@ -154,6 +170,7 @@ function App() {
           return (
             <div key={s.code} onClick={()=>setOpen(isOpen?null:s.code)} style={{background:"#111d2b",border:"1px solid #1e2d3d",borderRadius:10,padding:"12px 14px",cursor:"pointer"}}>
               <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
+                <span onClick={e=>{e.stopPropagation();togglePin(s.code,s.name);}} title="この場をフォロー" style={{fontSize:15,lineHeight:1,cursor:"pointer",flexShrink:0,padding:"2px 3px",userSelect:"none",opacity:hasPin(pins,s.code)?1:0.3,filter:hasPin(pins,s.code)?"none":"grayscale(1)"}}>📍</span>
                 <span style={{fontSize:11,fontWeight:700,color:"#6b7f95",background:"#0b1219",border:"1px solid #2a3d52",borderRadius:6,padding:"2px 7px",minWidth:30,textAlign:"center"}}>{parseInt(s.code,10)}</span>
                 <span style={{fontSize:16,fontWeight:800,color:"#e0e6ed",minWidth:54}}>{s.name}</span>
                 <span style={{fontSize:11,color:"#6b7f95"}}>{s.area}</span>
