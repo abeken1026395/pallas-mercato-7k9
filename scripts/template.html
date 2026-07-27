@@ -20,6 +20,11 @@
 const { useState, useMemo, useEffect } = React;
 const R = window.__D;
 const cols = R.columns;
+/* ===== 場フォロー（場ページ /stadium/ と共有。キー br_stadium ／ 形式 [{code,name}] ／ code は2桁文字列。ここでは表示と並べ替えのみ・登録は場ページ） ===== */
+function lsGet(k,d){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } }
+function pinCode(c){ var t=String(c==null?"":c); return t.length===1 ? "0"+t : t; }
+function loadPin(){ var a=lsGet("br_stadium",[]); return Array.isArray(a)?a:[]; }
+function hasPin(list,code){ return list.some(function(p){ return p && pinCode(p.code)===pinCode(code); }); }
 
 // 列名を部分一致で探す（列順・表記ゆれに強くする）
 function findCol(cands){ for(const c of cands){ const i=cols.findIndex(h=>String(h).includes(c)); if(i>=0) return i; } return -1; }
@@ -184,6 +189,7 @@ function E30Badge({info}){
 
 function App(){
   const [vf,setVf]=useState("ALL");
+  const [pins]=useState(loadPin);
   const [q,setQ]=useState("");
   const [showHelp,setShowHelp]=useState(false);
   const [females,setFemales]=useState(null);
@@ -322,11 +328,11 @@ function App(){
       </div>
 
       {Object.keys(grouped).length===0 && <div style={{color:"#6b7f95",fontSize:13,padding:20,textAlign:"center"}}>該当なし</div>}
-      {Object.entries(grouped).map(([venue,rows])=>(
+      {Object.entries(grouped).sort((a,b)=>{const pa=hasPin(pins,a[1][0][CI.jcd])?0:1,pb=hasPin(pins,b[1][0][CI.jcd])?0:1;return pa-pb;}).map(([venue,rows])=>(
         <div key={venue} style={{marginBottom:14,background:"#0d1622",border:"1px solid #16222f",borderRadius:12,overflow:"hidden"}}>
           <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:8,padding:"9px 12px",background:"#132030",borderBottom:"1px solid #1e2d3d"}}>
             <div style={{display:"flex",flexDirection:"column",minWidth:0}}>
-              <span style={{fontSize:15,fontWeight:800,color:"#ffd166"}}>{venue}{isPrevSetsu(rows[0][CI.hd])&&<span style={{fontSize:10,fontWeight:700,color:"#9fb0c0",background:"#26333f",border:"1px solid #33475a",borderRadius:3,padding:"1px 6px",marginLeft:6,verticalAlign:"middle"}}>前節記録</span>}<E30Badge info={e30For(rows[0][CI.jcd], rows[0][CI.hd])}/><span style={{fontSize:11,fontWeight:600,color:"#7d94a8",marginLeft:8}}>{(()=>{const h=String(rows[0][CI.hd]||"");return h.length===8?`${+h.slice(4,6)}/${+h.slice(6,8)}時点`:"";})()}</span></span>
+              <span style={{fontSize:15,fontWeight:800,color:"#ffd166"}}>{hasPin(pins,rows[0][CI.jcd])&&<span style={{marginRight:4,fontSize:15}}>📍</span>}{venue}{isPrevSetsu(rows[0][CI.hd])&&<span style={{fontSize:10,fontWeight:700,color:"#9fb0c0",background:"#26333f",border:"1px solid #33475a",borderRadius:3,padding:"1px 6px",marginLeft:6,verticalAlign:"middle"}}>前節記録</span>}<E30Badge info={e30For(rows[0][CI.jcd], rows[0][CI.hd])}/><span style={{fontSize:11,fontWeight:600,color:"#7d94a8",marginLeft:8}}>{(()=>{const h=String(rows[0][CI.hd]||"");return h.length===8?`${+h.slice(4,6)}/${+h.slice(6,8)}時点`:"";})()}</span></span>
               <VenueMetaLine meta={metaFor(rows[0][CI.jcd])}/>
               {(()=>{ const pt=prevTopFor(rows[0][CI.jcd], rows[0][CI.hd]); return pt ? (
                 <div style={{fontSize:10.5,color:"#7d94a8",marginTop:2}} title={`${pt.節名}（${pt.開催日}）節内2連率トップ`}>
