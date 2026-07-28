@@ -30,10 +30,13 @@
   .count{color:var(--sub);font-size:12px;margin-top:10px;font-variant-numeric:tabular-nums}
   .count b{color:var(--accent);font-size:14px}
 
-  /* リスト枠。読み込み前後で高さが動かないよう10行分を予約しておく。 */
+  /* リスト枠。読み込み中は1行分だけ確保し、件数が分かった時点で
+     実際の件数（最大10件）ぶんを --rows に入れて予約し直す。
+     0件のままなら1行分のまま＝空パネルを作らない。 */
   .list{
     list-style:none;
-    min-height:calc(var(--row-h) * 10);
+    --rows:1;
+    min-height:calc(var(--row-h) * var(--rows));
     border:1px solid var(--line);border-radius:12px;
     background:var(--card);
     padding:0 12px;
@@ -55,11 +58,11 @@
     .item .t{grid-column:1 / -1;margin-top:2px}
   }
 
-  /* 読み込み前・0件・失敗時。予約した枠の中に置くので高さは動かない。 */
+  /* 読み込み中・0件・失敗時。1行分＋メッセージだけの高さに収める。 */
   .note{
-    min-height:calc(var(--row-h) * 10);
+    min-height:var(--row-h);
     display:flex;align-items:center;justify-content:center;
-    color:var(--sub);font-size:13px;text-align:center;padding:0 12px;
+    color:var(--sub);font-size:13px;text-align:center;padding:12px;
   }
 
   .more{
@@ -93,12 +96,16 @@
     <li class="note" id="note">読み込み中</li>
   </ul>
 
-  <button type="button" class="more" id="more" hidden>すべて見る</button>
+  <!-- リストより下の要素は、件数が確定してから初めて描画する。
+       先に置いて後から押し下げると、その分がレイアウトのずれになるため。 -->
+  <div id="after" hidden>
+    <button type="button" class="more" id="more" hidden>すべて見る</button>
 
-  <a class="back" href="../">← データ攻め トップへ</a>
+    <a class="back" href="../">← データ攻め トップへ</a>
 
-  <div class="footer">
-    © 2026 データ攻め ── 制作・運営 あべけん
+    <div class="footer">
+      © 2026 データ攻め ── 制作・運営 あべけん
+    </div>
   </div>
 
 </div>
@@ -119,6 +126,7 @@
   var LIST  = document.getElementById("list");
   var NOTE  = document.getElementById("note");
   var MORE  = document.getElementById("more");
+  var AFTER = document.getElementById("after");
   var COUNT = document.getElementById("count");
   var data = [], shown = 0;
 
@@ -169,13 +177,16 @@
       data = d;
       COUNT.textContent = "全 " + data.length + " 件";
       if(data.length === 0){ note("まだ記録はありません。"); return; }
+      // 実際に出す件数（最大10件）ぶんの高さを予約してから描画する。
+      LIST.style.setProperty("--rows", Math.min(data.length, INITIAL));
       LIST.innerHTML = "";
       render(INITIAL);
     })
     .catch(function(){
       COUNT.textContent = "　";
       note("更新履歴を読み込めませんでした。");
-    });
+    })
+    .then(function(){ AFTER.hidden = false; });
 })();
 </script>
 </body>
