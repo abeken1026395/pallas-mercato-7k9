@@ -177,6 +177,12 @@
       data = d;
       COUNT.textContent = "全 " + data.length + " 件";
       if(data.length === 0){ note("まだ記録はありません。"); return; }
+      // このページを開いた時点の最新 date を既読として記録し、トップの更新サインを消す。
+      // 触るのは専用キー br_updates_seen だけ。他のキーは読みも書きもしない。
+      var latest = String((data[0] || {}).date || "");
+      if(/^\d{4}-\d{2}-\d{2}$/.test(latest)){
+        try { localStorage.setItem("br_updates_seen", latest); } catch(e){}
+      }
       // 実際に出す件数（最大10件）ぶんの高さを予約してから描画する。
       LIST.style.setProperty("--rows", Math.min(data.length, INITIAL));
       LIST.innerHTML = "";
