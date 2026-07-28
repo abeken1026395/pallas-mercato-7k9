@@ -35,9 +35,15 @@ body {
 
 /* クイックナビ（全10ページ・タイトル直下） */
 .quicknav { display:flex; flex-wrap:wrap; justify-content:center; gap:8px 10px; max-width:560px; width:100%; margin:16px auto 2px; }
-.quicknav a { display:flex; flex-direction:column; align-items:center; gap:3px; width:56px; text-decoration:none; color:#8faabe; padding:2px 0; }
+.quicknav a { display:flex; flex-direction:column; align-items:center; gap:3px; width:56px; text-decoration:none; color:#8faabe; padding:2px 0; position:relative; }
 .quicknav a .qn-ico { font-size:21px; line-height:1; }
 .quicknav a .qn-lb { font-size:9px; letter-spacing:0; color:#7d94a8; line-height:1.1; text-align:center; }
+/* 更新サイン。絶対配置でレイアウトの流れから外すので、
+   出ても消えてもタイルの外形（56×38px）は1pxも変わらない。 */
+.qn-sign { position:absolute; top:-3px; right:-5px; display:flex; align-items:center; gap:3px; height:10px; pointer-events:none; }
+.qn-sign[hidden] { display:none; }   /* display:flex が hidden 属性を打ち消さないように */
+.qn-sign .qn-dot { width:6px; height:6px; border-radius:50%; background:#ff6b5e; flex:none; }
+.qn-sign .qn-date { font-size:9px; line-height:1; color:#e0e6ed; font-variant-numeric:tabular-nums; white-space:nowrap; }
 .quicknav a:hover .qn-lb, .quicknav a:focus-visible .qn-lb { color:#cdd6e0; }
 .quicknav a:focus-visible { outline:1px solid #3a5675; border-radius:8px; }
 
@@ -125,7 +131,7 @@ body {
     <a href="./fan/"><span class="qn-ico">🎵</span><span class="qn-lb">場の文化</span></a>
     <a href="./uranai/"><span class="qn-ico">🔮</span><span class="qn-lb">占い</span></a>
     <a href="./announcers/"><span class="qn-ico">🎙️</span><span class="qn-lb">実況アナ</span></a>
-    <a href="./updates/"><span class="qn-ico">🗒️</span><span class="qn-lb">更新履歴</span></a>
+    <a href="./updates/" id="qn-updates"><span class="qn-ico">🗒️</span><span class="qn-lb">更新履歴</span><span class="qn-sign" id="qn-sign" hidden><span class="qn-dot" aria-hidden="true"></span><span class="qn-date"></span></span></a>
     <a href="./glossary/"><span class="qn-ico">📖</span><span class="qn-lb">用語辞書</span></a>
     <a href="https://www.youtube.com/@abe-ken" target="_blank" rel="noopener"><span class="qn-ico">▶️</span><span class="qn-lb">YouTube</span></a>
   </nav>
@@ -295,6 +301,30 @@ function lineBoxes(){
     t.addEventListener("click", toggle);
     t.addEventListener("keydown", function(e){ if(e.key === "Enter" || e.key === " "){ e.preventDefault(); toggle(); } });
   });
+})();
+// 更新サイン。updates.json の最新1件の date が未読のときだけ、赤い点と更新日(M/D)を出す。
+// 日付の文字を必ず併記する（色だけで伝えない）。件数・NEWの文字・点滅は出さない。
+// 既読キーは専用の br_updates_seen。出走表の pruneOld（3日引き）は
+// br_watch / br_viewed / br_collected の3つだけを対象にするため、br_yomi と同様にこのキーは間引かれない。
+(function(){
+  var el = document.getElementById("qn-sign");
+  if(!el) return;
+  fetch("./data/updates.json", { cache: "no-store" })
+    .then(function(r){ return r.ok ? r.json() : Promise.reject(); })
+    .then(function(d){
+      if(!Array.isArray(d) || !d.length) return;
+      var latest = String((d[0] || {}).date || "");
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(latest)) return;   // 想定外の値なら何も出さない
+      var seen = null;
+      try { seen = localStorage.getItem("br_updates_seen"); } catch(e){}
+      if(seen === latest) return;                        // 既読なら出さない
+      var md = parseInt(latest.slice(5,7),10) + "/" + parseInt(latest.slice(8,10),10);
+      el.querySelector(".qn-date").textContent = md;
+      el.hidden = false;
+      var a = document.getElementById("qn-updates");
+      if(a) a.setAttribute("aria-label", "更新履歴（" + md + " に更新）");
+    })
+    .catch(function(){ /* 取得できなければ何も出さない */ });
 })();
 if("serviceWorker" in navigator){ window.addEventListener("load",function(){ navigator.serviceWorker.register("./sw.js").catch(function(){}); }); }
 </script>
