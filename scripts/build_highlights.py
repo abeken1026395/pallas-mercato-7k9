@@ -23,6 +23,32 @@ WEATHER = sys.argv[5] if len(sys.argv) > 5 else "docs/data/weather.json"
 # 出力先は OUT と同ディレクトリの highlights_next.json 固定（当日 highlights.json は触らない）。
 NEXT = os.environ.get('HL_MODE') == 'next'
 NEXT_OUT = os.path.join(os.path.dirname(OUT) or '.', 'highlights_next.json')
+
+# --- 見どころが参照する選手成績JSON（期首固定項目のみ）---
+# 見どころ index.html には全1,643名分の const PROF={...} が静的埋め込みされている。
+# その正本は docs/data/racerStats.json（第1段で切り出し済み）。ここでは見どころが実際に
+# 描画しうる選手だけに絞った軽量版を書き出し、index.html 側の PROF を将来この外部JSONへ
+# 差し替えられるようにする。
+# 出力キー名は「見どころ側の名前」に合わせる（ht/wt/fuku/w1/w2）。index.html の
+# bProfHTML を書き換えずに読み替えられるようにするため。
+RACER_STATS = "docs/data/racerStats.json"
+STATS_OUT = os.path.join(os.path.dirname(OUT) or '.', 'racerStatsToday.json')
+
+# 収録対象は「当日」だけでは足りない。見どころには 当日/明日/前日/前々日 の4タブがあり、
+# いずれも同じ bProfHTML で選手情報を描画する。当日分だけに絞ると前日・前々日タブで
+# 最大305名が「図鑑データが見つかりません」になるため、4ファイルの和集合を収録する。
+# ファイル名は racerStatsToday.json のまま変えない（参照側の指示と整合させるため）。
+STATS_SOURCES = ('highlights.json', 'highlights_next.json',
+                 'highlights_prev.json', 'highlights_prev2.json')
+
+# (見どころ側のキー名, racerStats.json 側のキー名)。bProfHTML が実際に読む16項目のみ。
+# 出走表CSV由来の項目（全国勝率・当地勝率・枠・さされ率など）は由来が混ざるため入れない。
+PROF_KEYS = (
+    ('rank', 'rank'), ('branch', 'branch'), ('home', 'home'), ('age', 'age'),
+    ('ht', 'height'), ('wt', 'weight'), ('blood', 'blood'), ('avgst', 'avgst'),
+    ('syutsu', 'syutsu'), ('w1', 'win1'), ('w2', 'win2'), ('yusyo', 'yusyo'),
+    ('f', 'f'), ('out', 'out'), ('fuku', 'fukusho'), ('c1', 'c1'),
+)
 FULL_RACES = 12  # 通常番組=12R。これ未満は「一部レースのみ（深夜に追加）」の暫定表示にする。
 
 INTOP = {'大村':63,'徳山':62,'芦屋':64,'尼崎':62,'下関':60,'常滑':58,'住之江':55,'丸亀':56,
@@ -95,6 +121,78 @@ def nm(s): return s.replace('\u3000', '')
 def load_csv(path):
     with open(path, encoding='utf-8-sig') as fp:
         return list(csv.DictReader(fp))
+
+def collect_toban(node, acc):
+    """JSONを再帰的に走査して「登録番号」の値を集める。
+
+    見どころJSONの構造（レース→艇→登録番号）に依存せず拾えるようにしておく。
+    """
+    if isinstance(node, dict):
+        for k, v in node.items():
+            if k == '登録番号' and isinstance(v, str) and v.strip():
+                acc.add(v.strip())
+            else:
+                collect_toban(v, acc)
+    elif isinstance(node, list):
+        for v in node:
+            collect_toban(v, acc)
+    return acc
+
+def write_racer_stats_today(now_iso):
+    """見どころ4タブに登場する選手の成績JSONを docs/highlights/racerStatsToday.json に書く。
+
+    収録対象は 当日/明日/前日/前々日 の4ファイルに登場する登録番号の和集合。
+    未生成のファイルはスキップする（日によっては存在しない）。
+    値は docs/data/racerStats.json のものをそのまま使う（丸め・型変換をしない）。
+    racerStats.json に無い登番は収録せず、件数と一覧を標準出力に出す
+    （index.html 側に「図鑑データが見つかりません」のフォールバックがあるため止めない）。
+    """
+    with open(RACER_STATS, encoding='utf-8') as sf:
+        by_no = {p['no']: p for p in json.load(sf).get('players', [])}
+
+    src_dir = os.path.dirname(STATS_OUT) or '.'
+    union, sources, skipped = set(), {}, []
+    for name in STATS_SOURCES:
+        path = os.path.join(src_dir, name)
+        try:
+            with open(path, encoding='utf-8') as hf:
+                found = collect_toban(json.load(hf), set())
+        except Exception as e:
+            # 読めなかったファイルは null で記録する。収録が静かに縮んだことを
+            # 後から生成物だけで追えるようにするため。処理は止めない。
+            sources[name] = None
+            skipped.append("{}({})".format(name, e.__class__.__name__))
+            continue
+        sources[name] = len(found)
+        union |= found
+    print("収録元: " + " / ".join(
+        "{}={}".format(n, '読めず' if c is None else c) for n, c in sources.items()))
+
+    nos = sorted(union)
+    players, missing = {}, []
+    for no in nos:
+        src = by_no.get(no)
+        if src is None:
+            missing.append(no)
+            continue
+        players[no] = {hk: src[sk] for hk, sk in PROF_KEYS}
+
+    doc = {'asOf': 'unknown', 'generated': now_iso, 'sources': sources, 'players': players}
+    os.makedirs(os.path.dirname(STATS_OUT) or '.', exist_ok=True)
+    with open(STATS_OUT, 'w', encoding='utf-8') as sf:
+        json.dump(doc, sf, ensure_ascii=False, separators=(',', ':'))
+
+    if missing:
+        print("NOTE: racerStats.json に無い登番 {}件（収録せず）: {}".format(
+            len(missing), ','.join(missing)))
+    # 読めないファイルがあると収録が静かに縮み、前日・前々日タブの選手情報が欠ける。
+    # エラーにならず気づけないので、標準エラーに目立つ警告を出す（処理は止めない）。
+    if skipped:
+        print("WARNING: 見どころJSON {}/{}件が読めませんでした: {} → 収録が{}名に縮んでいます。"
+              "前日・前々日タブで選手情報が欠ける可能性があります。".format(
+                  len(skipped), len(STATS_SOURCES), ', '.join(skipped), len(players)),
+              file=sys.stderr)
+    print("OK: 見どころ登場{}名中{}名 → {}".format(len(nos), len(players), STATS_OUT))
 
 def main():
     rac = load_csv(RACERS)
@@ -916,6 +1014,14 @@ def main():
     with open(OUT, 'w', encoding='utf-8') as fp:
         json.dump(doc, fp, ensure_ascii=False, separators=(',', ':'))
     print(f"OK: {n_races}レース/{n_venues}場 → {OUT}")
+
+    # 見どころ4タブ分の選手成績JSON。highlights.json と prev ローテーションを終えた後に
+    # 出す付随生成物なので、ここで失敗しても既存の生成物は壊さず処理を続ける
+    # （見どころ本体を巻き込まない）。
+    try:
+        write_racer_stats_today(doc['生成時刻'])
+    except Exception as e:
+        print(f"NOTE: {STATS_OUT} の生成に失敗（highlights.json は正常）: {e}")
 
     # --- 検証ログ：予測を確定保存（結果を見る前・一度書いたら動かさない）---
     # 公開highlights.jsonには判定/主役艇を入れず、非公開predictions/にだけ残す。
