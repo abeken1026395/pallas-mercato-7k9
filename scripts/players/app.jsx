@@ -1,5 +1,27 @@
 const { useState, useMemo, useEffect } = React;
-const R = window.__D;
+/* ===== 選手データの取得 =====
+   以前は index.html に全選手ぶんの選手データを静的埋め込みしていた。
+   埋め込みをやめ、一覧・検索・ソートに要る core だけを先に取り、詳細パネル／
+   支部傾向タブで初めて要る detail は後から取る。値は racerStats.json と同一で、
+   表示される数字は埋め込み時代と1つも変わらない（期首時点の固定値）。
+   取得パスは同ファイル内の既存 fetch（racerKimarite.csv / profileLite.json /
+   ../data/playerMonthly.json / ../data/e30PlayerStats.json）と同じ作法にそろえる。
+   docs/players/ からの相対パス・クエリ無し・r.ok を見て json() する。 */
+const CORE_URL = "../data/racerStatsCore.json";
+const DETAIL_URL = "../data/racerStatsDetail.json";
+/* detail は「詳細を開く」「支部傾向タブ」の両方から要求される。連打やタブ往復で
+   何度も取りに行かないよう、Promise をモジュールに1本だけ持って共有する。
+   失敗したときは握った Promise を捨てて、次の操作でやり直せるようにする。 */
+let DETAIL_P = null;
+function loadDetail(){
+  if(!DETAIL_P){
+    DETAIL_P = fetch(DETAIL_URL)
+      .then(r=>r.ok?r.json():Promise.reject(new Error("HTTP "+r.status)))
+      .then(j=>{ const m=j&&j.players; if(!m) throw new Error("players が無い"); return m; })
+      .catch(e=>{ DETAIL_P=null; throw e; });
+  }
+  return DETAIL_P;
+}
 /* ===== 推しフォロー（出走表 template_racers.html と共有。キー br_oshi ／ 形式 [{toban,name}] ／ toban は文字列） ===== */
 function lsGet(k,d){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } }
 function lsSet(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
@@ -14,7 +36,15 @@ const RANK_BADGE = { "A1":"#e5484d", "A2":"#4593e5", "B1":"#7d8da0", "B2":"#5a68
 const RANK_LINE  = { "A1":"#e5484d", "A2":"#4593e5", "B1":"#7d8da0", "B2":"#3a4550" };
 
 // 登番→選手 の逆引き（note内リンク・関係性表示に使う）
-const NO_MAP = {}; R.players.forEach(p=>{ NO_MAP[p.no]=p; });
+// core の到着後に fillNoMap で中身を入れる。renderNote / extractRelations /
+// inverseRole / buildRelIndex はこのオブジェクトの参照を閉じ込めているので、
+// 差し替えずに同じ入れ物へ詰めること（新しい {} を代入すると4関数が空を見る）。
+// 参照するのは name / branch / rank / female だけで、いずれも core に入っている。
+const NO_MAP = {};
+function fillNoMap(list){
+  for(const k in NO_MAP) delete NO_MAP[k];
+  list.forEach(p=>{ NO_MAP[p.no]=p; });
+}
 // note文中の「名前（登番）」を該当選手カードへのリンクに変換して描画。
 // 登番で選手を確定し、直前の文字列がその選手名で終わっていれば名前だけをリンク化して
 // 冗長な（登番）は落とす。名前が一致しなければ（登番）自体を小さなリンクにする。
@@ -130,18 +160,18 @@ function buildRelIndex(prof){
 }
 
 const KIM=[["nige","逃げ","#ffd166"],["makuri","まくり","#4593e5"],["sashi","差し","#3fb950"],["makurizashi","まくり差し","#d29922"],["nuki","抜き","#8957e5"],["megumare","恵まれ","#56607a"]];
-function BranchPanel({bsort,setBsort,kim}){
+function BranchPanel({bsort,setBsort,kim,players,hasDetail,detailErr}){
   const stat = useMemo(()=>{
     const B={};
-    R.players.forEach(p=>{(B[p.branch]=B[p.branch]||[]).push(p);});
+    players.forEach(p=>{(B[p.branch]=B[p.branch]||[]).push(p);});
     const a=xs=>{xs=xs.filter(v=>v!=null&&!isNaN(v));return xs.length?xs.reduce((s,v)=>s+v,0)/xs.length:0;};
     const hasKim=kim&&Object.keys(kim).length>0;
     const natK={}; KIM.forEach(([k])=>natK[k]=0); let natTot=0;
-    if(hasKim){ R.players.forEach(p=>{const o=kim[p.no]; if(o){KIM.forEach(([k])=>natK[k]+=o[k]||0); natTot+=KIM.reduce((s,[k])=>s+(o[k]||0),0);}}); }
+    if(hasKim){ players.forEach(p=>{const o=kim[p.no]; if(o){KIM.forEach(([k])=>natK[k]+=o[k]||0); natTot+=KIM.reduce((s,[k])=>s+(o[k]||0),0);}}); }
     const all={
-      win:a(R.players.map(p=>p.win)),
-      out:a(R.players.map(p=>p.out)),
-      st:a(R.players.map(p=>parseFloat(p.avgst))),
+      win:a(players.map(p=>p.win)),
+      out:a(players.map(p=>p.out)),
+      st:a(players.map(p=>parseFloat(p.avgst))),
       makuriR:natTot?natK.makuri/natTot*100:0,
       sashiR:natTot?natK.sashi/natTot*100:0
     };
@@ -160,12 +190,20 @@ function BranchPanel({bsort,setBsort,kim}){
         sashiR:kt?kc.sashi/kt*100:0};
     });
     return {rows,all,hasKim};
-  },[kim]);
+  },[kim,players]);
   const {rows,all,hasKim}=stat;
   const key=bsort==="makuri"?"makuriR":bsort==="sashi"?"sashiR":bsort;
   const sorted=[...rows].sort((x,y)=> bsort==="st" ? x.st-y.st : (y[key]-x[key]));
   const diff=(v,base,inv,suf)=>{const d=v-base;const up=inv?d<0:d>0;return <span style={{fontSize:11,fontWeight:700,color:up?"#ffd166":"#6b7f95",marginLeft:4}}>{(d>=0?"+":"")+d.toFixed(suf?1:2)+(suf||"")}</span>;};
   const sk=[["win","勝率"],["out","アウト戦"],["makuri","まくり率"],["sashi","差し率"],["st","平均ST"],["a1","A1率"],["n","人数"]];
+  // 平均ST と コース別1着率(2〜6コース) は detail 側の項目。未到着のまま描くと
+  // 0.000 や全ゼロのグラフが出て、埋め込み時代と違う数字を見せてしまう。
+  // 揃うまでは集計を出さない。
+  if(!hasDetail) return (
+   <div style={{fontSize:12,color:"#6b7f95",padding:"18px 2px",lineHeight:1.7}}>
+    {detailErr ? "選手データを読み込めませんでした。ページを再読込してください。" : "読み込み中…"}
+   </div>
+  );
   return (
    <div>
     <div style={{fontSize:11,color:"#6b7f95",margin:"2px 2px 10px",lineHeight:1.5}}>支部所属者の集計（2026前期fan2604）。決まり手は所属選手の1着実数を合算した比率。数値右は全国平均との差分。母数の少ない支部はブレやすく、個々の選手が従うわけではない目安。</div>
@@ -217,6 +255,10 @@ function BranchPanel({bsort,setBsort,kim}){
   );
 }
 function App() {
+  const [core, setCore] = useState(null);      // null=未取得。[] は「取得したが空」ではなく使わない
+  const [coreErr, setCoreErr] = useState(false);
+  const [detail, setDetail] = useState(null);  // null=未取得
+  const [detailErr, setDetailErr] = useState(false);
   const [q, setQ] = useState("");
   const [rankF, setRankF] = useState("ALL");
   const [branchF, setBranchF] = useState("ALL");
@@ -236,6 +278,23 @@ function App() {
   const [oshi, setOshi] = useState(loadOshi);
   const [oshiOnly, setOshiOnly] = useState(false);
   const toggleOshi = (toban, name) => { const nx = nextOshi(oshi, toban, name); setOshi(nx); lsSet("br_oshi", nx); };
+  // 一覧・検索・ソートに要る core を最初に取る。ここが揃うまで一覧は描けない。
+  useEffect(()=>{
+    fetch(CORE_URL).then(r=>r.ok?r.json():Promise.reject()).then(j=>{
+      const list=j&&j.players;
+      if(!Array.isArray(list)||!list.length){ setCoreErr(true); return; }
+      setCore(list);
+    }).catch(()=>{ setCoreErr(true); });
+  },[]);
+  // detail は「詳細を開いた」「支部傾向タブを見た」ときだけ。loadDetail が Promise を
+  // 共有しているので、連打しても実際の取得は1回だけになる。
+  useEffect(()=>{
+    if(detail || (!open && tab!=="branch")) return;
+    let alive=true;
+    loadDetail().then(m=>{ if(alive){ setDetail(m); setDetailErr(false); } })
+                .catch(()=>{ if(alive) setDetailErr(true); });
+    return ()=>{ alive=false; };
+  },[open, tab, detail]);
   useEffect(()=>{
     fetch("racerKimarite.csv").then(r=>r.ok?r.text():Promise.reject()).then(t=>{
       const lines=t.trim().split(/\r?\n/); if(lines.length<2) return;
@@ -298,12 +357,25 @@ function App() {
     setTimeout(()=>{ const el=document.getElementById("p-"+no); if(el) el.scrollIntoView({behavior:"smooth",block:"center"}); },350);
   };
 
-  // 全noteから双方向の関係グラフを構築（profロード後に再計算）
-  const relIndex = useMemo(()=>buildRelIndex(prof), [prof]);
+  // core と detail を1つの選手オブジェクトに畳む。detail が未到着なら core のまま。
+  // detail の c1（6要素）が core の [c1[0]] を上書きするので、揃った時点で
+  // 埋め込み時代とまったく同じ形の配列になる。
+  // NO_MAP の充填をここで行うのは、下の relIndex（buildRelIndex）が NO_MAP を読む
+  // ためで、useEffect に出すと初回だけ空を見てしまう。render 中に同期で埋める。
+  const players = useMemo(()=>{
+    if(!core) return null;
+    const list = detail ? core.map(p=>{ const d=detail[p.no]; return d?Object.assign({},p,d):p; }) : core;
+    fillNoMap(list);
+    return list;
+  }, [core, detail]);
 
-  const branches = useMemo(()=>[...new Set(R.players.map(p=>p.branch))].sort(), []);
+  // 全noteから双方向の関係グラフを構築（prof / 選手データのロード後に再計算）
+  const relIndex = useMemo(()=>players?buildRelIndex(prof):{}, [prof, players]);
+
+  const branches = useMemo(()=>players?[...new Set(players.map(p=>p.branch))].sort():[], [players]);
   const filtered = useMemo(()=>{
-    let rows = R.players.filter(p=>{
+    if(!players) return [];
+    let rows = players.filter(p=>{
       if (rankF!=="ALL" && p.rank!==rankF) return false;
       if (branchF!=="ALL" && p.branch!==branchF) return false;
       if (femaleOnly && !p.female) return false;
@@ -333,13 +405,31 @@ function App() {
       return 0;
     });
     return rows;
-  }, [q, rankF, branchF, sortKey, femaleOnly, tab, kim, oshiOnly, oshi]);
+  }, [players, q, rankF, branchF, sortKey, femaleOnly, tab, kim, oshiOnly, oshi]);
+
+  // core が来るまでは一覧を出さない。ここで検索欄やフィルタを描くと「0名」や
+  // 空の「⭐推しのみ」が出てしまい、フォローが消えたように見える。
+  // ⭐フォローは localStorage にあり、この画面では読むだけで書き換えない。
+  if(!players){
+    return (
+      <div style={{minHeight:"100vh",padding:"14px 12px 40px",maxWidth:760,margin:"0 auto"}}>
+        <div style={{display:"flex",alignItems:"baseline",gap:10,marginBottom:14}}>
+          <span style={{fontSize:24,fontWeight:900,letterSpacing:1,color:"#ffd166"}}>選手図鑑</span>
+          <span style={{fontSize:12,color:"#6b7f95"}}>2026前期　成績＝期首時点（取得日不明）</span>
+        </div>
+        <div style={{fontSize:13,color:"#8faabe",lineHeight:1.8,padding:"18px 2px"}}>
+          {coreErr ? "選手データを読み込めませんでした。ページを再読込してください。" : "読み込み中…"}
+          {oshi.length>0 && <div style={{fontSize:11,color:"#6b7f95",marginTop:6}}>⭐フォロー{oshi.length}名はこの端末に保存されています（消えていません）。</div>}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{minHeight:"100vh",padding:"14px 12px 40px",maxWidth:760,margin:"0 auto"}}>
       <div style={{display:"flex",alignItems:"baseline",gap:10,marginBottom:14}}>
         <span style={{fontSize:24,fontWeight:900,letterSpacing:1,color:"#ffd166"}}>選手図鑑</span>
-        <span style={{fontSize:12,color:"#6b7f95"}}>2026前期 全{R.players.length}選手</span>
+        <span style={{fontSize:12,color:"#6b7f95"}}>2026前期 全{players.length}選手　成績＝期首時点（取得日不明）</span>
       </div>
 
       <input placeholder="選手名 / ふりがな / 登番 / 支部で検索..." value={q} onChange={e=>setQ(e.target.value)} style={{width:"100%",padding:"12px 14px",background:"#162232",color:"#e0e6ed",border:"1px solid #1e2d3d",borderRadius:10,fontSize:14,marginBottom:10}}/>
@@ -372,7 +462,7 @@ function App() {
       </div>
 
       <div style={{fontSize:11,color:"#6b7f95",lineHeight:1.7,marginBottom:12,padding:"9px 11px",background:"#131e2a",border:"1px solid #1e2d3d",borderRadius:8}}>☆を押すと推しフォロー。フォローした選手は出走表の「⭐ 推しの本日」に出ます。フォローはこの端末にのみ保存され、外部には送信されません。</div>
-      {tab==="branch" && <BranchPanel bsort={bsort} setBsort={setBsort} kim={kim}/>}
+      {tab==="branch" && <BranchPanel bsort={bsort} setBsort={setBsort} kim={kim} players={players} hasDetail={!!detail} detailErr={detailErr}/>}
       <div style={{display:"flex",flexDirection:"column",gap:9}}>
         {tab!=="branch" && filtered.slice(0,300).map((p,idx)=>{
           const isOpen = open===p.no;
@@ -414,6 +504,13 @@ function App() {
               {/* 展開：詳細 */}
               {isOpen && (
                 <div style={{padding:"0 16px 16px",borderTop:"1px solid #1a2535"}}>
+                  {/* 基本情報・成績・コース別1着率は detail 側の項目。届くまでは
+                      「-」や undefined を並べず、1行だけ状態を出す。 */}
+                  {!detail ? (
+                    <div style={{fontSize:11,color:"#6b7f95",margin:"12px 0",lineHeight:1.7}}>
+                      {detailErr ? "選手データを読み込めませんでした。ページを再読込してください。" : "読み込み中…"}
+                    </div>
+                  ) : (<>
                   <div style={{fontSize:11,color:"#8faabe",fontWeight:700,margin:"12px 0 6px"}}>■ 基本情報</div>
                   <div style={{display:"flex",gap:14,flexWrap:"wrap",marginBottom:14,background:"#0b1219",borderRadius:8,padding:"10px 12px"}}>
                     {[["登番",p.no],["支部",p.branch],["養成期",p.yousei?p.yousei+"期":"-"],["出身",p.home||"-"],["年齢",p.age+"歳"],["生年月日",p.birth||"-"],["身長",p.height?p.height+"cm":"-"],["体重",p.weight?p.weight+"kg":"-"],["血液",p.blood||"-"],["級別推移",(p.prevrank||"-")+"→"+(p.prev2rank||"-")+"→"+p.rank],["能力指数",p.power||"-"]].map(([l,v],i)=>(
@@ -423,6 +520,7 @@ function App() {
                       </div>
                     ))}
                   </div>
+                  </>)}
                   {pf&&pf.hobby&&<div style={{fontSize:12,color:"#c5d2e0",marginTop:-4}}>🎣 趣味：{pf.hobby}</div>}
                   {pf&&pf.food&&<div style={{fontSize:12,color:"#c5d2e0",marginTop:4}}>🍴 好物：{pf.food}</div>}
                   {pf&&pf.note&&<div style={{fontSize:12,color:"#c5d2e0",marginTop:4,lineHeight:1.6}}>💬 {renderNote(pf.note, jump)}</div>}
@@ -437,7 +535,8 @@ function App() {
                     </div>
                   );})()}
                   {pf&&(pf.hobby||pf.food||pf.note)&&<div style={{height:14}}></div>}
-                  <div style={{fontSize:11,color:"#8faabe",fontWeight:700,marginBottom:6}}>■ 成績</div>
+                  {detail && (<>
+                  <div style={{fontSize:11,color:"#8faabe",fontWeight:700,marginBottom:6}}>■ 成績　<span style={{color:"#6b7f95",fontWeight:400}}>期首時点の値（取得日不明）</span></div>
                   <div style={{display:"flex",gap:14,flexWrap:"wrap",marginBottom:14,background:"#0b1219",borderRadius:8,padding:"10px 12px"}}>
                     {[["出走",p.syutsu],["1着",p.win1],["2着",p.win2],["優勝",p.yusyo],["優出",p.yusyutsu],["平均ST",p.avgst],["F数",p.f]].map(([l,v],i)=>(
                       <div key={i} style={{display:"flex",flexDirection:"column",minWidth:54}}>
@@ -459,6 +558,7 @@ function App() {
                     ))}
                   </div>
                   <div style={{fontSize:10,color:"#6b7f95",marginTop:6,lineHeight:1.5}}>黄=イン(1・2)、青=アウト(3〜6)。アウトが高い選手は外から攻めて勝てる攻撃型。</div>
+                  </>)}
 
                   {k && (
                     <div>
