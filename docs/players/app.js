@@ -4,7 +4,33 @@ const {
   useMemo,
   useEffect
 } = React;
-const R = window.__D;
+/* ===== 選手データの取得 =====
+   以前は index.html に全選手ぶんの選手データを静的埋め込みしていた。
+   埋め込みをやめ、一覧・検索・ソートに要る core だけを先に取り、詳細パネル／
+   支部傾向タブで初めて要る detail は後から取る。値は racerStats.json と同一で、
+   表示される数字は埋め込み時代と1つも変わらない（期首時点の固定値）。
+   取得パスは同ファイル内の既存 fetch（racerKimarite.csv / profileLite.json /
+   ../data/playerMonthly.json / ../data/e30PlayerStats.json）と同じ作法にそろえる。
+   docs/players/ からの相対パス・クエリ無し・r.ok を見て json() する。 */
+const CORE_URL = "../data/racerStatsCore.json";
+const DETAIL_URL = "../data/racerStatsDetail.json";
+/* detail は「詳細を開く」「支部傾向タブ」の両方から要求される。連打やタブ往復で
+   何度も取りに行かないよう、Promise をモジュールに1本だけ持って共有する。
+   失敗したときは握った Promise を捨てて、次の操作でやり直せるようにする。 */
+let DETAIL_P = null;
+function loadDetail() {
+  if (!DETAIL_P) {
+    DETAIL_P = fetch(DETAIL_URL).then(r => r.ok ? r.json() : Promise.reject(new Error("HTTP " + r.status))).then(j => {
+      const m = j && j.players;
+      if (!m) throw new Error("players が無い");
+      return m;
+    }).catch(e => {
+      DETAIL_P = null;
+      throw e;
+    });
+  }
+  return DETAIL_P;
+}
 /* ===== 推しフォロー（出走表 template_racers.html と共有。キー br_oshi ／ 形式 [{toban,name}] ／ toban は文字列） ===== */
 function lsGet(k, d) {
   try {
@@ -52,10 +78,17 @@ const RANK_LINE = {
 };
 
 // 登番→選手 の逆引き（note内リンク・関係性表示に使う）
+// core の到着後に fillNoMap で中身を入れる。renderNote / extractRelations /
+// inverseRole / buildRelIndex はこのオブジェクトの参照を閉じ込めているので、
+// 差し替えずに同じ入れ物へ詰めること（新しい {} を代入すると4関数が空を見る）。
+// 参照するのは name / branch / rank / female だけで、いずれも core に入っている。
 const NO_MAP = {};
-R.players.forEach(p => {
-  NO_MAP[p.no] = p;
-});
+function fillNoMap(list) {
+  for (const k in NO_MAP) delete NO_MAP[k];
+  list.forEach(p => {
+    NO_MAP[p.no] = p;
+  });
+}
 // note文中の「名前（登番）」を該当選手カードへのリンクに変換して描画。
 // 登番で選手を確定し、直前の文字列がその選手名で終わっていれば名前だけをリンク化して
 // 冗長な（登番）は落とす。名前が一致しなければ（登番）自体を小さなリンクにする。
@@ -294,11 +327,14 @@ const KIM = [["nige", "逃げ", "#ffd166"], ["makuri", "まくり", "#4593e5"], 
 function BranchPanel({
   bsort,
   setBsort,
-  kim
+  kim,
+  players,
+  hasDetail,
+  detailErr
 }) {
   const stat = useMemo(() => {
     const B = {};
-    R.players.forEach(p => {
+    players.forEach(p => {
       (B[p.branch] = B[p.branch] || []).push(p);
     });
     const a = xs => {
@@ -310,7 +346,7 @@ function BranchPanel({
     KIM.forEach(([k]) => natK[k] = 0);
     let natTot = 0;
     if (hasKim) {
-      R.players.forEach(p => {
+      players.forEach(p => {
         const o = kim[p.no];
         if (o) {
           KIM.forEach(([k]) => natK[k] += o[k] || 0);
@@ -319,9 +355,9 @@ function BranchPanel({
       });
     }
     const all = {
-      win: a(R.players.map(p => p.win)),
-      out: a(R.players.map(p => p.out)),
-      st: a(R.players.map(p => parseFloat(p.avgst))),
+      win: a(players.map(p => p.win)),
+      out: a(players.map(p => p.out)),
+      st: a(players.map(p => parseFloat(p.avgst))),
       makuriR: natTot ? natK.makuri / natTot * 100 : 0,
       sashiR: natTot ? natK.sashi / natTot * 100 : 0
     };
@@ -359,7 +395,7 @@ function BranchPanel({
       all,
       hasKim
     };
-  }, [kim]);
+  }, [kim, players]);
   const {
     rows,
     all,
@@ -380,6 +416,17 @@ function BranchPanel({
     }, (d >= 0 ? "+" : "") + d.toFixed(suf ? 1 : 2) + (suf || ""));
   };
   const sk = [["win", "勝率"], ["out", "アウト戦"], ["makuri", "まくり率"], ["sashi", "差し率"], ["st", "平均ST"], ["a1", "A1率"], ["n", "人数"]];
+  // 平均ST と コース別1着率(2〜6コース) は detail 側の項目。未到着のまま描くと
+  // 0.000 や全ゼロのグラフが出て、埋め込み時代と違う数字を見せてしまう。
+  // 揃うまでは集計を出さない。
+  if (!hasDetail) return /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: "#6b7f95",
+      padding: "18px 2px",
+      lineHeight: 1.7
+    }
+  }, detailErr ? "選手データを読み込めませんでした。ページを再読込してください。" : "読み込み中…");
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 11,
@@ -585,6 +632,10 @@ function BranchPanel({
   })))))));
 }
 function App() {
+  const [core, setCore] = useState(null); // null=未取得。[] は「取得したが空」ではなく使わない
+  const [coreErr, setCoreErr] = useState(false);
+  const [detail, setDetail] = useState(null); // null=未取得
+  const [detailErr, setDetailErr] = useState(false);
   const [q, setQ] = useState("");
   const [rankF, setRankF] = useState("ALL");
   const [branchF, setBranchF] = useState("ALL");
@@ -608,6 +659,36 @@ function App() {
     setOshi(nx);
     lsSet("br_oshi", nx);
   };
+  // 一覧・検索・ソートに要る core を最初に取る。ここが揃うまで一覧は描けない。
+  useEffect(() => {
+    fetch(CORE_URL).then(r => r.ok ? r.json() : Promise.reject()).then(j => {
+      const list = j && j.players;
+      if (!Array.isArray(list) || !list.length) {
+        setCoreErr(true);
+        return;
+      }
+      setCore(list);
+    }).catch(() => {
+      setCoreErr(true);
+    });
+  }, []);
+  // detail は「詳細を開いた」「支部傾向タブを見た」ときだけ。loadDetail が Promise を
+  // 共有しているので、連打しても実際の取得は1回だけになる。
+  useEffect(() => {
+    if (detail || !open && tab !== "branch") return;
+    let alive = true;
+    loadDetail().then(m => {
+      if (alive) {
+        setDetail(m);
+        setDetailErr(false);
+      }
+    }).catch(() => {
+      if (alive) setDetailErr(true);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [open, tab, detail]);
   useEffect(() => {
     fetch("racerKimarite.csv").then(r => r.ok ? r.text() : Promise.reject()).then(t => {
       const lines = t.trim().split(/\r?\n/);
@@ -717,11 +798,27 @@ function App() {
     }, 350);
   };
 
-  // 全noteから双方向の関係グラフを構築（profロード後に再計算）
-  const relIndex = useMemo(() => buildRelIndex(prof), [prof]);
-  const branches = useMemo(() => [...new Set(R.players.map(p => p.branch))].sort(), []);
+  // core と detail を1つの選手オブジェクトに畳む。detail が未到着なら core のまま。
+  // detail の c1（6要素）が core の [c1[0]] を上書きするので、揃った時点で
+  // 埋め込み時代とまったく同じ形の配列になる。
+  // NO_MAP の充填をここで行うのは、下の relIndex（buildRelIndex）が NO_MAP を読む
+  // ためで、useEffect に出すと初回だけ空を見てしまう。render 中に同期で埋める。
+  const players = useMemo(() => {
+    if (!core) return null;
+    const list = detail ? core.map(p => {
+      const d = detail[p.no];
+      return d ? Object.assign({}, p, d) : p;
+    }) : core;
+    fillNoMap(list);
+    return list;
+  }, [core, detail]);
+
+  // 全noteから双方向の関係グラフを構築（prof / 選手データのロード後に再計算）
+  const relIndex = useMemo(() => players ? buildRelIndex(prof) : {}, [prof, players]);
+  const branches = useMemo(() => players ? [...new Set(players.map(p => p.branch))].sort() : [], [players]);
   const filtered = useMemo(() => {
-    let rows = R.players.filter(p => {
+    if (!players) return [];
+    let rows = players.filter(p => {
       if (rankF !== "ALL" && p.rank !== rankF) return false;
       if (branchF !== "ALL" && p.branch !== branchF) return false;
       if (femaleOnly && !p.female) return false;
@@ -754,7 +851,53 @@ function App() {
       return 0;
     });
     return rows;
-  }, [q, rankF, branchF, sortKey, femaleOnly, tab, kim, oshiOnly, oshi]);
+  }, [players, q, rankF, branchF, sortKey, femaleOnly, tab, kim, oshiOnly, oshi]);
+
+  // core が来るまでは一覧を出さない。ここで検索欄やフィルタを描くと「0名」や
+  // 空の「⭐推しのみ」が出てしまい、フォローが消えたように見える。
+  // ⭐フォローは localStorage にあり、この画面では読むだけで書き換えない。
+  if (!players) {
+    return /*#__PURE__*/React.createElement("div", {
+      style: {
+        minHeight: "100vh",
+        padding: "14px 12px 40px",
+        maxWidth: 760,
+        margin: "0 auto"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        alignItems: "baseline",
+        gap: 10,
+        marginBottom: 14
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 24,
+        fontWeight: 900,
+        letterSpacing: 1,
+        color: "#ffd166"
+      }
+    }, "\u9078\u624B\u56F3\u9451"), /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 12,
+        color: "#6b7f95"
+      }
+    }, "2026\u524D\u671F\u3000\u6210\u7E3E\uFF1D\u671F\u9996\u6642\u70B9\uFF08\u53D6\u5F97\u65E5\u4E0D\u660E\uFF09")), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 13,
+        color: "#8faabe",
+        lineHeight: 1.8,
+        padding: "18px 2px"
+      }
+    }, coreErr ? "選手データを読み込めませんでした。ページを再読込してください。" : "読み込み中…", oshi.length > 0 && /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 11,
+        color: "#6b7f95",
+        marginTop: 6
+      }
+    }, "\u2B50\u30D5\u30A9\u30ED\u30FC", oshi.length, "\u540D\u306F\u3053\u306E\u7AEF\u672B\u306B\u4FDD\u5B58\u3055\u308C\u3066\u3044\u307E\u3059\uFF08\u6D88\u3048\u3066\u3044\u307E\u305B\u3093\uFF09\u3002")));
+  }
   return /*#__PURE__*/React.createElement("div", {
     style: {
       minHeight: "100vh",
@@ -781,7 +924,7 @@ function App() {
       fontSize: 12,
       color: "#6b7f95"
     }
-  }, "2026\u524D\u671F \u5168", R.players.length, "\u9078\u624B")), /*#__PURE__*/React.createElement("input", {
+  }, "2026\u524D\u671F \u5168", players.length, "\u9078\u624B\u3000\u6210\u7E3E\uFF1D\u671F\u9996\u6642\u70B9\uFF08\u53D6\u5F97\u65E5\u4E0D\u660E\uFF09")), /*#__PURE__*/React.createElement("input", {
     placeholder: "\u9078\u624B\u540D / \u3075\u308A\u304C\u306A / \u767B\u756A / \u652F\u90E8\u3067\u691C\u7D22...",
     value: q,
     onChange: e => setQ(e.target.value),
@@ -929,7 +1072,10 @@ function App() {
   }, "\u2606\u3092\u62BC\u3059\u3068\u63A8\u3057\u30D5\u30A9\u30ED\u30FC\u3002\u30D5\u30A9\u30ED\u30FC\u3057\u305F\u9078\u624B\u306F\u51FA\u8D70\u8868\u306E\u300C\u2B50 \u63A8\u3057\u306E\u672C\u65E5\u300D\u306B\u51FA\u307E\u3059\u3002\u30D5\u30A9\u30ED\u30FC\u306F\u3053\u306E\u7AEF\u672B\u306B\u306E\u307F\u4FDD\u5B58\u3055\u308C\u3001\u5916\u90E8\u306B\u306F\u9001\u4FE1\u3055\u308C\u307E\u305B\u3093\u3002"), tab === "branch" && /*#__PURE__*/React.createElement(BranchPanel, {
     bsort: bsort,
     setBsort: setBsort,
-    kim: kim
+    kim: kim,
+    players: players,
+    hasDetail: !!detail,
+    detailErr: detailErr
   }), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
@@ -1108,7 +1254,14 @@ function App() {
         padding: "0 16px 16px",
         borderTop: "1px solid #1a2535"
       }
-    }, /*#__PURE__*/React.createElement("div", {
+    }, !detail ? /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 11,
+        color: "#6b7f95",
+        margin: "12px 0",
+        lineHeight: 1.7
+      }
+    }, detailErr ? "選手データを読み込めませんでした。ページを再読込してください。" : "読み込み中…") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 11,
         color: "#8faabe",
@@ -1143,7 +1296,7 @@ function App() {
         fontWeight: 700,
         color: l === "養成期" ? "#79c0ff" : l === "能力指数" ? "#ffd166" : "#e0e6ed"
       }
-    }, v)))), pf && pf.hobby && /*#__PURE__*/React.createElement("div", {
+    }, v))))), pf && pf.hobby && /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 12,
         color: "#c5d2e0",
@@ -1207,14 +1360,19 @@ function App() {
       style: {
         height: 14
       }
-    }), /*#__PURE__*/React.createElement("div", {
+    }), detail && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 11,
         color: "#8faabe",
         fontWeight: 700,
         marginBottom: 6
       }
-    }, "\u25A0 \u6210\u7E3E"), /*#__PURE__*/React.createElement("div", {
+    }, "\u25A0 \u6210\u7E3E\u3000", /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: "#6b7f95",
+        fontWeight: 400
+      }
+    }, "\u671F\u9996\u6642\u70B9\u306E\u5024\uFF08\u53D6\u5F97\u65E5\u4E0D\u660E\uFF09")), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         gap: 14,
@@ -1302,7 +1460,7 @@ function App() {
         marginTop: 6,
         lineHeight: 1.5
       }
-    }, "\u9EC4=\u30A4\u30F3(1\u30FB2)\u3001\u9752=\u30A2\u30A6\u30C8(3\u301C6)\u3002\u30A2\u30A6\u30C8\u304C\u9AD8\u3044\u9078\u624B\u306F\u5916\u304B\u3089\u653B\u3081\u3066\u52DD\u3066\u308B\u653B\u6483\u578B\u3002"), k && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    }, "\u9EC4=\u30A4\u30F3(1\u30FB2)\u3001\u9752=\u30A2\u30A6\u30C8(3\u301C6)\u3002\u30A2\u30A6\u30C8\u304C\u9AD8\u3044\u9078\u624B\u306F\u5916\u304B\u3089\u653B\u3081\u3066\u52DD\u3066\u308B\u653B\u6483\u578B\u3002")), k && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 11,
         color: "#8faabe",
