@@ -1,0 +1,38 @@
+name: 選手プロフィール軽量版 更新
+
+# docs/players/profile.json（手入力の正本）が変わった push でだけ走り、
+# 一覧カード用の軽量版 docs/players/profileLite.json を作り直す。
+# profile.json は読むだけで書き換えない。
+
+on:
+  push:
+    paths:
+      - 'docs/players/profile.json'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: boatrace-profilelite
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      # tagline / nickname だけを抜き出す。標準ライブラリのみ＝pip不要。
+      - run: python scripts/buildProfileLite.py
+      - name: commit and push
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/players/profileLite.json
+          git diff --staged --quiet || git commit -m "update profileLite.json"
+          git pull --rebase origin ${{ github.ref_name }} || true
+          git push origin HEAD:${{ github.ref_name }}
