@@ -1,0 +1,19 @@
+{
+  "note": "選手成績データの項目別の由来。次に触る人が調査を繰り返さないための対応表。27キーすべてを分類している。",
+  "canonical": "docs/data/racerStats.json が期首固定項目の正本。元データ（ファン手帳）は未特定のため、当面このJSONを正本として扱う。scripts/buildRacerStats.py は1回限りの移行用で、正本ではない。",
+  "sourceIdentity": {
+    "note": "選手の識別情報。更新対象外。",
+    "fields": ["no", "name"]
+  },
+  "sourceFixed": {
+    "asOf": "unknown",
+    "asOfNote": "期首時点の値。取得日の記録がリポジトリに存在しないため不明。推測日は入れない。各項目が何から算出された値かは特定できていないため断定しない。ここに挙げた項目は、このJSON内で更新される経路が無いという事実のみを示す。",
+    "alsoInDaily": "branch / home / age は docs/racers/racers_today.csv にも支部・出身・年齢として存在し、そちらは毎朝更新される。本JSONの値は期首時点のまま。",
+    "fields": ["c1", "out", "birth", "blood", "height", "weight", "syutsu", "win1", "win2", "yusyo", "yusyutsu", "female", "kana", "yousei", "prevrank", "prev2rank", "power", "branch", "home", "age"]
+  },
+  "sourceDaily": {
+    "source": "docs/racers/racers_today.csv",
+    "updated": "毎朝のActionsで更新",
+    "fields": ["rank", "win", "fukusho", "avgst", "f"]
+  }
+}
