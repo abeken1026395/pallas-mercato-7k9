@@ -151,20 +151,22 @@ def write_racer_stats_today(now_iso):
         by_no = {p['no']: p for p in json.load(sf).get('players', [])}
 
     src_dir = os.path.dirname(STATS_OUT) or '.'
-    union, per_file = set(), []
+    union, sources, skipped = set(), {}, []
     for name in STATS_SOURCES:
         path = os.path.join(src_dir, name)
         try:
             with open(path, encoding='utf-8') as hf:
                 found = collect_toban(json.load(hf), set())
-        except FileNotFoundError:
-            per_file.append((name, None))
-            print("NOTE: {} が無いのでスキップ（未生成）".format(path))
+        except Exception as e:
+            # 読めなかったファイルは null で記録する。収録が静かに縮んだことを
+            # 後から生成物だけで追えるようにするため。処理は止めない。
+            sources[name] = None
+            skipped.append("{}({})".format(name, e.__class__.__name__))
             continue
-        per_file.append((name, len(found)))
+        sources[name] = len(found)
         union |= found
     print("収録元: " + " / ".join(
-        "{}={}".format(n, '未生成' if c is None else c) for n, c in per_file))
+        "{}={}".format(n, '読めず' if c is None else c) for n, c in sources.items()))
 
     nos = sorted(union)
     players, missing = {}, []
@@ -175,7 +177,7 @@ def write_racer_stats_today(now_iso):
             continue
         players[no] = {hk: src[sk] for hk, sk in PROF_KEYS}
 
-    doc = {'asOf': 'unknown', 'generated': now_iso, 'players': players}
+    doc = {'asOf': 'unknown', 'generated': now_iso, 'sources': sources, 'players': players}
     os.makedirs(os.path.dirname(STATS_OUT) or '.', exist_ok=True)
     with open(STATS_OUT, 'w', encoding='utf-8') as sf:
         json.dump(doc, sf, ensure_ascii=False, separators=(',', ':'))
@@ -183,6 +185,13 @@ def write_racer_stats_today(now_iso):
     if missing:
         print("NOTE: racerStats.json に無い登番 {}件（収録せず）: {}".format(
             len(missing), ','.join(missing)))
+    # 読めないファイルがあると収録が静かに縮み、前日・前々日タブの選手情報が欠ける。
+    # エラーにならず気づけないので、標準エラーに目立つ警告を出す（処理は止めない）。
+    if skipped:
+        print("WARNING: 見どころJSON {}/{}件が読めませんでした: {} → 収録が{}名に縮んでいます。"
+              "前日・前々日タブで選手情報が欠ける可能性があります。".format(
+                  len(skipped), len(STATS_SOURCES), ', '.join(skipped), len(players)),
+              file=sys.stderr)
     print("OK: 見どころ登場{}名中{}名 → {}".format(len(nos), len(players), STATS_OUT))
 
 def main():
