@@ -6,8 +6,8 @@
     "fields": ["no", "name"]
   },
   "sourceFixed": {
-    "asOf": "unknown",
-    "asOfNote": "期首時点の値。取得日の記録がリポジトリに存在しないため不明。推測日は入れない。各項目が何から算出された値かは特定できていないため断定しない。ここに挙げた項目は、このJSON内で更新される経路が無いという事実のみを示す。",
+    "asOf": "2026後期（fan2604）",
+    "asOfNote": "公式の期別成績ファイル fan2604 の値。fanファイルはファイル名が期の直前の年月で付く命名規則で、fan2604 は2026年後期（7〜12月）を指す。公式配布元 https://www.boatrace.jp/static_extra/pc_static/download/data/kibetsu/fan2604.lzh 期の途中で変わらない値であり、日次の更新経路は無い。次回更新は2027年前期版（fan2610）が配布されたとき。",
     "alsoInDaily": "branch / home / age は docs/racers/racers_today.csv にも支部・出身・年齢として存在し、そちらは毎朝更新される。本JSONの値は期首時点のまま。",
     "fields": ["c1", "out", "birth", "blood", "height", "weight", "syutsu", "win1", "win2", "yusyo", "yusyutsu", "female", "kana", "yousei", "prevrank", "prev2rank", "power", "branch", "home", "age"]
   },

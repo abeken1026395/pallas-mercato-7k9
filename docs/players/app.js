@@ -434,7 +434,7 @@ function BranchPanel({
       margin: "2px 2px 10px",
       lineHeight: 1.5
     }
-  }, "\u652F\u90E8\u6240\u5C5E\u8005\u306E\u96C6\u8A08\uFF082026\u524D\u671Ffan2604\uFF09\u3002\u6C7A\u307E\u308A\u624B\u306F\u6240\u5C5E\u9078\u624B\u306E1\u7740\u5B9F\u6570\u3092\u5408\u7B97\u3057\u305F\u6BD4\u7387\u3002\u6570\u5024\u53F3\u306F\u5168\u56FD\u5E73\u5747\u3068\u306E\u5DEE\u5206\u3002\u6BCD\u6570\u306E\u5C11\u306A\u3044\u652F\u90E8\u306F\u30D6\u30EC\u3084\u3059\u304F\u3001\u500B\u3005\u306E\u9078\u624B\u304C\u5F93\u3046\u308F\u3051\u3067\u306F\u306A\u3044\u76EE\u5B89\u3002"), /*#__PURE__*/React.createElement("div", {
+  }, "\u652F\u90E8\u6240\u5C5E\u8005\u306E\u96C6\u8A08\uFF082026\u5F8C\u671Ffan2604\uFF09\u3002\u6C7A\u307E\u308A\u624B\u306F\u6240\u5C5E\u9078\u624B\u306E1\u7740\u5B9F\u6570\u3092\u5408\u7B97\u3057\u305F\u6BD4\u7387\u3002\u6570\u5024\u53F3\u306F\u5168\u56FD\u5E73\u5747\u3068\u306E\u5DEE\u5206\u3002\u6BCD\u6570\u306E\u5C11\u306A\u3044\u652F\u90E8\u306F\u30D6\u30EC\u3084\u3059\u304F\u3001\u500B\u3005\u306E\u9078\u624B\u304C\u5F93\u3046\u308F\u3051\u3067\u306F\u306A\u3044\u76EE\u5B89\u3002"), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       gap: 6,
@@ -883,7 +883,7 @@ function App() {
         fontSize: 12,
         color: "#6b7f95"
       }
-    }, "2026\u524D\u671F\u3000\u6210\u7E3E\uFF1D\u671F\u9996\u6642\u70B9\uFF08\u53D6\u5F97\u65E5\u4E0D\u660E\uFF09")), /*#__PURE__*/React.createElement("div", {
+    }, "2026\u5F8C\u671F\u3000\u6210\u7E3E\uFF1D\u671F\u9996\u6642\u70B9\uFF08fan2604\uFF09")), /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 13,
         color: "#8faabe",
@@ -924,7 +924,7 @@ function App() {
       fontSize: 12,
       color: "#6b7f95"
     }
-  }, "2026\u524D\u671F \u5168", players.length, "\u9078\u624B\u3000\u6210\u7E3E\uFF1D\u671F\u9996\u6642\u70B9\uFF08\u53D6\u5F97\u65E5\u4E0D\u660E\uFF09")), /*#__PURE__*/React.createElement("input", {
+  }, "2026\u5F8C\u671F \u5168", players.length, "\u9078\u624B\u3000\u6210\u7E3E\uFF1D\u671F\u9996\u6642\u70B9\uFF08fan2604\uFF09")), /*#__PURE__*/React.createElement("input", {
     placeholder: "\u9078\u624B\u540D / \u3075\u308A\u304C\u306A / \u767B\u756A / \u652F\u90E8\u3067\u691C\u7D22...",
     value: q,
     onChange: e => setQ(e.target.value),
@@ -1372,7 +1372,7 @@ function App() {
         color: "#6b7f95",
         fontWeight: 400
       }
-    }, "\u671F\u9996\u6642\u70B9\u306E\u5024\uFF08\u53D6\u5F97\u65E5\u4E0D\u660E\uFF09")), /*#__PURE__*/React.createElement("div", {
+    }, "\u671F\u9996\u6642\u70B9\u306E\u5024\uFF08fan2604\uFF09")), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         gap: 14,

@@ -206,7 +206,7 @@ function BranchPanel({bsort,setBsort,kim,players,hasDetail,detailErr}){
   );
   return (
    <div>
-    <div style={{fontSize:11,color:"#6b7f95",margin:"2px 2px 10px",lineHeight:1.5}}>支部所属者の集計（2026前期fan2604）。決まり手は所属選手の1着実数を合算した比率。数値右は全国平均との差分。母数の少ない支部はブレやすく、個々の選手が従うわけではない目安。</div>
+    <div style={{fontSize:11,color:"#6b7f95",margin:"2px 2px 10px",lineHeight:1.5}}>支部所属者の集計（2026後期fan2604）。決まり手は所属選手の1着実数を合算した比率。数値右は全国平均との差分。母数の少ない支部はブレやすく、個々の選手が従うわけではない目安。</div>
     <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}>
      {sk.map(([k,l])=>(
       <button key={k} onClick={()=>setBsort(k)} style={{padding:"6px 13px",fontSize:12,fontWeight:700,borderRadius:8,cursor:"pointer",border:"1px solid "+(bsort===k?"#ffd166":"#1e2d3d"),background:bsort===k?"#ffd166":"#162232",color:bsort===k?"#0b1219":"#8faabe"}}>{l}</button>
@@ -415,7 +415,7 @@ function App() {
       <div style={{minHeight:"100vh",padding:"14px 12px 40px",maxWidth:760,margin:"0 auto"}}>
         <div style={{display:"flex",alignItems:"baseline",gap:10,marginBottom:14}}>
           <span style={{fontSize:24,fontWeight:900,letterSpacing:1,color:"#ffd166"}}>選手図鑑</span>
-          <span style={{fontSize:12,color:"#6b7f95"}}>2026前期　成績＝期首時点（取得日不明）</span>
+          <span style={{fontSize:12,color:"#6b7f95"}}>2026後期　成績＝期首時点（fan2604）</span>
         </div>
         <div style={{fontSize:13,color:"#8faabe",lineHeight:1.8,padding:"18px 2px"}}>
           {coreErr ? "選手データを読み込めませんでした。ページを再読込してください。" : "読み込み中…"}
@@ -429,7 +429,7 @@ function App() {
     <div style={{minHeight:"100vh",padding:"14px 12px 40px",maxWidth:760,margin:"0 auto"}}>
       <div style={{display:"flex",alignItems:"baseline",gap:10,marginBottom:14}}>
         <span style={{fontSize:24,fontWeight:900,letterSpacing:1,color:"#ffd166"}}>選手図鑑</span>
-        <span style={{fontSize:12,color:"#6b7f95"}}>2026前期 全{players.length}選手　成績＝期首時点（取得日不明）</span>
+        <span style={{fontSize:12,color:"#6b7f95"}}>2026後期 全{players.length}選手　成績＝期首時点（fan2604）</span>
       </div>
 
       <input placeholder="選手名 / ふりがな / 登番 / 支部で検索..." value={q} onChange={e=>setQ(e.target.value)} style={{width:"100%",padding:"12px 14px",background:"#162232",color:"#e0e6ed",border:"1px solid #1e2d3d",borderRadius:10,fontSize:14,marginBottom:10}}/>
@@ -536,7 +536,7 @@ function App() {
                   );})()}
                   {pf&&(pf.hobby||pf.food||pf.note)&&<div style={{height:14}}></div>}
                   {detail && (<>
-                  <div style={{fontSize:11,color:"#8faabe",fontWeight:700,marginBottom:6}}>■ 成績　<span style={{color:"#6b7f95",fontWeight:400}}>期首時点の値（取得日不明）</span></div>
+                  <div style={{fontSize:11,color:"#8faabe",fontWeight:700,marginBottom:6}}>■ 成績　<span style={{color:"#6b7f95",fontWeight:400}}>期首時点の値（fan2604）</span></div>
                   <div style={{display:"flex",gap:14,flexWrap:"wrap",marginBottom:14,background:"#0b1219",borderRadius:8,padding:"10px 12px"}}>
                     {[["出走",p.syutsu],["1着",p.win1],["2着",p.win2],["優勝",p.yusyo],["優出",p.yusyutsu],["平均ST",p.avgst],["F数",p.f]].map(([l,v],i)=>(
                       <div key={i} style={{display:"flex",flexDirection:"column",minWidth:54}}>
