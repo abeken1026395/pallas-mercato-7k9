@@ -227,6 +227,7 @@ function App() {
   const [open, setOpen] = useState(null);
   const [kim, setKim] = useState({});
   const [prof, setProf] = useState({});
+  const [profFull, setProfFull] = useState(false);
   const [mon, setMon] = useState(null);
   const [monMeta, setMonMeta] = useState(null);
   const [e30, setE30] = useState(null);
@@ -253,10 +254,17 @@ function App() {
     }).catch(()=>{});
   },[]);
   useEffect(()=>{
-    fetch("profile.json").then(r=>r.ok?r.json():Promise.reject()).then(j=>{
+    fetch("profileLite.json").then(r=>r.ok?r.json():Promise.reject()).then(j=>{
       if(j && typeof j==="object") setProf(j);
     }).catch(()=>{});
   },[]);
+  // 詳細を初めて開いた時だけフル版プロフィール（note/hobby込み）を遅延読込（一覧を重くしない）
+  useEffect(()=>{
+    if(!open || profFull) return;
+    fetch("profile.json").then(r=>r.ok?r.json():Promise.reject()).then(j=>{
+      if(j && typeof j==="object"){ setProfFull(true); setProf(j); }
+    }).catch(()=>{});
+  },[open]);
   // 詳細を初めて開いた時だけ月別成績JSONを遅延読込（一覧を重くしない）
   useEffect(()=>{
     if(!open || mon!==null) return;
