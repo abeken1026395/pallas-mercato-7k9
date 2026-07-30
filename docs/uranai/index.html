@@ -40,7 +40,11 @@ input:focus,select:focus{outline:none;border-color:var(--gold)}
 .hint b{color:var(--gold)}
 .list{margin-top:14px;min-height:104px}
 .rmsg{margin-top:12px;font-size:12px;color:var(--sub);text-align:center;line-height:1.7}
-.nm .full a{color:inherit;text-decoration:underline;text-underline-offset:2px}
+.nm .full a{display:inline-block;min-height:24px;padding:2px 1px;color:inherit;text-decoration:underline;text-underline-offset:2px}
+.nm .full .oshi{display:inline-block;min-width:24px;min-height:24px;line-height:24px;text-align:center;color:var(--gold);font-size:13px}
+.back{margin-top:8px;text-align:center}
+.backlink{display:inline-block;min-width:24px;min-height:24px;padding:9px 16px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font-size:13px;font-weight:700;text-decoration:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .ent{display:flex;align-items:center;gap:10px;padding:11px 12px;background:var(--card);border:1px solid var(--line);border-left-width:4px;border-radius:12px;margin-top:8px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .ent.lvA1{border-left-color:#e23b3b}.ent.lvA2{border-left-color:#e67e22}.ent.lvB1{border-left-color:#2f7be2}.ent.lvB2{border-left-color:#4a5b68}
 .rank{font-size:13px;font-weight:800;color:var(--sub);width:34px;text-align:center;flex-shrink:0;font-variant-numeric:tabular-nums}
@@ -104,11 +108,13 @@ input:focus,select:focus{outline:none;border-color:var(--gold)}
 <div data-g="m" class="on">男子</div>
 <div data-g="f">女子</div>
 <div data-g="all">全員</div>
+<div data-g="oshi">推し</div>
 </div>
 <div class="search"><input type="text" id="q" placeholder="名前・ふりがな・登番で検索"></div>
 
 <p class="rmsg" id="rmsg" style="display:none"></p>
 <div class="you" id="you"></div>
+<div class="back" id="back"></div>
 <div class="list" id="list"><div class="hint">選手データを読み込んでいます…</div></div>
 <div class="more" id="more" style="display:none"><button id="moreBtn">もっと見る</button></div>
 
@@ -140,6 +146,23 @@ const Q_TOBAN=(QS.get('toban')||'').trim();
 const Q_JCD=(QS.get('jcd')||'').trim();
 const Q_HD=(QS.get('hd')||'').trim();
 const Q_RNO=(QS.get('rno')||'').trim();
+const Q_FROM=(QS.get('from')||'').trim();
+/* 戻り導線はホワイトリストの完全一致のみ。from の値はURL・HTMLに一切埋めない */
+const BACKLINK={
+ racers:'<a class="backlink" href="../racers/">← 出走表トップへ</a>',
+ highlights:'<a class="backlink" href="../highlights/">← 見どころへ</a>'
+};
+function backlinkHTML(){
+ if(Q_FROM==='racers')return BACKLINK.racers;
+ if(Q_FROM==='highlights')return BACKLINK.highlights;
+ return '';
+}
+/* 推しフォロー（選手図鑑・出走表と共有。キー br_oshi ／ 形式 [{toban,name}] ／ toban は文字列）
+   占いページは読み取り専用。br_oshi へ書き込みは行わない */
+function lsGetJSON(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
+let OSHI=lsGetJSON('br_oshi',[]);if(!Array.isArray(OSHI))OSHI=[];
+function isOshi(toban){return OSHI.some(o=>o&&String(o.toban)===String(toban));}
+function oshiBadge(toban){return isOshi(toban)?'<span class="oshi" title="推し">★<span class="sr">推し</span></span>':'';}
 const RACE_MODE=!!(Q_JCD&&Q_HD&&Q_RNO);
 let RACE=null,RACE_MSG='';
 const AISHO_SEED=20260101; // 相性は固定（日付で動かさない）
@@ -227,6 +250,7 @@ function filtered(){
  let a=PLAYERS;
  if(GEN==='m')a=a.filter(p=>!p.female);
  else if(GEN==='f')a=a.filter(p=>p.female);
+ else if(GEN==='oshi')a=a.filter(p=>isOshi(p.no));
  const q=$('q').value.trim();
  if(q){const qh=kana2hira(q);a=a.filter(p=>p.name.includes(q)||kana2hira(p.kana).includes(qh)||p.kana.includes(q)||String(p.no).includes(q));}
  return a;
@@ -238,7 +262,7 @@ function compute(){
 }
 function rowHTML(o,i){
  const p=o.p;const fem=p.female?' <span class="h">♥</span>':'';
- return `<div class="ent lv${p.rank} ${i<3?'t3':''}" data-no="${p.no}"><div class="rank">${i+1}</div><span class="rkbadge rk${p.rank}">${p.rank}</span><div class="nm"><span class="kana">${kana2hira(p.kana)}</span><span class="full">${p.name}${fem}</span><span class="meta">${p.branch}</span><div class="bar"><i style="width:${o.sc}%;background:${BARC(o.sc)}"></i></div></div><div class="sc">${o.sc}</div><div class="chev">▶</div></div><div class="prof" id="pf-${p.no}"></div>`;
+ return `<div class="ent lv${p.rank} ${i<3?'t3':''}" data-no="${p.no}"><div class="rank">${i+1}</div><span class="rkbadge rk${p.rank}">${p.rank}</span><div class="nm"><span class="kana">${kana2hira(p.kana)}</span><span class="full">${p.name}${oshiBadge(p.no)}${fem}</span><span class="meta">${p.branch}</span><div class="bar"><i style="width:${o.sc}%;background:${BARC(o.sc)}"></i></div></div><div class="sc">${o.sc}</div><div class="chev">▶</div></div><div class="prof" id="pf-${p.no}"></div>`;
 }
 function render(){
  if(TAB==='aisho'){
@@ -247,17 +271,23 @@ function render(){
   $('note').innerHTML='相性＝血液型25・星座25・干支25・生年月日25の合計100点。日付では変わりません。';
  }else{
   $('inputPanel').style.display='none';
-  $('lead').innerHTML='実力は見ません。今日の星まわりだけで並べました。当たったら運、外れても運。';
+  $('lead').innerHTML='実力は見ません。今日の星まわりだけで並べた遊びで、予想ではありません。当たったら運、外れても運。';
   $('note').innerHTML='勝負運＝生年月日25・干支の日運25・星座の日運25・血液型バイオリズム25の合計100点。毎朝その日の星まわりで並び替わります。';
  }
  if(!LOADED)return; // 読み込み中はリスト領域に触らない（高さを保つ）
  if(RACE){renderRace();return;}
+ $('back').innerHTML='';
  $('rmsg').style.display=RACE_MSG?'block':'none';
  $('rmsg').textContent=RACE_MSG;
  compute();
  if(ranked===null){
   $('you').innerHTML='';
   $('list').innerHTML='<div class="hint"><b>生年月日</b>と<b>血液型</b>を選ぶと<br>相性順に並びます。</div>';
+  $('more').style.display='none';return;
+ }
+ if(GEN==='oshi'&&ranked.length===0){
+  $('you').innerHTML='';
+  $('list').innerHTML='<div class="hint">選手図鑑や出走表で<b>★</b>を付けると、ここに出ます。<br><a class="backlink" href="../players/" style="margin-top:12px">選手図鑑をひらく</a></div>';
   $('more').style.display='none';return;
  }
  if(TAB==='aisho'){const m=me();$('you').innerHTML=`あなた：<b>${seiza(m.mo,m.d)}座</b>・<b>${m.eto}年</b>・<b>${m.blood}型</b>　該当 ${ranked.length}名`;}
@@ -281,7 +311,7 @@ function raceRowHTML(o,m){
  const fem=(p&&p.female)?' <span class="h">♥</span>':'';
  const link=`<a href="?toban=${o.no}">${nm}</a>`;
  const sc=raceScore(o,m);
- return `<div class="ent lv${rk}" data-no="${o.no}"><div class="rank">${o.frame}</div><span class="rkbadge rk${rk}">${rk}</span><div class="nm"><span class="kana">${kn}</span><span class="full">${link}${fem}</span><span class="meta">${br}</span></div><div class="sc">${sc}</div>${p?'<div class="chev">▶</div>':''}</div><div class="prof" id="pf-${o.no}"></div>`;
+ return `<div class="ent lv${rk}" data-no="${o.no}"><div class="rank">${o.frame}</div><span class="rkbadge rk${rk}">${rk}</span><div class="nm"><span class="kana">${kn}</span><span class="full">${link}${oshiBadge(o.no)}${fem}</span><span class="meta">${br}</span></div><div class="sc">${sc}</div>${p?'<div class="chev">▶</div>':''}</div><div class="prof" id="pf-${o.no}"></div>`;
 }
 function renderRace(){
  $('rmsg').style.display='none';
@@ -291,6 +321,7 @@ function renderRace(){
  const m=(TAB==='aisho')?me():null;
  const hd=RACE.hd.length===8?`${RACE.hd.slice(0,4)}年${+RACE.hd.slice(4,6)}月${+RACE.hd.slice(6,8)}日`:RACE.hd;
  $('you').innerHTML=`<b>${RACE.venue}</b> ／ ${hd} ／ <b>${RACE.rno}</b>　枠順で表示`;
+ $('back').innerHTML=backlinkHTML();
  $('list').innerHTML=RACE.rows.map(o=>raceRowHTML(o,m)).join('');
 }
 function parseCSV(text){
