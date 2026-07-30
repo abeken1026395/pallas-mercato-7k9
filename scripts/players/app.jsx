@@ -427,9 +427,9 @@ function App() {
 
   return (
     <div style={{minHeight:"100vh",padding:"14px 12px 40px",maxWidth:760,margin:"0 auto"}}>
-      <div style={{display:"flex",alignItems:"baseline",gap:10,marginBottom:14}}>
-        <span style={{fontSize:24,fontWeight:900,letterSpacing:1,color:"#ffd166"}}>選手図鑑</span>
-        <span style={{fontSize:12,color:"#6b7f95"}}>2026後期 全{players.length}選手　成績＝期首時点（fan2604）</span>
+      <div style={{marginBottom:14}}>
+        <div style={{fontSize:24,fontWeight:900,letterSpacing:1,color:"#ffd166"}}>選手図鑑</div>
+        <div style={{fontSize:12,color:"#6b7f95",marginTop:4,lineHeight:1.5}}>2026後期 全{players.length}選手　成績＝期首時点（fan2604）</div>
       </div>
 
       <input placeholder="選手名 / ふりがな / 登番 / 支部で検索..." value={q} onChange={e=>setQ(e.target.value)} style={{width:"100%",padding:"12px 14px",background:"#162232",color:"#e0e6ed",border:"1px solid #1e2d3d",borderRadius:10,fontSize:14,marginBottom:10}}/>
