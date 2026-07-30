@@ -49,6 +49,9 @@ input:focus,select:focus{outline:none;border-color:var(--gold)}
 .ent.lvA1{border-left-color:#e23b3b}.ent.lvA2{border-left-color:#e67e22}.ent.lvB1{border-left-color:#2f7be2}.ent.lvB2{border-left-color:#4a5b68}
 .rank{font-size:13px;font-weight:800;color:var(--sub);width:34px;text-align:center;flex-shrink:0;font-variant-numeric:tabular-nums}
 .ent.t3 .rank{color:var(--gold)}
+/* レース単位表示の艇番。全員リストの順位（.rank）とは別物と分かるよう幅と色を上書きする。出走表の艇色は持ち込まない */
+.rank.rankframe{width:auto;min-width:48px;padding:0 2px;color:var(--ink);white-space:nowrap}
+.ent.t3 .rank.rankframe{color:var(--ink)}
 .rkbadge{display:inline-block;font-size:10px;font-weight:800;padding:2px 6px;border-radius:5px;flex-shrink:0}
 .rkA1{background:#e23b3b;color:#fff}.rkA2{background:#e67e22;color:#fff}.rkB1{background:#2f7be2;color:#fff}.rkB2{background:#4a5b68;color:#fff}
 .nm{flex:1;min-width:0}
@@ -311,7 +314,7 @@ function raceRowHTML(o,m){
  const fem=(p&&p.female)?' <span class="h">♥</span>':'';
  const link=`<a href="?toban=${o.no}">${nm}</a>`;
  const sc=raceScore(o,m);
- return `<div class="ent lv${rk}" data-no="${o.no}"><div class="rank">${o.frame}</div><span class="rkbadge rk${rk}">${rk}</span><div class="nm"><span class="kana">${kn}</span><span class="full">${link}${oshiBadge(o.no)}${fem}</span><span class="meta">${br}</span></div><div class="sc">${sc}</div>${p?'<div class="chev">▶</div>':''}</div><div class="prof" id="pf-${o.no}"></div>`;
+ return `<div class="ent lv${rk}" data-no="${o.no}"><div class="rank rankframe">${o.frame}号艇</div><span class="rkbadge rk${rk}">${rk}</span><div class="nm"><span class="kana">${kn}</span><span class="full">${link}${oshiBadge(o.no)}${fem}</span><span class="meta">${br}</span></div><div class="sc">${sc}</div>${p?'<div class="chev">▶</div>':''}</div><div class="prof" id="pf-${o.no}"></div>`;
 }
 function renderRace(){
  $('rmsg').style.display='none';
