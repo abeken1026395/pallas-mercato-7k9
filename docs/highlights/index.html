@@ -230,6 +230,10 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .race.urgent .soon-badge{color:var(--hot);background:rgba(255,107,91,.16);border-color:rgba(255,107,91,.45)}
 .rchip.urgent{border-color:rgba(255,107,91,.7)}
 .rchip.urgent::after{background:var(--hot)}
+/* ⭐推し表示（キー br_oshi は出走表・選手図鑑と共有。このページは読むだけで登録・解除しない） */
+.oshi-badge{font-size:11px;font-weight:700;color:#0b1219;background:#ffd166;border-radius:6px;padding:1px 7px;white-space:nowrap}
+.oshi-mk{color:#ffd166;font-size:12px;margin-left:3px}
+.oshi-note{color:#7a6c44;font-size:10px;line-height:1.7}
 </style>
 </head>
 <body>
@@ -307,6 +311,23 @@ function lsGet(k,d){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):
 function pinCode(c){ var t=String(c==null?"":c); return t.length===1 ? "0"+t : t; }
 function hasPin(list,code){ return list.some(function(p){ return p && pinCode(p.code)===pinCode(code); }); }
 var PIN=lsGet("br_stadium",[]); if(!Array.isArray(PIN)) PIN=[];
+/* ===== ⭐推しフォロー（出走表 scripts/template_racers.html・選手図鑑 scripts/players/app.jsx と共有。キー br_oshi ／形式 [{toban,name}] ／このページは読むだけで書き込まない） ===== */
+var OSHI=lsGet("br_oshi",[]); if(!Array.isArray(OSHI)) OSHI=[];
+function isOshi(toban){ return OSHI.some(function(o){ return o && String(o.toban)===String(toban); }); }
+function oshiInRace(r){
+  var out=[];
+  (r['艇']||[]).forEach(function(b){
+    if(b && isOshi(String(b['登録番号']))) out.push(String(b['氏名']||''));
+  });
+  return out;
+}
+function oshiRaceBadge(r){
+  if(!OSHI.length) return '';
+  var ns=oshiInRace(r);
+  if(!ns.length) return '';
+  var txt = (ns.length<=2) ? ns.join('・') : (ns.length+'人');
+  return '<span class="oshi-badge">⭐ 推し '+kEsc(txt)+'</span>';
+}
 
 function isJimoto(b, ba){
   const js=JIMOTO[ba]; if(!js) return false;
@@ -324,7 +345,7 @@ function boatRow(b, ba){
   return `<div class="boat" data-rid="${rid}" data-no="${no}">
     <span class="wk wk${b['枠']}">${b['枠']}</span>
     <span class="lv lv${b['級別']}">${b['級別']}</span>
-    <span class="nm${fem?' fem-nm':''}"><a href="../players/?toban=${no}" onclick="event.stopPropagation()" style="color:inherit;text-decoration:none;border-bottom:1px dotted #4a6a8a">${b['氏名']}</a>${jim?'<span class="jimoto">地元</span>':''}${fl}</span>
+    <span class="nm${fem?' fem-nm':''}"><a href="../players/?toban=${no}" onclick="event.stopPropagation()" style="color:inherit;text-decoration:none;border-bottom:1px dotted #4a6a8a">${b['氏名']}</a>${jim?'<span class="jimoto">地元</span>':''}${fl}${isOshi(no)?'<span class="oshi-mk">⭐</span>':''}</span>
     <span class="mtr${mc}">機${mtxt}</span>
     <span class="stat">全${b['全国勝率'].toFixed(2)}／当${up?'<span class="up">':''}${b['当地勝率']>0?b['当地勝率'].toFixed(2):'－'}${up?'▲</span>':''}</span>
     <span class="bchev">▶</span>
@@ -428,7 +449,7 @@ function renderCard(r, ctx){
   const resRow=res?`<div class="rresult-row">🏁 <span>結果 <b>${res.finish}</b></span>${res.payout!=null?`<span>3連単 <b class="${res.payout>=10000?'man':''}">${(res.payout).toLocaleString()}円</b></span>`:''}<span class="src">出典：results（確定成績）</span></div>`:'';
   return `<div class="race${open?' open':''}" data-uid="${uid}" data-dl="${dl2min(r['締切時刻'])}">
     <div class="rhead" role="button" tabindex="0" aria-expanded="${open?'true':'false'}" aria-controls="rb-${uid}" data-uid="${uid}">
-      <div class="rtop"><span class="rname">${title}</span>${r['日目']?`<span class="nichi">${r['日目']}</span>`:''}${r['企画名']?`<span class="kikaku">${r['企画名']}</span>`:''}${badge(r)}<span class="soon-badge" aria-hidden="true">まもなく</span>${resHead}${r['締切時刻']?`<span class="deadline">締切 ${r['締切時刻']}</span>`:''}<span class="rchev" aria-hidden="true">▼</span></div>
+      <div class="rtop"><span class="rname">${title}</span>${r['日目']?`<span class="nichi">${r['日目']}</span>`:''}${r['企画名']?`<span class="kikaku">${r['企画名']}</span>`:''}${badge(r)}${oshiRaceBadge(r)}<span class="soon-badge" aria-hidden="true">まもなく</span>${resHead}${r['締切時刻']?`<span class="deadline">締切 ${r['締切時刻']}</span>`:''}<span class="rchev" aria-hidden="true">▼</span></div>
       <div class="rmitate"><span class="lbl">見立て</span><span class="mt-txt">${r['見立て']}</span></div>
     </div>
     <div class="rbody" id="rb-${uid}"${open?'':' hidden'}>
@@ -880,7 +901,7 @@ fetch(SRC+'?_='+Date.now())
   }
   if(d.length===8) document.getElementById('date').textContent=`${d.slice(0,4)}年${+d.slice(4,6)}月${+d.slice(6,8)}日 ${doc['レース数']}レース${ISNEXT?'（明日・前夜プレビュー）':''}`;
   const conf=(doc['確定イン率場']||[]).join('・');
-  document.getElementById('note').innerHTML=`イン1着率は目安値（${conf}は公式実数、他は暫定）。機＝モーター2連率（その節の機力目安で、選手の調子とは別物）。<br>波乱＝外枠A級・当地巧者アウト・イン不安・機力ちぐはぐ等の条件数。買い目・確率・勝者予想は出していません。<br><span style="opacity:.7">生成：${(doc['生成時刻']||'').replace('T',' ').slice(0,16)}</span>`;
+  document.getElementById('note').innerHTML=`イン1着率は目安値（${conf}は公式実数、他は暫定）。機＝モーター2連率（その節の機力目安で、選手の調子とは別物）。<br>波乱＝外枠A級・当地巧者アウト・イン不安・機力ちぐはぐ等の条件数。買い目・確率・勝者予想は出していません。<br><span style="opacity:.7">生成：${(doc['生成時刻']||'').replace('T',' ').slice(0,16)}</span>` + (OSHI.length?`<br><span class="oshi-note">⭐は推しフォロー中の選手。フォローはこの端末にのみ保存され、外部には送信されません。登録・解除は<a href="../racers/" style="color:#c8a24a">出走表</a>と<a href="../players/" style="color:#c8a24a">選手図鑑</a>から。</span>`:'');
   loadKansenki().then(render);
 })
 .catch(()=>{ISNEXT=false;NEXTMETA={};const nn=document.getElementById('nextnote');if(nn)nn.style.display='none';document.getElementById('list').innerHTML='<div class="empty">'+(SRC==='highlights_next.json'?'明日の前夜プレビューはまだありません（各場のレース確定後、夜に順次追加されます）。':SRC!=='highlights.json'?'この日の見どころはまだありません（明日以降たまります）。':'見どころデータを読み込めませんでした。highlights.json を確認してください。')+'</div>';});
