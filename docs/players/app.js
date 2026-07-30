@@ -907,22 +907,21 @@ function App() {
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      display: "flex",
-      alignItems: "baseline",
-      gap: 10,
       marginBottom: 14
     }
-  }, /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 24,
       fontWeight: 900,
       letterSpacing: 1,
       color: "#ffd166"
     }
-  }, "\u9078\u624B\u56F3\u9451"), /*#__PURE__*/React.createElement("span", {
+  }, "\u9078\u624B\u56F3\u9451"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 12,
-      color: "#6b7f95"
+      color: "#6b7f95",
+      marginTop: 4,
+      lineHeight: 1.5
     }
   }, "2026\u5F8C\u671F \u5168", players.length, "\u9078\u624B\u3000\u6210\u7E3E\uFF1D\u671F\u9996\u6642\u70B9\uFF08fan2604\uFF09")), /*#__PURE__*/React.createElement("input", {
     placeholder: "\u9078\u624B\u540D / \u3075\u308A\u304C\u306A / \u767B\u756A / \u652F\u90E8\u3067\u691C\u7D22...",
