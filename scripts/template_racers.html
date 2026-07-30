@@ -266,7 +266,7 @@ header .sub { font-size:11px; color:#8a94a3; margin-top:4px; }
 .fortune-pick { display:flex; gap:6px; flex-wrap:wrap; padding-top:8px; padding-bottom:2px; }
 .zbtn { font-size:11px; color:#a9b4c4; background:#0d1622; border:1px solid #24344a; border-radius:12px; padding:4px 9px; cursor:pointer; }
 .zbtn:active { background:#182535; }
-.fortune-link { font-size:11px; color:#9db2c9; text-decoration:none; }
+.fortune-link { display:inline-block; padding:6px 4px; margin:-6px -4px; font-size:11px; color:#9db2c9; text-decoration:none; }
 .fortune-more { font-size:10px; color:#6f7d8c; padding:7px 12px 11px; }
 .fortune-reset { font-size:10px; color:#7a828f; cursor:pointer; text-decoration:underline; }
 /* 推し */
@@ -1028,7 +1028,8 @@ function renderRace(app,crumb,v){
     off='<a class="offlink '+(closed?"offlink-result":"offlink-pend")+'" href="'+base+'raceresult'+q+'" target="_blank" rel="noopener">🏁 '+(closed?"レース結果（公式）":"結果（締切後に確定）")+' ↗</a>'
       +'<a class="offlink offlink-card" href="'+base+'racelist'+q+'" target="_blank" rel="noopener">公式出走表 ↗</a>';
   }
-  var links='<div class="race-links">'+wbtn+off+'</div>';
+  var uranai='<a class="offlink offlink-card" href="../uranai/?jcd='+v.jcd+'&hd='+v.hd+'&rno='+view.rno+'R&from=racers">🔮 この6艇を占う</a>';
+  var links='<div class="race-links">'+wbtn+off+uranai+'</div>';
   var html='<div class="race-head"><div class="line1"><span class="rt">'+esc(v.name)+' '+view.rno+'R</span><span class="kikaku">'+esc(rc.kikaku)+'</span></div>'
     +'<div class="dl">'+cdHtml+'<span>締切 '+esc(rc.deadline||"-")+'</span><span>'+esc(v.setsu)+' '+esc(v.day)+'</span></div>'
     +links+'</div>';

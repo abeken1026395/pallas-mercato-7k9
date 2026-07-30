@@ -147,6 +147,9 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .suji{font-size:11.5px;color:var(--sub);margin-top:6px;background:var(--panel2);border:1px solid var(--line);border-radius:7px;padding:6px 9px}
 .suji b{color:var(--acc2)}
 .warn{font-size:10.5px;color:var(--sub);margin-top:6px;font-style:italic}
+.uranai-card{margin-top:10px;padding-top:9px;border-top:1px dashed #23364a;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.uranai-link{font-size:11.5px;font-weight:700;color:#a9c6dd;background:#0f1a26;border:1px solid #24344a;border-radius:8px;padding:7px 11px;text-decoration:none}
+.uranai-cav{font-size:10px;color:#7d94a8;line-height:1.5}
 .note{color:var(--sub);font-size:11px;text-align:center;margin-top:18px;line-height:1.7}
 .loading,.empty{text-align:center;color:var(--sub);padding:34px 0;font-size:13px}
 
@@ -407,6 +410,12 @@ function fcstWx(r){
   if(!it.length) return '';
   return `<div class="fcstwx">🔮 予報（締切${kEsc(dl)}に最も近い時刻）｜ ${it.join(' ／ ')}<span class="cav">。Open-Meteoの予報値。実況ではありません。予想・買い目には用いません。</span></div>`;
 }
+// 占い（あそび）への導線。当日タブのみ＝勝負運は日運で毎朝並び替わるため、過去日・未来日には出さない。
+function uranaiCard(r){
+  if(SRC!=='highlights.json' || ISNEXT) return '';
+  const u=`../uranai/?jcd=${r['場コード']}&hd=${KAISAI}&rno=${r['レース']}&from=highlights`;
+  return `<div class="uranai-card"><a class="uranai-link" href="${u}">🔮 この6艇を占う</a><span class="uranai-cav">星座・干支・血液型だけのあそび。見立てとは関係ありません。</span></div>`;
+}
 function renderCard(r, ctx){
   // 明日タブ＝当日実況(LIVEW)・当日潮汐(TIDE)は出さず、締切近傍の予報に差し替える。
   const wx = ISNEXT ? fcstWx(r) : `${liveWx(r['場コード'])}${windSignal(r['場コード'])}${tideInfo(r['場コード'])}`;
@@ -431,6 +440,7 @@ function renderCard(r, ctx){
       <div class="suji"><b>波及の連鎖</b>：${r['波及']}</div>
       ${downFactorHtml(r)}
       ${collapseHtml(r)}
+      ${uranaiCard(r)}
       ${!r['モーター使用']?`<div class="warn">※当節モーター成績は集計前のため、機力は判定から除外しています。</div>`:''}
     </div>
   </div>`;
