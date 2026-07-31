@@ -81,26 +81,63 @@ def download(url, dest):
 
 
 def extract_lzh(lzh_path, workdir):
-    # lhasa: `lha e <archive>`（-q は付けない）。失敗時に実エラーを拾う。
+    # 解凍は lha(lhasa) を先に試し、コマンドが無い/非ゼロ終了なら
+    # Windows 同梱 bsdtar(libarchive) へフォールバックする。
+    #   ・Linux/Actions は従来どおり lha で解ける（挙動不変）。
+    #   ・ローカル(Windows)は lha が無く、lhafile も Python3.14 でビルドできないため
+    #     bsdtar が実質の本命（buildMotorUsage.py / scrapeKiryuPayouts.py と同じ流儀）。
+    # lhasa: `lha e <archive>`（-q は付けない。-q がアーカイブ名扱いになり失敗する）。
+    bsdtar = os.environ.get(
+        "BSDTAR",
+        os.path.join(os.environ.get("SystemRoot", r"C:\Windows"), "System32", "tar.exe"),
+    )
+
+    def _extracted():
+        return (glob.glob(os.path.join(workdir, "*.TXT"))
+                + glob.glob(os.path.join(workdir, "*.txt")))
+
+    lha_missing = False
+    lha_err = []
     try:
         res = subprocess.run(
             ["lha", "e", lzh_path],
             cwd=workdir, capture_output=True, text=True,
         )
     except FileNotFoundError:
-        sys.exit("[fatal] lha コマンドが無い。Actionで `sudo apt-get install -y lhasa` を入れること。")
+        lha_missing = True
+    else:
+        if res.returncode == 0:
+            return _extracted()
+        lha_err = (res.stderr or res.stdout or "").strip().splitlines()
 
-    if res.returncode != 0:
-        _diag["ext_fail"] += 1
-        if _diag["ext_fail_shown"] < DIAG_MAX:
-            _diag["ext_fail_shown"] += 1
-            err = (res.stderr or res.stdout or "").strip().splitlines()
-            print(f"  [diag] 解凍失敗 rc={res.returncode}: {lzh_path}")
-            for ln in err[:3]:
-                print(f"         {ln}")
-        return []
+    # フォールバック: bsdtar -xf <archive> -C <workdir>
+    res2 = None
+    try:
+        res2 = subprocess.run(
+            [bsdtar, "-xf", lzh_path, "-C", workdir],
+            capture_output=True, text=True,
+        )
+    except FileNotFoundError:
+        if lha_missing:
+            sys.exit("[fatal] lha も bsdtar も無い。Linux/Actions は "
+                     "`sudo apt-get install -y lhasa`、Windows は System32\\tar.exe "
+                     "（環境変数 BSDTAR で上書き可）を用意すること。")
 
-    return glob.glob(os.path.join(workdir, "*.TXT")) + glob.glob(os.path.join(workdir, "*.txt"))
+    if res2 is not None and res2.returncode == 0:
+        return _extracted()
+
+    _diag["ext_fail"] += 1
+    if _diag["ext_fail_shown"] < DIAG_MAX:
+        _diag["ext_fail_shown"] += 1
+        print(f"  [diag] 解凍失敗: {lzh_path}")
+        if lha_missing:
+            print("         lha    : コマンドなし")
+        for ln in lha_err[:2]:
+            print(f"         lha    : {ln}")
+        if res2 is not None:
+            for ln in (res2.stderr or res2.stdout or "").strip().splitlines()[:2]:
+                print(f"         bsdtar : {ln}")
+    return []
 
 
 # ---- 選手行のパース ------------------------------------------------------
