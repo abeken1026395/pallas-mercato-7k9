@@ -1,0 +1,600 @@
+<!-- データ攻め by あべけん https://abeken1026395.github.io/pallas-mercato-7k9/ -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="UTF-8">
+<meta name="author" content="あべけん（データ攻め）">
+<link rel="canonical" href="https://abeken1026395.github.io/pallas-mercato-7k9/motor-maintenance/">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>モーター整備 一覧</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#0b1219; font-family:'Helvetica Neue',Arial,sans-serif; color:#e0e6ed;
+       font-size:13px; line-height:1.6; }
+.wrap { max-width:1280px; margin:0 auto; padding:14px 12px 60px; }
+h1 { font-size:18px; font-weight:800; letter-spacing:.02em; }
+.sub { font-size:11px; color:#7d94a8; margin-top:3px; }
+a { color:#8fd0ff; }
+
+.panel { background:#0f1923; border:1px solid #24344a; border-radius:8px;
+         padding:10px 12px; margin-top:12px; }
+details.note > summary { cursor:pointer; list-style:none; font-size:11px; font-weight:700;
+         color:#9fb0c0; background:#16232f; border:1px solid #24344a; border-radius:4px;
+         padding:3px 9px; display:inline-block; }
+details.note > div { margin-top:8px; font-size:11.5px; color:#a9c6dd; }
+details.note h3 { font-size:11.5px; color:#cdd9e5; margin:9px 0 3px; }
+details.note p { margin:3px 0; }
+details.note ul { margin:3px 0 3px 16px; }
+
+/* 「見えること」パネル。本文と同じ視覚言語のまま。強調色・アイコン・装飾枠は使わない。
+   結論を表層に置き、根拠（交換率の表）は折りたたみの中に残す。 */
+.findings-h { font-size:12px; font-weight:700; color:#cdd9e5; }
+ul.findings { margin:6px 0 0 16px; font-size:12.5px; color:#a9c6dd; }
+ul.findings li { margin:1px 0; }
+ul.findings .n { color:#a9c6dd; }
+.findings-f { margin-top:7px; padding-top:6px; border-top:1px solid #1c2a3a;
+              font-size:11px; color:#7d94a8; }
+
+.filters { display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; }
+.f { display:flex; flex-direction:column; gap:2px; }
+.f label { font-size:10px; color:#7d94a8; }
+select, input[type=text] { background:#0b1219; color:#e0e6ed; border:1px solid #33475a;
+         border-radius:4px; padding:4px 6px; font-size:12px; font-family:inherit; min-width:120px; }
+input[type=text] { min-width:150px; }
+.chk { display:flex; align-items:center; gap:5px; font-size:11px; color:#a9c6dd;
+       align-self:flex-end; padding-bottom:4px; }
+button.reset { background:#26333f; color:#cdd9e5; border:1px solid #33475a; border-radius:4px;
+       padding:5px 12px; font-size:11px; cursor:pointer; align-self:flex-end; font-family:inherit; }
+button.reset:hover { background:#33475a; }
+
+.status { margin-top:9px; padding-top:8px; border-top:1px solid #1c2a3a;
+          font-size:11.5px; color:#a9c6dd; display:flex; flex-wrap:wrap; gap:4px 14px; }
+.status b { color:#e0e6ed; }
+.hidden-note { color:#ffd166; }
+
+.tblwrap { margin-top:12px; overflow-x:auto; border:1px solid #24344a; border-radius:8px; }
+table { border-collapse:collapse; width:100%; min-width:1120px; }
+/* 並べて比べるための表なので行を詰める。1画面あたり10行 → 20行を狙う。
+   th はクリック対象なので縦padding を残し、高さ24px以上を保つ。 */
+th, td { text-align:left; vertical-align:top;
+         border-bottom:1px solid #16273a; white-space:nowrap; }
+td { padding:2px 6px; line-height:1.45; }
+th { padding:6px 8px; position:sticky; top:0; background:#16232f; font-size:10.5px;
+     color:#9fb0c0; font-weight:700; cursor:pointer; user-select:none; z-index:2;
+     line-height:1.4; }
+th:hover { background:#1e2d3c; }
+th .ar { color:#8fd0ff; margin-left:3px; }
+tr:hover td { background:#101c27; }
+td.num { text-align:right; font-variant-numeric:tabular-nums; }
+.pair { background:#101c27; }
+.setsu { color:#a9c6dd; }
+.venue { color:#cdd9e5; font-weight:700; }
+.heart { color:#ff7eb6; margin-left:2px; }
+.dim { color:#6b7f95; }
+.chip { display:inline-block; font-size:10px; font-weight:700; border-radius:3px;
+        padding:1px 5px; margin:1px 3px 1px 0; background:#26333f; color:#cdd9e5;
+        border:1px solid #33475a; }
+.chip.h { border-color:#4a5a6b; }
+/* このページの主役列。12列に等分されると埋もれるので幅を明示的に寄せる。
+   チップが折り返しで潰れないよう line-height はここだけ広めに残す。 */
+th.ev, td.ev { width:38%; }
+.ev { white-space:normal; font-size:11px; line-height:1.65; min-width:340px; }
+/* 空欄の記号。0を入れない方針は変えないが、同じ記号が縦に並ぶと壊れて見えるので
+   文字ではなく細い罫線にして主張を下げる。 */
+.na { display:inline-block; width:9px; height:0; vertical-align:middle;
+      border-top:1px solid #2b3d52; }
+.ev .d { color:#8fd0ff; font-weight:700; }
+.ev .abs { color:#6b7f95; font-size:10px; }
+.ev .prop { color:#ffd166; }
+.flag { font-size:9.5px; color:#7d94a8; border:1px solid #33475a; border-radius:3px;
+        padding:0 4px; margin-right:3px; }
+.empty { padding:26px; text-align:center; color:#7d94a8; }
+footer { margin-top:18px; font-size:10.5px; color:#6b7f95; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>モーター整備 一覧</h1>
+  <div class="sub" id="head-sub"></div>
+
+  <div class="panel">
+    <div class="findings-h">この記録から見えること</div>
+    <ul class="findings" id="findings"></ul>
+    <div class="findings-f" id="findings-foot"></div>
+  </div>
+
+  <div class="panel">
+    <details class="note" id="readme">
+      <summary>この表の読み方・定義</summary>
+      <div>
+        <h3>1行の単位</h3>
+        <p>節 × 場 × 機番 × 登番。「その節で、その選手が、そのモーターに乗った記録」を1行にしています。</p>
+
+        <h3>部品交換について</h3>
+        <p>部品交換は<b>場の記録</b>です。誰の判断で替えたかはデータからは分かりません。
+           この表が言えるのは「<b>この選手が乗った期間に交換記録がある</b>」までで、
+           「この選手が替えた」「整備が上手い」とは読めません。</p>
+        <p>出典は boatrace.jp 公式の直前情報です。</p>
+
+        <h3>節内日</h3>
+        <p>節の何日目に手が入ったかを1始まりで示します。絶対日付は節をまたいで比較できないため併記しています。
+           窓の初日で左が切れている節は開始日が確定しないので「―」になります。</p>
+        <p><b>節内日が確定しなかった交換が <span id="note-unknown"></span> 件あります。これはすべて窓の左端で切れた節のものです。</b>
+           左端が切れた節では<b>初日の交換が優先的に欠落する</b>ため、
+           件数をそのまま数えると「初日より2日目が多い」といった読み方はできません。</p>
+        <p><b>ただしこの但し書きは生の件数に対するものです。</b>下の交換率は
+           左端が切れた節を<b>分子・分母の両方から除いて</b>いるので、
+           補正後の日どうしの比較にはこの偏りは及びません。</p>
+        <div id="note-rate"></div>
+        <p>節の末尾から数えた場合（両端とも切れていない節のみ）:</p>
+        <div id="note-rate-end"></div>
+
+        <p><b>2つの表は矛盾していません。</b>節頭側が後半で落ちて見えるのは、節の長さが4〜7日と
+           ばらつくため、節頭5〜6日目のバケツに<b>短い節の最終日が混入している</b>ためです。
+           最終日の交換率が際立って低いので、それだけで節頭側の後半の落ち込みは説明がつきます。</p>
+        <p><b>実際の形は「中盤は平ら、両端だけ低い」</b>です。ただし両端が低い理由は別です。</p>
+        <ul>
+          <li><b>頭が低い</b> … まだ走っておらず、どこを触るべきかの情報がない</li>
+          <li><b>尻が低い</b> … 替えても、それを回収する走りが残っていない</li>
+        </ul>
+        <p>節頭2日目が最も高いのは、<b>情報と回収期間が両方そろう最初の日</b>にあたるためと読めます。</p>
+        <p><b>「準優の前に手を入れる」という形は出ませんでした。</b>準優・優勝戦は節の末尾から
+           固定位置にあるので末尾から数えて確認しましたが、山はできず、最終日に向かって下がるだけです。
+           これは負の結果としてそのまま記録しておきます。</p>
+        <p>軽微と大掛かりに分けて言えるのは次の2点だけです。
+           <b>(1) 最終日の落ち込みは大掛かりの方が深い</b>（中盤比で軽微が約0.63倍、大掛かりが約0.29倍）。
+           <b>(2) 大掛かりは節の早い側に寄る。</b>
+           これ以上は読めません。大掛かりは総計76件と少なく、日ごとの上下は
+           件数の揺れと区別できないためです。</p>
+
+        <p>上の交換率は露出補正済みです。分母は「日数がN日以上の行」ではなく
+           <b>その節内日が実データに存在する（行, 日）の数</b>を使っています。
+           生の件数だけを見ると、後半の日が少ないのは「後半に交換が少ない」ためではなく
+           「後半まで走っている機が少ない」ためなのに、それが区別できません。
+           左端が切れた節は分子・分母の両方から除いています。</p>
+
+        <h3>節名の出所</h3>
+        <ul>
+          <li><b>history</b> … 節完結時の記録と突合できたもの</li>
+          <li><b>未完了</b> … その節がまだ終わっていない。記録は節の完結時に作られるので、
+              載っていないのが正常です。日々更新される最新の行はここに入ります</li>
+          <li><b>中止</b> … 節が異常終了したもの。記録は節の完結時に作られるので、
+              載っていないのが正常です。理由を各行に添えています</li>
+          <li><b>不明</b> … 完結しているはずなのに突合できないもの。既定では隠しています</li>
+        </ul>
+        <p>現在「中止」は1件です。<b>津 07/27〜07/28</b> … 07/28にR10で打ち切られ、
+           優勝戦が行われないまま開催が終了しました（公式競走成績で確認）。
+           調べれば節名が分かるものではありません。</p>
+
+        <h3>整備規模（この表で作った区分）</h3>
+        <p>ピストン・シリンダ・シャフト・キャリボのいずれかを含む行を「大掛かり」、
+           それ以外の交換を「軽微」とする<b>機械的な区分</b>です。実データの共起から決めました。
+           単独で交換される部品（リング81.5%・キャブ84.3%・ギヤ81.0%・電気72.4%が単独）と、
+           束でしか出ない部品（ピストン18.1%・シリンダ15.0%）が分かれるためです。</p>
+        <p>注意: <b>ギヤ（ギヤケース）は部品としては大物ですが、実データでは単独率81.0%で軽微側の挙動</b>のため軽微に置いています。
+           <b>シャフト12件・キャリボ9件は件数が少なく、この2つの割り当てはデータではなく部品知識による判断</b>です。</p>
+
+        <h3>場ごとの交換率の差について</h3>
+        <p>交換率には場差があります（最も高い場と低い場で4倍近い開き）。これは選手ではなく
+           <b>場の整備方針と機歴の差</b>と見るのが自然で、選手の評価には読み替えられません。
+           場をまたいだ比較には使わないでください。</p>
+
+        <h3>節の状態（旗）</h3>
+        <p>節がどう欠けているかを示します。各バッジにカーソルを合わせると理由が出ます。</p>
+        <ul>
+          <li><span class="flag">開催中</span> … 節がまだ終わっていない。節名と節末2連率は節の完結時に確定します</li>
+          <li><span class="flag">中止</span> … 節が異常終了した。節名の記録が無いのが正常です</li>
+          <li><span class="flag">尻切れ</span> … データ窓の最終日で節が切れている</li>
+          <li><span class="flag">頭切れ</span> … データ窓の初日で節が切れている。2026-07-13・14 は公式から再取得できず欠測です</li>
+        </ul>
+        <p>いずれの場合も<b>日数・走数・交換点数は下限値</b>で、末尾に「+」が付きます。
+           「1日だけ乗って終わり」に見える行の大半は、実際には節の途中で窓が切れているだけです。
+           行は消していません。</p>
+
+        <h3>載せていないもの</h3>
+        <p>展示タイムから作った「節内でどれだけ速くなったか」の指標は、計算はしていますが公開していません。
+           選手ごとの差が偶然を超えるかを検定したところ未決（p=0.25）で、現在のデータ量では
+           そもそも判定できる検出力がないためです。蓄積後に再検証します。</p>
+        <p>ランキングは作っていません。並べ替えはできますが、走数を常に隣に置いているので
+           母数の小さい行が上に来ていないかを確認してください。</p>
+      </div>
+    </details>
+
+    <div class="filters" style="margin-top:10px">
+      <div class="f"><label>場</label><select id="f-venue"></select></div>
+      <div class="f"><label>節</label><select id="f-setsu"></select></div>
+      <div class="f"><label>選手（氏名・登番）</label><input type="text" id="f-racer" placeholder="部分一致"></div>
+      <div class="f"><label>交換</label><select id="f-parts">
+        <option value="yes">交換あり</option>
+        <option value="all">すべて</option>
+        <option value="no">交換なし</option>
+      </select></div>
+      <div class="f"><label>整備規模</label><select id="f-scale">
+        <option value="">指定なし</option>
+        <option value="軽微">軽微</option>
+        <option value="大掛かり">大掛かり</option>
+      </select></div>
+      <div class="f"><label>部品</label><select id="f-part"></select></div>
+      <label class="chk"><input type="checkbox" id="f-incomplete" checked> 不完全節も表示</label>
+      <label class="chk"><input type="checkbox" id="f-src"> 節名が突合できない行も表示</label>
+      <label class="chk"><input type="checkbox" id="f-female"> 女子戦のみ</label>
+      <button class="reset" id="reset">条件をリセット</button>
+    </div>
+
+    <div class="status" id="status"></div>
+  </div>
+
+  <div class="tblwrap">
+    <table>
+      <thead><tr id="head"></tr></thead>
+      <tbody id="body"></tbody>
+    </table>
+    <div class="empty" id="empty" style="display:none">条件に合う行がありません。</div>
+  </div>
+
+  <footer id="foot"></footer>
+</div>
+
+<script>window.__D = __DATA_PLACEHOLDER__;</script>
+<script>
+(function () {
+  var D = window.__D, ROWS = D.rows;
+
+  // 選手の整備についての言及。指標には一切入れない。一次/二次を明示する。
+  // ネガティブ評価は載せない。追加時は発言者・媒体・日付をセットで保持すること。
+  var NOTES_BY_NAME = {
+    "毒島 誠":   {t:"本人がエンジン調整の経緯を語ったインタビュー", src:"マクール",     kind:"一次"},
+    "峰 竜太":   {t:"本人が整備の考え方を解説した動画",             src:"本人YouTube", kind:"一次"},
+    "赤岩 善生": {t:"深谷知博・渡邉雄朗が整備で尊敬する選手として言及", src:"※二次",   kind:"二次"}
+  };
+
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
+      return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];
+    });
+  }
+  function fmtHd(s) { return s ? (+s.slice(4,6)) + "/" + (+s.slice(6,8)) : ""; }
+  function normName(s) { return String(s || "").replace(/[\s　]+/g, " ").trim(); }
+
+  var COLS = [
+    {k:"場名",    label:"場",       w:1, get:function(r){return r["場名"];}},
+    {k:"節名",    label:"節",       w:1, get:function(r){return r["節名"] || "";}},
+    {k:"開始日",  label:"期間",     w:1, get:function(r){return r["開始日"];}},
+    {k:"日数",    label:"日数",     n:1, get:function(r){return r["日数"];}},
+    {k:"機番",    label:"機番",     n:1, get:function(r){return r["機番"];}},
+    {k:"氏名",    label:"選手",     w:1, get:function(r){return r["氏名"];}},
+    {k:"交換点数",label:"交換点数", n:1, get:function(r){return r["交換点数"] || 0;}},
+    {k:"走数",    label:"走数",     n:1, get:function(r){return r["走数"];}},
+    {k:"整備規模",label:"整備規模", w:1, get:function(r){return r["整備規模"] || "";}},
+    {k:"交換イベント", label:"交換内容（節内日・部品）", nosort:1, cls:"ev"},
+    {k:"節末2連率",label:"節末2連率", n:1, get:function(r){return r["節末2連率"];}},
+    {k:"_flags",  label:"節の状態", nosort:1}
+  ];
+
+  var sortKey = "開始日", sortAsc = false;
+  var SRC_OK = ["history", "未完了", "中止"];   // 既定で表示する節名の出所
+
+  // 既定の並び順。単純な期間降順にすると、先頭が全部「まだ終わっていない節」に
+  // なり、節名も節末2連率も空、旗も + も全行に付く。全行に同じバッジが付いた
+  // 時点でそのバッジの情報量はゼロになるので、埋まっている行を先に出す。
+  // ヘッダを一度でも押したら通常の単一列ソートに切り替える。
+  var useDefaultOrder = true;
+  var SRC_RANK = { "history": 0 };      // history が先、未完了・中止は後
+  function srcRank(r) {
+    var v = SRC_RANK[r["節名_出所"]];
+    return v == null ? 1 : v;
+  }
+  function defaultCompare(a, b) {
+    var d = srcRank(a) - srcRank(b);
+    if (d) return d;
+    return String(b["開始日"]).localeCompare(String(a["開始日"]));   // 期間 降順
+  }
+
+  function partsList() {
+    var s = {};
+    ROWS.forEach(function (r) { (r["交換部品"] || []).forEach(function (p) { s[p] = (s[p]||0)+1; }); });
+    return Object.keys(s).sort(function (a, b) { return s[b] - s[a]; });
+  }
+
+  function fill(sel, items, first) {
+    sel.innerHTML = "";
+    var o = document.createElement("option");
+    o.value = ""; o.textContent = first; sel.appendChild(o);
+    items.forEach(function (v) {
+      var e = document.createElement("option");
+      e.value = v; e.textContent = v; sel.appendChild(e);
+    });
+  }
+
+  var elVenue = document.getElementById("f-venue"),
+      elSetsu = document.getElementById("f-setsu"),
+      elRacer = document.getElementById("f-racer"),
+      elParts = document.getElementById("f-parts"),
+      elScale = document.getElementById("f-scale"),
+      elPart  = document.getElementById("f-part"),
+      elInc   = document.getElementById("f-incomplete"),
+      elSrc   = document.getElementById("f-src"),
+      elFem   = document.getElementById("f-female");
+
+  fill(elVenue, ROWS.map(function (r) { return r["場名"]; })
+        .filter(function (v, i, a) { return a.indexOf(v) === i; })
+        .sort(function(a,b){return a.localeCompare(b,"ja");}), "すべての場");
+  fill(elPart, partsList(), "指定なし");
+
+  function refreshSetsu() {
+    var v = elVenue.value;
+    var names = ROWS.filter(function (r) { return !v || r["場名"] === v; })
+                    .map(function (r) { return r["節名"]; })
+                    .filter(function (x) { return x; })
+                    .filter(function (v2, i, a) { return a.indexOf(v2) === i; })
+                    .sort(function(a,b){return a.localeCompare(b,"ja");});
+    var keep = elSetsu.value;
+    fill(elSetsu, names, "すべての節");
+    if (names.indexOf(keep) >= 0) elSetsu.value = keep;
+  }
+
+  // 基準率が見えなくなるので、隠した行数は必ず画面に出す。
+  function apply() {
+    var v = elVenue.value, s = elSetsu.value,
+        q = normName(elRacer.value).toLowerCase(),
+        pm = elParts.value, sc = elScale.value, pt = elPart.value;
+
+    var hidIncomplete = 0, hidSrc = 0, hidParts = 0;
+    var out = [];
+    for (var i = 0; i < ROWS.length; i++) {
+      var r = ROWS[i];
+      if (v && r["場名"] !== v) continue;
+      if (s && r["節名"] !== s) continue;
+      if (q) {
+        var hay = (normName(r["氏名"]) + " " + r["登番"]).toLowerCase();
+        if (hay.indexOf(q) < 0) continue;
+      }
+      if (sc && r["整備規模"] !== sc) continue;
+      if (pt && (r["交換部品"] || []).indexOf(pt) < 0) continue;
+      if (elFem.checked && !r["女子"]) continue;
+
+      // 隠した理由を数える（フィルタを通ったが旗で落ちた行だけを数える）
+      if (!elInc.checked && r["不完全節"]) { hidIncomplete++; continue; }
+      // 未完了 = 窓の右端でまだ終わっていない節。motorHistory は節完結時に
+      // 記録するので載っていないのが正常であり、隠す理由がない。隠すと
+      // 日次更新のページで最も新しい行が恒久的に消える。
+      if (!elSrc.checked && SRC_OK.indexOf(r["節名_出所"]) < 0) { hidSrc++; continue; }
+      if (pm === "yes" && !(r["交換点数"] > 0)) { hidParts++; continue; }
+      if (pm === "no" && r["交換点数"] > 0) continue;
+      out.push(r);
+    }
+
+    var col = null;
+    COLS.forEach(function (c) { if (c.k === sortKey) col = c; });
+    if (useDefaultOrder) {
+      out.sort(defaultCompare);
+    } else if (col && col.get) {
+      out.sort(function (a, b) {
+        var x = col.get(a), y = col.get(b);
+        if (x == null && y == null) return 0;
+        if (x == null) return 1;      // 空欄は常に下。空欄は「測っていない」の意味
+        if (y == null) return -1;
+        var d = (typeof x === "number" && typeof y === "number")
+              ? x - y : String(x).localeCompare(String(y), "ja");
+        return sortAsc ? d : -d;
+      });
+    }
+    render(out, {inc: hidIncomplete, src: hidSrc, parts: hidParts});
+  }
+
+  function evHtml(r) {
+    var parts = [];
+    (r["交換イベント"] || []).forEach(function (e) {
+      var day = e["節内日"] == null
+        ? '<span class="d dim">―日目</span>'
+        : '<span class="d">' + e["節内日"] + '日目</span>';
+      var items = (e["部品"] || []).map(function (p) {
+        return '<span class="chip">' + esc(p[0]) + (p[1] > 1 ? "×" + p[1] : "") + '</span>';
+      }).join("");
+      parts.push(day + ' <span class="abs">(' + fmtHd(e["日付"]) + ')</span> ' + items);
+    });
+    (r["プロペラ新"] || []).forEach(function (p) {
+      var day = p["節内日"] == null ? "―日目" : p["節内日"] + "日目";
+      parts.push('<span class="prop">' + day + ' (' + fmtHd(p["日付"]) + ') ペラ新</span>');
+    });
+    return parts.length ? parts.join("<br>") : '<span class="dim">交換記録なし</span>';
+  }
+
+  // 旗は「節がどう欠けているか」の1軸に寄せる。理由は tooltip に出す。
+  //   欠測あり ⊂ 不完全節（どちらも窓の初日で切れた行）
+  //   節名未完了 ⊂ 不完全節（どちらも窓の最終日で切れた行）
+  // だったので、旧実装では同じ行に2つ立って、片方が常に冗長だった。
+  // 左右は独立に起きうるので、両端が切れている行だけ2つ出る。
+  var NA = '<span class="na" title="データなし"></span>';
+  var LOWER_NOTE = "日数・走数・交換点数は下限値（+）";
+  function badge(label, tip) {
+    return '<span class="flag" title="' + esc(tip) + '">' + esc(label) + "</span>";
+  }
+  function flagsHtml(r) {
+    var out = [];
+    if (r["節名_出所"] === "中止") {
+      out.push(badge("中止", r["節名_注記"] || "節が異常終了した。節名の記録が無いのが正常"));
+    } else if (r["節名_出所"] === "未完了") {
+      out.push(badge("開催中", "節がまだ終わっていない。節名と節末2連率は節の完結時に確定する。" + LOWER_NOTE));
+    } else if (r["不完全節"] && r["終了日"] === D.window.to) {
+      out.push(badge("尻切れ", "データ窓の最終日で節が切れている。" + LOWER_NOTE));
+    }
+    if (r["欠測あり"]) {
+      out.push(badge("頭切れ", "データ窓の初日で節が切れている。2026-07-13・14は公式から再取得できず欠測。" + LOWER_NOTE));
+    }
+    return out.length ? out.join("") : NA;
+  }
+
+  function render(rows, hid) {
+    var head = document.getElementById("head");
+    head.innerHTML = COLS.map(function (c) {
+      var ar = "";
+      if (useDefaultOrder) {
+        // 既定は「節名あり優先 → 期間降順」。期間にだけ印を出し、
+        // 複合であることは status 行で説明する。
+        if (c.k === "開始日") ar = '<span class="ar">▼</span>';
+      } else if (c.k === sortKey) {
+        ar = '<span class="ar">' + (sortAsc ? "▲" : "▼") + "</span>";
+      }
+      return '<th data-k="' + c.k + '"' + (c.cls ? ' class="' + c.cls + '"' : "")
+           + (c.nosort ? ' style="cursor:default"' : "") + ">"
+           + esc(c.label) + ar + "</th>";
+    }).join("");
+    // th は毎回作り直しているので、その都度ハンドラを張り直す
+    head.querySelectorAll("th").forEach(function (th) {
+      th.addEventListener("click", function () {
+        var k = th.getAttribute("data-k"), c = null;
+        COLS.forEach(function (x) { if (x.k === k) c = x; });
+        if (!c || c.nosort) return;
+        // 一度でも押されたら既定の複合ソートは捨てる。
+        // 期間を押せば素の期間降順に戻る。
+        if (useDefaultOrder) { useDefaultOrder = false; sortKey = k; sortAsc = !c.n; }
+        else if (sortKey === k) sortAsc = !sortAsc;
+        else { sortKey = k; sortAsc = !c.n; }
+        apply();
+      });
+    });
+
+    var body = document.getElementById("body");
+    body.innerHTML = rows.map(function (r, i) {
+      var note = NOTES_BY_NAME[normName(r["氏名"])];
+      var noteHtml = note
+        ? '<div class="abs" style="font-size:10px;color:#7d94a8;white-space:normal">'
+          + esc(note.t) + '（' + esc(note.src) + '・' + esc(note.kind) + '）</div>' : "";
+      var flags = flagsHtml(r);
+      return '<tr class="' + (i % 2 ? "pair" : "") + '">'
+        + '<td class="venue">' + esc(r["場名"]) + "</td>"
+        + '<td class="setsu" title="' + esc(r["節名"] || r["節名_注記"] || "") + '">'
+          + (r["節名"] ? esc(r["節名"].length > 14 ? r["節名"].slice(0, 14) + "…" : r["節名"]) : NA)
+          + (r["節名_注記"] ? '<div class="abs" style="font-size:10px;color:#7d94a8;white-space:normal">'
+             + esc(r["節名_注記"]) + "</div>" : "") + "</td>"
+        + "<td>" + fmtHd(r["開始日"]) + "–" + fmtHd(r["終了日"]) + "</td>"
+        + '<td class="num">' + r["日数"] + (r["不完全節"] ? '<span class="dim">+</span>' : "") + "</td>"
+        + '<td class="num">' + r["機番"] + "</td>"
+        + "<td>" + esc(r["氏名"]) + (r["女子"] ? '<span class="heart">♥</span>' : "")
+          + ' <span class="dim">' + r["登番"] + "</span>" + noteHtml + "</td>"
+        // 不完全節は節の一部しか見えていないので、走数・交換点数は下限値。
+        // 空欄にすると情報が消え、素の数字を出すと誤りになる。
+        + '<td class="num">' + (r["交換点数"]
+            ? r["交換点数"] + (r["不完全節"] ? '<span class="dim">+</span>' : "")
+            : '<span class="dim">0' + (r["不完全節"] ? "+" : "") + "</span>") + "</td>"
+        + '<td class="num">' + r["走数"] + (r["不完全節"] ? '<span class="dim">+</span>' : "") + "</td>"
+        + "<td>" + (r["整備規模"] ? '<span class="chip h">' + esc(r["整備規模"]) + "</span>" : NA) + "</td>"
+        + '<td class="ev">' + evHtml(r) + "</td>"
+        + '<td class="num">' + (r["節末2連率"] == null ? NA : r["節末2連率"].toFixed(1)) + "</td>"
+        + "<td>" + flags + "</td>"   // flagsHtml が空のとき NA を返す
+        + "</tr>";
+    }).join("");
+
+    document.getElementById("empty").style.display = rows.length ? "none" : "block";
+
+    var bits = ['表示 <b>' + rows.length.toLocaleString() + '</b> 行 / 全 <b>'
+                + ROWS.length.toLocaleString() + '</b> 行'];
+    if (hid.parts) bits.push('<span class="hidden-note">交換なし ' + hid.parts.toLocaleString() + ' 行を非表示中</span>');
+    if (hid.inc)   bits.push('<span class="hidden-note">不完全節 ' + hid.inc.toLocaleString() + ' 行を非表示中</span>');
+    if (hid.src)   bits.push('<span class="hidden-note">節名が突合できない ' + hid.src.toLocaleString() + ' 行を非表示中</span>');
+    var pct = ROWS.length ? (rows.length / ROWS.length * 100) : 0;
+    bits.push('<span class="dim">全体の ' + pct.toFixed(1) + '% を表示</span>');
+    if (useDefaultOrder) {
+      bits.push('<span class="dim">並び: 節名が確定した行 → 期間の新しい順'
+              + '（ヘッダを押すとその列だけの並びに切り替わります）</span>');
+    }
+    document.getElementById("status").innerHTML = bits.join("");
+  }
+
+  [elVenue, elSetsu, elParts, elScale, elPart].forEach(function (e) {
+    e.addEventListener("change", function () { if (e === elVenue) refreshSetsu(); apply(); });
+  });
+  [elInc, elSrc, elFem].forEach(function (e) { e.addEventListener("change", apply); });
+  elRacer.addEventListener("input", apply);
+  document.getElementById("reset").addEventListener("click", function () {
+    elVenue.value = ""; refreshSetsu(); elSetsu.value = ""; elRacer.value = "";
+    elParts.value = "yes"; elScale.value = ""; elPart.value = "";
+    elInc.checked = true; elSrc.checked = false; elFem.checked = false;
+    sortKey = "開始日"; sortAsc = false; useDefaultOrder = true; apply();
+  });
+
+  // --- 「この記録から見えること」 -----------------------------------------
+  // 数値は必ずデータから引く（表と食い違わせない）。分母を必ず添える。
+  // 評価語と因果の断定は書かない。出なかったパターンも消さずに残す。
+  (function () {
+    var byDay = D["節内日交換率"] || [];
+    var byEnd = D["節末逆算交換率"] || [];
+    var top = byDay.slice().sort(function (a, b) { return b["交換率"] - a["交換率"]; })[0];
+    var last = byEnd.filter(function (x) { return x["節末から"] === 1; })[0];
+    var heavy = byEnd.reduce(function (s, x) { return s + x["大掛かり"]; }, 0);
+
+    function n(v) { return '<span class="n">' + v + "</span>"; }
+    var items = [];
+    if (top) {
+      items.push("節の" + top["節内日"] + "日目がもっとも手が入る"
+        + n("（" + top["交換率"].toFixed(1) + "%／n=" + top["観測"].toLocaleString() + "）"));
+    }
+    if (last) {
+      items.push("最終日はほぼ入らない"
+        + n("（" + last["交換率"].toFixed(1) + "%／n=" + last["観測"].toLocaleString() + "）"));
+    }
+    items.push("大掛かりな整備は節の早い側に寄る"
+      + n("（大掛かりは総数" + heavy + "件と少ない）"));
+    items.push("準優前に手が入る、という形は出ていない");
+
+    document.getElementById("findings").innerHTML =
+      items.map(function (t) { return "<li>" + t + "</li>"; }).join("");
+
+    var f = D.window.from, t = D.window.to;
+    var days = Math.round((Date.UTC(+t.slice(0,4), +t.slice(4,6)-1, +t.slice(6,8))
+                         - Date.UTC(+f.slice(0,4), +f.slice(4,6)-1, +f.slice(6,8))) / 86400000) + 1;
+    document.getElementById("findings-foot").innerHTML =
+      "── " + (+f.slice(4,6)) + "/" + (+f.slice(6,8)) + "–" + (+t.slice(4,6)) + "/" + (+t.slice(6,8))
+      + " の" + days + "日分から。蓄積により変わる可能性がある"
+      + ' ・ <a href="#" id="to-evidence">根拠の表を見る</a>';
+
+    // 結論が表層、根拠が深層。折りたたみを開いて該当位置へ送る。
+    document.getElementById("to-evidence").addEventListener("click", function (e) {
+      e.preventDefault();
+      document.getElementById("readme").open = true;
+      document.getElementById("note-rate").scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  })();
+
+  document.getElementById("note-unknown").textContent = D["節内日不明の交換件数"];
+  document.getElementById("note-rate").innerHTML =
+    '<table style="width:auto;min-width:0;margin:6px 0 4px;border:1px solid #24344a">'
+    + '<tr><th style="position:static">節内日</th>'
+    + (D["節内日交換率"] || []).map(function (x) { return "<th style=\"position:static\">" + x["節内日"] + "</th>"; }).join("")
+    + '</tr><tr><td class="dim">観測(行,日)</td>'
+    + (D["節内日交換率"] || []).map(function (x) { return '<td class="num">' + x["観測"].toLocaleString() + "</td>"; }).join("")
+    + '</tr><tr><td class="dim">交換のあった行</td>'
+    + (D["節内日交換率"] || []).map(function (x) { return '<td class="num">' + x["交換あり"].toLocaleString() + "</td>"; }).join("")
+    + '</tr><tr><td>交換率</td>'
+    + (D["節内日交換率"] || []).map(function (x) { return '<td class="num">' + x["交換率"].toFixed(1) + "%</td>"; }).join("")
+    + "</tr></table>";
+
+  document.getElementById("note-rate-end").innerHTML =
+    '<table style="width:auto;min-width:0;margin:6px 0 4px;border:1px solid #24344a">'
+    + '<tr><th style="position:static">節末から</th>'
+    + (D["節末逆算交換率"] || []).map(function (x) { return '<th style="position:static">' + esc(x["ラベル"]) + "</th>"; }).join("")
+    + '</tr><tr><td class="dim">観測(行,日)</td>'
+    + (D["節末逆算交換率"] || []).map(function (x) { return '<td class="num">' + x["観測"].toLocaleString() + "</td>"; }).join("")
+    + '</tr><tr><td>交換率</td>'
+    + (D["節末逆算交換率"] || []).map(function (x) { return '<td class="num">' + x["交換率"].toFixed(1) + "%</td>"; }).join("")
+    + '</tr><tr><td class="dim">うち軽微</td>'
+    + (D["節末逆算交換率"] || []).map(function (x) { return '<td class="num dim">' + x["軽微率"].toFixed(1) + "%</td>"; }).join("")
+    + '</tr><tr><td class="dim">うち大掛かり</td>'
+    + (D["節末逆算交換率"] || []).map(function (x) { return '<td class="num dim">' + x["大掛かり率"].toFixed(2) + "%</td>"; }).join("")
+    + "</tr></table>";
+
+  document.getElementById("head-sub").innerHTML =
+    "節 × 場 × 機番 × 選手 の整備記録。" + esc(D.window.from.slice(4,6)) + "/" + esc(D.window.from.slice(6,8))
+    + "–" + esc(D.window.to.slice(4,6)) + "/" + esc(D.window.to.slice(6,8))
+    + " ・ 更新 " + esc(D.updated) + " ・ 出典 " + esc(D.source);
+  document.getElementById("foot").innerHTML =
+    esc(D.note) + "<br>ランキングではありません。並べ替えの際は走数をあわせて確認してください。";
+
+  refreshSetsu();
+  apply();
+})();
+</script>
+</body>
+</html>
