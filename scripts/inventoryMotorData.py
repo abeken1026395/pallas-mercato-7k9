@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-inventory_motor_data.py
+inventoryMotorData.py
 
 目的: 既にリポジトリに溜まっているモーター関連データの棚卸し。
       「後任効果」が何サンプル取れるかを判定する。新規取得は一切しない。
@@ -13,8 +13,8 @@ inventory_motor_data.py
   Q4. 実際に何ペアの「選手交代」が存在するか
 
 実行（リポジトリのルートで）:
-  py scripts/inventory_motor_data.py
-  py scripts/inventory_motor_data.py --root docs/data
+  py scripts/inventoryMotorData.py
+  py scripts/inventoryMotorData.py --root docs/data
 
 出力: 標準出力 + inventory_report.txt
 """
@@ -259,7 +259,7 @@ def main():
             count_handovers(recs, kv, km, kr, kd)
     else:
         say("  上の役割推定を見て、実際の列名を指定して再実行して:")
-        say("    py inventory_motor_data.py --handover docs/data/motorUsage.json <場列> <機番列> <選手列>:<日付列>")
+        say("    py inventoryMotorData.py --handover docs/data/motorUsage.json <場列> <機番列> <選手列>:<日付列>")
 
     with open("inventory_report.txt", "w", encoding="utf-8") as f:
         f.write("\n".join(REPORT))

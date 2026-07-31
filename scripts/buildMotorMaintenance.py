@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-build_motor_maintenance.py
+buildMotorMaintenance.py
 
 モーター整備 一覧 の基底テーブルを作る。
 仕様: motor_maintenance_spec.md（節 × 場 × 機番 × 登番 を1行）
@@ -14,7 +14,7 @@ HTMLは作らない。仕様§7「3の時点で立ち止まる」に従い、
 出力: --out（既定 localdata/motor_maintenance_base.json / .csv）
 
 実行:
-  py scripts/build_motor_maintenance.py
+  py scripts/buildMotorMaintenance.py
 """
 
 import argparse
@@ -668,7 +668,7 @@ def main():
     say(f"  出力(公開)  : {pub_path}  ({os.path.getsize(pub_path)/1024:,.0f} KB)")
 
     tpl_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                            "template_maintenance.html")
+                            "templateMaintenance.html")
     if os.path.exists(tpl_path):
         html = open(tpl_path, encoding="utf-8").read().replace(
             "__DATA_PLACEHOLDER__", json.dumps(pub, ensure_ascii=False, separators=(",", ":")))

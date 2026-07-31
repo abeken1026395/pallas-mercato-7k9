@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-power_motor_maintenance.py
+powerMotorMaintenance.py
 
 「短縮秒の個人差は、いつやり直せば決着するか」を出す。
 
@@ -57,7 +57,7 @@ power_motor_maintenance.py
   が出る。scipy 不要。
 
 実行:
-  py scripts/power_motor_maintenance.py
+  py scripts/powerMotorMaintenance.py
 """
 
 import json
@@ -147,7 +147,7 @@ def main():
     rows = json.load(open(BASE, encoding="utf-8"))["rows"]
     meas = [r for r in rows if r.get("短縮秒") is not None]
 
-    # ---- 残差化（build_motor_maintenance.py と同じ回帰） ----
+    # ---- 残差化（buildMotorMaintenance.py と同じ回帰） ----
     xs = [r["展示_序盤"] for r in meas]
     ys = [r["短縮秒"] for r in meas]
     b = slope(xs, ys)
