@@ -1,12 +1,20 @@
+# mbrace 遮断のため Actions から実行不可。
+# ローカルタスク boatrace-updateKimarite が正規経路。
+#
+#   scrapeKimarite.py は www1.mbrace.or.jp から競走成績(Kファイル)を取得するが、
+#   GitHub Actions のランナーIPは mbrace に遮断されている。
+#   このWFは 2026-07-16 実行分から失敗し続け、racerKimarite.csv は
+#   2026-07-02 を最後に更新が止まっていた。
+#
+#   正規経路（毎月2・16日 JST 06:30・ローカルPC）:
+#     scripts/updateKimariteLocal.ps1（登録: scripts/registerUpdateKimariteLocal.ps1）
+#
+#   schedule は削除した。workflow_dispatch は非常口として残す
+#   （lhasa が入る Linux ランナーなら、mbrace に到達さえできれば動作するため）。
 name: update kimarite
 
 on:
-  workflow_dispatch:        # 手動実行できるようにする
-  schedule:
-    # 6ヶ月窓は動きが遅いので月2回でじゅうぶん。
-    # 他ジョブ(モーター/出走表)と時間帯をずらし、:00ぴったりも避ける。
-    # UTC 19:23 = JST 翌04:23
-    - cron: "23 19 1,15 * *"
+  workflow_dispatch:        # 手動実行できるようにする（非常口。通常はローカルタスクが正規経路）
 
 # 同時実行の取り合いを避ける（このジョブ専用グループ）
 concurrency:
