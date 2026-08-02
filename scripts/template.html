@@ -81,7 +81,7 @@ function Bar({v,c}){
       <div style={{position:"relative",height:14,background:"#0f1923",borderRadius:7,overflow:"hidden",flex:1}}>
         <div style={{position:"absolute",left:0,top:0,bottom:0,width:pct+"%",background:c,opacity:.85,borderRadius:7}}/>
       </div>
-      <div style={{fontSize:12,fontWeight:800,color:c,minWidth:44,textAlign:"right"}}>{isNaN(n)?"-":n.toFixed(1)+"%"}</div>
+      <div style={{fontSize:12,fontWeight:800,color:c,minWidth:44,textAlign:"right",fontVariantNumeric:"tabular-nums"}}>{isNaN(n)?"-":n.toFixed(1)+"%"}</div>
     </div>
   );
 }
@@ -128,7 +128,7 @@ function MotorUsageLine({usage}){
   const w = usage["走"];
   if(!w) return null;
   return (
-    <div style={{fontSize:10,color:"#7d94a8",margin:"2px 0 0 46px"}}
+    <div style={{fontSize:10,color:"#7d94a8",margin:"2px 0 0 46px",fontVariantNumeric:"tabular-nums"}}
       title={`初卸=Kファイル初出日(${fmtHd(usage["初出日"])})での推定。公式交換日は非公開。最新${fmtHd(usage["最新日"])}`}>
       <span style={{color:"#9fb0c0"}}>初卸(推定)から</span> <b style={{color:"#cdd9e5"}}>{w}走</b> ・勝{usage["勝"]} ・2連{usage["2連"]}<span style={{color:"#8fd6c0"}}>（{fmtRate(usage["2連率"])}%）</span> ・3連{usage["3連"]}<span style={{color:"#79c0ff"}}>（{fmtRate(usage["3連率"])}%）</span>
     </div>
@@ -335,7 +335,7 @@ function App(){
               <span style={{fontSize:15,fontWeight:800,color:"#ffd166"}}>{hasPin(pins,rows[0][CI.jcd])&&<span style={{marginRight:4,fontSize:15}}>📍</span>}{venue}{isPrevSetsu(rows[0][CI.hd])&&<span style={{fontSize:10,fontWeight:700,color:"#9fb0c0",background:"#26333f",border:"1px solid #33475a",borderRadius:3,padding:"1px 6px",marginLeft:6,verticalAlign:"middle"}}>前節記録</span>}<E30Badge info={e30For(rows[0][CI.jcd], rows[0][CI.hd])}/><span style={{fontSize:11,fontWeight:600,color:"#7d94a8",marginLeft:8}}>{(()=>{const h=String(rows[0][CI.hd]||"");return h.length===8?`${+h.slice(4,6)}/${+h.slice(6,8)}時点`:"";})()}</span></span>
               <VenueMetaLine meta={metaFor(rows[0][CI.jcd])}/>
               {(()=>{ const pt=prevTopFor(rows[0][CI.jcd], rows[0][CI.hd]); return pt ? (
-                <div style={{fontSize:10.5,color:"#7d94a8",marginTop:2}} title={`${pt.節名}（${pt.開催日}）節内2連率トップ`}>
+                <div style={{fontSize:10.5,color:"#7d94a8",marginTop:2,fontVariantNumeric:"tabular-nums"}} title={`${pt.節名}（${pt.開催日}）節内2連率トップ`}>
                   前節1位機 <b style={{color:"#8fd6c0"}}>M{pt.no}</b> <span style={{color:"#6b7f95"}}>（節内2連率トップ {pt.rate}%）</span>
                 </div>
               ) : null; })()}

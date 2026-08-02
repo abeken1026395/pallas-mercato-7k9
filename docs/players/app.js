@@ -411,7 +411,8 @@ function BranchPanel({
         fontSize: 11,
         fontWeight: 700,
         color: up ? "#ffd166" : "#6b7f95",
-        marginLeft: 4
+        marginLeft: 4,
+        fontVariantNumeric: "tabular-nums"
       }
     }, (d >= 0 ? "+" : "") + d.toFixed(suf ? 1 : 2) + (suf || ""));
   };
@@ -516,7 +517,8 @@ function BranchPanel({
     style: {
       fontSize: 11,
       color: "#6b7f95",
-      marginLeft: "auto"
+      marginLeft: "auto",
+      fontVariantNumeric: "tabular-nums"
     }
   }, r.n, "\u540D \u30FB A1 ", r.a1.toFixed(0), "%")), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -533,7 +535,8 @@ function BranchPanel({
     }
   }, "\u52DD\u7387 "), /*#__PURE__*/React.createElement("b", {
     style: {
-      color: "#ffd166"
+      color: "#ffd166",
+      fontVariantNumeric: "tabular-nums"
     }
   }, r.win.toFixed(2)), diff(r.win, all.win)), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
     style: {
@@ -542,7 +545,8 @@ function BranchPanel({
     }
   }, "\u30A2\u30A6\u30C8\u6226 "), /*#__PURE__*/React.createElement("b", {
     style: {
-      color: "#e0e6ed"
+      color: "#e0e6ed",
+      fontVariantNumeric: "tabular-nums"
     }
   }, r.out.toFixed(1)), diff(r.out, all.out)), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
     style: {
@@ -551,7 +555,8 @@ function BranchPanel({
     }
   }, "\u5E73\u5747ST "), /*#__PURE__*/React.createElement("b", {
     style: {
-      color: "#e0e6ed"
+      color: "#e0e6ed",
+      fontVariantNumeric: "tabular-nums"
     }
   }, r.st.toFixed(3)), diff(r.st, all.st, true))), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -571,7 +576,8 @@ function BranchPanel({
     style: {
       fontSize: 9,
       color: "#8faabe",
-      marginBottom: 2
+      marginBottom: 2,
+      fontVariantNumeric: "tabular-nums"
     }
   }, v.toFixed(0)), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -605,11 +611,13 @@ function BranchPanel({
     }
   }, /*#__PURE__*/React.createElement("span", null, "\u6C7A\u307E\u308A\u624B\uFF081\u7740 ", r.kt, "\u672C\uFF09"), /*#__PURE__*/React.createElement("span", null, "\u307E\u304F\u308A\u7387 ", /*#__PURE__*/React.createElement("b", {
     style: {
-      color: "#4593e5"
+      color: "#4593e5",
+      fontVariantNumeric: "tabular-nums"
     }
   }, r.makuriR.toFixed(1), "%"), diff(r.makuriR, all.makuriR, false, "%"), "\u3000\u5DEE\u3057\u7387 ", /*#__PURE__*/React.createElement("b", {
     style: {
-      color: "#3fb950"
+      color: "#3fb950",
+      fontVariantNumeric: "tabular-nums"
     }
   }, r.sashiR.toFixed(1), "%"), diff(r.sashiR, all.sashiR, false, "%"))), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -1125,7 +1133,7 @@ function App() {
       style: {
         fontSize: 18,
         lineHeight: 1,
-        color: hasOshi(oshi, p.no) ? "#ffd166" : "#5c6773",
+        color: hasOshi(oshi, p.no) ? "#ffd166" : "#8a94a3",
         cursor: "pointer",
         flexShrink: 0,
         padding: 0,
@@ -1229,7 +1237,8 @@ function App() {
         fontSize: 22,
         fontWeight: 800,
         color: col,
-        lineHeight: 1
+        lineHeight: 1,
+        fontVariantNumeric: "tabular-nums"
       }
     }, v, t === "率" && v !== "-" && /*#__PURE__*/React.createElement("span", {
       style: {
@@ -1251,7 +1260,8 @@ function App() {
         fontSize: 22,
         fontWeight: 800,
         color: col,
-        lineHeight: 1
+        lineHeight: 1,
+        fontVariantNumeric: "tabular-nums"
       }
     }, v), /*#__PURE__*/React.createElement("div", {
       style: {
@@ -1408,7 +1418,8 @@ function App() {
       style: {
         fontSize: 13,
         fontWeight: 700,
-        color: l === "優勝" ? "#ffd166" : l === "F数" && p.f > 0 ? "#f85149" : "#e0e6ed"
+        color: l === "優勝" ? "#ffd166" : l === "F数" && p.f > 0 ? "#f85149" : "#e0e6ed",
+        fontVariantNumeric: "tabular-nums"
       }
     }, v)))), /*#__PURE__*/React.createElement("div", {
       style: {
@@ -1420,7 +1431,8 @@ function App() {
     }, "\u25A0 \u30B3\u30FC\u30B9\u52251\u7740\u7387\u3000", /*#__PURE__*/React.createElement("span", {
       style: {
         color: "#79c0ff",
-        fontWeight: 400
+        fontWeight: 400,
+        fontVariantNumeric: "tabular-nums"
       }
     }, "\u30A2\u30A6\u30C8\u6226(3-6) ", p.out !== null ? p.out + "%" : "-")), /*#__PURE__*/React.createElement("div", {
       style: {
@@ -1456,7 +1468,8 @@ function App() {
         fontSize: 11,
         color: "#c5d2e0",
         marginTop: 3,
-        fontWeight: 600
+        fontWeight: 600,
+        fontVariantNumeric: "tabular-nums"
       }
     }, rate !== null ? rate + "%" : "-"), /*#__PURE__*/React.createElement("div", {
       style: {
@@ -1507,7 +1520,8 @@ function App() {
       style: {
         fontSize: 14,
         fontWeight: 800,
-        color: col
+        color: col,
+        fontVariantNumeric: "tabular-nums"
       }
     }, v)))), /*#__PURE__*/React.createElement("div", {
       style: {
@@ -1616,14 +1630,16 @@ function App() {
           style: {
             width: 44,
             textAlign: "right",
-            color: "#e0e6ed"
+            color: "#e0e6ed",
+            fontVariantNumeric: "tabular-nums"
           }
         }, r.出走), /*#__PURE__*/React.createElement("span", {
           style: {
             width: 40,
             textAlign: "right",
             color: r["1着"] > 0 ? "#ffd166" : "#6b7f95",
-            fontWeight: 700
+            fontWeight: 700,
+            fontVariantNumeric: "tabular-nums"
           }
         }, r["1着"]), /*#__PURE__*/React.createElement("span", {
           style: {
@@ -1653,13 +1669,15 @@ function App() {
             width: 38,
             textAlign: "right",
             color: "#3fb1c9",
-            fontWeight: 700
+            fontWeight: 700,
+            fontVariantNumeric: "tabular-nums"
           }
         }, rate.toFixed(0), "%")), /*#__PURE__*/React.createElement("span", {
           style: {
             width: 56,
             textAlign: "right",
-            color: "#e0e6ed"
+            color: "#e0e6ed",
+            fontVariantNumeric: "tabular-nums"
           }
         }, r["平均ST"] ? r["平均ST"].toFixed(2) : "-"));
       }), /*#__PURE__*/React.createElement("div", {
@@ -1808,7 +1826,8 @@ function App() {
           style: {
             width: 40,
             textAlign: "right",
-            color: "#e0e6ed"
+            color: "#e0e6ed",
+            fontVariantNumeric: "tabular-nums"
           }
         }, r.出走数, few && /*#__PURE__*/React.createElement("span", {
           style: {
@@ -1820,20 +1839,23 @@ function App() {
             width: 36,
             textAlign: "right",
             color: r["1着数"] > 0 ? "#ffd166" : "#6b7f95",
-            fontWeight: 700
+            fontWeight: 700,
+            fontVariantNumeric: "tabular-nums"
           }
         }, r["1着数"]), /*#__PURE__*/React.createElement("span", {
           style: {
             width: 44,
             textAlign: "right",
             color: "#3fb1c9",
-            fontWeight: 700
+            fontWeight: 700,
+            fontVariantNumeric: "tabular-nums"
           }
         }, r["2連対数"]), /*#__PURE__*/React.createElement("span", {
           style: {
             width: 52,
             textAlign: "right",
-            color: "#e0e6ed"
+            color: "#e0e6ed",
+            fontVariantNumeric: "tabular-nums"
           }
         }, r.平均ST != null ? r.平均ST.toFixed(2) : "-"), /*#__PURE__*/React.createElement("span", {
           style: {

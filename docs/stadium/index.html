@@ -171,12 +171,12 @@ function App() {
             <div key={s.code} onClick={()=>setOpen(isOpen?null:s.code)} style={{background:"#111d2b",border:"1px solid #1e2d3d",borderRadius:10,padding:"12px 14px",cursor:"pointer"}}>
               <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
                 {/* タップ領域は 24×24px 以上（WCAG 2.2 / 2.5.8）。絵文字は 15px のまま、当たり判定だけ広げる */}
-                <button type="button" onClick={e=>{e.stopPropagation();togglePin(s.code,s.name);}} title="この場をフォロー" aria-pressed={hasPin(pins,s.code)} aria-label={s.name+(hasPin(pins,s.code)?"のフォローを解除":"をフォロー")} style={{fontSize:15,lineHeight:1,cursor:"pointer",flexShrink:0,padding:0,minWidth:24,minHeight:24,display:"inline-flex",alignItems:"center",justifyContent:"center",background:"none",border:"none",fontFamily:"inherit",userSelect:"none",opacity:hasPin(pins,s.code)?1:0.3,filter:hasPin(pins,s.code)?"none":"grayscale(1)"}}>📍</button>
+                <button type="button" onClick={e=>{e.stopPropagation();togglePin(s.code,s.name);}} title="この場をフォロー" aria-pressed={hasPin(pins,s.code)} aria-label={s.name+(hasPin(pins,s.code)?"のフォローを解除":"をフォロー")} style={{fontSize:15,lineHeight:1,cursor:"pointer",flexShrink:0,padding:0,minWidth:24,minHeight:24,display:"inline-flex",alignItems:"center",justifyContent:"center",background:"none",border:"none",fontFamily:"inherit",userSelect:"none",opacity:hasPin(pins,s.code)?1:0.9,filter:hasPin(pins,s.code)?"none":"grayscale(1)"}}>📍</button>
                 <span style={{fontSize:11,fontWeight:700,color:"#6b7f95",background:"#0b1219",border:"1px solid #2a3d52",borderRadius:6,padding:"2px 7px",minWidth:30,textAlign:"center"}}>{parseInt(s.code,10)}</span>
                 <span style={{fontSize:16,fontWeight:800,color:"#e0e6ed",minWidth:54}}>{s.name}</span>
                 <span style={{fontSize:11,color:"#6b7f95"}}>{s.area}</span>
                 <span style={{fontSize:11,padding:"2px 8px",borderRadius:10,background:"#0b1219",border:"1px solid "+WATER_COLOR[s.water],color:WATER_COLOR[s.water]}}>{s.water}</span>
-                <span style={{fontSize:12,color:"#ffd166",fontWeight:700}}>1コース {s.in1}</span>
+                <span style={{fontSize:12,color:"#ffd166",fontWeight:700,fontVariantNumeric:"tabular-nums"}}>1コース {s.in1}</span>
                 {s.kikaku && <span title="通常時は企画レース込み" style={{fontSize:10,fontWeight:700,color:"#ffd166",background:"#ffd16615",border:"1px solid #ffd16655",borderRadius:5,padding:"1px 5px"}}>企</span>}
                 <span style={{marginLeft:"auto",fontSize:11,padding:"3px 10px",borderRadius:10,background:ARARE_COLOR[s.arare]+"22",border:"1px solid "+ARARE_COLOR[s.arare],color:ARARE_COLOR[s.arare],fontWeight:700}}>荒れ度 {s.arare}</span>
                 <span style={{fontSize:12,color:"#6b7f95"}}>{isOpen?"▲":"▼"}</span>
@@ -198,18 +198,18 @@ function App() {
                     <div style={{marginBottom:8,background:"#161a26",border:"1px solid #2f3a52",borderRadius:8,padding:"8px 10px"}}>
                       {tri && (<div>
                         <span style={{color:"#9fb5c9",fontWeight:700}}>📊 過去に最も多く出た3連単　</span>
-                        <span style={{color:"#e0e6ed"}}><b style={{color:"#ffd166",fontSize:15}}>{tri.combo}</b>（{tri.count}回／全{tri.races}戦・{tri.share}%）</span>
+                        <span style={{color:"#e0e6ed",fontVariantNumeric:"tabular-nums"}}><b style={{color:"#ffd166",fontSize:15}}>{tri.combo}</b>（{tri.count}回／全{tri.races}戦・{tri.share}%）</span>
                       </div>)}
                       {b1 && (<div style={{marginTop:tri?8:0,paddingTop:tri?8:0,borderTop:tri?"1px solid #24304a":"none"}}>
                         <span style={{color:"#9fb5c9",fontWeight:700}}>🚤 1号艇が1着だったレースの2着内訳</span>
-                        <div style={{fontSize:11,color:"#6b7f95",margin:"3px 0 6px"}}>対象：1号艇が1着だった{b1.firstBoat1}戦（全{b1.races}戦中・1着率{b1.firstBoat1Rate}%）</div>
+                        <div style={{fontSize:11,color:"#6b7f95",margin:"3px 0 6px",fontVariantNumeric:"tabular-nums"}}>対象：1号艇が1着だった{b1.firstBoat1}戦（全{b1.races}戦中・1着率{b1.firstBoat1Rate}%）</div>
                         {b1.second.map(d => (
                           <div key={d.boat} style={{display:"flex",alignItems:"center",gap:8,marginBottom:3}}>
                             <span style={{fontSize:11,fontWeight:700,color:BOAT_COLOR[d.boat],minWidth:44}}>{d.boat}号艇</span>
                             <div style={{flex:1,height:12,background:"#0b1219",borderRadius:6,overflow:"hidden"}}>
                               <div style={{width:(d.share/mx*100)+"%",height:"100%",background:BOAT_COLOR[d.boat],opacity:0.85}}></div>
                             </div>
-                            <span style={{fontSize:11,color:"#e0e6ed",minWidth:82,textAlign:"right"}}>{d.share}%（{d.count}回）</span>
+                            <span style={{fontSize:11,color:"#e0e6ed",minWidth:82,textAlign:"right",fontVariantNumeric:"tabular-nums"}}>{d.share}%（{d.count}回）</span>
                           </div>
                         ))}
                       </div>)}
@@ -232,7 +232,7 @@ function App() {
                                 <div style={{flex:1,height:10,background:"#0b1219",borderRadius:5,overflow:"hidden"}}>
                                   <div style={{width:(d.count/cmax*100)+"%",height:"100%",background:"#caa23f",opacity:0.85}}></div>
                                 </div>
-                                <span style={{fontSize:11,color:"#e0e6ed",minWidth:60,textAlign:"right"}}>{d.count}回・{d.share}%</span>
+                                <span style={{fontSize:11,color:"#e0e6ed",minWidth:60,textAlign:"right",fontVariantNumeric:"tabular-nums"}}>{d.count}回・{d.share}%</span>
                               </div>
                             ))}
                             {c.ranking.length > 8 && <div style={{fontSize:11,color:"#6b7f95",marginTop:2}}>ほか{c.ranking.length-8}種の出目（各{c.ranking[8].count}回以下）</div>}
