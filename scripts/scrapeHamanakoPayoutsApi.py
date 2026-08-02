@@ -18,11 +18,15 @@ v2 スキーマ: results[].race_stadium_number / race_number /
   END   … 'YYYYMMDD' 収集終了日（既定 昨日）
 """
 import os
+import sys
 import csv
 import json
 import time
 import datetime
 import urllib.request
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from lib.csv_guard import guarded_write_csv
 
 JCD = 6  # 浜名湖（公式場コード6）
 RAW = "https://raw.githubusercontent.com/BoatraceOpenAPI/results/gh-pages/docs/v2/{y}/{ymd}.json"
@@ -90,7 +94,7 @@ def main():
     if end_s:
         end = datetime.date(int(end_s[0:4]), int(end_s[4:6]), int(end_s[6:8]))
     else:
-        end = datetime.date.hamanakoy() - datetime.timedelta(days=1)
+        end = datetime.date.today() - datetime.timedelta(days=1)
 
     got = 0
     days = 0
@@ -118,10 +122,8 @@ def main():
         time.sleep(SLEEP)
 
     rows.sort(key=lambda x: (x[0], int(x[1])))
-    with open(OUT, "w", encoding="utf-8", newline="") as f:
-        w = csv.writer(f)
-        w.writerow(["hd", "rno", "combo", "payout"])
-        w.writerows(rows)
+    # 書き込み前ガード: 行数減少・0件・列構成不一致なら既存CSVに触れず非ゼロ終了
+    guarded_write_csv(OUT, ["hd", "rno", "combo", "payout"], rows)
     print("done. new records:", got, "new days:", days, "total rows:", len(rows))
 
 
