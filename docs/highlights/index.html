@@ -234,6 +234,10 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .oshi-badge{font-size:11px;font-weight:700;color:#0b1219;background:#ffd166;border-radius:6px;padding:1px 7px;white-space:nowrap}
 .oshi-mk{color:#ffd166;font-size:12px;margin-left:3px}
 .oshi-note{color:#7a6c44;font-size:10px;line-height:1.7}
+#oshibar{display:none;gap:8px;margin:8px 0;font-size:13px;align-items:center;flex-wrap:wrap}
+.oshi-btn{cursor:pointer;padding:4px 12px;border-radius:14px;border:1px solid #4a4636;color:#c9c2ad;min-height:24px;display:inline-flex;align-items:center}
+.oshi-btn.on{background:#ffd166;color:#0b1219;border-color:#ffd166;font-weight:700}
+.oshi-clear{cursor:pointer;color:#c8a24a;border-bottom:1px dotted #c8a24a}
 </style>
 </head>
 <body>
@@ -274,6 +278,7 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
   <div class="tab firm" data-v="firm" onclick="sw('firm')">🛡 堅め注目</div>
   <div class="tab" data-v="all" onclick="sw('all')">📋 場別</div>
 </div>
+<div id="oshibar"><span class="oshi-btn" id="oshiBtn" role="button" tabindex="0" aria-pressed="false" onclick="toggleOshiOnly()">⭐ 推しのみ</span><span style="opacity:.6">フォロー中の選手が出るレースだけを表示</span></div>
 <div id="sortbar" style="display:flex;gap:8px;margin:8px 0;font-size:13px;">
   <span style="opacity:.6;align-self:center;">並び替え</span>
   <span class="sortbtn on" data-s="cond" onclick="ss('cond')">条件順</span>
@@ -328,6 +333,16 @@ function oshiRaceBadge(r){
   var txt = (ns.length<=2) ? ns.join('・') : (ns.length+'人');
   return '<span class="oshi-badge">⭐ 推し '+kEsc(txt)+'</span>';
 }
+var OSHI_ONLY=false;   /* 絞り込み状態。localStorageには保存しない（読むだけの原則を維持） */
+function racesForView(){ return OSHI_ONLY ? RACES.filter(function(r){ return oshiInRace(r).length>0; }) : RACES; }
+function syncOshiBar(){
+  var bar=document.getElementById('oshibar'); if(!bar) return;
+  bar.style.display = OSHI.length ? 'flex' : 'none';
+  var b=document.getElementById('oshiBtn'); if(!b) return;
+  b.classList.toggle('on', OSHI_ONLY);
+  b.setAttribute('aria-pressed', OSHI_ONLY?'true':'false');
+}
+function toggleOshiOnly(){ OSHI_ONLY=!OSHI_ONLY; syncOshiBar(); render(); }
 
 function isJimoto(b, ba){
   const js=JIMOTO[ba]; if(!js) return false;
@@ -612,7 +627,7 @@ function kskTerm(cid){
 function renderVenues(){
   // その日のjsonにある場だけを、場コード順に並べてアコーディオン表示
   const byVenue={};
-  RACES.forEach(r=>{(byVenue[r['場名']]=byVenue[r['場名']]||{code:r['場コード'],list:[]}).list.push(r);});
+  racesForView().forEach(r=>{(byVenue[r['場名']]=byVenue[r['場名']]||{code:r['場コード'],list:[]}).list.push(r);});
   const venues=Object.keys(byVenue).sort((a,b)=>{const pa=hasPin(PIN,byVenue[a].code)?0:1,pb=hasPin(PIN,byVenue[b].code)?0:1;return pa!==pb?pa-pb:byVenue[a].code.localeCompare(byVenue[b].code);});
   if(!venues.length) return '<div class="empty">本日のデータがありません。</div>';
   return venues.map(ba=>{
@@ -660,7 +675,8 @@ function renderVenues(){
 
 function render(){
   const el=document.getElementById('list');
-  let arr=[...RACES];
+  if(OSHI_ONLY && !racesForView().length){ el.innerHTML='<div class="empty">本日、推しの出走はありません。<br><span class="oshi-clear" onclick="toggleOshiOnly()">絞り込みを解除</span></div>'; return; }
+  let arr=[...racesForView()];
   if(VIEW==='hot'){
     arr=arr.filter(r=>r['波乱']>=2);
     if(SORT==='time') arr.sort((x,y)=>dl2min(x['締切時刻'])-dl2min(y['締切時刻']));
@@ -679,6 +695,7 @@ function render(){
   refreshDeadlineState();
 }
 if(!window.__dlTimer){ window.__dlTimer=setInterval(refreshDeadlineState, 60000); }  // 1分毎に締切表示を更新（タイマー1本）
+syncOshiBar();
 
 // ①(進入コース1)の下振れ要因を「事実提示」として表示する（確率・買い目は出さない）。
 // build_highlights が各レースに付ける downFactors {count, items[]} を読むだけ。新規タイマーは追加しない。
