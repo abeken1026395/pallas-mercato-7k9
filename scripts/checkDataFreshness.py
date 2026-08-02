@@ -28,7 +28,10 @@ results/ と決まり手CSV は単一の対象で、更新頻度も一定なの�
   WINDOW      … 払戻の突合窓（日）既定 10。基準日の前日から遡る
   TH_RESULTS  … results/ のしきい値（日）既定 3  （毎晩更新）
   TH_KIMARITE … 決まり手CSVのしきい値（日）既定 25（毎月2・16日更新）
+  GRACE       … 判定から外す直近日数 既定 1（収集待ちの日を鳴らさないため）
   TODAY       … 'YYYYMMDD' 基準日の上書き（試験用）
+  FORCE_ISSUE … 1/true なら合成の異常を1件足す。実データは一切変えない。
+                本番の異常を待たずに起票経路を確かめるためのもの（検証用）。
 
 出力:
   標準出力に一覧。GITHUB_OUTPUT があれば stale / count / today を書く。
@@ -50,9 +53,20 @@ UA = "Mozilla/5.0 boatrace-data-collector"
 SLEEP = 0.2
 TIMEOUT = 30
 
-WINDOW = int(os.environ.get("WINDOW", "10"))
-TH_RESULTS = int(os.environ.get("TH_RESULTS", "3"))
-TH_KIMARITE = int(os.environ.get("TH_KIMARITE", "25"))
+def _int_env(name, default):
+    """空文字も既定へ倒す。workflow_dispatch の未入力は '' で渡ってくる。"""
+    v = os.environ.get(name, "").strip()
+    return int(v) if v else default
+
+
+WINDOW = _int_env("WINDOW", 10)
+# 直近 GRACE 日は判定から外す。前日ぶんは払戻WF（JST 00:20〜02:25）がまだ走っていない
+# 時間帯があり、そのまま判定すると「収集される前」を欠落として鳴らしてしまうため。
+GRACE = _int_env("GRACE", 1)
+TH_RESULTS = _int_env("TH_RESULTS", 3)
+TH_KIMARITE = _int_env("TH_KIMARITE", 25)
+# 起票経路の検証用。本番の異常を待たずに Issue を1本立てて経路を確かめる。
+FORCE_ISSUE = os.environ.get("FORCE_ISSUE", "").strip().lower() in ("1", "true", "yes")
 
 JST = datetime.timezone(datetime.timedelta(hours=9))
 
@@ -103,7 +117,8 @@ def csv_days(path):
 
 def check_payouts(today):
     """ミラーと突合し「ミラーにあるのにCSVに無い日」を場ごとに返す。"""
-    end = today - datetime.timedelta(days=1)      # 前日までが確定分
+    # 前日までが確定分。さらに GRACE 日ぶん手前で切り、収集待ちの日を鳴らさない。
+    end = today - datetime.timedelta(days=1 + GRACE)
     start = end - datetime.timedelta(days=WINDOW - 1)
 
     expect = {v: set() for v in JCD.values()}
@@ -213,6 +228,10 @@ def main():
     bad = [("払戻CSV", n, l, s) for n, l, s, _m, _c, _x in prows if s != "OK"]
     for title, rows in groups:
         bad += [(title, n, l, s) for n, l, s in rows if s != "OK"]
+    # 起票経路の検証。実データは一切変えず、合成の1件だけを足す。
+    if FORCE_ISSUE:
+        bad.append(("検証", "FORCE_ISSUE", "-", "起票経路の確認用のダミー（実データは正常）"))
+
     # ミラー到達不可は沈黙させない。1日でも取れなければ異常として数える。
     if unreachable:
         note = "取得できなかった日 %d/%d件" % (len(unreachable), WINDOW)
@@ -223,8 +242,13 @@ def main():
     print("\n異常な対象: %d件" % len(bad))
 
     if bad:
-        lines = ["対象窓: %s" % win, "",
-                 "| 区分 | 対象 | 最終 | 状態 |", "|---|---|---|---|"]
+        lines = []
+        if FORCE_ISSUE:
+            lines += ["> **これは FORCE_ISSUE による検証用の起票です。**",
+                      "> 起票経路（ラベル作成・本文生成・冪等スキップ）を確認するためのもので、",
+                      "> 実データの異常を意味しません。確認後は close してください。", ""]
+        lines += ["対象窓: %s" % win, "",
+                  "| 区分 | 対象 | 最終 | 状態 |", "|---|---|---|---|"]
         for title, n, l, s in bad:
             lines.append("| %s | `%s` | %s | %s |" % (title, n, l, s))
         det = [(n, mir, incsv, miss) for n, _l, _s, mir, incsv, miss in prows if miss]
@@ -258,6 +282,7 @@ def main():
             f.write("stale=%d\n" % (1 if bad else 0))
             f.write("count=%d\n" % len(bad))
             f.write("today=%s\n" % today.strftime("%Y%m%d"))
+            f.write("forced=%d\n" % (1 if FORCE_ISSUE else 0))
 
     return 1 if bad else 0
 
