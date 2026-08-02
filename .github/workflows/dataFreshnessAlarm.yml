@@ -31,6 +31,10 @@ on:
         description: "決まり手CSVのしきい値(日)。空欄で既定25"
         required: false
         default: ""
+      FORCE_ISSUE:
+        description: "起票経路の検証。true で合成の異常を1件足して Issue を立てる（ラベルは data-stale-test）"
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -60,6 +64,7 @@ jobs:
           WINDOW: ${{ github.event.inputs.WINDOW }}
           TH_RESULTS: ${{ github.event.inputs.TH_RESULTS }}
           TH_KIMARITE: ${{ github.event.inputs.TH_KIMARITE }}
+          FORCE_ISSUE: ${{ github.event.inputs.FORCE_ISSUE }}
         run: python scripts/checkDataFreshness.py
 
       # 監視自体が落ちたら黙って緑にしない（この監視が今回の教訓の要）
@@ -76,16 +81,26 @@ jobs:
         run: |
           TODAY="${{ steps.c.outputs.today }}"
           CNT="${{ steps.c.outputs.count }}"
-          gh label create data-stale --color B60205 --description "成果物が更新されていない" 2>/dev/null || true
+          # 検証起票は別ラベル・別タイトルにする。本番の冪等判定を塞がないため。
+          if [ "${{ steps.c.outputs.forced }}" = "1" ]; then
+            LABEL=data-stale-test
+            TITLE="[検証] データ鮮度 警報の起票経路確認: ${TODAY}"
+            DESC="起票経路の検証用（本番の異常ではない）"
+          else
+            LABEL=data-stale
+            TITLE="データ鮮度 警報: ${TODAY} 時点で ${CNT}件の異常"
+            DESC="成果物が更新されていない"
+          fi
+          gh label create "$LABEL" --color B60205 --description "$DESC" 2>/dev/null || true
           # 冪等: 同じ基準日のOpen Issueがあれば起票しない
-          EXIST=$(gh issue list --label data-stale --state open --search "$TODAY in:title" --json number --jq 'length' 2>/dev/null || echo 0)
+          EXIST=$(gh issue list --label "$LABEL" --state open --search "$TODAY in:title" --json number --jq 'length' 2>/dev/null || echo 0)
           if [ "${EXIST:-0}" != "0" ]; then
-            echo "既にOpen Issueあり（基準日 ${TODAY}）→ 起票しない"; exit 0
+            echo "既にOpen Issueあり（ラベル ${LABEL} / 基準日 ${TODAY}）→ 起票しない"; exit 0
           fi
           BODY=$(cat freshness_summary.md 2>/dev/null || echo "(詳細の取得に失敗)")
           gh issue create \
-            --title "データ鮮度 警報: ${TODAY} 時点で ${CNT}件の異常" \
-            --label data-stale \
+            --title "$TITLE" \
+            --label "$LABEL" \
             --body "$(printf '%s\n\n## 見るところ\n\n- 該当のワークフローの実行履歴（**色ではなくログ**。`continue-on-error` で緑のまま失敗している場合がある）\n- 払戻が広範囲に欠けているなら `scrape{場名}PayoutsApi.py` の起動時エラーを疑う\n- ミラーに繋がらなかった日が出ているなら BoatraceOpenAPI 側かネットワーク\n- `results/` のみ古いなら `buildResults.py` / nightlyPipeline の不発火（cron-job.org）\n- 決まり手のみ古いならローカルタスク `boatrace-updateKimarite` と `scripts/logs/`\n\n単一障害点は REFERENCE.md (1) を参照。\n（この Issue は鮮度監視の自動起票です。復旧すれば次回は起票されません。）' "$BODY")"
           echo "起票しました（基準日 ${TODAY}）"
 
