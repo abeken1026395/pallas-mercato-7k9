@@ -277,7 +277,9 @@ header .sub { font-size:11px; color:#8a94a3; margin-top:4px; }
 .oshi-note { font-size:10px; color:#7a6c44; margin-top:8px; line-height:1.6; }
 .pin-mk { margin-right:4px; font-size:15px; }
 .oshi-nick { font-size:10px; color:#c8a24a; font-style:italic; font-weight:normal; }
-.oshibtn { margin-left:auto; font-size:16px; line-height:1; color:#5c6773; cursor:pointer; flex:none; padding:2px 3px; transition:transform .12s; }
+/* タップ領域は 24×24px 以上（WCAG 2.2 / 2.5.8 ターゲットサイズ 最小・AA）。
+   絵文字の見た目は font-size:16px のまま変えず、min-width/min-height で当たり判定だけ広げる */
+.oshibtn { margin-left:auto; font-size:16px; line-height:1; color:#5c6773; cursor:pointer; flex:none; padding:0; min-width:24px; min-height:24px; display:inline-flex; align-items:center; justify-content:center; background:none; border:none; font-family:inherit; transition:transform .12s; }
 .oshibtn.on { color:#ffd166; }
 .oshibtn:active { transform:scale(1.3); }
 .boat.oshi-on { border-color:#5a4a1a; box-shadow:0 0 0 1px #5a4a1a inset; }
@@ -1169,7 +1171,7 @@ function boatCard(row,v,hl,minST,maxST,maxMotor){
     ?'<a class="pname" href="../players/?toban='+esc(toban)+'" style="color:inherit;text-decoration:none;">'+esc(name)+'<span class="badge-detail">詳細</span></a>'
     :'<span class="pname">'+esc(name)+'</span>';
   var oshi=isOshi(toban);
-  var oshiBtn=toban?'<span class="oshibtn'+(oshi?' on':'')+'" data-toban="'+esc(toban)+'" data-name="'+esc(name)+'" title="推しフォロー">'+(oshi?'⭐':'☆')+'</span>':'';
+  var oshiBtn=toban?'<button type="button" class="oshibtn'+(oshi?' on':'')+'" data-toban="'+esc(toban)+'" data-name="'+esc(name)+'" title="推しフォロー" aria-pressed="'+(oshi?'true':'false')+'" aria-label="'+esc(name)+(oshi?'のフォローを解除':'をフォロー')+'">'+(oshi?'⭐':'☆')+'</button>':'';
 
   return '<div class="boat'+(oshi?' oshi-on':'')+'"><div class="lane-bar" style="background:'+lc[0]+'"></div><div class="boat-body">'
     +'<div class="boat-top">'

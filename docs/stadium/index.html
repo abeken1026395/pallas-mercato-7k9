@@ -170,7 +170,8 @@ function App() {
           return (
             <div key={s.code} onClick={()=>setOpen(isOpen?null:s.code)} style={{background:"#111d2b",border:"1px solid #1e2d3d",borderRadius:10,padding:"12px 14px",cursor:"pointer"}}>
               <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
-                <span onClick={e=>{e.stopPropagation();togglePin(s.code,s.name);}} title="この場をフォロー" style={{fontSize:15,lineHeight:1,cursor:"pointer",flexShrink:0,padding:"2px 3px",userSelect:"none",opacity:hasPin(pins,s.code)?1:0.3,filter:hasPin(pins,s.code)?"none":"grayscale(1)"}}>📍</span>
+                {/* タップ領域は 24×24px 以上（WCAG 2.2 / 2.5.8）。絵文字は 15px のまま、当たり判定だけ広げる */}
+                <button type="button" onClick={e=>{e.stopPropagation();togglePin(s.code,s.name);}} title="この場をフォロー" aria-pressed={hasPin(pins,s.code)} aria-label={s.name+(hasPin(pins,s.code)?"のフォローを解除":"をフォロー")} style={{fontSize:15,lineHeight:1,cursor:"pointer",flexShrink:0,padding:0,minWidth:24,minHeight:24,display:"inline-flex",alignItems:"center",justifyContent:"center",background:"none",border:"none",fontFamily:"inherit",userSelect:"none",opacity:hasPin(pins,s.code)?1:0.3,filter:hasPin(pins,s.code)?"none":"grayscale(1)"}}>📍</button>
                 <span style={{fontSize:11,fontWeight:700,color:"#6b7f95",background:"#0b1219",border:"1px solid #2a3d52",borderRadius:6,padding:"2px 7px",minWidth:30,textAlign:"center"}}>{parseInt(s.code,10)}</span>
                 <span style={{fontSize:16,fontWeight:800,color:"#e0e6ed",minWidth:54}}>{s.name}</span>
                 <span style={{fontSize:11,color:"#6b7f95"}}>{s.area}</span>

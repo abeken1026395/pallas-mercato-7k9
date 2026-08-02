@@ -473,7 +473,8 @@ function App() {
               {/* 一覧行（旧版踏襲: バッジ＋名前＋右に大きな数字2列） */}
               <div style={{display:"flex",alignItems:"center",padding:"14px 16px",gap:12}}>
                 {tab!=="list" && <span style={{fontSize:15,fontWeight:900,color:"#ffd166",minWidth:26,textAlign:"center",flexShrink:0}}>{idx+1}</span>}
-                <span onClick={e=>{e.stopPropagation();toggleOshi(p.no,p.name);}} title="推しフォロー" style={{fontSize:18,lineHeight:1,color:hasOshi(oshi,p.no)?"#ffd166":"#5c6773",cursor:"pointer",flexShrink:0,padding:"2px 4px",userSelect:"none"}}>{hasOshi(oshi,p.no)?"⭐":"☆"}</span>
+                {/* タップ領域は 24×24px 以上（WCAG 2.2 / 2.5.8）。絵文字は 18px のまま、当たり判定だけ広げる */}
+                <button type="button" onClick={e=>{e.stopPropagation();toggleOshi(p.no,p.name);}} title="推しフォロー" aria-pressed={hasOshi(oshi,p.no)} aria-label={p.name+(hasOshi(oshi,p.no)?"のフォローを解除":"をフォロー")} style={{fontSize:18,lineHeight:1,color:hasOshi(oshi,p.no)?"#ffd166":"#5c6773",cursor:"pointer",flexShrink:0,padding:0,minWidth:24,minHeight:24,display:"inline-flex",alignItems:"center",justifyContent:"center",background:"none",border:"none",fontFamily:"inherit",userSelect:"none"}}>{hasOshi(oshi,p.no)?"⭐":"☆"}</button>
                 <span style={{fontSize:13,fontWeight:800,padding:"4px 9px",borderRadius:8,background:RANK_BADGE[p.rank],color:"#fff",flexShrink:0}}>{p.rank}</span>
                 <div style={{minWidth:0,flex:1}}>
                   {pf&&(pf.tagline||pf.nickname)&&<div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:3}}>
