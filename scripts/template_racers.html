@@ -145,15 +145,15 @@ header .sub { font-size:11px; color:#8a94a3; margin-top:4px; }
 .stats { display:flex; gap:10px; margin-top:8px; flex-wrap:wrap; }
 .stat { line-height:1.35; min-width:66px; }
 .stat .lb { font-size:10px; color:#8a94a3; }
-.stat .v { font-size:15px; font-weight:bold; color:#e0e6ed; }
-.stat .v2 { font-size:11px; color:#9fb0c3; }
+.stat .v { font-size:15px; font-weight:bold; color:#e0e6ed; font-variant-numeric:tabular-nums; }
+.stat .v2 { font-size:11px; color:#9fb0c3; font-variant-numeric:tabular-nums; }
 .stat.hot .v { color:#ffd166; } .stat.hot .lb { color:#ffd166; }
 .stat.mach .lb { color:#7ec8ff; } .stat.mach .v { color:#a9c6dd; }
 .up { font-size:11px; }
 /* 今節モーター（通算×今節の偏差・生データ／評価語なし） */
-.kinmotor { margin-top:7px; font-size:11.5px; color:#a9c6dd; background:#0f1a26; border:1px solid #23364a; border-radius:8px; padding:5px 9px; line-height:1.5; }
+.kinmotor { margin-top:7px; font-size:11.5px; color:#a9c6dd; background:#0f1a26; border:1px solid #23364a; border-radius:8px; padding:5px 9px; line-height:1.5; font-variant-numeric:tabular-nums; }
 .kinmotor b { color:#e0e6ed; }
-.kinmotor .km-tsu { color:#8a94a3; }
+.kinmotor .km-tsu { color:#8a94a3; font-variant-numeric:tabular-nums; }
 .kinmotor .km-few { color:#e0a56a; font-size:10px; margin-left:4px; }
 .kinmotor .km-none { color:#8a94a3; }
 
@@ -163,7 +163,7 @@ header .sub { font-size:11px; color:#8a94a3; margin-top:4px; }
 .meter-lb { font-size:10px; color:#8a94a3; width:42px; flex:none; }
 .meter-track { flex:1; height:7px; background:#0e1620; border-radius:4px; overflow:hidden; }
 .meter-fill { height:100%; border-radius:4px; }
-.meter-val { font-size:10px; color:#9fb0c3; width:46px; flex:none; text-align:right; }
+.meter-val { font-size:10px; color:#9fb0c3; width:46px; flex:none; text-align:right; font-variant-numeric:tabular-nums; }
 .meter-best { color:#ffd166; font-weight:bold; }
 
 /* E30該当場成績（事実の生データ・二層表示） */
@@ -180,10 +180,10 @@ header .sub { font-size:11px; color:#8a94a3; margin-top:4px; }
 .e30-row { display:flex; align-items:center; font-size:11px; padding:4px 0; border-top:1px solid #16273a; }
 .e30-row.hd { color:#6f8aa3; font-weight:bold; border-top:none; }
 .e30-row .c { width:40px; color:#c5d2e0; font-weight:bold; }
-.e30-row .n { width:38px; text-align:right; color:#e0e6ed; }
-.e30-row .w1 { width:30px; text-align:right; color:#ffd166; font-weight:bold; }
-.e30-row .w2 { width:40px; text-align:right; color:#3fb1c9; font-weight:bold; }
-.e30-row .st { width:46px; text-align:right; color:#e0e6ed; }
+.e30-row .n { width:38px; text-align:right; color:#e0e6ed; font-variant-numeric:tabular-nums; }
+.e30-row .w1 { width:30px; text-align:right; color:#ffd166; font-weight:bold; font-variant-numeric:tabular-nums; }
+.e30-row .w2 { width:40px; text-align:right; color:#3fb1c9; font-weight:bold; font-variant-numeric:tabular-nums; }
+.e30-row .st { width:46px; text-align:right; color:#e0e6ed; font-variant-numeric:tabular-nums; }
 .e30-row .tk { flex:1; padding-left:8px; color:#8faabe; }
 .e30-row.dim { opacity:.5; }
 .e30-note { font-size:9px; color:#6f8aa3; margin-top:5px; line-height:1.5; }
@@ -279,7 +279,7 @@ header .sub { font-size:11px; color:#8a94a3; margin-top:4px; }
 .oshi-nick { font-size:10px; color:#c8a24a; font-style:italic; font-weight:normal; }
 /* タップ領域は 24×24px 以上（WCAG 2.2 / 2.5.8 ターゲットサイズ 最小・AA）。
    絵文字の見た目は font-size:16px のまま変えず、min-width/min-height で当たり判定だけ広げる */
-.oshibtn { margin-left:auto; font-size:16px; line-height:1; color:#5c6773; cursor:pointer; flex:none; padding:0; min-width:24px; min-height:24px; display:inline-flex; align-items:center; justify-content:center; background:none; border:none; font-family:inherit; transition:transform .12s; }
+.oshibtn { margin-left:auto; font-size:16px; line-height:1; color:#8a94a3; cursor:pointer; flex:none; padding:0; min-width:24px; min-height:24px; display:inline-flex; align-items:center; justify-content:center; background:none; border:none; font-family:inherit; transition:transform .12s; }
 .oshibtn.on { color:#ffd166; }
 .oshibtn:active { transform:scale(1.3); }
 .boat.oshi-on { border-color:#5a4a1a; box-shadow:0 0 0 1px #5a4a1a inset; }

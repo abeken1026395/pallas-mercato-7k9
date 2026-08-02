@@ -194,7 +194,7 @@ function BranchPanel({bsort,setBsort,kim,players,hasDetail,detailErr}){
   const {rows,all,hasKim}=stat;
   const key=bsort==="makuri"?"makuriR":bsort==="sashi"?"sashiR":bsort;
   const sorted=[...rows].sort((x,y)=> bsort==="st" ? x.st-y.st : (y[key]-x[key]));
-  const diff=(v,base,inv,suf)=>{const d=v-base;const up=inv?d<0:d>0;return <span style={{fontSize:11,fontWeight:700,color:up?"#ffd166":"#6b7f95",marginLeft:4}}>{(d>=0?"+":"")+d.toFixed(suf?1:2)+(suf||"")}</span>;};
+  const diff=(v,base,inv,suf)=>{const d=v-base;const up=inv?d<0:d>0;return <span style={{fontSize:11,fontWeight:700,color:up?"#ffd166":"#6b7f95",marginLeft:4,fontVariantNumeric:"tabular-nums"}}>{(d>=0?"+":"")+d.toFixed(suf?1:2)+(suf||"")}</span>;};
   const sk=[["win","勝率"],["out","アウト戦"],["makuri","まくり率"],["sashi","差し率"],["st","平均ST"],["a1","A1率"],["n","人数"]];
   // 平均ST と コース別1着率(2〜6コース) は detail 側の項目。未到着のまま描くと
   // 0.000 や全ゼロのグラフが出て、埋め込み時代と違う数字を見せてしまう。
@@ -221,17 +221,17 @@ function BranchPanel({bsort,setBsort,kim,players,hasDetail,detailErr}){
        <div style={{display:"flex",alignItems:"baseline",gap:10,marginBottom:10}}>
         <span style={{fontSize:14,fontWeight:900,color:"#ffd166",minWidth:22}}>{idx+1}</span>
         <span style={{fontSize:17,fontWeight:900,color:"#e0e6ed"}}>{r.b}</span>
-        <span style={{fontSize:11,color:"#6b7f95",marginLeft:"auto"}}>{r.n}名 ・ A1 {r.a1.toFixed(0)}%</span>
+        <span style={{fontSize:11,color:"#6b7f95",marginLeft:"auto",fontVariantNumeric:"tabular-nums"}}>{r.n}名 ・ A1 {r.a1.toFixed(0)}%</span>
        </div>
        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"6px 8px",fontSize:13,marginBottom:11}}>
-        <div><span style={{color:"#6b7f95",fontSize:11}}>勝率 </span><b style={{color:"#ffd166"}}>{r.win.toFixed(2)}</b>{diff(r.win,all.win)}</div>
-        <div><span style={{color:"#6b7f95",fontSize:11}}>アウト戦 </span><b style={{color:"#e0e6ed"}}>{r.out.toFixed(1)}</b>{diff(r.out,all.out)}</div>
-        <div><span style={{color:"#6b7f95",fontSize:11}}>平均ST </span><b style={{color:"#e0e6ed"}}>{r.st.toFixed(3)}</b>{diff(r.st,all.st,true)}</div>
+        <div><span style={{color:"#6b7f95",fontSize:11}}>勝率 </span><b style={{color:"#ffd166",fontVariantNumeric:"tabular-nums"}}>{r.win.toFixed(2)}</b>{diff(r.win,all.win)}</div>
+        <div><span style={{color:"#6b7f95",fontSize:11}}>アウト戦 </span><b style={{color:"#e0e6ed",fontVariantNumeric:"tabular-nums"}}>{r.out.toFixed(1)}</b>{diff(r.out,all.out)}</div>
+        <div><span style={{color:"#6b7f95",fontSize:11}}>平均ST </span><b style={{color:"#e0e6ed",fontVariantNumeric:"tabular-nums"}}>{r.st.toFixed(3)}</b>{diff(r.st,all.st,true)}</div>
        </div>
        <div style={{display:"flex",gap:4,alignItems:"flex-end",height:40,marginBottom:12}}>
         {r.c1.map((v,i)=>(
          <div key={i} style={{flex:1,textAlign:"center"}}>
-          <div style={{fontSize:9,color:"#8faabe",marginBottom:2}}>{v.toFixed(0)}</div>
+          <div style={{fontSize:9,color:"#8faabe",marginBottom:2,fontVariantNumeric:"tabular-nums"}}>{v.toFixed(0)}</div>
           <div style={{height:Math.max(2,v*0.28)+"px",background:i<2?"#ffd166":"#4593e5",borderRadius:"2px 2px 0 0"}}></div>
           <div style={{fontSize:9,color:"#6b7f95",marginTop:2}}>{i+1}</div>
          </div>
@@ -241,7 +241,7 @@ function BranchPanel({bsort,setBsort,kim,players,hasDetail,detailErr}){
         <div>
          <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:"#6b7f95",marginBottom:4}}>
           <span>決まり手（1着 {r.kt}本）</span>
-          <span>まくり率 <b style={{color:"#4593e5"}}>{r.makuriR.toFixed(1)}%</b>{diff(r.makuriR,all.makuriR,false,"%")}　差し率 <b style={{color:"#3fb950"}}>{r.sashiR.toFixed(1)}%</b>{diff(r.sashiR,all.sashiR,false,"%")}</span>
+          <span>まくり率 <b style={{color:"#4593e5",fontVariantNumeric:"tabular-nums"}}>{r.makuriR.toFixed(1)}%</b>{diff(r.makuriR,all.makuriR,false,"%")}　差し率 <b style={{color:"#3fb950",fontVariantNumeric:"tabular-nums"}}>{r.sashiR.toFixed(1)}%</b>{diff(r.sashiR,all.sashiR,false,"%")}</span>
          </div>
          <div style={{display:"flex",height:14,borderRadius:7,overflow:"hidden",background:"#162232"}}>
           {KIM.map(([k,l,c])=>{const w=r.kc[k]/r.kt*100; return w>0?<div key={k} title={l+" "+w.toFixed(1)+"%"} style={{width:w+"%",background:c}}></div>:null;})}
@@ -474,7 +474,7 @@ function App() {
               <div style={{display:"flex",alignItems:"center",padding:"14px 16px",gap:12}}>
                 {tab!=="list" && <span style={{fontSize:15,fontWeight:900,color:"#ffd166",minWidth:26,textAlign:"center",flexShrink:0}}>{idx+1}</span>}
                 {/* タップ領域は 24×24px 以上（WCAG 2.2 / 2.5.8）。絵文字は 18px のまま、当たり判定だけ広げる */}
-                <button type="button" onClick={e=>{e.stopPropagation();toggleOshi(p.no,p.name);}} title="推しフォロー" aria-pressed={hasOshi(oshi,p.no)} aria-label={p.name+(hasOshi(oshi,p.no)?"のフォローを解除":"をフォロー")} style={{fontSize:18,lineHeight:1,color:hasOshi(oshi,p.no)?"#ffd166":"#5c6773",cursor:"pointer",flexShrink:0,padding:0,minWidth:24,minHeight:24,display:"inline-flex",alignItems:"center",justifyContent:"center",background:"none",border:"none",fontFamily:"inherit",userSelect:"none"}}>{hasOshi(oshi,p.no)?"⭐":"☆"}</button>
+                <button type="button" onClick={e=>{e.stopPropagation();toggleOshi(p.no,p.name);}} title="推しフォロー" aria-pressed={hasOshi(oshi,p.no)} aria-label={p.name+(hasOshi(oshi,p.no)?"のフォローを解除":"をフォロー")} style={{fontSize:18,lineHeight:1,color:hasOshi(oshi,p.no)?"#ffd166":"#8a94a3",cursor:"pointer",flexShrink:0,padding:0,minWidth:24,minHeight:24,display:"inline-flex",alignItems:"center",justifyContent:"center",background:"none",border:"none",fontFamily:"inherit",userSelect:"none"}}>{hasOshi(oshi,p.no)?"⭐":"☆"}</button>
                 <span style={{fontSize:13,fontWeight:800,padding:"4px 9px",borderRadius:8,background:RANK_BADGE[p.rank],color:"#fff",flexShrink:0}}>{p.rank}</span>
                 <div style={{minWidth:0,flex:1}}>
                   {pf&&(pf.tagline||pf.nickname)&&<div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:3}}>
@@ -490,12 +490,12 @@ function App() {
                 <div style={{display:"flex",gap:18,flexShrink:0}}>
                   {tab!=="list" && k ? [["率",(tab==="makuri"?k.makuriRate:k.sashiRate)||"-",tab==="makuri"?"#ff9e64":"#7ee787",(tab==="makuri"?"まくり率":"差し率")],["数",tab==="makuri"?k.makuri:k.sashi,"#e0e6ed",(tab==="makuri"?"まくり数":"差し数")]].map(([t,v,col,lb],i)=>(
                     <div key={i} style={{textAlign:"center"}}>
-                      <div style={{fontSize:22,fontWeight:800,color:col,lineHeight:1}}>{v}{t==="率"&&v!=="-"&&<span style={{fontSize:12}}>%</span>}</div>
+                      <div style={{fontSize:22,fontWeight:800,color:col,lineHeight:1,fontVariantNumeric:"tabular-nums"}}>{v}{t==="率"&&v!=="-"&&<span style={{fontSize:12}}>%</span>}</div>
                       <div style={{fontSize:10,color:"#6b7f95",marginTop:3}}>{lb}</div>
                     </div>
                   )) : [["勝率",p.win.toFixed(2),"#ffd166"],["複勝率",p.fukusho.toFixed(2),"#3fb1c9"]].map(([lb,v,col],i)=>(
                     <div key={i} style={{textAlign:"center"}}>
-                      <div style={{fontSize:22,fontWeight:800,color:col,lineHeight:1}}>{v}</div>
+                      <div style={{fontSize:22,fontWeight:800,color:col,lineHeight:1,fontVariantNumeric:"tabular-nums"}}>{v}</div>
                       <div style={{fontSize:10,color:"#6b7f95",marginTop:3}}>{lb}</div>
                     </div>
                   ))}
@@ -542,18 +542,18 @@ function App() {
                     {[["出走",p.syutsu],["1着",p.win1],["2着",p.win2],["優勝",p.yusyo],["優出",p.yusyutsu],["平均ST",p.avgst],["F数",p.f]].map(([l,v],i)=>(
                       <div key={i} style={{display:"flex",flexDirection:"column",minWidth:54}}>
                         <span style={{fontSize:10,color:"#6b7f95"}}>{l}</span>
-                        <span style={{fontSize:13,fontWeight:700,color:(l==="優勝"?"#ffd166":l==="F数"&&p.f>0?"#f85149":"#e0e6ed")}}>{v}</span>
+                        <span style={{fontSize:13,fontWeight:700,color:(l==="優勝"?"#ffd166":l==="F数"&&p.f>0?"#f85149":"#e0e6ed"),fontVariantNumeric:"tabular-nums"}}>{v}</span>
                       </div>
                     ))}
                   </div>
-                  <div style={{fontSize:11,color:"#8faabe",fontWeight:700,marginBottom:4}}>■ コース別1着率　<span style={{color:"#79c0ff",fontWeight:400}}>アウト戦(3-6) {p.out!==null?p.out+"%":"-"}</span></div>
+                  <div style={{fontSize:11,color:"#8faabe",fontWeight:700,marginBottom:4}}>■ コース別1着率　<span style={{color:"#79c0ff",fontWeight:400,fontVariantNumeric:"tabular-nums"}}>アウト戦(3-6) {p.out!==null?p.out+"%":"-"}</span></div>
                   <div style={{display:"flex",gap:4,alignItems:"flex-end",background:"#0b1219",borderRadius:8,padding:"10px 6px"}}>
                     {p.c1.map((rate,i)=>(
                       <div key={i} style={{flex:1,textAlign:"center"}}>
                         <div style={{height:44,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
                           {rate!==null&&<div style={{width:"68%",height:Math.max(2,rate*0.42)+"px",background:i<2?"#ffd166":"#79c0ff",borderRadius:"2px 2px 0 0"}}></div>}
                         </div>
-                        <div style={{fontSize:11,color:"#c5d2e0",marginTop:3,fontWeight:600}}>{rate!==null?rate+"%":"-"}</div>
+                        <div style={{fontSize:11,color:"#c5d2e0",marginTop:3,fontWeight:600,fontVariantNumeric:"tabular-nums"}}>{rate!==null?rate+"%":"-"}</div>
                         <div style={{fontSize:10,color:"#6b7f95"}}>{i+1}号艇</div>
                       </div>
                     ))}
@@ -568,7 +568,7 @@ function App() {
                         {[["まくり率",k.makuriRate!==""?k.makuriRate+"%":"-","#ff9e64"],["差し率",k.sashiRate!==""?k.sashiRate+"%":"-","#7ee787"],["前づけ率",k.mzRate!==""?k.mzRate+"%":"-","#d2a8ff"],["前づけ平均",k.mzAvg!==""?k.mzAvg:"-","#d2a8ff"],["1着数",k.wins,"#e0e6ed"],["出走数",k.races,"#e0e6ed"]].map(([l,v,col],i)=>(
                           <div key={i} style={{display:"flex",flexDirection:"column",minWidth:54}}>
                             <span style={{fontSize:10,color:"#6b7f95"}}>{l}</span>
-                            <span style={{fontSize:14,fontWeight:800,color:col}}>{v}</span>
+                            <span style={{fontSize:14,fontWeight:800,color:col,fontVariantNumeric:"tabular-nums"}}>{v}</span>
                           </div>
                         ))}
                       </div>
@@ -598,13 +598,13 @@ function App() {
                               return (
                                 <div key={m} style={{display:"flex",alignItems:"center",fontSize:12,padding:"5px 0",borderBottom:"1px solid #131f2e"}}>
                                   <span style={{width:56,color:"#c5d2e0",fontWeight:600}}>{m.replace("-",".")}</span>
-                                  <span style={{width:44,textAlign:"right",color:"#e0e6ed"}}>{r.出走}</span>
-                                  <span style={{width:40,textAlign:"right",color:r["1着"]>0?"#ffd166":"#6b7f95",fontWeight:700}}>{r["1着"]}</span>
+                                  <span style={{width:44,textAlign:"right",color:"#e0e6ed",fontVariantNumeric:"tabular-nums"}}>{r.出走}</span>
+                                  <span style={{width:40,textAlign:"right",color:r["1着"]>0?"#ffd166":"#6b7f95",fontWeight:700,fontVariantNumeric:"tabular-nums"}}>{r["1着"]}</span>
                                   <span style={{flex:1,paddingLeft:10,display:"flex",alignItems:"center",gap:6}}>
                                     <span style={{flex:1,height:6,background:"#1a2535",borderRadius:3,overflow:"hidden"}}><span style={{display:"block",height:"100%",width:Math.min(100,rate)+"%",background:"#3fb1c9"}}></span></span>
-                                    <span style={{width:38,textAlign:"right",color:"#3fb1c9",fontWeight:700}}>{rate.toFixed(0)}%</span>
+                                    <span style={{width:38,textAlign:"right",color:"#3fb1c9",fontWeight:700,fontVariantNumeric:"tabular-nums"}}>{rate.toFixed(0)}%</span>
                                   </span>
-                                  <span style={{width:56,textAlign:"right",color:"#e0e6ed"}}>{r["平均ST"]?r["平均ST"].toFixed(2):"-"}</span>
+                                  <span style={{width:56,textAlign:"right",color:"#e0e6ed",fontVariantNumeric:"tabular-nums"}}>{r["平均ST"]?r["平均ST"].toFixed(2):"-"}</span>
                                 </div>
                               );
                             })}
@@ -647,10 +647,10 @@ function App() {
                               return (
                                 <div key={c} style={{display:"flex",alignItems:"center",fontSize:12,padding:"5px 0",borderBottom:"1px solid #131f2e",opacity:few?0.55:1}}>
                                   <span style={{width:40,color:"#c5d2e0",fontWeight:700}}>{c}号艇</span>
-                                  <span style={{width:40,textAlign:"right",color:"#e0e6ed"}}>{r.出走数}{few&&<span style={{fontSize:9,color:"#c98"}}> 少</span>}</span>
-                                  <span style={{width:36,textAlign:"right",color:r["1着数"]>0?"#ffd166":"#6b7f95",fontWeight:700}}>{r["1着数"]}</span>
-                                  <span style={{width:44,textAlign:"right",color:"#3fb1c9",fontWeight:700}}>{r["2連対数"]}</span>
-                                  <span style={{width:52,textAlign:"right",color:"#e0e6ed"}}>{r.平均ST!=null?r.平均ST.toFixed(2):"-"}</span>
+                                  <span style={{width:40,textAlign:"right",color:"#e0e6ed",fontVariantNumeric:"tabular-nums"}}>{r.出走数}{few&&<span style={{fontSize:9,color:"#c98"}}> 少</span>}</span>
+                                  <span style={{width:36,textAlign:"right",color:r["1着数"]>0?"#ffd166":"#6b7f95",fontWeight:700,fontVariantNumeric:"tabular-nums"}}>{r["1着数"]}</span>
+                                  <span style={{width:44,textAlign:"right",color:"#3fb1c9",fontWeight:700,fontVariantNumeric:"tabular-nums"}}>{r["2連対数"]}</span>
+                                  <span style={{width:52,textAlign:"right",color:"#e0e6ed",fontVariantNumeric:"tabular-nums"}}>{r.平均ST!=null?r.平均ST.toFixed(2):"-"}</span>
                                   <span style={{flex:1,paddingLeft:10,color:"#8faabe",fontSize:11}}>{tech||"-"}</span>
                                 </div>
                               );
