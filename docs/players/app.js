@@ -1113,19 +1113,30 @@ function App() {
         textAlign: "center",
         flexShrink: 0
       }
-    }, idx + 1), /*#__PURE__*/React.createElement("span", {
+    }, idx + 1), /*#__PURE__*/React.createElement("button", {
+      type: "button",
       onClick: e => {
         e.stopPropagation();
         toggleOshi(p.no, p.name);
       },
       title: "\u63A8\u3057\u30D5\u30A9\u30ED\u30FC",
+      "aria-pressed": hasOshi(oshi, p.no),
+      "aria-label": p.name + (hasOshi(oshi, p.no) ? "のフォローを解除" : "をフォロー"),
       style: {
         fontSize: 18,
         lineHeight: 1,
         color: hasOshi(oshi, p.no) ? "#ffd166" : "#5c6773",
         cursor: "pointer",
         flexShrink: 0,
-        padding: "2px 4px",
+        padding: 0,
+        minWidth: 24,
+        minHeight: 24,
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "none",
+        border: "none",
+        fontFamily: "inherit",
         userSelect: "none"
       }
     }, hasOshi(oshi, p.no) ? "⭐" : "☆"), /*#__PURE__*/React.createElement("span", {
