@@ -1,0 +1,103 @@
+name: データ鮮度 警報
+
+# 成果物を外から見る監視。ワークフローの色を信用しない。
+#
+# このリポジトリの収集は、止まってもエラーにならず「データが更新されなくなるだけ」なので
+# 気づけない（REFERENCE.md (1) の単一障害点3つ）。2026-08-02 には22場の払戻収集が
+# 1ヶ月以上止まっていたことが発覚したが、continue-on-error: true により
+# ワークフロー一覧は緑で埋まったままだった。
+#
+# 払戻CSV24本 … BoatraceOpenAPI ミラーと突合し「ミラーにあるのにCSVに無い日」を検出。
+#                日数しきい値だと非開催の場と区別できない（実測で開催間隔は最大105日）。
+# results/     … 毎晩更新なので日数しきい値（既定3日）。
+# 決まり手CSV  … 毎月2・16日更新なので日数しきい値（既定25日）。
+#
+# 異常があれば GitHub Issue で起票する（ラベル data-stale）。
+# 冪等: 同じ基準日の Open Issue があれば起票しない。
+on:
+  schedule:
+    - cron: "40 22 * * *"   # JST 07:40（kansenkiMissingAlarm の 07:37 の直後）
+  workflow_dispatch:
+    inputs:
+      WINDOW:
+        description: "払戻のミラー突合窓(日)。空欄で既定10"
+        required: false
+        default: ""
+      TH_RESULTS:
+        description: "results/ のしきい値(日)。空欄で既定3"
+        required: false
+        default: ""
+      TH_KIMARITE:
+        description: "決まり手CSVのしきい値(日)。空欄で既定25"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: data-freshness-alarm
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      TZ: Asia/Tokyo
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: check freshness
+        id: c
+        continue-on-error: true   # 異常 = exit 1 はここで受け、後続の起票へ進める
+        env:
+          WINDOW: ${{ github.event.inputs.WINDOW }}
+          TH_RESULTS: ${{ github.event.inputs.TH_RESULTS }}
+          TH_KIMARITE: ${{ github.event.inputs.TH_KIMARITE }}
+        run: python scripts/checkDataFreshness.py
+
+      # 監視自体が落ちたら黙って緑にしない（この監視が今回の教訓の要）
+      - name: fail if checker crashed
+        if: steps.c.outcome == 'failure' && steps.c.outputs.stale == ''
+        run: |
+          echo "checkDataFreshness.py が結果を出さずに落ちた。監視が機能していない。" >&2
+          exit 1
+
+      - name: open issue (idempotent)
+        if: steps.c.outputs.stale == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TODAY="${{ steps.c.outputs.today }}"
+          CNT="${{ steps.c.outputs.count }}"
+          gh label create data-stale --color B60205 --description "成果物が更新されていない" 2>/dev/null || true
+          # 冪等: 同じ基準日のOpen Issueがあれば起票しない
+          EXIST=$(gh issue list --label data-stale --state open --search "$TODAY in:title" --json number --jq 'length' 2>/dev/null || echo 0)
+          if [ "${EXIST:-0}" != "0" ]; then
+            echo "既にOpen Issueあり（基準日 ${TODAY}）→ 起票しない"; exit 0
+          fi
+          BODY=$(cat freshness_summary.md 2>/dev/null || echo "(詳細の取得に失敗)")
+          gh issue create \
+            --title "データ鮮度 警報: ${TODAY} 時点で ${CNT}件の異常" \
+            --label data-stale \
+            --body "$(printf '%s\n\n## 見るところ\n\n- 該当のワークフローの実行履歴（**色ではなくログ**。`continue-on-error` で緑のまま失敗している場合がある）\n- 払戻が広範囲に欠けているなら `scrape{場名}PayoutsApi.py` の起動時エラーを疑う\n- ミラーに繋がらなかった日が出ているなら BoatraceOpenAPI 側かネットワーク\n- `results/` のみ古いなら `buildResults.py` / nightlyPipeline の不発火（cron-job.org）\n- 決まり手のみ古いならローカルタスク `boatrace-updateKimarite` と `scripts/logs/`\n\n単一障害点は REFERENCE.md (1) を参照。\n（この Issue は鮮度監視の自動起票です。復旧すれば次回は起票されません。）' "$BODY")"
+          echo "起票しました（基準日 ${TODAY}）"
+
+      - name: summary
+        if: always()
+        run: |
+          echo "### データ鮮度チェック" >> "$GITHUB_STEP_SUMMARY"
+          if [ "${{ steps.c.outputs.stale }}" = "1" ]; then
+            echo "異常 ${{ steps.c.outputs.count }}件" >> "$GITHUB_STEP_SUMMARY"
+            cat freshness_summary.md >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
+          elif [ "${{ steps.c.outputs.stale }}" = "0" ]; then
+            echo "すべて正常" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "監視スクリプトが結果を出さずに終了した" >> "$GITHUB_STEP_SUMMARY"
+          fi
