@@ -212,13 +212,59 @@ def pick_protagonist(v, exclude=None):
     return None
 
 
-def killer_hints(v):
+def _focus_by_toban(v, toban):
+    """focusRacers から toban 一致の1件。無ければ None。"""
+    if not toban:
+        return None
+    for f in v.get("focusRacers") or []:
+        if str(f.get("toban") or "") == str(toban):
+            return f
+    return None
+
+
+def _boat_by_toban(v, toban):
+    """todayProgram の出走表から toban 一致の1艇。無ければ None。
+    focusRacers に居ない主役（localRacers 由来の代替主役等）の機力はここからしか取れない。
+    出走表には motorNo が無いため、機番は None のままになる。"""
+    if not toban:
+        return None
+    tp = v.get("todayProgram") or {}
+    for r in tp.get("races") or []:
+        for b in r.get("boats") or []:
+            if str(b.get("toban") or "") == str(toban):
+                return b
+    return None
+
+
+def protagonist_machine(v, toban):
+    """主役“本人”の機力。focusRacers → todayProgram の順に探す。
+    どちらにも無ければ全て None（他人の値で埋めない）。"""
+    f = _focus_by_toban(v, toban)
+    if f:
+        return {"no": f.get("motorNo"), "setsu": f.get("motor2renSetsu"),
+                "setsuAvg": f.get("motor2renSetsuAvg")}
+    b = _boat_by_toban(v, toban)
+    if b:
+        return {"no": None, "setsu": b.get("motor2"), "setsuAvg": b.get("motor2SetsuAvg")}
+    return {"no": None, "setsu": None, "setsuAvg": None}
+
+
+def killer_hints(v, prot_toban=None):
+    """場の材料 ＋ 主役“本人”の材料。
+
+    machine / protagonistWins は **prot_toban 本人の値のみ**を返す。
+    以前は focusRacers[0] 固定だったため、主役が focusRacers[0] と異なる場
+    （3日連続回避の代替主役、および localRacers のA級が筆頭に来る通常ケース）で
+    別人の機力・勝ち星を主役の材料として返していた。数値としては実在するため
+    lint では検出できず、執筆側が気づかなければ他人の数字が記事に載る。
+    取れないものは None / [] を返す（他人の値で埋めるより、無いと分かる方が安全）。
+    """
     ref = v.get("reference") or {}
     vy = ref.get("venueYearStats") or {}
     sv = ref.get("setsuVsYear") or {}
     e30 = ref.get("e30") or {}
     top = _max_manshu(v)
-    focus = (v.get("focusRacers") or [{}])[0]
+    focus = _focus_by_toban(v, prot_toban) or {}
     return {
         "manshuCount": (v.get("resultsSummary") or {}).get("manshuCount"),
         "manshuTop": ({"rno": top["rno"], "combo": top["combo"], "payout": top["payout"]}
@@ -227,8 +273,7 @@ def killer_hints(v):
                       "katameRate": vy.get("katameRate"), "n": vy.get("n")},
         "setsu": {"manshu": sv.get("setsuManshu"), "races": sv.get("setsuRaces")},
         "e30": {"applies": e30.get("applies"), "since": e30.get("since")},
-        "machine": {"no": focus.get("motorNo"), "setsu": focus.get("motor2renSetsu"),
-                    "setsuAvg": focus.get("motor2renSetsuAvg")},
+        "machine": protagonist_machine(v, prot_toban),
         "protagonistWins": _trail_wins(focus),
     }
 
@@ -310,7 +355,7 @@ def assign(src):
             "protagonistHistory": hist,                  # [前日, 前々日] の主役toban
             "styleHistoryTop3": (v.get("styleHistory") or [])[:3],
             "hasTodayProgram": bool(v.get("todayProgram")),
-            "killerHints": killer_hints(v),
+            "killerHints": killer_hints(v, (prot or {}).get("toban")),
         }
     return {"date": src.get("date"), "assignments": result,
             "typeDistribution": used}
