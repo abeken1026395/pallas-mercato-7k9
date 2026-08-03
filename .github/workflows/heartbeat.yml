@@ -1,19 +1,20 @@
-name: heartbeat（外部cron主発火・時刻帯で内部起動）
+name: heartbeat（GitHub schedule・時刻帯で内部起動）
 
-# 発火の恒久対策。GitHub schedule 単独は不発火が多い（実績5%）ため、外部cron(cron-job.org)を
-# 主発火に戻す。ただし けんの登録負担を最小化するため、外部cronは「このheartbeatを毎時1回叩く」
-# 1ジョブだけにする。heartbeat がJST時刻帯を見て nightlyPipeline を
+# 外部cron(cron-job.org)は導入していない。今後も導入しない（2026-08-04 けん裁定）。
+# 発火は GitHub schedule のみ。単発の不発火は「多重発火×冪等」で吸収する前提で運用する。
+# heartbeat がJST時刻帯を見て nightlyPipeline を
 # GITHUB_TOKEN の workflow_dispatch で内部起動する。
 # （2026-08-03 writeKansenki の内部起動は停止。観戦記はPCローカルで自走）
 #
+# 実測（2026-07-14〜08-03）: schedule の発火率は 42.3%（期待336回に対し実測142回）。
+#   この発火率でも nightlyPipeline は日6〜11回動いており、実害は出ていない。
+#
 # 注：workflow_dispatch / repository_dispatch は GITHUB_TOKEN の「再帰防止」の例外であり、
 #     GITHUB_TOKEN でも他WFを起動できる（PATは不要・repo secret追加ゼロ）。
-#     万一起動しなければ PAT方式（secrets.HEARTBEAT_PAT）へフォールバックする。
-# GitHub schedule は二重保険で残置（撃たれればラッキー。外部cron不達時の補完）。
 on:
-  workflow_dispatch: {}       # cron-job.org が毎時これを叩く（外部側のみPAT）
+  workflow_dispatch: {}       # 手動リカバリ用（外部cronは未導入）
   schedule:
-    - cron: "0 8-23 * * *"    # 毎時0分・UTC8-23 = JST17:00〜翌8:00（保険）
+    - cron: "0 8-23 * * *"    # 毎時0分・UTC8-23 = JST17:00〜翌8:00（主発火）
 
 permissions:
   actions: write              # GITHUB_TOKEN で他WFの workflow_dispatch を叩くため

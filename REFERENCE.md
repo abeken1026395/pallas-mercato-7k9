@@ -68,21 +68,23 @@
   **ローカル専用の旧経路で、ワークフローからの参照は0件のため未修正のまま残してある。**
   使うときは必ず先に直すこと。直さずに走らせると `END` 相当が空の経路で即 AttributeError になる。
 
-#### 発火経路も外部依存になっている
-- GitHub の `schedule` は夜間の不発火が多い（**実績5%**）ため、
-  外部サービス **cron-job.org** が `heartbeat.yml` を毎時叩いて主発火させている。
-  heartbeat が JST 時刻帯を見て `nightlyPipeline.yml` / `writeKansenki.yml` を
-  `workflow_dispatch` で内部起動する（`heartbeat.yml:57-58`）。
-- **この外部cronが止まると nightlyPipeline と writeKansenki が静かに停止する。**
-  GitHub の `schedule` は二重保険として残置しているが、実績5%なので当てにならない。
-  **現状これを検知する仕組みはない。**
+#### 発火経路は GitHub schedule のみ（外部cronは未導入）
+- **外部サービス cron-job.org への登録は一度も行っていない。今後も導入しない**
+  （2026-08-04 けん裁定）。発火はすべて GitHub の `schedule`。
+  `heartbeat.yml` が JST 時刻帯を見て `nightlyPipeline.yml` を `workflow_dispatch` で
+  内部起動する。**内部起動の対象は nightlyPipeline の1本のみ**
+  （`writeKansenki.yml` の内部起動は 2026-08-03 に停止。観戦記はPCローカルで自走）。
+- `schedule` の発火率は実測で **heartbeat 42.3% / nightlyPipeline 15〜26%**
+  （2026-07-14〜08-03）。不発火は多いが多重発火×冪等で吸収できており、
+  nightlyPipeline は日 6〜11 回動いている（実害なし）。
+- **発火率がさらに落ちれば静かに止まる点は変わらない。現状これを検知する仕組みはない。**
 
 #### ⚠️ 単一障害点は3つ。いずれも停止しても通知が飛ばない
 | 障害点 | 止まると | 検知手段 |
 |---|---|---|
 | mbrace 遮断 | Kファイル収集・決まり手更新が止まる | なし（成果物が古いままになるだけ） |
 | BoatraceOpenAPI ミラー | 結果・払戻の収集が全滅する（`buildResults.py` と 24場 Api 版がすべて依存） | なし |
-| cron-job.org | nightlyPipeline / writeKansenki が発火しなくなる | なし |
+| GitHub `schedule` の不発火 | heartbeat が撃たれず nightlyPipeline の内部起動が減る（実測発火率 42.3%） | なし |
 
 いずれも**エラーで気づくのではなく、データが更新されていないことに人が気づく**しかない。
 不調を疑ったら、まず `docs/` 配下の生成物の日付と Actions の実行履歴を見る。
@@ -436,15 +438,16 @@ localdata/           Kファイル成果物のローカル保管。**.gitignore 
 生成物は `github-actions[bot]` / `github-actions` がコミット＆プッシュ。cron は **UTC 指定**（JST=UTC+9）。
 各ジョブは専用 `concurrency` グループでプッシュ競合を回避。ほぼ全てに `workflow_dispatch` あり。
 
-**発火方針:** GitHub の `schedule` は夜間の不発火が多い（実績5%）ため、
-外部cron（cron-job.org）が `heartbeat.yml` を毎時叩き、heartbeat が JST 時刻帯を見て
-`nightlyPipeline` / `writeKansenki` を `workflow_dispatch` で内部起動する。
-`schedule` は二重保険として残置。**多重発火は冪等設計で吸収**する前提（→(1) 単一障害点）。
+**発火方針:** 外部cron（cron-job.org）は**未導入**（2026-08-04 けん裁定）。発火は GitHub の
+`schedule` のみで、`heartbeat.yml` が JST 時刻帯を見て `nightlyPipeline` を
+`workflow_dispatch` で内部起動する（対象は1本のみ。`writeKansenki` の内部起動は
+2026-08-03 に停止）。`schedule` の発火率は実測 heartbeat 42.3% / nightlyPipeline 15〜26%
+（2026-07-14〜08-03）。**多重発火は冪等設計で吸収**する前提（→(1) 単一障害点）。
 
 ### 基幹
 | ファイル | cron (UTC) | 実行内容 | 失敗時の挙動 |
 |---|---|---|---|
-| `heartbeat.yml` | `0 8-23 * * *` ＋外部cron | 時刻帯で他WFを workflow_dispatch | 起動失敗なら PAT 方式へフォールバック |
+| `heartbeat.yml` | `0 8-23 * * *` | 時刻帯で nightlyPipeline を workflow_dispatch | 起動失敗は `::error::` で run を落とす（次の発火で再試行） |
 | `nightlyPipeline.yml` | `3,23,43 8-16 * * *` | scrape_racers → buildMotorHistory → nightly_decide → build_highlights（当日/翌日） | 多重発火×冪等で吸収。push は `rebase -X theirs` で6回リトライ、尽きたら exit 1 |
 | `updateResults.yml` | `37 14` / `37 16` / `37 18` / `7 20` | buildResults → verifyPredictions → build_verify_summary → buildResultsSite → buildPlayerMonthly → buildInSurvival → buildKansenkiSource | 発火4重化で冪等吸収。観戦記素材は `always()` + `continue-on-error` でジョブを落とさない |
 | `updateResultsLive.yml` | `15 2-14 * * *` ＋ workflow_run | buildResults / buildResultsSite（日中随時） | 冪等（非null不変） |
