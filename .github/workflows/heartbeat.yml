@@ -2,8 +2,9 @@ name: heartbeat（外部cron主発火・時刻帯で内部起動）
 
 # 発火の恒久対策。GitHub schedule 単独は不発火が多い（実績5%）ため、外部cron(cron-job.org)を
 # 主発火に戻す。ただし けんの登録負担を最小化するため、外部cronは「このheartbeatを毎時1回叩く」
-# 1ジョブだけにする。heartbeat がJST時刻帯を見て nightlyPipeline / writeKansenki を
+# 1ジョブだけにする。heartbeat がJST時刻帯を見て nightlyPipeline を
 # GITHUB_TOKEN の workflow_dispatch で内部起動する。
+# （2026-08-03 writeKansenki の内部起動は停止。観戦記はPCローカルで自走）
 #
 # 注：workflow_dispatch / repository_dispatch は GITHUB_TOKEN の「再帰防止」の例外であり、
 #     GITHUB_TOKEN でも他WFを起動できる（PATは不要・repo secret追加ゼロ）。
@@ -48,17 +49,16 @@ jobs:
             fi
           }
           # 起動マトリクス（JST）:
-          #   nightly = 17:00-01:59（H>=17 or H<=1） / write = 23:00-07:59（H>=23 or H<=7）
-          #   → 17-23=nightly / 23-2=両方 / 2-8=write / 8-17=no-op
-          RN=0; RW=0
+          #   nightly = 17:00-01:59（H>=17 or H<=1） → それ以外は no-op
+          # 2026-08-03 writeKansenki の dispatch を停止（観戦記はローカル自走）。
+          #            判定用の RW も消費者が無くなったため算出ごと削除した。
+          RN=0
           if [ "$H" -ge 17 ] || [ "$H" -le 1 ]; then RN=1; fi
-          if [ "$H" -ge 23 ] || [ "$H" -le 7 ]; then RW=1; fi
           rc=0
           if [ "$RN" = 1 ]; then dispatch nightlyPipeline.yml || rc=1; fi
-          if [ "$RW" = 1 ]; then dispatch writeKansenki.yml   || rc=1; fi
-          if [ "$RN" = 0 ] && [ "$RW" = 0 ]; then echo "no-op帯（JST ${H}時）＝内部起動なし"; fi
+          if [ "$RN" = 0 ]; then echo "no-op帯（JST ${H}時）＝内部起動なし"; fi
           {
             echo "### heartbeat 判定（${NOW}）"
-            echo "- JST時=\`${H}\` → nightly=\`${RN}\` / write=\`${RW}\`"
+            echo "- JST時=\`${H}\` → nightly=\`${RN}\`"
           } >> "$GITHUB_STEP_SUMMARY"
           exit $rc

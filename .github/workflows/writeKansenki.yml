@@ -1,5 +1,11 @@
 name: 観戦記 執筆起動（headless・前夜便/回収便・場単位・自動公開）
 
+# 2026-08-03 schedule停止・heartbeatからのdispatchも停止。
+# 観戦記はPCローカル（writeKansenkiLocal.ps1・毎日05:30）で自走している。
+# CI経路は secrets.ANTHROPIC_API_KEY の問題で記事執筆が成立していない
+# （write step で必ず失敗）。復活させる場合は手動起動から検証すること。
+# ローカルと同時に走らせると同じ記事を二重に書く事故になるため注意。
+#
 # 執筆の「起動」を無人化する。書き手は Claude Code（headless）。
 # 「素材(source)が育つ前に執筆便が尽きる」配置欠陥を解消するため、source生成の
 # 全便（updateResults 23:37/1:37/3:37/5:07・朝リカバリ6:30-7:10）の後に必ず執筆便が来る
@@ -16,18 +22,7 @@ name: 観戦記 執筆起動（headless・前夜便/回収便・場単位・自�
 #       OAuthトークン(sk-ant-oat…)は定期失効するためCIでは使わない。APIキーは失効しないので
 #       再発行・貼り直しが不要になる。登録手順は docs/data/kansenki/SECRET_SETUP.md。
 on:
-  # 外部cronは使わない。GitHub schedule の不発火は多重発火×場単位冪等ゲートで吸収。
-  # 「source生成の全便の後に必ず執筆便が来る」配置（JST→UTCは −9）:
-  schedule:
-    - cron: "53 14 * * *"   # JST 23:53（前夜便・updateResults 23:37 の後追い）
-    - cron: "13 15 * * *"   # JST 0:13
-    - cron: "43 15 * * *"   # JST 0:43
-    - cron: "43 16 * * *"   # JST 1:43（updateResults 1:37 の後追い）
-    - cron: "3 17 * * *"    # JST 2:03
-    - cron: "53 18 * * *"   # JST 3:53（updateResults 3:37 の後追い）
-    - cron: "23 20 * * *"   # JST 5:23（updateResults 5:07 の後追い）
-    - cron: "40 21 * * *"   # JST 6:40（朝リカバリ 6:30-7:10 の後追い）
-    - cron: "20 22 * * *"   # JST 7:20（漏れ警報 7:37 の直前・最後の回収）
+  # 2026-08-03 schedule（9便）を削除。手動起動のみ残す。
   workflow_dispatch:
     inputs:
       pubdate:
