@@ -55,7 +55,7 @@ jobs:
           if [ "$H" -ge 23 ] || [ "$H" -le 7 ]; then RW=1; fi
           rc=0
           if [ "$RN" = 1 ]; then dispatch nightlyPipeline.yml || rc=1; fi
-          if [ "$RW" = 1 ]; then dispatch writeKansenki.yml   || rc=1; fi
+          # 2026-08-03 writeKansenki の dispatch を停止（観戦記はローカル自走）
           if [ "$RN" = 0 ] && [ "$RW" = 0 ]; then echo "no-op帯（JST ${H}時）＝内部起動なし"; fi
           {
             echo "### heartbeat 判定（${NOW}）"
