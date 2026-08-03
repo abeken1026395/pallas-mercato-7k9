@@ -95,7 +95,7 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add docs/racers/ docs/motor/ docs/data/venueMeta.json docs/data/motorHistory.json 2>/dev/null || true
-          git add docs/highlights/highlights.json docs/highlights/highlights_next.json docs/highlights/highlights_prev.json docs/highlights/highlights_prev2.json 2>/dev/null || true
+          git add docs/highlights/ 2>/dev/null || true
           git add predictions/ 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "no changes（no-op run）"; exit 0
