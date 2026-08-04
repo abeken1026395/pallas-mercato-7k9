@@ -9,6 +9,10 @@
 #   ・当日結果はレース確定後に反映。未確定/非開催日は404。
 #   ・OpenAPIには決まり手(race_technique_number)と全式別払戻(trifecta/trio/exacta/
 #     quinella/quinella_place/win/place)が含まれるため mbrace LZH は不要。
+#   ・レース単位の実測条件(風速/風向/波高/天候/気温/水温)も含まれる。これらは
+#     weather.json(Open-Meteoの予報値)と違い、レース時点の実測値。現時点で用途は
+#     決めていないが、過去に遡れる保証がないため取得できるものは全項目保存する。
+#     風向・天候はAPIがコード値で返し、対応表は未確認のため、変換せず生値のまま持つ。
 #
 # 本番: 環境変数なしで当日(JST)分を取得。
 # 複数日: 環境変数 HD にカンマ区切りで日付(YYYYMMDD)を渡すと全日ぶん取得(過去分の穴埋め用)。
@@ -115,6 +119,13 @@ def to_races(data):
                 "決まり手": TECHNIQUE.get(tech_no),
                 "払戻": _payouts(r.get("payouts", {})),
                 "艇": boats,
+                "レース日": r.get("race_date"),
+                "風速": r.get("race_wind"),
+                "風向コード": r.get("race_wind_direction_number"),
+                "波高": r.get("race_wave"),
+                "天候コード": r.get("race_weather_number"),
+                "気温": r.get("race_temperature"),
+                "水温": r.get("race_water_temperature"),
             })
         except Exception:
             continue
