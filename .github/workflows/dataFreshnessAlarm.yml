@@ -101,7 +101,7 @@ jobs:
           gh issue create \
             --title "$TITLE" \
             --label "$LABEL" \
-            --body "$(printf '%s\n\n## 見るところ\n\n- 該当のワークフローの実行履歴（**色ではなくログ**。`continue-on-error` で緑のまま失敗している場合がある）\n- 払戻が広範囲に欠けているなら `scrape{場名}PayoutsApi.py` の起動時エラーを疑う\n- ミラーに繋がらなかった日が出ているなら BoatraceOpenAPI 側かネットワーク\n- `results/` のみ古いなら `buildResults.py` / nightlyPipeline の不発火（cron-job.org）\n- 決まり手のみ古いならローカルタスク `boatrace-updateKimarite` と `scripts/logs/`\n\n単一障害点は REFERENCE.md (1) を参照。\n（この Issue は鮮度監視の自動起票です。復旧すれば次回は起票されません。）' "$BODY")"
+            --body "$(printf '%s\n\n## 見るところ\n\n- 該当のワークフローの実行履歴（**色ではなくログ**。`continue-on-error` で緑のまま失敗している場合がある）\n- 払戻が広範囲に欠けているなら `scrape{場名}PayoutsApi.py` の起動時エラーを疑う\n- ミラーに繋がらなかった日が出ているなら BoatraceOpenAPI 側かネットワーク\n- `results/` のみ古いなら `buildResults.py` / nightlyPipeline の不発火（GitHub schedule）\n- 決まり手のみ古いならローカルタスク `boatrace-updateKimarite` と `scripts/logs/`\n\n単一障害点は REFERENCE.md (1) を参照。\n（この Issue は鮮度監視の自動起票です。復旧すれば次回は起票されません。）' "$BODY")"
           echo "起票しました（基準日 ${TODAY}）"
 
       - name: summary

@@ -43,5 +43,7 @@ schtasks /Delete /TN "boatrace-heartbeat" /F
 
 ## 補足
 - PCオフ時間帯は GitHub schedule（毎時 UTC8-23）が保険。ただし発火率は低いので期待しない。
-- cron-job.org 等の外部cronでも代替可（heartbeat を毎時 workflow_dispatch で叩くだけ）。その場合は
-  fine-grained PAT（Actions: read/write）が1本必要。PC常設なら PAT 不要（PCの gh 認証を使うため）。
+- **外部cron（cron-job.org 等）は未導入・不採用（2026-08-04 けん裁定）。** 登録は一度も行っていない。
+  技術的には代替可能で（heartbeat を毎時 workflow_dispatch で叩くだけ）、その場合は
+  fine-grained PAT（Actions: read/write）が1本必要になる。**PAT を増やさない判断で採らない。**
+  PC常設なら PAT 不要（PCの gh 認証を使うため）。
