@@ -25,15 +25,16 @@
   a{color:var(--acc);}
   header{margin-bottom:14px;}
   h1{font-size:1.25rem;color:var(--acc);}
-  .lead{color:var(--sub);font-size:.82rem;margin-top:4px;}
+  .lead{color:var(--sub);font-size:1rem;margin-top:6px;line-height:1.7;}
+  .lead + .lead{margin-top:8px;}
   .bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;
     margin:14px 0;padding:12px;background:var(--panel);
     border:1px solid var(--line);border-radius:12px;}
-  .bar label{font-size:.8rem;color:var(--sub);}
+  .bar label{font-size:.875rem;color:var(--sub);}
   select{background:var(--panel2);color:var(--txt);border:1px solid var(--line);
-    border-radius:8px;padding:7px 10px;font-size:.9rem;min-width:150px;
+    border-radius:8px;padding:9px 10px;font-size:1rem;min-width:150px;
     font-family:inherit;}
-  .bar .meta{font-size:.78rem;color:var(--sub);margin-left:auto;
+  .bar .meta{font-size:.875rem;color:var(--sub);margin-left:auto;
     font-variant-numeric:tabular-nums;}
 
   details.venue{background:var(--panel);border:1px solid var(--line);
@@ -43,8 +44,8 @@
   summary.vhead::-webkit-details-marker{display:none;}
   summary.vhead:hover{background:#13202c;}
   .venue[open] > summary.vhead{border-bottom:1px solid var(--line);}
-  .vhead .jcd{font-size:.72rem;color:var(--sub);font-weight:400;}
-  .vhead .rc{font-size:.74rem;color:var(--sub);font-weight:400;margin-left:auto;
+  .vhead .jcd{font-size:.875rem;color:var(--sub);font-weight:400;}
+  .vhead .rc{font-size:.875rem;color:var(--sub);font-weight:400;margin-left:auto;
     font-variant-numeric:tabular-nums;}
   .vhead .chev{color:var(--sub);font-size:.9rem;transition:transform .15s ease;
     flex:none;width:14px;text-align:center;}
@@ -53,16 +54,19 @@
   .grid{display:flex;flex-direction:column;}
   details.race{border-top:1px solid var(--line);}
   details.race:first-child{border-top:0;}
-  summary{list-style:none;cursor:pointer;padding:9px 14px;
-    display:flex;align-items:center;gap:10px;font-size:.86rem;}
+  summary{list-style:none;cursor:pointer;padding:11px 14px;min-height:44px;
+    display:flex;align-items:center;gap:10px;font-size:1rem;}
   summary::-webkit-details-marker{display:none;}
   summary:hover{background:var(--panel2);}
-  .rlab{font-weight:700;color:var(--acc);width:38px;flex:none;
+  .race > summary .chev{color:var(--sub);font-size:.9rem;transition:transform .15s ease;
+    flex:none;width:14px;text-align:center;}
+  .race[open] > summary .chev{transform:rotate(90deg);}
+  .rlab{font-weight:700;color:var(--acc);width:40px;flex:none;
     font-variant-numeric:tabular-nums;}
   .rorder{display:flex;gap:4px;align-items:center;}
-  .kim{font-size:.74rem;color:var(--sub);}
+  .kim{font-size:.875rem;color:var(--sub);}
   .rpay{margin-left:auto;color:var(--acc);font-weight:700;
-    font-variant-numeric:tabular-nums;font-size:.84rem;}
+    font-variant-numeric:tabular-nums;font-size:1rem;}
   .rpay.hi{color:var(--l3);}
 
   .badge{width:22px;height:22px;border-radius:5px;display:inline-flex;
@@ -78,13 +82,18 @@
 
   .body{padding:6px 14px 14px;}
   .sect{margin-top:10px;}
-  .sect h3{font-size:.72rem;color:var(--acc);letter-spacing:.06em;
+  .sect h3{font-size:.875rem;color:var(--acc);letter-spacing:.06em;
     border-left:3px solid var(--acc);padding-left:7px;margin-bottom:7px;font-weight:700;}
+  .cond{font-size:1rem;line-height:1.8;font-variant-numeric:tabular-nums;}
+  .cond .k{color:var(--sub);}
+  .cond .sp{color:var(--sub);padding:0 6px;}
+  .cond .note{display:block;font-size:.875rem;color:var(--sub);margin-top:2px;}
 
-  table{width:100%;border-collapse:collapse;font-size:.82rem;}
-  th,td{padding:5px 6px;text-align:left;border-bottom:1px solid var(--line);
+  table{width:100%;border-collapse:collapse;font-size:1rem;}
+  th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);
     font-variant-numeric:tabular-nums;}
-  th{color:var(--sub);font-weight:600;font-size:.72rem;}
+  th{color:var(--sub);font-weight:600;font-size:.875rem;}
+  td.pl{white-space:nowrap;}
   td.num,th.num{text-align:right;}
   tr.win td{color:var(--win);font-weight:700;}
   .nm{white-space:nowrap;}
@@ -92,24 +101,29 @@
   .pays{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;}
   .pcell{background:var(--panel2);border:1px solid var(--line);border-radius:8px;
     padding:7px 9px;}
-  .pcell .k{font-size:.7rem;color:var(--sub);}
+  .pcell .k{font-size:.875rem;color:var(--sub);}
   .pcell .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
-  .pcell .combo{font-weight:700;letter-spacing:.03em;font-size:.82rem;}
+  .pcell .combo{font-weight:700;letter-spacing:.03em;font-size:1rem;}
   .pcell .amt{color:var(--acc);font-weight:800;font-variant-numeric:tabular-nums;
-    font-size:.82rem;}
+    font-size:1rem;}
 
-  .empty{color:var(--sub);font-size:.85rem;padding:24px 8px;text-align:center;}
-  footer{color:var(--sub);font-size:.72rem;margin-top:20px;text-align:center;
+  .empty{color:var(--sub);font-size:1rem;padding:24px 8px;text-align:center;}
+  footer{color:var(--sub);font-size:.875rem;margin-top:20px;text-align:center;
     line-height:1.7;}
 .siteback{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;margin:6px 0 2px;font-size:13px;line-height:1;color:inherit;text-decoration:underline;text-underline-offset:3px}
 .siteback:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+.sitelink{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;margin:6px 0 2px;font-size:13px;line-height:1;color:inherit;text-decoration:underline;text-underline-offset:3px}
+.sitelink:focus-visible{outline:2px solid currentColor;outline-offset:2px}
 </style>
 </head>
 <body>
 <a class="siteback" href="../">← データ攻め トップ</a>
+<a class="sitelink" href="../glossary/">用語辞典</a>
 <header>
   <h1>レース結果表</h1>
   <div class="lead">全24場・全レースの着順／決まり手／払戻／艇別。生データのみ・買い目や予想は出しません。</div>
+  <div class="lead">レース行をタップすると、7つの賭式すべての払戻・艇別の記録・そのレースの水面（天候／風／波／気温／水温）が開きます。</div>
+  <div class="lead">「枠」は抽選で決まった艇番、「コース」は実際に進入した位置です。ST はスタート合図からの秒数で、小さいほど早い通過。合図より前に出るとフライング（F）になります。</div>
 </header>
 
 <div class="bar">
@@ -121,12 +135,23 @@
 <div id="out"></div>
 
 <footer>
-  出典: 公開データを集計。着順・決まり手・払戻は確定結果に基づく。<br>
+  出典: 非公式に公開されているデータ（BOATRACE Open API）を取得して集計。<br>
+  公式発表は <a href="https://www.boatrace.jp/" target="_blank" rel="noopener">boatrace.jp</a> を確認してください。欠損や誤りが含まれることがあります。<br>
   数値は参考情報であり、的中や利益を保証するものではありません。
 </footer>
 
 <script>
 const KIM_ORDER = ['単勝','複勝','2連単','2連複','拡連複','3連複','3連単'];
+
+// 着（1〜6は着順、7以降は完走できなかった場合の記録）
+const PLACE_LABEL = {7:'妨害',8:'エンスト',9:'転覆',10:'落水',11:'沈没',
+  12:'不完走',13:'失格',14:'F',15:'出遅',16:'欠場'};
+// 天候コード（提供元の元表記と1対1で対応）
+const WEATHER_LABEL = {1:'晴',2:'曇り',3:'雨',4:'雪',6:'台風'};
+// 風向コード 1=北、以降時計回りに16方位。17=無風
+const WIND_LABEL = {1:'北',2:'北北東',3:'北東',4:'東北東',5:'東',6:'東南東',
+  7:'南東',8:'南南東',9:'南',10:'南南西',11:'南西',12:'西南西',
+  13:'西',14:'西北西',15:'北西',16:'北北西',17:'無風'};
 
 function badge(n){
   n = parseInt(n,10);
@@ -156,6 +181,11 @@ function renderRace(r){
   d.className = 'race';
   const sm = document.createElement('summary');
 
+  const chev = document.createElement('span');
+  chev.className = 'chev';
+  chev.textContent = '›';
+  sm.appendChild(chev);
+
   const lab = document.createElement('span');
   lab.className = 'rlab';
   lab.textContent = r['レース'];
@@ -177,6 +207,32 @@ function renderRace(r){
 
   const body = document.createElement('div');
   body.className = 'body';
+
+  // そのレースの水面（レース時点の実測値）
+  const cond = [];
+  if(WEATHER_LABEL[r['天候コード']]) cond.push(['天候', WEATHER_LABEL[r['天候コード']]]);
+  if(r['風向コード']===17) cond.push(['風','無風']);
+  else if(WIND_LABEL[r['風向コード']]) cond.push(['風', WIND_LABEL[r['風向コード']] +
+    (r['風速']==null?'':' '+r['風速']+'m')]);
+  else if(r['風速']!=null) cond.push(['風速', r['風速']+'m']);
+  if(r['波高']!=null) cond.push(['波高', r['波高']+'cm']);
+  if(r['気温']!=null) cond.push(['気温', r['気温']+'℃']);
+  if(r['水温']!=null) cond.push(['水温', r['水温']+'℃']);
+  if(cond.length){
+    const sec = document.createElement('div'); sec.className='sect';
+    sec.innerHTML = '<h3>そのレースの水面</h3>';
+    const line = document.createElement('div'); line.className='cond';
+    cond.forEach((c,i)=>{
+      if(i){const sp=document.createElement('span');sp.className='sp';sp.textContent='/';line.appendChild(sp);}
+      const k=document.createElement('span');k.className='k';k.textContent=c[0]+' ';
+      const v=document.createElement('span');v.textContent=c[1];
+      line.appendChild(k);line.appendChild(v);
+    });
+    const nt=document.createElement('span');nt.className='note';
+    nt.textContent='レース時点の実測値。予報ではありません。';
+    line.appendChild(nt);
+    sec.appendChild(line); body.appendChild(sec);
+  }
 
   // 払戻
   if(r['払戻']){
@@ -215,7 +271,10 @@ function renderRace(r){
       const c1=document.createElement('td');c1.className='nm';c1.textContent=b['氏名']||'';
       const c2=document.createElement('td');c2.className='num';c2.textContent=b['コース']==null?'':b['コース'];
       const c3=document.createElement('td');c3.className='num';c3.textContent=st;
-      const c4=document.createElement('td');c4.className='num';c4.textContent=b['着']==null?'':b['着'];
+      const c4=document.createElement('td');c4.className='num pl';
+      const pn=b['着'];
+      c4.textContent = (pn==null) ? '' :
+        ((pn>=1&&pn<=6) ? String(pn) : (PLACE_LABEL[pn]||'—'));
       tr.appendChild(c1);tr.appendChild(c2);tr.appendChild(c3);tr.appendChild(c4);
       tb.appendChild(tr);
     });
