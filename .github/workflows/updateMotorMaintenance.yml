@@ -1,0 +1,55 @@
+name: モーター整備一覧 更新
+
+# docs/data/motorParts.json は毎日更新されているのに、ページの生成は
+# 2026-07-31 の1コミットだけだった＝公開中の数字が凍結していた。日次で作り直す。
+#
+# なぜ push トリガでなく schedule なのか（2026-08-04 に実測して決めた）:
+#   motorParts.json は1日5回 push される（Actions の beforeinfo 収集3便 ＋
+#   ローカル補填 09:00 / 18:30）。push トリガにすると1日5回走るうえ、
+#   第1便(JST 07:30〜07:44)の直後に走ると、最新開催日の行の15〜21%が
+#   モーターNo空で除外されたまま公開され、09:00 の補填後にまた数字が変わる。
+#   読者の見るページで日中に数字が揺れるため採らない。
+#   JST 10:00 は 09:00 のローカル補填が終わった後。1日1回、確定した状態だけを出す。
+#   GitHub のスケジュール遅延（実績1.5〜3.8時間）で遅れても、
+#   データは既に揃っているので内容は変わらない。
+#   dailyMotorUsage への相乗りも採らない。上流が止まると下流も気づかず止まるため。
+
+on:
+  schedule:
+    - cron: '0 1 * * *'   # UTC 01:00 = JST 10:00
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: boatrace-motormaintenance
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # 実測 262秒（並べ替え検定 10,000回×3）。余裕を見て20分。
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      # localdata/ は .gitignore 済みで fresh checkout に存在しない。
+      # buildMotorMaintenance.py は出力先を makedirs しないため先に作る
+      # （無いと 619行の open で FileNotFoundError になる）。
+      - run: mkdir -p localdata
+      # 標準ライブラリのみ＝pip不要。外部ネットワークも使わない。
+      # --repo の既定値は Windows 絶対パスなので必ず明示する。
+      - run: python scripts/buildMotorMaintenance.py --repo "$GITHUB_WORKSPACE"
+      # commit するのは公開2ファイルだけ。-A は禁止
+      # （localdata/ に非公開の短縮秒が入る。gitignore 済みだが二重に守る）。
+      - name: commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/data/motorMaintenance.json docs/motor-maintenance/index.html
+          git diff --staged --quiet || git commit -m "update motorMaintenance"
+          git pull --rebase origin ${{ github.ref_name }} || true
+          git push origin HEAD:${{ github.ref_name }}
