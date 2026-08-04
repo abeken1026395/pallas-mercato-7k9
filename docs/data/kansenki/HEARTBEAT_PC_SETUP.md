@@ -1,7 +1,9 @@
 # heartbeat 常設発火役：Windows PC タスクスケジューラ登録手順
 
-GitHub schedule は不発火が多い（実績5%）。このPCから毎時 heartbeat を叩き、
-heartbeat が時刻帯で nightlyPipeline / writeKansenki を内部起動する。
+GitHub schedule は不発火が多い（実測 2026-07-14〜08-03: heartbeat 42.3%＝期待336回に対し
+実測142回、nightlyPipeline の schedule 15〜26%）。このPCから毎時 heartbeat を叩き、
+heartbeat が時刻帯で nightlyPipeline を内部起動する
+（writeKansenki の内部起動は 2026-08-03 に停止。現行の dispatch 対象は nightlyPipeline の1本のみ）。
 **このPCの `gh` 認証を使う。追加トークン発行・外部サービス登録は不要。**
 
 前提：このPCに GitHub CLI (`gh`) が入っていて `gh auth status` が通ること。
@@ -33,7 +35,7 @@ Register-ScheduledTask -TaskName "boatrace-heartbeat" -Action $act -Trigger $trg
 - 次の毎時0分を待つ、または即時実行：`schtasks /Run /TN "boatrace-heartbeat"`
 - Actions 履歴で heartbeat が撃たれたか確認：
   https://github.com/abeken1026395/pallas-mercato-7k9/actions/workflows/heartbeat.yml
-- heartbeat run が success で、時刻帯に応じ nightlyPipeline / writeKansenki が
+- heartbeat run が success で、時刻帯に応じ nightlyPipeline が
   workflow_dispatch で起動していれば成立（本日 2026-07-15 に GITHUB_TOKEN 内部起動は実証済み）。
 
 ## 削除
