@@ -1,9 +1,11 @@
 name: 見どころ「明日」前夜プレビュー生成
 
 # 「明日」タブ用 highlights_next.json を前夜に順次生成する巡回ジョブ。
-# GitHubのschedule単独は夜間不発火が実証済みのため採用しない（当日 highlights の既存scheduleは無改変）。
-# 外部cron(cron-job.org等)から workflow_dispatch を叩く経路で前夜に複数回巡回し、揃った場を順次追記する。
-#   推奨巡回（けんが cron-job.org に設定）: JST 21:40 / 22:40 / 23:20 / 23:50 / 翌0:20
+# 外部cron(cron-job.org)は未導入。今後も導入しない（2026-08-04 けん裁定）。
+# 現行の起動経路は `on: workflow_dispatch` のみ＝手動起動だけ。schedule は持たず、
+# 他WFからの内部dispatchも無い（呼び出し元をリポジトリ全体で検索して0件）。
+# 実測: このWFの run は総数0件（2026-08-04 時点で一度も起動されていない）。
+# 前夜プレビューの実処理は nightlyPipeline が HL_MODE=next で担っており、本WFは非常口。
 # HL_MODE=next は当日 highlights.json・predictions/ を一切書かない（別ファイル highlights_next.json のみ）。
 on:
   workflow_dispatch: {}
