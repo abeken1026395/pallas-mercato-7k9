@@ -1,8 +1,10 @@
 name: 夜間パイプライン統合（自己判断）
 
-# 判断をWF側に集約し、外部cronは「毎時の鼓動」だけにする統合パイプライン。
-# schedule は持たない（workflow_dispatch専用）。外部cron(cron-job.org)から
-# JST17:00〜翌1:00の毎時（9本/日）叩く運用を想定（時刻はけんが後入れ）。
+# 判断をWF側に集約した統合パイプライン。
+# 外部cron(cron-job.org)は未導入。今後も導入しない（2026-08-04 けん裁定）。
+# 発火は二重: 自前 schedule（UTC08-16の毎時3本）と、heartbeat からの内部 workflow_dispatch
+# （JST17:00〜翌1:59帯）。どちらも大元は GitHub schedule なので不発火はあるが、
+# 多重発火×冪等で吸収する。実測 日6〜11回発火（2026-07-28〜08-03）。
 # 既存WF（update_racers / update_highlights / updateHighlightsNext）は削除せず保険＋非常口で残す。
 #
 # 毎回の流れ:
