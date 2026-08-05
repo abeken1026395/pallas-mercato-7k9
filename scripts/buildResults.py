@@ -1,18 +1,23 @@
 # -*- coding: utf-8 -*-
 # buildResults.py
-# BoatraceOpenAPI(GitHub Pages配信)から全24場・全レースの
+# boatraceopenapi/api(GitHub Pages配信)から全24場・全レースの
 # 着順(組番)・決まり手・全式別払戻を抽出し results/YYYYMMDD.json に出力。
 # 見立て検証(verifyPredictions.py)の結果側データ、および結果表ページ(docs/results/)の元データ。
 #
-# 取得元: https://raw.githubusercontent.com/BoatraceOpenAPI/results/HEAD/docs/v2/YYYY/YYYYMMDD.json
+# 取得元: https://raw.githubusercontent.com/boatraceopenapi/api/gh-pages/docs/v1/YYYY/YYYYMMDD.json
+#   ・旧取得元 BoatraceOpenAPI/results v2 は非推奨宣言済み。後継の boatraceopenapi/api v1 へ移行。
+#     v1は約3分間隔で更新され、当日分もレース確定ごとに追記される。対応期間は2026-01-01以降。
+#   ・2025-07-15〜2025-12-31 の results/*.json は v1 に存在しない期間のため、既存ファイルを残置する。
+#     本スクリプトは指定日ぶんのみを書き出し、既存の他日ファイルには触れない。
 #   ・GitHub配信のためGitHub ActionsのIPからも通る(mbraceのIPブロック問題を回避)。
 #   ・当日結果はレース確定後に反映。未確定/非開催日は404。
-#   ・OpenAPIには決まり手(race_technique_number)と全式別払戻(trifecta/trio/exacta/
+#   ・v1には決まり手(technique_number)と全式別払戻(trifecta/trio/exacta/
 #     quinella/quinella_place/win/place)が含まれるため mbrace LZH は不要。
 #   ・レース単位の実測条件(風速/風向/波高/天候/気温/水温)も含まれる。これらは
 #     weather.json(Open-Meteoの予報値)と違い、レース時点の実測値。現時点で用途は
 #     決めていないが、過去に遡れる保証がないため取得できるものは全項目保存する。
-#     風向・天候はAPIがコード値で返し、対応表は未確認のため、変換せず生値のまま持つ。
+#     風向・天候はAPIがコード値で返す。変換は表示側の役割とし、ここでは生値のまま持つ。
+#   ・v1のpayoutsは配当額のキーが amount(v2は payout)。出力形式は従来どおり。
 #
 # 本番: 環境変数なしで当日(JST)分を取得。
 # 複数日: 環境変数 HD にカンマ区切りで日付(YYYYMMDD)を渡すと全日ぶん取得(過去分の穴埋め用)。
@@ -23,10 +28,10 @@ import time
 import datetime
 import urllib.request
 
-BASE = "https://raw.githubusercontent.com/BoatraceOpenAPI/results/HEAD/docs/v2/"
+BASE = "https://raw.githubusercontent.com/boatraceopenapi/api/gh-pages/docs/v1/"
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) boatrace-data-collector"
 
-# 決まり手コード(race_technique_number) → 表記
+# 決まり手コード(technique_number) → 表記
 TECHNIQUE = {
     1: "逃げ", 2: "差し", 3: "まくり",
     4: "まくり差し", 5: "抜き", 6: "恵まれ",
@@ -51,7 +56,7 @@ def _payouts(payouts):
         rows = []
         for e in payouts.get(key, []) or []:
             combo = e.get("combination")
-            pay = e.get("payout")
+            pay = e.get("amount")
             if not combo or pay in (None, 0):
                 continue
             try:
@@ -81,54 +86,63 @@ def fetch_json(hd):
 
 
 def to_races(data):
-    """OpenAPIのresults配列を、既存results形式のレース配列に変換。"""
+    """後継API(v1)のprograms/stadiums/racesを、既存results形式のレース配列に変換。"""
     races = []
-    for r in data.get("results", []):
-        tri = r.get("payouts", {}).get("trifecta", [])
-        if not tri:
-            continue
-        combo = tri[0].get("combination")
-        pay = tri[0].get("payout")
-        if not combo or pay in (None, 0):
-            continue
-        top3 = combo.split("-")
-        if len(top3) != 3:
-            continue
-        try:
-            boats = []
-            for b in r.get("boats", []):
-                boats.append({
-                    "枠": b.get("racer_boat_number"),
-                    "登番": b.get("racer_number"),
-                    "氏名": b.get("racer_name"),
-                    "コース": b.get("racer_course_number"),
-                    "ST": b.get("racer_start_timing"),
-                    "着": b.get("racer_place_number"),
-                })
-            tech_no = r.get("race_technique_number")
+    stadiums = ((data.get("programs") or {}).get("stadiums") or {})
+    for sn in sorted(stadiums, key=lambda x: int(x)):
+        rmap = (stadiums[sn] or {}).get("races") or {}
+        for rn in sorted(rmap, key=lambda x: int(x)):
+            res = (rmap[rn] or {}).get("result")
+            if not res:
+                continue
+            payouts = res.get("payouts") or {}
+            tri = payouts.get("trifecta") or []
+            if not tri:
+                continue
+            combo = tri[0].get("combination")
+            pay = tri[0].get("amount")
+            if not combo or pay in (None, 0):
+                continue
+            top3 = combo.split("-")
+            if len(top3) != 3:
+                continue
             try:
-                tech_no = int(tech_no) if tech_no is not None else None
+                boats = []
+                racers = res.get("racers") or {}
+                for en in sorted(racers, key=lambda x: int(x)):
+                    b = racers[en] or {}
+                    boats.append({
+                        "枠": b.get("entry_number"),
+                        "登番": b.get("number"),
+                        "氏名": b.get("name"),
+                        "コース": b.get("course_number"),
+                        "ST": b.get("start_timing"),
+                        "着": b.get("place_number"),
+                    })
+                tech_no = res.get("technique_number")
+                try:
+                    tech_no = int(tech_no) if tech_no is not None else None
+                except Exception:
+                    tech_no = None
+                races.append({
+                    "場コード": "%02d" % int(res["stadium_number"]),
+                    "レース": "%dR" % int(res["race_number"]),
+                    "着順": combo,
+                    "1着": int(top3[0]), "2着": int(top3[1]), "3着": int(top3[2]),
+                    "三連単配当": int(pay),
+                    "決まり手": TECHNIQUE.get(tech_no),
+                    "払戻": _payouts(payouts),
+                    "艇": boats,
+                    "レース日": res.get("date"),
+                    "風速": res.get("wind_speed"),
+                    "風向コード": res.get("wind_direction_number"),
+                    "波高": res.get("wave_height"),
+                    "天候コード": res.get("weather_number"),
+                    "気温": res.get("air_temperature"),
+                    "水温": res.get("water_temperature"),
+                })
             except Exception:
-                tech_no = None
-            races.append({
-                "場コード": "%02d" % int(r["race_stadium_number"]),
-                "レース": "%dR" % int(r["race_number"]),
-                "着順": combo,
-                "1着": int(top3[0]), "2着": int(top3[1]), "3着": int(top3[2]),
-                "三連単配当": int(pay),
-                "決まり手": TECHNIQUE.get(tech_no),
-                "払戻": _payouts(r.get("payouts", {})),
-                "艇": boats,
-                "レース日": r.get("race_date"),
-                "風速": r.get("race_wind"),
-                "風向コード": r.get("race_wind_direction_number"),
-                "波高": r.get("race_wave"),
-                "天候コード": r.get("race_weather_number"),
-                "気温": r.get("race_temperature"),
-                "水温": r.get("race_water_temperature"),
-            })
-        except Exception:
-            continue
+                continue
     return races
 
 
