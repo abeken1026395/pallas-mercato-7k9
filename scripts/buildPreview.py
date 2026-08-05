@@ -17,6 +17,13 @@
 #   ・場コード・レースの2キーだけを、results/YYYYMMDD.json と同じ表記で付加する。
 #   ・preview に無いレース(直前情報未発表・中止等)は行を作らない。
 #
+# 書き込みの省略:
+#   ・既存ファイルと「取得時刻」以外が同一なら書かない。毎時実行で不変の日を
+#     書き直し続けると、リポジトリ容量が積み上がり、git log からデータが実際に
+#     変わった時点を追えなくなるため。
+#   ・省いた場合も必ずログに出す。無言で何もしないと、止まっているのか
+#     不変なのか判別できなくなる。
+#
 # 本番: 環境変数なしで当日(JST)分を取得。
 # 複数日: 環境変数 HD にカンマ区切りで日付(YYYYMMDD)を渡すと全日ぶん取得(過去分の穴埋め用)。
 import io
@@ -80,6 +87,23 @@ def to_previews(data):
     return rows
 
 
+def _unchanged(outpath, obj):
+    """既存ファイルと「取得時刻」以外が同一ならTrueを返す（＝書き込みを省く）。
+    ファイルが無い・壊れている・JSONとして読めない場合はFalse（＝書き直す）。
+    文字列でなくJSONとして読んでdictで比較する。キー順や空白の揺れで
+    誤って「変わった」と判定するのを避けるため。"""
+    try:
+        with io.open(outpath, "r", encoding="utf-8") as f:
+            old = json.load(f)
+    except Exception:
+        return False
+    if not isinstance(old, dict):
+        return False
+    a = dict((k, v) for k, v in old.items() if k != "取得時刻")
+    b = dict((k, v) for k, v in obj.items() if k != "取得時刻")
+    return a == b
+
+
 def write_previews(data, hd):
     rows = to_previews(data)
     venues = len(set(x["場コード"] for x in rows))
@@ -97,6 +121,9 @@ def write_previews(data, hd):
            "展示タイム有効数": filled,
            "展示タイム枠数": slots,
            "直前情報": rows}
+    if _unchanged(outpath, obj):
+        print("unchanged", outpath, "(取得時刻以外に差分なし・書き込みスキップ)")
+        return len(rows)
     with io.open(outpath, "w", encoding="utf-8") as f:
         json.dump(obj, f, ensure_ascii=False, indent=1)
     print("wrote", outpath, "races", len(rows), "venues", venues,
