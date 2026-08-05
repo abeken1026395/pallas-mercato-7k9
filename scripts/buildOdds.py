@@ -25,6 +25,13 @@
 #   ・出力は最小化(区切り文字を詰める)。3連単だけで120通りあり容量が大きいため。
 #   ・odds に無いレースは行を作らない。
 #
+# 書き込みの省略:
+#   ・既存ファイルと「取得時刻」以外が同一なら書かない。2便とも同じ日を取りに行くため、
+#     不変の日を書き直し続けるとリポジトリ容量が積み上がり、git log からデータが
+#     実際に変わった時点を追えなくなるため。
+#   ・省いた場合も必ずログに出す。無言で何もしないと、止まっているのか
+#     不変なのか判別できなくなる。
+#
 # 本番: 環境変数なしで「前日から遡ってN日」(既定2)を取得。当日は取れないので含めない。
 # 複数日: 環境変数 HD にカンマ区切りで日付(YYYYMMDD)を渡すと全日ぶん取得。
 import io
@@ -82,6 +89,23 @@ def to_odds(data):
     return rows
 
 
+def _unchanged(outpath, obj):
+    """既存ファイルと「取得時刻」以外が同一ならTrueを返す（＝書き込みを省く）。
+    ファイルが無い・壊れている・JSONとして読めない場合はFalse（＝書き直す）。
+    文字列でなくJSONとして読んでdictで比較する。キー順や空白の揺れで
+    誤って「変わった」と判定するのを避けるため。"""
+    try:
+        with io.open(outpath, "r", encoding="utf-8") as f:
+            old = json.load(f)
+    except Exception:
+        return False
+    if not isinstance(old, dict):
+        return False
+    a = dict((k, v) for k, v in old.items() if k != "取得時刻")
+    b = dict((k, v) for k, v in obj.items() if k != "取得時刻")
+    return a == b
+
+
 def write_odds(data, hd):
     rows = to_odds(data)
     venues = len(set(x["場コード"] for x in rows))
@@ -92,6 +116,9 @@ def write_odds(data, hd):
            "注記": NOTE,
            "レース数": len(rows),
            "オッズ": rows}
+    if _unchanged(outpath, obj):
+        print("unchanged", outpath, "(取得時刻以外に差分なし・書き込みスキップ)")
+        return len(rows)
     with io.open(outpath, "w", encoding="utf-8") as f:
         json.dump(obj, f, ensure_ascii=False, separators=(",", ":"))
     print("wrote", outpath, "races", len(rows), "venues", venues)
