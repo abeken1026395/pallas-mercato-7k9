@@ -1,0 +1,80 @@
+name: 直前情報 随時更新（日中）
+
+# 当日分の直前情報(展示タイム・展示ST・進入コース・チルト・体重調整・水面実測)を
+# preview/YYYYMMDD.json に取り込む。
+#
+# レース結果(updateResultsLive.yml)には相乗りしない。理由:
+#   ・結果はレース確定ごとに増えるが、直前情報は締切前に確定する別ライフサイクル。
+#   ・相乗りすると片方の失敗が両方を止める(/motor-maintenance/ の日次再生成で
+#     同じ理由により上流相乗りを不採用にした前例に倣う)。
+# concurrency も results とは別グループにして、互いのコミットを待たせない。
+#
+# 公開ページは持たない。docs/ には何も書かない。表示は別途検討する。
+
+on:
+  schedule:
+    # JST 08:15〜23:15 の毎時（UTC 23:15 と 00:15〜14:15）。
+    # モーニング開催の第1R締切(JST 08時台)から、ナイター最終レースまでをカバーする。
+    - cron: "15 23 * * *"
+    - cron: "15 0-14 * * *"
+  workflow_dispatch:
+    inputs:
+      hd:
+        description: "取得する日付(YYYYMMDD)。カンマ区切りで複数可。空欄なら直近2日(JST)。"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  # results 系とは別グループ。直前情報の更新が結果更新を待たされないようにする。
+  group: boatrace-preview
+  cancel-in-progress: false
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: build preview (直前情報・OpenAPI v1)
+        run: python scripts/buildPreview.py
+        env:
+          HD: ${{ github.event.inputs.hd }}
+          # 直近2日。日付境界をまたぐ実行で前日分を取りこぼさないための窓。
+          PREVIEW_WINDOW: "2"
+
+      - name: commit
+        if: always()
+        env:
+          BR: ${{ github.ref_name }}
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add preview/ 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "no changes"; exit 0
+          fi
+          # 先にコミット（未コミット変更を残さない）→ autostash衝突でマーカーが混入する事故を防ぐ。
+          git commit -m "auto: preview update"
+          # 生成物はrun毎に取得時刻が変わるため既存コミットと必ず衝突する。
+          # rebase(-X theirs=自分の再生成データを優先)で機械的に解消し、衝突マーカーは絶対にコミットしない。
+          # push競合は指数的でなく短いランダム待機でリトライ。
+          for i in 1 2 3 4 5 6; do
+            git fetch origin "$BR" || true
+            if git rebase -X theirs "origin/$BR"; then
+              if git push origin "HEAD:$BR"; then
+                echo "pushed (try $i)"; exit 0
+              fi
+            else
+              git rebase --abort 2>/dev/null || true
+            fi
+            sleep $(( (RANDOM % 6) + 3 ))
+          done
+          echo "push retries exhausted"; exit 1
