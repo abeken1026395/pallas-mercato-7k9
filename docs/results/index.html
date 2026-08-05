@@ -153,6 +153,29 @@ const WIND_LABEL = {1:'北',2:'北北東',3:'北東',4:'東北東',5:'東',6:'�
   7:'南東',8:'南南東',9:'南',10:'南南西',11:'南西',12:'西南西',
   13:'西',14:'西北西',15:'北西',16:'北北西',17:'無風'};
 
+// 水面の向き（docs/data/stadiumBearing.json）。2M→1Mの方位角・真北0°・時計回り
+let BEARING = null, bearingReq = null;
+function loadBearing(){
+  if(!bearingReq){
+    bearingReq = fetch('../data/stadiumBearing.json',{cache:'no-cache'})
+      .then(res=>res.ok?res.json():null)
+      .then(j=>{ BEARING = (j && j['場']) || null; })
+      .catch(()=>{ BEARING = null; });
+  }
+  return bearingReq;
+}
+// 風向コードは「風が向かっていく先」。水面の向きとの角度差で追い風／向かい風／横風を出す
+function windRel(jcd, code){
+  if(!BEARING || code==null || code===17) return '';
+  const st = BEARING[String(jcd)];
+  if(!st || typeof st['方位'] !== 'number') return '';
+  const dir = (code-1)*22.5;
+  const diff = Math.abs((((dir - st['方位'] + 180) % 360) + 360) % 360 - 180);
+  if(diff<=45) return '追い風';
+  if(diff>=135) return '向かい風';
+  return '横風';
+}
+
 function badge(n){
   n = parseInt(n,10);
   const s = document.createElement('span');
@@ -213,11 +236,12 @@ function renderRace(r){
   if(WEATHER_LABEL[r['天候コード']]) cond.push(['天候', WEATHER_LABEL[r['天候コード']]]);
   if(r['風向コード']===17) cond.push(['風','無風']);
   else if(WIND_LABEL[r['風向コード']]) cond.push(['風', WIND_LABEL[r['風向コード']] +
-    (r['風速']==null?'':' '+r['風速']+'m')]);
+    (r['風速']==null?'':' '+r['風速']+'m'), true]);
   else if(r['風速']!=null) cond.push(['風速', r['風速']+'m']);
   if(r['波高']!=null) cond.push(['波高', r['波高']+'cm']);
   if(r['気温']!=null) cond.push(['気温', r['気温']+'℃']);
   if(r['水温']!=null) cond.push(['水温', r['水温']+'℃']);
+  let windEl=null, windBase='', noteEl=null;
   if(cond.length){
     const sec = document.createElement('div'); sec.className='sect';
     sec.innerHTML = '<h3>そのレースの水面</h3>';
@@ -226,10 +250,12 @@ function renderRace(r){
       if(i){const sp=document.createElement('span');sp.className='sp';sp.textContent='/';line.appendChild(sp);}
       const k=document.createElement('span');k.className='k';k.textContent=c[0]+' ';
       const v=document.createElement('span');v.textContent=c[1];
+      if(c[2]){ windEl=v; windBase=c[1]; }
       line.appendChild(k);line.appendChild(v);
     });
     const nt=document.createElement('span');nt.className='note';
     nt.textContent='レース時点の実測値。予報ではありません。';
+    noteEl=nt;
     line.appendChild(nt);
     sec.appendChild(line); body.appendChild(sec);
   }
@@ -282,6 +308,21 @@ function renderRace(r){
   }
 
   d.appendChild(body);
+
+  // 開いたときに一度だけ水面の向きを読み、追い風／向かい風／横風を添える
+  if(windEl){
+    d.addEventListener('toggle',()=>{
+      if(!d.open || windEl.dataset.rel) return;
+      loadBearing().then(()=>{
+        const rel = windRel(r['場コード'], r['風向コード']);
+        if(!rel) return;
+        windEl.textContent = windBase+'（'+rel+'）';
+        windEl.dataset.rel = '1';
+        if(noteEl) noteEl.textContent =
+          'レース時点の実測値。予報ではありません。風の向きは、1M↔2Mを結ぶ水面の向きと風向の角度差から算出。';
+      });
+    });
+  }
   return d;
 }
 
