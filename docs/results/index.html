@@ -107,6 +107,14 @@
   .pcell .amt{color:var(--acc);font-weight:800;font-variant-numeric:tabular-nums;
     font-size:1rem;}
 
+  .odds .orow{display:flex;align-items:center;gap:8px;height:28px;}
+  .odds .otrack{flex:1;height:8px;background:var(--panel2);border:1px solid var(--line);
+    border-radius:4px;overflow:hidden;}
+  .odds .ofill{height:100%;background:var(--sub);}
+  .odds .oval{width:72px;text-align:right;font-size:1rem;
+    font-variant-numeric:tabular-nums;}
+  .odds .note{display:block;font-size:.875rem;color:var(--sub);margin-top:4px;}
+
   .empty{color:var(--sub);font-size:1rem;padding:24px 8px;text-align:center;}
   footer{color:var(--sub);font-size:.875rem;margin-top:20px;text-align:center;
     line-height:1.7;}
@@ -122,7 +130,7 @@
 <header>
   <h1>レース結果表</h1>
   <div class="lead">全24場・全レースの着順／決まり手／払戻／艇別。生データのみ・買い目や予想は出しません。</div>
-  <div class="lead">レース行をタップすると、7つの賭式すべての払戻・艇別の記録・そのレースの水面（天候／風／波／気温／水温）が開きます。</div>
+  <div class="lead">レース行をタップすると、7つの賭式すべての払戻・艇別の記録・そのレースの水面（天候／風／波／気温／水温）、締切前の単勝オッズが開きます。</div>
   <div class="lead">「枠」は抽選で決まった艇番、「コース」は実際に進入した位置です。ST はスタート合図からの秒数で、小さいほど早い通過。合図より前に出るとフライング（F）になります。</div>
 </header>
 
@@ -164,6 +172,17 @@ function loadBearing(){
   }
   return bearingReq;
 }
+// 締切前の単勝オッズ（docs/results/odds/YYYYMMDD.json）。開いた日ぶんを一度だけ読む
+let oddsHd = null, oddsReq = null;
+function loadOdds(hd){
+  if(oddsHd !== hd){
+    oddsHd = hd;
+    oddsReq = fetch('odds/'+hd+'.json',{cache:'no-cache'})
+      .then(res=>res.ok?res.json():null)
+      .catch(()=>null);
+  }
+  return oddsReq;
+}
 // 風向コードは「風が向かっていく先」。水面の向きとの角度差で追い風／向かい風／横風を出す
 function windRel(jcd, code){
   if(!BEARING || code==null || code===17) return '';
@@ -199,7 +218,7 @@ function fmtDate(hd){
   return hd.slice(0,4)+'/'+hd.slice(4,6)+'/'+hd.slice(6,8);
 }
 
-function renderRace(r){
+function renderRace(r, hd){
   const d = document.createElement('details');
   d.className = 'race';
   const sm = document.createElement('summary');
@@ -309,6 +328,43 @@ function renderRace(r){
 
   d.appendChild(body);
 
+  // 開いたときに一度だけ単勝オッズを読む。データが無い日はブロックごと出さない
+  if(hd){
+    d.addEventListener('toggle',()=>{
+      if(!d.open || d.dataset.odds) return;
+      d.dataset.odds = '1';
+      loadOdds(hd).then(o=>{
+        if(!o || !o['単勝']) return;
+        const byV = o['単勝'][r['場コード']];
+        if(!byV) return;
+        const row = byV[String(parseInt(r['レース'],10))];
+        if(!row) return;
+        const vals = row.filter(v=>typeof v === 'number' && v > 0);
+        if(!vals.length) return;
+        const top = Math.max.apply(null, vals.map(v=>1/v));
+        const sec = document.createElement('div'); sec.className='sect odds';
+        sec.innerHTML = '<h3>締切前の単勝オッズ</h3>';
+        row.forEach((v,i)=>{
+          const line = document.createElement('div'); line.className='orow';
+          line.appendChild(badge(i+1));
+          const tr = document.createElement('div'); tr.className='otrack';
+          const fl = document.createElement('div'); fl.className='ofill';
+          fl.style.width = (typeof v === 'number' && v > 0)
+            ? Math.round((1/v)/top*100)+'%' : '0%';
+          tr.appendChild(fl); line.appendChild(tr);
+          const val = document.createElement('div'); val.className='oval';
+          val.textContent = (typeof v === 'number' && v > 0) ? v.toFixed(1)+'倍' : '—';
+          line.appendChild(val);
+          sec.appendChild(line);
+        });
+        const nt = document.createElement('span'); nt.className='note';
+        nt.textContent = (o['注記']||'') + '（取得 ' + (o['取得時刻']||'') + '）';
+        sec.appendChild(nt);
+        body.appendChild(sec);
+      });
+    });
+  }
+
   // 開いたときに一度だけ水面の向きを読み、追い風／向かい風／横風を添える
   if(windEl){
     d.addEventListener('toggle',()=>{
@@ -344,7 +400,7 @@ function renderDay(day){
       '<span class="rc">'+v['レース'].length+'R</span>';
     card.appendChild(h);
     const grid = document.createElement('div'); grid.className='grid';
-    v['レース'].forEach(r=>grid.appendChild(renderRace(r)));
+    v['レース'].forEach(r=>grid.appendChild(renderRace(r, day['開催日'])));
     card.appendChild(grid);
     out.appendChild(card);
   });
