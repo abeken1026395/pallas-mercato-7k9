@@ -230,8 +230,11 @@ def main():
     print("--- decile ---")
     # pd.qcut は使わない。tenjiDev1 は展示タイム由来の離散値で同値率が98.4%あり、
     # 同値を分割できないため境界の寄り方が pandas の版で変わる（各群のnが数十件動く）。
-    # rank(method="first") なら常に均等に切れて版に依存しない。
-    df["dec"] = (df["tenjiDev1"].rank(method="first") * 10 // (len(df) + 1)).astype(int)
+    # さらに round(6) を挟む。偏差は引き算と割り算で作るため最下位ビット（1e-16）に
+    # 環境差が出て、生値では unique が857あるが実体は358しかない（499は誤差由来の
+    # 疑似ユニーク）。丸めないと同値判定が揺れて rank の順序が環境で変わる。
+    df["dec"] = (df["tenjiDev1"].round(6).rank(method="first")
+                 * 10 // (len(df) + 1)).astype(int)
     g = df.groupby("dec").agg(n=("y", "size"), out_rate=("y", "mean"),
                               dev=("tenjiDev1", "mean"))
     g["out_rate"] = (g["out_rate"] * 100).round(1)
