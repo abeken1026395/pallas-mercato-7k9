@@ -10,7 +10,8 @@
 # そのまま公開領域(docs/)へコピーするだけ(判定・予想は元から無い)。
 #
 # 使い方: python scripts/buildResultsSite.py
-#   ・results/*.json 全てを対象に docs/results/data/ を再生成する。
+#   ・results/*.json のうち新しい方から SITE_DAYS 日分を docs/results/data/ に再生成し、
+#     期間外の古い出力は取り除く。
 import io
 import os
 import re
@@ -19,6 +20,9 @@ import glob
 
 SRC_DIR = "results"
 OUT_DIR = os.path.join("docs", "results", "data")
+
+# docs/ の肥大化を防ぐための表示用の保持日数。元データは results/ に全期間ある。
+SITE_DAYS = 30
 
 # 場コード → 場名(build_arare.py と同一)
 STADIUM = {
@@ -63,13 +67,30 @@ def build_day(path):
     }
 
 
+def prune(keep):
+    """保持期間外(と空になった日)の公開データを docs/results/data から取り除く。
+    これをやらないと、次回以降も古い分が残り続けて docs/ が肥大化する。"""
+    for path in sorted(glob.glob(os.path.join(OUT_DIR, "*.json"))):
+        name = os.path.basename(path)
+        if not re.match(r"^\d{8}\.json$", name):
+            continue  # index.json などは対象外
+        if name[:8] in keep:
+            continue
+        os.remove(path)
+        print("prune", name[:8])
+
+
 def main():
     os.makedirs(OUT_DIR, exist_ok=True)
+    # 元データ results/ は全期間そのまま読み、公開するのは新しい方から SITE_DAYS 日分だけ。
+    paths = sorted(
+        p for p in glob.glob(os.path.join(SRC_DIR, "*.json"))
+        if re.match(r"^\d{8}$", os.path.basename(p)[:8])
+    )
+    paths = paths[-SITE_DAYS:]
     index = []
-    for path in sorted(glob.glob(os.path.join(SRC_DIR, "*.json"))):
+    for path in paths:
         hd = os.path.basename(path)[:8]
-        if not re.match(r"^\d{8}$", hd):
-            continue
         try:
             day = build_day(path)
         except Exception as e:
@@ -77,11 +98,8 @@ def main():
             continue
         # 確定レースが1つも無い日(早朝の未確定など)は公開しない。
         # 当日分はレース確定ごとに随時再生成され、順次公開に載る。
+        # 既に空データを公開済みの場合は下の prune() が取り除く。
         if day["レース数"] <= 0:
-            # 既に空データを公開済みなら取り除く(過去に空で載った日の後始末)。
-            stale = os.path.join(OUT_DIR, "%s.json" % hd)
-            if os.path.exists(stale):
-                os.remove(stale)
             print("skip empty", hd)
             continue
         outpath = os.path.join(OUT_DIR, "%s.json" % hd)
@@ -89,6 +107,8 @@ def main():
             json.dump(day, f, ensure_ascii=False, separators=(",", ":"))
         index.append({"開催日": hd, "場数": day["場数"], "レース数": day["レース数"]})
     index.sort(key=lambda x: x["開催日"], reverse=True)
+    # index.json は今回出力した分だけを載せる(削除した日が一覧に残らないようにする)。
+    prune(set(x["開催日"] for x in index))
     with io.open(os.path.join(OUT_DIR, "index.json"), "w", encoding="utf-8") as f:
         json.dump({"件数": len(index), "日付": index}, f, ensure_ascii=False, separators=(",", ":"))
     print("wrote", len(index), "days to", OUT_DIR)
