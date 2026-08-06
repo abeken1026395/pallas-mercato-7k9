@@ -223,11 +223,15 @@ def main():
           "p(diff<=0)", round(float((diffs <= 0).mean()), 4))
 
     _, p_only = fit_predict(train, test, ["tenjiDev1"])
-    print("tenjiDev1 alone AUC", round(roc_auc_score(test["y"], p_only), 4))
+    # 小数第4位は scikit-learn の版で動くため第3位まで
+    print("tenjiDev1 alone AUC", round(roc_auc_score(test["y"], p_only), 3))
 
     print("")
     print("--- decile ---")
-    df["dec"] = pd.qcut(df["tenjiDev1"], 10, labels=False)
+    # pd.qcut は使わない。tenjiDev1 は展示タイム由来の離散値で同値率が98.4%あり、
+    # 同値を分割できないため境界の寄り方が pandas の版で変わる（各群のnが数十件動く）。
+    # rank(method="first") なら常に均等に切れて版に依存しない。
+    df["dec"] = (df["tenjiDev1"].rank(method="first") * 10 // (len(df) + 1)).astype(int)
     g = df.groupby("dec").agg(n=("y", "size"), out_rate=("y", "mean"),
                               dev=("tenjiDev1", "mean"))
     g["out_rate"] = (g["out_rate"] * 100).round(1)
