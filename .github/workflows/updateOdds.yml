@@ -14,7 +14,10 @@ name: オッズ 翌朝取得
 # results / preview とは別リポジトリ・別ライフサイクルなので相乗りしない。
 # concurrency も別グループにして互いのコミットを待たせない。
 #
-# 公開ページは持たない。docs/ には何も書かない。読者の画面には何も出さない。
+# odds/ は全項目を持つ生データ（1日 約0.4MB）。読者に出すのは単勝6値だけなので、
+# 取得の直後に buildOddsSite.py で docs/results/odds/YYYYMMDD.json（1日 約4KB）へ落とす。
+# 別WFに分けない：schedule は実績で1.5〜3.8時間ずれるため、odds/ が書かれる前に
+# 走ると取りこぼす。取得と同じジョブで直列に回すのが唯一確実。
 
 on:
   schedule:
@@ -54,6 +57,10 @@ jobs:
           # 前日と2日前。日付境界をまたぐ実行で前日分を取りこぼさないための窓。
           ODDS_WINDOW: "2"
 
+      - name: build odds site (単勝のみの軽量JSON)
+        if: always()
+        run: python scripts/buildOddsSite.py
+
       - name: commit
         if: always()
         env:
@@ -62,6 +69,7 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add odds/ 2>/dev/null || true
+          git add docs/results/odds/ 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "no changes"; exit 0
           fi
