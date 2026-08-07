@@ -115,35 +115,58 @@ def local_logs():
 
 
 def actions_failures():
-    """直近24hの失敗run。未認証APIのため取れないことがある（その場合は理由を返す）。"""
-    url = ("https://api.github.com/repos/" + REPO +
-           "/actions/runs?per_page=100")
-    req = urllib.request.Request(url, headers={
-        "Accept": "application/vnd.github+json",
-        "User-Agent": "healthStatus",
-    })
-    try:
-        with urllib.request.urlopen(req, timeout=30) as r:
-            data = json.loads(r.read().decode("utf-8"))
-    except Exception as e:  # ネットワーク・レート制限・JSON崩れ すべてここ
-        return {"取得": False, "理由": str(e)[:120], "失敗": None, "一覧": []}
+    """直近24hの失敗run。未認証APIのため取れないことがある（その場合は理由を返す）。
+
+    ★全runを取ってから絞ってはいけない。このリポジトリは1日およそ300run 動くため、
+      per_page=100 では6時間ぶんしか見えず、24時間の窓を埋められない。
+      2026-08-07 にこの作りで、深夜の失敗25本を全て取りこぼしたうえ
+      「取得=true / 失敗=0」と正常に見えてしまった。無言の欠測より危険。
+      よって status=failure で失敗だけを、created>= で日付を絞って取り、
+      さらにページを送る。取り切れなかった場合は 打切=true を立てる。
+    """
+    since = (now() - timedelta(days=2)).strftime("%Y-%m-%d")
+    base = ("https://api.github.com/repos/" + REPO +
+            "/actions/runs?status=failure&per_page=100&created=%3E%3D" + since)
     lim = now() - timedelta(hours=24)
     bad = []
-    for run in data.get("workflow_runs", []):
-        if run.get("conclusion") != "failure":
-            continue
-        try:
-            t = datetime.fromisoformat(run["created_at"].replace("Z", "+00:00")).astimezone(JST)
-        except (ValueError, KeyError):
-            continue
-        if t < lim:
-            continue
-        bad.append({
-            "時刻": t.strftime("%m-%d %H:%M"),
-            "名前": run.get("name", "")[:40],
-            "url": run.get("html_url", ""),
+    truncated = False
+    for page in (1, 2, 3):
+        req = urllib.request.Request(base + "&page=" + str(page), headers={
+            "Accept": "application/vnd.github+json",
+            "User-Agent": "healthStatus",
         })
-    return {"取得": True, "理由": None, "失敗": len(bad), "一覧": bad[:30]}
+        try:
+            with urllib.request.urlopen(req, timeout=30) as r:
+                data = json.loads(r.read().decode("utf-8"))
+        except Exception as e:  # ネットワーク・レート制限・JSON崩れ すべてここ
+            if page == 1:
+                return {"取得": False, "理由": str(e)[:120],
+                        "失敗": None, "打切": False, "一覧": []}
+            truncated = True
+            break
+        runs = data.get("workflow_runs", [])
+        for run in runs:
+            if run.get("conclusion") != "failure":
+                continue
+            try:
+                t = datetime.fromisoformat(
+                    run["created_at"].replace("Z", "+00:00")).astimezone(JST)
+            except (ValueError, KeyError):
+                continue
+            if t < lim:
+                continue
+            bad.append({
+                "時刻": t.strftime("%m-%d %H:%M"),
+                "名前": run.get("name", "")[:40],
+                "url": run.get("html_url", ""),
+            })
+        if len(runs) < 100:
+            break
+        if page == 3:
+            truncated = True
+    bad.sort(key=lambda x: x["時刻"])
+    return {"取得": True, "理由": None, "失敗": len(bad),
+            "打切": truncated, "一覧": bad[:40]}
 
 
 def main():
