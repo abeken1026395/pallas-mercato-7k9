@@ -51,5 +51,17 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add docs/data/motorMaintenance.json docs/motor-maintenance/index.html
           git diff --staged --quiet || git commit -m "update motorMaintenance"
-          git pull --rebase origin ${{ github.ref_name }} || true
-          git push origin HEAD:${{ github.ref_name }}
+          # push競合(cannot lock ref)は短いランダム待機でリトライする。
+          BR="${GITHUB_REF_NAME}"
+          for i in 1 2 3 4 5 6; do
+            git fetch origin "$BR" || true
+            if git rebase -X theirs "origin/$BR"; then
+              if git push origin "HEAD:$BR"; then
+                echo "pushed (try $i)"; exit 0
+              fi
+            else
+              git rebase --abort 2>/dev/null || true
+            fi
+            sleep $(( (RANDOM % 6) + 3 ))
+          done
+          echo "push retries exhausted"; exit 1
