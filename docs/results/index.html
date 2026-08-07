@@ -97,6 +97,11 @@
   td.num,th.num{text-align:right;}
   tr.win td{color:var(--win);font-weight:700;}
   .nm{white-space:nowrap;}
+  /* 氏名から選手図鑑へ。色は行に合わせる（1着行は緑のまま）。
+     出走表の「詳細」バッジは列幅が足りず着が切れるため、ここでは下線で示す */
+  .nm .pname{display:inline-block;min-height:24px;line-height:24px;vertical-align:middle;
+    color:inherit;text-decoration:underline;text-underline-offset:3px;}
+  .nm .pname:focus-visible{outline:2px solid currentColor;outline-offset:2px;}
 
   .pays{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;}
   .pcell{background:var(--panel2);border:1px solid var(--line);border-radius:8px;
@@ -313,7 +318,18 @@ function renderRace(r, hd){
       const td0=document.createElement('td');td0.appendChild(badge(b['枠']));
       const st = (b['ST']==null?'—':(b['ST']<0?'F':b['ST'].toFixed(2)));
       tr.appendChild(td0);
-      const c1=document.createElement('td');c1.className='nm';c1.textContent=b['氏名']||'';
+      const c1=document.createElement('td');c1.className='nm';
+      const nmTxt=b['氏名']||'', toban=b['登番'];
+      if(nmTxt && toban){
+        // 登番があるときだけ選手図鑑へ。受け口は docs/players/ の ?toban=
+        const a=document.createElement('a');a.className='pname';
+        a.href='../players/?toban='+encodeURIComponent(toban);
+        a.textContent=nmTxt;
+        a.title=nmTxt+'の成績を選手図鑑で見る';
+        c1.appendChild(a);
+      }else{
+        c1.textContent=nmTxt;
+      }
       const c2=document.createElement('td');c2.className='num';c2.textContent=b['コース']==null?'':b['コース'];
       const c3=document.createElement('td');c3.className='num';c3.textContent=st;
       const c4=document.createElement('td');c4.className='num pl';
