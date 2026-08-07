@@ -1,0 +1,72 @@
+name: WF失敗 集約警報
+
+# 【目的】ワークフローの失敗を、その日ぶん1本のIssueにまとめて知らせる。
+# 個別WFには一切手を入れず、workflow_run で失敗だけを拾う。
+# 冪等: 同じ日付のOpen Issueがあれば、新規起票せずコメントで追記する。
+# 除外: 自分自身（無限ループ防止）と pages build and deployment（GitHub側の自動WF）。
+on:
+  workflow_run:
+    workflows: ["*"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  actions: read
+
+concurrency:
+  group: wf-failure-alarm
+  cancel-in-progress: false
+
+jobs:
+  alarm:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'failure'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: skip self and pages
+        id: g
+        run: |
+          NAME="${{ github.event.workflow_run.name }}"
+          SKIP=0
+          case "$NAME" in
+            "WF失敗 集約警報") SKIP=1 ;;
+            "pages build and deployment") SKIP=1 ;;
+          esac
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then SKIP=0; fi
+          echo "skip=$SKIP" >> "$GITHUB_OUTPUT"
+          echo "対象WF=${NAME} skip=${SKIP}"
+
+      - name: report failure
+        if: steps.g.outputs.skip == '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          DAY=$(TZ=Asia/Tokyo date +%Y%m%d)
+          NAME="${{ github.event.workflow_run.name }}"
+          URL="${{ github.event.workflow_run.html_url }}"
+          WHEN=$(TZ=Asia/Tokyo date '+%m-%d %H:%M')
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            NAME="（手動テスト）"
+            URL="https://github.com/${GH_REPO}/actions"
+          fi
+
+          gh label create wf-failure --color B60205 --description "ワークフローの失敗" 2>/dev/null || true
+
+          TITLE="WF失敗: ${DAY}"
+          NUM=$(gh issue list --label wf-failure --state open --search "${DAY} in:title" --json number --jq '.[0].number' 2>/dev/null || echo "")
+
+          LINE="- ${WHEN} JST  ${NAME}  ${URL}"
+
+          if [ -n "$NUM" ] && [ "$NUM" != "null" ]; then
+            gh issue comment "$NUM" --body "$LINE"
+            echo "既存Issue #${NUM} に追記した"
+          else
+            gh issue create \
+              --title "$TITLE" \
+              --label wf-failure \
+              --body "$(printf 'この日に失敗したワークフローを、下のコメントに追記していきます。\n\n%s\n\n---\n対応が済んだらこのIssueを閉じてください。翌日は新しいIssueが立ちます。\n（自動起票。個別WFには手を入れていません）' "$LINE")"
+            echo "新規Issueを起票した（${TITLE}）"
+          fi
