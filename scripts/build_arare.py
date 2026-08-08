@@ -135,9 +135,9 @@ def eval_race(boats, jcd, motor_map):
 
 
 def level_of(score):
-    if score >= 5:
+    if score >= 4:
         return "高"
-    if score >= 3:
+    if score >= 2:
         return "中"
     return "低"
 
@@ -178,7 +178,7 @@ def main():
             datetime.timezone(datetime.timedelta(hours=9))
         ).isoformat(timespec="minutes"),
         "note": "荒れ条件が揃った数の目安。買い目・予想ではありません。",
-        "max_score": 8,
+        "max_score": 6,
         "races": out,
     }
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
