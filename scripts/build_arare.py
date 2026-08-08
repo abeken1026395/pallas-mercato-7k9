@@ -6,7 +6,6 @@
 入力(すべてリポジトリ内の既存ファイル):
   docs/racers/racers_today.csv  出走表(級別/当地勝率/平均ST/締切時刻/登録番号)
   docs/motor/motors_all.csv     モーター2連対率(場×登番)
-  docs/data/weather.json        3時間ごと風予報(場×時刻)
 入力(定数): 24場の荒れ度・1コース1着率(stadium由来・不変)
 出力:
   docs/data/arare.json          場×R の score / level / factors
@@ -31,7 +30,6 @@ STADIUM = {
 
 RACERS = os.path.join("docs", "racers", "racers_today.csv")
 MOTORS = os.path.join("docs", "motor", "motors_all.csv")
-WEATHER = os.path.join("docs", "data", "weather.json")
 OUT = os.path.join("docs", "data", "arare.json")
 
 # 荒れ度 -> 点
@@ -64,42 +62,7 @@ def load_motor_map(rows):
     return mp
 
 
-def load_wind_map(path):
-    """{開催日'YYYYMMDD': {場コード: {hh(int): wind(float)}}}。無ければ空。
-    出走表が当日+翌日の2日分を持つため、日付ごとに保持してレースの開催日で引く。"""
-    if not os.path.exists(path):
-        return {}
-    with open(path, encoding="utf-8") as f:
-        d = json.load(f)
-    out = {}
-    for jcd, s in d.get("stadiums", {}).items():
-        jcd = str(jcd).zfill(2)
-        for h in s.get("hourly", []):
-            t = h.get("time", "")
-            if len(t) < 13:
-                continue
-            ymd = t[:10].replace("-", "")   # 2026-07-07 -> 20260707
-            out.setdefault(ymd, {}).setdefault(jcd, {})[int(t[11:13])] = h.get("wind")
-    return out
-
-
-def wind_at(wind_map, jcd, hd, deadline):
-    """締切'HH:MM'（開催日 hd）の時のwind。無ければNone。"""
-    m = re.match(r"(\d{1,2}):", str(deadline or ""))
-    if not m:
-        return None
-    hh = int(m.group(1))
-    hh_map = wind_map.get(str(hd), {}).get(jcd, {})
-    if hh in hh_map:
-        return hh_map[hh]
-    # 近い正時にフォールバック
-    for delta in (1, -1, 2, -2):
-        if hh + delta in hh_map:
-            return hh_map[hh + delta]
-    return None
-
-
-def eval_race(boats, jcd, motor_map, wind):
+def eval_race(boats, jcd, motor_map):
     """1レース(枠順6艇のdict list)を採点。score, factors を返す。"""
     factors = []
     score = 0
@@ -122,16 +85,7 @@ def eval_race(boats, jcd, motor_map, wind):
     b1 = by_waku.get(1)
     b4 = by_waku.get(4)
 
-    # 2) 締切時刻帯の風
-    if wind is not None:
-        if wind >= 5:
-            score += 2
-            factors.append("締切時刻帯の風{:.1f}m(強風)".format(wind))
-        elif wind >= 3:
-            score += 1
-            factors.append("締切時刻帯の風{:.1f}m(やや強い)".format(wind))
-
-    # 3) 1号艇(イン)の信頼度の低さ
+    # 2) 1号艇(イン)の信頼度の低さ
     if b1:
         rank1 = str(b1.get("級別", "")).strip()
         if rank1 in ("B1", "B2"):
@@ -148,7 +102,7 @@ def eval_race(boats, jcd, motor_map, wind):
                 score += 1
                 factors.append("1号艇の当地勝率が節内でも下位")
 
-    # 4) カド4号艇の攻め鋭さ(平均STが6艇中最速)
+    # 3) カド4号艇の攻め鋭さ(平均STが6艇中最速)
     if b4:
         sts = [(int(str(b.get("枠")).strip()), fnum(b.get("平均ST")))
                for b in boats if str(b.get("枠", "")).strip().isdigit()]
@@ -160,7 +114,7 @@ def eval_race(boats, jcd, motor_map, wind):
                 score += 1
                 factors.append("4号艇のスタートが6艇中最速(カドの一撃)")
 
-    # 5) モーター機力のちぐはぐ(1号艇の機力が6艇平均未満 & 外3艇に最高機)
+    # 4) モーター機力のちぐはぐ(1号艇の機力が6艇平均未満 & 外3艇に最高機)
     if b1:
         mrows = []
         for b in boats:
@@ -181,9 +135,9 @@ def eval_race(boats, jcd, motor_map, wind):
 
 
 def level_of(score):
-    if score >= 5:
+    if score >= 4:
         return "高"
-    if score >= 3:
+    if score >= 2:
         return "中"
     return "低"
 
@@ -191,7 +145,6 @@ def level_of(score):
 def main():
     racers = load_csv(RACERS)
     motor_map = load_motor_map(load_csv(MOTORS))
-    wind_map = load_wind_map(WEATHER)
 
     # 開催日×場×R でまとめる（2日分保持でも場×Rが衝突しないよう開催日を含める）
     races = {}
@@ -207,8 +160,7 @@ def main():
     for (hd, jcd, rno), boats in races.items():
         boats.sort(key=lambda b: int(str(b.get("枠", "0")).strip() or 0))
         deadline = str(boats[0].get("締切時刻", "")).strip()
-        wind = wind_at(wind_map, jcd, hd, deadline)
-        score, factors = eval_race(boats, jcd, motor_map, wind)
+        score, factors = eval_race(boats, jcd, motor_map)
         key = "{}_{}_{}".format(jcd, hd, rno) if hd else "{}_{}".format(jcd, rno)
         out[key] = {
             "jcd": jcd,
@@ -219,7 +171,6 @@ def main():
             "level": level_of(score),
             "factors": factors,
             "deadline": deadline,
-            "wind": round(wind, 1) if wind is not None else None,
         }
 
     payload = {
@@ -227,7 +178,7 @@ def main():
             datetime.timezone(datetime.timedelta(hours=9))
         ).isoformat(timespec="minutes"),
         "note": "荒れ条件が揃った数の目安。買い目・予想ではありません。",
-        "max_score": 8,
+        "max_score": 6,
         "races": out,
     }
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
