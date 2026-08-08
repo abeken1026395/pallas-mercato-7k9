@@ -107,16 +107,6 @@
 </div>
 
 <script>
-// コピー検知
-(function(){
-  var ok = ((location.hostname==="abeken1026395.github.io" && location.pathname.indexOf("/pallas-mercato-7k9/")===0) || ["localhost","127.0.0.1",""].indexOf(location.hostname)>=0);
-  if(!ok){
-    var d = document.createElement("div");
-    d.style.cssText = "position:fixed;top:0;left:0;right:0;z-index:9999;background:#b3261e;color:#fff;padding:10px 12px;font-size:13px;text-align:center;line-height:1.6";
-    d.innerHTML = 'このページは「データ攻め」の無断コピーです。<br><a href="https://www.youtube.com/@abe-ken" target="_blank" rel="noopener" style="color:#ffd166;font-weight:700">本物は ▶ YouTube「あべけん」から</a>';
-    document.body.prepend(d);
-  }
-})();
 (function () {
   // 器の唯一の役割: docs/next/ から ../data/ の既存JSONが相対パスで読めることを確かめる。
   // 値は読めたものだけを出す（読めなければ「読み込めませんでした」と出すだけ。固定値で埋めない）。
@@ -187,5 +177,6 @@
 })();
 </script>
 <footer style="margin:24px auto 8px;max-width:900px;text-align:center;font-size:10px;color:#8a94a3;letter-spacing:.3px;line-height:1.7;">© 2026 データ攻め ── 制作・運営 <a href="https://www.youtube.com/@abe-ken" target="_blank" rel="noopener" style="color:#9aa4b3;text-decoration:underline;">あべけん</a></footer>
+<script src="../assets/guard.js" defer></script>
 </body>
 </html>

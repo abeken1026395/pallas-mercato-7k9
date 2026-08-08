@@ -111,16 +111,6 @@
 
 </div>
 <script>
-// コピー検知
-(function(){
-  var ok = ((location.hostname==="abeken1026395.github.io" && location.pathname.indexOf("/pallas-mercato-7k9/")===0) || ["localhost","127.0.0.1",""].indexOf(location.hostname)>=0);
-  if(!ok){
-    var d = document.createElement("div");
-    d.style.cssText = "position:fixed;top:0;left:0;right:0;z-index:9999;background:#b3261e;color:#fff;padding:10px 12px;font-size:13px;text-align:center;line-height:1.6";
-    d.innerHTML = 'このページは「データ攻め」の無断コピーです。<br><a href="https://www.youtube.com/@abe-ken" target="_blank" rel="noopener" style="color:#ffd166;font-weight:700">本物は ▶ YouTube「あべけん」から</a>';
-    document.body.prepend(d);
-  }
-})();
 // 更新履歴の描画。初期10件、「すべて見る」で全件。自動リロード・既読管理はしない。
 (function(){
   var INITIAL = 10;
@@ -196,5 +186,6 @@
     .then(function(){ AFTER.hidden = false; });
 })();
 </script>
+<script src="../assets/guard.js" defer></script>
 </body>
 </html>
