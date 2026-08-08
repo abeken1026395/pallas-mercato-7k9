@@ -18,7 +18,8 @@
 #     決めていないが、過去に遡れる保証がないため取得できるものは全項目保存する。
 #     風向・天候はAPIがコード値で返す。変換は表示側の役割とし、ここでは生値のまま持つ。
 #   ・v1のpayoutsは配当額のキーが amount(v2は payout)。出力形式は従来どおり。
-#   ・v1のracersには級別(rank_number_source="A1"等 / rank_number=1〜4)がある。これは
+#   ・級別(rank_number_source="A1"等 / rank_number=1〜4)は番組表側(レース直下のracers)にある。
+#     結果側(result.racers)には無いので、枠番(entry_number)で突き合わせて取る。これは
 #     レース当時の級別なので、期首固定の現在値(docs/data/racerStatsCore.json)と違い
 #     過去のレースにも当時の事実が出る。生値とコードの両方を保存する。
 #     2025-07-15〜2025-12-31 の既存ファイルは旧取得元(v2)由来で rank 系を持たないため、
@@ -112,10 +113,20 @@ def to_races(data):
             if len(top3) != 3:
                 continue
             try:
+                # 級別は番組表側(レース直下のracers)にしかない。結果側のracersは
+                # entry_number/course_number/start_timing/place_number/number/name の9項目だけ。
+                # 枠番(entry_number)で引けるようにしておく。番組表が無い日は空のまま。
+                ranks = {}
+                prog_racers = (rmap[rn] or {}).get("racers") or {}
+                for p in (prog_racers.values() if isinstance(prog_racers, dict) else prog_racers):
+                    p = p or {}
+                    if p.get("entry_number") is not None:
+                        ranks[p["entry_number"]] = p
                 boats = []
                 racers = res.get("racers") or {}
                 for en in sorted(racers, key=lambda x: int(x)):
                     b = racers[en] or {}
+                    pg = ranks.get(b.get("entry_number")) or {}
                     boats.append({
                         "枠": b.get("entry_number"),
                         "登番": b.get("number"),
@@ -123,8 +134,8 @@ def to_races(data):
                         "コース": b.get("course_number"),
                         "ST": b.get("start_timing"),
                         "着": b.get("place_number"),
-                        "級別": b.get("rank_number_source"),
-                        "級別コード": b.get("rank_number"),
+                        "級別": pg.get("rank_number_source"),
+                        "級別コード": pg.get("rank_number"),
                     })
                 tech_no = res.get("technique_number")
                 try:
