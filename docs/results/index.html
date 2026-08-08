@@ -103,6 +103,22 @@
     color:inherit;text-decoration:underline;text-underline-offset:3px;}
   .nm .pname:focus-visible{outline:2px solid currentColor;outline-offset:2px;}
 
+  /* 級別バッジ。色は出走表（scripts/template_racers.html）と同じ。枠バッジの右に並べる。
+     320px で「着」列が切れないよう padding を落として詰めてある。
+     文字を9pxに下げるのは逆効果（字形が縦に詰まるだけで幅が減らず、はみ出しが増えた）。 */
+  td.lanecell{display:flex;align-items:center;gap:1px;white-space:nowrap;}
+  .klass{font-size:10px;font-weight:bold;color:#fff;border-radius:3px;padding:0;
+    line-height:16px;display:inline-block;vertical-align:middle;flex:none;}
+  .k-A1{background:#c9184a;} .k-B1{background:#1d6fd6;} .k-B2{background:#5c6773;}
+  /* A2 は白文字だと 3.01:1 で 4.5:1 に届かないため、枠バッジと同じ #111 を使う（6.27:1） */
+  .k-A2{background:#e07a1f;color:#111;}
+  /* 幅335px以下では横に並べる余地がない（着が「転覆」等の2文字になる行で列が切れる）。
+     枠バッジの下に積んで幅を増やさない。行は12px高くなる。 */
+  @media (max-width:335px){
+    td.lanecell{display:block;}
+    td.lanecell .klass{display:block;width:22px;margin-top:1px;line-height:12px;text-align:center;}
+  }
+
   .pays{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;}
   .pcell{background:var(--panel2);border:1px solid var(--line);border-radius:8px;
     padding:7px 9px;}
@@ -316,6 +332,14 @@ function renderRace(r, hd){
       const tr=document.createElement('tr');
       if(b['着']===1) tr.className='win';
       const td0=document.createElement('td');td0.appendChild(badge(b['枠']));
+      // 級別はレース当時の値。取れていない日（2025年分）は出さない（「不明」とも書かない）。
+      // バッジを出す行だけ lanecell にして、出さない行は従来どおりのセルのままにする。
+      const kl=b['級別'];
+      if(kl==='A1'||kl==='A2'||kl==='B1'||kl==='B2'){
+        td0.className='lanecell';
+        const k=document.createElement('span');k.className='klass k-'+kl;k.textContent=kl;
+        td0.appendChild(k);
+      }
       const st = (b['ST']==null?'—':(b['ST']<0?'F':b['ST'].toFixed(2)));
       tr.appendChild(td0);
       const c1=document.createElement('td');c1.className='nm';
