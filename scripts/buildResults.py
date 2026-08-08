@@ -18,6 +18,11 @@
 #     決めていないが、過去に遡れる保証がないため取得できるものは全項目保存する。
 #     風向・天候はAPIがコード値で返す。変換は表示側の役割とし、ここでは生値のまま持つ。
 #   ・v1のpayoutsは配当額のキーが amount(v2は payout)。出力形式は従来どおり。
+#   ・v1のracersには級別(rank_number_source="A1"等 / rank_number=1〜4)がある。これは
+#     レース当時の級別なので、期首固定の現在値(docs/data/racerStatsCore.json)と違い
+#     過去のレースにも当時の事実が出る。生値とコードの両方を保存する。
+#     2025-07-15〜2025-12-31 の既存ファイルは旧取得元(v2)由来で rank 系を持たないため、
+#     この期間の級別は入らない(取れなかったものは埋めない)。
 #
 # 本番: 環境変数なしで当日(JST)分を取得。
 # 複数日: 環境変数 HD にカンマ区切りで日付(YYYYMMDD)を渡すと全日ぶん取得(過去分の穴埋め用)。
@@ -118,6 +123,8 @@ def to_races(data):
                         "コース": b.get("course_number"),
                         "ST": b.get("start_timing"),
                         "着": b.get("place_number"),
+                        "級別": b.get("rank_number_source"),
+                        "級別コード": b.get("rank_number"),
                     })
                 tech_no = res.get("technique_number")
                 try:
