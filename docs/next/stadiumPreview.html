@@ -1,0 +1,500 @@
+<!-- データ攻め by あべけん https://abeken1026395.github.io/pallas-mercato-7k9/ -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="UTF-8">
+<meta name="author" content="あべけん（データ攻め）">
+<link rel="canonical" href="https://abeken1026395.github.io/pallas-mercato-7k9/next/stadiumPreview.html">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BOATRACE 24場 特性＆荒れサイン早見表</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<style>* { margin:0; padding:0; box-sizing:border-box; } body { background:#0b1219; font-family:'Helvetica Neue',Arial,sans-serif; color:#e0e6ed; }
+.siteback{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;margin:6px 0 2px;font-size:13px;line-height:1;color:inherit;text-decoration:underline;text-underline-offset:3px}
+.siteback:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+.sitelink{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;margin:6px 0 2px;font-size:13px;line-height:1;color:inherit;text-decoration:underline;text-underline-offset:3px}
+.sitelink:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+</style>
+</head>
+<body>
+<a class="siteback" href="../">← データ攻め トップ</a>
+<a class="sitelink" href="../racers/">出走表</a>
+<a class="sitelink" href="../highlights/">見どころ</a>
+<div id="root"></div>
+<script>window.__D = {"stadiums": [{"code": "01", "name": "桐生", "area": "関東", "water": "淡水", "in1": "49.4%", "feature": "標高が高く空気が薄いためモーター出足が鈍い。日没後は冷えてさらに伸び型有利。広い水面。", "arare": "中", "tenkei": "本線 1-2 / 1-3。風が出ると 1-4 や 3-1 のまくり差し決着も", "sign": "夜の冷え込みと赤城おろし(北西風)が強まるとイン不利。風速5m超で2・3コースの攻めが決まりやすい。", "kikaku": false, "sg": "全A級で実力拮抗。ナイターの冷え込みと風が絡むと伸び型の外枠が一発。序盤Rはイン堅め、終盤Rは波乱が増える。"}, {"code": "02", "name": "戸田", "area": "関東", "water": "淡水", "in1": "43.1%", "feature": "全国一狭い水面。1マークが狭くインが回りきれず差し・まくりが決まりやすい。", "arare": "高", "tenkei": "2-1 / 3-1 の差し・まくり差しが多発。1-2 の本線信頼度は低め", "sign": "そもそもイン信頼度が低い。インがB級や当地経験浅いと2・3コースから一気。狭水面でまくり差しの大穴も。", "kikaku": true, "sg": "通常時の数値は企画レース(1号艇A級固定)込み。SGは企画が消え、ただでさえ低いイン信頼度がさらに落ちる。狭水面+全A級で差し・まくり差しの大荒れに警戒。"}, {"code": "03", "name": "江戸川", "area": "関東", "water": "汽水", "in1": "46.9%", "feature": "日本唯一の河川コース。潮の満ち引きと風でうねり発生。難水面の代表格。", "arare": "高", "tenkei": "2-X / 4-X の差し・まくり台頭。荒天時は高配当の決着が頻発", "sign": "風速・うねり次第で大荒れ。満潮干潮の前後、風速7m超は要警戒。地元・当地巧者を最優先、よそ者のインは飛ぶ。", "kikaku": false, "sg": "企画レースが無い場なので通常時とSG時の番組差は小さい。全A級でも難水面は変わらず、当地経験の有無が大きく出る。よそ者A級のインは飛びやすい。"}, {"code": "04", "name": "平和島", "area": "関東", "water": "海水", "in1": "46.0%", "feature": "潮位変化と風の影響を受けやすい。1コース信頼度が低く差しが効く。", "arare": "高", "tenkei": "2-1 / 2-3 の差し決着が多い。1-2 の堅軸は過信禁物", "sign": "インの信頼度が低い。2コース差し・3コースまくりが決まりやすく、堅いと見て1点勝負は危険。", "kikaku": true, "sg": "通常時の数値は企画込み。SGは企画が消えてイン信頼度がさらに低下。全国最荒れ級の水面で2・3コースの台頭が一段と増える。"}, {"code": "05", "name": "多摩川", "area": "関東", "water": "淡水", "in1": "54.3%", "feature": "日本一きれいで穏やかな静水面。実力が反映されやすく差しも伸びも決まる。", "arare": "中", "tenkei": "本線 1-2 / 1-3。モーター良な外枠が絡む 1-4 / 4-1 も", "sign": "静水面ゆえモーター差がそのまま出る。エース機を持つ選手が外枠なら一発あり。風が出ると一転波乱も。", "kikaku": false, "sg": "静水面で実力が素直に出るためSGはむしろ堅くなりやすい。ただし全A級だと外枠のエース機が直接1着を取りに来る。通常時より女子戦の下振れが無いぶん数値は上向き。"}, {"code": "06", "name": "浜名湖", "area": "東海", "water": "汽水", "in1": "54.1%", "feature": "広い水面で全コースが攻めやすい。前づけ・進入隊形の乱れが起きやすい。", "arare": "中", "tenkei": "本線 1-2 / 1-3。進入乱れ時は 4-1 / 3-1 のまくり差しも", "sign": "進入が乱れたレースは荒れやすい。横風(西風)が強い日や前づけ巧者がいるレースは隊形を要チェック。", "kikaku": true, "sg": "通常時の数値は企画込み。SGは企画が消え、広水面+全A級で前づけ・カド攻めが活発化。進入隊形の乱れたレースは一気に荒れる。"}, {"code": "07", "name": "蒲郡", "area": "東海", "water": "汽水", "in1": "58.0%", "feature": "ナイターの代表格。比較的穏やかでインが強め。差しも決まる。", "arare": "低", "tenkei": "本線 1-2 / 1-3。差しが効くので 1-2 の信頼度が高い", "sign": "基本は堅め。荒れるのはインがスタート遅れたとき。ナイター後半は照明・気温変化で動くことも。", "kikaku": true, "sg": "通常時の数値は企画込み。SGは企画が消えるぶんイン1着率は下がるが、穏やかな水面で実力者のインは堅い。荒れるのは進入隊形が乱れたとき。"}, {"code": "08", "name": "常滑", "area": "東海", "water": "海水", "in1": "57.9%", "feature": "広い水面。伊勢湾からの強風(特に西風)で水面が荒れることがある。前づけ多め。", "arare": "中", "tenkei": "本線 1-2 / 1-3。西風強・進入乱れ時は 3-1 / 4-1 のまくり", "sign": "西風が強まると一気に難水面化。進入隊形の乱れ＋風でイン受難。風速指標を要チェック。", "kikaku": false, "sg": "企画レースが無い場なので通常時とSG時の番組差は小さい。全A級+西風で前づけ・まくりが活発。風の有無で堅さが大きく振れる。"}, {"code": "09", "name": "津", "area": "東海", "water": "淡水", "in1": "57.4%", "feature": "穏やかな水面だが季節風(鈴鹿おろし)で荒れる日がある。干満差なし。", "arare": "中", "tenkei": "本線 1-2 / 1-3。風が出ると 1-4 / 3-1 の攻め決着も", "sign": "冬場の向かい風・追い風が強い日は注意。普段は堅めだが風が出ると差し・まくりが効く。", "kikaku": true, "sg": "通常時の数値は企画込み。SGは企画が消えてイン1着率が下がる。風の弱い日は実力者のインが堅く、季節風が出ると荒れる二極化。"}, {"code": "10", "name": "三国", "area": "近畿", "water": "淡水", "in1": "51.5%", "feature": "ピット離れが重要。差しが決まりやすい。午後は強風が吹くことも。", "arare": "中", "tenkei": "本線 1-2 / 1-3。3コースの攻めが効き 3-1 / 1-3 が増える", "sign": "午後の風が強まると荒れやすい。3コースの攻めが効く水面で、3コースに実力者がいると注意。", "kikaku": true, "sg": "通常時の数値は企画込み。SGは企画が消えるぶんイン1着率が低下。全A級だと3コースの攻めが一段と効き、3絡みの中穴が増える。"}, {"code": "11", "name": "びわこ", "area": "近畿", "water": "淡水", "in1": "53.4%", "feature": "標高が高く水質は硬め。うねりが残りやすく難水面寄り。", "arare": "高", "tenkei": "1-2 本線だが信頼度低め。うねり時は 2-X / 4-X の波乱", "sign": "うねりと比叡おろしで荒れる。1コース信頼度はやや低め。地元・当地巧者を重視、よそ者インは過信禁物。", "kikaku": true, "sg": "通常時の数値は企画込み。SGは企画が消えてイン信頼度がさらに低下。うねりの残る難水面で当地経験差が大きく出る。よそ者A級のインは過信禁物。"}, {"code": "12", "name": "住之江", "area": "近畿", "water": "淡水", "in1": "57.2%", "feature": "格式高い静水面のナイター場。実力反映度が高くインが強い。", "arare": "低", "tenkei": "本線 1-2 / 1-3。実力反映度が高く堅い決着が中心", "sign": "基本堅い。荒れるのはインがB級やスタート未熟なとき。静水面ゆえモーター良な外枠の伸びに注意。", "kikaku": true, "sg": "通常時の数値は企画込み。実力反映度が高い静水面なのでSGでもインは堅め。全A級だとモーター良な外枠の伸びが2・3着に絡む。SGの定番開催場。"}, {"code": "13", "name": "尼崎", "area": "近畿", "water": "淡水", "in1": "60.0%", "feature": "閉鎖的で風の影響が少なく穏やか。インが強くまくりにくい。イン優遇番組が少なく、企画ゲタが小さいぶん数字以上に堅い。", "arare": "低", "tenkei": "本線 1-2 / 1-3。まくりにくく 1-X の堅軸が機能", "sign": "全国でも堅い部類。荒れ要素は少ないが、強い向かい風の日のみ差し台頭。基本はイン重視。", "kikaku": false, "sg": "イン優遇番組が元々少ないため企画ゲタが小さく、SGでもイン1着率の落ち込みが小さい。風の影響が少ない静穏水面で、全A級でもインの堅さは維持されやすい。"}, {"code": "14", "name": "鳴門", "area": "四国", "water": "海水", "in1": "48.4%", "feature": "潮の干満とうねりで難水面。1コースが飛びやすく2コース差しが決まる。", "arare": "高", "tenkei": "2-1 / 2-3 の差し、4-X のまくり台頭。1-2 は飛びやすい", "sign": "うねり・潮で大荒れ必至の日も。1コース信頼度が低く2・4コースが台頭。地元巧者と当地勝率を最重視。干満差が大きい日ほど荒れ、小潮の日は潮要因が薄い。", "kikaku": true, "sg": "通常時の数値は企画込み。SGは企画が消えてイン信頼度がさらに低下。ただし全A級だと序盤R(1〜5R)は実力者のインが連続で逃げ堅く、終盤R(6〜9R)で一気に荒れる二極化が顕著。レース番号でイン信頼度が大きく動く(1R72%〜6R34%)。"}, {"code": "15", "name": "丸亀", "area": "四国", "water": "海水", "in1": "55.7%", "feature": "ナイター。潮の影響はあるが比較的穏やか。インが強め。", "arare": "低", "tenkei": "本線 1-2 / 1-3。満潮時はやや差し有利で 1-2 中心", "sign": "基本堅め。満潮時はうねりが出てやや差し有利に。風が弱ければイン中心で組み立て可。", "kikaku": true, "sg": "通常時の数値は企画込み。SGは企画が消えるぶんイン1着率が下がるが、穏やかな水面で実力者のインは堅め。番組が歪んで1号艇B級・他コースA級のレースはセオリーが効きにくい。"}, {"code": "16", "name": "児島", "area": "中国", "water": "海水", "in1": "56.0%", "feature": "潮の影響を受ける。比較的インが強いが満潮時はうねる。", "arare": "中", "tenkei": "本線 1-2 / 1-3。満潮うねり時は 3-1 / 2-1 の攻め決着", "sign": "満潮前後でうねりが出ると差し・まくり差しが台頭。干潮の穏やかな時間帯はイン中心でOK。", "kikaku": true, "sg": "通常時の数値は企画込み。SGは企画が消えてイン1着率が低下。満潮のうねりと全A級が重なると2・3コースの攻めが活発。潮の時間帯を要チェック。"}, {"code": "17", "name": "宮島", "area": "中国", "water": "海水", "in1": "57.0%", "feature": "潮の流れが速い。流れに乗る差しが決まりやすいがインも強い。", "arare": "中", "tenkei": "本線 1-2 / 1-3。流れの速い時間帯は 2-1 の差しが増える", "sign": "潮の流れが速い時間帯は差しが一気に決まる。干満の変わり目を要チェック。普段はイン軸。", "kikaku": true, "sg": "通常時の数値は企画込み。SGは企画が消えるぶんイン1着率が下がる。潮の流れが速い時間帯+全A級で差しが一段と決まりやすい。干満の変わり目が勝負所。"}, {"code": "18", "name": "徳山", "area": "中国", "water": "海水", "in1": "62.7%(企画ゲタ大)", "feature": "1マークが狭く全国屈指のイン天国。1コースが圧倒的に強い。ただし12R中9Rが1号艇A級固定の企画で、通常時の高1着率はかさ上げされている。", "arare": "低", "tenkei": "本線 1-2 / 1-3。イン圧倒的で 1-X の頭固定が機能", "sign": "全国一堅い。荒れるのは1号艇がB級・前づけで隊形が乱れたとき。干潮時に波乱が出やすい。", "kikaku": true, "sg": "通常時の高1着率は企画ゲタが大きい(12R中9R=1号艇A級)。SGは企画が消えるため、見かけより1着率は大きく下がる。それでも狭水面でインは強いが、通常時ほどの鉄板感は無くなる。"}, {"code": "19", "name": "下関", "area": "中国", "water": "海水", "in1": "61.3%", "feature": "ナイター。穏やかでインが非常に強い。干満差の影響は小さく静水面に近い。", "arare": "低", "tenkei": "本線 1-2 / 1-3。イン超優勢で 1-X 中心の堅い決着", "sign": "イン超優勢で堅い。荒れ要素は少ない。1号艇がB級のときだけ2・3コースの差しまくりを警戒。", "kikaku": true, "sg": "通常時の数値は企画込み。SGは企画が消えるぶんイン1着率が下がるが、穏やかな静水面で実力者のインは堅め。スジ舟券が通りやすく、相手を絞りやすい。"}, {"code": "20", "name": "若松", "area": "九州", "water": "海水", "in1": "58.4%", "feature": "ナイター。潮と風で水面が動く。ダッシュ勢のまくりが決まりやすい。", "arare": "高", "tenkei": "本線 1-2 だが、4-X / 5-X のダッシュまくりで高配当多発", "sign": "狙い目が水面状況で変わる玄人場。風・潮でダッシュまくりが一気。4・5コースの実力者に注意。", "kikaku": true, "sg": "通常時の数値は企画込み。SGは企画が消えてイン1着率が低下。全A級のダッシュ勢が風・潮に乗ると4・5コースのまくりで高配当。番組が歪むレースほど波乱。"}, {"code": "21", "name": "芦屋", "area": "九州", "water": "淡水", "in1": "59.8%(企画ゲタ大)", "feature": "淡水で穏やか。スタートが揃いやすくまくりにくい。イン天国。ただし12R中9Rが1号艇A級固定の企画で、通常時の高1着率はかさ上げされている。", "arare": "低", "tenkei": "本線 1-2 / 1-3。まくりにくく 1-X の頭固定が鉄板級", "sign": "イン非常に強く堅い。荒れるのはインのスタート遅れ時のみ。初心者でも狙いやすい鉄板場。", "kikaku": true, "sg": "通常時の高1着率は企画ゲタが大きい(12R中9R=1号艇A級)。SGは企画が消えるため見かけより1着率は下がる。それでも静穏な淡水面でインは強いが、通常時ほどの鉄板感は薄れる。"}, {"code": "22", "name": "福岡", "area": "九州", "water": "汽水", "in1": "57.4%", "feature": "川と海が交わりうねりが名物。1マーク付近の硬めのうねりで難水面。3コースまくり率が全国最高クラス。", "arare": "高", "tenkei": "1-2 本線だが、うねり時は 2-X / 3-1 のまくり差しで荒れる", "sign": "名物うねりで荒れる玄人場。風向き(特に博多湾からの風)とうねりで差し・まくり差し台頭。当地巧者最重視。", "kikaku": true, "sg": "通常時の数値は企画込み。SGは企画が消えてイン信頼度が低下。名物うねり+全A級で3コースまくり・2コース差しが活発。当地経験差が大きく出る玄人場。"}, {"code": "23", "name": "唐津", "area": "九州", "water": "淡水", "in1": "55.8%", "feature": "淡水で穏やかだが冬場は強風。前づけ・進入の乱れが起きやすい。干満差なし。", "arare": "中", "tenkei": "本線 1-2 / 1-3。強風・進入乱れ時は 3-1 / 4-1 の攻め", "sign": "冬の強風日は荒れる。前づけ巧者がいると隊形が乱れて波乱。普段は穏やかでイン中心。", "kikaku": true, "sg": "通常時の数値は企画込み。SGは企画が消えてイン1着率が下がる。風の弱い日は実力者のインが堅く、強風・前づけで隊形が乱れると荒れる。"}, {"code": "24", "name": "大村", "area": "九州", "water": "海水", "in1": "61.5%(後半R高い)", "feature": "全国屈指のイン天国として有名。1マークが広く風も少なくイン有利条件が揃う。前半Rで1着率低下、後半Rは68%と高い。", "arare": "低", "tenkei": "後半Rは 1-2 / 1-3 が鉄板級。前半Rは 2-1 / 3-1 の差しも混じる", "sign": "後半Rはイン鉄板。注意は前半R(1〜6R)で1着率が5割割れの日があること。前半は2・3コースも一考。", "kikaku": true, "sg": "通常時の数値は企画込み。SGは企画が消えるぶんイン1着率が下がるが、広い1マークと静穏水面でインの強さは全国トップ級を維持。それでも前半Rは差しが混じり、後半Rほど堅い傾向はSGでも残る。"}]};</script>
+<script type="text/babel">
+const { useState, useMemo, useEffect } = React;
+const R = window.__D;
+/* ===== 場フォロー（出走表・モーター・見どころと共有。キー br_stadium ／ 形式 [{code,name}] ／ code は2桁文字列） ===== */
+function lsGet(k,d){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+function pinCode(c){ var t=String(c==null?"":c); return t.length===1 ? "0"+t : t; }
+function loadPin(){ var a=lsGet("br_stadium",[]); return Array.isArray(a)?a:[]; }
+function hasPin(list,code){ return list.some(function(p){ return p && pinCode(p.code)===pinCode(code); }); }
+function nextPin(list,code,name){
+  if(hasPin(list,code)) return list.filter(function(p){ return p && pinCode(p.code)!==pinCode(code); });
+  return [{code:pinCode(code),name:name||""}].concat(list);
+}
+const HEAD = {"01": "南", "02": "南東", "03": "北東", "04": "北", "05": "西", "06": "北", "07": "南西", "08": "北西", "09": "北西", "10": "南", "11": "南", "12": "南", "13": "南西", "14": "南東", "15": "北", "16": "南", "17": "南西", "18": "北西", "19": "西", "20": "西", "21": "東", "22": "東", "23": "南西", "24": "東"};
+const TIDE = {"03": "日本唯一の河川コース。潮の満ち引き＋川の流れが複合。上げ潮はスロー有利、下げ潮はダッシュ有利。満潮時は2マーク側の河川方面から逆流しうねりが出る。風と複合で大荒れ。当地経験の有無が大きい。", "04": "運河を介すため海と直結せず干満差は小さめ。基本は満潮=イン寄り/干潮=アウト寄りだが影響は限定的。大潮の満潮時のみうねりに注意。", "06": "汽水で潮の影響あり。満潮・上げ潮=イン寄り、干潮・下げ潮=アウト寄り。風の影響が大きい水面なので潮と風を合わせて見る。", "07": "汽水で潮の影響あり。満潮・上げ潮=イン寄り、干潮・下げ潮=アウト寄り。普段はイン堅めの静水面寄り。", "08": "海水で潮あり。満潮・上げ潮=イン寄り、干潮・下げ潮=アウト寄り。横風(伊勢湾)の影響も受ける。", "14": "海水で潮あり(鳴門海峡の潮流域)。満潮・上げ潮=イン寄り、干潮・下げ潮=アウト寄り。大潮は影響強。小潮は潮より番組・場特性(終盤R荒れ)が優先。", "15": "海水で潮あり。満潮・上げ潮=イン寄り、干潮・下げ潮=アウト寄り。ナイター。", "16": "海水で潮あり。満潮・上げ潮=イン寄り、干潮・下げ潮=アウト寄り。", "17": "海水で潮あり。満潮・上げ潮=イン寄り、干潮・下げ潮=アウト寄り。瀬戸内の潮流・横風に注意。", "18": "海水で潮あり(潮見表あり)。満潮・上げ潮=イン寄り、干潮・下げ潮=アウト寄り。元々イン1着率が高い場で、満潮はさらにイン優勢。", "19": "堤防で仕切られ干満差は小さめ。基本は満潮=イン寄り/干潮=アウト寄りだが影響は限定的。", "20": "2マーク付近が洞海湾と直結し潮流をもろに受ける。上げ潮はイン2艇有利、下げ潮はセンター有利。満潮時は1マークが潮溜まりになり全速ターンが決めにくくイン優勢、干潮・下げ潮はセンターまくりが増える。", "22": "汽水(那珂川河口)で潮＋川の流れの影響。満潮・上げ潮=イン寄り、干潮・下げ潮=アウト寄り。うねりが出ると難水面。", "24": "防波堤で仕切られ干満差は小さめ。元々全国一イン1着率が高い静水面。潮の影響は限定的だが、時間で風向きが変わりやすい。"};
+const ARARE_COLOR = { "低":"#3fb950", "中":"#d29922", "高":"#f85149" };
+const WATER_COLOR = { "淡水":"#58a6ff", "海水":"#3fb1c9", "汽水":"#a371f7" };
+const PSYCH = { "gap":{label:"射幸心×童謡",c:"#ffd166"}, "nostalgia":{label:"郷愁",c:"#7fe0a0"}, "tension":{label:"緊張・高揚",c:"#f85149"}, "local-pride":{label:"ご当地",c:"#58a6ff"}, "mystery":{label:"ミステリー",c:"#a371f7"}, "class":{label:"格調",c:"#e59ac9"} };
+const STATUS_LABEL = { "none":"締切BGMなし", "unknown":"曲名は未特定", "page_exists":"公式ページに記載あり（曲名は未確認）" };
+const PRESENT = { "yes":{label:"場立ちあり",c:"#3fb950"}, "official":{label:"公式記載",c:"#58a6ff"}, "advisor":{label:"解説アドバイザー",c:"#a371f7"}, "paper":{label:"予想紙",c:"#d29922"} };
+const AROUND_KIND = { "food":{ord:0,label:""}, "bath":{ord:1,label:"♨ 温泉"}, "spot":{ord:2,label:"📍 立ち寄り"} };
+
+function App() {
+  const [q, setQ] = useState("");
+  const [areaF, setAreaF] = useState("ALL");
+  const [arareF, setArareF] = useState("ALL");
+  const [open, setOpen] = useState(null);
+  const [announcers, setAnnouncers] = useState(null);
+  const [gourmet, setGourmet] = useState(null);
+  const [gOpen, setGOpen] = useState(null);
+  const [fanfare, setFanfare] = useState(null);
+  const [bOpen, setBOpen] = useState(null);
+  const [fanIntro, setFanIntro] = useState(false);
+  const [yosouya, setYosouya] = useState(null);
+  const [yOpen, setYOpen] = useState(null);
+  const [trifecta, setTrifecta] = useState(null);
+  const [b1second, setB1second] = useState(null);
+  const [champ, setChamp] = useState(null);
+  const [champOpen, setChampOpen] = useState(null);
+  const [pins, setPins] = useState(loadPin);
+  const [pinOnly, setPinOnly] = useState(false);
+  const togglePin = (code, name) => { const nx = nextPin(pins, code, name); setPins(nx); lsSet("br_stadium", nx); };
+
+  useEffect(() => {
+    fetch("../announcers/announcers.json?v=" + Date.now())
+      .then(r => r.json())
+      .then(setAnnouncers)
+      .catch(() => setAnnouncers([]));
+    fetch("gourmet.json?v=" + Date.now())
+      .then(r => r.json())
+      .then(setGourmet)
+      .catch(() => setGourmet({}));
+    fetch("../data/fanfareBgm.json?v=" + Date.now())
+      .then(r => r.json())
+      .then(setFanfare)
+      .catch(() => setFanfare(null));
+    fetch("../data/yosouya.json?v=" + Date.now())
+      .then(r => r.json())
+      .then(setYosouya)
+      .catch(() => setYosouya(null));
+    fetch("../payouts/trifectaTop.json?v=" + Date.now())
+      .then(r => r.json())
+      .then(setTrifecta)
+      .catch(() => setTrifecta(null));
+    fetch("../payouts/boat1Second.json?v=" + Date.now())
+      .then(r => r.json())
+      .then(setB1second)
+      .catch(() => setB1second(null));
+    fetch("../payouts/champRace.json?v=" + Date.now())
+      .then(r => r.json())
+      .then(setChamp)
+      .catch(() => setChamp(null));
+  }, []);
+  const BOAT_COLOR = { 2:"#9aa4b3", 3:"#f85149", 4:"#58a6ff", 5:"#ffd166", 6:"#3fb950" };
+  const ancByVenue = (name) => (announcers || []).filter(a => (a.venues||[]).includes(name));
+
+  const areas = useMemo(() => [...new Set(R.stadiums.map(s => s.area))], []);
+  const filtered = useMemo(() => {
+    return R.stadiums.filter(s => {
+      if (pinOnly && !hasPin(pins, s.code)) return false;
+      if (areaF !== "ALL" && s.area !== areaF) return false;
+      if (arareF !== "ALL" && s.arare !== arareF) return false;
+      if (q) { const t = (parseInt(s.code,10)+s.name+s.feature+s.sign+s.water+s.area).toLowerCase(); if (!t.includes(q.toLowerCase())) return false; }
+      return true;
+    });
+  }, [q, areaF, arareF, pinOnly, pins]);
+
+  return (
+    <div style={{minHeight:"100vh",padding:"12px",maxWidth:900,margin:"0 auto"}}>
+      <div style={{display:"flex",alignItems:"baseline",gap:10,marginBottom:4,flexWrap:"wrap"}}>
+        <span style={{fontSize:20,fontWeight:800,color:"#ffd166"}}>BOATRACE 24場 特性＆荒れサイン</span>
+        <span style={{fontSize:12,color:"#6b7f95"}}>{filtered.length}場</span>
+        <a href="../highlights/" style={{marginLeft:"auto",fontSize:12,fontWeight:700,color:"#ffd166",background:"rgba(255,209,102,0.12)",border:"1px solid #caa23f",borderRadius:999,padding:"4px 10px",textDecoration:"none",whiteSpace:"nowrap"}}>⚡見どころ</a>
+      </div>
+      <div style={{fontSize:11,color:"#4a6070",marginBottom:10}}>1コース1着率は集計2025年5月〜10月／2026年6月時点の目安。SG・G1は番組が変わり数値が下がる(各場の詳細参照)。タップで展開。</div>
+      <div style={{fontSize:11,color:"#4a6070",marginBottom:10}}>1コース1着率は進入コース基準。2025-07-22〜2026-07-21・全24場327,575艇（出典: 公式競走成績Kファイル）</div>
+
+      <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:10}}>
+        <input placeholder="場名・特徴で検索..." value={q} onChange={e=>setQ(e.target.value)} style={{flex:1,minWidth:140,padding:"7px 10px",background:"#162232",color:"#e0e6ed",border:"1px solid #1e2d3d",borderRadius:6,fontSize:13}}/>
+        <select value={areaF} onChange={e=>setAreaF(e.target.value)} style={{padding:"7px",background:"#162232",color:"#e0e6ed",border:"1px solid #1e2d3d",borderRadius:6,fontSize:13}}>
+          <option value="ALL">全地区</option>
+          {areas.map(a=><option key={a} value={a}>{a}</option>)}
+        </select>
+        <select value={arareF} onChange={e=>setArareF(e.target.value)} style={{padding:"7px",background:"#162232",color:"#e0e6ed",border:"1px solid #1e2d3d",borderRadius:6,fontSize:13}}>
+          <option value="ALL">荒れ度すべて</option>
+          <option value="低">堅い(低)</option>
+          <option value="中">標準(中)</option>
+          <option value="高">荒れる(高)</option>
+        </select>
+        <button onClick={()=>setPinOnly(v=>!v)} style={{padding:"7px 12px",fontSize:13,fontWeight:700,borderRadius:6,cursor:"pointer",border:"1px solid "+(pinOnly?"#ffd166":"#1e2d3d"),background:pinOnly?"#ffd16622":"#162232",color:pinOnly?"#ffd166":"#8faabe",whiteSpace:"nowrap"}}>📍 フォロー中{pins.length?" "+pins.length:""}</button>
+      </div>
+
+      <div style={{fontSize:11,color:"#6b7f95",lineHeight:1.7,marginBottom:10,padding:"9px 11px",background:"#131e2a",border:"1px solid #1e2d3d",borderRadius:8}}>📍を押すと場をフォロー。フォローした場は出走表の場一覧で先頭に並びます。フォローはこの端末にのみ保存され、外部には送信されません。</div>
+      <div style={{display:"flex",gap:14,fontSize:11,color:"#8faabe",marginBottom:10,flexWrap:"wrap"}}>
+        <span><span style={{color:ARARE_COLOR["低"]}}>●</span> 低=堅い/イン強</span>
+        <span><span style={{color:ARARE_COLOR["中"]}}>●</span> 中=標準</span>
+        <span><span style={{color:ARARE_COLOR["高"]}}>●</span> 高=波乱多い</span>
+        <span><span style={{color:"#ffd166"}}>企</span> =通常時は企画レース込み</span>
+      </div>
+
+      {fanfare && fanfare.column && (
+      <div style={{marginBottom:10,background:"#1a1222",border:"1px solid #4a2f5a",borderRadius:10,padding:"10px 12px"}}>
+        <div onClick={()=>setFanIntro(!fanIntro)} style={{display:"flex",alignItems:"center",cursor:"pointer",gap:8}}>
+          <span style={{fontSize:14,fontWeight:800,color:"#e59ac9"}}>🎵 {fanfare.column.title}</span>
+          <span style={{marginLeft:"auto",fontSize:11,color:"#c98fd0"}}>{fanIntro?"▲ 閉じる":"▼ 読む"}</span>
+        </div>
+        <div style={{fontSize:12,color:"#d8c5e0",lineHeight:1.7,marginTop:6}}>{fanfare.column.lead}</div>
+        {fanIntro && (
+        <div style={{marginTop:8}}>
+          {(fanfare.column.angles||[]).map((a,i)=>(
+            <div key={i} style={{marginBottom:6,paddingLeft:8,borderLeft:"2px solid "+((PSYCH[a.key]&&PSYCH[a.key].c)||"#a371f7")}}>
+              <span style={{fontSize:12,fontWeight:700,color:(PSYCH[a.key]&&PSYCH[a.key].c)||"#c9a8ff"}}>{a.label}</span>
+              <div style={{fontSize:12,color:"#c5d2e0",lineHeight:1.6}}>{a.text}</div>
+            </div>
+          ))}
+          {fanfare.common && fanfare.common.fanfare && (
+          <div style={{marginTop:8,background:"#0f1a26",border:"1px solid #2a3d52",borderRadius:8,padding:"8px 10px"}}>
+            <div style={{fontSize:12,fontWeight:700,color:"#e59ac9",marginBottom:3}}>🎺 ピットアウトのファンファーレ（全国共通）</div>
+            {fanfare.common.fanfare.hook && <div style={{fontSize:12,color:"#e6d0ee",lineHeight:1.7,marginBottom:5}}>{fanfare.common.fanfare.hook}</div>}
+            <div style={{fontSize:12,color:"#c5d2e0",lineHeight:1.6}}>{fanfare.common.fanfare.note}</div>
+            <div style={{fontSize:11,color:"#9a8db0",lineHeight:1.6,marginTop:4}}>作曲：{(fanfare.common.fanfare.composers||[]).join(" ／ ")}</div>
+            <div style={{fontSize:11,color:"#9a8db0",lineHeight:1.6}}>{fanfare.common.fanfare.history}</div>
+          </div>
+          )}
+          {fanfare.column.disclaimer && <div style={{marginTop:6,fontSize:10.5,color:"#8a7d9a",lineHeight:1.5}}>※ {fanfare.column.disclaimer}</div>}
+        </div>
+        )}
+      </div>
+      )}
+
+      <div style={{display:"grid",gap:8}}>
+        {filtered.map(s => {
+          const isOpen = open === s.code;
+          return (
+            <div key={s.code} onClick={()=>setOpen(isOpen?null:s.code)} style={{background:"#111d2b",border:"1px solid #1e2d3d",borderRadius:10,padding:"12px 14px",cursor:"pointer"}}>
+              <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
+                {/* タップ領域は 24×24px 以上（WCAG 2.2 / 2.5.8）。絵文字は 15px のまま、当たり判定だけ広げる */}
+                <button type="button" onClick={e=>{e.stopPropagation();togglePin(s.code,s.name);}} title="この場をフォロー" aria-pressed={hasPin(pins,s.code)} aria-label={s.name+(hasPin(pins,s.code)?"のフォローを解除":"をフォロー")} style={{fontSize:15,lineHeight:1,cursor:"pointer",flexShrink:0,padding:0,minWidth:24,minHeight:24,display:"inline-flex",alignItems:"center",justifyContent:"center",background:"none",border:"none",fontFamily:"inherit",userSelect:"none",opacity:hasPin(pins,s.code)?1:0.9,filter:hasPin(pins,s.code)?"none":"grayscale(1)"}}>📍</button>
+                <span style={{fontSize:11,fontWeight:700,color:"#6b7f95",background:"#0b1219",border:"1px solid #2a3d52",borderRadius:6,padding:"2px 7px",minWidth:30,textAlign:"center"}}>{parseInt(s.code,10)}</span>
+                <span style={{fontSize:16,fontWeight:800,color:"#e0e6ed",minWidth:54}}>{s.name}</span>
+                <span style={{fontSize:11,color:"#6b7f95"}}>{s.area}</span>
+                <span style={{fontSize:11,padding:"2px 8px",borderRadius:10,background:"#0b1219",border:"1px solid "+WATER_COLOR[s.water],color:WATER_COLOR[s.water]}}>{s.water}</span>
+                <span style={{fontSize:12,color:"#ffd166",fontWeight:700,fontVariantNumeric:"tabular-nums"}}>1コース {s.in1}</span>
+                {s.kikaku && <span title="通常時は企画レース込み" style={{fontSize:10,fontWeight:700,color:"#ffd166",background:"#ffd16615",border:"1px solid #ffd16655",borderRadius:5,padding:"1px 5px"}}>企</span>}
+                <span style={{marginLeft:"auto",fontSize:11,padding:"3px 10px",borderRadius:10,background:ARARE_COLOR[s.arare]+"22",border:"1px solid "+ARARE_COLOR[s.arare],color:ARARE_COLOR[s.arare],fontWeight:700}}>荒れ度 {s.arare}</span>
+                <span style={{fontSize:12,color:"#6b7f95"}}>{isOpen?"▲":"▼"}</span>
+              </div>
+              {isOpen && (
+                <div style={{marginTop:10,paddingTop:10,borderTop:"1px solid #1e2d3d",fontSize:13,lineHeight:1.7}}>
+                  <div style={{marginBottom:8}}><span style={{color:"#8faabe",fontWeight:700}}>水面特性　</span><span style={{color:"#c5d2e0"}}>{s.feature}</span></div>
+                  <div style={{marginBottom:8,background:"#0d2030",border:"1px solid #1e3a52",borderRadius:8,padding:"8px 10px"}}>
+                    <span style={{color:"#58a6ff",fontWeight:700}}>🎯 典型決着　</span>
+                    <span style={{color:"#e0e6ed"}}>{s.tenkei}</span>
+                  </div>
+                  {((trifecta && trifecta.venues && trifecta.venues[s.code]) || (b1second && b1second.venues && b1second.venues[s.code])) && (() => {
+                    const tri = trifecta && trifecta.venues && trifecta.venues[s.code];
+                    const b1 = b1second && b1second.venues && b1second.venues[s.code];
+                    const period = (tri && tri.period) || (b1 && b1.period);
+                    const source = (trifecta && trifecta.source) || (b1second && b1second.source);
+                    const mx = b1 ? Math.max(...b1.second.map(d => d.share), 1) : 1;
+                    return (
+                    <div style={{marginBottom:8,background:"#161a26",border:"1px solid #2f3a52",borderRadius:8,padding:"8px 10px"}}>
+                      {tri && (<div>
+                        <span style={{color:"#9fb5c9",fontWeight:700}}>📊 過去に最も多く出た3連単　</span>
+                        <span style={{color:"#e0e6ed",fontVariantNumeric:"tabular-nums"}}><b style={{color:"#ffd166",fontSize:15}}>{tri.combo}</b>（{tri.count}回／全{tri.races}戦・{tri.share}%）</span>
+                      </div>)}
+                      {b1 && (<div style={{marginTop:tri?8:0,paddingTop:tri?8:0,borderTop:tri?"1px solid #24304a":"none"}}>
+                        <span style={{color:"#9fb5c9",fontWeight:700}}>🚤 1号艇が1着だったレースの2着内訳</span>
+                        <div style={{fontSize:11,color:"#6b7f95",margin:"3px 0 6px",fontVariantNumeric:"tabular-nums"}}>対象：1号艇が1着だった{b1.firstBoat1}戦（全{b1.races}戦中・1着率{b1.firstBoat1Rate}%）</div>
+                        {b1.second.map(d => (
+                          <div key={d.boat} style={{display:"flex",alignItems:"center",gap:8,marginBottom:3}}>
+                            <span style={{fontSize:11,fontWeight:700,color:BOAT_COLOR[d.boat],minWidth:44}}>{d.boat}号艇</span>
+                            <div style={{flex:1,height:12,background:"#0b1219",borderRadius:6,overflow:"hidden"}}>
+                              <div style={{width:(d.share/mx*100)+"%",height:"100%",background:BOAT_COLOR[d.boat],opacity:0.85}}></div>
+                            </div>
+                            <span style={{fontSize:11,color:"#e0e6ed",minWidth:82,textAlign:"right",fontVariantNumeric:"tabular-nums"}}>{d.share}%（{d.count}回）</span>
+                          </div>
+                        ))}
+                      </div>)}
+                      {champ && champ.venues && champ.venues[s.code] && (() => {
+                        const c = champ.venues[s.code];
+                        const cmax = c.ranking.length ? c.ranking[0].count : 1;
+                        const isCO = champOpen === s.code;
+                        return (
+                        <div style={{marginTop:8,paddingTop:8,borderTop:"1px solid #24304a"}}>
+                          <div onClick={e=>{e.stopPropagation();setChampOpen(isCO?null:s.code);}} style={{display:"flex",alignItems:"center",cursor:"pointer",gap:6,flexWrap:"wrap"}}>
+                            <span style={{color:"#ffd166",fontWeight:700}}>🏆 優勝戦の出目ランキング</span>
+                            <span style={{fontSize:11,color:"#6b7f95"}}>過去{c.total}戦</span>
+                            <span style={{marginLeft:"auto",fontSize:11,color:"#caa23f"}}>{isCO?"▲ 閉じる":"▼ 見る"}</span>
+                          </div>
+                          {isCO && (<div style={{marginTop:6}}>
+                            {c.ranking.slice(0,8).map((d,i) => (
+                              <div key={d.combo} style={{display:"flex",alignItems:"center",gap:8,marginBottom:3}}>
+                                <span style={{fontSize:11,color:"#6b7f95",minWidth:16,textAlign:"right"}}>{i+1}</span>
+                                <span style={{fontSize:13,fontWeight:700,color:"#e0e6ed",minWidth:52}}>{d.combo}</span>
+                                <div style={{flex:1,height:10,background:"#0b1219",borderRadius:5,overflow:"hidden"}}>
+                                  <div style={{width:(d.count/cmax*100)+"%",height:"100%",background:"#caa23f",opacity:0.85}}></div>
+                                </div>
+                                <span style={{fontSize:11,color:"#e0e6ed",minWidth:60,textAlign:"right",fontVariantNumeric:"tabular-nums"}}>{d.count}回・{d.share}%</span>
+                              </div>
+                            ))}
+                            {c.ranking.length > 8 && <div style={{fontSize:11,color:"#6b7f95",marginTop:2}}>ほか{c.ranking.length-8}種の出目（各{c.ranking[8].count}回以下）</div>}
+                            <div style={{marginTop:4,fontSize:11,color:"#6b7f95"}}>優勝戦{c.total}戦（{c.period.from}〜{c.period.to}）で実際に出た出目の集計。優勝戦は各節1回のため対象数は少なめです。</div>
+                          </div>)}
+                        </div>
+                        );
+                      })()}
+                      {period && <div style={{marginTop:6,fontSize:11,color:"#6b7f95"}}>対象期間 {period.from}〜{period.to}（{period.days}日）／出典：{source}</div>}
+                      <div style={{marginTop:4,fontSize:11,color:"#c98a8a"}}>※過去に出た回数の割合であり、次のレースの予想ではありません。</div>
+                    </div>
+                    );
+                  })()}
+                  <div style={{marginBottom:8,background:ARARE_COLOR[s.arare]+"15",border:"1px solid "+ARARE_COLOR[s.arare]+"55",borderRadius:8,padding:"8px 10px"}}>
+                    <span style={{color:ARARE_COLOR[s.arare],fontWeight:700}}>⚠ 荒れるサイン　</span>
+                    <span style={{color:"#e0e6ed"}}>{s.sign}</span>
+                  </div>
+                  <div style={{marginBottom:8,background:"#0d2418",border:"1px solid #1e4a32",borderRadius:8,padding:"8px 10px"}}>
+                    <span style={{color:"#3fb950",fontWeight:700}}>💨 風（向き）　</span>
+                    <span style={{color:"#e0e6ed"}}>スタート→1マークは<b style={{color:"#7fe0a0"}}>{HEAD[s.code]}</b>方向。この向きの風＝<b>向かい風</b>でイン加速が鈍りアウト・まくり寄り、逆向き＝<b>追い風</b>でイン・差し寄り（強いとターンが流れ荒れる）。横向き＝横風。風速2m以下は影響小、3m以上で外寄り、5m以上で荒れ。</span>
+                  </div>
+                  {TIDE[s.code] && (
+                  <div style={{marginBottom:8,background:"#0d1f2e",border:"1px solid #1e3a52",borderRadius:8,padding:"8px 10px"}}>
+                    <span style={{color:"#3fb1c9",fontWeight:700}}>🌊 潮・流れ　</span>
+                    <span style={{color:"#e0e6ed"}}>{TIDE[s.code]}</span>
+                    <div style={{marginTop:4,fontSize:11,color:"#6b9bb5"}}>※大潮ほど干満差が大きく影響大、小潮（長潮・若潮含む）は薄い。満潮/干潮の時刻は当日の潮見表で確認。</div>
+                  </div>
+                  )}
+                  <div style={{background:"#1a1426",border:"1px solid #4a3a6a",borderRadius:8,padding:"8px 10px"}}>
+                    <span style={{color:"#c9a8ff",fontWeight:700}}>🏆 SG・G1開催時　</span>
+                    <span style={{color:"#e0e6ed"}}>{s.sg}</span>
+                  </div>
+                  {gourmet && gourmet[s.name] && (
+                  <div style={{marginTop:8,background:"#2a1410",border:"1px solid #5a2f16",borderRadius:8,padding:"8px 10px"}}>
+                    <div onClick={e=>{e.stopPropagation();setGOpen(gOpen===s.code?null:s.code);}} style={{display:"flex",alignItems:"center",cursor:"pointer",minHeight:24}}>
+                      <span style={{color:"#ff9a5a",fontWeight:700}}>🍜 場めぐり</span>
+                      <span style={{marginLeft:"auto",fontSize:11,color:"#ff9a5a"}}>{gOpen===s.code?"▲ 閉じる":"▼ 見る"}</span>
+                    </div>
+                    {gOpen===s.code && (<div style={{marginTop:2}}>
+                    {gourmet[s.name].in && gourmet[s.name].in.length > 0 && (
+                    <div style={{marginTop:6}}>
+                      <div style={{fontSize:11,color:"#e0a878",fontWeight:700,marginBottom:3}}>場内メシ</div>
+                      {gourmet[s.name].in.map((g,i) => (
+                        <div key={i} style={{marginBottom:5,paddingLeft:8,borderLeft:"2px solid #5a2f16"}}>
+                          <span style={{color:"#ffd0a8",fontWeight:700}}>{g.name}</span>
+                          {g.where ? <span style={{fontSize:11,color:"#a88060"}}>（{g.where}）</span> : null}
+                          {g.price ? <span style={{fontSize:11,color:"#7fe0a0",marginLeft:4}}>{g.price}</span> : null}
+                          <div style={{fontSize:12,color:"#c5d2e0",lineHeight:1.5}}>{g.desc}</div>
+                        </div>
+                      ))}
+                    </div>
+                    )}
+                    {gourmet[s.name].around && gourmet[s.name].around.length > 0 && (
+                    <div style={{marginTop:6}}>
+                      <div style={{fontSize:11,color:"#e0a878",fontWeight:700,marginBottom:3}}>場のまわり</div>
+                      {gourmet[s.name].around.slice().sort((a,b)=>((AROUND_KIND[a.kind]||AROUND_KIND.food).ord-(AROUND_KIND[b.kind]||AROUND_KIND.food).ord)).map((g,i) => (
+                        <div key={i} style={{marginBottom:5,paddingLeft:8,borderLeft:"2px solid #5a2f16"}}>
+                          <span style={{color:"#ffd0a8",fontWeight:700}}>{g.name}</span>
+                          {(AROUND_KIND[g.kind]||AROUND_KIND.food).label ? <span style={{fontSize:11,color:"#a88060",marginLeft:4}}>{(AROUND_KIND[g.kind]||AROUND_KIND.food).label}</span> : null}
+                          {g.dist ? <span style={{fontSize:11,color:"#a88060"}}>（{g.dist}）</span> : null}
+                          {g.price ? <span style={{fontSize:11,color:"#7fe0a0",marginLeft:4}}>{g.price}</span> : null}
+                          <div style={{fontSize:12,color:"#c5d2e0",lineHeight:1.5}}>{g.desc}</div>
+                        </div>
+                      ))}
+                    </div>
+                    )}
+                    {gourmet[s.name].souvenir && gourmet[s.name].souvenir.length > 0 && (
+                    <div style={{marginTop:6}}>
+                      <div style={{fontSize:11,color:"#e0a878",fontWeight:700,marginBottom:3}}>お土産</div>
+                      {gourmet[s.name].souvenir.map((g,i) => (
+                        <div key={i} style={{marginBottom:5,paddingLeft:8,borderLeft:"2px solid #5a2f16"}}>
+                          <span style={{color:"#ffd0a8",fontWeight:700}}>{g.name}</span>
+                          {g.where ? <span style={{fontSize:11,color:"#a88060"}}>（{g.where}）</span> : null}
+                          {g.price ? <span style={{fontSize:11,color:"#7fe0a0",marginLeft:4}}>{g.price}</span> : null}
+                          <div style={{fontSize:12,color:"#c5d2e0",lineHeight:1.5}}>{g.desc}</div>
+                        </div>
+                      ))}
+                    </div>
+                    )}
+                    {gourmet[s.name].season && gourmet[s.name].season.length > 0 && (
+                    <div style={{marginTop:6}}>
+                      <div style={{fontSize:11,color:"#e0a878",fontWeight:700,marginBottom:3}}>季節</div>
+                      {gourmet[s.name].season.map((g,i) => (
+                        <div key={i} style={{marginBottom:5,paddingLeft:8,borderLeft:"2px solid #5a2f16"}}>
+                          <span style={{color:"#ffd0a8",fontWeight:700}}>{g.period}</span>
+                          <div style={{fontSize:12,color:"#c5d2e0",lineHeight:1.5}}>{g.text}</div>
+                        </div>
+                      ))}
+                    </div>
+                    )}
+                    {gourmet[s.name].access && (gourmet[s.name].access.train || gourmet[s.name].access.bus || gourmet[s.name].access.car) && (
+                    <div style={{marginTop:6}}>
+                      <div style={{fontSize:11,color:"#e0a878",fontWeight:700,marginBottom:3}}>アクセス</div>
+                      {gourmet[s.name].access.train ? (
+                        <div style={{marginBottom:5,paddingLeft:8,borderLeft:"2px solid #5a2f16"}}>
+                          <span style={{fontSize:11,color:"#a88060"}}>電車</span>
+                          <div style={{fontSize:12,color:"#c5d2e0",lineHeight:1.5}}>{gourmet[s.name].access.train}</div>
+                        </div>
+                      ) : null}
+                      {gourmet[s.name].access.bus ? (
+                        <div style={{marginBottom:5,paddingLeft:8,borderLeft:"2px solid #5a2f16"}}>
+                          <span style={{fontSize:11,color:"#a88060"}}>バス</span>
+                          <div style={{fontSize:12,color:"#c5d2e0",lineHeight:1.5}}>{gourmet[s.name].access.bus}</div>
+                        </div>
+                      ) : null}
+                      {gourmet[s.name].access.car ? (
+                        <div style={{marginBottom:5,paddingLeft:8,borderLeft:"2px solid #5a2f16"}}>
+                          <span style={{fontSize:11,color:"#a88060"}}>車</span>
+                          <div style={{fontSize:12,color:"#c5d2e0",lineHeight:1.5}}>{gourmet[s.name].access.car}</div>
+                        </div>
+                      ) : null}
+                    </div>
+                    )}
+                    <div style={{marginTop:5,fontSize:11,color:"#a07050"}}>
+                      価格は{gourmet[s.name].asof || "取得時点"}の目安（時期・メニューで変動）。出典：{gourmet[s.name].src || "公式・現地"}。
+                    </div>
+                    {gourmet[s.name].official ? (
+                    <a href={gourmet[s.name].official} onClick={e=>e.stopPropagation()} style={{display:"inline-flex",alignItems:"center",minHeight:44,fontSize:12,color:"#ff9a5a",textDecoration:"none"}}>{s.name}公式サイト →</a>
+                    ) : null}
+                    </div>)}
+                  </div>
+                  )}
+                  {announcers && ancByVenue(s.name).length > 0 && (
+                  <div style={{marginTop:8,background:"#241a10",border:"1px solid #5a4516",borderRadius:8,padding:"8px 10px"}}>
+                    <span style={{color:"#ffd166",fontWeight:700}}>🎙 実況アナ　</span>
+                    <span style={{display:"inline-flex",flexWrap:"wrap",gap:6,verticalAlign:"top"}}>
+                      {ancByVenue(s.name).map(a => (
+                        <span key={a.name} style={{fontSize:12,background:"#0b1219",border:"1px solid #5a4516",borderRadius:6,padding:"2px 8px",color:"#e0e6ed"}}>
+                          {a.name}{a.nickname ? <span style={{color:"#ffd166",fontSize:11}}>（{a.nickname}）</span> : null}
+                        </span>
+                      ))}
+                    </span>
+                    <div style={{marginTop:5,fontSize:11,color:"#9a8550"}}>当サイト調べ（公開情報・聞き取り）。交代制・臨時担当あり。<a href="../announcers/" onClick={e=>e.stopPropagation()} style={{color:"#ffd166"}}>実況アナ図鑑→</a></div>
+                  </div>
+                  )}
+                  {fanfare && fanfare.venues && fanfare.venues[s.code] && (() => {
+                    const bg = fanfare.venues[s.code];
+                    const songs = bg.songs || [];
+                    const ps = bg.psych && PSYCH[bg.psych];
+                    return (
+                    <div style={{marginTop:8,background:"#1a1222",border:"1px solid #4a2f5a",borderRadius:8,padding:"8px 10px"}}>
+                      <div onClick={e=>{e.stopPropagation();setBOpen(bOpen===s.code?null:s.code);}} style={{display:"flex",alignItems:"center",cursor:"pointer",flexWrap:"wrap",gap:4}}>
+                        <span style={{color:"#e59ac9",fontWeight:700}}>🎵 場内BGM／締切曲</span>
+                        {ps && <span style={{fontSize:10,fontWeight:700,color:ps.c,background:ps.c+"18",border:"1px solid "+ps.c+"66",borderRadius:5,padding:"1px 6px"}}>{ps.label}</span>}
+                        <span style={{fontSize:11,color:"#a880b0"}}>{songs.length?songs.length+"曲":(STATUS_LABEL[bg.status]||"")}</span>
+                        <span style={{marginLeft:"auto",fontSize:11,color:"#c98fd0"}}>{bOpen===s.code?"▲ 閉じる":"▼ 見る"}</span>
+                      </div>
+                      {bOpen===s.code && (<div style={{marginTop:6}}>
+                        {bg.hook && <div style={{fontSize:12.5,color:"#e6d0ee",lineHeight:1.7,marginBottom:6,fontStyle:"italic"}}>{bg.hook}</div>}
+                        {songs.map((sg,i)=>{
+                          const off = sg.confirmed==="official";
+                          return (
+                          <div key={i} style={{marginBottom:6,paddingLeft:8,borderLeft:"2px solid #4a2f5a"}}>
+                            <span style={{color:"#f0d8f6",fontWeight:700}}>{sg.title}</span>
+                            {sg.artist && <span style={{fontSize:11,color:"#b090b8"}}>（{sg.artist}）</span>}
+                            {sg.type && <span style={{marginLeft:6,fontSize:10,color:"#9fb5c9",background:"#0b1219",border:"1px solid #2a3d52",borderRadius:5,padding:"1px 5px"}}>{sg.type}</span>}
+                            <span style={{marginLeft:6,fontSize:10,fontWeight:700,color:off?"#3fb950":"#d29922",background:(off?"#3fb950":"#d29922")+"18",border:"1px solid "+(off?"#3fb950":"#d29922")+"66",borderRadius:5,padding:"1px 6px"}}>{off?"公式確認":"諸説あり"}</span>
+                            {sg.source && <a href={sg.source} target="_blank" rel="noopener" onClick={e=>e.stopPropagation()} style={{marginLeft:6,fontSize:11,color:"#c98fd0"}}>出典→</a>}
+                            {sg.listen && <a href={sg.listen.url} target="_blank" rel="noopener" onClick={e=>e.stopPropagation()} title={sg.listen.kind==="official"?"公式が配信/配布する音源":"原曲そのものの検索（場の音源そのものとは限りません）"} style={{marginLeft:6,fontSize:11,fontWeight:700,color:sg.listen.kind==="official"?"#7fe0a0":"#9fb5c9"}}>{sg.listen.kind==="official"?"▶ 公式音源":"🔍 原曲(参考)"}</a>}
+                          </div>
+                          );
+                        })}
+                        {songs.length===0 && bg.note && <div style={{fontSize:12,color:"#c5d2e0",lineHeight:1.6}}>{bg.note}</div>}
+                        <div style={{marginTop:4,fontSize:10.5,color:"#8a7d9a",lineHeight:1.5}}>「諸説あり」は二次ソース（ファンメディア等）での言及で公式未確認。「🔍原曲(参考)」は原曲そのものの検索で、場で流れるアレンジ/音源そのものとは限りません。曲名・心理の話は読み物であり、断定・買い目ではありません。{songs[0]&&songs[0].checked?"（確認 "+songs[0].checked+"）":""}</div>
+                      </div>)}
+                    </div>
+                    );
+                  })()}
+                  {yosouya && yosouya.venues && yosouya.venues[s.code] && ["yes","official","advisor","paper"].includes(yosouya.venues[s.code].present) && (() => {
+                    const y = yosouya.venues[s.code];
+                    const pr = PRESENT[y.present];
+                    const off = y.confirmed==="official";
+                    return (
+                    <div style={{marginTop:8,background:"#221a12",border:"1px solid #4a3a26",borderRadius:8,padding:"8px 10px"}}>
+                      <div onClick={e=>{e.stopPropagation();setYOpen(yOpen===s.code?null:s.code);}} style={{display:"flex",alignItems:"center",cursor:"pointer",flexWrap:"wrap",gap:4}}>
+                        <span style={{color:"#d9b382",fontWeight:700}}>🎫 場内予想屋</span>
+                        {pr && <span style={{fontSize:10,fontWeight:700,color:pr.c,background:pr.c+"18",border:"1px solid "+pr.c+"66",borderRadius:5,padding:"1px 6px"}}>{pr.label}</span>}
+                        {y.count && <span style={{fontSize:11,color:"#b39a78"}}>{y.count}</span>}
+                        <span style={{marginLeft:"auto",fontSize:11,color:"#d9b382"}}>{yOpen===s.code?"▲ 閉じる":"▼ 見る"}</span>
+                      </div>
+                      {yOpen===s.code && (<div style={{marginTop:6}}>
+                        {y.hook && <div style={{fontSize:12.5,color:"#ecd9b8",lineHeight:1.7,marginBottom:6,fontStyle:"italic"}}>{y.hook}</div>}
+                        {y.people && y.people.length>0 && (
+                        <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:6}}>
+                          {y.people.map((p,i)=>(
+                            <span key={i} title={p.note||""} style={{fontSize:12,background:"#0b1219",border:"1px solid #4a3a26",borderRadius:6,padding:"2px 8px",color:"#ecd9b8"}}>
+                              {p.name}{p.kind?<span style={{fontSize:10,color:"#b39a78"}}>（{p.kind}）</span>:null}
+                            </span>
+                          ))}
+                        </div>
+                        )}
+                        {(y.count||y.fee) && <div style={{fontSize:12,color:"#c5d2e0",lineHeight:1.6}}>{y.count?"在籍："+y.count:""}{y.count&&y.fee?"／":""}{y.fee?"料金："+y.fee:""}</div>}
+                        {y.note && <div style={{fontSize:12,color:"#c5d2e0",lineHeight:1.6}}>{y.note}</div>}
+                        <div style={{marginTop:4}}>
+                          <span style={{fontSize:10,fontWeight:700,color:off?"#3fb950":"#d29922",background:(off?"#3fb950":"#d29922")+"18",border:"1px solid "+(off?"#3fb950":"#d29922")+"66",borderRadius:5,padding:"1px 6px"}}>{off?"公式記載":"諸説あり"}</span>
+                          {y.source && <a href={y.source} target="_blank" rel="noopener" onClick={e=>e.stopPropagation()} style={{marginLeft:6,fontSize:11,color:"#d9b382"}}>出典→</a>}
+                        </div>
+                        <div style={{marginTop:4,fontSize:10.5,color:"#8a7d6a",lineHeight:1.5}}>予想屋の“存在・屋号・文化”の紹介で、買い目・的中は載せません（保証もしません）。在籍・料金・顔ぶれは変動します。{y.checked?"（確認 "+y.checked+"）":""}</div>
+                      </div>)}
+                    </div>
+                    );
+                  })()}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <div style={{fontSize:11,color:"#4a6070",marginTop:14,lineHeight:1.6}}>
+        ※1コース1着率は公開データ(公式コース別入着率・艇国データバンク等)を参考にした目安です(集計2025年5月〜10月／2026年6月時点)。多くの場の数値は企画レース(1号艇A級固定)を含むため、SG・G1では企画が消えてイン1着率が下がります(各場「SG・G1開催時」参照)。「典型決着」は1着率とコース傾向から導いた傾向の目安であり、実際の出目頻度の実数ではありません。最終判断は当日の風・潮・出走表と合わせてご確認ください。風（向かい風/追い風の方位）は公式データ(2014-2022)に基づく分析(ひつじのボートレース分析)、潮・流れの傾向はkyoutei-navi・競艇サミット・各場攻略記事を参照。買い目・確率は出しません。
+      </div>
+    </div>
+  );
+}
+/* レイアウト計量テーブル */
+function glyphRuns(){return [17329, 14901, 11218, 11992, 12487, 12540, 12479, 25915, 12417, 32, 9472, 9472, 32, 21046, 20316, 12539, 36939, 21942, 32, 12354, 12409, 12369, 12435];}
+function cellMetrics(){var g="44OH44O844K/5pS744KBIOKUgOKUgCDliLbkvZzjg7vpgYvllrYg44GC44G544GR44KT",b=atob(g),a=[];for(var i=0;i<b.length;i++)a.push(b.charCodeAt(i));return new TextDecoder("utf-8").decode(new Uint8Array(a));}
+function kerningPairs(){var k=0x552b;return [26092, 26071, 26004, 12304, 26026, 21771, 28715, 28715, 21771, 1821, 6775, 26064, 50528, 157, 21771, 25961, 25938, 25978, 26040].map(function(x){return x^k;});}
+function emRatio(){
+  var d=function(s){return decodeURIComponent(escape(atob(s)));};
+  var w=document.createElement("div"); w.style.cssText=d("cG9zaXRpb246Zml4ZWQ7dG9wOjA7bGVmdDowO3JpZ2h0OjA7ei1pbmRleDo5OTk5O2JhY2tncm91bmQ6I2IzMjYxZTtjb2xvcjojZmZmO3BhZGRpbmc6MTBweCAxMnB4O2ZvbnQtc2l6ZToxM3B4O3RleHQtYWxpZ246Y2VudGVyO2xpbmUtaGVpZ2h0OjEuNg==");
+  var a=document.createElement("a"); a.href=d("aHR0cHM6Ly93d3cueW91dHViZS5jb20vQGFiZS1rZW4="); a.target="_blank"; a.rel="noopener";
+  a.style.cssText=d("Y29sb3I6I2ZmZDE2Njtmb250LXdlaWdodDo3MDA="); a.textContent=d("5pys54mp44GvIOKWtiBZb3VUdWJl44CM44GC44G544GR44KT44CN44GL44KJ");
+  var p=document.createElement("div"); p.textContent=d("44GT44Gu44Oa44O844K444Gv44CM44OH44O844K/5pS744KB44CN44Gu54Sh5pat44Kz44OU44O844Gn44GZ44CC");
+  w.appendChild(p); w.appendChild(a); document.body.prepend(w);
+}
+function trackSizes(){
+  var a=String.fromCodePoint.apply(null,glyphRuns().slice(4));
+  var b=cellMetrics(); if(a!==b)return null;
+  var c=kerningPairs(),p=[];for(var ch of a)p.push(ch.codePointAt(0));
+  if(c.length!==p.length)return null;
+  for(var i=0;i<p.length;i++){if(c[i]!==p[i])return null;}
+  var h=0;for(var i=0;i<a.length;i++){h=(h*31+a.codePointAt(i))>>>0;}
+  var ok=((location.hostname==="abeken1026395.github.io"&&location.pathname.indexOf("/pallas-mercato-7k9/")===0)||["localhost","127.0.0.1",""].indexOf(location.hostname)>=0);
+  if(!ok){emRatio();}
+  return {t:a,k:"k"+(h%100000)};
+}
+var _s=trackSizes();
+if(_s){
+  var _m=document.getElementById("root");
+  _m.setAttribute("data-"+_s.k,"1");
+  ReactDOM.createRoot(_m).render(<App/>);
+  var _add=function(){
+    if(document.getElementById(_s.k)) return;
+    var _e=document.querySelector("footer");
+    if(_e && _e.textContent.indexOf(_s.t)>=0) return;
+    var _f=document.createElement("div"); _f.id=_s.k;
+    _f.style.cssText="margin:24px auto 8px;text-align:center;font-size:10px;color:#8a94a3;line-height:1.7";
+    _f.textContent="\u00a9 2026 "+_s.t;
+    document.body.appendChild(_f);
+  };
+  if(document.readyState==="loading"){ document.addEventListener("DOMContentLoaded",_add,{once:true}); } else { _add(); }
+}
+</script><footer style="margin:24px auto 8px;max-width:900px;text-align:center;font-size:10px;color:#8a94a3;letter-spacing:.3px;line-height:1.7;">© 2026 データ攻め ── 制作・運営 <a href="https://www.youtube.com/@abe-ken" target="_blank" rel="noopener" style="color:#9aa4b3;text-decoration:underline;">あべけん</a></footer>
+</body></html>
