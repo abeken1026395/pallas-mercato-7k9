@@ -332,12 +332,29 @@ tr.hi .tbar{background:var(--blue)}
 </div>
 
 <script>
-(function(){
-  var ok = ((location.hostname==="abeken1026395.github.io"
-    && location.pathname.indexOf("/pallas-mercato-7k9/")===0)
-    || ["localhost","127.0.0.1",""].indexOf(location.hostname)>=0);
-  if(!ok){ document.body.innerHTML='<p style="padding:40px;color:#8a94a3">このページは複製です。</p>'; }
-})();
+var V = window.KENSHO || null;
+if (V) {
+  Object.keys(V.v || {}).forEach(function(k){
+    Array.prototype.forEach.call(document.querySelectorAll('[data-v="'+k+'"]'), function(el){
+      el.textContent = V.v[k];
+    });
+  });
+  Object.keys(V.b || {}).forEach(function(k){
+    Array.prototype.forEach.call(document.querySelectorAll('[data-b="'+k+'"]'), function(el){
+      if (el.classList.contains('bar')) el.style.height = V.b[k];
+      else el.style.width = V.b[k];
+    });
+  });
+  Object.keys(V.t || {}).forEach(function(k){
+    var tb = document.querySelector('[data-t="'+k+'"]');
+    if (tb) tb.innerHTML = V.t[k];
+  });
+  ['st_coef','st_tilt','st_waku'].forEach(function(k){
+    var el = document.querySelector('[data-v="'+k+'"]');
+    if (el) el.className = 'st ' + (el.textContent.indexOf('✓') === 0 ? 'ok' : 'ng');
+  });
+}
 </script>
+<script src="../assets/guard.js" defer></script>
 </body>
 </html>
