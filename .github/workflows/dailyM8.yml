@@ -1,26 +1,43 @@
 name: M8影運用（着外モデル・記録のみ）
 
-# M8（①＝1号艇が着外＝4着以下 になる確率）の影運用。
-# 当日の全レースを推論して predictions/m8/YYYYMMDD.json に記録し、
-# 前日ぶんの答え合わせを m8VerifyLog.csv に追記する。
+# M8（①＝1号艇が着外＝4着以下 になる確率）の影運用。朝と夜の2本立て。
+#   朝（MODE=am）… 当日の全レースを推論して predictions/m8/YYYYMMDD.json に記録し、
+#                  前日ぶんの答え合わせ（am・pm 両方）を m8VerifyLog.csv に追記する
+#   夜（MODE=pm）… その時点で出ている展示タイム込みで推論し直し、
+#                  predictions/m8/YYYYMMDD_pm.json に記録する。照合はしない
+#
+# なぜ2本か: 展示タイムは各レースの直前にしか出ないので、朝の推論には入らない。
+#   実測では日次3件の precision が 展示あり58.0% → 展示なし53.8% と差がある。
+#   どちらを本番にするかを机上で決めず、両方を同じ土俵で記録して実データで比べる。
 #
 # 「影運用」＝記録するだけで読者の画面は一切変えない。
 #   ・docs/ には書かない。公開ページ・highlights・verify_log・既存 predictions/ には触れない。
 #   ・書き込むのは pv2/ ・ predictions/m8/ ・ m8VerifyLog.csv の3箇所だけ。
 #
-# ★ schedule は意図的に書いていない。手動（workflow_dispatch）だけで数日試運転し、
-#   出力と所要が想定どおりであることを確認してから、別PRで cron を足す。
-#   自動実行の追加は運用フローの変更にあたるので、けんの承認を取ってから行う。
+# 実行時刻（UTC指定・かっこ内はJST）:
+#   '5 0 * * *'   → JST 9:05  … 朝の回。1R発売前に当日ぶんを出す
+#   '30 12 * * *' → JST 21:30 … 夜の回。最終レース（おおむねJST20:45締切）の後
+#   MODE を渡さずに起動した場合はスクリプト側が JST15時を境に am / pm を自動判定する。
+#   手動（workflow_dispatch）では MODE を明示できる。
 
 on:
+  schedule:
+    - cron: '5 0 * * *'      # JST 9:05 … 朝の回（am）
+    - cron: '30 12 * * *'    # JST 21:30 … 夜の回（pm）
   workflow_dispatch:
     inputs:
       hd:
         description: '対象開催日（YYYYMMDD）。空ならJST当日'
         required: false
         default: ''
+      mode:
+        description: '実行モード am / pm。空ならJST15時を境に自動判定'
+        required: false
+        default: ''
+        type: choice
+        options: ['', 'am', 'pm']
       verify_only:
-        description: '1 を入れると推論せず前日照合だけ行う'
+        description: '1 を入れると推論せず前日照合だけ行う（am のときだけ意味がある）'
         required: false
         default: ''
 
@@ -47,6 +64,7 @@ jobs:
       - name: 素材取得・学習・当日推論・前日照合
         env:
           HD: ${{ github.event.inputs.hd }}
+          MODE: ${{ github.event.inputs.mode }}
           M8_VERIFY_ONLY: ${{ github.event.inputs.verify_only }}
         run: python scripts/dailyM8.py
 
@@ -64,7 +82,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "no changes"; exit 0
           fi
-          git commit -m "M8影運用: 当日推論と前日照合を記録"
+          git commit -m "M8影運用: 当日推論と前日照合を記録（$(TZ=Asia/Tokyo date +'%Y-%m-%d %H:%M')）"
           for i in 1 2 3 4 5 6; do
             git fetch origin "$BR" || true
             if git rebase "origin/$BR"; then
