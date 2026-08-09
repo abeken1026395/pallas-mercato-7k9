@@ -288,9 +288,9 @@ def inject(html, v, b, t):
     for k in ("st_coef", "st_tilt", "st_waku"):
         ok = v[k].startswith("✓")
         html = html.replace('class="st ok" data-v="%s"' % k, 'class="st %s"' % ("ok" if ok else "ng"))
-    # 動的スクリプトを外し、コピー検知だけ残す
-    a = html.find("var V = window.KENSHO")
-    b2 = html.find("(function(){\n  var ok =")
+    # 動的スクリプトのブロックを丸ごと外す（guard.js 参照は残る）
+    a = html.find("<script>\nvar V = window.KENSHO")
+    b2 = html.find('<script src="../assets/guard.js"')
     if a > 0 and b2 > a:
         html = html[:a] + html[b2:]
     html = re.sub(r'\s+data-[vbt]="[^"]*"', "", html)
