@@ -1,18 +1,31 @@
 # -*- coding: utf-8 -*-
 # dailyM8.py
-# M8（①＝1号艇が着外＝4着以下 になる確率）の影運用。
-#   1. 学習（拡張窓：TRAIN_FIRST〜前日の全レース）
-#   2. 当日の全レースを推論し predictions/m8/YYYYMMDD.json に書く（上位3件だけ high=true）
-#   3. 前日ぶんの答え合わせを m8VerifyLog.csv に追記する
+# M8（①＝1号艇が着外＝4着以下 になる確率）の影運用。朝夜2本立て。
+#
+#   MODE=am（既定・JST 9時台）
+#     1. 学習（拡張窓：TRAIN_FIRST〜前日の全レース）
+#     2. 当日の全レースを推論し predictions/m8/YYYYMMDD.json に書く（上位3件だけ high=true）
+#     3. 前日ぶんの答え合わせを m8VerifyLog.csv に追記する（am版・pm版の両方を照合）
+#
+#   MODE=pm（JST 21時台）
+#     1. 当日 previews を取り直して「その時点の展示込み」で全レースを再推論
+#     2. predictions/m8/YYYYMMDD_pm.json に書く
+#     3. 照合はしない（照合は翌朝の am 実行がまとめてやる）
+#
+# なぜ2本記録するのか:
+#   朝は展示タイムがまだ出ていない（tenjiDev1 がほぼ全欠測）。夜は展示が揃っている。
+#   同じ日を「展示なし」「展示あり」の2通りで記録しておけば、
+#   展示タイムが精度にどれだけ効くのかを後から実測で切り分けられる。
 #
 # 影運用とは: 記録だけして読者の画面は一切変えないこと。
 #   ・docs/ には何も書かない。公開ページ・highlights・verify_log には一切触れない。
 #   ・出力は predictions/m8/ と m8VerifyLog.csv の2箇所だけ。
 #
 # 書き込みの掟:
-#   ・predictions/m8/YYYYMMDD.json は write-once。既にあれば上書きせずスキップしてログに出す。
+#   ・predictions/m8/YYYYMMDD.json（am）と YYYYMMDD_pm.json（pm）は
+#     それぞれ write-once。既にあれば上書きせずスキップしてログに出す。
 #     既存 predictions/ と同じ掟（後から作り直せると検証ループが成立しなくなる）。
-#   ・m8VerifyLog.csv は追記のみ。同じ日付の行が既にあれば何もしない。
+#   ・m8VerifyLog.csv は追記のみ。同じ (日付, model) の行が既にあれば何もしない。
 #
 # モデル構成（Phase3.6 で確定。ここは動かさない）:
 #   特徴量22列 = scripts/buildM8Features.py の M8_FEATURES
@@ -30,9 +43,10 @@
 #   後から「展示あり／なし」で切り分けられるようにしてある。
 #
 # 使い方:
-#   python scripts/dailyM8.py              … JST当日を対象
-#   HD=20260808 python scripts/dailyM8.py  … 対象日を指定（試運転用）
-#   M8_VERIFY_ONLY=1 …… 推論せず前日照合だけ行う
+#   python scripts/dailyM8.py                 … JST当日を am で処理
+#   MODE=pm python scripts/dailyM8.py         … JST当日を pm（展示込み）で処理
+#   HD=20260808 python scripts/dailyM8.py     … 対象日を指定（試運転用）
+#   M8_VERIFY_ONLY=1 …… 推論せず前日照合だけ行う（am のみ。pm では照合しないので何もしない）
 import io
 import os
 import csv
@@ -53,7 +67,8 @@ from sklearn.isotonic import IsotonicRegression
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import buildM8Features as F   # noqa: E402
 
-MODEL_ID = "m8-v1"
+MODEL_BASE = "m8-v1"
+MODES = ("am", "pm")
 SEED = 42
 HGB_PARAMS = dict(max_leaf_nodes=7, learning_rate=0.03, min_samples_leaf=50,
                   max_iter=200, l2_regularization=1.0,
@@ -64,7 +79,17 @@ HIGH_N = 3                 # 「高」として記録する件数
 
 PRED_DIR = os.environ.get("M8_PRED_DIR", os.path.join("predictions", "m8"))
 VERIFY_CSV = os.environ.get("M8_VERIFY_CSV", "m8VerifyLog.csv")
-VERIFY_COLS = ["date", "jcd", "rno", "p", "high", "y", "hit"]
+VERIFY_COLS = ["date", "model", "jcd", "rno", "p", "high", "y", "hit"]
+
+
+def model_id(mode):
+    return "%s-%s" % (MODEL_BASE, mode)
+
+
+def pred_path(hd, mode):
+    """am は従来どおり YYYYMMDD.json、pm は YYYYMMDD_pm.json。
+    ファイル名を分けることで write-once をファイル単位のまま維持する。"""
+    return os.path.join(PRED_DIR, "%s.json" % hd if mode == "am" else "%s_pm.json" % hd)
 
 
 def design(d, onehot):
@@ -107,13 +132,13 @@ def fit_and_predict(train, target):
     return iso.predict(raw), raw
 
 
-def write_predictions(hd, target, p, raw, tenji_filled, tenji_slots, train):
+def write_predictions(hd, mode, target, p, raw, tenji_filled, tenji_slots, train):
     """順位は「校正前の確率 raw」で付ける。校正後の p は isotonic の階段関数なので
     同値が大量に出て（実測: 168レース中 rank3位と4位が同値になる日がある）、
     上位3件が場コード順という無意味な基準で決まってしまうため。
     isotonic は単調変換なので raw の順位は p の順位と矛盾しない（同値を割るだけ）。
     記録する確率 p は校正後の値のまま。"""
-    out = os.path.join(PRED_DIR, "%s.json" % hd)
+    out = pred_path(hd, mode)
     if os.path.exists(out):
         print("SKIP: %s は既にある。上書きしない（write-once）" % out)
         return False
@@ -132,8 +157,9 @@ def write_predictions(hd, target, p, raw, tenji_filled, tenji_slots, train):
     races.sort(key=lambda r: r["rank"])
     obj = {
         "生成時刻": datetime.datetime.now().isoformat(timespec="seconds"),
-        "model": MODEL_ID,
+        "model": model_id(mode),
         "開催日": hd,
+        "実行モード": mode,
         "レース数": len(races),
         "展示タイム有効数": int(tenji_filled),
         "展示タイム枠数": int(tenji_slots),
@@ -146,33 +172,44 @@ def write_predictions(hd, target, p, raw, tenji_filled, tenji_slots, train):
     with io.open(out, "w", encoding="utf-8") as f:
         json.dump(obj, f, ensure_ascii=False, indent=1)
     hi = [r for r in races if r["high"]]
-    print("wrote %s races=%d high=%d（%s）展示 %d/%d 学習 %d件（〜%s）"
-          % (out, len(races), len(hi),
+    print("wrote %s model=%s races=%d high=%d（%s）展示 %d/%d 学習 %d件（〜%s）"
+          % (out, model_id(mode), len(races), len(hi),
              " ".join("%s-%dR p=%.3f" % (r["jcd"], r["rno"], r["p"]) for r in hi),
              tenji_filled, tenji_slots, len(train), train.hd.max()))
     return True
 
 
 def verify(prev_hd):
-    """前日の predictions/m8 と results/ を突合して m8VerifyLog.csv に追記する。"""
-    pred_path = os.path.join(PRED_DIR, "%s.json" % prev_hd)
-    if not os.path.exists(pred_path):
-        print("照合: %s が無い（この日の見立ては出していない）→ 何もしない" % pred_path)
+    """前日の am版・pm版の見立てを results/ と突合して m8VerifyLog.csv に追記する。
+    片方しか無い日（pm を回していない日など）は在るぶんだけ照合する。"""
+    n = 0
+    for mode in MODES:
+        n += verify_one(prev_hd, mode)
+    return n
+
+
+def verify_one(prev_hd, mode):
+    """前日の predictions/m8（指定モード）と results/ を突合して m8VerifyLog.csv に追記する。
+    追記済みかどうかは (date, model) で見る。am と pm は別行として並ぶ。"""
+    path = pred_path(prev_hd, mode)
+    if not os.path.exists(path):
+        print("照合[%s]: %s が無い（この日この時間帯の見立ては出していない）→ 何もしない" % (mode, path))
         return 0
+    with io.open(path, encoding="utf-8") as f:
+        pred = json.load(f)
+    mid = pred.get("model") or model_id(mode)
     done = set()
     if os.path.exists(VERIFY_CSV):
         with io.open(VERIFY_CSV, encoding="utf-8") as f:
             for row in csv.DictReader(f):
-                done.add(row.get("date"))
-    if prev_hd in done:
-        print("照合: %s は既に %s にある → 追記しない" % (prev_hd, VERIFY_CSV))
+                done.add((row.get("date"), row.get("model")))
+    if (prev_hd, mid) in done:
+        print("照合[%s]: %s / %s は既に %s にある → 追記しない" % (mode, prev_hd, mid, VERIFY_CSV))
         return 0
     res = F.load_results(prev_hd)
     if not res:
-        print("照合: results/%s.json が無い（結果未取得）→ 追記しない。次回に持ち越す" % prev_hd)
+        print("照合[%s]: results/%s.json が無い（結果未取得）→ 追記しない。次回に持ち越す" % (mode, prev_hd))
         return 0
-    with io.open(pred_path, encoding="utf-8") as f:
-        pred = json.load(f)
     rows, judged, hits, unknown = [], 0, 0, 0
     for r in pred.get("races") or []:
         jcd, rno = int(r["jcd"]), int(r["rno"])
@@ -188,7 +225,7 @@ def verify(prev_hd):
             hit = 1 if y == 1 else 0
             judged += 1
             hits += hit
-        rows.append({"date": prev_hd, "jcd": r["jcd"], "rno": rno, "p": r["p"],
+        rows.append({"date": prev_hd, "model": mid, "jcd": r["jcd"], "rno": rno, "p": r["p"],
                      "high": "true" if r["high"] else "false", "y": y, "hit": hit})
     new = not os.path.exists(VERIFY_CSV)
     with io.open(VERIFY_CSV, "a", encoding="utf-8", newline="") as f:
@@ -197,31 +234,67 @@ def verify(prev_hd):
             w.writeheader()
         for row in rows:
             w.writerow(row)
-    print("照合: %s を %s に %d行追記。high判定 %d/%d 的中（着外率不明 %d件）"
-          % (prev_hd, VERIFY_CSV, len(rows), hits, judged, unknown))
+    print("照合[%s]: %s / %s を %s に %d行追記。high判定 %d/%d 的中（着外率不明 %d件）"
+          % (mode, prev_hd, mid, VERIFY_CSV, len(rows), hits, judged, unknown))
     return len(rows)
 
 
+def refresh_previews(hd):
+    """当日の previews を取り直す（pm 専用）。
+    pv2/ は write-once（既存ファイルは取り直さない）なので、朝に取った
+    「展示タイムがまだ空」のスナップショットがそのまま残る。pm は展示込みで
+    推論するのが目的なので、対象日ぶんだけ明示的に取り直す。
+    取り直しに失敗したら朝のぶんを書き戻す（素材を失わないため）。"""
+    p = F.pv2_path("previews", hd)
+    old = None
+    if os.path.exists(p):
+        with io.open(p, "rb") as f:
+            old = f.read()
+        os.remove(p)
+    if F.fetch_pv2("previews", hd) and os.path.exists(p):
+        print("previews[%s] を取り直した（%s）" % (hd, "更新" if old is not None else "新規"))
+        return True
+    if old is not None:
+        with io.open(p, "wb") as f:
+            f.write(old)
+        print("WARN: previews[%s] の取り直しに失敗。朝のぶんを書き戻した（展示は入っていない）" % hd)
+    else:
+        print("WARN: previews[%s] が取れない（未発表か通信断）" % hd)
+    return False
+
+
 def main():
+    mode = (os.environ.get("MODE") or "am").strip().lower() or "am"
+    if mode not in MODES:
+        raise SystemExit("ERROR: MODE は %s のいずれか（受け取った値: %r）" % ("/".join(MODES), mode))
     hd = (os.environ.get("HD") or "").strip() or F.jst_today().strftime("%Y%m%d")
     prev_hd = (datetime.datetime.strptime(hd, "%Y%m%d").date() - datetime.timedelta(days=1)).strftime("%Y%m%d")
-    print("=== dailyM8 対象日 %s（前日 %s） ===" % (hd, prev_hd))
+    print("=== dailyM8 MODE=%s 対象日 %s（前日 %s） ===" % (mode, hd, prev_hd))
 
     # 1) 前日照合（推論より先にやる。推論が落ちても照合は残る）
-    t0 = time.time()
-    verify(prev_hd)
-    t_verify = time.time() - t0
+    #    照合するのは am だけ。pm の時点では当日ぶんの結果が出揃っておらず、
+    #    前日ぶんは朝に照合済みなので、二重に走らせる意味がない。
+    t_verify = 0.0
+    if mode == "am":
+        t0 = time.time()
+        verify(prev_hd)
+        t_verify = time.time() - t0
+    else:
+        print("照合: MODE=pm では行わない（翌朝の am 実行が am/pm 両方をまとめて照合する）")
 
     if os.environ.get("M8_VERIFY_ONLY"):
         print("M8_VERIFY_ONLY=1 のため推論はしない")
         return
 
-    if os.path.exists(os.path.join(PRED_DIR, "%s.json" % hd)):
-        print("SKIP: predictions/m8/%s.json は既にある。学習も推論もしない（write-once）" % hd)
+    out = pred_path(hd, mode)
+    if os.path.exists(out):
+        print("SKIP: %s は既にある。学習も推論もしない（write-once）" % out)
         return
 
     # 2) 素材と特徴量
     t0 = time.time()
+    if mode == "pm":
+        refresh_previews(hd)
     F.ensure_pv2(list(F.daterange(F.HIST_FIRST, hd)))
     t_fetch = time.time() - t0
     t0 = time.time()
@@ -255,7 +328,7 @@ def main():
             slots += 1
             if F.exhibition_time(b) is not None:
                 filled += 1
-    write_predictions(hd, target, p, raw, filled, slots, train)
+    write_predictions(hd, mode, target, p, raw, filled, slots, train)
     print("所要: 照合 %.1fs / pv2取得 %.1fs / 特徴量 %.1fs / 学習+推論 %.1fs"
           % (t_verify, t_fetch, t_feat, t_model))
 
