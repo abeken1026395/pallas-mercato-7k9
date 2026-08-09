@@ -118,7 +118,7 @@ tr.hi .tbar{background:var(--blue)}
   <h1>勝負駆けは<br>効くのか</h1>
   <p class="sub">
     予選最終日、ボーダー付近の選手の走りは変わるのか。<br>
-    386日・<span>33,027</span>レースで調べた記録です。<br>
+    386日・<span data-v="n_rows">33,027</span>レースで調べた記録です。<br>
     このページは検証中のため、トップからは導線を張っていません。
   </p>
 </header>
@@ -129,7 +129,7 @@ tr.hi .tbar{background:var(--blue)}
 <p class="lead">予選最終日。実況が「ここは勝負駆けですね」と言う。</p>
 
 <p>あと1走で準優が決まる。気合いも入るだろう。<br>
-── 386日、<b>33,027</b>レースを見ました。</p>
+── 386日、<b data-v="n_rows">33,027</b>レースを見ました。</p>
 
 <p>まず成績。ボーダー付近の選手は、最終走で着を上げていました。<br>
 やはりそうか、と思ったのですが、これは見間違いです。<br>
@@ -141,8 +141,8 @@ tr.hi .tbar{background:var(--blue)}
 
 <div class="cond">
   この段落は「統制後の係数が正のまま」のとき成立します。<br>
-  現在の係数 <b>+0.453</b>（t=<b>20.4</b>）──
-  <span class="st ok">✓ 成立</span>
+  現在の係数 <b data-v="coef">+0.453</b>（t=<b data-v="tval">20.4</b>）──
+  <span class="st ok" data-v="st_coef">✓ 成立</span>
 </div>
 
 <p class="tight">気持ちは見えません。そこで、物を見ることにしました。</p>
@@ -153,12 +153,12 @@ tr.hi .tbar{background:var(--blue)}
 
 <div class="samefig">
   <div class="cols">
-    <div class="col"><span class="num">4.2%</span>
-      <div class="bar" style="height:70px"></div></div>
-    <div class="col"><span class="num">4.6%</span>
-      <div class="bar" style="height:76px"></div></div>
-    <div class="col"><span class="num">4.2%</span>
-      <div class="bar" style="height:70px"></div></div>
+    <div class="col"><span class="num" data-v="tilt_edge">4.2%</span>
+      <div class="bar" data-b="tilt_edge" style="height:70px"></div></div>
+    <div class="col"><span class="num" data-v="tilt_safe">4.6%</span>
+      <div class="bar" data-b="tilt_safe" style="height:76px"></div></div>
+    <div class="col"><span class="num" data-v="tilt_out">4.2%</span>
+      <div class="bar" data-b="tilt_out" style="height:70px"></div></div>
   </div>
   <div class="lbs">
     <div class="lb">崖っぷち</div>
@@ -172,8 +172,8 @@ tr.hi .tbar{background:var(--blue)}
 
 <div class="cond">
   この一行は「3つの最大差が 1.0pt 以内」のとき成立します。<br>
-  現在の最大差 <b>0.3</b>pt ──
-  <span class="st ok">✓ 成立</span>
+  現在の最大差 <b data-v="tilt_diff">0.3</b>pt ──
+  <span class="st ok" data-v="st_tilt">✓ 成立</span>
 </div>
 
 <p class="tight">では何が決めているのか。</p>
@@ -184,13 +184,13 @@ tr.hi .tbar{background:var(--blue)}
 <div class="gapfig">
   <div class="row">
     <span class="wk">1枠</span>
-    <span class="track"><span class="fill f1" style="width:77.5%"></span></span>
-    <span class="pc">77.5%</span>
+    <span class="track"><span class="fill f1" data-b="w1" style="width:77.5%"></span></span>
+    <span class="pc" data-v="w1">77.5%</span>
   </div>
   <div class="row">
     <span class="wk">6枠</span>
-    <span class="track"><span class="fill f6" style="width:33.4%"></span></span>
-    <span class="pc">33.4%</span>
+    <span class="track"><span class="fill f6" data-b="w6" style="width:33.4%"></span></span>
+    <span class="pc" data-v="w6">33.4%</span>
   </div>
   <p class="cap">同じ条件で、準優に乗れた割合</p>
 </div>
@@ -198,12 +198,12 @@ tr.hi .tbar{background:var(--blue)}
 <p>1コースが強いことは、誰でも知っています。<br>
 知られていないのは、崖っぷちでも同じだということです。</p>
 
-<p class="punch">気合いは、<span class="big">44</span>ポイントを埋めません。</p>
+<p class="punch">気合いは、<span class="big" data-v="wdiff">44</span>ポイントを埋めません。</p>
 
 <div class="cond">
   この一行は「1枠と6枠の差が 35pt 以上」のとき成立します。<br>
-  現在の差 <b>44.1</b>pt ──
-  <span class="st ok">✓ 成立</span>
+  現在の差 <b data-v="wdiff2">44.1</b>pt ──
+  <span class="st ok" data-v="st_waku">✓ 成立</span>
 </div>
 
 <p class="tail">節のレベルまでは揃えきれていないので、断定はしません。<br>
@@ -218,7 +218,7 @@ tr.hi .tbar{background:var(--blue)}
 <p>「ボーダーまであと何点か」で分けて、実際に準優へ進めた割合を数えたものです。</p>
 <table>
 <thead><tr><th>ボーダーとの差</th><th>件数</th><th>進出率</th></tr></thead>
-<tbody><tr><td>−2.0 未満</td><td>8,016</td><td><span class="tbar" style="width:0px"></span>0.1%</td></tr><tr><td>−2.0 〜 −1.0</td><td>5,167</td><td><span class="tbar" style="width:2px"></span>3.5%</td></tr><tr><td>−1.0 〜 −0.5</td><td>3,159</td><td><span class="tbar" style="width:8px"></span>17.0%</td></tr><tr class="hi"><td>−0.5 〜 0.0</td><td>2,965</td><td><span class="tbar" style="width:17px"></span>37.1%</td></tr><tr class="hi"><td>0.0 〜 +0.5</td><td>3,736</td><td><span class="tbar" style="width:29px"></span>63.6%</td></tr><tr><td>+0.5 〜 +1.0</td><td>2,494</td><td><span class="tbar" style="width:39px"></span>84.8%</td></tr><tr><td>+1.0 〜 +2.0</td><td>4,289</td><td><span class="tbar" style="width:44px"></span>94.7%</td></tr><tr><td>+2.0 超</td><td>3,201</td><td><span class="tbar" style="width:45px"></span>98.8%</td></tr></tbody>
+<tbody data-t="gap"></tbody>
 </table>
 <p>−2.0点より下からの逆転は、386日で数えるほどしかありませんでした。</p>
 </div>
@@ -230,7 +230,7 @@ tr.hi .tbar{background:var(--blue)}
 <p>ボーダーとの差が ±0.5点 の選手だけを取り出し、その日の枠で分けたものです。</p>
 <table>
 <thead><tr><th>枠</th><th>件数</th><th>進出率</th></tr></thead>
-<tbody><tr class="hi"><td>1枠</td><td>1,165</td><td><span class="tbar" style="width:36px"></span>77.5%</td></tr><tr><td>2枠</td><td>1,274</td><td><span class="tbar" style="width:26px"></span>57.1%</td></tr><tr><td>3枠</td><td>1,259</td><td><span class="tbar" style="width:27px"></span>57.8%</td></tr><tr><td>4枠</td><td>1,155</td><td><span class="tbar" style="width:24px"></span>51.4%</td></tr><tr><td>5枠</td><td>1,111</td><td><span class="tbar" style="width:20px"></span>42.7%</td></tr><tr class="hi"><td>6枠</td><td>1,209</td><td><span class="tbar" style="width:15px"></span>33.4%</td></tr></tbody>
+<tbody data-t="waku"></tbody>
 </table>
 </div>
 </details>
@@ -241,7 +241,7 @@ tr.hi .tbar{background:var(--blue)}
 <p>チルトはレース直前に選手が自分で決める角度です。0より上に跳ね上げた割合を数えました。</p>
 <table>
 <thead><tr><th>ボーダーとの位置</th><th>件数</th><th>上げた割合</th></tr></thead>
-<tbody><tr class="hi"><td>崖っぷち</td><td>7,254</td><td><span class="tbar" style="width:32px"></span>4.22%</td></tr><tr><td>圏外</td><td>8,457</td><td><span class="tbar" style="width:34px"></span>4.41%</td></tr><tr class="hi"><td>もう届かない</td><td>8,164</td><td><span class="tbar" style="width:33px"></span>4.24%</td></tr><tr><td>やや圏内</td><td>4,907</td><td><span class="tbar" style="width:32px"></span>4.14%</td></tr><tr class="hi"><td>安全圏</td><td>4,692</td><td><span class="tbar" style="width:35px"></span>4.56%</td></tr></tbody>
+<tbody data-t="tilt"></tbody>
 </table>
 <p>全体でチルトを上げるのは約4%です。どの帯もその範囲に収まっています。</p>
 </div>
@@ -262,12 +262,12 @@ tr.hi .tbar{background:var(--blue)}
 <h4>実際とずれることがあります</h4>
 <p>公式には「減点」があります。待機行動違反などの反則で引かれる点で、
 着順には現れないため、ここでは再現できません。<br>
-過去の実測では、選手のうち <b>5.3</b>% にこの減点が入っていました。</p>
+過去の実測では、選手のうち <b data-v="minus_rate">5.3</b>% にこの減点が入っていました。</p>
 
 <h4>どれくらい合っているか</h4>
-<p>過去 <b>755</b>節 の準優勝戦メンバーと照合しました。<br>
-準優に乗った延べ <b>13,632</b>（実際の選手は <b>1,413</b>名）のうち、
-<b>12,603</b> を言い当てました（<b>92.5</b>%）。</p>
+<p>過去 <b data-v="setsu">755</b>節 の準優勝戦メンバーと照合しました。<br>
+準優に乗った延べ <b data-v="label_total">13,632</b>（実際の選手は <b data-v="label_uniq">1,413</b>名）のうち、
+<b data-v="label_hit">12,603</b> を言い当てました（<b data-v="acc">92.5</b>%）。</p>
 
 <h4>準優に乗れる人数は決まっていません</h4>
 <p>12名・18名・24名の3通りがあります。過去755節では18名が92%でした。</p>
@@ -293,7 +293,7 @@ tr.hi .tbar{background:var(--blue)}
 <p>記事の中の断定的な一行が、今も成り立っているかの一覧です。</p>
 <table>
 <thead><tr><th>文</th><th>条件</th><th>現在</th><th></th></tr></thead>
-<tbody><tr><td>結果は逆</td><td>係数が正</td><td>+0.453</td><td>✓ 成立</td></tr><tr><td>誰も、特別なことは…</td><td>最大差 1.0pt 以内</td><td>0.3pt</td><td>✓ 成立</td></tr><tr><td>気合いは、44ポイントを…</td><td>1枠−6枠 35pt 以上</td><td>44.1pt</td><td>✓ 成立</td></tr></tbody>
+<tbody data-t="cond"></tbody>
 </table>
 </div>
 </details>
@@ -304,9 +304,9 @@ tr.hi .tbar{background:var(--blue)}
 <p>準優勝戦は毎日どこかの場で行われます。実際の準優メンバーと、こちらの計算結果を突き合わせた記録です。直近14日分を載せています。</p>
 <table>
 <thead><tr><th>場</th><th>定員</th><th>一致</th><th>外れ</th></tr></thead>
-<tbody><tr><td>2026/8/9 鳴門</td><td>18</td><td>17</td><td>1</td></tr><tr><td>2026/8/9 津</td><td>18</td><td>17</td><td>1</td></tr><tr><td>2026/8/8 住之江</td><td>18</td><td>17</td><td>1</td></tr><tr><td>2026/8/8 三国</td><td>18</td><td>17</td><td>1</td></tr><tr><td>2026/8/7 下関</td><td>18</td><td>16</td><td>2</td></tr><tr><td>2026/8/7 宮島</td><td>18</td><td>17</td><td>1</td></tr><tr class="hi"><td>2026/8/7 平和島</td><td>18</td><td>18</td><td>0</td></tr><tr><td>2026/8/4 芦屋</td><td>18</td><td>17</td><td>1</td></tr><tr class="hi"><td>2026/8/4 浜名湖</td><td>18</td><td>18</td><td>0</td></tr><tr><td>2026/8/4 多摩川</td><td>18</td><td>16</td><td>2</td></tr><tr><td>2026/8/4 桐生</td><td>18</td><td>16</td><td>2</td></tr><tr><td>2026/8/3 尼崎</td><td>18</td><td>17</td><td>1</td></tr><tr><td>2026/8/3 常滑</td><td>18</td><td>16</td><td>2</td></tr><tr><td>2026/8/2 唐津</td><td>18</td><td>16</td><td>2</td></tr><tr><td>2026/8/2 福岡</td><td>18</td><td>15</td><td>3</td></tr><tr class="hi"><td>2026/8/2 若松</td><td>18</td><td>18</td><td>0</td></tr><tr><td>2026/8/1 児島</td><td>18</td><td>16</td><td>2</td></tr><tr><td>2026/8/1 丸亀</td><td>24</td><td>21</td><td>3</td></tr><tr class="hi"><td>2026/8/1 びわこ</td><td>18</td><td>18</td><td>0</td></tr><tr><td>2026/7/31 徳山</td><td>18</td><td>17</td><td>1</td></tr><tr><td>2026/7/31 三国</td><td>18</td><td>17</td><td>1</td></tr><tr><td>2026/7/30 大村</td><td>18</td><td>17</td><td>1</td></tr><tr><td>2026/7/30 下関</td><td>18</td><td>16</td><td>2</td></tr><tr><td>2026/7/29 平和島</td><td>18</td><td>17</td><td>1</td></tr><tr><td>2026/7/28 若松</td><td>18</td><td>17</td><td>1</td></tr><tr><td>2026/7/28 宮島</td><td>18</td><td>17</td><td>1</td></tr><tr><td>2026/7/27 芦屋</td><td>18</td><td>16</td><td>2</td></tr><tr><td>2026/7/27 江戸川</td><td>12</td><td>10</td><td>2</td></tr></tbody>
+<tbody data-t="daily"></tbody>
 </table>
-
+<div data-t="daily_detail"></div>
 </div>
 </details>
 
@@ -316,13 +316,13 @@ tr.hi .tbar{background:var(--blue)}
 <p>準優メンバーをどれだけ言い当てられたかの月別の推移です。<b>ある月だけ大きく下がったら、データ側に何か起きています。</b></p>
 <table>
 <thead><tr><th>月</th><th>節</th><th>延べ</th><th>一致</th><th>再現率</th></tr></thead>
-<tbody><tr><td>2026年8月</td><td>19</td><td>348</td><td>323</td><td>92.8%</td></tr><tr><td>2026年7月</td><td>65</td><td>1,152</td><td>1,069</td><td>92.8%</td></tr><tr><td>2026年6月</td><td>62</td><td>1,104</td><td>1,020</td><td>92.4%</td></tr><tr><td>2026年5月</td><td>63</td><td>1,128</td><td>1,052</td><td>93.3%</td></tr><tr><td>2026年4月</td><td>61</td><td>1,110</td><td>1,023</td><td>92.2%</td></tr><tr><td>2026年3月</td><td>58</td><td>1,062</td><td>987</td><td>92.9%</td></tr><tr><td>2026年2月</td><td>56</td><td>1,014</td><td>931</td><td>91.8%</td></tr><tr><td>2026年1月</td><td>62</td><td>1,104</td><td>1,019</td><td>92.3%</td></tr><tr><td>2025年12月</td><td>64</td><td>1,176</td><td>1,069</td><td>90.9%</td></tr><tr><td>2025年11月</td><td>59</td><td>1,050</td><td>969</td><td>92.3%</td></tr><tr><td>2025年10月</td><td>55</td><td>978</td><td>897</td><td>91.7%</td></tr><tr><td>2025年9月</td><td>61</td><td>1,116</td><td>1,034</td><td>92.7%</td></tr><tr><td>2025年8月</td><td>65</td><td>1,188</td><td>1,116</td><td>93.9%</td></tr><tr><td>2025年7月</td><td>30</td><td>552</td><td>510</td><td>92.4%</td></tr></tbody>
+<tbody data-t="acc"></tbody>
 </table>
 </div>
 </details>
 
   <p class="stamp">
-    集計期間 <span>2025/7/15 〜 2026/8/6</span>　/　最終更新 <span>2026/08/09</span><br>
+    集計期間 <span data-v="period">2025/7/15 〜 2026/8/6</span>　/　最終更新 <span data-v="updated">—</span><br>
     このページは検証用です。導線を張っていないため、URLを知る人だけが見られます。
   </p>
 </div>
@@ -331,6 +331,30 @@ tr.hi .tbar{background:var(--blue)}
 
 </div>
 
+<script>
+var V = window.KENSHO || null;
+if (V) {
+  Object.keys(V.v || {}).forEach(function(k){
+    Array.prototype.forEach.call(document.querySelectorAll('[data-v="'+k+'"]'), function(el){
+      el.textContent = V.v[k];
+    });
+  });
+  Object.keys(V.b || {}).forEach(function(k){
+    Array.prototype.forEach.call(document.querySelectorAll('[data-b="'+k+'"]'), function(el){
+      if (el.classList.contains('bar')) el.style.height = V.b[k];
+      else el.style.width = V.b[k];
+    });
+  });
+  Object.keys(V.t || {}).forEach(function(k){
+    var tb = document.querySelector('[data-t="'+k+'"]');
+    if (tb) tb.innerHTML = V.t[k];
+  });
+  ['st_coef','st_tilt','st_waku'].forEach(function(k){
+    var el = document.querySelector('[data-v="'+k+'"]');
+    if (el) el.className = 'st ' + (el.textContent.indexOf('✓') === 0 ? 'ok' : 'ng');
+  });
+}
+</script>
 <script src="../assets/guard.js" defer></script>
 </body>
 </html>
