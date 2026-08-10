@@ -30,7 +30,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/kensho/index.html
+          git add docs/kensho/index.html data/kenshoVerify.json
           git diff --staged --quiet || git commit -m "update kensho/index.html"
           # push競合(cannot lock ref)は短いランダム待機でリトライする。
           BR="${GITHUB_REF_NAME}"
