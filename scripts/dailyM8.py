@@ -3,7 +3,7 @@
 # M8（①＝1号艇が着外＝4着以下 になる確率）の影運用。朝夜2本立て。
 #
 #   MODE=am（既定・JST 9時台）
-#     1. 前日ぶんの v2 previews を確定版に差し替える（後述）
+#     1. 直近3日ぶんの v2 previews を確定版に差し替える（後述）
 #     2. 学習（拡張窓：TRAIN_FIRST〜前日の全レース）
 #     3. 当日の全レースを推論し predictions/m8/YYYYMMDD.json に書く（上位3件だけ high=true）
 #     4. 前日ぶんの答え合わせを m8VerifyLog.csv に追記する（am版・pm版の両方を照合）
@@ -23,7 +23,8 @@
 #     翌日になって確定版（全枠ぶん）が配信される。
 #   ・当日の夜に展示が入っているのは自前の preview/YYYYMMDD.json（v1・毎時更新）だけ。
 #   よって pm は v1 を読んで v2 の形に直し、pv2/ には書かずにその場の素材として使う。
-#   一方、翌朝の am は前日ぶんの v2 を取り直して確定版に差し替える（学習素材を痩せさせないため）。
+#   一方、朝の am は直近3日ぶんの v2 を取り直して確定版に差し替える（学習素材を痩せさせないため）。
+#   確定版が翌日中のいつ来るかは分からず朝9:05に間に合う保証がないので、数日ぶん見直す。
 #
 # 影運用とは: 記録だけして読者の画面は一切変えないこと。
 #   ・docs/ には何も書かない。公開ページ・highlights・verify_log には一切触れない。
@@ -84,6 +85,7 @@ HGB_PARAMS = dict(max_leaf_nodes=7, learning_rate=0.03, min_samples_leaf=50,
 W_LR = 0.3                 # LR の重み（残りが HGB）
 CALIB_DAYS = 30            # isotonic 用の内側ホールドアウト日数
 HIGH_N = 3                 # 「高」として記録する件数
+FINALIZE_DAYS = 3          # am が previews の確定版化を試す日数（前日・2日前・3日前）
 
 PRED_DIR = os.environ.get("M8_PRED_DIR", os.path.join("predictions", "m8"))
 V1_PREVIEW_DIR = os.environ.get("M8_V1_PREVIEW", "preview")   # 自前の直前情報（v1・毎時更新）
@@ -391,39 +393,55 @@ def use_v1_previews(hd, base):
     return obj
 
 
-def finalize_prev_previews(prev_hd):
-    """前日の v2 previews を取り直し、展示の充填が増えていれば確定版で上書きする（am 専用）。
+def finalize_previews(d):
+    """指定日の v2 previews を取り直し、展示の充填が増えていれば確定版で上書きする（am 専用）。
 
     上流 v2 は当日中は展示が埋まらず、翌日に確定版になる。pv2/ は write-once なので
     放っておくと「当日朝に取った未確定版」が永久に残り、以後の学習素材が痩せる。
-    朝の照合のついでに前日ぶんだけ確定版へ差し替える。
+    朝の照合のついでに確定版へ差し替える。
     増えていない・取れないときは元のバイト列をそのまま書き戻す（＝差分ゼロ）。"""
-    p = F.pv2_path("previews", prev_hd)
+    p = F.pv2_path("previews", d)
     old = None
     if os.path.exists(p):
         with io.open(p, "rb") as f:
             old = f.read()
-    before = count_tenji(F.load_pv2("previews", prev_hd))
+    before = count_tenji(F.load_pv2("previews", d))
     if old is not None:
         os.remove(p)
-    ok = F.fetch_pv2("previews", prev_hd)
-    after = count_tenji(F.load_pv2("previews", prev_hd)) if ok and os.path.exists(p) else (-1, -1)
+    ok = F.fetch_pv2("previews", d)
+    after = count_tenji(F.load_pv2("previews", d)) if ok and os.path.exists(p) else (-1, -1)
     if old is None:
-        print("前日previews: %s（展示 %d/%d）"
-              % ("新規取得" if ok else "取れなかった（未配信か通信断）", max(after[0], 0), max(after[1], 0)))
+        print("previews[%s]: %s（展示 %d/%d）"
+              % (d, "新規取得" if ok else "取れなかった（未配信か通信断）",
+                 max(after[0], 0), max(after[1], 0)))
         return bool(ok)
     if after[0] > before[0]:
-        print("前日previews確定版化: %d→%d（枠 %d）%s" % (before[0], after[0], after[1], p))
+        print("previews確定版化[%s]: %d→%d（枠 %d）%s" % (d, before[0], after[0], after[1], p))
         return True
     if old is not None:
         with io.open(p, "wb") as f:
             f.write(old)
     if not ok:
-        print("前日previews: 取り直せなかった（未配信か通信断）→ 触らない（展示 %d/%d のまま）"
-              % before)
+        print("previews[%s]: 取り直せなかった（未配信か通信断）→ 触らない（展示 %d/%d のまま）"
+              % ((d,) + before))
     else:
-        print("前日previews: 充填が増えていない（%d/%d）→ 触らない" % before)
+        print("previews[%s]: 充填が増えていない（%d/%d）→ 触らない" % ((d,) + before))
     return False
+
+
+def finalize_recent_previews(hd):
+    """直近 FINALIZE_DAYS 日ぶん（前日・2日前・3日前）の previews を確定版化する（am 専用）。
+
+    上流の確定版が翌日中のいつ配信されるかは分からず、朝 9:05 に間に合う保証がない。
+    翌朝1回きりの確認だと間に合わなかった日を取りこぼし、pv2 が未確定版のまま固定される。
+    数日ぶん見直せば、いつ配信されてもどこかの朝で拾える。
+    充填が増えた日だけ上書きするので、確定済みの日を何度見に行っても差分は出ない。"""
+    n = 0
+    base = datetime.datetime.strptime(hd, "%Y%m%d").date()
+    for back in range(1, FINALIZE_DAYS + 1):
+        if finalize_previews((base - datetime.timedelta(days=back)).strftime("%Y%m%d")):
+            n += 1
+    return n
 
 
 def main():
@@ -440,7 +458,7 @@ def main():
     t_verify = 0.0
     if mode == "am":
         t0 = time.time()
-        finalize_prev_previews(prev_hd)
+        finalize_recent_previews(hd)
         verify(prev_hd)
         t_verify = time.time() - t0
     else:
