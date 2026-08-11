@@ -20,7 +20,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      # docs/kensho/index.html を scripts/templateKensho.html から生成する。
+      # docs/kensho/shobugake/index.html を scripts/templateKensho.html から生成する。
       # データ源=BoatraceOpenAPI/programsミラー(GitHub配信,Actions到達可)＋results/。
       # 累積 data/kenshoVerify.json とキャッシュ data/programsCache/ は gitignore。
       # 変わらない日は "kensho: no change (skip write)" を出して書き込まない。
@@ -30,8 +30,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/kensho/index.html data/kenshoVerify.json
-          git diff --staged --quiet || git commit -m "update kensho/index.html"
+          git add docs/kensho/shobugake/index.html data/kenshoVerify.json
+          git diff --staged --quiet || git commit -m "update kensho/shobugake/index.html"
           # push競合(cannot lock ref)は短いランダム待機でリトライする。
           BR="${GITHUB_REF_NAME}"
           for i in 1 2 3 4 5 6; do

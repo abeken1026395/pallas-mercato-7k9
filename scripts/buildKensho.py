@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-docs/kensho/index.html を生成する。
+docs/kensho/shobugake/index.html を生成する。
 
 正本は scripts/templateKensho.html。記事の文章はそこにあり、
 このスクリプトは数字だけを差し込む。文章は絶対に触らない。
@@ -26,7 +26,7 @@ import json, os, sys, re, glob, collections, datetime, urllib.request, time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATE = os.path.join(ROOT, "scripts", "templateKensho.html")
-OUT = os.path.join(ROOT, "docs", "kensho", "index.html")
+OUT = os.path.join(ROOT, "docs", "kensho", "shobugake", "index.html")
 RESULTS = os.path.join(ROOT, "results")
 DATA = os.path.join(ROOT, "data")
 CACHE = os.path.join(DATA, "programsCache")
@@ -290,7 +290,7 @@ def inject(html, v, b, t):
         html = html.replace('class="st ok" data-v="%s"' % k, 'class="st %s"' % ("ok" if ok else "ng"))
     # 動的スクリプトのブロックを丸ごと外す（guard.js 参照は残る）
     a = html.find("<script>\nvar V = window.KENSHO")
-    b2 = html.find('<script src="../assets/guard.js"')
+    b2 = html.find('<script src="../../assets/guard.js"')
     if a > 0 and b2 > a:
         html = html[:a] + html[b2:]
     html = re.sub(r'\s+data-[vbt]="[^"]*"', "", html)
