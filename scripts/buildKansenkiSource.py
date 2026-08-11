@@ -584,6 +584,7 @@ def load_prev_article(jcd, prev_date8):
         "title": art.get("title"),
         "body": art.get("body"),
         "styleType": art.get("styleType"),
+        "watchPoint": art.get("watchPoint"),
     }
 
 
