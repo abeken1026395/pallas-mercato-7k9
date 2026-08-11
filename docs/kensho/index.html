@@ -4,108 +4,40 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>検証：勝負駆け ｜ データ攻め</title>
+<title>検証 ｜ データ攻め</title>
 <link rel="canonical" href="https://abeken1026395.github.io/pallas-mercato-7k9/kensho/">
-<!-- data-seme signature: kensho / shobugake -->
 <style>
 :root{
   --bg:#0b1219; --fg:#e0e6ed; --dim:#8a94a3; --faint:#6f7a89;
   --line:#1f2b3a; --panel:#0f1a26; --accent:#ffd166;
-  --ok:#7ee08a; --ng:#e07a7a; --blue:#5b9bd5; --deep:#2f4a6b;
 }
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--fg);margin:0;padding-bottom:80px;
-  font-family:'Helvetica Neue',Arial,'Hiragino Kaku Gothic ProN',Meiryo,sans-serif;
-  -webkit-text-size-adjust:100%;font-variant-numeric:tabular-nums}
-.wrap{max-width:620px;margin:0 auto;padding:0 18px}
+body{margin:0;background:var(--bg);color:var(--fg);
+  font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+  font-size:16px;line-height:2}
+.wrap{max-width:560px;margin:0 auto;padding:18px 20px 60px}
 .siteback{display:flex;align-items:center;gap:6px;min-height:44px;
-  font-size:13px;color:inherit;text-decoration:none;opacity:.7}
-
-/* ── ヘッダ ── */
-header{padding:4px 0 20px;border-bottom:1px solid var(--line)}
+  color:inherit;text-decoration:none;font-size:13px}
+header{margin:26px 0 30px}
 header .eyebrow{font-size:11px;color:var(--accent);letter-spacing:.18em;margin:0 0 8px}
-header h1{font-size:23px;line-height:1.5;color:#fff;margin:0 0 10px;font-weight:700}
-header .sub{font-size:12px;color:var(--dim);line-height:1.9;margin:0}
-
-/* ── 記事 ── */
-.article{padding:32px 0 8px;font-size:15.5px;line-height:2.1;letter-spacing:.01em}
-.article p{margin:0 0 1.7em}
-.article p.tight{margin-bottom:.9em}
-.article .lead{font-size:16.5px;color:#fff;line-height:1.95;margin-bottom:1.9em}
-.article b{color:#fff;font-weight:600}
-
-/* ── 図：チルト（同じであることを形で見せる） ── */
-.samefig{margin:0 0 1.3em;padding:22px 8px 16px;background:var(--panel);
-  border:1px solid var(--line);border-radius:10px}
-.samefig .cols{display:flex;align-items:flex-end;justify-content:center;gap:6px;height:120px}
-.samefig .col{flex:1;max-width:96px;display:flex;flex-direction:column;
-  align-items:center;justify-content:flex-end;height:100%}
-.samefig .num{font-size:27px;font-weight:700;color:#cfe0f0;line-height:1;margin-bottom:9px;
-  letter-spacing:-.02em}
-.samefig .bar{width:100%;background:var(--deep);border-radius:3px 3px 0 0}
-.samefig .lbs{display:flex;justify-content:center;gap:6px;margin-top:9px}
-.samefig .lb{flex:1;max-width:96px;text-align:center;font-size:11px;color:var(--dim);
-  line-height:1.5}
-.samefig .cap{text-align:center;font-size:11px;color:var(--faint);margin-top:14px}
-
-/* ── 図：枠の対比 ── */
-.gapfig{margin:0 0 1.3em;padding:20px 18px 16px;background:var(--panel);
-  border:1px solid var(--line);border-radius:10px}
-.gapfig .row{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-.gapfig .row:last-of-type{margin-bottom:0}
-.gapfig .wk{width:34px;font-size:12px;color:var(--dim);flex:none}
-.gapfig .track{flex:1;height:26px;background:#0b1219;border-radius:4px;overflow:hidden}
-.gapfig .fill{height:100%;border-radius:4px}
-.gapfig .f1{background:linear-gradient(90deg,#3c78bd,#5b9bd5)}
-.gapfig .f6{background:linear-gradient(90deg,#3a4a5c,#55697f)}
-.gapfig .pc{width:58px;text-align:right;font-size:21px;font-weight:700;color:#fff;flex:none;
-  letter-spacing:-.02em}
-.gapfig .cap{font-size:11px;color:var(--faint);margin-top:14px;line-height:1.7}
-
-/* ── パンチライン ── */
-.punch{margin:2.2em 0 1.1em;font-size:24px;line-height:1.65;font-weight:700;color:#fff;
-  letter-spacing:.005em}
-.punch .big{color:var(--accent)}
-
-.tail{color:var(--dim);font-size:13.5px;line-height:2}
-
-/* ── 成立条件 ── */
-.cond{margin:-1.15em 0 1.7em;padding:9px 0 9px 12px;border-left:2px solid var(--line);
-  font-size:11.5px;color:var(--faint);line-height:1.85}
-.cond b{color:var(--dim);font-weight:600}
-.cond .st{font-weight:700;white-space:nowrap}
-.cond .st.ok{color:var(--ok)}
-.cond .st.ng{color:var(--ng)}
-
-/* ── 折りたたみ ── */
-details{background:var(--panel);border:1px solid var(--line);border-radius:9px;margin:0 0 11px}
-details>summary{list-style:none;cursor:pointer;padding:13px 15px;font-size:13px;
-  color:#a9c6dd;display:flex;align-items:center;justify-content:space-between;min-height:46px}
-details>summary::-webkit-details-marker{display:none}
-details>summary::after{content:"";width:7px;height:7px;border-right:1.5px solid #55697f;
-  border-bottom:1.5px solid #55697f;transform:rotate(45deg);margin-left:12px;flex:none}
-details[open]>summary::after{transform:rotate(-135deg)}
-.dbody{padding:0 15px 15px;font-size:12.5px;color:var(--dim);line-height:2}
-.dbody p{margin:0 0 .9em}
-.dbody h4{font-size:12.5px;color:#cfe0f0;margin:16px 0 6px;font-weight:600}
-.dbody h4:first-child{margin-top:4px}
-.dbody b{color:#cfe0f0}
-
-/* ── 表 ── */
-table{width:100%;border-collapse:collapse;font-size:12.5px;margin:8px 0 6px}
-th,td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:right}
-th{color:var(--faint);font-weight:400;font-size:11px;white-space:nowrap}
-td:first-child,th:first-child{text-align:left}
-tr.hi td{color:#fff;font-weight:700}
-.tbar{display:inline-block;height:6px;background:var(--deep);border-radius:3px;
-  vertical-align:middle;margin-right:7px}
-tr.hi .tbar{background:var(--blue)}
-
-/* ── 検証データ ── */
-.verify{margin-top:40px;padding-top:24px;border-top:1px solid var(--line)}
-.verify > h2{font-size:14px;color:var(--accent);margin:0 0 6px;letter-spacing:.05em}
-.verify > .vsub{font-size:11.5px;color:var(--dim);line-height:1.9;margin:0 0 18px}
-.stamp{font-size:11px;color:var(--faint);margin-top:26px;line-height:1.9}
+header h1{font-size:30px;line-height:1.45;color:#fff;margin:0 0 12px;font-weight:700}
+header .sub{font-size:13px;color:var(--dim);line-height:2;margin:0}
+.card{display:block;border:1px solid var(--line);background:var(--panel);
+  border-left:3px solid var(--accent);
+  border-radius:10px;padding:18px 18px 14px;color:inherit;text-decoration:none;
+  margin:0 0 14px}
+.card .no{font-size:11px;color:var(--accent);letter-spacing:.14em;margin:0 0 8px}
+.card .t{font-size:19px;font-weight:700;line-height:1.6;margin:0 0 8px;color:#fff}
+.card .d{font-size:13px;color:var(--dim);line-height:1.95;margin:0 0 10px}
+.card .num{font-size:12.5px;color:var(--fg);margin:0 0 12px;
+  font-variant-numeric:tabular-nums}
+.card .num b{font-size:17px;color:var(--accent);font-weight:700}
+.card .go{display:flex;justify-content:flex-end;font-size:13px;color:var(--accent);margin:0}
+.promise{margin:38px 0 0}
+.promise h2{font-size:12px;color:var(--faint);letter-spacing:.14em;
+  font-weight:400;margin:0 0 10px;border-top:1px solid var(--line);padding-top:22px}
+.promise p{font-size:12.5px;color:var(--dim);line-height:2.1;margin:0}
+.stamp{font-size:11px;color:var(--faint);margin-top:30px;line-height:1.9}
 </style>
 </head>
 <body>
@@ -115,219 +47,24 @@ tr.hi .tbar{background:var(--blue)}
 
 <header>
   <p class="eyebrow">検 証</p>
-  <h1>勝負駆けは<br>効くのか</h1>
-  <p class="sub">
-    予選最終日、ボーダー付近の選手の走りは変わるのか。<br>
-    386日・<span>33,027</span>レースで調べた記録です。<br>
-    このページは検証中のため、トップからは導線を張っていません。
-  </p>
+  <h1>定説を、数える</h1>
+  <p class="sub">競艇で「そういうものだ」と言われている話は、本当なのか。<br>予想はしません。実際のレース結果を数えて、確かめます。</p>
 </header>
 
-<!-- ══════════ 記事 ══════════ -->
-<div class="article">
+<a class="card" href="./shobugake/">
+  <p class="no">検証 01 ｜ 毎朝 答え合わせ更新中</p>
+  <p class="t">勝負駆けは効くのか</p>
+  <p class="d">「崖っぷちの選手は気合いが入る」――実況でも解説でも、誰もが口にする定説。それを確かめるために、</p>
+  <p class="num"><b>386</b>日・<b>33,027</b>レースを数えました。</p>
+  <p class="go">読む →</p>
+</a>
 
-<p class="lead">予選最終日。実況が「ここは勝負駆けですね」と言う。</p>
-
-<p>あと1走で準優が決まる。気合いも入るだろう。<br>
-── 386日、<b>33,027</b>レースを見ました。</p>
-
-<p>まず成績。ボーダー付近の選手は、最終走で着を上げていました。<br>
-やはりそうか、と思ったのですが、これは見間違いです。<br>
-不調な選手は次に上がり、好調な選手は下がる。<br>
-それだけのことが「崖っぷちで奮起した」ように見えていました。</p>
-
-<p>条件を揃え直すと、結果は逆。<br>
-ボーダーより上にいる選手のほうが、良い着を取っていました。</p>
-
-<div class="cond">
-  この段落は「統制後の係数が正のまま」のとき成立します。<br>
-  現在の係数 <b>+0.453</b>（t=<b>20.4</b>）──
-  <span class="st ok">✓ 成立</span>
+<div class="promise">
+  <h2>この読み物の約束</h2>
+  <p>検証の条件は結果を見る前に決め、あとから動かしません。「効かなかった」という結果もそのまま載せます。数字には母数と集計期間を必ず付けます。公開したあとも毎朝、新しいレース結果で答え合わせを続けます。</p>
 </div>
 
-<p class="tight">気持ちは見えません。そこで、物を見ることにしました。</p>
-
-<p>チルト。レース直前に選手が自分で決める角度です。<br>
-跳ね上げれば伸びは出るが、安定を失う。<br>
-勝負に出たかどうかが、機体に残ります。</p>
-
-<div class="samefig">
-  <div class="cols">
-    <div class="col"><span class="num">4.2%</span>
-      <div class="bar" style="height:70px"></div></div>
-    <div class="col"><span class="num">4.6%</span>
-      <div class="bar" style="height:76px"></div></div>
-    <div class="col"><span class="num">4.2%</span>
-      <div class="bar" style="height:70px"></div></div>
-  </div>
-  <div class="lbs">
-    <div class="lb">崖っぷち</div>
-    <div class="lb">安全圏</div>
-    <div class="lb">もう<br>届かない</div>
-  </div>
-  <p class="cap">チルトを跳ね上げた割合</p>
-</div>
-
-<p>誰も、特別なことはしていませんでした。</p>
-
-<div class="cond">
-  この一行は「3つの最大差が 1.0pt 以内」のとき成立します。<br>
-  現在の最大差 <b>0.3</b>pt ──
-  <span class="st ok">✓ 成立</span>
-</div>
-
-<p class="tight">では何が決めているのか。</p>
-
-<p>同じボーダー±0.5点。同じ崖っぷち。<br>
-違うのは、その日引いた枠だけ。</p>
-
-<div class="gapfig">
-  <div class="row">
-    <span class="wk">1枠</span>
-    <span class="track"><span class="fill f1" style="width:77.5%"></span></span>
-    <span class="pc">77.5%</span>
-  </div>
-  <div class="row">
-    <span class="wk">6枠</span>
-    <span class="track"><span class="fill f6" style="width:33.4%"></span></span>
-    <span class="pc">33.4%</span>
-  </div>
-  <p class="cap">同じ条件で、準優に乗れた割合</p>
-</div>
-
-<p>1コースが強いことは、誰でも知っています。<br>
-知られていないのは、崖っぷちでも同じだということです。</p>
-
-<p class="punch">気合いは、<span class="big">44</span>ポイントを埋めません。</p>
-
-<div class="cond">
-  この一行は「1枠と6枠の差が 35pt 以上」のとき成立します。<br>
-  現在の差 <b>44.1</b>pt ──
-  <span class="st ok">✓ 成立</span>
-</div>
-
-<p class="tail">節のレベルまでは揃えきれていないので、断定はしません。<br>
-ただ、チルトの差がゼロだったことは動きません。</p>
-
-</div>
-<!-- ══════════ /記事 ══════════ -->
-
-<details>
-<summary>ボーダーからの距離と、準優に乗れた割合</summary>
-<div class="dbody">
-<p>「ボーダーまであと何点か」で分けて、実際に準優へ進めた割合を数えたものです。</p>
-<table>
-<thead><tr><th>ボーダーとの差</th><th>件数</th><th>進出率</th></tr></thead>
-<tbody><tr><td>−2.0 未満</td><td>8,016</td><td><span class="tbar" style="width:0px"></span>0.1%</td></tr><tr><td>−2.0 〜 −1.0</td><td>5,167</td><td><span class="tbar" style="width:2px"></span>3.5%</td></tr><tr><td>−1.0 〜 −0.5</td><td>3,159</td><td><span class="tbar" style="width:8px"></span>17.0%</td></tr><tr class="hi"><td>−0.5 〜 0.0</td><td>2,965</td><td><span class="tbar" style="width:17px"></span>37.1%</td></tr><tr class="hi"><td>0.0 〜 +0.5</td><td>3,736</td><td><span class="tbar" style="width:29px"></span>63.6%</td></tr><tr><td>+0.5 〜 +1.0</td><td>2,494</td><td><span class="tbar" style="width:39px"></span>84.8%</td></tr><tr><td>+1.0 〜 +2.0</td><td>4,289</td><td><span class="tbar" style="width:44px"></span>94.7%</td></tr><tr><td>+2.0 超</td><td>3,201</td><td><span class="tbar" style="width:45px"></span>98.8%</td></tr></tbody>
-</table>
-<p>−2.0点より下からの逆転は、386日で数えるほどしかありませんでした。</p>
-</div>
-</details>
-
-<details>
-<summary>同じ崖っぷちでも、枠でこう変わる</summary>
-<div class="dbody">
-<p>ボーダーとの差が ±0.5点 の選手だけを取り出し、その日の枠で分けたものです。</p>
-<table>
-<thead><tr><th>枠</th><th>件数</th><th>進出率</th></tr></thead>
-<tbody><tr class="hi"><td>1枠</td><td>1,165</td><td><span class="tbar" style="width:36px"></span>77.5%</td></tr><tr><td>2枠</td><td>1,274</td><td><span class="tbar" style="width:26px"></span>57.1%</td></tr><tr><td>3枠</td><td>1,259</td><td><span class="tbar" style="width:27px"></span>57.8%</td></tr><tr><td>4枠</td><td>1,155</td><td><span class="tbar" style="width:24px"></span>51.4%</td></tr><tr><td>5枠</td><td>1,111</td><td><span class="tbar" style="width:20px"></span>42.7%</td></tr><tr class="hi"><td>6枠</td><td>1,209</td><td><span class="tbar" style="width:15px"></span>33.4%</td></tr></tbody>
-</table>
-</div>
-</details>
-
-<details>
-<summary>チルトを跳ね上げた割合（全5帯）</summary>
-<div class="dbody">
-<p>チルトはレース直前に選手が自分で決める角度です。0より上に跳ね上げた割合を数えました。</p>
-<table>
-<thead><tr><th>ボーダーとの位置</th><th>件数</th><th>上げた割合</th></tr></thead>
-<tbody><tr class="hi"><td>崖っぷち</td><td>7,254</td><td><span class="tbar" style="width:32px"></span>4.22%</td></tr><tr><td>圏外</td><td>8,457</td><td><span class="tbar" style="width:34px"></span>4.41%</td></tr><tr class="hi"><td>もう届かない</td><td>8,164</td><td><span class="tbar" style="width:33px"></span>4.24%</td></tr><tr><td>やや圏内</td><td>4,907</td><td><span class="tbar" style="width:32px"></span>4.14%</td></tr><tr class="hi"><td>安全圏</td><td>4,692</td><td><span class="tbar" style="width:35px"></span>4.56%</td></tr></tbody>
-</table>
-<p>全体でチルトを上げるのは約4%です。どの帯もその範囲に収まっています。</p>
-</div>
-</details>
-
-<details>
-<summary>この得点率について</summary>
-<div class="dbody">
-<h4>この得点率は推定です。公式の実数ではありません。</h4>
-<p>公式が得点率を出しているのはG2以上の開催だけで、G3・一般では公開されていません。
-ここでは公式と同じ計算式で出しています。</p>
-
-<h4>計算のしかた</h4>
-<p>1着10点 / 2着8点 / 3着6点 / 4着4点 / 5着2点 / 6着1点。<br>
-この合計から減点を引き、出走回数で割ります。<br>
-（出典：ボートレース公式 用語辞典）</p>
-
-<h4>実際とずれることがあります</h4>
-<p>公式には「減点」があります。待機行動違反などの反則で引かれる点で、
-着順には現れないため、ここでは再現できません。<br>
-過去の実測では、選手のうち <b>5.3</b>% にこの減点が入っていました。</p>
-
-<h4>どれくらい合っているか</h4>
-<p>過去 <b>755</b>節 の準優勝戦メンバーと照合しました。<br>
-準優に乗った延べ <b>13,632</b>（実際の選手は <b>1,413</b>名）のうち、
-<b>12,603</b> を言い当てました（<b>92.5</b>%）。</p>
-
-<h4>準優に乗れる人数は決まっていません</h4>
-<p>12名・18名・24名の3通りがあります。過去755節では18名が92%でした。</p>
-
-<h4>フライングをすると、得点率そのものが付きません</h4>
-<p>Fと妨害失格は「賞典除外」となり、順位から外れます。
-どれだけ着順が良くても、その節の準優には乗れません。<br>
-なお転覆は減点されるとは限りません（選手の責任かどうかで変わります）。</p>
-</div>
-</details>
-
-<!-- ══════════ 検証データ ══════════ -->
-<div class="verify">
-  <h2>検証データ</h2>
-  <p class="vsub">
-    上の記事が今も成り立っているかを、毎日確かめている欄です。<br>
-    読み物ではありません。数字が動いたら、記事のほうを書き直します。
-  </p>
-
-<details>
-<summary>成立条件の一覧</summary>
-<div class="dbody">
-<p>記事の中の断定的な一行が、今も成り立っているかの一覧です。</p>
-<table>
-<thead><tr><th>文</th><th>条件</th><th>現在</th><th></th></tr></thead>
-<tbody><tr><td>結果は逆</td><td>係数が正</td><td>+0.453</td><td>✓ 成立</td></tr><tr><td>誰も、特別なことは…</td><td>最大差 1.0pt 以内</td><td>0.3pt</td><td>✓ 成立</td></tr><tr><td>気合いは、44ポイントを…</td><td>1枠−6枠 35pt 以上</td><td>44.1pt</td><td>✓ 成立</td></tr></tbody>
-</table>
-</div>
-</details>
-
-<details>
-<summary>昨日の準優 ── 答え合わせ</summary>
-<div class="dbody">
-<p>準優勝戦は毎日どこかの場で行われます。実際の準優メンバーと、こちらの計算結果を突き合わせた記録です。直近14日分を載せています。</p>
-<table>
-<thead><tr><th>場</th><th>定員</th><th>一致</th><th>外れ</th></tr></thead>
-<tbody><tr><td>2026/8/11 若松</td><td>18</td><td>17</td><td>1</td></tr><tr><td>2026/8/10 徳山</td><td>18</td><td>17</td><td>1</td></tr><tr><td>2026/8/10 丸亀</td><td>18</td><td>16</td><td>2</td></tr><tr><td>2026/8/9 鳴門</td><td>18</td><td>17</td><td>1</td></tr><tr><td>2026/8/9 津</td><td>18</td><td>17</td><td>1</td></tr><tr><td>2026/8/8 住之江</td><td>18</td><td>17</td><td>1</td></tr><tr><td>2026/8/8 三国</td><td>18</td><td>17</td><td>1</td></tr><tr><td>2026/8/7 下関</td><td>18</td><td>16</td><td>2</td></tr><tr><td>2026/8/7 宮島</td><td>18</td><td>17</td><td>1</td></tr><tr class="hi"><td>2026/8/7 平和島</td><td>18</td><td>18</td><td>0</td></tr><tr><td>2026/8/4 芦屋</td><td>18</td><td>17</td><td>1</td></tr><tr class="hi"><td>2026/8/4 浜名湖</td><td>18</td><td>18</td><td>0</td></tr><tr><td>2026/8/4 多摩川</td><td>18</td><td>16</td><td>2</td></tr><tr><td>2026/8/4 桐生</td><td>18</td><td>16</td><td>2</td></tr><tr><td>2026/8/3 尼崎</td><td>18</td><td>17</td><td>1</td></tr><tr><td>2026/8/3 常滑</td><td>18</td><td>16</td><td>2</td></tr><tr><td>2026/8/2 唐津</td><td>18</td><td>16</td><td>2</td></tr><tr><td>2026/8/2 福岡</td><td>18</td><td>15</td><td>3</td></tr><tr class="hi"><td>2026/8/2 若松</td><td>18</td><td>18</td><td>0</td></tr><tr><td>2026/8/1 児島</td><td>18</td><td>16</td><td>2</td></tr><tr><td>2026/8/1 丸亀</td><td>24</td><td>21</td><td>3</td></tr><tr class="hi"><td>2026/8/1 びわこ</td><td>18</td><td>18</td><td>0</td></tr><tr><td>2026/7/31 徳山</td><td>18</td><td>17</td><td>1</td></tr><tr><td>2026/7/31 三国</td><td>18</td><td>17</td><td>1</td></tr><tr><td>2026/7/30 大村</td><td>18</td><td>17</td><td>1</td></tr><tr><td>2026/7/30 下関</td><td>18</td><td>16</td><td>2</td></tr><tr><td>2026/7/29 平和島</td><td>18</td><td>17</td><td>1</td></tr></tbody>
-</table>
-
-</div>
-</details>
-
-<details>
-<summary>再現率の推移</summary>
-<div class="dbody">
-<p>準優メンバーをどれだけ言い当てられたかの月別の推移です。<b>ある月だけ大きく下がったら、データ側に何か起きています。</b></p>
-<table>
-<thead><tr><th>月</th><th>節</th><th>延べ</th><th>一致</th><th>再現率</th></tr></thead>
-<tbody><tr><td>2026年8月</td><td>22</td><td>402</td><td>373</td><td>92.8%</td></tr><tr><td>2026年7月</td><td>65</td><td>1,152</td><td>1,069</td><td>92.8%</td></tr><tr><td>2026年6月</td><td>62</td><td>1,104</td><td>1,020</td><td>92.4%</td></tr><tr><td>2026年5月</td><td>63</td><td>1,128</td><td>1,052</td><td>93.3%</td></tr><tr><td>2026年4月</td><td>61</td><td>1,110</td><td>1,023</td><td>92.2%</td></tr><tr><td>2026年3月</td><td>58</td><td>1,062</td><td>987</td><td>92.9%</td></tr><tr><td>2026年2月</td><td>56</td><td>1,014</td><td>931</td><td>91.8%</td></tr><tr><td>2026年1月</td><td>62</td><td>1,104</td><td>1,019</td><td>92.3%</td></tr><tr><td>2025年12月</td><td>64</td><td>1,176</td><td>1,069</td><td>90.9%</td></tr><tr><td>2025年11月</td><td>59</td><td>1,050</td><td>969</td><td>92.3%</td></tr><tr><td>2025年10月</td><td>55</td><td>978</td><td>897</td><td>91.7%</td></tr><tr><td>2025年9月</td><td>61</td><td>1,116</td><td>1,034</td><td>92.7%</td></tr><tr><td>2025年8月</td><td>65</td><td>1,188</td><td>1,116</td><td>93.9%</td></tr><tr><td>2025年7月</td><td>30</td><td>552</td><td>510</td><td>92.4%</td></tr></tbody>
-</table>
-</div>
-</details>
-
-  <p class="stamp">
-    集計期間 <span>2025/7/15 〜 2026/8/6</span>　/　最終更新 <span>2026/08/10</span><br>
-    このページは検証用です。導線を張っていないため、URLを知る人だけが見られます。
-  </p>
-</div>
-
-<a class="siteback" href="../">← データ攻め トップ</a>
+<p class="stamp">検証記事は不定期で追加されます。</p>
 
 </div>
 
