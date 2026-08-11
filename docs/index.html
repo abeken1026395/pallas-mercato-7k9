@@ -49,6 +49,24 @@ body {
 .quicknav a:hover .qn-lb, .quicknav a:focus-visible .qn-lb { color:#cdd6e0; }
 .quicknav a:focus-visible { outline:1px solid #3a5675; border-radius:8px; }
 
+/* 最新の更新1行（quicknav直下・常時表示）。fetch後に .filled で可視化。
+   min-height を予約しているので、出ても出なくてもレイアウトは動かない（CLS対策）。 */
+.updateline {
+  display:flex; align-items:center; gap:7px;
+  margin:10px auto 0; max-width:560px; width:100%;
+  min-height:44px; padding:0 14px;
+  border:1px solid #24384f; border-radius:10px; background:#0f1d2c66;
+  color:#9db4c8; font-size:12px; line-height:1.4; text-decoration:none;
+  visibility:hidden;
+}
+.updateline.filled { visibility:visible; }
+.updateline:hover, .updateline:focus-visible { color:#cdd6e0; border-color:#3a5675; outline:none; }
+.updateline .ul-dot { width:6px; height:6px; border-radius:50%; background:#ff6b5e; flex:none; }
+.updateline .ul-dot[hidden] { display:none; }
+.updateline .ul-date { color:#cdd6e0; font-weight:700; font-variant-numeric:tabular-nums; flex:none; }
+.updateline .ul-text { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; min-width:0; }
+.updateline .ul-arrow { color:#8faabe; flex:none; }
+
 .trustbar {
   margin: 18px auto 30px; max-width: 560px; width:100%;
   border:1px solid #24384f; border-radius: 12px;
@@ -135,6 +153,13 @@ body {
     <a href="./kensho/"><span class="qn-ico">🧪</span><span class="qn-lb">検証</span><span class="qn-new" id="qn-new-kensho" hidden>NEW</span></a>
     <a href="https://www.youtube.com/@abe-ken" target="_blank" rel="noopener"><span class="qn-ico">▶️</span><span class="qn-lb">YouTube</span></a>
   </nav>
+
+  <a class="updateline" id="updateline" href="./updates/" aria-label="更新履歴を開く">
+    <span class="ul-dot" id="ul-dot" hidden aria-hidden="true"></span>
+    <span class="ul-date" id="ul-date"></span>
+    <span class="ul-text" id="ul-text"></span>
+    <span class="ul-arrow" aria-hidden="true">&#8594;</span>
+  </a>
 
   <div class="trustbar">
     波乱の的中はまだ <b class="metric" id="v-harai" role="button" tabindex="0" aria-controls="tb-panel" aria-expanded="false">36.1%</b>。それも隠さない。堅め <b class="metric" id="v-kata" role="button" tabindex="0" aria-controls="tb-panel" aria-expanded="false">74.8%</b>・主役連対 <b class="metric" id="v-shu" role="button" tabindex="0" aria-controls="tb-panel" aria-expanded="false">77.5%</b><br>
@@ -274,25 +299,37 @@ function lineBoxes(){
     t.addEventListener("keydown", function(e){ if(e.key === "Enter" || e.key === " "){ e.preventDefault(); toggle(); } });
   });
 })();
-// 更新サイン。updates.json の最新1件の date が未読のときだけ、赤い点と更新日(M/D)を出す。
-// 日付の文字を必ず併記する（色だけで伝えない）。件数・NEWの文字・点滅は出さない。
-// 既読キーは専用の br_updates_seen。出走表の pruneOld（3日引き）は
+// 最新の更新1行＋更新サイン。updates.json の最新1件を quicknav 直下に常時表示する。
+// 未読のときだけ赤い点（行頭とタイル右上）を出す。日付の文字を必ず併記する（色だけで伝えない）。
+// 件数・NEWの文字・点滅は出さない。
+// 既読キーは専用の br_updates_seen（/updates/ を開くと更新される）。出走表の pruneOld（3日引き）は
 // br_watch / br_viewed / br_collected の3つだけを対象にするため、br_yomi と同様にこのキーは間引かれない。
 (function(){
   var el = document.getElementById("qn-sign");
-  if(!el) return;
+  var line = document.getElementById("updateline");
   fetch("./data/updates.json", { cache: "no-store" })
     .then(function(r){ return r.ok ? r.json() : Promise.reject(); })
     .then(function(d){
       if(!Array.isArray(d) || !d.length) return;
-      var latest = String((d[0] || {}).date || "");
+      var item = d[0] || {};
+      var latest = String(item.date || "");
       if(!/^\d{4}-\d{2}-\d{2}$/.test(latest)) return;   // 想定外の値なら何も出さない
+      var md = parseInt(latest.slice(5,7),10) + "/" + parseInt(latest.slice(8,10),10);
+      if(line){
+        document.getElementById("ul-date").textContent = md;
+        document.getElementById("ul-text").textContent =
+          String(item.page || "") + "\uFF5C" + String(item.text || "");
+        line.classList.add("filled");
+      }
       var seen = null;
       try { seen = localStorage.getItem("br_updates_seen"); } catch(e){}
-      if(seen === latest) return;                        // 既読なら出さない
-      var md = parseInt(latest.slice(5,7),10) + "/" + parseInt(latest.slice(8,10),10);
-      el.querySelector(".qn-date").textContent = md;
-      el.hidden = false;
+      if(seen === latest) return;                        // 既読なら赤点は出さない（行は出たまま）
+      var dot = document.getElementById("ul-dot");
+      if(dot) dot.hidden = false;
+      if(el){
+        el.querySelector(".qn-date").textContent = md;
+        el.hidden = false;
+      }
       var a = document.getElementById("qn-updates");
       if(a) a.setAttribute("aria-label", "更新履歴（" + md + " に更新）");
     })
