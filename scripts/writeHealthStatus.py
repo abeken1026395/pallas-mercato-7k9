@@ -169,6 +169,114 @@ def actions_failures():
             "打切": truncated, "一覧": bad[:40]}
 
 
+def _pages_workflow_id():
+    """Pages デプロイWFの数値IDを、ワークフロー一覧から名前で引く。
+
+    ★このWFは .github/workflows/ に実体を持たない動的WFで、
+      path が dynamic/pages/pages-build-deployment のため、
+      endpoint にファイル名を渡すと 404 になる（URLエンコードしても同じ）。
+      数値IDでしか引けない。ただしIDをハードコードするとリポジトリの
+      作り直しで壊れるので、毎回名前から解決する。
+    """
+    url = ("https://api.github.com/repos/" + REPO +
+           "/actions/workflows?per_page=100")
+    req = urllib.request.Request(url, headers={
+        "Accept": "application/vnd.github+json",
+        "User-Agent": "healthStatus",
+    })
+    with urllib.request.urlopen(req, timeout=30) as r:
+        data = json.loads(r.read().decode("utf-8"))
+    for w in data.get("workflows", []):
+        if w.get("name") == "pages-build-deployment":
+            return w.get("id")
+    return None
+
+
+def deploys():
+    """直近24hの Pages デプロイ。
+
+    ★cancelled は failure に数えられないため、Actions失敗の集計では見えない。
+      2026-08-06 にサイトが3時間止まった原因はキャンセルの連鎖だった
+      （デプロイは同時1本しか処理できず、前が終わる前に次が来ると
+        後続に追い越されて cancelled になる）。
+      よってデプロイだけを別に数える。
+
+    ★per_page=100 だけでは足りない。実測で先頭100件は約16.7時間ぶんしかなく、
+      24時間の窓を埋められないまま「取得=true」と報告してしまう。
+      created>= で日付を絞り、ページを送り、取り切れなければ 打切=true を立てる。
+
+    最短間隔が短いほど詰まりやすい。デプロイ1本の所要は実測1〜2分なので、
+    間隔がそれを下回る組が多いときは起動頻度が過剰。
+    """
+    try:
+        wid = _pages_workflow_id()
+    except Exception as e:
+        return {"取得": False, "理由": "ID解決に失敗: " + str(e)[:100]}
+    if not wid:
+        return {"取得": False, "理由": "pages-build-deployment が一覧に無い"}
+
+    since = (now() - timedelta(days=2)).strftime("%Y-%m-%d")
+    base = ("https://api.github.com/repos/" + REPO +
+            "/actions/workflows/" + str(wid) +
+            "/runs?per_page=100&created=%3E%3D" + since)
+    lim = now() - timedelta(hours=24)
+    ts = []
+    cnt = {"成功": 0, "キャンセル": 0, "失敗": 0, "実行中": 0, "その他": 0}
+    truncated = False
+    for page in (1, 2, 3, 4):
+        req = urllib.request.Request(base + "&page=" + str(page), headers={
+            "Accept": "application/vnd.github+json",
+            "User-Agent": "healthStatus",
+        })
+        try:
+            with urllib.request.urlopen(req, timeout=30) as r:
+                data = json.loads(r.read().decode("utf-8"))
+        except Exception as e:
+            if page == 1:
+                return {"取得": False, "理由": str(e)[:120]}
+            truncated = True
+            break
+        runs = data.get("workflow_runs", [])
+        for run in runs:
+            try:
+                t = datetime.fromisoformat(
+                    run["created_at"].replace("Z", "+00:00")).astimezone(JST)
+            except (ValueError, KeyError):
+                continue
+            if t < lim:
+                continue
+            ts.append(t)
+            c = run.get("conclusion")
+            if c == "success":
+                cnt["成功"] += 1
+            elif c == "cancelled":
+                cnt["キャンセル"] += 1
+            elif c == "failure":
+                cnt["失敗"] += 1
+            elif c is None:
+                cnt["実行中"] += 1
+            else:
+                cnt["その他"] += 1
+        if len(runs) < 100:
+            break
+        if page == 4:
+            truncated = True
+    ts.sort()
+    gaps = [int((ts[i + 1] - ts[i]).total_seconds() // 60)
+            for i in range(len(ts) - 1)]
+    return {
+        "取得": True,
+        "理由": None,
+        "打切": truncated,
+        "総数": len(ts),
+        "内訳": cnt,
+        "最短間隔分": min(gaps) if gaps else None,
+        "5分以内の連続": sum(1 for g in gaps if g <= 5),
+        "先頭": ts[0].strftime("%m-%d %H:%M") if ts else None,
+        "末尾": ts[-1].strftime("%m-%d %H:%M") if ts else None,
+    }
+
+
 def main():
     git("fetch", "origin", "main")
     head = git("log", "-1", "--format=%cI|%h", "origin/main")
@@ -189,6 +297,7 @@ def main():
         "観戦記": kansenki(),
         "ローカルログ": local_logs(),
         "Actions失敗": actions_failures(),
+        "デプロイ": deploys(),
     }
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as f:
