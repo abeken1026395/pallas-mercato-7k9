@@ -44,6 +44,8 @@ body {
 .qn-sign[hidden] { display:none; }   /* display:flex が hidden 属性を打ち消さないように */
 .qn-sign .qn-dot { width:6px; height:6px; border-radius:50%; background:#ff6b5e; flex:none; }
 .qn-sign .qn-date { font-size:9px; line-height:1; color:#e0e6ed; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.qn-new { position:absolute; top:-4px; right:-4px; font-size:8px; line-height:1; letter-spacing:.05em; color:#0b1219; background:#ffd166; border-radius:3px; padding:2px 3px; pointer-events:none; }
+.qn-new[hidden] { display:none; }
 .quicknav a:hover .qn-lb, .quicknav a:focus-visible .qn-lb { color:#cdd6e0; }
 .quicknav a:focus-visible { outline:1px solid #3a5675; border-radius:8px; }
 
@@ -130,6 +132,7 @@ body {
     <a href="./announcers/"><span class="qn-ico">🎙️</span><span class="qn-lb">実況アナ</span></a>
     <a href="./updates/" id="qn-updates"><span class="qn-ico">🗒️</span><span class="qn-lb">更新履歴</span><span class="qn-sign" id="qn-sign" hidden><span class="qn-dot" aria-hidden="true"></span><span class="qn-date"></span></span></a>
     <a href="./glossary/"><span class="qn-ico">📖</span><span class="qn-lb">用語辞書</span></a>
+    <a href="./kensho/"><span class="qn-ico">🧪</span><span class="qn-lb">検証</span><span class="qn-new" id="qn-new-kensho" hidden>NEW</span></a>
     <a href="https://www.youtube.com/@abe-ken" target="_blank" rel="noopener"><span class="qn-ico">▶️</span><span class="qn-lb">YouTube</span></a>
   </nav>
 
@@ -296,6 +299,16 @@ function lineBoxes(){
     .catch(function(){ /* 取得できなければ何も出さない */ });
 })();
 if("serviceWorker" in navigator){ window.addEventListener("load",function(){ navigator.serviceWorker.register("./sw.js").catch(function(){}); }); }
+</script>
+<script>
+(function(){
+  /* 検証ページ公開のNEWバッジ。2026-08-19（JST）を過ぎたら二度と出ない。
+     期限後にこのブロックごと削除してよい。 */
+  var el = document.getElementById("qn-new-kensho");
+  if (el && Date.now() < new Date("2026-08-19T00:00:00+09:00").getTime()) {
+    el.hidden = false;
+  }
+})();
 </script>
 <script src="./assets/guard.js" defer></script>
 </body>
