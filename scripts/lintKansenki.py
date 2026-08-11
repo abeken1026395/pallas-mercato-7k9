@@ -41,6 +41,10 @@ SHIME_KANYOKU = ["答えは水面の上に", "目が離せない", "注目した
 BANNED_HIYU = ["目盛り", "物差し"]
 AORI = ["激アツ", "大チャンス", "狙い目", "妙味"]
 
+# --- 検査6: 答え合わせの自己評価語（watchPoint導入日以降の記事のみ）---
+JIKO_HYOKA = ["的中", "読み通り", "予想通り"]
+WATCHPOINT_FROM = "20260812"  # この日付以降の記事に watchPoint 必須
+
 
 def load(path):
     with io.open(path, "r", encoding="utf-8") as f:
@@ -200,6 +204,26 @@ def check_structure(art, venue):
     return fails
 
 
+def check_watchpoint(art, venue, ymd):
+    """観察点フィールドと自己評価語の検査（WATCHPOINT_FROM 以降の記事のみ）。"""
+    fails = []
+    if ymd < WATCHPOINT_FROM:
+        return fails
+    wp = art.get("watchPoint")
+    if not isinstance(wp, str) or not wp.strip():
+        fails.append(("watchPoint欠", "文字列で必須（観察点1文）"))
+        return fails
+    if len(wp) > 80:
+        fails.append(("watchPoint長", "%d字 > 80字" % len(wp)))
+    fails += check_numbers(wp, venue)
+    fails += check_vocab(wp)
+    fails += check_banned(wp)
+    for w in JIKO_HYOKA:
+        if w in (art.get("body", "") + wp):
+            fails.append(("自己評価語", w))
+    return fails
+
+
 def lint_article(art_path):
     fn = os.path.basename(art_path)
     m = re.match(r"(\d{8})-(\d{2})\.json$", fn)
@@ -220,6 +244,7 @@ def lint_article(art_path):
     fails += check_vocab(body)
     fails += check_banned(body)
     fails += check_structure(art, venue)
+    fails += check_watchpoint(art, venue, ymd)
     return (fn, fails)
 
 
