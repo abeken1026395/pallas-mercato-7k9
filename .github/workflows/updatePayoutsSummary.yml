@@ -12,7 +12,7 @@ on:
         required: false
         default: ''
   schedule:
-    - cron: '10 16 * * *'   # JST 翌1:10（各場更新の後・全24場を横断集計）
+    - cron: '30 22 * * *'   # JST 翌1:10（各場更新の後・全24場を横断集計）
 
 permissions:
   contents: write

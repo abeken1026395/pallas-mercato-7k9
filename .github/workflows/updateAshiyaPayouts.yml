@@ -12,7 +12,7 @@ on:
         required: false
         default: ''
   schedule:
-    - cron: '20 17 * * *'   # JST 翌2:20（結果確定後・他場と分離）
+    - cron: '48 21 * * *'   # JST 翌2:20（結果確定後・他場と分離）
 
 permissions:
   contents: write
