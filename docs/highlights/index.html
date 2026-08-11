@@ -105,6 +105,10 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .varrow{margin-left:10px;color:var(--sub);font-size:12px}
 .vbody{margin-top:8px;padding-left:2px}
 /* 観戦記カード（署名コーナー） */
+/* 観戦記まとめバー（日付タブと3タブの間） */
+.kskall-bar{display:none;width:100%;margin:10px 0 0;padding:11px 12px;min-height:44px;border:1px solid #24384b;border-left:3px solid var(--acc);border-radius:10px;background:linear-gradient(180deg,#12202e,#0e1822);color:var(--txt);font-size:13px;font-weight:700;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.kskall-wrap{display:none;margin:8px 0 0}
+.kskall-venue{font-size:12px;font-weight:800;color:var(--sub);margin:0 0 4px 2px}
 .ksk{background:linear-gradient(180deg,#12202e,#0e1822);border:1px solid #24384b;border-left:3px solid var(--acc);border-radius:12px;padding:12px 13px;margin:0 0 10px}
 .ksk-tag{font-size:11px;font-weight:800;color:var(--acc);letter-spacing:.02em}
 .ksk-title{font-size:15px;font-weight:800;color:var(--txt);margin:5px 0 4px;line-height:1.4}
@@ -281,6 +285,8 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
   各カードは<b>表層のバッジ→タップで内訳</b>の二層表示。買い目・確率・勝者予想は扱いません。
 </div>
 <div class="daysw"><button class="dsw-btn" data-d="2" onclick="setDay(2)">前々日</button><button class="dsw-btn" data-d="1" onclick="setDay(1)">前日</button><button class="dsw-btn on" data-d="0" onclick="setDay(0)">当日</button><button class="dsw-btn" data-d="3" onclick="setDay(3)">明日</button></div>
+<button class="kskall-bar" id="kskAllBar" aria-expanded="false" aria-controls="kskAllWrap" onclick="kskAllToggle()">📝 観戦記をまとめて読む ▼</button>
+<div class="kskall-wrap" id="kskAllWrap"></div>
 <div class="tabs">
   <div class="tab on" data-v="hot" onclick="sw('hot')">⚡ 波乱注目</div>
   <div class="tab firm" data-v="firm" onclick="sw('firm')">🛡 堅め注目</div>
@@ -624,6 +630,40 @@ function kskToggle(jcd){
   f.style.display=show?'block':'none';
   if(b) b.textContent=show?'観戦記を閉じる ▲':'観戦記を読む ▼';
 }
+// 観戦記まとめバー: その日の全開催場の記事を1か所で通読する。
+// 記事は場別タブ内と同じ KANSENKI をそのまま使う（追加fetchなし）。
+// 明日タブ（ISNEXT）は記事が存在しないため、バーごと出さない。
+function kskAllRender(){
+  const bar=document.getElementById('kskAllBar'), wrap=document.getElementById('kskAllWrap');
+  if(!bar||!wrap) return;
+  const codes=Object.keys(KANSENKI||{}).sort();
+  if(ISNEXT || !codes.length){
+    bar.style.display='none'; wrap.style.display='none'; wrap.innerHTML='';
+    bar.setAttribute('aria-expanded','false');
+    bar.textContent='📝 観戦記をまとめて読む ▼';
+    return;
+  }
+  const md=(/^\d{8}$/.test(KAISAI))?`${+KAISAI.slice(4,6)}/${+KAISAI.slice(6,8)}分の`:'';
+  const nameOf={};
+  RACES.forEach(r=>{nameOf[r['場コード']]=r['場名'];});
+  wrap.innerHTML=codes.map(c=>{
+    const vn=nameOf[c]?kEsc(nameOf[c]):'';
+    return `<div class="kskall-venue">${vn}</div>`+renderKansenki(KANSENKI[c], 'all-'+c);
+  }).join('');
+  bar.style.display='block';
+  wrap.style.display='none';
+  bar.setAttribute('aria-expanded','false');
+  bar.textContent=`📝 ${md}観戦記をまとめて読む ▼`;
+}
+function kskAllToggle(){
+  const bar=document.getElementById('kskAllBar'), wrap=document.getElementById('kskAllWrap');
+  if(!bar||!wrap) return;
+  const show=(wrap.style.display==='none');
+  wrap.style.display=show?'block':'none';
+  bar.setAttribute('aria-expanded',show?'true':'false');
+  const md=(/^\d{8}$/.test(KAISAI))?`${+KAISAI.slice(4,6)}/${+KAISAI.slice(6,8)}分の`:'';
+  bar.textContent=show?`📝 ${md}観戦記を閉じる ▲`:`📝 ${md}観戦記をまとめて読む ▼`;
+}
 // 用語チップのタップ解説。チップごとに独立トグル（複数開いても干渉しない）。
 function kskTerm(cid){
   const e=document.getElementById(cid), c=document.getElementById('c-'+cid);
@@ -912,6 +952,7 @@ fetch(SRC+'?_='+Date.now())
       document.getElementById('date').textContent = (TODAY_DATE.length===8)?`${TODAY_DATE.slice(0,4)}年${+TODAY_DATE.slice(4,6)}月${+TODAY_DATE.slice(6,8)}日`:'';
       document.getElementById('note').innerHTML='';
       document.getElementById('list').innerHTML='<div class="empty">明日の情報はまだありません。夜に順次追加されます。</div>';
+      KANSENKI={}; kskAllRender();
       return;
     }
   }
@@ -927,9 +968,9 @@ fetch(SRC+'?_='+Date.now())
   if(d.length===8) document.getElementById('date').textContent=`${d.slice(0,4)}年${+d.slice(4,6)}月${+d.slice(6,8)}日 ${doc['レース数']}レース${ISNEXT?'（明日・前夜プレビュー）':''}`;
   const conf=(doc['確定イン率場']||[]).join('・');
   document.getElementById('note').innerHTML=`イン1着率は目安値（${conf}は公式実数、他は暫定）。機＝モーター2連率（その節の機力目安で、選手の調子とは別物）。<br>波乱＝外枠A級・当地巧者アウト・イン不安・機力ちぐはぐ等の条件数。買い目・確率・勝者予想は出していません。<br><span style="opacity:.7">生成：${(doc['生成時刻']||'').replace('T',' ').slice(0,16)}</span>` + (OSHI.length?`<br><span class="oshi-note">⭐は推しフォロー中の選手。フォローはこの端末にのみ保存され、外部には送信されません。登録・解除は<a href="../racers/" style="color:#c8a24a">出走表</a>と<a href="../players/" style="color:#c8a24a">選手図鑑</a>から。</span>`:'');
-  loadKansenki().then(render);
+  loadKansenki().then(()=>{kskAllRender();render();});
 })
-.catch(()=>{ISNEXT=false;NEXTMETA={};const nn=document.getElementById('nextnote');if(nn)nn.style.display='none';document.getElementById('list').innerHTML='<div class="empty">'+(SRC==='highlights_next.json'?'明日の前夜プレビューはまだありません（各場のレース確定後、夜に順次追加されます）。':SRC!=='highlights.json'?'この日の見どころはまだありません（明日以降たまります）。':'見どころデータを読み込めませんでした。highlights.json を確認してください。')+'</div>';});
+.catch(()=>{ISNEXT=false;NEXTMETA={};KANSENKI={};kskAllRender();const nn=document.getElementById('nextnote');if(nn)nn.style.display='none';document.getElementById('list').innerHTML='<div class="empty">'+(SRC==='highlights_next.json'?'明日の前夜プレビューはまだありません（各場のレース確定後、夜に順次追加されます）。':SRC!=='highlights.json'?'この日の見どころはまだありません（明日以降たまります）。':'見どころデータを読み込めませんでした。highlights.json を確認してください。')+'</div>';});
 }
 loadHL();
 </script>
