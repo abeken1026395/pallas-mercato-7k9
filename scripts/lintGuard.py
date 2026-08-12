@@ -33,6 +33,7 @@ GUARD = [
     "docs/highlights/index.html",
     "docs/kensho/index.html",
     "docs/kensho/shobugake/index.html",
+    "docs/kensho/taiju/index.html",
     "docs/motor-maintenance/index.html",
     "docs/next/index.html",
     "docs/payouts/index.html",
