@@ -80,6 +80,10 @@ Set-Content -Path $LockFile -Value $PID -Encoding ascii
 try {
     Set-Location $Repo
     $env:PYTHONIOENCODING = 'utf-8'
+    # native(python/git/claude) の stdout を UTF-8 で復号する。
+    # 既定は [Console]::OutputEncoding=CP932 のため、pubplan の JSON 出力が化けて
+    # ConvertFrom-Json が失敗する（2026-08-12 の記事0本の原因）。
+    [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding $false
     $env:PATH = $PyDir + ';' + $env:PATH   # claude の子プロセスで `python` を実体へ
     Log "=== 開始 pubdate=$Pubdate ==="
 
