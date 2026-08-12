@@ -44,6 +44,7 @@ const WATER_COLOR = { "淡水":"#58a6ff", "海水":"#3fb1c9", "汽水":"#a371f7"
 const PSYCH = { "gap":{label:"射幸心×童謡",c:"#ffd166"}, "nostalgia":{label:"郷愁",c:"#7fe0a0"}, "tension":{label:"緊張・高揚",c:"#f85149"}, "local-pride":{label:"ご当地",c:"#58a6ff"}, "mystery":{label:"ミステリー",c:"#a371f7"}, "class":{label:"格調",c:"#e59ac9"} };
 const STATUS_LABEL = { "none":"締切BGMなし", "unknown":"曲名は未特定", "page_exists":"公式ページに記載あり（曲名は未確認）" };
 const PRESENT = { "yes":{label:"場立ちあり",c:"#3fb950"}, "official":{label:"公式記載",c:"#58a6ff"}, "advisor":{label:"解説アドバイザー",c:"#a371f7"}, "paper":{label:"予想紙",c:"#d29922"} };
+const AROUND_KIND = { "food":{ord:0,label:""}, "bath":{ord:1,label:"♨ 温泉"}, "spot":{ord:2,label:"📍 立ち寄り"} };
 
 function App() {
   const [q, setQ] = useState("");
@@ -276,9 +277,8 @@ function App() {
                   </div>
                   {gourmet && gourmet[s.name] && (
                   <div style={{marginTop:8,background:"#2a1410",border:"1px solid #5a2f16",borderRadius:8,padding:"8px 10px"}}>
-                    <div onClick={e=>{e.stopPropagation();setGOpen(gOpen===s.code?null:s.code);}} style={{display:"flex",alignItems:"center",cursor:"pointer"}}>
-                      <span style={{color:"#ff9a5a",fontWeight:700}}>🍜 場グルメ</span>
-                      <span style={{marginLeft:8,fontSize:11,color:"#a07050"}}>場内{(gourmet[s.name].in||[]).length}・周辺{(gourmet[s.name].out||[]).length}</span>
+                    <div onClick={e=>{e.stopPropagation();setGOpen(gOpen===s.code?null:s.code);}} style={{display:"flex",alignItems:"center",cursor:"pointer",minHeight:24}}>
+                      <span style={{color:"#ff9a5a",fontWeight:700}}>🍜 場めぐり</span>
                       <span style={{marginLeft:"auto",fontSize:11,color:"#ff9a5a"}}>{gOpen===s.code?"▲ 閉じる":"▼ 見る"}</span>
                     </div>
                     {gOpen===s.code && (<div style={{marginTop:2}}>
@@ -291,26 +291,69 @@ function App() {
                           {g.where ? <span style={{fontSize:11,color:"#a88060"}}>（{g.where}）</span> : null}
                           {g.price ? <span style={{fontSize:11,color:"#7fe0a0",marginLeft:4}}>{g.price}</span> : null}
                           <div style={{fontSize:12,color:"#c5d2e0",lineHeight:1.5}}>{g.desc}</div>
+                          {g.src ? <div style={{fontSize:10,color:"#8a6448"}}>出典：{g.src}</div> : null}
                         </div>
                       ))}
                     </div>
                     )}
-                    {gourmet[s.name].out && gourmet[s.name].out.length > 0 && (
+                    {gourmet[s.name].around && gourmet[s.name].around.length > 0 && (
                     <div style={{marginTop:6}}>
-                      <div style={{fontSize:11,color:"#e0a878",fontWeight:700,marginBottom:3}}>遠征メシ（場周辺）</div>
-                      {gourmet[s.name].out.map((g,i) => (
+                      <div style={{fontSize:11,color:"#e0a878",fontWeight:700,marginBottom:3}}>場のまわり</div>
+                      {gourmet[s.name].around.slice().sort((a,b)=>((AROUND_KIND[a.kind]||AROUND_KIND.food).ord-(AROUND_KIND[b.kind]||AROUND_KIND.food).ord)).map((g,i) => (
                         <div key={i} style={{marginBottom:5,paddingLeft:8,borderLeft:"2px solid #5a2f16"}}>
                           <span style={{color:"#ffd0a8",fontWeight:700}}>{g.name}</span>
+                          {(AROUND_KIND[g.kind]||AROUND_KIND.food).label ? <span style={{fontSize:11,color:"#a88060",marginLeft:4}}>{(AROUND_KIND[g.kind]||AROUND_KIND.food).label}</span> : null}
                           {g.dist ? <span style={{fontSize:11,color:"#a88060"}}>（{g.dist}）</span> : null}
                           {g.price ? <span style={{fontSize:11,color:"#7fe0a0",marginLeft:4}}>{g.price}</span> : null}
                           <div style={{fontSize:12,color:"#c5d2e0",lineHeight:1.5}}>{g.desc}</div>
+                          {g.src ? <div style={{fontSize:10,color:"#8a6448"}}>出典：{g.src}</div> : null}
                         </div>
                       ))}
+                    </div>
+                    )}
+                    {gourmet[s.name].souvenir && gourmet[s.name].souvenir.length > 0 && (
+                    <div style={{marginTop:6}}>
+                      <div style={{fontSize:11,color:"#e0a878",fontWeight:700,marginBottom:3}}>お土産</div>
+                      {gourmet[s.name].souvenir.map((g,i) => (
+                        <div key={i} style={{marginBottom:5,paddingLeft:8,borderLeft:"2px solid #5a2f16"}}>
+                          <span style={{color:"#ffd0a8",fontWeight:700}}>{g.name}</span>
+                          {g.where ? <span style={{fontSize:11,color:"#a88060"}}>（{g.where}）</span> : null}
+                          {g.price ? <span style={{fontSize:11,color:"#7fe0a0",marginLeft:4}}>{g.price}</span> : null}
+                          <div style={{fontSize:12,color:"#c5d2e0",lineHeight:1.5}}>{g.desc}</div>
+                          {g.src ? <div style={{fontSize:10,color:"#8a6448"}}>出典：{g.src}</div> : null}
+                        </div>
+                      ))}
+                    </div>
+                    )}
+                    {gourmet[s.name].access && (gourmet[s.name].access.train || gourmet[s.name].access.bus || gourmet[s.name].access.car) && (
+                    <div style={{marginTop:6}}>
+                      <div style={{fontSize:11,color:"#e0a878",fontWeight:700,marginBottom:3}}>アクセス</div>
+                      {gourmet[s.name].access.train ? (
+                        <div style={{marginBottom:5,paddingLeft:8,borderLeft:"2px solid #5a2f16"}}>
+                          <span style={{fontSize:11,color:"#a88060"}}>電車</span>
+                          <div style={{fontSize:12,color:"#c5d2e0",lineHeight:1.5}}>{gourmet[s.name].access.train}</div>
+                        </div>
+                      ) : null}
+                      {gourmet[s.name].access.bus ? (
+                        <div style={{marginBottom:5,paddingLeft:8,borderLeft:"2px solid #5a2f16"}}>
+                          <span style={{fontSize:11,color:"#a88060"}}>バス</span>
+                          <div style={{fontSize:12,color:"#c5d2e0",lineHeight:1.5}}>{gourmet[s.name].access.bus}</div>
+                        </div>
+                      ) : null}
+                      {gourmet[s.name].access.car ? (
+                        <div style={{marginBottom:5,paddingLeft:8,borderLeft:"2px solid #5a2f16"}}>
+                          <span style={{fontSize:11,color:"#a88060"}}>車</span>
+                          <div style={{fontSize:12,color:"#c5d2e0",lineHeight:1.5}}>{gourmet[s.name].access.car}</div>
+                        </div>
+                      ) : null}
                     </div>
                     )}
                     <div style={{marginTop:5,fontSize:11,color:"#a07050"}}>
                       価格は{gourmet[s.name].asof || "取得時点"}の目安（時期・メニューで変動）。出典：{gourmet[s.name].src || "公式・現地"}。
                     </div>
+                    {gourmet[s.name].official ? (
+                    <a href={gourmet[s.name].official} onClick={e=>e.stopPropagation()} style={{display:"inline-flex",alignItems:"center",minHeight:44,fontSize:12,color:"#ff9a5a",textDecoration:"none"}}>{s.name}公式サイト →</a>
+                    ) : null}
                     </div>)}
                   </div>
                   )}
