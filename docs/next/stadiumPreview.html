@@ -291,6 +291,7 @@ function App() {
                           {g.where ? <span style={{fontSize:11,color:"#a88060"}}>（{g.where}）</span> : null}
                           {g.price ? <span style={{fontSize:11,color:"#7fe0a0",marginLeft:4}}>{g.price}</span> : null}
                           <div style={{fontSize:12,color:"#c5d2e0",lineHeight:1.5}}>{g.desc}</div>
+                          {g.src ? <div style={{fontSize:10,color:"#8a6448"}}>出典：{g.src}</div> : null}
                         </div>
                       ))}
                     </div>
@@ -305,6 +306,7 @@ function App() {
                           {g.dist ? <span style={{fontSize:11,color:"#a88060"}}>（{g.dist}）</span> : null}
                           {g.price ? <span style={{fontSize:11,color:"#7fe0a0",marginLeft:4}}>{g.price}</span> : null}
                           <div style={{fontSize:12,color:"#c5d2e0",lineHeight:1.5}}>{g.desc}</div>
+                          {g.src ? <div style={{fontSize:10,color:"#8a6448"}}>出典：{g.src}</div> : null}
                         </div>
                       ))}
                     </div>
@@ -318,17 +320,7 @@ function App() {
                           {g.where ? <span style={{fontSize:11,color:"#a88060"}}>（{g.where}）</span> : null}
                           {g.price ? <span style={{fontSize:11,color:"#7fe0a0",marginLeft:4}}>{g.price}</span> : null}
                           <div style={{fontSize:12,color:"#c5d2e0",lineHeight:1.5}}>{g.desc}</div>
-                        </div>
-                      ))}
-                    </div>
-                    )}
-                    {gourmet[s.name].season && gourmet[s.name].season.length > 0 && (
-                    <div style={{marginTop:6}}>
-                      <div style={{fontSize:11,color:"#e0a878",fontWeight:700,marginBottom:3}}>季節</div>
-                      {gourmet[s.name].season.map((g,i) => (
-                        <div key={i} style={{marginBottom:5,paddingLeft:8,borderLeft:"2px solid #5a2f16"}}>
-                          <span style={{color:"#ffd0a8",fontWeight:700}}>{g.period}</span>
-                          <div style={{fontSize:12,color:"#c5d2e0",lineHeight:1.5}}>{g.text}</div>
+                          {g.src ? <div style={{fontSize:10,color:"#8a6448"}}>出典：{g.src}</div> : null}
                         </div>
                       ))}
                     </div>
