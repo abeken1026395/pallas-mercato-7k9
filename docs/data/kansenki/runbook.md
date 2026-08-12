@@ -22,7 +22,8 @@
      前日と**切り口（書き出し・締め・柱にする事実）を必ず変える**。
    - `protagonistRepeatsPrevDay=true`（上記に該当しない）：物語ラインの継続（連勝の継続/途切れ等）として回収するか切り口を変える。
 3. 各記事は既存と同じ構造の JSON を `docs/data/kansenki/articles/{掲載日}-{jcd}.json` に書く：
-   `{date, jcd, venue, title, body, styleType, killerElement, glossaryTerms, racersMentioned[{name,toban}]}`
+   `{date, jcd, venue, title, body, styleType, killerElement, watchPoint, glossaryTerms, racersMentioned[{name,toban}]}`
+   - **`watchPoint` は全記事必須**（80字以内・締めに置いた観察ポイントと同内容）。欠けると lint が FAIL し、その場は書かなかった扱いになる。
    - `styleType` は assign の指定に従う（材料がどうしても許さない場合のみ変更し、killerElement にその旨を記す）。
    - 数字は素材のまま（丸めない）。配当は円。相対表現には必ず比較軸を添える
      （機力→今節平均比／配当→当場年間万舟率／ST→通期平均比／得点率→ボーダー比）。
