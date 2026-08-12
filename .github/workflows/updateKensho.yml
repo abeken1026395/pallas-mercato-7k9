@@ -1,4 +1,4 @@
-name: 検証ページ /kensho/ 更新
+name: 検証ページ /kensho/ 更新（勝負駆け・体重）
 
 on:
   schedule:
@@ -25,13 +25,17 @@ jobs:
       # 累積 data/kenshoVerify.json とキャッシュ data/programsCache/ は gitignore。
       # 変わらない日は "kensho: no change (skip write)" を出して書き込まない。
       - run: python scripts/buildKensho.py
+      # docs/kensho/taiju/index.html を scripts/templateTaiju.html から生成する。
+      # データ源=リポジトリ内の preview/ と results/ のみ。外部ネットワークに出ない。
+      # 変わらない日は "taiju: no change (skip write)" を出して書き込まない。
+      - run: python scripts/buildTaiju.py
       - name: commit and push
         if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/kensho/shobugake/index.html data/kenshoVerify.json
-          git diff --staged --quiet || git commit -m "update kensho/shobugake/index.html"
+          git add docs/kensho/shobugake/index.html docs/kensho/taiju/index.html data/kenshoVerify.json
+          git diff --staged --quiet || git commit -m "update kensho pages (shobugake, taiju)"
           # push競合(cannot lock ref)は短いランダム待機でリトライする。
           BR="${GITHUB_REF_NAME}"
           for i in 1 2 3 4 5 6; do
