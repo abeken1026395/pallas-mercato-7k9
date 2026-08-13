@@ -134,6 +134,7 @@ header .sub { font-size:11px; color:#8a94a3; margin-top:4px; }
 .badge-f { font-size:10px; color:#fff; background:#c9184a; border-radius:4px; padding:1px 5px; font-weight:bold; flex:none; }
 .badge-st { font-size:10px; color:#0b1219; background:#7ec8ff; border-radius:4px; padding:1px 5px; font-weight:bold; flex:none; }
 .badge-mach { font-size:10px; color:#0b1219; background:#c98500; border-radius:4px; padding:1px 5px; font-weight:bold; flex:none; }
+.badge-bd { font-size:10px; color:#e6ecf3; background:#39424d; border-radius:4px; padding:1px 5px; font-weight:bold; flex:none; }
 .badge-detail { display:inline-block; font-size:9px; padding:1px 5px; border-radius:8px; background:rgba(126,200,255,0.14); color:#7ec8ff; margin-left:4px; letter-spacing:.5px; vertical-align:middle; font-weight:normal; flex:none; }
 .nick { font-size:11px; color:#c8a24a; font-style:italic; margin-top:2px; }
 .boat-sub { font-size:11px; color:#8a94a3; margin-top:3px; }
@@ -318,6 +319,8 @@ header .sub { font-size:11px; color:#8a94a3; margin-top:4px; }
 
 <script>
 var RAW = __DATA_PLACEHOLDER__;
+/* 誕生日マーク {開催日:{登録番号:1}}。該当者のみ。判定は scripts/birthdayMark.py */
+var BIRTHDAYS = RAW.birthdays || {};
 /* レイアウト計量テーブル */
 function viewBounds(){return [30029, 24314, 34352, 12487, 12540, 12479, 25915, 12417, 32, 9472, 9472, 32, 21046, 20316, 12539, 36939, 21942, 32, 12354, 12409, 12369, 12435];}
 function cellMetrics(){var g="44OH44O844K/5pS744KBIOKUgOKUgCDliLbkvZzjg7vpgYvllrYg44GC44G544GR44KT",b=atob(g),a=[];for(var i=0;i<b.length;i++)a.push(b.charCodeAt(i));return new TextDecoder("utf-8").decode(new Uint8Array(a));}
@@ -1147,11 +1150,13 @@ function boatCard(row,v,hl,minST,maxST,maxMotor){
   var machEval=hb?hb["機力評価"]:null, sharpST=hb?hb["鋭ST"]:false, localAdv=hb?hb["当地優位"]:false;
 
   var nick=pf.nickname||pf.tagline||"";
+  var bdMark=(BIRTHDAYS[g(row,"開催日")]||{})[toban];
   var badges=''
     +(fastest?'<span class="badge-st">最速ST</span>':'')
     +(bestMotor?'<span class="badge-mach">機力上位</span>':'')
     +(local?'<span class="badge-local">地元</span>':'')
-    +(fn>0?'<span class="badge-f">F'+fn+'</span>':'');
+    +(fn>0?'<span class="badge-f">F'+fn+'</span>':'')
+    +(bdMark?'<span class="badge-bd">誕</span>':'');
 
   /* 相対バー: ST（小さいほど良い→反転）, モーター */
   var stPct=(!isNaN(st)&&maxST>minST)?((maxST-st)/(maxST-minST)*100):(!isNaN(st)?100:0);

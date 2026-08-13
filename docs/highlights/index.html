@@ -161,6 +161,7 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .boat.open{background:rgba(255,209,102,.06)}
 .nm.fem-nm{color:#ff7eb6;font-weight:700}
 .jimoto{display:inline-block;font-size:9px;font-weight:700;background:#2f7be2;color:#fff;border-radius:4px;padding:1px 5px;margin-left:5px;vertical-align:middle}
+.bdmk{display:inline-block;font-size:9px;font-weight:700;background:#39424d;color:#e6ecf3;border-radius:4px;padding:1px 5px;margin-left:5px;vertical-align:middle}
 .bchev{float:right;color:#7a8b99;font-size:10px;transition:transform .2s}
 .boat.open .bchev{transform:rotate(90deg)}
 .bprof{display:none;padding:10px 8px 14px;background:rgba(0,0,0,.2);border-top:1px solid rgba(255,255,255,.05)}
@@ -374,7 +375,7 @@ function boatRow(b, ba){
   return `<div class="boat" data-rid="${rid}" data-no="${no}">
     <span class="wk wk${b['枠']}">${b['枠']}</span>
     <span class="lv lv${b['級別']}">${b['級別']}</span>
-    <span class="nm${fem?' fem-nm':''}"><a href="../players/?toban=${no}" onclick="event.stopPropagation()" style="color:inherit;text-decoration:none;border-bottom:1px dotted #4a6a8a">${b['氏名']}</a>${jim?'<span class="jimoto">地元</span>':''}${fl}${isOshi(no)?'<span class="oshi-mk">⭐</span>':''}</span>
+    <span class="nm${fem?' fem-nm':''}"><a href="../players/?toban=${no}" onclick="event.stopPropagation()" style="color:inherit;text-decoration:none;border-bottom:1px dotted #4a6a8a">${b['氏名']}</a>${jim?'<span class="jimoto">地元</span>':''}${b['誕生日']?'<span class="bdmk">誕</span>':''}${fl}${isOshi(no)?'<span class="oshi-mk">⭐</span>':''}</span>
     <span class="mtr${mc}">機${mtxt}</span>
     <span class="stat">全${b['全国勝率'].toFixed(2)}／当${up?'<span class="up">':''}${b['当地勝率']>0?b['当地勝率'].toFixed(2):'－'}${up?'▲</span>':''}</span>
     <span class="bchev">▶</span>
@@ -807,7 +808,11 @@ function bProfHTML(no, boat){
       <div class="it${hi(boat['まくられ率'])}"><div class="l">まくられ</div><div class="v">${pc(boat['まくられ率'])}</div></div>
      </div>${nt?`<div class="nt">${nt}</div>`:''}</div>`;
   }
-  return `<div class="bp-top"><b>${p.rank}</b>級 / <b>${p.branch}</b>支部・${p.home}出身 / <b>${p.age}</b>歳 / ${p.ht}cm ${p.wt}kg / <b>${p.blood}</b>型</div>
+  // 誕生日の日は年齢を当日計算値に差し替える。p.age は期別データの期首固定値で、
+  // 誕生日当日は1つ古い。同じ画面に食い違う年齢を2つ出さないため差し替える。
+  const bdm=boat['誕生日'];
+  const ageTxt=bdm?`<b>${bdm['歳']}</b>歳（本日誕生日${bdm['注記']?'・'+bdm['注記']:''}）`:`<b>${p.age}</b>歳`;
+  return `<div class="bp-top"><b>${p.rank}</b>級 / <b>${p.branch}</b>支部・${p.home}出身 / ${ageTxt} / ${p.ht}cm ${p.wt}kg / <b>${p.blood}</b>型</div>
   <div class="bp-grid">
    <div class="bp-c"><div class="l">全国勝率</div><div class="v">${nat.toFixed(2)}</div></div>
    <div class="bp-c ${locHi?'hl':''}"><div class="l">当地勝率</div><div class="v">${loc>0?loc.toFixed(2):'－'}</div><div class="s">${locHi?'当地↑':'\u00a0'}</div></div>

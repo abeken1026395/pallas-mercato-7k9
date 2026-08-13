@@ -11,6 +11,8 @@ build_highlights.py
 import csv, json, sys, os, datetime
 from collections import defaultdict
 
+import birthdayMark   # 誕生日マークの判定（scripts/birthdayMark.py）
+
 RACERS = sys.argv[1] if len(sys.argv) > 1 else "docs/racers/racers_today.csv"
 MOTORS = sys.argv[2] if len(sys.argv) > 2 else "docs/motor/motors_all.csv"
 OUT    = sys.argv[3] if len(sys.argv) > 3 else "docs/highlights/highlights.json"
@@ -33,6 +35,10 @@ NEXT_OUT = os.path.join(os.path.dirname(OUT) or '.', 'highlights_next.json')
 # bProfHTML を書き換えずに読み替えられるようにするため。
 RACER_STATS = "docs/data/racerStats.json"
 STATS_OUT = os.path.join(os.path.dirname(OUT) or '.', 'racerStatsToday.json')
+
+# 登録番号 -> 誕生日（和暦文字列）。誕生日マークの判定にだけ使う。
+# racerStats.json が読めなければ空になり、マークが出ないだけで処理は止まらない。
+BIRTH_MAP = birthdayMark.load_birth_map(RACER_STATS)
 
 # 収録対象は「当日」だけでは足りない。見どころには 当日/明日/前日/前々日 の4タブがあり、
 # いずれも同じ bProfHTML で選手情報を描画する。当日分だけに絞ると前日・前々日タブで
@@ -906,7 +912,13 @@ def main():
             if use_m and mv > 0:
                 mev = 'hi' if hi(mv) else 'lo' if lo(mv) else 'mid'
             y = yarare.get(b['登録番号'], {})
-            boats.append({
+            # 誕生日マーク: この艇の開催日がその選手の誕生日のときだけキーを足す。
+            # 全艇に null を持たせると highlights.json が無駄に太るため該当者のみ。
+            # 判定は scripts/birthdayMark.py（2月29日生まれは平年2月28日で成立）。
+            _bdm = birthdayMark.mark_on(
+                BIRTH_MAP.get(b['登録番号']),
+                birthdayMark.ymd8_to_date(b.get('開催日') or ''))
+            _boat = {
                 '枠': w, '登録番号': b['登録番号'], '支部': b.get('支部',''), '級別': b['級別'], '氏名': nm(b['氏名']),
                 '全国勝率': round(nat, 2), '当地勝率': round(loc, 2),
                 '機力': round(mv, 1) if (use_m and mv > 0) else None, '機力評価': mev,
@@ -917,7 +929,12 @@ def main():
                 'まくり率': y.get('まくり率'), '差し率': y.get('差し率'),  # 追加:B案の事実併記用(null許容)
                 '1着数': y.get('1着数'), 'まくり数': y.get('まくり数'), '差し数': y.get('差し数'),  # 追加:母数/分母(null許容)
                 'inWinRate': (_inrate.get(b['登録番号']) or {}).get('rate')  # 追加:①1着率(null許容)
-            })
+            }
+            if _bdm:
+                _boat['誕生日'] = {'歳': _bdm[0]}
+                if _bdm[1]:
+                    _boat['誕生日']['注記'] = _bdm[1]
+            boats.append(_boat)
 
         out_entry = {
             '場名': ba, '場コード': bo[0]['場コード'], 'レース': rc,
