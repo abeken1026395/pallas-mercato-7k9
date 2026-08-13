@@ -18,6 +18,8 @@ import os
 from concurrent.futures import ThreadPoolExecutor
 from html import unescape as html_unescape
 
+import birthdayMark   # 誕生日マークの判定（scripts/birthdayMark.py）
+
 # 並列度と1リクエストのタイムアウト（環境変数で調整可）。
 # 場×レースを1つのプールに平坦化して流すため、これが対boatrace.jpの同時接続上限になる。
 MAX_WORKERS = int(os.environ.get("SCRAPE_WORKERS", "10"))
@@ -551,8 +553,28 @@ def main():
     cols = [str(c) for c in df.columns.tolist()]
     data = df.fillna("").values.tolist()
     updated = datetime.datetime.now(JST).strftime("%Y-%m-%d %H:%M")
+
+    # 誕生日マーク: {開催日: {登録番号: 1}}。該当者だけを別キーで持つ。
+    # 全行に列を足すと当日＋翌日で数千セルぶん埋め込みが太るため、行には足さない。
+    # 年齢は出走表がすでに「支部／出身・XX歳」で出しているので、ここでは持たない。
+    # 判定は scripts/birthdayMark.py の1箇所（2月29日生まれは平年2月28日で成立）。
+    birthdays = {}
+    birth_map = birthdayMark.load_birth_map()
+    if birth_map and "開催日" in df.columns and "登録番号" in df.columns:
+        seen = set()
+        for hd, toban in zip(df["開催日"].astype(str), df["登録番号"].astype(str)):
+            if (hd, toban) in seen:
+                continue
+            seen.add((hd, toban))
+            if birthdayMark.mark_on(
+                    birth_map.get(toban), birthdayMark.ymd8_to_date(hd)):
+                birthdays.setdefault(hd, {})[toban] = 1
+    print("誕生日マーク: {}日 / のべ{}名".format(
+        len(birthdays), sum(len(v) for v in birthdays.values())))
+
     data_json = json.dumps(
-        {"columns": cols, "data": data, "venues": dict(VENUES), "updated": updated},
+        {"columns": cols, "data": data, "venues": dict(VENUES), "updated": updated,
+         "birthdays": birthdays},
         ensure_ascii=False, default=str,
     )
     with open(TEMPLATE_PATH, "r", encoding="utf-8") as f:
