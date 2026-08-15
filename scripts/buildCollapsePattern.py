@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """buildCollapsePattern.py — ①(枠1)が崩れたレースの「崩れ方」を場別に実数集計
 
-過去の確定結果 docs/results/data/YYYYMMDD.json（ファイル名が8桁日付のもののみ）を全走査し、
+過去の確定結果 results/YYYYMMDD.json（ファイル名が8桁日付のもののみ）を全走査し、
 ①＝枠1 の着が4以上（＝着外）だったレースを抽出。場別に「勝者艇(枠)×決まり手」の分布と
 決まり手合計を集計して docs/data/collapsePattern.json に出力する。標準ライブラリのみ。
 
@@ -18,7 +18,7 @@ import json
 import glob
 import datetime
 
-RESULTS_DIR = "docs/results/data"
+RESULTS_DIR = "results"
 OUT_PATH = "docs/data/collapsePattern.json"
 MIN_N = 200          # 崩れ方分布を出す最小母数（①着外レース数）
 TOP_PATTERNS = 5     # patterns は上位5件まで
@@ -51,26 +51,25 @@ def main():
             d = load(path)
         except Exception:
             continue
-        for v in d.get("場", []) or []:
-            jcd = str(v.get("場コード") or "").zfill(2)
+        for r in d.get("結果", []) or []:
+            jcd = str(r.get("場コード") or "").zfill(2)
             if not jcd or jcd == "00":
                 continue
             a = agg.setdefault(jcd, {"total": 0, "collapse": 0, "pat": {}})
-            for r in v.get("レース", []) or []:
-                f1 = waku1_finish(r)
-                if f1 is None:
-                    continue
-                a["total"] += 1
-                if f1 < 4:
-                    continue
-                # ①着外＝崩れ
-                a["collapse"] += 1
-                boat = r.get("1着")
-                kim = r.get("決まり手")
-                if not isinstance(boat, int) or not isinstance(kim, str) or not kim:
-                    continue
-                key = (boat, kim)
-                a["pat"][key] = a["pat"].get(key, 0) + 1
+            f1 = waku1_finish(r)
+            if f1 is None:
+                continue
+            a["total"] += 1
+            if f1 < 4:
+                continue
+            # ①着外＝崩れ
+            a["collapse"] += 1
+            boat = r.get("1着")
+            kim = r.get("決まり手")
+            if not isinstance(boat, int) or not isinstance(kim, str) or not kim:
+                continue
+            key = (boat, kim)
+            a["pat"][key] = a["pat"].get(key, 0) + 1
 
     venues = {}
     for jcd, a in sorted(agg.items()):
@@ -78,7 +77,7 @@ def main():
         coll = a["collapse"]
         in_out = round(100.0 * coll / total, 1) if total else 0.0
         if coll < MIN_N:
-            venues[jcd] = {"n": coll, "inOutRate": in_out,
+            venues[jcd] = {"n": coll, "total": total, "inOutRate": in_out,
                            "patterns": None, "kimariteSum": {}}
             continue
         # 勝者艇×決まり手の分布（①着外レースを母数）
@@ -93,7 +92,7 @@ def main():
                 for p in pats[:TOP_PATTERNS]]
         kimarite_sum = {k: round(100.0 * c / coll, 1)
                         for k, c in sorted(ksum.items(), key=lambda kv: -kv[1])}
-        venues[jcd] = {"n": coll, "inOutRate": in_out,
+        venues[jcd] = {"n": coll, "total": total, "inOutRate": in_out,
                        "patterns": pats, "kimariteSum": kimarite_sum}
 
     out = {"updated": datetime.date.today().strftime("%Y-%m-%d"), "venues": venues}
