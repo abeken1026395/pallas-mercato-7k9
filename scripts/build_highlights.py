@@ -15,6 +15,8 @@ import birthdayMark   # 誕生日マークの判定（scripts/birthdayMark.py）
 
 RACERS = sys.argv[1] if len(sys.argv) > 1 else "docs/racers/racers_today.csv"
 MOTORS = sys.argv[2] if len(sys.argv) > 2 else "docs/motor/motors_all.csv"
+MOTOR_REPLACE = "docs/data/motorReplace.json"   # モーター新替の記録（手入力可・自動追記）
+MOTOR_MIN_RUNS = 10                       # これ未満の走破数は機力を評価しない
 OUT    = sys.argv[3] if len(sys.argv) > 3 else "docs/highlights/highlights.json"
 KIM    = sys.argv[4] if len(sys.argv) > 4 else "docs/players/racerKimarite.csv"
 WEATHER = sys.argv[5] if len(sys.argv) > 5 else "docs/data/weather.json"
@@ -123,6 +125,30 @@ def f(x):
     except: return 0.0
 
 def nm(s): return s.replace('\u3000', '')
+
+def motor_runs(v2, v3):
+    """モーター2連率と3連率から走破数（分母）を逆算する。
+    両方0%のときは「未走」と「走ったが2連対も3連対もない」を区別できないため None。
+    120走まで探索し、両方の率と整合する最小の分母を返す。
+    分母が大きいほど丸め誤差で一意に定まらず None になる。少走（分母が小さい）ケースを
+    確実に拾うための関数であり、None は「十分に走っている」側に倒して扱う。"""
+    try:
+        a = float(v2 or 0); c = float(v3 or 0)
+    except Exception:
+        return None
+    if a <= 0 and c <= 0:
+        return None
+    for n in range(1, 121):
+        ok = True
+        for v in (a, c):
+            x = v * n / 100.0
+            if abs(x - round(x)) > 0.004:
+                ok = False
+                break
+        if ok:
+            return n
+    return None
+
 
 def load_csv(path):
     with open(path, encoding='utf-8-sig') as fp:
@@ -425,6 +451,10 @@ def main():
         it = INTOP.get(ba, 53)
         use_m = motok.get(ba, True)
         mt = [b['_mtr'] for b in bo]
+        # 表示用：出走表CSVの当日値を使う。motors_all.csv は場によって開催日が古く照合できない。
+        _mv2 = [f(x.get('モーター2連率')) for x in bo]
+        _valid2 = [v for v in _mv2 if v > 0]
+        mavg2 = sum(_valid2) / len(_valid2) if _valid2 else None
         valid = [v for v in mt if v > 0]
         mavg = sum(valid)/len(valid) if valid else None
         hi = lambda v: use_m and mavg and v > 0 and v > mavg+5
@@ -908,9 +938,14 @@ def main():
         boats = []
         for b in bo:
             w = int(b['枠']); loc = f(b['当地勝率']); nat = f(b['全国勝率']); st = f(b['平均ST']); mv = b['_mtr']
+            _mno = (b.get('モーターNo') or '').strip() or None
+            _m2 = f(b.get('モーター2連率'))
+            _runs = motor_runs(b.get('モーター2連率'), b.get('モーター3連率'))
+            # 2連率0%でも3連率が付いていれば「走っているが不振」。未走（新替直後）と区別する。
+            _ran = (_m2 > 0) or f(b.get('モーター3連率')) > 0
             mev = 'na'
-            if use_m and mv > 0:
-                mev = 'hi' if hi(mv) else 'lo' if lo(mv) else 'mid'
+            if _ran and mavg2 and (_runs is None or _runs >= MOTOR_MIN_RUNS):
+                mev = 'hi' if _m2 > mavg2 + 5 else 'lo' if _m2 < mavg2 - 5 else 'mid'
             y = yarare.get(b['登録番号'], {})
             # 誕生日マーク: この艇の開催日がその選手の誕生日のときだけキーを足す。
             # 全艇に null を持たせると highlights.json が無駄に太るため該当者のみ。
@@ -921,7 +956,8 @@ def main():
             _boat = {
                 '枠': w, '登録番号': b['登録番号'], '支部': b.get('支部',''), '級別': b['級別'], '氏名': nm(b['氏名']),
                 '全国勝率': round(nat, 2), '当地勝率': round(loc, 2),
-                '機力': round(mv, 1) if (use_m and mv > 0) else None, '機力評価': mev,
+                '機番': _mno, '走破数': _runs,
+                '機力': round(_m2, 1) if _m2 > 0 else None, '機力評価': mev,
                 'F': int(b['F数']) >= 1, '鋭ST': st > 0 and st <= 0.15,
                 '当地優位': loc > 0 and loc > nat,
                 'さされ率': y.get('さされ率'), 'まくられ率': y.get('まくられ率'),
@@ -968,10 +1004,44 @@ def main():
             print("  SKIP {} {} : {}".format(ba, rc, err))
 
     kaisai = rac[0]['開催日'] if rac else ''
+
+    # ---- モーター新替の検出・記録 ----
+    # 節初日に場の全行がモーター2連率 0 かつボート2連率 0 なら、実績のない新品と見なす。
+    # 個別の 0% は「未走」と「走ったが連対なし」を区別できないので、場単位の全滞のみ採用する。
+    motor_replace = {}
+    try:
+        with open(MOTOR_REPLACE, encoding='utf-8') as _rf:
+            motor_replace = json.load(_rf) or {}
+    except Exception:
+        motor_replace = {}
+    _by_venue = defaultdict(list)
+    for _r in rac:
+        _by_venue[_r['場コード']].append(_r)
+    _repl_changed = False
+    for _ba, _rs in _by_venue.items():
+        if not _rs or _rs[0].get('日目') != '初日':
+            continue
+        if any(f(_x.get('モーター2連率')) != 0 for _x in _rs):
+            continue
+        if any(f(_x.get('ボート2連率')) != 0 for _x in _rs):
+            continue
+        _hd = _rs[0].get('開催日', '')
+        if not _hd or (motor_replace.get(_ba) or {}).get('新替日') == _hd:
+            continue
+        motor_replace[_ba] = {'新替日': _hd, '節名': _rs[0].get('節名', ''), '記録': 'auto'}
+        _repl_changed = True
+        print('motorReplace detected: {} {}'.format(_ba, _hd))
+    if _repl_changed:
+        os.makedirs(os.path.dirname(MOTOR_REPLACE) or '.', exist_ok=True)
+        with open(MOTOR_REPLACE, 'w', encoding='utf-8') as _wf:
+            json.dump(motor_replace, _wf, ensure_ascii=False, indent=1, sort_keys=True)
+            _wf.write('\n')
+
     doc = {
         '生成時刻': datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9))).isoformat(timespec='seconds'),
         '開催日': kaisai,
         '確定イン率場': sorted(CONFIRMED),
+        'モーター新替': motor_replace,
         'レース数': len(out_races),
         'レース': out_races
     }
@@ -1013,6 +1083,7 @@ def main():
         next_doc = {
             '生成時刻': now_iso, '開催日': kaisai, 'プレビュー': True,
             '確定イン率場': sorted(CONFIRMED),
+            'モーター新替': motor_replace,
             'レース数': len(merged_races), 'レース': merged_races,
             '場別': merged_meta,
         }
