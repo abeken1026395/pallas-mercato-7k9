@@ -157,6 +157,7 @@ header .sub { font-size:11px; color:#8a94a3; margin-top:4px; }
 .kinmotor .km-tsu { color:#8a94a3; font-variant-numeric:tabular-nums; }
 .kinmotor .km-few { color:#e0a56a; font-size:10px; margin-left:4px; }
 .kinmotor .km-none { color:#8a94a3; }
+    .kinmotor .km-shinkae { color:#8a94a3; margin-left:6px; font-size:10px; font-variant-numeric:tabular-nums; }
 
 /* 相対バー（ST/機力） */
 .meter { margin-top:7px; }
@@ -378,7 +379,7 @@ var arare=null, weather=null, arareHd="";
 var KMR={};        /* 登録番号 -> 決まり手/被され等 */
 var HL={};         /* 場コード_レース -> レース見どころ（機力/波乱/展開 等） */
 var PROF={};       /* 登録番号 -> あだ名/note */
-var HL_META={fix:[], hd:""};
+var HL_META={fix:[], hd:"", repl:{}};
 var E30=null, E30META=null;  /* E30該当場成績（生データ・事実提示のみ） */
 var tide=null;               /* 当日干満（tideToday.json・潮汐場のみ・事実提示のみ） */
 
@@ -413,6 +414,7 @@ function parseHL(j){
   if(!j) return;
   HL_META.fix = j["確定イン率場"]||[];
   HL_META.hd = j["開催日"]||"";
+  HL_META.repl = j["モーター新替"]||{};
   (j["レース"]||[]).forEach(function(r){
     var key=r["場コード"]+"_"+r["レース"];
     var boats={};
@@ -911,17 +913,25 @@ function kinsetuMotor(row){
   var n=chaku.length, w2=chaku.filter(function(c){return c===1||c===2;}).length;
   return {n:n, w2:w2, rate:n?Math.round(w2/n*100):null};
 }
+function shinkaeLabel(row){
+  var jcd=g(row,"場コード"), rep=HL_META.repl?HL_META.repl[jcd]:null;
+  if(!rep) return "";
+  var d=String(rep["新替日"]||"");
+  if(!/^\d{8}$/.test(d)) return "";
+  return '<span class="km-shinkae">新替 '+d.slice(0,4)+'/'+(+d.slice(4,6))+'/'+(+d.slice(6,8))+'</span>';
+}
 function kinMotorLine(row){
   var tsu=g(row,"モーター2連率"), moNo=g(row,"モーターNo");
   var k=kinsetuMotor(row);
+  var sk=shinkaeLabel(row);
   if(k.n===0){
     return '<div class="kinmotor">今節モーター No.'+esc(moNo)+'：<span class="km-none">今節データなし</span>'
-      +'<span class="km-tsu">／通算2連率 '+fmtPct(tsu)+'</span></div>';
+      +'<span class="km-tsu">／通算2連率 '+fmtPct(tsu)+'</span>'+sk+'</div>';
   }
   var few=k.n<5;   // 節序盤の少数走はN少を明示（%は参考）
   return '<div class="kinmotor">今節モーター No.'+esc(moNo)+'：<b>'+k.n+'走</b> 2連対<b>'+k.w2+'</b>（'+k.rate+'%）'
     +(few?'<span class="km-few">N少</span>':'')
-    +'<span class="km-tsu">／通算2連率 '+fmtPct(tsu)+'</span></div>';
+    +'<span class="km-tsu">／通算2連率 '+fmtPct(tsu)+'</span>'+sk+'</div>';
 }
 
 /* 企画レースの当日判定（企画名文字列のキーワードのみ・保守的）。

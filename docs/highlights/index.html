@@ -133,6 +133,7 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .mtr{font-size:10.5px;font-weight:700;padding:1px 5px;border-radius:4px;background:var(--panel2);border:1px solid var(--line);color:var(--sub);flex-shrink:0}
 .mtr.hi{color:#3aab5a;border-color:rgba(58,171,90,.5)}
 .mtr.lo{color:#ff8a7a;border-color:rgba(255,138,122,.45)}
+    .mtr.na{border-style:dashed}
 .mtr-legend{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-top:10px;padding-top:9px;border-top:1px solid var(--line);font-size:12px;color:var(--sub)}
 .mtr-legend.sym-legend{margin-top:8px}
 .mtr-leg-title{font-weight:700;color:var(--txt)}
@@ -267,7 +268,8 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
       <span class="mtr-leg-item"><span class="mtr hi">機</span>場平均より上位</span>
       <span class="mtr-leg-item"><span class="mtr">機</span>平均並み</span>
       <span class="mtr-leg-item"><span class="mtr lo">機</span>場平均より下位</span>
-      <span class="mtr-leg-note">数字＝モーター番号／枠色＝モーター2連率がその日その場の平均±5%に対しどの位置か</span>
+      <span class="mtr-leg-item"><span class="mtr na">機</span>実績なし・10走未満</span>
+      <span class="mtr-leg-note">数字＝モーター番号／枠色＝モーター2連率がそのレース6艇の平均±5%に対しどの位置か。新替直後など走破数が少ない機は、分母が小さすぎるため評価しない</span>
     </div>
     <div class="mtr-legend sym-legend">
       <span class="mtr-leg-title">記号の見方</span>
@@ -363,10 +365,24 @@ function isJimoto(b, ba){
   const js=JIMOTO[ba]; if(!js) return false;
   return js.includes(b['支部']);
 }
+function motorNote(r){
+  const rep = MOTORREPL[r['場コード']];
+  if(rep && rep['新替日'] && /^\d{8}$/.test(rep['新替日'])){
+    const d = rep['新替日'];
+    const ymd = `${d.slice(0,4)}年${+d.slice(4,6)}月${+d.slice(6,8)}日`;
+    return `<div class="warn">※この場は ${ymd} にモーターを新替。実績が積み上がるまで、機の枠色は付きません。</div>`;
+  }
+  if(!r['モーター使用']){
+    return `<div class="warn">※この場はモーター2連率が0%の機が多く、機力の比較ができません。</div>`;
+  }
+  return '';
+}
+
 function boatRow(b, ba){
   let fl=''; if(b['F']) fl+='<span class="flag fF">F</span>'; if(b['鋭ST']) fl+='<span class="flag fST">ST</span>';
-  const mc = b['機力評価']==='hi'?' hi':b['機力評価']==='lo'?' lo':'';
-  const mtxt = (b['機力']!=null)?Math.round(b['機力']):'－';
+  const mev = b['機力評価'];
+  const mc = mev==='hi'?' hi':mev==='lo'?' lo':mev==='na'?' na':'';
+  const mtxt = (b['機番']!=null&&b['機番']!=='')?b['機番']:'－';
   const up=b['当地優位'];
   const no=String(b['登録番号']);
   const fem=FEMALE.has(no);
@@ -492,7 +508,7 @@ function renderCard(r, ctx){
       ${downFactorHtml(r)}
       ${collapseHtml(r)}
       ${uranaiCard(r)}
-      ${!r['モーター使用']?`<div class="warn">※当節モーター成績は集計前のため、機力は判定から除外しています。</div>`:''}
+      ${motorNote(r)}
     </div>
   </div>`;
 }
@@ -568,6 +584,7 @@ document.addEventListener('keydown',function(e){
   }
 });
 let ISNEXT=false, NEXTMETA={};  // 明日タブ（前夜プレビュー）の状態と場別メタ（鮮度・部分公開）
+let MOTORREPL={};               // 場コード→モーター新替の記録（data/motorReplace.json 由来）
 
 // ---- 観戦記カード（署名コーナー）----
 let KAISAI='', KANSENKI={}, GLOSSARY={};
@@ -946,6 +963,7 @@ fetch(SRC+'?_='+Date.now())
   RACES=doc['レース']||[];
   ISNEXT = !!doc['プレビュー'] || /highlights_next/.test(SRC);   // 明日タブ判定
   NEXTMETA = doc['場別'] || {};
+  MOTORREPL = doc['モーター新替'] || {};
   if(SRC==='highlights.json') TODAY_DATE = doc['開催日']||'';     // 当日基準日を保持（比較用）
   const nn=document.getElementById('nextnote');
   // 明日タブは「next.開催日 > 当日.開催日」の時のみカード表示。同日以下は案内のみ（同日表示バグ対策）。

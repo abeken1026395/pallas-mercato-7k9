@@ -46,8 +46,14 @@ const CI = {
 // 場ごとの相対順位でランクを決める（絶対値の跳ねに依存しない）。
 // 各場の2連率降順で位置を出し、上位の割合で段階付け。
 // pos=1始まりの場内順位、total=その場の機数。
-function rankByPos(pos, total){
+function rankByPos(pos, total, rate, usage){
   if(!total || !pos) return {key:"na",label:"—",color:"#556579"};
+  // 実績のない機・走行数が少ない機に序列を付けない（新替直後など）。
+  // 全機0.0%の場で先頭3機が「超抜」になるのを防ぐ。
+  const _v = parseFloat(rate);
+  if(!isFinite(_v) || _v <= 0) return {key:"na",label:"—",color:"#556579"};
+  const _runs = usage ? Number(usage["走"]) : NaN;
+  if(isFinite(_runs) && _runs > 0 && _runs < 10) return {key:"na",label:"—",color:"#556579"};
   if(pos <= 3) return {key:"top",label:"超抜",color:"#ffd166"};
   const r = pos / total;
   if(r <= 0.40) return {key:"hi", label:"上位",color:"#79c0ff"};
@@ -201,6 +207,7 @@ function App(){
   const [venueMeta,setVenueMeta]=useState(null);  // jcd(2桁) -> {場名,開催日,節名,企画名,日目}
   const [motorHist,setMotorHist]=useState(null);  // jcd(2桁) -> [{節名,開催日,motors:{番号:2連率}}]
   const [partsMap,setPartsMap]=useState(null);  // "jcd_モーターNo" -> [整備履歴レコード]（時系列昇順）
+  const [replMap,setReplMap]=useState(null);    // jcd(2桁) -> {新替日,節名}
   const [usageMap,setUsageMap]=useState(null);  // "jcd_モーターNo" -> {走,勝,2連,3連,2連率,3連率,初出日,最新日}
   const [usageCov,setUsageCov]=useState("");    // coverageFrom（集計開始日 YYYYMMDD）
   useEffect(()=>{
@@ -218,6 +225,10 @@ function App(){
     // 索引キーは jcd_モーターNo。欠落はフォールバック（非表示）で既存表示を壊さない。
     fetch("../data/motorUsage.json").then(r=>r.ok?r.json():Promise.reject())
       .then(j=>{ if(j&&j.motors&&typeof j.motors==="object"){ const m={}; for(const k in j.motors){ const v=j.motors[k]; m[String(v.jcd||"").padStart(2,"0")+"_"+String(v["モーターNo"]||"").trim()]=v; } setUsageMap(m); setUsageCov(String(j.coverageFrom||"")); } }).catch(()=>{});
+    // モーター新替日。節初日に全機が実績0の場を build_highlights.py が記録する。
+    // 未取得・該当なしは表示しないだけで既存表示は壊さない。
+    fetch("../data/motorReplace.json").then(r=>r.ok?r.json():Promise.reject())
+      .then(j=>{ if(j&&typeof j==="object"){ const m={}; for(const k in j){ m[String(k).padStart(2,"0")]=j[k]; } setReplMap(m); } }).catch(()=>{});
     // 節名・日目は出走表スクレイプが生成する docs/data/venueMeta.json を参照（方式B・実行順に非依存）。
     // 欠落・該当jcd無しでもフォールバック（節名日目を出さないだけ）で既存表示は壊さない。
     fetch("../data/venueMeta.json").then(r=>r.ok?r.json():Promise.reject())
@@ -265,6 +276,14 @@ function App(){
   };
 
   // jcd＋モーターNo で走行数集計（初卸推定からの走・勝・2連・3連）を引く。未取得・該当無しは null。
+  // 場のモーター新替日を YYYY/M/D で返す。記録が無ければ null。
+  const replFor = (jcd) => {
+    if(!replMap) return null;
+    const r = replMap[String(jcd||"").padStart(2,"0")];
+    const d = r ? String(r["新替日"]||"") : "";
+    if(!/^\d{8}$/.test(d)) return null;
+    return d.slice(0,4)+"/"+Number(d.slice(4,6))+"/"+Number(d.slice(6,8));
+  };
   const usageFor = (jcd, mno) => {
     if(!usageMap) return null;
     return usageMap[String(jcd||"").padStart(2,"0")+"_"+String(mno||"").trim()] || null;
@@ -343,10 +362,15 @@ function App(){
                   前節1位機 <b style={{color:"#8fd6c0"}}>M{pt.no}</b> <span style={{color:"#6b7f95"}}>（節内2連率トップ {pt.rate}%）</span>
                 </div>
               ) : null; })()}
+              {(()=>{ const rp=replFor(rows[0][CI.jcd]); return rp ? (
+                <div style={{fontSize:10.5,color:"#7d94a8",marginTop:2,fontVariantNumeric:"tabular-nums"}}>
+                  モーター新替 <b style={{color:"#cdd9e5"}}>{rp}</b> <span style={{color:"#6b7f95"}}>（実績が積み上がるまで序列は付けません）</span>
+                </div>
+              ) : null; })()}
             </div>
             <span style={{fontSize:11,color:"#6b7f95",flex:"none",whiteSpace:"nowrap",paddingTop:2}}>{rows.length}艇　<span style={{color:"#8faabe"}}>モーター2連率 →</span></span>
           </div>
-          <div style={{padding:"10px"}}>{rows.map((r,i)=><MotorRow key={i} row={r} rk={rankByPos(i+1, rows.length)} fem={females&&females.has(String(r[CI.toban]))} parts={partsFor(r[CI.jcd], r[CI.mno])} usage={usageFor(r[CI.jcd], r[CI.mno])}/>)}</div>
+          <div style={{padding:"10px"}}>{rows.map((r,i)=><MotorRow key={i} row={r} rk={rankByPos(i+1, rows.length, r[CI.rate], usageFor(r[CI.jcd], r[CI.mno]))} fem={females&&females.has(String(r[CI.toban]))} parts={partsFor(r[CI.jcd], r[CI.mno])} usage={usageFor(r[CI.jcd], r[CI.mno])}/>)}</div>
         </div>
       ))}
     </div>
