@@ -368,6 +368,27 @@ def kimarite_type(toban, kimarite_map):
     }
 
 
+def motor_setsu_record(row):
+    """出走表の各日成績セルから、その機の今節実績（走・2連対数・率）を作る。
+    節内では1機1選手で固定されるため（実測確認済み）、その選手の走行＝その機の走行。
+    走行0のときは rate=None。分母の見えない率を作らないため、常に runs を同梱する。"""
+    runs = 0
+    niren = 0
+    for k in range(1, 7):
+        cell = parse_day_cell(row.get("{}日目成績".format(k)))
+        if not cell:
+            continue
+        for e in cell:
+            fin = e.get("finish")
+            if fin is None:
+                continue
+            runs += 1
+            if fin in (1, 2):
+                niren += 1
+    rate = round(niren / runs * 100, 1) if runs else None
+    return {"runs": runs, "niren": niren, "rate": rate}
+
+
 def motor_avg(venue_rows):
     vals = [to_float(r.get("モーター2連率")) for r in venue_rows]
     vals = [v for v in vals if v is not None]
@@ -390,8 +411,11 @@ def build_focus_racer(row, jcd, kimarite_map, profile, motor2avg):
         "isLocal": (branch == VENUE_KEN.get(jcd)),
         "finishTrail": trail,
         "motorNo": to_int(row.get("モーターNo")),
-        "motor2renSetsu": to_float(row.get("モーター2連率")),
-        "motor2renSetsuAvg": motor2avg,
+        # ※通算（出走表CSVの列）。今節の値ではない。旧名 motor2renSetsu は実体と食い違っていた。
+        "motor2renTsusan": to_float(row.get("モーター2連率")),
+        "motor2renTsusanAvg": motor2avg,
+        # 今節の実数。rate だけを単独で使わず、必ず runs（分母）と一緒に扱う。
+        "motorSetsu": motor_setsu_record(row),
         "zenkokuWinRate": to_float(row.get("全国勝率")),
         "tochiWinRate": to_float(row.get("当地勝率")),
         # fan2604由来の当地参戦数/複勝はこのリポジトリに素材が無いためnull（過去参戦データ無し扱い）
@@ -769,7 +793,7 @@ def build_today_program(venue_rows, csv_hd8, motor2avg):
     - 欠損はフィールド単位null（deadline/kikaku等が欠けても該当フィールドのみnull）。
     - todayProgram丸ごとnullは asOfCard不一致（開催日混載）の場合のみ。
     - boatsが6艇揃わないレースは races から落とす（不完全構成は含めない）。
-    - 比較軸(§2.3): 機力は motor2SetsuAvg(今節平均)を各艇に併記。"""
+    - 比較軸(§2.3): 通算は motor2TsusanAvg、今節は motorSetsu(runs付き)を各艇に併記。"""
     hds = {(r.get("開催日") or "").strip() for r in venue_rows}
     if hds != {csv_hd8}:
         return None  # asOfCard不一致 → todayProgram丸ごとnull（取り違え防止）
@@ -788,8 +812,10 @@ def build_today_program(venue_rows, csv_hd8, motor2avg):
                 "waku": to_int(r.get("枠")),
                 "toban": str(r.get("登録番号", "")).strip() or None,
                 "grade": (r.get("級別") or "").strip() or None,
-                "motor2": to_float(r.get("モーター2連率")),
-                "motor2SetsuAvg": motor2avg,          # §2.3 今節平均比の軸
+                "motorNo": to_int(r.get("モーターNo")),
+                "motor2Tsusan": to_float(r.get("モーター2連率")),      # 通算。今節の値ではない
+                "motor2TsusanAvg": motor2avg,                            # 場の通算平均（比較軸）
+                "motorSetsu": motor_setsu_record(r),                     # 今節の実数（走・2連対数・率）
                 "tochiWin": to_float(r.get("当地勝率")),
                 "stAvg": to_float(r.get("平均ST")),
                 "f": to_int(r.get("F数")),
