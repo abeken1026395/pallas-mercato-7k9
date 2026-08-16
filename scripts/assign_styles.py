@@ -150,8 +150,8 @@ def score_types(v):
     s = 14
     if sv.get("setsuRaces"):
         s += 5
-    m2 = focus.get("motor2renSetsu")
-    m2a = focus.get("motor2renSetsuAvg")
+    m2 = focus.get("motor2renTsusan")
+    m2a = focus.get("motor2renTsusanAvg")
     if m2 is not None and m2a is not None and abs(m2 - m2a) >= 15:
         s += 22  # 機力の乖離＝データの柱
     if (vy.get("manRate") or 0) >= 19 or (vy.get("katameRate") or 0) >= 57:
@@ -241,12 +241,14 @@ def protagonist_machine(v, toban):
     どちらにも無ければ全て None（他人の値で埋めない）。"""
     f = _focus_by_toban(v, toban)
     if f:
-        return {"no": f.get("motorNo"), "setsu": f.get("motor2renSetsu"),
-                "setsuAvg": f.get("motor2renSetsuAvg")}
+        return {"no": f.get("motorNo"), "setsu": f.get("motor2renTsusan"),
+                "setsuAvg": f.get("motor2renTsusanAvg"),
+                "motorSetsu": f.get("motorSetsu")}
     b = _boat_by_toban(v, toban)
     if b:
-        return {"no": None, "setsu": b.get("motor2"), "setsuAvg": b.get("motor2SetsuAvg")}
-    return {"no": None, "setsu": None, "setsuAvg": None}
+        return {"no": b.get("motorNo"), "setsu": b.get("motor2Tsusan"),
+                "setsuAvg": b.get("motor2TsusanAvg"), "motorSetsu": b.get("motorSetsu")}
+    return {"no": None, "setsu": None, "setsuAvg": None, "motorSetsu": None}
 
 
 def killer_hints(v, prot_toban=None):
