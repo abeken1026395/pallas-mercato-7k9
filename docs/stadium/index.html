@@ -54,6 +54,7 @@ function App() {
   const [announcers, setAnnouncers] = useState(null);
   const [gourmet, setGourmet] = useState(null);
   const [gOpen, setGOpen] = useState(null);
+  const [vOpen, setVOpen] = useState(null);
   const [fanfare, setFanfare] = useState(null);
   const [bOpen, setBOpen] = useState(null);
   const [fanIntro, setFanIntro] = useState(false);
@@ -354,6 +355,28 @@ function App() {
                     {gourmet[s.name].official ? (
                     <a href={gourmet[s.name].official} onClick={e=>e.stopPropagation()} style={{display:"inline-flex",alignItems:"center",minHeight:44,fontSize:12,color:"#ff9a5a",textDecoration:"none"}}>{s.name}公式サイト →</a>
                     ) : null}
+                    </div>)}
+                  </div>
+                  )}
+                  {gourmet && gourmet[s.name] && gourmet[s.name].viewing && (
+                  <div style={{marginTop:8,background:"#101f2a",border:"1px solid #1f4a5a",borderRadius:8,padding:"8px 10px"}}>
+                    <div onClick={e=>{e.stopPropagation();setVOpen(vOpen===s.code?null:s.code);}} style={{display:"flex",alignItems:"center",cursor:"pointer",minHeight:24}}>
+                      <span style={{color:"#5ac8e0",fontWeight:700}}>👀 観戦スポット</span>
+                      <span style={{marginLeft:"auto",fontSize:11,color:"#5ac8e0"}}>{vOpen===s.code?"▲ 閉じる":"▼ 見る"}</span>
+                    </div>
+                    {vOpen===s.code && (<div style={{marginTop:6}}>
+                      {gourmet[s.name].viewing.lead ? (
+                      <div style={{fontSize:13,color:"#9fe4f5",fontWeight:700,marginBottom:6,lineHeight:1.5}}>{gourmet[s.name].viewing.lead}</div>
+                      ) : null}
+                      {gourmet[s.name].viewing.body ? gourmet[s.name].viewing.body.split("\n\n").map((para,i) => (
+                        <div key={i} style={{fontSize:12,color:"#c5d2e0",lineHeight:1.75,marginBottom:8}}>{para}</div>
+                      )) : null}
+                      {gourmet[s.name].viewing.note ? (
+                      <div style={{marginTop:4,padding:"6px 8px",background:"#1a2630",borderLeft:"3px solid #5ac8e0",fontSize:11,color:"#a8ccd8",lineHeight:1.6}}>{gourmet[s.name].viewing.note}</div>
+                      ) : null}
+                      <div style={{marginTop:6,fontSize:11,color:"#5a8494"}}>
+                        {gourmet[s.name].viewing.asof || "取得時点"}時点。出典：{gourmet[s.name].viewing.src || "公式・現地"}。
+                      </div>
                     </div>)}
                   </div>
                   )}
