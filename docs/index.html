@@ -339,10 +339,10 @@ if("serviceWorker" in navigator){ window.addEventListener("load",function(){ nav
 </script>
 <script>
 (function(){
-  /* 検証ページ公開のNEWバッジ。2026-08-19（JST）を過ぎたら二度と出ない。
+  /* 検証ページ公開のNEWバッジ。2026-08-24（JST）を過ぎたら二度と出ない。
      期限後にこのブロックごと削除してよい。 */
   var el = document.getElementById("qn-new-kensho");
-  if (el && Date.now() < new Date("2026-08-19T00:00:00+09:00").getTime()) {
+  if (el && Date.now() < new Date("2026-08-24T00:00:00+09:00").getTime()) {
     el.hidden = false;
   }
 })();
