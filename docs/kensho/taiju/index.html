@@ -11,7 +11,8 @@
 :root{
   --bg:#0b1219; --fg:#e0e6ed; --dim:#8a94a3; --faint:#6f7a89;
   --line:#1f2b3a; --panel:#0f1a26; --accent:#ffd166;
-  --ok:#7ee08a; --ng:#e07a7a; --blue:#5b9bd5; --deep:#2f4a6b;
+  --ok:#7ee08a; --ng:#e07a7a; --blue:#7ab5ea; --deep:#2f4a6b;
+  --track:#080e14;
 }
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--fg);margin:0;padding-bottom:80px;
@@ -34,15 +35,21 @@ header .sub{font-size:12px;color:var(--dim);line-height:1.9;margin:0}
 .article .lead{font-size:16.5px;color:#fff;line-height:1.95;margin-bottom:1.9em}
 .article b{color:#fff;font-weight:600}
 
-/* ── 図：節内カーブ（落ちて止まる形） ── */
+/* ── 小見出し ── */
+.sec{margin:3em 0 1.6em;font-size:13px;color:var(--accent);font-weight:600;
+  letter-spacing:.09em;line-height:1.6;display:flex;align-items:center;gap:11px}
+.sec::before{content:"";width:20px;height:1px;background:var(--accent);flex:none;opacity:.6}
+.sec::after{content:"";flex:1;height:1px;background:var(--line)}
+
+/* ── 図：節内カーブ ── */
 .curvefig{margin:0 0 1.3em;padding:22px 14px 16px;background:var(--panel);
   border:1px solid var(--line);border-radius:10px}
 .curvefig .row{display:flex;align-items:center;gap:10px;margin-bottom:11px}
 .curvefig .row:last-of-type{margin-bottom:0}
 .curvefig .dy{width:46px;font-size:12px;color:var(--dim);flex:none}
-.curvefig .track{flex:1;height:20px;background:#0b1219;border-radius:4px;
+.curvefig .track{flex:1;height:20px;background:var(--track);border-radius:4px;
   display:flex;justify-content:flex-end;overflow:hidden}
-.curvefig .fill{height:100%;background:linear-gradient(270deg,#3a4a5c,#55697f);border-radius:4px}
+.curvefig .fill{height:100%;background:linear-gradient(270deg,#6b7f96,#93a8c0);border-radius:4px}
 .curvefig .kg{width:66px;text-align:right;font-size:16px;font-weight:700;color:#cfe0f0;
   flex:none;letter-spacing:-.01em}
 .curvefig .cap{font-size:11px;color:var(--faint);margin-top:14px;line-height:1.7}
@@ -53,13 +60,38 @@ header .sub{font-size:12px;color:var(--dim);line-height:1.9;margin:0}
 .scalefig .row{display:flex;align-items:center;gap:12px;margin-bottom:14px}
 .scalefig .row:last-of-type{margin-bottom:0}
 .scalefig .nm{width:96px;font-size:12px;color:var(--dim);flex:none;line-height:1.5}
-.scalefig .track{flex:1;height:26px;background:#0b1219;border-radius:4px;overflow:hidden}
+.scalefig .track{flex:1;height:26px;background:var(--track);border-radius:4px;overflow:hidden}
 .scalefig .fill{height:100%;border-radius:4px}
-.scalefig .fa{background:linear-gradient(90deg,#3a4a5c,#55697f)}
-.scalefig .fb{background:linear-gradient(90deg,#3c78bd,#5b9bd5)}
+.scalefig .fa{background:linear-gradient(90deg,#6b7f96,#93a8c0)}
+.scalefig .fb{background:linear-gradient(90deg,#4d8fd6,#7ab5ea)}
 .scalefig .kg{width:64px;text-align:right;font-size:19px;font-weight:700;color:#fff;
   flex:none;letter-spacing:-.02em}
 .scalefig .cap{font-size:11px;color:var(--faint);margin-top:14px;line-height:1.7}
+
+/* ── 図：節間 ── */
+.gapfig{margin:0 0 1.3em;padding:22px 14px 16px;background:var(--panel);
+  border:1px solid var(--line);border-radius:10px}
+.gapfig .row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.gapfig .row:last-of-type{margin-bottom:0}
+.gapfig .lb{width:88px;font-size:12px;color:var(--dim);flex:none;line-height:1.5}
+.gapfig .track{flex:1;height:20px;background:var(--track);border-radius:4px;overflow:hidden}
+.gapfig .fill{height:100%;background:linear-gradient(90deg,#6b7f96,#93a8c0);border-radius:4px}
+.gapfig .kg{width:62px;text-align:right;font-size:16px;font-weight:700;color:#cfe0f0;flex:none}
+.gapfig .cap{font-size:11px;color:var(--faint);margin-top:14px;line-height:1.7}
+
+/* ── 図：体重の刻み分布 ── */
+.histfig{margin:0 0 1.3em;padding:22px 14px 16px;background:var(--panel);
+  border:1px solid var(--line);border-radius:10px}
+.histfig .row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.histfig .row:last-of-type{margin-bottom:0}
+.histfig .kgl{width:52px;font-size:12px;color:var(--dim);flex:none;text-align:right}
+.histfig .track{flex:1;height:22px;background:var(--track);border-radius:4px;overflow:hidden}
+.histfig .fill{height:100%;background:linear-gradient(90deg,#6b7f96,#93a8c0);border-radius:4px}
+.histfig .row.peak .kgl{color:#fff;font-weight:700}
+.histfig .row.peak .fill{background:linear-gradient(90deg,#d8a92e,#ffd166)}
+.histfig .n{width:56px;text-align:right;font-size:15px;font-weight:700;color:#cfe0f0;flex:none}
+.histfig .row.peak .n{color:var(--accent);font-size:17px}
+.histfig .cap{font-size:11px;color:var(--faint);margin-top:14px;line-height:1.7}
 
 /* ── 図：錘の割合 ── */
 .wfig{margin:0 0 1.3em;padding:20px 18px 16px;background:var(--panel);
@@ -67,10 +99,10 @@ header .sub{font-size:12px;color:var(--dim);line-height:1.9;margin:0}
 .wfig .row{display:flex;align-items:center;gap:12px;margin-bottom:14px}
 .wfig .row:last-of-type{margin-bottom:0}
 .wfig .sx{width:34px;font-size:12px;color:var(--dim);flex:none}
-.wfig .track{flex:1;height:26px;background:#0b1219;border-radius:4px;overflow:hidden}
+.wfig .track{flex:1;height:26px;background:var(--track);border-radius:4px;overflow:hidden}
 .wfig .fill{height:100%;border-radius:4px}
-.wfig .fm{background:linear-gradient(90deg,#3a4a5c,#55697f)}
-.wfig .ff{background:linear-gradient(90deg,#3c78bd,#5b9bd5)}
+.wfig .fm{background:linear-gradient(90deg,#6b7f96,#93a8c0)}
+.wfig .ff{background:linear-gradient(90deg,#4d8fd6,#7ab5ea)}
 .wfig .pc{width:58px;text-align:right;font-size:21px;font-weight:700;color:#fff;flex:none;
   letter-spacing:-.02em}
 .wfig .cap{font-size:11px;color:var(--faint);margin-top:14px;line-height:1.7}
@@ -95,8 +127,8 @@ details{background:var(--panel);border:1px solid var(--line);border-radius:9px;m
 details>summary{list-style:none;cursor:pointer;padding:13px 15px;font-size:13px;
   color:#a9c6dd;display:flex;align-items:center;justify-content:space-between;min-height:46px}
 details>summary::-webkit-details-marker{display:none}
-details>summary::after{content:"";width:7px;height:7px;border-right:1.5px solid #55697f;
-  border-bottom:1.5px solid #55697f;transform:rotate(45deg);margin-left:12px;flex:none}
+details>summary::after{content:"";width:7px;height:7px;border-right:1.5px solid #7a8ea6;
+  border-bottom:1.5px solid #7a8ea6;transform:rotate(45deg);margin-left:12px;flex:none}
 details[open]>summary::after{transform:rotate(-135deg)}
 .dbody{padding:0 15px 15px;font-size:12.5px;color:var(--dim);line-height:2}
 .dbody p{margin:0 0 .9em}
@@ -110,9 +142,6 @@ th,td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:right}
 th{color:var(--faint);font-weight:400;font-size:11px;white-space:nowrap}
 td:first-child,th:first-child{text-align:left}
 tr.hi td{color:#fff;font-weight:700}
-.tbar{display:inline-block;height:6px;background:var(--deep);border-radius:3px;
-  vertical-align:middle;margin-right:7px}
-tr.hi .tbar{background:var(--blue)}
 
 /* ── 検証データ ── */
 .verify{margin-top:40px;padding-top:24px;border-top:1px solid var(--line)}
@@ -131,8 +160,8 @@ tr.hi .tbar{background:var(--blue)}
   <p class="eyebrow">検 証</p>
   <h1>体重を絞ると<br>走るのか</h1>
   <p class="sub">
-    「仕上げてきた」と言われる選手の体重は、節の中で本当に動いているのか。<br>
-    <span>229</span>日・<span>35,287</span>レースで調べた記録です。
+    「仕上げてきた」と言われる選手は、いつ、どこで絞っているのか。<br>
+    <span>229</span>日・<span>35,322</span>レースで探した記録です。
   </p>
 </header>
 
@@ -144,10 +173,13 @@ tr.hi .tbar{background:var(--blue)}
 <p>節の中日、実況がそう言う。仕上げてきた、と紙にも書かれる。<br>
 体重を落とすことは、本気の証だと思われています。</p>
 
-<p><b>229</b>日分の直前情報を見ました。<br>
-<b>35,287</b>レース、のべ<b>198,175</b>の出走です。</p>
+<p>では、いつ絞っているのか。<br>
+それを探しました。</p>
 
-<p class="tight">まず、落ちているのかどうか。</p>
+<p><b>229</b>日分の直前情報を見ました。<br>
+<b>35,322</b>レース、のべ<b>198,377</b>の出走です。</p>
+
+<p class="sec">節の中を見る</p>
 
 <p>初日の体重を基準にして、日ごとの差を並べます。</p>
 
@@ -174,15 +206,18 @@ tr.hi .tbar{background:var(--blue)}
   </div>
   <div class="row">
     <span class="dy">6日目</span>
-    <span class="track"><span class="fill" style="width:77%"></span></span>
+    <span class="track"><span class="fill" style="width:76%"></span></span>
     <span class="kg">−0.15</span>
   </div>
   <p class="cap">初日の体重を0としたときの差（キロ）</p>
 </div>
 
-<p>落ちます。ただし2日目までで、そこから止まります。<br>
-最終日に向けて絞り込んでいく形は、出てきませんでした。<br>
-落ちるのは節が始まった直後だけで、理由までは、この数字からは分かりません。</p>
+<p>落ちています。0.2キロ弱。<br>
+やはり絞っているのか、と思ったのですが、形が違います。</p>
+
+<p>落ちるのは2日目まで。そこから止まります。<br>
+最終日に向けて絞り込んでいく形にはなっていません。<br>
+理由までは、この数字からは分かりません。</p>
 
 <div class="cond">
   この段落は「最終日側の落ち幅が、3日目より深くならない」とき成立します。<br>
@@ -190,33 +225,39 @@ tr.hi .tbar{background:var(--blue)}
   <span class="st ok">✓ 成立</span>
 </div>
 
-<p class="tight">では、軽い日は走るのか。</p>
+<p class="sec">軽い日は、走るのか</p>
 
 <p>同じ選手の、同じ節の中だけで比べました。<br>
 相手の強さも、その節の調子も、腕の差も、これで揃います。</p>
 
-<p>軽い日のほうが、着はわずかに悪くなっていました。<br>
-その差を着順点に直すと<b>0.03</b>点。1着と2着の差は2点ですから、その<b>62</b>分の1です。<br>
+<p>軽い日のほうが、着はわずかに悪くなっていました。</p>
+
+<p>その差を着順点に直すと<b>0.03</b>点。<br>
+1着と2着の差は2点ですから、その<b>62</b>分の1です。<br>
 差はほとんどゼロで、向きが逆だったことだけが残ります。</p>
 
 <div class="cond">
   この段落は「同じ節の中で比べた係数が、負にならない」とき成立します。<br>
-  現在の係数 <b>+0.118</b>（1キロあたりの着順点）──
+  現在の係数 <b>+0.117</b>（1キロあたりの着順点）──
   <span class="st ok">✓ 成立</span>
 </div>
 
 <p>気持ちが入っているなら、スタートに出るはずです。<br>
 そこも見ました。体重1キロあたり<b>0.003</b>秒。<br>
-節の中で動く体重の幅に直すと、<b>0.0008</b>秒になります。<br>
-スタートタイムは100分の1秒まで公表されます。この数字は、その桁に届きません。</p>
+節の中で動く体重の幅に直すと、<b>0.0009</b>秒。</p>
+
+<p>スタートタイムは100分の1秒まで公表されます。<br>
+この数字は、その桁に届きません。</p>
 
 <div class="cond">
   この段落は「体重の幅に直したスタートの差が、0.005秒未満」のとき成立します。<br>
-  現在 <b>0.0008</b>秒 ──
+  現在 <b>0.0009</b>秒 ──
   <span class="st ok">✓ 成立</span>
 </div>
 
-<p class="tight">なぜこうなるのか。理由は、幅のほうにありました。</p>
+<p class="sec">幅を、物に置き換える</p>
+
+<p>なぜこうなるのか。理由は、幅のほうにありました。</p>
 
 <p>最低体重を下回った選手は、不足分の錘を積んで走ります。<br>
 その錘は、0.5キロ刻みです。</p>
@@ -243,12 +284,76 @@ tr.hi .tbar{background:var(--blue)}
   <span class="st ok">✓ 成立</span>
 </div>
 
-<p>体重は、節が始まる前に決まっています。<br>
-節の中では、もう動きません。</p>
+<p>0.28キロと言われても、大きいのか小さいのか分かりません。<br>
+手に持てる物に置き換えると、こうなります。<br>
+一枚も足せない幅です。</p>
 
-<p class="tight">最後に、逆側の話を。</p>
+<p class="sec">節と節のあいだは、どうか</p>
 
-<p>最低体重は男子52キロ、女子47キロ。</p>
+<p>節の中で動かないなら、絞るのは節に入る前のはずです。<br>
+同じ選手の、続けて出た2つの節を比べました。</p>
+
+<p>差は<b>0.21</b>キロ。<br>
+0.5キロを超えたのは、<b>5</b>回に1回です。</p>
+
+<p>あいだが空くほど、少しだけ動きます。</p>
+
+<div class="gapfig">
+  <div class="row">
+    <span class="lb">2週間以内</span>
+    <span class="track"><span class="fill" style="width:65%"></span></span>
+    <span class="kg">0.18</span>
+  </div>
+  <div class="row">
+    <span class="lb">1か月半まで</span>
+    <span class="track"><span class="fill" style="width:86%"></span></span>
+    <span class="kg">0.24</span>
+  </div>
+  <div class="row">
+    <span class="lb">それ以上</span>
+    <span class="track"><span class="fill" style="width:100%"></span></span>
+    <span class="kg">0.28</span>
+  </div>
+  <p class="cap">続けて出た2つの節の、体重の差（中央値・キロ）</p>
+</div>
+
+<p>動くのは、レースをしていない日のほうでした。<br>
+それでも0.3キロに届きません。</p>
+
+<p>節の中でも、節と節のあいだでも、絞っていない。<br>
+では、いつなのか。</p>
+
+<p class="sec">体重そのものを、並べてみる</p>
+
+<p>選手ごとの体重を出しました。10走以上ある<b>1,633</b>人ぶんです。</p>
+
+<p>男子の中央値は<b>52.32</b>キロ。<br>
+最低体重は52.0キロですから、<b>0.32</b>キロしか上にありません。</p>
+
+<p>刻みごとに人数を数えると、こうなります。</p>
+
+<div class="histfig"><div class="row"><span class="kgl">51.0</span><span class="track"><span class="fill" style="width:10%"></span></span><span class="n">35人</span></div><div class="row"><span class="kgl">51.5</span><span class="track"><span class="fill" style="width:18%"></span></span><span class="n">67人</span></div><div class="row peak"><span class="kgl">52.0</span><span class="track"><span class="fill" style="width:100%"></span></span><span class="n">367人</span></div><div class="row"><span class="kgl">52.1</span><span class="track"><span class="fill" style="width:18%"></span></span><span class="n">67人</span></div><div class="row"><span class="kgl">52.2</span><span class="track"><span class="fill" style="width:14%"></span></span><span class="n">51人</span></div><div class="row"><span class="kgl">52.3</span><span class="track"><span class="fill" style="width:15%"></span></span><span class="n">55人</span></div><div class="row"><span class="kgl">52.4</span><span class="track"><span class="fill" style="width:10%"></span></span><span class="n">38人</span></div><div class="row"><span class="kgl">52.5</span><span class="track"><span class="fill" style="width:12%"></span></span><span class="n">44人</span></div><div class="row"><span class="kgl">52.6</span><span class="track"><span class="fill" style="width:8%"></span></span><span class="n">31人</span></div><div class="row"><span class="kgl">52.7</span><span class="track"><span class="fill" style="width:7%"></span></span><span class="n">25人</span></div><div class="row"><span class="kgl">52.8</span><span class="track"><span class="fill" style="width:10%"></span></span><span class="n">35人</span></div><div class="row"><span class="kgl">52.9</span><span class="track"><span class="fill" style="width:8%"></span></span><span class="n">30人</span></div><div class="row"><span class="kgl">53.0</span><span class="track"><span class="fill" style="width:10%"></span></span><span class="n">36人</span></div><p class="cap">男子1,354人の体重（中央値）。最低体重52.0キロの前後1キロだけを表示</p></div>
+
+<p><b>52.0</b>キロちょうどが<b>367</b>人。<br>
+2番目に多い値の、<b>5</b>倍以上です。</p>
+
+<p>身長も骨格も違う<b>1,354</b>人の体重が、<br>
+ひとつの数字にこれだけ集まることはありません。</p>
+
+<p class="punch">体格がそこに<br>集まっているのではなく、<br><span class="big">そこに合わせています。</span></p>
+
+<div class="cond">
+  この一行は「いちばん多い体重が、最低体重の52.0キロと一致する」とき成立します。<br>
+  現在いちばん多いのは <b>52.0</b>キロ ──
+  <span class="st ok">✓ 成立</span>
+</div>
+
+<p><b>43</b>%が、最低体重から0.4キロ以内にいます。</p>
+
+<p class="sec">絞れない側の話</p>
+
+<p>最低体重は男子52キロ、女子47キロ。<br>
+下回った選手は錘を積みます。</p>
 
 <div class="wfig">
   <div class="row">
@@ -264,11 +369,34 @@ tr.hi .tbar{background:var(--blue)}
   <p class="cap">錘を積んで出走した割合</p>
 </div>
 
-<p>女子の4割が、錘を積んでいます。<br>
-絞る話の裏側に、増やせない人がいます。</p>
+<p>女子の4割が錘を積んで走っています。<br>
+体重の中央値は<b>47.0</b>キロ。最低体重ちょうどです。</p>
+
+<p>絞るという話の裏側に、これ以上は落とせない人がいます。<br>
+落とせば錘が増えるだけで、軽くはなりません。</p>
+
+<p class="sec">いつ絞っているのか</p>
+
+<p>答えは、どこにもありませんでした。</p>
+
+<p>節の中でもなく、節と節のあいだでもない。<br>
+探した範囲に、絞っている場面が出てきません。</p>
+
+<p>理由は、体重の分布のほうにあります。<br>
+すでに下限に張り付いている選手に、絞る余地は残っていません。</p>
+
+<p>「絞ってきましたね」は、嘘ではありません。<br>
+ただ、それが終わったのは、その節が始まる前です。<br>
+たいていは、ずっと前です。</p>
+
+<p>節の中で見えているのは、絞った跡ではなく、<br>
+そこを保っている状態のほうでした。</p>
+
+<p>保つほうが、落とすより難しいのかもしれません。<br>
+そこまでは、数字では分かりません。</p>
 
 <p class="tail">節のレベルまでは揃えきれていないので、断定はしません。<br>
-ただ、節の中で体重がほとんど動かないことは動きません。</p>
+ただ、体重がほとんど動かないことは、何度数えても変わりません。</p>
 
 </div>
 <!-- ══════════ /記事 ══════════ -->
@@ -286,12 +414,24 @@ tr.hi .tbar{background:var(--blue)}
 </details>
 
 <details>
+<summary>選手ごとの体重は、どこに集まっているか</summary>
+<div class="dbody">
+<p>10走以上ある選手の、体重の中央値です。最低体重からの距離で分けています。</p>
+<table>
+<thead><tr><th>最低体重から</th><th>男子</th><th>女子</th></tr></thead>
+<tbody><tr><td>未満（錘）</td><td>138 (10.2%)</td><td>106 (38.0%)</td></tr><tr class="hi"><td>+0.0〜0.4</td><td>581 (42.9%)</td><td>78 (28.0%)</td></tr><tr><td>+0.5〜0.9</td><td>164 (12.1%)</td><td>21 (7.5%)</td></tr><tr><td>+1.0〜1.9</td><td>213 (15.7%)</td><td>22 (7.9%)</td></tr><tr><td>+2.0〜3.9</td><td>186 (13.7%)</td><td>29 (10.4%)</td></tr><tr><td>+4.0以上</td><td>72 (5.3%)</td><td>23 (8.2%)</td></tr></tbody>
+</table>
+<p>男子は最低体重ちょうどの帯に、女子は下回る帯にもっとも多く集まっています。</p>
+</div>
+</details>
+
+<details>
 <summary>錘（調整重量）を積んだ量の分布</summary>
 <div class="dbody">
 <p>最低体重に足りない分だけ錘を積みます。0.5キロ刻みで、0は錘なしです。</p>
 <table>
 <thead><tr><th>錘の量</th><th>件数</th><th>割合</th></tr></thead>
-<tbody><tr class="hi"><td>なし</td><td>178,062</td><td>84.1%</td></tr><tr><td>0.5キロ</td><td>13,446</td><td>6.4%</td></tr><tr><td>1.0キロ</td><td>8,008</td><td>3.8%</td></tr><tr><td>1.5キロ</td><td>5,426</td><td>2.6%</td></tr><tr><td>2.0キロ</td><td>3,587</td><td>1.7%</td></tr><tr><td>2.5キロ</td><td>1,661</td><td>0.8%</td></tr><tr><td>3.0キロ</td><td>844</td><td>0.4%</td></tr><tr><td>3.5キロ</td><td>459</td><td>0.2%</td></tr></tbody>
+<tbody><tr class="hi"><td>なし</td><td>178,236</td><td>84.1%</td></tr><tr><td>0.5キロ</td><td>13,464</td><td>6.4%</td></tr><tr><td>1.0キロ</td><td>8,013</td><td>3.8%</td></tr><tr><td>1.5キロ</td><td>5,428</td><td>2.6%</td></tr><tr><td>2.0キロ</td><td>3,592</td><td>1.7%</td></tr><tr><td>2.5キロ</td><td>1,664</td><td>0.8%</td></tr><tr><td>3.0キロ</td><td>845</td><td>0.4%</td></tr><tr><td>3.5キロ</td><td>460</td><td>0.2%</td></tr></tbody>
 </table>
 </div>
 </details>
@@ -304,7 +444,7 @@ tr.hi .tbar{background:var(--blue)}
 
 <h4>「節」の数え方</h4>
 <p>同じ選手が同じ場で連続して走った日をひとまとまりとし、4日以上のものを1節として数えています。
-現在 <b>22,794</b>節 です。</p>
+現在 <b>22,819</b>節 です。</p>
 
 <h4>なぜ「同じ選手の同じ節の中」で比べるのか</h4>
 <p>選手ごとに体重も腕も違います。人をまたいで比べると、
@@ -314,6 +454,10 @@ tr.hi .tbar{background:var(--blue)}
 <h4>着順点について</h4>
 <p>1着10点 / 2着8点 / 3着6点 / 4着4点 / 5着2点 / 6着1点。<br>
 1着と2着の差が2点です。この記事の差は <b>0.03</b>点 で、その<b>62</b>分の1にあたります。</p>
+
+<h4>選手ごとの体重の出し方</h4>
+<p>10走以上ある選手について、公表された体重の中央値を1人1つ出しています。
+平均でなく中央値にしているのは、1日だけ大きくずれた値に引っぱられないようにするためです。</p>
 
 <h4>錘（調整重量）について</h4>
 <p>最低体重を下回った選手は、不足分の重りを付けた着衣で出走します。<br>
@@ -340,7 +484,7 @@ tr.hi .tbar{background:var(--blue)}
 <p>記事の中の断定的な一行が、今も成り立っているかの一覧です。</p>
 <table>
 <thead><tr><th>文</th><th>条件</th><th>現在</th><th></th></tr></thead>
-<tbody><tr><td>落ちるのは2日目まで</td><td>6日目が3日目より深くない</td><td>−0.19 / −0.15</td><td>✓</td></tr><tr><td>軽い日のほうが着は悪い</td><td>節内の係数が負でない</td><td>+0.118</td><td>✓</td></tr><tr><td>スタートの桁に届かない</td><td>実効差が0.005秒未満</td><td>0.0008秒</td><td>✓</td></tr><tr><td>錘の最小の一枚より軽い</td><td>体重の幅が0.5キロ未満</td><td>0.27キロ</td><td>✓</td></tr></tbody>
+<tbody><tr><td>落ちるのは2日目まで</td><td>6日目が3日目より深くない</td><td>−0.19 / −0.15</td><td>✓</td></tr><tr><td>軽い日のほうが着は悪い</td><td>節内の係数が負でない</td><td>+0.117</td><td>✓</td></tr><tr><td>スタートの桁に届かない</td><td>実効差が0.005秒未満</td><td>0.0009秒</td><td>✓</td></tr><tr><td>錘の最小の一枚より軽い</td><td>体重の幅が0.5キロ未満</td><td>0.27キロ</td><td>✓</td></tr><tr><td>そこに合わせている</td><td>最頻の体重が52.0キロ</td><td>52.0キロ</td><td>✓</td></tr></tbody>
 </table>
 </div>
 </details>
@@ -351,7 +495,7 @@ tr.hi .tbar{background:var(--blue)}
 <p>この検証がどれだけのデータで出ているかです。日が経つほど増えます。</p>
 <table>
 <thead><tr><th>項目</th><th>件数</th></tr></thead>
-<tbody><tr><td>突合できたレース</td><td>35,287</td></tr><tr><td>節（4日以上）</td><td>22,794</td></tr><tr><td>節に含まれる出走</td><td>198,175</td></tr><tr><td>比較に使った日数</td><td>124,556</td></tr></tbody>
+<tbody><tr><td>突合できたレース</td><td>35,322</td></tr><tr><td>節（4日以上）</td><td>22,819</td></tr><tr><td>節に含まれる出走</td><td>198,377</td></tr><tr><td>比較に使った日数</td><td>124,684</td></tr><tr><td>続けて出た節の組</td><td>21,183</td></tr><tr><td>体重を出した選手</td><td>1,633</td></tr></tbody>
 </table>
 </div>
 </details>
