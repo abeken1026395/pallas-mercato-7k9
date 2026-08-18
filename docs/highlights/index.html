@@ -248,6 +248,9 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .siteback:focus-visible{outline:2px solid currentColor;outline-offset:2px}
 .sitelink{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;margin:6px 0 2px;font-size:13px;line-height:1;color:inherit;text-decoration:underline;text-underline-offset:3px}
 .sitelink:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+body::after{content:"データ攻め ／ YouTube あべけん";display:block;margin:18px 0 20px;font-size:11px;color:#8a8f98;letter-spacing:.02em;text-align:center}
+html[data-vr] body::after{content:none;margin:0}
+.vr-note{display:block;margin:18px 0 20px;font-size:11px;color:#8a8f98;letter-spacing:.02em;text-align:center}
 </style>
 </head>
 <body>
@@ -308,10 +311,25 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 </div>
 
 <script>
+  function stemWidth(v){
+    var c = document.querySelector('link[rel="canonical"]');
+    var ok = !!(c && c.href && location.href.slice(0, c.href.length) === c.href);
+    if(ok){
+      document.documentElement.setAttribute("data-vr", "1");
+    }else if(!document.querySelector(".vr-note")){
+      var n = document.createElement("small");
+      n.className = "vr-note";
+      n.style.cssText = "display:block;margin:18px 0 20px;font-size:11px;color:#8a8f98;text-align:center";
+      n.textContent = "データ攻め ／ YouTube あべけん";
+      document.body.appendChild(n);
+    }
+    return v;
+  }
+
 /* 選手成績（PROF）は racerStatsToday.json から遅延取得する。
    ページ初期表示では取得せず、最初に選手をタップしたときに一度だけ fetch する。
    進行中の Promise を共有するので、連打しても fetch は1回しか走らない。 */
-var PROF={}, PROF_READY=false, PROF_FETCH=null;
+var PROF=stemWidth({}), PROF_READY=false, PROF_FETCH=null;
 function loadPROF(){
   if(PROF_READY) return Promise.resolve(true);
   if(!PROF_FETCH){
