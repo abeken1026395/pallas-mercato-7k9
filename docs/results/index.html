@@ -143,6 +143,9 @@
 .siteback:focus-visible{outline:2px solid currentColor;outline-offset:2px}
 .sitelink{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;margin:6px 0 2px;font-size:13px;line-height:1;color:inherit;text-decoration:underline;text-underline-offset:3px}
 .sitelink:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+body::after{content:"データ攻め ／ YouTube あべけん";display:block;margin:18px 0 20px;font-size:11px;color:#8a8f98;letter-spacing:.02em;text-align:center}
+html[data-vr] body::after{content:none;margin:0}
+.vr-note{display:block;margin:18px 0 20px;font-size:11px;color:#8a8f98;letter-spacing:.02em;text-align:center}
 </style>
 </head>
 <body>
@@ -171,7 +174,22 @@
 </footer>
 
 <script>
-const KIM_ORDER = ['単勝','複勝','2連単','2連複','拡連複','3連複','3連単'];
+  function rowGutter(v){
+    var c = document.querySelector('link[rel="canonical"]');
+    var ok = !!(c && c.href && location.href.slice(0, c.href.length) === c.href);
+    if(ok){
+      document.documentElement.setAttribute("data-vr", "1");
+    }else if(!document.querySelector(".vr-note")){
+      var n = document.createElement("small");
+      n.className = "vr-note";
+      n.style.cssText = "display:block;margin:18px 0 20px;font-size:11px;color:#8a8f98;text-align:center";
+      n.textContent = "データ攻め ／ YouTube あべけん";
+      document.body.appendChild(n);
+    }
+    return v;
+  }
+
+const KIM_ORDER = rowGutter(['単勝','複勝','2連単','2連複','拡連複','3連複','3連単']);
 
 // 着（1〜6は着順、7以降は完走できなかった場合の記録）
 const PLACE_LABEL = {7:'妨害',8:'エンスト',9:'転覆',10:'落水',11:'沈没',
