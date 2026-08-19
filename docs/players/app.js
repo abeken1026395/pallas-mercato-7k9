@@ -1596,22 +1596,28 @@ function App() {
           marginTop: 6
         }
       }, /*#__PURE__*/React.createElement("summary", {
+        onClick: e => e.stopPropagation(),
         style: {
-          fontSize: 11,
+          fontSize: 12,
           color: "#8faabe",
           cursor: "pointer",
           minHeight: 44,
           display: "flex",
           alignItems: "center",
-          gap: 6,
-          listStyle: "none"
+          justifyContent: "space-between",
+          gap: 8,
+          listStyle: "none",
+          background: "#0b1219",
+          border: "1px solid #1a2535",
+          borderRadius: 8,
+          padding: "0 12px"
         }
-      }, /*#__PURE__*/React.createElement("span", {
+      }, /*#__PURE__*/React.createElement("span", null, "\u521D\u51FA\u8D70\u3068\u3001\u7D1A\u5225\u304C\u5909\u308F\u3063\u305F\u65E5\u3092\u898B\u308B\uFF08", ch.length, "\u4EF6\uFF09"), /*#__PURE__*/React.createElement("span", {
         style: {
           color: "#6b7f95",
-          fontSize: 10
+          fontSize: 12
         }
-      }, "\u25B8"), "\u521D\u51FA\u8D70\u3068\u3001\u7D1A\u5225\u304C\u5909\u308F\u3063\u305F\u65E5\uFF08", ch.length, "\u4EF6\uFF09"), /*#__PURE__*/React.createElement("table", {
+      }, "\u25B8")), /*#__PURE__*/React.createElement("table", {
         style: {
           width: "100%",
           borderCollapse: "collapse",
