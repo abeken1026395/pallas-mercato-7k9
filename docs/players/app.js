@@ -324,6 +324,68 @@ function buildRelIndex(prof) {
   return idx;
 }
 const KIM = [["nige", "逃げ", "#ffd166"], ["makuri", "まくり", "#4593e5"], ["sashi", "差し", "#3fb950"], ["makurizashi", "まくり差し", "#d29922"], ["nuki", "抜き", "#8957e5"], ["megumare", "恵まれ", "#56607a"]];
+/* ===== 級別の推移（公式番組表 Bファイル 由来） =====
+   rankHistory.json は「級別が変わった日」だけを持つ差分形式。
+   [[日付,級別],...] の並びは昇順で、先頭がその選手の初出走日。
+   ここでは日付の差から各区間の長さを出し、帯の幅に使う。 */
+const RANK_COLOR = {
+  A1: "#7fd4e8",
+  A2: "#4a93ad",
+  B1: "#2d5a70",
+  B2: "#1b3543"
+};
+const RANK_INK = {
+  A1: "#06222c",
+  A2: "#04191f",
+  B1: "#c9dce6",
+  B2: "#8fa8b6"
+};
+const RANK_TX = {
+  A1: "#7fd4e8",
+  A2: "#4a93ad",
+  B1: "#5e93ad",
+  B2: "#6b8798"
+};
+function rhDate(s) {
+  var p = String(s).split("-");
+  return new Date(+p[0], +p[1] - 1, +p[2]).getTime();
+}
+function rhSpan(ms) {
+  var y = ms / (365.2425 * 86400000);
+  if (y >= 0.95) return Math.round(y * 10) / 10 + "年";
+  var m = Math.round(ms / (30.44 * 86400000));
+  return (m < 1 ? 1 : m) + "ヶ月";
+}
+function rhYM(s) {
+  var p = String(s).split("-");
+  return p[0] + "." + p[1];
+}
+function rhBuild(changes, todayMs) {
+  var segs = [],
+    tot = {
+      A1: 0,
+      A2: 0,
+      B1: 0,
+      B2: 0
+    };
+  for (var i = 0; i < changes.length; i++) {
+    var st = rhDate(changes[i][0]);
+    var en = i + 1 < changes.length ? rhDate(changes[i + 1][0]) : todayMs;
+    var w = en - st;
+    if (w < 0) w = 0;
+    segs.push({
+      g: changes[i][1],
+      from: changes[i][0],
+      ms: w
+    });
+    if (tot[changes[i][1]] !== undefined) tot[changes[i][1]] += w;
+  }
+  return {
+    segs: segs,
+    tot: tot,
+    span: todayMs - rhDate(changes[0][0])
+  };
+}
 function BranchPanel({
   bsort,
   setBsort,
@@ -660,6 +722,8 @@ function App() {
   const [e30, setE30] = useState(null);
   const [e30Meta, setE30Meta] = useState(null);
   const [e30All, setE30All] = useState(false);
+  const [rankHist, setRankHist] = useState(null);
+  const [rhMeta, setRhMeta] = useState(null);
   const [oshi, setOshi] = useState(loadOshi);
   const [oshiOnly, setOshiOnly] = useState(false);
   const toggleOshi = (toban, name) => {
@@ -771,6 +835,22 @@ function App() {
       }
     }).catch(() => {
       setE30({});
+    });
+  }, [open]);
+  // 級別の推移も詳細を開いた時だけ遅延読込（一覧を重くしない）
+  useEffect(() => {
+    if (!open || rankHist !== null) return;
+    fetch("../data/rankHistory.json").then(r => r.ok ? r.json() : Promise.reject()).then(j => {
+      if (j && j.選手) {
+        setRankHist(j.選手);
+        setRhMeta({
+          期間: j.期間,
+          出典: j.出典,
+          注記: j.注記
+        });
+      }
+    }).catch(() => {
+      setRankHist({});
     });
   }, [open]);
   // URLに ?toban=登番 があれば、その選手を検索欄にプリセットして開く（モーター等からのリンク用）
@@ -1298,7 +1378,7 @@ function App() {
         borderRadius: 8,
         padding: "10px 12px"
       }
-    }, [["登番", p.no], ["支部", p.branch], ["養成期", p.yousei ? p.yousei + "期" : "-"], ["出身", p.home || "-"], ["年齢", p.age + "歳"], ["生年月日", p.birth || "-"], ["身長", p.height ? p.height + "cm" : "-"], ["体重", p.weight ? p.weight + "kg" : "-"], ["血液", p.blood || "-"], ["級別推移", (p.prevrank || "-") + "→" + (p.prev2rank || "-") + "→" + p.rank], ["能力指数", p.power || "-"]].map(([l, v], i) => /*#__PURE__*/React.createElement("div", {
+    }, [["登番", p.no], ["支部", p.branch], ["養成期", p.yousei ? p.yousei + "期" : "-"], ["出身", p.home || "-"], ["年齢", p.age + "歳"], ["生年月日", p.birth || "-"], ["身長", p.height ? p.height + "cm" : "-"], ["体重", p.weight ? p.weight + "kg" : "-"], ["血液", p.blood || "-"], ["能力指数", p.power || "-"]].map(([l, v], i) => /*#__PURE__*/React.createElement("div", {
       key: i,
       style: {
         display: "flex",
@@ -1380,7 +1460,202 @@ function App() {
       style: {
         height: 14
       }
-    }), detail && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    }), (() => {
+      if (rankHist === null) return /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 11,
+          color: "#6b7f95",
+          margin: "12px 0",
+          lineHeight: 1.7
+        }
+      }, "\u8AAD\u307F\u8FBC\u307F\u4E2D\u2026");
+      const ch = rankHist[String(p.no)];
+      if (!ch || !ch.length) return /*#__PURE__*/React.createElement("div", {
+        style: {
+          marginBottom: 14
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 11,
+          color: "#8faabe",
+          fontWeight: 700,
+          marginBottom: 6
+        }
+      }, "\u25A0 \u7D1A\u5225\u306E\u63A8\u79FB"), /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 11,
+          color: "#6b7f95",
+          background: "#0b1219",
+          borderRadius: 8,
+          padding: "10px 12px",
+          lineHeight: 1.7
+        }
+      }, "\u3053\u306E\u9078\u624B\u306E\u7D1A\u5225\u306E\u8A18\u9332\u304C\u3042\u308A\u307E\u305B\u3093\u3002"));
+      const today = Date.now();
+      const b = rhBuild(ch, today);
+      const cur = ch[ch.length - 1];
+      const curMs = today - rhDate(cur[0]);
+      return /*#__PURE__*/React.createElement("div", {
+        style: {
+          marginBottom: 14
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 11,
+          color: "#8faabe",
+          fontWeight: 700,
+          marginBottom: 6
+        }
+      }, "\u25A0 \u7D1A\u5225\u306E\u63A8\u79FB\u3000", /*#__PURE__*/React.createElement("span", {
+        style: {
+          color: "#6b7f95",
+          fontWeight: 400
+        }
+      }, "\u521D\u51FA\u8D70\u304B\u3089\u4ECA\u65E5\u307E\u3067\uFF0F\u516C\u5F0F \u756A\u7D44\u8868")), /*#__PURE__*/React.createElement("div", {
+        style: {
+          background: "#0b1219",
+          borderRadius: 8,
+          padding: "10px 12px"
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 11,
+          color: "#6b7f95",
+          marginBottom: 8,
+          lineHeight: 1.7
+        }
+      }, rhYM(ch[0][0]), " \u306B\u521D\u51FA\u8D70\u30FB", rhSpan(b.span), "\uFF0F\u7D1A\u5225\u304C\u5909\u308F\u3063\u305F\u56DE\u6570 ", ch.length - 1), /*#__PURE__*/React.createElement("div", {
+        style: {
+          display: "flex",
+          width: "100%",
+          height: 30,
+          borderRadius: 4,
+          overflow: "hidden"
+        }
+      }, b.segs.map((s, i) => {
+        const pc = b.span > 0 ? s.ms / b.span * 100 : 100;
+        return /*#__PURE__*/React.createElement("div", {
+          key: i,
+          title: s.from + " " + s.g,
+          style: {
+            flex: "0 0 " + pc.toFixed(3) + "%",
+            minWidth: 2,
+            overflow: "hidden",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: RANK_COLOR[s.g] || "#22313f",
+            color: RANK_INK[s.g] || "#8fa8b6",
+            fontSize: 10,
+            fontWeight: 700,
+            letterSpacing: ".06em",
+            whiteSpace: "nowrap"
+          }
+        }, pc >= 7 ? s.g : "");
+      })), /*#__PURE__*/React.createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          fontSize: 10,
+          color: "#6b7f95",
+          fontVariantNumeric: "tabular-nums",
+          margin: "4px 0 10px"
+        }
+      }, /*#__PURE__*/React.createElement("span", null, rhYM(ch[0][0])), /*#__PURE__*/React.createElement("span", null, "\u4ECA\u65E5")), /*#__PURE__*/React.createElement("div", {
+        style: {
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "8px 14px",
+          fontSize: 12,
+          color: "#8faabe"
+        }
+      }, ["A1", "A2", "B1", "B2"].map(g => b.tot[g] > 0 ? /*#__PURE__*/React.createElement("span", {
+        key: g,
+        style: {
+          fontVariantNumeric: "tabular-nums"
+        }
+      }, /*#__PURE__*/React.createElement("i", {
+        style: {
+          display: "inline-block",
+          width: 9,
+          height: 9,
+          borderRadius: 2,
+          marginRight: 5,
+          verticalAlign: "-1px",
+          background: RANK_COLOR[g]
+        }
+      }), g, " ", rhSpan(b.tot[g])) : null)), /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 11,
+          color: "#6b7f95",
+          marginTop: 6,
+          lineHeight: 1.7
+        }
+      }, "\u4ECA\u306E ", cur[1], " \u306F ", rhYM(cur[0]), " \u304B\u3089 ", rhSpan(curMs))), /*#__PURE__*/React.createElement("details", {
+        style: {
+          marginTop: 6
+        }
+      }, /*#__PURE__*/React.createElement("summary", {
+        style: {
+          fontSize: 11,
+          color: "#8faabe",
+          cursor: "pointer",
+          minHeight: 44,
+          display: "flex",
+          alignItems: "center"
+        }
+      }, "\u521D\u51FA\u8D70\u3068\u3001\u7D1A\u5225\u304C\u5909\u308F\u3063\u305F\u65E5\uFF08", ch.length, "\u4EF6\uFF09"), /*#__PURE__*/React.createElement("table", {
+        style: {
+          width: "100%",
+          borderCollapse: "collapse",
+          fontSize: 12,
+          marginTop: 4
+        }
+      }, /*#__PURE__*/React.createElement("tbody", null, b.segs.map((s, i) => /*#__PURE__*/React.createElement("tr", {
+        key: i
+      }, /*#__PURE__*/React.createElement("td", {
+        style: {
+          padding: "5px 0",
+          borderBottom: "1px solid #1a2535",
+          color: "#8faabe",
+          fontVariantNumeric: "tabular-nums",
+          width: "6.6em",
+          whiteSpace: "nowrap"
+        }
+      }, s.from.replace(/-/g, ".")), /*#__PURE__*/React.createElement("td", {
+        style: {
+          padding: "5px 0",
+          borderBottom: "1px solid #1a2535",
+          width: "3.4em",
+          fontWeight: 700,
+          color: RANK_TX[s.g] || "#e0e6ed"
+        }
+      }, s.g), /*#__PURE__*/React.createElement("td", {
+        style: {
+          padding: "5px 0",
+          borderBottom: "1px solid #1a2535",
+          color: "#6b7f95",
+          fontSize: 11
+        }
+      }, i === 0 ? "初出走" : ""), /*#__PURE__*/React.createElement("td", {
+        style: {
+          padding: "5px 0",
+          borderBottom: "1px solid #1a2535",
+          color: "#6b7f95",
+          fontSize: 11,
+          textAlign: "right",
+          fontVariantNumeric: "tabular-nums",
+          whiteSpace: "nowrap"
+        }
+      }, rhSpan(s.ms)))))), /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 10,
+          color: "#6b7f95",
+          marginTop: 8,
+          lineHeight: 1.6
+        }
+      }, "\u7D1A\u5225\u306F\u516C\u5F0F\u306E\u756A\u7D44\u8868\u306B\u8F09\u3063\u3066\u3044\u308B\u3001\u305D\u306E\u65E5\u305D\u306E\u9078\u624B\u306E\u7D1A\u5225\u3092\u305D\u306E\u307E\u307E\u62FE\u3063\u305F\u3082\u306E\u3002 \u534A\u5E74\u3054\u3068\u306E\u6539\u5B9A\u65E5\u3067\u306F\u306A\u304F\u3001\u6539\u5B9A\u5F8C\u306B\u305D\u306E\u9078\u624B\u304C\u521D\u3081\u3066\u51FA\u8D70\u3057\u305F\u65E5\u304C\u5165\u308B\u3002 1996\u5E747\u670819\u65E5\u3088\u308A\u524D\u306F\u756A\u7D44\u8868\u304C\u914D\u5E03\u3055\u308C\u3066\u3044\u306A\u3044\u305F\u3081\u3001\u305D\u308C\u4EE5\u524D\u306E\u7D1A\u5225\u306F\u5206\u304B\u3089\u306A\u3044\u3002", rhMeta && rhMeta.期間 ? "　対象期間 " + rhMeta.期間 + "。" : "")));
+    })(), detail && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 11,
         color: "#8faabe",
