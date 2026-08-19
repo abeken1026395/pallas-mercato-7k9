@@ -630,9 +630,9 @@ function App() {
                           </div>
                         </div>
                         <details style={{marginTop:6}}>
-                          <summary style={{fontSize:11,color:"#8faabe",cursor:"pointer",minHeight:44,display:"flex",alignItems:"center",gap:6,listStyle:"none"}}>
-                            <span style={{color:"#6b7f95",fontSize:10}}>▸</span>
-                            初出走と、級別が変わった日（{ch.length}件）
+                          <summary onClick={e=>e.stopPropagation()} style={{fontSize:12,color:"#8faabe",cursor:"pointer",minHeight:44,display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,listStyle:"none",background:"#0b1219",border:"1px solid #1a2535",borderRadius:8,padding:"0 12px"}}>
+                            <span>初出走と、級別が変わった日を見る（{ch.length}件）</span>
+                            <span style={{color:"#6b7f95",fontSize:12}}>▸</span>
                           </summary>
                           <table style={{width:"100%",borderCollapse:"collapse",fontSize:12,marginTop:4}}>
                             <tbody>
