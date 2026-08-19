@@ -7,8 +7,12 @@
  * これにより docs/players/index.html から babel-standalone（CDN・gzip 約 584KB）の
  * 読み込みと実行時トランスパイルを外せる。
  *
- * 事前準備:
- *   npm i @babel/core @babel/preset-react
+ * 事前準備（★Babel 7系を明示すること）:
+ *   npm i "@babel/core@^7.28.0" "@babel/preset-react@^7.27.0"
+ *
+ *   無指定の `npm i @babel/core` は Babel 8 を入れる。Babel 8 は ESM 化で
+ *   default export を持たないため、下の `import babel from "@babel/core"` が
+ *   「does not provide an export named 'default'」で失敗する。
  * 実行:
  *   node scripts/buildPlayersApp.mjs
  *

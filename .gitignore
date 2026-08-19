@@ -23,3 +23,8 @@ data/courseLast10.json
 
 # 検証ページ /kensho/ のキャッシュ（累積 data/kenshoVerify.json はコミット対象）
 data/programsCache/
+
+# Node（buildPlayersApp.mjs のビルド用。成果物 app.js のみコミットする）
+node_modules/
+package-lock.json
+package.json

@@ -630,7 +630,8 @@ function App() {
                           </div>
                         </div>
                         <details style={{marginTop:6}}>
-                          <summary style={{fontSize:11,color:"#8faabe",cursor:"pointer",minHeight:44,display:"flex",alignItems:"center"}}>
+                          <summary style={{fontSize:11,color:"#8faabe",cursor:"pointer",minHeight:44,display:"flex",alignItems:"center",gap:6,listStyle:"none"}}>
+                            <span style={{color:"#6b7f95",fontSize:10}}>▸</span>
                             初出走と、級別が変わった日（{ch.length}件）
                           </summary>
                           <table style={{width:"100%",borderCollapse:"collapse",fontSize:12,marginTop:4}}>

@@ -1602,9 +1602,16 @@ function App() {
           cursor: "pointer",
           minHeight: 44,
           display: "flex",
-          alignItems: "center"
+          alignItems: "center",
+          gap: 6,
+          listStyle: "none"
         }
-      }, "\u521D\u51FA\u8D70\u3068\u3001\u7D1A\u5225\u304C\u5909\u308F\u3063\u305F\u65E5\uFF08", ch.length, "\u4EF6\uFF09"), /*#__PURE__*/React.createElement("table", {
+      }, /*#__PURE__*/React.createElement("span", {
+        style: {
+          color: "#6b7f95",
+          fontSize: 10
+        }
+      }, "\u25B8"), "\u521D\u51FA\u8D70\u3068\u3001\u7D1A\u5225\u304C\u5909\u308F\u3063\u305F\u65E5\uFF08", ch.length, "\u4EF6\uFF09"), /*#__PURE__*/React.createElement("table", {
         style: {
           width: "100%",
           borderCollapse: "collapse",
