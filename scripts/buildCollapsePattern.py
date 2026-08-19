@@ -95,7 +95,8 @@ def main():
         venues[jcd] = {"n": coll, "total": total, "inOutRate": in_out,
                        "patterns": pats, "kimariteSum": kimarite_sum}
 
-    out = {"updated": datetime.date.today().strftime("%Y-%m-%d"), "venues": venues}
+    out = {"出典": "データ攻め",
+           "updated": datetime.date.today().strftime("%Y-%m-%d"), "venues": venues}
     with io.open(OUT_PATH, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=1)
     # サマリ（stdout）

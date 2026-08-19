@@ -213,6 +213,7 @@ def main():
 
     meta = {
         "generated": datetime.now(JST).strftime("%Y-%m-%d %H:%M:%S JST"),
+        "出典": "データ攻め",
         "source": "mbrace 公式競走成績 Kファイル(kYYMMDD.lzh) 由来の entries CSV",
         "sourceUrl": "http://www1.mbrace.or.jp/od2/K/YYYYMM/kYYMMDD.lzh",
         "periodFrom": hdToDate(minHd) if minHd else None,
