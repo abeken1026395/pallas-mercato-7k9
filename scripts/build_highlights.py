@@ -855,10 +855,10 @@ def main():
             if o4top and o4kt == 'makuri' and ba in NARROW:
                 # 死角艇は実際にまくる外脅威(o4top)に付け替え＝旧⑥ハードコード(絡み30%)は過剰。
                 # 実測：D5該当レースで6号艇3着内30.1%に対しo4top(多くは4号)は48.3%。文言も弱化。
-                saten = f"{K[o4top['w']-1]}{nm(bo[o4top['w']-1]['氏名'])}のまくりが決まれば、内の隊形は乱れる。{ba}で①が3着以内を外したのは{_cp_rate}。"
+                saten = f"{K[o4top['w']-1]}{nm(bo[o4top['w']-1]['氏名'])}のまくりが決まれば、内の隊形は乱れる。"
                 skw = o4top['w']; sid = 'D5'
             elif o4top and o4kt == 'makuri':
-                saten = f"{K[o4top['w']-1]}{nm(bo[o4top['w']-1]['氏名'])}のまくりが決まれば、内の粘りごと連れ去る形。{ba}で①が3着以内を外したのは{_cp_rate}。"
+                saten = f"{K[o4top['w']-1]}{nm(bo[o4top['w']-1]['氏名'])}のまくりが決まれば、内の粘りごと連れ去る形。"
                 skw = o4top['w']; sid = 'D6'
             elif o4top and o4kt == 'sashi':
                 saten = f"{K[o4top['w']-1]}{nm(bo[o4top['w']-1]['氏名'])}の差しが甘くなれば、①{nm(in1['氏名'])}の粘り込みも。"
@@ -879,11 +879,11 @@ def main():
             # 外の仕掛けを担う筆頭＝threatsのw>=4で最内の艇（実測：D12死角艇は内ほど絡む
             # 4号57.8%>5号42.9%>6号29.3%。最外選択は6号偏重で弱いため最内優先に変更）
             out_thr = sorted([t for t in threats if t['w'] >= 4], key=lambda x: x['w'])
-            saten = f"{K[out_thr[0]['w']-1]}{nm(bo[out_thr[0]['w']-1]['氏名'])}が仕掛ければ隊形は乱れる。{ba}で①が3着以内を外したのは{_cp_rate}。"
+            saten = f"{K[out_thr[0]['w']-1]}{nm(bo[out_thr[0]['w']-1]['氏名'])}が仕掛ければ、隊形は乱れる。"
             skw = out_thr[0]['w']; sid = 'D12'
         else:
             # 内が壁を作る＝主役の①が残る想定。死角艇は①
-            saten = f"②③が壁を作れば、隊形は内で収まる。{ba}で①が3着以内を外したのは{_cp_rate}。"
+            saten = f"②③が壁を作れば、隊形は内で収まる。"
             skw = 1; sid = 'D13'
         tenkai.append(saten)
 
@@ -944,12 +944,12 @@ def main():
             if downFactors['count'] == 0:
                 suji = f"①{n1}に下振れの材料は出ていない。{ba}で①が3着以内を外したのは{_cp_rate}。"; fid = 'S10'
             elif collapse and _mak >= 72 and _ctop.get('boat'):
-                suji = f"崩れるなら外の一撃。当場で①が着外に沈んだ{_cn}戦のうち{_mak}%がまくり決着で、差しは{_sas}%。狙いは{_ctop['boat']}号艇の踏み込み。"; fid = 'S8'
+                suji = f"{ba}で①が着外に沈んだ{_cn}レースのうち、{_mak}%がまくり決着。差しは{_sas}%。最多は{_ctop['boat']}号艇。"; fid = 'S8'
             elif collapse and _sas >= 22:
                 # 差しパターンは full patterns(上位5)から拾う（表示用top3にはまくりしか無い場があるため）。
                 _sp = next((p for p in ((_cp or {}).get('patterns') or []) if p.get('kimarite') == '差し'), None)
                 _spt = f"{_sp['boat']}号艇の差し{_sp['pct']}%" if _sp else "内の差し"
-                suji = f"内から崩れる余地もある。当場の①着外時は差しが{_sas}%を占め、{_spt}が目立つ形。"; fid = 'S9'
+                suji = f"{ba}で①が着外に沈んだ{_cn}レースのうち、差しが{_sas}%。最多は{_spt}。"; fid = 'S9'
             else:
                 suji = f"{K[head_w-1]}{boat_meta[head_w]['nm']}が仕掛ければ、②③は外に張られる形。{ba}で①が3着以内を外したのは{_cp_rate}。"; fid = 'S5'
         elif out4:
