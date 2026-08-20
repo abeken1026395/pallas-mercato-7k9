@@ -190,10 +190,18 @@ def _looks_numeric(s):
 
 
 def assert_row_sane(jcd, rno, row):
-    """列オフセット再発防止の機械ゲート。1つでも該当したら全フィールドをログに出し実行を失敗させる。"""
+    """列オフセット再発防止の機械ゲート。1つでも該当したら全フィールドをログに出し実行を失敗させる。
+
+    戻り値: True＝健全（保存対象）／False＝体重欄が空のため保存対象外（欠場等）。
+    体重欄が空（欠場・未出走等）は列オフセット異常ではない。列がズレた場合は
+    体重セルに氏名や展示タイムなど「別項目の値」が入るのであって、空にはならない。
+    そのため空のときだけ FATAL とせず False を返して呼び出し側に1行スキップさせる。
+    値が入っているのに 'kg' が無い場合は従来どおり FATAL（検知能力は落とさない）。"""
     weight = str(row.get("体重", ""))
     tenji = str(row.get("展示タイム", ""))
     name = str(row.get("氏名", "")).strip()
+    if not weight.strip():
+        return False
     problems = []
     if "kg" not in weight:
         problems.append("体重に'kg'が含まれない: {!r}".format(weight))
@@ -210,6 +218,7 @@ def assert_row_sane(jcd, rno, row):
         for p in problems:
             print("  -> ", p)
         sys.exit(1)
+    return True
 
 
 def _query_dict(url):
@@ -367,6 +376,7 @@ def main():
     fetched_races = 0
     mismatch_races = []
     skipped_empty_tenji = 0
+    skipped_empty_weight = 0
     pending = list(races)
 
     for idx, (jcd, rno) in enumerate(pending):
@@ -396,7 +406,11 @@ def main():
         st_map = parse_start_exhibition(html)   # 艇番->{course,st}（レース単位で1回）
         anteiban = parse_anteiban(html)         # 安定板（レース単位。未使用は空文字）
         for row in rows:
-            assert_row_sane(jcd, rno, row)  # 列オフセット異常を検知したら即失敗（既存ファイル未書換）
+            if not assert_row_sane(jcd, rno, row):
+                # 列オフセット異常なら関数内で即失敗（既存ファイル未書換）。
+                # Falseは体重欄が空＝欠場等。その1行だけ保存せず処理を続ける。
+                skipped_empty_weight += 1
+                continue
             if not str(row["展示タイム"]).strip():
                 skipped_empty_tenji += 1
                 continue  # 展示タイム空＝未公開/欠場のため保存しない
@@ -441,6 +455,7 @@ def main():
     for jcd, rno, why in mismatch_races:
         print("  破棄: jcd={} rno={} 理由={}".format(jcd, rno, why))
     print("展示タイム空でskip: {}行".format(skipped_empty_tenji))
+    print("体重空でskip: {}行".format(skipped_empty_weight))
 
 
 if __name__ == "__main__":
