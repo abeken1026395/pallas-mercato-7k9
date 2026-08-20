@@ -287,6 +287,48 @@ def main():
         mot = []
     mkey = {(m['場コード'], m['登録番号']): f(m['モーター2連対率']) for m in mot}
 
+    # 〔今節の展示タイム偏差〕docs/data/motorParts.json から、当日より前の同じ場の展示タイムを拾う。
+    #   生の秒数は水面・気象で基準が動くため出さない。そのレースの6艇平均からの差だけを使う。
+    #   遡る日数は出走表の「1日目成績〜6日目成績」の埋まり本数＝前日までに走った日数で決める。
+    #   これにより前節を跨がない（motorParts の「節名」は全行が空のため、節の区切りに使えない）。
+    _DAYCOLS = ['1日目成績', '2日目成績', '3日目成績', '4日目成績', '5日目成績', '6日目成績']
+    _tenji = {}
+    try:
+        with open(os.path.join('docs', 'data', 'motorParts.json'), encoding='utf-8') as _mf:
+            _mprec = json.load(_mf).get('records', [])
+        _byrace = defaultdict(list)
+        for _x in _mprec:
+            _byrace[(_x.get('jcd'), _x.get('開催日'), _x.get('rno'))].append(_x)
+        _acc = defaultdict(list)
+        for _k, _v in _byrace.items():
+            _ts = []
+            for _x in _v:
+                _t = f(_x.get('展示タイム'))
+                if _t > 0:
+                    _ts.append(_t)
+            if len(_ts) < 4:          # 6艇平均が作れないレースは使わない
+                continue
+            _avg = sum(_ts) / len(_ts)
+            for _x in _v:
+                _t = f(_x.get('展示タイム'))
+                if _t > 0:
+                    _acc[(_x.get('jcd'), str(_x.get('登番')))].append((_x.get('開催日'), round(_t - _avg, 3)))
+        _tenji = _acc
+    except Exception:
+        _tenji = {}
+
+    def tenji_dev(r, hd):
+        """今節の展示タイム偏差。(平均偏差, 本数) を返す。取れなければ (None, 0)。
+           マイナスほど6艇平均より速い。本数は必ず読者に併記する。"""
+        n = sum(1 for c in _DAYCOLS if (r.get(c) or '').strip())
+        if n <= 0:
+            return None, 0
+        h = _tenji.get((r['場コード'], str(r['登録番号'])), [])
+        h = sorted([x for x in h if x[0] < hd], reverse=True)[:n]
+        if len(h) < 2:                # 1本だけの偏差はその日の条件に振られるので出さない
+            return None, len(h)
+        return round(sum(d for _, d in h) / len(h), 3), len(h)
+
     # 選手別①1着率（buildRacerInRate.py 出力）。下振れ要因の事実提示に使う（スコアには非関与）。
     try:
         with open(os.path.join('docs', 'data', 'racerInRate.json'), encoding='utf-8') as _rf:
@@ -957,6 +999,22 @@ def main():
             suji = f"{K[ow-1]}{boat_meta[ow]['nm']}が仕掛ければ、②③は外に張られる形。{ba}で①が3着以内を外したのは{_cp_rate}。"; fid = 'S6'
         else:
             suji = f"②{n2b}が差し込めば、①{n1}は2着に残る形。{ba}で①が3着以内を外したのは{_cp_rate}。"; fid = 'S7'
+
+        # --- 今節の展示（前日まで）。6艇平均との差が 0.05 秒以上ついた艇だけ、締めの前に1行置く。
+        #     0.05 未満は「ほぼ平均」にしかならず読者の判断が変わらないため出さない（深層には全艇を出す）。
+        #     対象は①と対抗の2艇。本数は必ず併記する。
+        _tj_line = None
+        _tj_cand = [(1, in1)]
+        if head_w and 1 <= head_w <= 6:
+            _tj_cand.append((head_w, bo[head_w - 1]))
+        _tj_hit = []
+        for _w, _b in _tj_cand:
+            _dv, _nn = tenji_dev(_b, bo[0].get('開催日', ''))
+            if _dv is not None and abs(_dv) >= 0.05:
+                _tj_hit.append(f"{K[_w-1]}{nm(_b['氏名'])}は今節の展示が6艇平均より"
+                               f"{abs(_dv):.2f}秒{'速い' if _dv < 0 else '遅い'}（{_nn}本）")
+        if _tj_hit:
+            tenkai.append('。'.join(_tj_hit) + '。')
 
         # --- 締めの1行：展示で何を見るかを艇番で名指しする（定型の言い回しをやめた）---
         _shw = (f"{K[head_w-1]}{boat_meta[head_w]['nm']}" if head_w and head_w in boat_meta
