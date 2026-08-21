@@ -81,6 +81,7 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .downfactor .df-list{margin:6px 0 0;padding-left:16px}
 .downfactor .df-list li{margin:2px 0;color:#a9c6dd}
 .downfactor .df-ref{margin-top:6px;font-size:10px;color:#7d94a8;opacity:.85}
+.downfactor .df-cmp{display:block;font-size:10px;color:#7d94a8;opacity:.85;font-weight:400}
 /* ①の崩れ方（誰がどの手で崩すか・当場過去1年の実数。①着外レースの内訳） */
 .collapse-fact{margin-top:8px;font-size:11px;color:#8aa0b4;background:#0f1a26;border:1px solid #23364a;border-left:3px solid #33465c;border-radius:8px;padding:8px 10px;line-height:1.6}
 .collapse-fact .cf-h{font-weight:700;color:#a9c6dd}
@@ -805,14 +806,31 @@ function downFactorHtml(r){
   if(!df) return '';                         // downFactors 未搭載の旧データは非表示（後方互換）
   const n = df['count']||0;
   const items = df['items']||[];
-  const dispN = n>=2 ? 2 : n;                // 参考実績は 0/1/2個で出し分け（3個以上は2個扱い）
-  const REF = {0:'11.9%', 1:'27.2%', 2:'33.1%'};
   const head = n>0
     ? `①の下振れ要因<b class="df-n">${n}つ該当</b>`
     : `①の下振れ要因<span class="df-none">該当なし</span>`;
-  const list = n>0 ? `<ul class="df-list">${items.map(it=>`<li>${it}</li>`).join('')}</ul>` : '';
-  const ref = `<div class="df-ref">過去1年、該当${dispN}つのレースの①着外率は${REF[dispN]}（全体19.2%）</div>`;
-  return `<div class="downfactor">${head}${list}${ref}</div>`;
+  // 各要因に比較対象を実数で添える。分母の見えない率は出さない。
+  // 参考実績（該当N個ごとの着外率）は分母が無く、当時の該当状況を再現できないため廃止した。
+  const base = INRATEBASE;
+  const in1 = (r['艇']||[])[0]||{};
+  const cp  = r['collapse']||{};
+  const cmp = (it)=>{
+    if(/1着率/.test(it) && base && base['中央値']!=null){
+      const nn = in1['イン数']!=null ? `・${in1['イン数']}走` : '';
+      return `<span class="df-cmp">全体の真ん中は${Math.round(base['中央値'])}%${nn}</span>`;
+    }
+    if(/モーター2連率/.test(it) && r['モーター場平均']!=null){
+      return `<span class="df-cmp">この場の平均は${Math.round(r['モーター場平均'])}%</span>`;
+    }
+    if(/着外率/.test(it) && cp['inOutRate']!=null && cp['n']!=null){
+      return `<span class="df-cmp">実数は${cp['inOutRate']}%・${cp['n']}レース</span>`;
+    }
+    return '';
+  };
+  const list = n>0
+    ? `<ul class="df-list">${items.map(it=>`<li>${it}${cmp(it)}</li>`).join('')}</ul>`
+    : '<div class="df-ref">①が崩れやすいと言える材料は、この3つの条件では出ていません。</div>';
+  return `<div class="downfactor">${head}${list}</div>`;
 }
 
 // ①の1コース1着率を、全体の真ん中と並べて出す（深層）。
