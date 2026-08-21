@@ -90,6 +90,18 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .collapse-fact .cf-p b{color:#c9d9e8;font-weight:700}
 .collapse-fact .cf-today{margin-top:5px;font-size:11px;color:#a9c6dd}
 .collapse-fact .cf-note{margin-top:6px;font-size:10px;color:#7d94a8;opacity:.85}
+.inrate-fact,.tenji-fact{margin-top:8px;font-size:11px;color:#8aa0b4;background:#0f1a26;border:1px solid #23364a;border-left:3px solid #33465c;border-radius:8px;padding:8px 10px;line-height:1.6}
+.inrate-fact .ir-h,.tenji-fact .tj-h{font-weight:700;color:#a9c6dd}
+.inrate-fact .ir-sub,.tenji-fact .tj-sub{font-weight:400;font-size:10px;color:#7d94a8;margin-left:4px}
+.ir-t,.tj-t{width:100%;border-collapse:collapse;margin:5px 0 2px;font-variant-numeric:tabular-nums}
+.ir-t th,.ir-t td,.tj-t th,.tj-t td{padding:3px 0;border-bottom:1px solid #1b2a3a;font-weight:400;text-align:left;color:#c9d9e8}
+.ir-t td.n,.tj-t td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;padding-left:8px}
+.ir-t tr:last-child th,.ir-t tr:last-child td,.tj-t tr:last-child th,.tj-t tr:last-child td{border-bottom:none}
+.tj-t td.fast{color:#6fd18a;font-weight:700}
+.tj-t td.slow{color:#e88b7d;font-weight:700}
+.tj-t td.dim{color:#5d7285}
+.inrate-fact .ir-note,.tenji-fact .tj-note{margin-top:6px;font-size:10px;color:#7d94a8;opacity:.85}
+.inrate-fact .ir-src{margin-top:5px;font-size:10px;color:#7d94a8;opacity:.75}
 .wk{width:20px;height:20px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0}
 .wk1{background:var(--w1);color:#000}.wk2{background:var(--w2);color:#fff}.wk3{background:var(--w3);color:#fff}.wk4{background:var(--w4);color:#fff}.wk5{background:var(--w5);color:#000}.wk6{background:var(--w6);color:#fff}
 .lv{font-size:10.5px;font-weight:800;padding:1px 5px;border-radius:4px;flex-shrink:0}
@@ -523,6 +535,8 @@ function renderCard(r, ctx){
       <div class="boats">${r['艇'].map(b=>boatRow(b, r['場名'])).join('')}</div>
       <div class="tenkai"><div class="t">展開の筋</div>${r['展開'].map(p=>`<p>${p}</p>`).join('')}</div>
       <div class="suji"><b>波及の連鎖</b>：${r['波及']}</div>
+      ${inRateHtml(r)}
+      ${tenjiHtml(r)}
       ${downFactorHtml(r)}
       ${collapseHtml(r)}
       ${uranaiCard(r)}
@@ -603,6 +617,8 @@ document.addEventListener('keydown',function(e){
 });
 let ISNEXT=false, NEXTMETA={};  // 明日タブ（前夜プレビュー）の状態と場別メタ（鮮度・部分公開）
 let MOTORREPL={};               // 場コード→モーター新替の記録（data/motorReplace.json 由来）
+let INRATEBASE=null;            // 1コース1着率の比較基準（中央値・人数・最低走数・集計日）
+const WNUM=['①','②','③','④','⑤','⑥'];  // 枠番の丸数字（深層の一覧で使う）
 
 // ---- 観戦記カード（署名コーナー）----
 let KAISAI='', KANSENKI={}, GLOSSARY={};
@@ -799,6 +815,48 @@ function downFactorHtml(r){
   return `<div class="downfactor">${head}${list}${ref}</div>`;
 }
 
+// ①の1コース1着率を、全体の真ん中と並べて出す（深層）。
+// 表層には実数と走数だけを置き、比較対象はここで初めて見せる（単独の数字を置かないため）。
+function inRateHtml(r){
+  const base = INRATEBASE;
+  if(!base || base['中央値']==null) return '';
+  const in1 = r && r['艇'] && r['艇'][0];
+  if(!in1 || in1['inWinRate']==null) return '';
+  const nn = in1['イン数']!=null ? `${in1['イン数']}走` : '—';
+  return `<div class="inrate-fact">`
+    + `<div class="ir-h">1コース1着率<span class="ir-sub">（過去1年）</span></div>`
+    + `<table class="ir-t"><tbody>`
+    + `<tr><th>①${in1['氏名']}（${in1['級別']}）</th><td class="n">${Math.round(in1['inWinRate'])}%</td><td class="n">${nn}</td></tr>`
+    + `<tr><th>1コース1着率を持つ選手の真ん中</th><td class="n">${Math.round(base['中央値'])}%</td><td class="n">${base['人数'].toLocaleString()}人</td></tr>`
+    + `</tbody></table>`
+    + `<div class="ir-note">1コースに${base['最低走数']}走以上入った選手だけを数えています。${base['最低走数']}走に満たない選手は率を出していません。</div>`
+    + `<div class="ir-src">出典：${base['出典']}／集計 ${base['集計日']}</div>`
+    + `</div>`;
+}
+
+// 今節の展示タイムを6艇ぶん並べる（深層）。生の秒数は出さず、6艇平均との差だけを見せる。
+// 走った本数を必ず併記する。2本未満は差を出さない（その日の条件に振られるため）。
+function tenjiHtml(r){
+  const bs = r && r['艇'];
+  if(!bs || !bs.length) return '';
+  const has = bs.some(b=>(b['今節展示']||{})['偏差']!=null);
+  if(!has) return '';                          // 1艇も出せない節（初日等）は非表示
+  const rows = bs.map(b=>{
+    const t = b['今節展示']||{};
+    const d = t['偏差'];
+    const n = t['本数']||0;
+    if(d==null) return `<tr><th>${WNUM[(+b['枠'])-1]}${b['氏名']}</th><td class="n dim">—</td><td class="n">${n}本</td></tr>`;
+    const sign = d<0 ? '−' : '+';
+    const cls = d<=-0.05 ? 'fast' : (d>=0.05 ? 'slow' : '');
+    return `<tr><th>${WNUM[(+b['枠'])-1]}${b['氏名']}</th><td class="n ${cls}">${sign}${Math.abs(d).toFixed(2)}</td><td class="n">${n}本</td></tr>`;
+  }).join('');
+  return `<div class="tenji-fact">`
+    + `<div class="tj-h">今節の展示タイム<span class="tj-sub">（前日まで・6艇平均との差）</span></div>`
+    + `<table class="tj-t"><tbody>${rows}</tbody></table>`
+    + `<div class="tj-note">マイナスが6艇平均より速い側です。水面と気象で基準が動くため、秒数そのものは出していません。2本に満たない選手は差を出していません。</div>`
+    + `</div>`;
+}
+
 // ①が崩れるときの「崩れ方」（誰がどの手で崩すか）を当場・過去1年の実数で提示する。
 // build_highlights が各レースに付ける collapse{top,patterns[],n,inOutRate,kimariteSum} を読むだけ。
 // 確率・買い目・予想は出さない。【誤読防止・必須】「①が着外だったレースの内訳」である旨を必ず明記
@@ -982,6 +1040,7 @@ fetch(SRC+'?_='+Date.now())
   ISNEXT = !!doc['プレビュー'] || /highlights_next/.test(SRC);   // 明日タブ判定
   NEXTMETA = doc['場別'] || {};
   MOTORREPL = doc['モーター新替'] || {};
+  INRATEBASE = doc['1コース1着率の基準'] || null;
   if(SRC==='highlights.json') TODAY_DATE = doc['開催日']||'';     // 当日基準日を保持（比較用）
   const nn=document.getElementById('nextnote');
   // 明日タブは「next.開催日 > 当日.開催日」の時のみカード表示。同日以下は案内のみ（同日表示バグ対策）。
