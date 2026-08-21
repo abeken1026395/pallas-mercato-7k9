@@ -1097,6 +1097,8 @@ def main():
             '節名': bo[0].get('節名', ''), '企画名': bo[0].get('企画名', ''),
             '日目': bo[0].get('日目', ''),
             '波乱': seeds, 'イン堅': in_strong, 'モーター使用': use_m, 'イン1着率': it,
+            # 深層の下振れ要因ブロックで、①の機力の比較対象として使う（単独の数字を置かないため）。
+            'モーター場平均': round(mavg2, 1) if mavg2 else None,
             '艇': boats, '見立て': headline, '展開': tenkai, '波及': suji,
             'downFactors': downFactors,  # 追加:①の下振れ要因（事実提示・確率/買い目なし）
             'collapse': collapse  # 追加:①の崩れ方（場別実数・確率/買い目なし。①着外レースの内訳）
