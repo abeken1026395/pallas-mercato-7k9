@@ -332,9 +332,12 @@ def main():
     # 選手別①1着率（buildRacerInRate.py 出力）。下振れ要因の事実提示に使う（スコアには非関与）。
     try:
         with open(os.path.join('docs', 'data', 'racerInRate.json'), encoding='utf-8') as _rf:
-            _inrate = json.load(_rf).get('racers', {})
+            _rj = json.load(_rf)
+            _inrate = _rj.get('racers', {})
+            _inrate_updated = _rj.get('updated', '')
     except Exception:
         _inrate = {}
+        _inrate_updated = ''
     # 見立ての比較基準：1コース1着率を持つ選手全体の中央値（母数ガードは racerInRate 側で済み）。
     # 固定値を書かず毎回算出する。単独の数字を置かないための「真ん中」を作るだけで、判定には非関与。
     try:
@@ -1077,7 +1080,10 @@ def main():
                 'まくりさされ率': y.get('まくりさされ率'), 'イン数': y.get('イン数'),
                 'まくり率': y.get('まくり率'), '差し率': y.get('差し率'),  # 追加:B案の事実併記用(null許容)
                 '1着数': y.get('1着数'), 'まくり数': y.get('まくり数'), '差し数': y.get('差し数'),  # 追加:母数/分母(null許容)
-                'inWinRate': (_inrate.get(b['登録番号']) or {}).get('rate')  # 追加:①1着率(null許容)
+                'inWinRate': (_inrate.get(b['登録番号']) or {}).get('rate'),  # 追加:①1着率(null許容)
+                # 今節の展示タイム偏差（6艇平均との差・本数）。深層の一覧で6艇ぶん出す。
+                # 生の秒数は出さない。2本未満は偏差を出さず本数だけ返る。
+                '今節展示': (lambda _d, _n: {'偏差': _d, '本数': _n})(*tenji_dev(b, bo[0].get('開催日', '')))
             }
             if _bdm:
                 _boat['誕生日'] = {'歳': _bdm[0]}
@@ -1155,6 +1161,11 @@ def main():
         '開催日': kaisai,
         '確定イン率場': sorted(CONFIRMED),
         'モーター新替': motor_replace,
+        # 深層で「単独の数字を置かない」ための比較基準。表層には出さず、タップした先でだけ使う。
+        '1コース1着率の基準': {
+            '中央値': _med_rate, '人数': _n_rate, '最低走数': 20,
+            '集計日': _inrate_updated, '出典': 'データ攻め（YouTube あべけん）'
+        },
         'レース数': len(out_races),
         'レース': out_races
     }
