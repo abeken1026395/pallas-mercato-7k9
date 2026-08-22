@@ -325,9 +325,34 @@ def main():
             return None, 0
         h = _tenji.get((r['場コード'], str(r['登録番号'])), [])
         h = sorted([x for x in h if x[0] < hd], reverse=True)[:n]
-        if len(h) < 2:                # 1本だけの偏差はその日の条件に振られるので出さない
+        if len(h) < 1:                # 0本（初日）は出せない。1本以上あれば偏差を出す。
+            # 偏差は「同じレースの6艇平均との差」なので、その日の水面・気象条件は定義上キャンセルされている。
+            # 1本でも事実として正しい。本数を必ず併記して読者が判断できるようにする。
             return None, len(h)
         return round(sum(d for _, d in h) / len(h), 3), len(h)
+
+    def setsu_trail(r):
+        """今節の走り（前日まで）。出走表の「N日目成績」から着順・ST・進入コースを取り出す。
+           書式は 'レース番号R/着/ST/進入コース' で、1日に複数走ある場合は半角スペース区切り。
+           例 '3R/5/.12/6 7R/2/.11/1' → 3R5着ST.12を6コース、7R2着ST.11を1コース。
+           返すのは [{日:1, レース:'3R', 着:5, ST:'.12', コース:6}, ...]。取れなければ []。"""
+        out = []
+        for di, c in enumerate(_DAYCOLS, start=1):
+            v = (r.get(c) or '').strip()
+            if not v:
+                continue
+            for tok in v.split():
+                p = tok.split('/')
+                if len(p) != 4:
+                    continue          # 書式が違う行は捨てる（無理に解釈しない）
+                try:
+                    _chaku = int(p[1])
+                except ValueError:
+                    _chaku = None     # F・L・失格などは数値にならない。原文を着に入れる
+                out.append({'日': di, 'レース': p[0],
+                            '着': _chaku if _chaku is not None else p[1],
+                            'ST': p[2], 'コース': p[3]})
+        return out
 
     # 選手別①1着率（buildRacerInRate.py 出力）。下振れ要因の事実提示に使う（スコアには非関与）。
     try:
@@ -1083,7 +1108,9 @@ def main():
                 'inWinRate': (_inrate.get(b['登録番号']) or {}).get('rate'),  # 追加:①1着率(null許容)
                 # 今節の展示タイム偏差（6艇平均との差・本数）。深層の一覧で6艇ぶん出す。
                 # 生の秒数は出さない。2本未満は偏差を出さず本数だけ返る。
-                '今節展示': (lambda _d, _n: {'偏差': _d, '本数': _n})(*tenji_dev(b, bo[0].get('開催日', '')))
+                '今節展示': (lambda _d, _n: {'偏差': _d, '本数': _n})(*tenji_dev(b, bo[0].get('開催日', ''))),
+                # 今節の走り（前日まで）。着順・ST・進入コースの時系列。深層の一覧で使う。
+                '今節の走り': setsu_trail(b)
             }
             if _bdm:
                 _boat['誕生日'] = {'歳': _bdm[0]}

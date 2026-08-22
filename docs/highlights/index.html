@@ -91,13 +91,21 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .collapse-fact .cf-p b{color:#c9d9e8;font-weight:700}
 .collapse-fact .cf-today{margin-top:5px;font-size:11px;color:#a9c6dd}
 .collapse-fact .cf-note{margin-top:6px;font-size:10px;color:#7d94a8;opacity:.85}
-.inrate-fact,.tenji-fact{margin-top:8px;font-size:11px;color:#8aa0b4;background:#0f1a26;border:1px solid #23364a;border-left:3px solid #33465c;border-radius:8px;padding:8px 10px;line-height:1.6}
-.inrate-fact .ir-h,.tenji-fact .tj-h{font-weight:700;color:#a9c6dd}
-.inrate-fact .ir-sub,.tenji-fact .tj-sub{font-weight:400;font-size:10px;color:#7d94a8;margin-left:4px}
-.ir-t,.tj-t{width:100%;border-collapse:collapse;margin:5px 0 2px;font-variant-numeric:tabular-nums}
-.ir-t th,.ir-t td,.tj-t th,.tj-t td{padding:3px 0;border-bottom:1px solid #1b2a3a;font-weight:400;text-align:left;color:#c9d9e8}
+.inrate-fact,.tenji-fact,.trail-fact{margin-top:8px;font-size:11px;color:#8aa0b4;background:#0f1a26;border:1px solid #23364a;border-left:3px solid #33465c;border-radius:8px;padding:8px 10px;line-height:1.6}
+.inrate-fact .ir-h,.tenji-fact .tj-h,.trail-fact .tl-h{font-weight:700;color:#a9c6dd}
+.inrate-fact .ir-sub,.tenji-fact .tj-sub,.trail-fact .tl-sub{font-weight:400;font-size:10px;color:#7d94a8;margin-left:4px}
+.ir-t,.tj-t,.tl-t{width:100%;border-collapse:collapse;margin:5px 0 2px;font-variant-numeric:tabular-nums}
+.ir-t th,.ir-t td,.tj-t th,.tj-t td,.tl-t th,.tl-t td{padding:3px 0;border-bottom:1px solid #1b2a3a;font-weight:400;text-align:left;color:#c9d9e8}
 .ir-t td.n,.tj-t td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;padding-left:8px}
-.ir-t tr:last-child th,.ir-t tr:last-child td,.tj-t tr:last-child th,.tj-t tr:last-child td{border-bottom:none}
+.ir-t tr:last-child th,.ir-t tr:last-child td,.tj-t tr:last-child th,.tj-t tr:last-child td,.tl-t tr:last-child th,.tl-t tr:last-child td{border-bottom:none}
+.tl-t th{white-space:nowrap;padding-right:8px;vertical-align:top}
+.tl-t td.tr-run{font-size:10.5px;line-height:1.7}
+.tl-t .tr-one{display:block;white-space:nowrap}
+.tl-t .tr-one b{font-weight:700;color:#c9d9e8}
+.tl-t .tr-one b.win{color:#6fd18a}
+.tl-t .tr-one b.lose{color:#e88b7d}
+.tl-t td.dim{color:#5d7285}
+.trail-fact .tl-note{margin-top:6px;font-size:10px;color:#7d94a8;opacity:.85}
 .tj-t td.fast{color:#6fd18a;font-weight:700}
 .tj-t td.slow{color:#e88b7d;font-weight:700}
 .tj-t td.dim{color:#5d7285}
@@ -537,6 +545,7 @@ function renderCard(r, ctx){
       <div class="tenkai"><div class="t">展開の筋</div>${r['展開'].map(p=>`<p>${p}</p>`).join('')}</div>
       <div class="suji"><b>波及の連鎖</b>：${r['波及']}</div>
       ${inRateHtml(r)}
+      ${trailHtml(r)}
       ${tenjiHtml(r)}
       ${downFactorHtml(r)}
       ${collapseHtml(r)}
@@ -831,6 +840,33 @@ function downFactorHtml(r){
     ? `<ul class="df-list">${items.map(it=>`<li>${it}${cmp(it)}</li>`).join('')}</ul>`
     : '<div class="df-ref">①が崩れやすいと言える材料は、この3つの条件では出ていません。</div>';
   return `<div class="downfactor">${head}${list}</div>`;
+}
+
+// 今節の走り（前日まで）を6艇ぶん並べる（深層）。着順・ST・進入コースの時系列。
+// 出走表の「N日目成績」由来。1走以上ある艇だけ行を出す。走っていない艇は「—」。
+// 進入コースは枠なり崩れの実測値なので必ず出す。
+function trailHtml(r){
+  const bs = r && r['艇'];
+  if(!bs || !bs.length) return '';
+  const has = bs.some(b=>(b['今節の走り']||[]).length>0);
+  if(!has) return '';                          // 初日は全艇0走なので非表示
+  const rows = bs.map(b=>{
+    const t = b['今節の走り']||[];
+    const w = WNUM[(+b['枠'])-1];
+    if(!t.length) return `<tr><th>${w}${b['氏名']}</th><td class="tr-run dim">—</td></tr>`;
+    const runs = t.map(x=>{
+      const ch = (typeof x['着']==='number') ? `${x['着']}着` : x['着'];
+      const cls = (x['着']===1) ? 'win' : ((typeof x['着']==='number' && x['着']>=4) ? 'lose' : '');
+      return `<span class="tr-one"><b class="${cls}">${ch}</b> ${x['日']}日目${x['レース']}`
+           + ` ST${x['ST']} ${x['コース']}コース</span>`;
+    }).join('');
+    return `<tr><th>${w}${b['氏名']}</th><td class="tr-run">${runs}</td></tr>`;
+  }).join('');
+  return `<div class="trail-fact">`
+    + `<div class="tl-h">今節の走り<span class="tl-sub">（前日まで・着順／ST／進入コース）</span></div>`
+    + `<table class="tl-t"><tbody>${rows}</tbody></table>`
+    + `<div class="tl-note">進入コースは実際に走った位置です。枠番と違う場合は前づけなどで隊形が動いています。</div>`
+    + `</div>`;
 }
 
 // ①の1コース1着率を、全体の真ん中と並べて出す（深層）。
