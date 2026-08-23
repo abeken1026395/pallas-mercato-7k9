@@ -105,6 +105,27 @@ LV = {'A1': 4, 'A2': 3, 'B1': 2, 'B2': 1}
 TH_KATA = 0.04    # スコア >= +0.04 → 堅め（5.3万件グリッド探索の最適値・場別上書きあり）
 TH_HARAN = -0.09  # スコア <= -0.09 → 波乱（間は混戦）
 
+# --- 波乱指数（連続値・並び替え専用）---
+# 目的変数「①が着外（4着以下）か」のロジスティック回帰。値が大きいほど①が飛びやすい。
+# 学習: 2026-01-01〜2026-08-22 の results/ 36,173レース。月次walk-forward（前月までで学習→
+# 当月を検証）で 2026-02〜08 の31,011レースを全て out-of-sample 検証した実測は
+#   AUC 0.7108 / 上位10%の実①着外率 44.8%（母集団18.9%）/ 下位10% 5.9% / 上位10%は24場に分散。
+# 参考：現行の整数カウンタ「波乱」は AUC 0.602 / 上位10% 29.2% / 19場。
+# 特徴は「朝の生成時点で入手できるもの」だけに限る。当日の展示タイム・展示ST・展示進入は
+# 展示走行が済んでいないため朝には存在しない。使うと生成時に全件欠損になる。
+# ★これは並び替えの内部指標であり、読者に確率として出さない（サイト哲学）。
+# ★再学習の目安は 2026-11下旬。上位10%の実①着外率が40%を割ったら係数を引き直す。
+HARAN_IDX = (
+    # (キー, 係数, 欠損時の代替値, 平均, 標準偏差)
+    ('rk1',           -0.33361, 3.0000,  2.8736, 0.8868),   # ①の級別 A1=4..B2=1
+    ('last20',        +0.31777, 3.3000,  3.3339, 0.6364),   # ①の直近20走平均着
+    ('rkout',         +0.27857, 7.1429,  7.6915, 1.8964),   # 外3艇の級別合計
+    ('venOut',        +0.18006, 19.0486, 19.4346, 3.5752),  # 場の①着外率(%)
+    ('c1last10',      +0.15208, 1.9429,  2.0853, 0.7039),   # ①の1コース直近10走平均着
+    ('avgSt',         +0.14331, 0.1601,  0.1609, 0.0212),   # ①の過去平均ST
+    ('midLastBest',   -0.13212, 3.1000,  3.1229, 0.5298),   # ②③の直近20走のよい方
+)
+
 # 場別チューニング（5.3万件で場別グリッド探索・下限ガードTK>=+0.02/TH<=-0.03）
 # 出典：verify_log.csv 20250715-20260705 の全期間実測（2026-07-06反映）
 BA_TH = {
@@ -363,6 +384,18 @@ def main():
     except Exception:
         _inrate = {}
         _inrate_updated = ''
+    # 選手フォーム指標（buildRacerFormIndex.py 出力・data/racerFormIndex.json）。
+    # 波乱指数の材料。docs/ の外に置いてあり Pages デプロイを起こさない。
+    # 読めなければ波乱指数を出さないだけで、既存の見どころ生成には一切影響しない。
+    try:
+        with open(os.path.join('data', 'racerFormIndex.json'), encoding='utf-8') as _ff:
+            _fj = json.load(_ff)
+            _form = _fj.get('racers', {})
+            _formven = _fj.get('venues', {})
+    except Exception:
+        _form = {}
+        _formven = {}
+
     # 見立ての比較基準：1コース1着率を持つ選手全体の中央値（母数ガードは racerInRate 側で済み）。
     # 固定値を書かず毎回算出する。単独の数字を置かないための「真ん中」を作るだけで、判定には非関与。
     try:
@@ -1123,12 +1156,39 @@ def main():
                     _boat['誕生日']['注記'] = _bdm[1]
             boats.append(_boat)
 
+        # --- 波乱指数（連続値・並び替え専用。既存の '波乱' は残す）---
+        # data/racerFormIndex.json が無ければキー自体を出さない（後方互換）。
+        haran_idx = None
+        if _form or _formven:
+            def _fv(toban, key):
+                r = _form.get(str(toban or '').strip())
+                return (r or {}).get(key)
+            _t1 = bo[0].get('登録番号')
+            _mid = [x for x in (_fv(bo[1].get('登録番号'), 'last20'),
+                                _fv(bo[2].get('登録番号'), 'last20')) if x is not None]
+            _vals = {
+                'rk1': LV.get(bo[0].get('級別'), None),
+                'last20': _fv(_t1, 'last20'),
+                'rkout': sum(LV.get(b.get('級別'), 2) for b in bo[3:]),
+                'venOut': (_formven.get(bo[0]['場コード']) or {}).get('out1Rate'),
+                'c1last10': _fv(_t1, 'c1last10'),
+                'avgSt': _fv(_t1, 'avgSt'),
+                'midLastBest': (min(_mid) if _mid else None),
+            }
+            _z = 0.0
+            for _k, _co, _med, _mu, _sd in HARAN_IDX:
+                _v = _vals.get(_k)
+                if _v is None:
+                    _v = _med
+                _z += _co * ((float(_v) - _mu) / _sd)
+            haran_idx = round(_z, 4)
+
         out_entry = {
             '場名': ba, '場コード': bo[0]['場コード'], 'レース': rc,
             '締切時刻': bo[0].get('締切時刻', ''),
             '節名': bo[0].get('節名', ''), '企画名': bo[0].get('企画名', ''),
             '日目': bo[0].get('日目', ''),
-            '波乱': seeds, 'イン堅': in_strong, 'モーター使用': use_m, 'イン1着率': it,
+            '波乱': seeds, '波乱指数': haran_idx, 'イン堅': in_strong, 'モーター使用': use_m, 'イン1着率': it,
             # 深層の下振れ要因ブロックで、①の機力の比較対象として使う（単独の数字を置かないため）。
             'モーター場平均': round(mavg2, 1) if mavg2 else None,
             '艇': boats, '見立て': headline, '展開': tenkai, '波及': suji,
