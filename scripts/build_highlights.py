@@ -1107,12 +1107,43 @@ def main():
         tenkai.append(shime)
 
         # --- 検証ログ（拡張）：対抗・死角・文パターンIDまで保存し、書き方自体を検証可能に ---
+        # --- 波乱指数（連続値・並び替え専用。既存の '波乱' は残す）---
+        # data/racerFormIndex.json が無ければキー自体を出さない（後方互換）。
+        haran_idx = None
+        if _form or _formven:
+            def _fv(toban, key):
+                r = _form.get(str(toban or '').strip())
+                return (r or {}).get(key)
+            _t1 = bo[0].get('登録番号')
+            _mid = [x for x in (_fv(bo[1].get('登録番号'), 'last20'),
+                                _fv(bo[2].get('登録番号'), 'last20')) if x is not None]
+            _vals = {
+                'rk1': LV.get(bo[0].get('級別'), None),
+                'last20': _fv(_t1, 'last20'),
+                'rkout': sum(LV.get(b.get('級別'), 2) for b in bo[3:]),
+                'venOut': (_formven.get(bo[0]['場コード']) or {}).get('out1Rate'),
+                'c1last10': _fv(_t1, 'c1last10'),
+                'avgSt': _fv(_t1, 'avgSt'),
+                'midLastBest': (min(_mid) if _mid else None),
+            }
+            _z = 0.0
+            for _k, _co, _med, _mu, _sd in HARAN_IDX:
+                _v = _vals.get(_k)
+                if _v is None:
+                    _v = _med
+                _z += _co * ((float(_v) - _mu) / _sd)
+            haran_idx = round(_z, 4)
+
         pred_entry = {'場名': ba, '場コード': bo[0]['場コード'], 'レース': rc,
                           '判定': verdict, '主役艇': hero, 'スコア': diff,
                           '対抗艇': (th2[1]['w'] if len(th2) > 1 else None),
                           '死角艇': skw,
                           '見出しID': hid, '死角ID': sid, '波及ID': fid, '締めID': cid,
-                          'スコア内訳': score_breakdown}
+                          'スコア内訳': score_breakdown,
+                          # 並び替え指標の実測を後から測るために保存する（照合WFの既存6項目には影響しない）。
+                          # これが無いと highlights.json は毎日上書きされるため、上位10%の実①着外率を
+                          # あとから数える材料が残らない。2026-11下旬に再測して係数の要否を判断する。
+                          '波乱指数': haran_idx}
 
         boats = []
         for b in bo:
@@ -1155,33 +1186,6 @@ def main():
                 if _bdm[1]:
                     _boat['誕生日']['注記'] = _bdm[1]
             boats.append(_boat)
-
-        # --- 波乱指数（連続値・並び替え専用。既存の '波乱' は残す）---
-        # data/racerFormIndex.json が無ければキー自体を出さない（後方互換）。
-        haran_idx = None
-        if _form or _formven:
-            def _fv(toban, key):
-                r = _form.get(str(toban or '').strip())
-                return (r or {}).get(key)
-            _t1 = bo[0].get('登録番号')
-            _mid = [x for x in (_fv(bo[1].get('登録番号'), 'last20'),
-                                _fv(bo[2].get('登録番号'), 'last20')) if x is not None]
-            _vals = {
-                'rk1': LV.get(bo[0].get('級別'), None),
-                'last20': _fv(_t1, 'last20'),
-                'rkout': sum(LV.get(b.get('級別'), 2) for b in bo[3:]),
-                'venOut': (_formven.get(bo[0]['場コード']) or {}).get('out1Rate'),
-                'c1last10': _fv(_t1, 'c1last10'),
-                'avgSt': _fv(_t1, 'avgSt'),
-                'midLastBest': (min(_mid) if _mid else None),
-            }
-            _z = 0.0
-            for _k, _co, _med, _mu, _sd in HARAN_IDX:
-                _v = _vals.get(_k)
-                if _v is None:
-                    _v = _med
-                _z += _co * ((float(_v) - _mu) / _sd)
-            haran_idx = round(_z, 4)
 
         out_entry = {
             '場名': ba, '場コード': bo[0]['場コード'], 'レース': rc,
