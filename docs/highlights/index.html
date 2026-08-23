@@ -799,10 +799,14 @@ function render(){
   if(OSHI_ONLY && !racesForView().length){ el.innerHTML='<div class="empty">本日、推しの出走はありません。<br><span class="oshi-clear" onclick="toggleOshiOnly()">絞り込みを解除</span></div>'; return; }
   let arr=[...racesForView()];
   if(VIEW==='hot'){
-    arr=arr.filter(r=>r['波乱']>=2);
+    // 波乱指数があるならそれで絞る。無い日だけ従来の整数カウンタに戻す。
+    const useHi=arr.some(r=>hidx(r)!==null);
+    arr=useHi ? arr.filter(r=>{const v=hidx(r);return v!==null&&v>=HI_MIN;})
+              : arr.filter(r=>r['波乱']>=2);
     if(SORT==='time') arr.sort((x,y)=>dl2min(x['締切時刻'])-dl2min(y['締切時刻']));
+    else if(useHi) arr.sort((x,y)=>hidx(y)-hidx(x)||x['場名'].localeCompare(y['場名'],'ja'));
     else arr.sort((x,y)=>y['波乱']-x['波乱']||x['場名'].localeCompare(y['場名'],'ja'));
-    if(!arr.length){el.innerHTML='<div class="empty">本日は波乱条件が2つ以上揃うレースがありません。</div>';return;}
+    if(!arr.length){el.innerHTML='<div class="empty">本日は波乱注目の条件に当てはまるレースがありません。</div>';return;}
     el.innerHTML=arr.map(r=>renderCard(r,'flat')).join('');
   }else if(VIEW==='firm'){
     arr=arr.filter(r=>r['イン堅']);
@@ -853,24 +857,42 @@ function downFactorHtml(r){
 // 今節の走り（前日まで）を6艇ぶん並べる（深層）。着順・ST・進入コースの時系列。
 // 出走表の「N日目成績」由来。1走以上ある艇だけ行を出す。走っていない艇は「—」。
 // 進入コースは枠なり崩れの実測値なので必ず出す。
+// 当日その選手がすでに走った分を1行にする。着・ST・進入コース・展示偏差を数字のまま並べる。
+// 読み方は書かない（読者が判断する）。同じレース自身は含めない。
+function todayRunHtml(b, r){
+  const no=String(b['登録番号']||'').trim();
+  const list=(TODAYRUN[no]||[]).filter(x=>!(x['場']===r['場名'] && x['レース']===r['レース']));
+  if(!list.length) return '';
+  return list.map(x=>{
+    const ch=(typeof x['着']==='number' && x['着']>=1 && x['着']<=6) ? `${x['着']}着` : (x['着']!=null?String(x['着']):'—');
+    const cls=(x['着']===1)?'win':((typeof x['着']==='number' && x['着']>=4 && x['着']<=6)?'lose':'');
+    const st=(x['ST']!=null)?` ST${(x['ST']<0?'-':'')+Math.abs(x['ST']).toFixed(2).replace(/^0/,'')}`:'';
+    const co=(x['コース']!=null)?` ${x['コース']}コース`:'';
+    const dv=(typeof x['展示偏差']==='number')?` 展示${x['展示偏差']>0?'+':''}${x['展示偏差'].toFixed(3)}`:'';
+    return `<span class="tr-one"><b class="${cls}">${ch}</b> 本日${x['レース']}${st}${co}${dv}</span>`;
+  }).join('');
+}
+
 function trailHtml(r){
   const bs = r && r['艇'];
   if(!bs || !bs.length) return '';
-  const has = bs.some(b=>(b['今節の走り']||[]).length>0);
-  if(!has) return '';                          // 初日は全艇0走なので非表示
+  const hasToday = bs.some(b=>todayRunHtml(b, r));
+  const has = bs.some(b=>(b['今節の走り']||[]).length>0) || hasToday;
+  if(!has) return '';                          // 初日で当日も未走なら非表示
   const rows = bs.map(b=>{
     const t = b['今節の走り']||[];
     const w = WNUM[(+b['枠'])-1];
-    if(!t.length) return `<tr><th>${w}${b['氏名']}</th><td class="tr-run dim">—</td></tr>`;
+    const td = todayRunHtml(b, r);
+    if(!t.length && !td) return `<tr><th>${w}${b['氏名']}</th><td class="tr-run dim">—</td></tr>`;
     const runs = t.map(x=>{
       const ch = (typeof x['着']==='number') ? `${x['着']}着` : x['着'];
       const cls = (x['着']===1) ? 'win' : ((typeof x['着']==='number' && x['着']>=4) ? 'lose' : '');
       return `<span class="tr-one"><b class="${cls}">${ch}</b> ${x['日']}日目${x['レース']}`
            + ` ST${x['ST']} ${x['コース']}コース</span>`;
     }).join('');
-    return `<tr><th>${w}${b['氏名']}</th><td class="tr-run">${runs}</td></tr>`;
+    return `<tr><th>${w}${b['氏名']}</th><td class="tr-run">${runs}${td}</td></tr>`;
   }).join('');
-  return fold('今節の走り', '（6艇・前日まで）',
+  return fold('今節の走り', hasToday?'（6艇・前日まで＋本日）':'（6艇・前日まで）',
       `<div class="trail-fact">`
     + `<table class="tl-t"><tbody>${rows}</tbody></table>`
     + `<div class="tl-note">進入コースは実際に走った位置です。枠番と違う場合は前づけなどで隊形が動いています。</div>`
@@ -1041,6 +1063,16 @@ document.addEventListener('click',function(e){
 
 let SRC='highlights.json';
 let RESULTS={}, RESULTS_DATE='';  // 前日/前々日タブの確定結果（場コード+レース→着順/配当）
+// 当日の先行レース（登番→その日すでに走った分）。深層「今節の走り」に生データとして足す。
+// 出所は docs/results/data/YYYYMMDD.json（確定レースのみ・毎時更新）。買い目・予想は出さない。
+let TODAYRUN={}, TODAYRUN_DATE='';
+// 波乱注目タブのしきい値。波乱指数がこの値以上のレースだけ載せる。
+// 過去1年の実測（2026-02〜08・31,011レース・すべて未来を見ない検証）で、
+// この条件のレースは 34.4% が①着外だった（全レースでは 18.9%）。
+// ★1か所だけ直せば絞り具合を変えられる。0.0 なら約46%が通り①着外29.3%。
+const HI_MIN=0.4;
+// 波乱指数（連続値）。無い日（生成前・読み込み失敗）は null を返し、従来の整数カウンタに戻す。
+function hidx(r){ const v=r&&r['波乱指数']; return (typeof v==='number')?v:null; }
 var SRCS=['highlights.json','highlights_prev.json','highlights_prev2.json','highlights_next.json'];
 var TODAY_DATE='';  // 当日highlights.jsonの開催日。明日タブの「翌日か」判定に使う
 var LIVEW={};
@@ -1131,6 +1163,27 @@ fetch(SRC+'?_='+Date.now())
   if(nn){ if(ISNEXT){ nn.textContent='翌日分は各場のレース確定後、順次追加されます。深夜にかけて表示される場が増えます。'; nn.style.display='block'; } else { nn.style.display='none'; } }
   const d=doc['開催日']||''; KAISAI=d;
   RESULTS={}; RESULTS_DATE='';  // タブ切替でリセット
+  TODAYRUN={}; TODAYRUN_DATE='';
+  // 当日タブ：その日すでに確定したレースを登番ごとにまとめ、深層に生データとして出す。
+  // 展示偏差は同じレースの6艇平均との差（生の秒数は水面・気象で基準が動くので出さない）。
+  if(SRC==='highlights.json' && /^\d{8}$/.test(d)){
+    fetch('../results/data/'+d+'.json?_='+Date.now())
+    .then(r=>r.ok?r.json():null)
+    .then(rd=>{
+      if(!rd||!rd['場']) return;
+      const m={};
+      rd['場'].forEach(v=>{ (v['レース']||[]).forEach(x=>{
+        (x['艇']||[]).forEach(b=>{
+          const no=String(b['登番']||'').trim(); if(!no) return;
+          (m[no]=m[no]||[]).push({場:v['場名'],レース:x['レース'],着:b['着'],
+                                  ST:b['ST'],コース:b['コース'],展示偏差:b['展示偏差']});
+        });
+      }); });
+      TODAYRUN=m; TODAYRUN_DATE=d;
+      if(typeof render==='function') render();
+    })
+    .catch(()=>{});  // 取れなければ当日分が出ないだけ
+  }
   if((SRC==='highlights_prev.json'||SRC==='highlights_prev2.json') && /^\d{8}$/.test(d)){
     fetch('../results/data/'+d+'.json?_='+Date.now())
     .then(r=>r.ok?r.json():null)
@@ -1139,7 +1192,7 @@ fetch(SRC+'?_='+Date.now())
   }
   if(d.length===8) document.getElementById('date').textContent=`${d.slice(0,4)}年${+d.slice(4,6)}月${+d.slice(6,8)}日 ${doc['レース数']}レース${ISNEXT?'（明日・前夜プレビュー）':''}`;
   const conf=(doc['確定イン率場']||[]).join('・');
-  document.getElementById('note').innerHTML=`イン1着率は目安値（${conf}は公式実数、他は暫定）。機＝モーター2連率（その節の機力目安で、選手の調子とは別物）。<br>波乱＝外枠A級・当地巧者アウト・イン不安・機力ちぐはぐ等の条件数。買い目・確率・勝者予想は出していません。<br><span style="opacity:.7">生成：${(doc['生成時刻']||'').replace('T',' ').slice(0,16)}</span>` + (OSHI.length?`<br><span class="oshi-note">⭐は推しフォロー中の選手。フォローはこの端末にのみ保存され、外部には送信されません。登録・解除は<a href="../racers/" style="color:#c8a24a">出走表</a>と<a href="../players/" style="color:#c8a24a">選手図鑑</a>から。</span>`:'');
+  document.getElementById('note').innerHTML=`イン1着率は目安値（${conf}は公式実数、他は暫定）。機＝モーター2連率（その節の機力目安で、選手の調子とは別物）。<br>波乱＝外枠A級・当地巧者アウト・イン不安・機力ちぐはぐ等の条件数。買い目・確率・勝者予想は出していません。<br>波乱注目タブは①の級別・直近20走・場の実績などから並べています。この条件のレースは過去1年で34%が①着外（全レースでは19%）でした。<br><span style="opacity:.7">生成：${(doc['生成時刻']||'').replace('T',' ').slice(0,16)}</span>` + (OSHI.length?`<br><span class="oshi-note">⭐は推しフォロー中の選手。フォローはこの端末にのみ保存され、外部には送信されません。登録・解除は<a href="../racers/" style="color:#c8a24a">出走表</a>と<a href="../players/" style="color:#c8a24a">選手図鑑</a>から。</span>`:'');
   loadKansenki().then(()=>{kskAllRender();render();});
 })
 .catch(()=>{ISNEXT=false;NEXTMETA={};KANSENKI={};kskAllRender();const nn=document.getElementById('nextnote');if(nn)nn.style.display='none';document.getElementById('list').innerHTML='<div class="empty">'+(SRC==='highlights_next.json'?'明日の前夜プレビューはまだありません（各場のレース確定後、夜に順次追加されます）。':SRC!=='highlights.json'?'この日の見どころはまだありません（明日以降たまります）。':'見どころデータを読み込めませんでした。highlights.json を確認してください。')+'</div>';});
