@@ -16,17 +16,22 @@ import glob
 import datetime
 
 JST = datetime.timezone(datetime.timedelta(hours=9))
-DATA_DIR = os.path.join("docs", "results", "data")
+DATA_DIR = "results"
 OUT = os.path.join("docs", "data", "racerInRate.json")
 MIN_N = 20   # 母数不足の閾値（未満は rate=null）
 
 
 def iter_boats(day):
-    """1日分JSON → 各レースの艇dictを yield（場→レース→艇）。"""
-    for venue in day.get("場", []) or []:
-        for race in venue.get("レース", []) or []:
-            for boat in race.get("艇", []) or []:
-                yield boat
+    """1日分JSON → 各レースの艇dictを yield（結果→艇）。
+
+    参照先は results/（リポジトリ直下）。docs/results/data/ は直近30日しか
+    残らないため使わない。両者は階層が異なる:
+      docs/results/data : 開催日 → 場[] → レース[] → 艇[]
+      results           : 開催日 → 結果[] → 艇[]
+    """
+    for race in day.get("結果", []) or []:
+        for boat in race.get("艇", []) or []:
+            yield boat
 
 
 def main():
