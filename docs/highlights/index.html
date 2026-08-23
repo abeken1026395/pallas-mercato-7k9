@@ -82,6 +82,17 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .downfactor .df-list li{margin:2px 0;color:#a9c6dd}
 .downfactor .df-ref{margin-top:6px;font-size:10px;color:#7d94a8;opacity:.85}
 .downfactor .df-cmp{display:block;font-size:10px;color:#7d94a8;opacity:.85;font-weight:400}
+/* 深層の実数ブロックを1つずつ開く。開いた直後の高さを抑えるため（2026-08-23）。 */
+.dfold{margin-top:8px;border:1px solid #23364a;border-radius:8px;background:#0f1a26;overflow:hidden}
+.dfold+.dfold{margin-top:6px}
+.dfold>summary{list-style:none;cursor:pointer;min-height:44px;display:flex;align-items:center;gap:6px;padding:0 11px;-webkit-tap-highlight-color:transparent}
+.dfold>summary::-webkit-details-marker{display:none}
+.dfold>summary::before{content:'\25B6';font-size:9px;color:#4aa8ff;flex-shrink:0;transition:transform .15s}
+.dfold[open]>summary::before{transform:rotate(90deg)}
+.dfold .df-t{font-size:11.5px;font-weight:700;color:#a9c6dd}
+.dfold .df-s{font-size:10px;color:#7d94a8}
+.dfbody{padding:0 11px 10px}
+.dfbody .inrate-fact,.dfbody .tenji-fact,.dfbody .trail-fact,.dfbody .downfactor,.dfbody .collapse-fact{margin-top:0;border:none;border-left:none;border-radius:0;background:transparent;padding:0}
 /* ①の崩れ方（誰がどの手で崩すか・当場過去1年の実数。①着外レースの内訳） */
 .collapse-fact{margin-top:8px;font-size:11px;color:#8aa0b4;background:#0f1a26;border:1px solid #23364a;border-left:3px solid #33465c;border-radius:8px;padding:8px 10px;line-height:1.6}
 .collapse-fact .cf-h{font-weight:700;color:#a9c6dd}
@@ -815,9 +826,6 @@ function downFactorHtml(r){
   if(!df) return '';                         // downFactors 未搭載の旧データは非表示（後方互換）
   const n = df['count']||0;
   const items = df['items']||[];
-  const head = n>0
-    ? `①の下振れ要因<b class="df-n">${n}つ該当</b>`
-    : `①の下振れ要因<span class="df-none">該当なし</span>`;
   // 各要因に比較対象を実数で添える。分母の見えない率は出さない。
   // 参考実績（該当N個ごとの着外率）は分母が無く、当時の該当状況を再現できないため廃止した。
   const base = INRATEBASE;
@@ -839,7 +847,7 @@ function downFactorHtml(r){
   const list = n>0
     ? `<ul class="df-list">${items.map(it=>`<li>${it}${cmp(it)}</li>`).join('')}</ul>`
     : '<div class="df-ref">①が崩れやすいと言える材料は、この3つの条件では出ていません。</div>';
-  return `<div class="downfactor">${head}${list}</div>`;
+  return fold(n>0 ? `①の下振れ要因 ${n}つ該当` : '①の下振れ要因 該当なし', '', `<div class="downfactor">${list}</div>`);
 }
 
 // 今節の走り（前日まで）を6艇ぶん並べる（深層）。着順・ST・進入コースの時系列。
@@ -862,11 +870,21 @@ function trailHtml(r){
     }).join('');
     return `<tr><th>${w}${b['氏名']}</th><td class="tr-run">${runs}</td></tr>`;
   }).join('');
-  return `<div class="trail-fact">`
-    + `<div class="tl-h">今節の走り<span class="tl-sub">（前日まで・着順／ST／進入コース）</span></div>`
+  return fold('今節の走り', '（6艇・前日まで）',
+      `<div class="trail-fact">`
     + `<table class="tl-t"><tbody>${rows}</tbody></table>`
     + `<div class="tl-note">進入コースは実際に走った位置です。枠番と違う場合は前づけなどで隊形が動いています。</div>`
-    + `</div>`;
+    + `</div>`);
+}
+
+// 深層の実数ブロックは1回タップで全部出ると2.4画面ぶんになる（2026-08-23実測）。
+// 見出しだけ並べて1つずつ開けるようにする。見出しには結論（率・該当数）を出すので、
+// 開かなくても要点は分かる。タップ対象は44px以上を確保する。
+function fold(title, sub, body){
+  if(!body) return '';
+  return `<details class="dfold"><summary><span class="df-t">${title}</span>`
+       + (sub ? `<span class="df-s">${sub}</span>` : '')
+       + `</summary><div class="dfbody">${body}</div></details>`;
 }
 
 // ①の1コース1着率を、全体の真ん中と並べて出す（深層）。
@@ -877,15 +895,15 @@ function inRateHtml(r){
   const in1 = r && r['艇'] && r['艇'][0];
   if(!in1 || in1['inWinRate']==null) return '';
   const nn = in1['イン数']!=null ? `${in1['イン数']}走` : '—';
-  return `<div class="inrate-fact">`
-    + `<div class="ir-h">1コース1着率<span class="ir-sub">（過去1年）</span></div>`
+  return fold(`1コース1着率 ${Math.round(in1['inWinRate'])}%`, `（${nn}・過去1年）`,
+      `<div class="inrate-fact">`
     + `<table class="ir-t"><tbody>`
     + `<tr><th>①${in1['氏名']}（${in1['級別']}）</th><td class="n">${Math.round(in1['inWinRate'])}%</td><td class="n">${nn}</td></tr>`
     + `<tr><th>1コース1着率を持つ選手の真ん中</th><td class="n">${Math.round(base['中央値'])}%</td><td class="n">${base['人数'].toLocaleString()}人</td></tr>`
     + `</tbody></table>`
     + `<div class="ir-note">1コースに${base['最低走数']}走以上入った選手だけを数えています。${base['最低走数']}走に満たない選手は率を出していません。</div>`
     + `<div class="ir-src">出典：${base['出典']}／集計 ${base['集計日']}</div>`
-    + `</div>`;
+    + `</div>`);
 }
 
 // 今節の展示タイムを6艇ぶん並べる（深層）。生の秒数は出さず、6艇平均との差だけを見せる。
@@ -904,11 +922,11 @@ function tenjiHtml(r){
     const cls = d<=-0.03 ? 'fast' : (d>=0.03 ? 'slow' : '');
     return `<tr><th>${WNUM[(+b['枠'])-1]}${b['氏名']}</th><td class="n ${cls}">${sign}${Math.abs(d).toFixed(2)}</td><td class="n">${n}本</td></tr>`;
   }).join('');
-  return `<div class="tenji-fact">`
-    + `<div class="tj-h">今節の展示タイム<span class="tj-sub">（前日まで・6艇平均との差）</span></div>`
+  return fold('今節の展示タイム', '（6艇・6艇平均との差）',
+      `<div class="tenji-fact">`
     + `<table class="tj-t"><tbody>${rows}</tbody></table>`
     + `<div class="tj-note">マイナスが6艇平均より速い側です。水面と気象で基準が動くため、秒数そのものは出していません。2本に満たない選手は差を出していません。</div>`
-    + `</div>`;
+    + `</div>`);
 }
 
 // ①が崩れるときの「崩れ方」（誰がどの手で崩すか）を当場・過去1年の実数で提示する。
@@ -928,7 +946,7 @@ function collapseHtml(r){
   const tv = cp['todayRival'];
   const today = (tv && tv.wins!=null && tv.num!=null)
     ? `<div class="cf-today">今日の${tv.boat}号艇は${tv.wins}勝中${tv.num}勝が${tv.kimarite}</div>` : '';
-  return `<div class="collapse-fact"><div class="cf-h">①が崩れるときの形<span class="cf-sub">（当場・過去1年）</span></div><div class="cf-list">${lines}</div>${today}<div class="cf-note">${note}</div></div>`;
+  return fold('①が崩れるときの形', '（当場・過去1年）', `<div class="collapse-fact"><div class="cf-list">${lines}</div>${today}<div class="cf-note">${note}</div></div>`);
 }
 
 function bProfHTML(no, boat){
