@@ -3,7 +3,10 @@
 # 選手の「直近の走り」と場の「①着外率」を results/*.json（リポジトリ直下・全期間）から集計する。
 #
 # 用途: 見どころの並び替え指標の材料。買い目・確率・予想には使わない。
-# 出力: docs/data/racerFormIndex.json
+# 出力: data/racerFormIndex.json（リポジトリ直下）
+#   ★docs/ 配下に置かない。build_highlights.py がサーバ側で open() して読むだけで、
+#     フロントは fetch していない（値は highlights.json に焼き込まれて配られる）。
+#     docs/ に置くと更新のたびに Pages デプロイが起動し、日次更新ができなくなる。
 #
 # 母数ガード（未達は値を null にし、分母は必ず出す）:
 #   last20    直近20走の平均着        10走以上
@@ -22,7 +25,7 @@ from collections import deque
 
 JST = datetime.timezone(datetime.timedelta(hours=9))
 DATA_DIR = "results"
-OUT = os.path.join("docs", "data", "racerFormIndex.json")
+OUT = os.path.join("data", "racerFormIndex.json")
 
 LAST_N = 20
 C1_N = 10
