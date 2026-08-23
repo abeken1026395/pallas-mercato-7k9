@@ -1,0 +1,48 @@
+name: 選手フォーム指標 racerFormIndex 更新（日次）
+
+on:
+  schedule:
+    - cron: '30 18 * * *'   # JST 3:30（前日の結果が results/ に入ったあと・朝の出走表WFより前）
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: boatrace-racerform
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      # data/racerFormIndex.json を results/（リポジトリ直下・全期間）から生成する。
+      # 出力先は docs/ の外。build_highlights.py がサーバ側で open() して読むだけで
+      # フロントは fetch していないため、公開不要かつ Pages デプロイを起こさない。
+      # 外部ネットワークには出ない（リポジトリ内の results/ のみを読む）。
+      - run: python scripts/buildRacerFormIndex.py
+      - name: commit and push
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/racerFormIndex.json
+          git diff --staged --quiet || git commit -m "update racerFormIndex"
+          # push競合(cannot lock ref)は短いランダム待機でリトライする。
+          BR="${GITHUB_REF_NAME}"
+          for i in 1 2 3 4 5 6; do
+            git fetch origin "$BR" || true
+            if git rebase -X theirs "origin/$BR"; then
+              if git push origin "HEAD:$BR"; then
+                echo "pushed (try $i)"; exit 0
+              fi
+            else
+              git rebase --abort 2>/dev/null || true
+            fi
+            sleep $(( (RANDOM % 6) + 3 ))
+          done
+          echo "push retries exhausted"; exit 1
