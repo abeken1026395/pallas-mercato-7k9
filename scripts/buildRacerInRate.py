@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # buildRacerInRate.py
 # 選手別「①(進入コース1)からの1着率」を過去結果から因果的に集計する。
-# docs/results/data/*.json を全走査し、各レースの艇のうち コース==1 の選手について
+# results/*.json（リポジトリ直下・全期間）を全走査し、各レースの艇のうち コース==1 の選手について
 # 1着だったかを数え、docs/data/racerInRate.json に出力する。
 #
 # 用途: ①着外予測の下振れ要因（見どころの事実提示）で「①のinWinRate」を使う。
