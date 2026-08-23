@@ -823,12 +823,14 @@ def main():
             _ty2 = yarare.get(_tb['登録番号'], {}) or {}
             _tw = _ty2.get('1着数')
             # 〔着眼点の2層決定〕第1層＝場のデフォルト、第2層＝そのレースの状態で上書き。
-            #   上書きは例外扱い。閾値25ptは本日実測の分布（中央値15.5・80%点24.5）から取った。
+            #   上書きは例外扱い。閾値30ptは3日分の実測から決めた（2026-08-22 確定）。
+            #   25ptでは荒れ場（collapseFirst）の上書きが27%に達し、戸田は12レース中9レースが
+            #   機力の話になって、その場らしい着眼点が半分つぶれていた。30ptで約18%に下がる。
             #   もともと機力を主材料にする場（motorFirst）は上書きしても変わらないため対象外。
             _mts = [b.get('_mtr', 0) for b in bo if b.get('_mtr', 0) > 0]
             _mgap = (max(_mts) - min(_mts)) if len(_mts) >= 4 else 0
             _focus = VENUE_FOCUS.get(ba, 'gapFirst')
-            if _mgap >= 25 and _focus != 'motorFirst':
+            if _mgap >= 30 and _focus != 'motorFirst':
                 _focus = 'motorFirst'
             _tm = _tb.get('_mtr', 0) if use_m else 0
             _num_key = 'まくり数' if t['w'] >= 4 else '差し数'
