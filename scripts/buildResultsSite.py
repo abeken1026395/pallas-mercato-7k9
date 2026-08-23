@@ -19,6 +19,7 @@ import json
 import glob
 
 SRC_DIR = "results"
+PREVIEW_DIR = "preview"
 OUT_DIR = os.path.join("docs", "results", "data")
 
 # docs/ の肥大化を防ぐための表示用の保持日数。元データは results/ に全期間ある。
@@ -40,11 +41,56 @@ def race_no(r):
     return int(m.group(1)) if m else 0
 
 
+def load_tenji_dev(hd):
+    """preview/YYYYMMDD.json から (場コード, レース) → {枠: 展示偏差} を作る。
+
+    展示タイムの生の秒数は水面・気象で基準が動くため公開しない。
+    同じレースの6艇平均との差（偏差）だけを出す。条件は定義上キャンセルされる。
+    6艇そろわない・展示タイムが欠けるレースは載せない（分母の欠けた値を出さない）。
+    preview/ が無い日は空を返し、展示偏差が付かないだけで処理は続く。
+    """
+    dev = {}
+    path = os.path.join(PREVIEW_DIR, "%s.json" % hd)
+    if not os.path.exists(path):
+        return dev
+    try:
+        pv = json.load(io.open(path, encoding="utf-8"))
+    except Exception as e:
+        print("preview skip", hd, e)
+        return dev
+    for r in pv.get("直前情報", []) or []:
+        ts = {}
+        for x in r.get("racers", []) or []:
+            w = x.get("entry_number")
+            t = x.get("exhibition_time")
+            if w and t:
+                ts[int(w)] = float(t)
+        if len(ts) != 6:
+            continue
+        avg = sum(ts.values()) / 6.0
+        key = (str(r.get("場コード", "")).zfill(2), str(r.get("レース", "")))
+        dev[key] = dict((w, round(t - avg, 3)) for w, t in ts.items())
+    return dev
+
+
 def build_day(path):
     """1日分の results JSON を公開用の辞書に整形して返す。"""
     d = json.load(io.open(path, encoding="utf-8"))
     hd = d.get("開催日") or os.path.basename(path)[:8]
     races = d.get("結果", []) or []
+    # 当日の展示タイム偏差を各艇に付ける。見どころの深層で「その日の先行レース」を
+    # 生データとして出すために使う（買い目・予想は出さない。数字を置くだけ）。
+    dev = load_tenji_dev(hd)
+    if dev:
+        for r in races:
+            key = (str(r.get("場コード", "")).zfill(2), str(r.get("レース", "")))
+            dv = dev.get(key)
+            if not dv:
+                continue
+            for b in r.get("艇", []) or []:
+                v = dv.get(b.get("枠"))
+                if v is not None:
+                    b["展示偏差"] = v
     # 場コード → レース配列
     venues = {}
     for r in races:
