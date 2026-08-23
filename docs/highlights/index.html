@@ -901,7 +901,7 @@ function tenjiHtml(r){
     const n = t['本数']||0;
     if(d==null) return `<tr><th>${WNUM[(+b['枠'])-1]}${b['氏名']}</th><td class="n dim">—</td><td class="n">${n}本</td></tr>`;
     const sign = d<0 ? '−' : '+';
-    const cls = d<=-0.05 ? 'fast' : (d>=0.05 ? 'slow' : '');
+    const cls = d<=-0.03 ? 'fast' : (d>=0.03 ? 'slow' : '');
     return `<tr><th>${WNUM[(+b['枠'])-1]}${b['氏名']}</th><td class="n ${cls}">${sign}${Math.abs(d).toFixed(2)}</td><td class="n">${n}本</td></tr>`;
   }).join('');
   return `<div class="tenji-fact">`
