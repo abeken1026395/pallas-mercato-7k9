@@ -78,7 +78,7 @@ function fmtHd(hd){ const h=String(hd||""); return h.length===8?`${+h.slice(4,6)
 // カルテ1行の列並び。docs/data/motorKarte.json の records の各行と対応する。
 // 変更するときは scripts/buildMotorKarte.py の COLS と必ず揃えること。
 const PK = {hd:0, rno:1, waku:2, name:3, setsu:4, chg:5, pera:6, tenji:7};
-function MotorKarte({parts,acq}){
+function MotorKarte({parts,upd}){
   // 開いた時だけ中身をDOMに出す。閉じている間に残るのは summary のバッジだけ。
   // 全場表示では 1,000機超×数十行がまとめてDOMに載っていたため、場の切り替え（unmount）で
   // メインスレッドが数秒〜数十秒止まっていた。表示件数ではなく破棄ノード数が効くので中身を持たせない。
@@ -89,7 +89,7 @@ function MotorKarte({parts,acq}){
   return (
     <details onClick={stop} onToggle={e=>setOpen(!!e.currentTarget.open)} style={{margin:"2px 0 0 46px"}}>
       <summary onClick={stop} style={{listStyle:"none",cursor:"pointer",display:"inline-flex",alignItems:"center"}}>
-        <span style={{fontSize:10,fontWeight:700,color:"#9fb0c0",background:"#26333f",border:"1px solid #33475a",borderRadius:3,padding:"1px 6px"}}>整備履歴 {parts.length}件{nChg>0?`（交換${nChg}）`:""}</span>
+        <span style={{fontSize:10,fontWeight:700,color:"#9fb0c0",background:"#26333f",border:"1px solid #33475a",borderRadius:3,padding:"1px 6px"}}>出走{parts.length}回・交換{nChg>0?nChg:"なし"}</span>
       </summary>
       {open && <div style={{marginTop:4,fontSize:10.5,lineHeight:1.7,color:"#a9c6dd",background:"#0f1a26",border:"1px solid #24344a",borderRadius:6,padding:"6px 9px"}}>
         {parts.map((p,i)=>{
@@ -109,7 +109,7 @@ function MotorKarte({parts,acq}){
             </div>
           );
         })}
-        <div style={{fontSize:9,color:"#6b7f95",marginTop:4}}>出典：boatrace.jp 公式 直前情報{acq?`（${acq}取得）`:""}</div>
+        <div style={{fontSize:9,color:"#6b7f95",marginTop:4}}>出典：boatrace.jp 公式 直前情報{upd?`（${upd} 時点）`:""}</div>
       </div>}
     </details>
   );
@@ -129,7 +129,7 @@ function MotorUsageLine({usage}){
   );
 }
 
-function MotorRow({row,rk,fem,parts,acq,usage}){
+function MotorRow({row,rk,fem,parts,upd,usage}){
   const v=row[CI.rate], g=row[CI.grade];
   const my=myoumi(g,rk);
   const heart = fem ? <span style={{color:"#ff7eb6",marginLeft:3}}>♥</span> : null;
@@ -157,7 +157,7 @@ function MotorRow({row,rk,fem,parts,acq,usage}){
         <Bar v={v} c={rk.color}/>
       </div>
       <MotorUsageLine usage={usage}/>
-      <MotorKarte parts={parts} acq={acq}/>
+      <MotorKarte parts={parts} upd={upd}/>
     </div>
   );
 }
@@ -191,7 +191,7 @@ function App(){
   const [venueMeta,setVenueMeta]=useState(null);  // jcd(2桁) -> {場名,開催日,節名,企画名,日目}
   const [motorHist,setMotorHist]=useState(null);  // jcd(2桁) -> [{節名,開催日,motors:{番号:2連率}}]
   const [partsMap,setPartsMap]=useState(null);  // "jcd_モーターNo" -> [[開催日,rno,枠,氏名,節名,部品交換,プロペラ,展示タイム], ...]（時系列昇順）
-  const [partsAcq,setPartsAcq]=useState(null);  // "jcd_モーターNo" -> 取得日時（各機の先頭行のもの・出典行に出す）
+  const [partsUpd,setPartsUpd]=useState("");    // motorKarte.json の updated（直前情報を最後に取りに行った時刻・出典行に出す）
   const [replMap,setReplMap]=useState(null);    // jcd(2桁) -> {新替日,節名}
   const [usageMap,setUsageMap]=useState(null);  // "jcd_モーターNo" -> {走,勝,2連,3連,2連率,3連率,初出日,最新日}
   const [usageCov,setUsageCov]=useState("");    // coverageFrom（集計開始日 YYYYMMDD）
@@ -207,7 +207,7 @@ function App(){
     // 索引化とソートはビルド時に済ませてあるので、ここでは受け取るだけ（全21MBの読み込みと37,887行の走査をやめた）。
     // 欠落・該当無しはフォールバック（カルテを出さない）で既存表示を壊さない。
     fetch("../data/motorKarte.json").then(r=>r.ok?r.json():Promise.reject())
-      .then(j=>{ const rs=j&&j.records; if(rs&&typeof rs==="object"){ setPartsMap(rs); const t=j["取得日時"]; setPartsAcq(t&&typeof t==="object"?t:{}); } }).catch(()=>{});
+      .then(j=>{ const rs=j&&j.records; if(rs&&typeof rs==="object"){ setPartsMap(rs); setPartsUpd(String(j.updated||"")); } }).catch(()=>{});
     // モーター初卸(推定)からの走行数集計（docs/data/motorUsage.json・Kファイル自前集計）。
     // 索引キーは jcd_モーターNo。欠落はフォールバック（非表示）で既存表示を壊さない。
     fetch("../data/motorUsage.json").then(r=>r.ok?r.json():Promise.reject())
@@ -262,11 +262,11 @@ function App(){
     if(!partsMap) return null;
     return partsMap[karteKey(jcd, mno)] || null;
   };
-  // カルテ出典行に出す取得日時（各機の先頭行のもの）。未取得・該当無しは空。
-  const acqFor = (jcd, mno) => {
-    if(!partsAcq) return "";
-    return partsAcq[karteKey(jcd, mno)] || "";
-  };
+  // カルテ出典行に出す時刻は機ごとに持たない。
+  // 直前情報は毎日取り直していて、1か月にまたがる一覧に1行ぶんの取得時刻を書いても意味が合わない。
+  // 節の区切りは motorParts.json の 節名 が全行空のため開催日の連続でしか推定できず、
+  // 推定を挟むと 8/12・8/13・8/14・8/17 の復元行（取得日時が空）に当たった機の出典が消える。
+  // データセットの最終取得（motorKarte.json の updated）を「時点」として1つ出す。
 
   // jcd＋モーターNo で走行数集計（初卸推定からの走・勝・2連・3連）を引く。未取得・該当無しは null。
   // 場のモーター新替日を YYYY/M/D で返す。記録が無ければ null。
@@ -363,7 +363,7 @@ function App(){
             </div>
             <span style={{fontSize:11,color:"#6b7f95",flex:"none",whiteSpace:"nowrap",paddingTop:2}}>{rows.length}艇　<span style={{color:"#8faabe"}}>モーター2連率 →</span></span>
           </div>
-          <div style={{padding:"10px"}}>{rows.map((r,i)=><MotorRow key={i} row={r} rk={rankByPos(i+1, rows.length, r[CI.rate], usageFor(r[CI.jcd], r[CI.mno]))} fem={females&&females.has(String(r[CI.toban]))} parts={partsFor(r[CI.jcd], r[CI.mno])} acq={acqFor(r[CI.jcd], r[CI.mno])} usage={usageFor(r[CI.jcd], r[CI.mno])}/>)}</div>
+          <div style={{padding:"10px"}}>{rows.map((r,i)=><MotorRow key={i} row={r} rk={rankByPos(i+1, rows.length, r[CI.rate], usageFor(r[CI.jcd], r[CI.mno]))} fem={females&&females.has(String(r[CI.toban]))} parts={partsFor(r[CI.jcd], r[CI.mno])} upd={partsUpd} usage={usageFor(r[CI.jcd], r[CI.mno])}/>)}</div>
         </div>
       ))}
     </div>

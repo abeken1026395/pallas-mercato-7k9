@@ -210,7 +210,7 @@ const PK = {
 };
 function MotorKarte({
   parts,
-  acq
+  upd
 }) {
   // 開いた時だけ中身をDOMに出す。閉じている間に残るのは summary のバッジだけ。
   // 全場表示では 1,000機超×数十行がまとめてDOMに載っていたため、場の切り替え（unmount）で
@@ -243,7 +243,7 @@ function MotorKarte({
       borderRadius: 3,
       padding: "1px 6px"
     }
-  }, "\u6574\u5099\u5C65\u6B74 ", parts.length, "\u4EF6", nChg > 0 ? `（交換${nChg}）` : "")), open && /*#__PURE__*/React.createElement("div", {
+  }, "\u51FA\u8D70", parts.length, "\u56DE\u30FB\u4EA4\u63DB", nChg > 0 ? nChg : "なし")), open && /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 4,
       fontSize: 10.5,
@@ -315,7 +315,7 @@ function MotorKarte({
       color: "#6b7f95",
       marginTop: 4
     }
-  }, "\u51FA\u5178\uFF1Aboatrace.jp \u516C\u5F0F \u76F4\u524D\u60C5\u5831", acq ? `（${acq}取得）` : "")));
+  }, "\u51FA\u5178\uFF1Aboatrace.jp \u516C\u5F0F \u76F4\u524D\u60C5\u5831", upd ? `（${upd} 時点）` : "")));
 }
 
 // 初卸(推定)からの走行数集計を1行で控えめに表示（実測カウントのみ・推測なし）。
@@ -359,7 +359,7 @@ function MotorRow({
   rk,
   fem,
   parts,
-  acq,
+  upd,
   usage
 }) {
   const v = row[CI.rate],
@@ -470,7 +470,7 @@ function MotorRow({
     usage: usage
   }), /*#__PURE__*/React.createElement(MotorKarte, {
     parts: parts,
-    acq: acq
+    upd: upd
   }));
 }
 
@@ -531,7 +531,7 @@ function App() {
   const [venueMeta, setVenueMeta] = useState(null); // jcd(2桁) -> {場名,開催日,節名,企画名,日目}
   const [motorHist, setMotorHist] = useState(null); // jcd(2桁) -> [{節名,開催日,motors:{番号:2連率}}]
   const [partsMap, setPartsMap] = useState(null); // "jcd_モーターNo" -> [[開催日,rno,枠,氏名,節名,部品交換,プロペラ,展示タイム], ...]（時系列昇順）
-  const [partsAcq, setPartsAcq] = useState(null); // "jcd_モーターNo" -> 取得日時（各機の先頭行のもの・出典行に出す）
+  const [partsUpd, setPartsUpd] = useState(""); // motorKarte.json の updated（直前情報を最後に取りに行った時刻・出典行に出す）
   const [replMap, setReplMap] = useState(null); // jcd(2桁) -> {新替日,節名}
   const [usageMap, setUsageMap] = useState(null); // "jcd_モーターNo" -> {走,勝,2連,3連,2連率,3連率,初出日,最新日}
   const [usageCov, setUsageCov] = useState(""); // coverageFrom（集計開始日 YYYYMMDD）
@@ -560,8 +560,7 @@ function App() {
       const rs = j && j.records;
       if (rs && typeof rs === "object") {
         setPartsMap(rs);
-        const t = j["取得日時"];
-        setPartsAcq(t && typeof t === "object" ? t : {});
+        setPartsUpd(String(j.updated || ""));
       }
     }).catch(() => {});
     // モーター初卸(推定)からの走行数集計（docs/data/motorUsage.json・Kファイル自前集計）。
@@ -669,11 +668,11 @@ function App() {
     if (!partsMap) return null;
     return partsMap[karteKey(jcd, mno)] || null;
   };
-  // カルテ出典行に出す取得日時（各機の先頭行のもの）。未取得・該当無しは空。
-  const acqFor = (jcd, mno) => {
-    if (!partsAcq) return "";
-    return partsAcq[karteKey(jcd, mno)] || "";
-  };
+  // カルテ出典行に出す時刻は機ごとに持たない。
+  // 直前情報は毎日取り直していて、1か月にまたがる一覧に1行ぶんの取得時刻を書いても意味が合わない。
+  // 節の区切りは motorParts.json の 節名 が全行空のため開催日の連続でしか推定できず、
+  // 推定を挟むと 8/12・8/13・8/14・8/17 の復元行（取得日時が空）に当たった機の出典が消える。
+  // データセットの最終取得（motorKarte.json の updated）を「時点」として1つ出す。
 
   // jcd＋モーターNo で走行数集計（初卸推定からの走・勝・2連・3連）を引く。未取得・該当無しは null。
   // 場のモーター新替日を YYYY/M/D で返す。記録が無ければ null。
@@ -1059,7 +1058,7 @@ function App() {
     rk: rankByPos(i + 1, rows.length, r[CI.rate], usageFor(r[CI.jcd], r[CI.mno])),
     fem: females && females.has(String(r[CI.toban])),
     parts: partsFor(r[CI.jcd], r[CI.mno]),
-    acq: acqFor(r[CI.jcd], r[CI.mno]),
+    upd: partsUpd,
     usage: usageFor(r[CI.jcd], r[CI.mno])
   }))))));
 }

@@ -13,16 +13,18 @@ motorParts.json は削除も改変もしない（build_highlights.py が展示�
   {
     "updated": "YYYY-MM-DD HH:MM",          # motorParts.json の updated をそのまま
     "出典":    "boatrace.jp公式 直前情報",   # motorParts.json の source をそのまま
-    "取得日時": {"<jcd>_<モーターNo>": "YYYY-MM-DD HH:MM"},  # 各機の先頭行の取得日時
     "records": {"<jcd>_<モーターNo>": [[開催日,rno,枠,氏名,節名,部品交換,プロペラ,展示タイム], ...]}
   }
 
 records の各行はキー名を持たない配列にする（辞書のままだと 5.39MB、配列化で約2MB）。
 列順は下の COLS の通り。並びは 開催日 昇順 → rno 昇順（現行 index.html の並び順と一致）。
 
-「取得日時」を別テーブルに分けている理由:
-  カルテの出典行が parts[0]["取得日時"] を表示している。8列だけだとこの1文字が消えるため、
-  各機の先頭行の取得日時だけを持つ（全行に持たせると約0.7MB増えるので持たせない）。
+出典行の時刻を機ごとに持たない理由:
+  カルテは1か月ぶんの出走をまたぐので、1行ぶんの取得時刻を出しても意味が合わない。
+  節の最終日で止める案も検討したが、motorParts.json の 節名 が全行空で節の区切りを
+  開催日の連続でしか推定できず、推定を挟むと 8/12・8/13・8/14・8/17 の復元行
+  （取得日時が空）に当たった135機で出典が消える。トップレベルの updated を
+  「時点」として出す形にしたので、機ごとのテーブルは持たない。
 
 実行:
   python scripts/buildMotorKarte.py
@@ -56,7 +58,6 @@ def build(src_path=SRC, out_path=OUT):
         raise SystemExit("records が配列ではありません: {}".format(src_path))
 
     m = {}
-    acq = {}
     skipped = 0
     for r in recs:
         no = str(r.get("モーターNo") or "").strip()
@@ -71,14 +72,10 @@ def build(src_path=SRC, out_path=OUT):
         # 開催日 昇順 → rno 昇順（index.html の sort と同じ比較）
         rows.sort(key=lambda r: (str(r.get("開催日") or ""), int(r.get("rno") or 0)))
         out_recs[k] = [[norm(r.get(c)) for c in COLS] for r in rows]
-        t = rows[0].get("取得日時")
-        if t:
-            acq[k] = t
 
     out = {
         "updated": d.get("updated", ""),
         "出典": d.get("source", ""),
-        "取得日時": acq,
         "records": out_recs,
     }
 
