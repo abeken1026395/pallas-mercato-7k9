@@ -34,12 +34,18 @@ jobs:
         env:
           HD_OVERRIDE: ${{ github.event.inputs.hd }}
         run: python scripts/fetchPartsExchange.py
+      - name: build motorKarte.json (モーターページ用の軽量派生JSON)
+        # motorParts.json は全列21MBで、そのままブラウザに読ませると iPhone が固まる。
+        # 描画に使う8列だけを機ごとに索引した派生ファイルを毎回作り直す（motorParts.json は読むだけ）。
+        if: always()
+        run: python scripts/buildMotorKarte.py
       - name: commit and push
         if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add docs/data/motorParts.json
+          git add docs/data/motorKarte.json
           git diff --staged --quiet && echo "no change" && exit 0
           git commit -m "beforeinfo部品交換収集 $(date +'%Y-%m-%d %H:%M')"
           for i in 1 2 3 4 5; do
