@@ -793,7 +793,11 @@ def build_today_program(venue_rows, csv_hd8, motor2avg):
     - 欠損はフィールド単位null（deadline/kikaku等が欠けても該当フィールドのみnull）。
     - todayProgram丸ごとnullは asOfCard不一致（開催日混載）の場合のみ。
     - boatsが6艇揃わないレースは races から落とす（不完全構成は含めない）。
-    - 比較軸(§2.3): 通算は motor2TsusanAvg、今節は motorSetsu(runs付き)を各艇に併記。"""
+    - 比較軸(§2.3): 通算は motor2TsusanAvg、今節は motorSetsu(runs付き)を各艇に併記。
+    - 各艇に氏名(name)を持たせる（第2部でどのレースの選手も名前で書けるようにするため。
+      従来は focusRacers/localRacers に載る選手しか名前の出典が無かった）。
+    - 企画名が「優勝戦」のレースの艇にのみ finishTrail / stSetsu を同梱する
+      （準優勝戦・準々優勝戦は対象外）。"""
     hds = {(r.get("開催日") or "").strip() for r in venue_rows}
     if hds != {csv_hd8}:
         return None  # asOfCard不一致 → todayProgram丸ごとnull（取り違え防止）
@@ -806,11 +810,18 @@ def build_today_program(venue_rows, csv_hd8, motor2avg):
     races = []
     for rno in sorted(by_rno):
         rows = by_rno[rno]
+        k0 = rows[0]
+        kikaku = (k0.get("企画名") or "").strip() or None      # 欠損はフィールド単位null
+        # 優勝戦は12Rとは限らない（実測114件中5件が11R）ためrnoでなく企画名で判定。
+        # 部分一致にすると準優勝戦(実測300件)・準々優勝戦(同4件)まで巻き込み素材が
+        # 肥大するため完全一致にする。企画名で「優勝」を含むのはこの3種のみ＝取りこぼしなし。
+        is_yusho = (kikaku == "優勝戦")
         boats = []
         for r in sorted(rows, key=lambda x: (to_int(x.get("枠")) or 99)):
-            boats.append({
+            boat = {
                 "waku": to_int(r.get("枠")),
                 "toban": str(r.get("登録番号", "")).strip() or None,
+                "name": (r.get("氏名") or "").strip() or None,
                 "grade": (r.get("級別") or "").strip() or None,
                 "motorNo": to_int(r.get("モーターNo")),
                 "motor2Tsusan": to_float(r.get("モーター2連率")),      # 通算。今節の値ではない
@@ -820,14 +831,20 @@ def build_today_program(venue_rows, csv_hd8, motor2avg):
                 "stAvg": to_float(r.get("平均ST")),
                 "f": to_int(r.get("F数")),
                 "l": to_int(r.get("L数")),
-            })
+            }
+            if is_yusho:
+                # 節間の気配（各日成績）は優勝戦のみ同梱。全レースに付けると素材が肥大する
+                # ため対象を絞る。中身は focusRacers と同じ finish_trail_and_st の出力。
+                trail, st_setsu = finish_trail_and_st(r)
+                boat["finishTrail"] = trail
+                boat["stSetsu"] = st_setsu
+            boats.append(boat)
         if len(boats) != 6:
             continue  # 6艇未満/超は不完全構成として落とす
-        k0 = rows[0]
         races.append({
             "rno": rno,
-            "kikaku": (k0.get("企画名") or "").strip() or None,      # 欠損はフィールド単位null
-            "deadline": (k0.get("締切時刻") or "").strip() or None,  # 同上
+            "kikaku": kikaku,
+            "deadline": (k0.get("締切時刻") or "").strip() or None,  # 欠損はフィールド単位null
             "boats": boats,
         })
     return {"asOfCard": csv_hd8, "races": races}

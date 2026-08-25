@@ -190,6 +190,11 @@ def check_structure(art, venue):
         for t in sr.get("top", []) or []:
             if t.get("toban"):
                 src_tobans.add(str(t["toban"]))
+    # 第2部の出走者も素材内の実在選手（優勝戦の6艇はここにしか出てこない）
+    for r in (venue.get("todayProgram") or {}).get("races", []) or []:
+        for b in r.get("boats", []) or []:
+            if b.get("toban"):
+                src_tobans.add(str(b["toban"]))
     for rm in art.get("racersMentioned", []) or []:
         tb = str(rm.get("toban", ""))
         if tb and tb not in src_tobans:
