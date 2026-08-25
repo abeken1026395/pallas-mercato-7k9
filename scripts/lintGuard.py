@@ -8,7 +8,7 @@ docs 配下の全HTMLを4分類のいずれかに割り当て、防御の抜け�
 分類:
   GUARD    … docs/assets/guard.js への参照が必須
   L2       … 難読化L2トラップ（判定式のハードコード）が必須
-  APPJS    … docs/players/app.js 側の判定式が必須（HTML自体は器）
+  APPJS    … 同ディレクトリの app.js 側の判定式が必須（HTML自体は器）
   EXEMPT   … 対象外（けん裁定済み。触らない遺物・内部用・payouts 24場）
 
 使い方:
@@ -47,15 +47,17 @@ L2 = [
     "docs/fan/index.html",
     "docs/stadium/index.html",
     "docs/racers/index.html",       # 生成物。正本 scripts/template_racers.html
-    "docs/motor/index.html",        # 生成物。正本 scripts/template.html
     "docs/next/stadiumPreview.html",
 ]
 # ※ docs/index.html と docs/payouts/index.html は guard に加えて L2 も持つ（下で両方検査）
 L2_ALSO = ["docs/index.html", "docs/payouts/index.html"]
 
-# app.js 側で守られているページ
-APPJS = ["docs/players/index.html"]
-APPJS_FILE = "docs/players/app.js"
+# app.js 側で守られているページ（HTMLは器で、判定式は app.js にある）
+# docs/motor/ は JSX の事前ビルド化（babel-standalone 廃止）で判定式が app.js 側へ移った。
+APPJS = {
+    "docs/players/index.html": "docs/players/app.js",
+    "docs/motor/index.html": "docs/motor/app.js",   # 生成物。正本 scripts/template.html＋scripts/motor/app.jsx
+}
 
 # 対象外（けん裁定済み）
 EXEMPT_PREFIX = ("docs/aisho-suminoe/", "docs/shobuun-suminoe/", "docs/probe/")
@@ -101,14 +103,14 @@ def main():
         elif JUDGE not in read(p):
             fails.append("L2判定式が消えている: " + p)
 
-    # 4) players は app.js 側を検査
-    for p in APPJS:
+    # 4) players・motor は app.js 側を検査
+    for p, appjs in APPJS.items():
         if not os.path.exists(p):
             fails.append("APPJS対象が存在しない: " + p)
-    if not os.path.exists(APPJS_FILE):
-        fails.append("app.js が無い: " + APPJS_FILE)
-    elif JUDGE not in read(APPJS_FILE):
-        fails.append("app.js に判定式が無い: " + APPJS_FILE)
+        if not os.path.exists(appjs):
+            fails.append("app.js が無い: " + appjs)
+        elif JUDGE not in read(appjs):
+            fails.append("app.js に判定式が無い: " + appjs)
 
     if fails:
         print("FAIL %d 件" % len(fails))

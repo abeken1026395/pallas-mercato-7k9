@@ -405,11 +405,13 @@ localdata/           Kファイル成果物のローカル保管。**.gitignore 
 | 生成物 | 生成スクリプト | 編集する側（正本） |
 |---|---|---|
 | `docs/motor/index.html` | `scrape_motors.py` | **`scripts/template.html`** の `__DATA_PLACEHOLDER__` |
+| `docs/motor/app.js` | `buildMotorApp.mjs`（`node`） | **`scripts/motor/app.jsx`** |
+| `docs/data/motorKarte.json` | `buildMotorKarte.py`（updateBeforeinfo.yml） | **`docs/data/motorParts.json`**（読むだけ） |
 | `docs/racers/index.html` | `scrape_racers.py` | **`scripts/template_racers.html`** |
 | `docs/players/app.js` | `buildPlayersApp.mjs`（`node`） | **`scripts/players/app.jsx`** |
 | `docs/probe/beforeinfoProbe.html` | `buildBeforeinfoProbe.py` | 同スクリプト |
 
-- HTMLを書き出すスクリプトは**この3本（+app.js）だけ**。
+- HTMLを書き出すスクリプトは**この3本（+ app.js 2本）だけ**。
   他の37ページ（払戻24場・highlights・stadium・glossary ほか）は**手書き**。
 - `docs/players/index.html` は**手書きページで生成物ではない**（`buildRacerStats.py:22` が
   これを**入力として読む**点に注意）。
