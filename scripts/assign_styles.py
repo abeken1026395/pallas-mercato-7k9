@@ -212,6 +212,62 @@ def pick_protagonist(v, exclude=None):
     return None
 
 
+YUSHO_MOVE_TH = 2.0   # 既定から主役を動かすのに要する物語点の差（着順平均2つぶん）
+
+
+def yusho_race(v):
+    """最終日の優勝戦（企画名の完全一致）。無ければ None。"""
+    if v.get("dayLabel") != "最終日":
+        return None
+    for r in ((v.get("todayProgram") or {}).get("races") or []):
+        if (r.get("kikaku") or "") == "優勝戦":
+            return r
+    return None
+
+
+def _story_score(boat):
+    """節間の物語点 ＝ 1着数 ＋ 起伏（前半の平均着 − 後半の平均着）。
+    実数のみで算出し、解釈語を介さない。finishTrail が4走未満なら起伏は0として
+    1着数だけで見る（小標本で起伏を出さない）。"""
+    fin = [t.get("finish") for t in (boat.get("finishTrail") or []) if t.get("finish")]
+    wins = sum(1 for f in fin if f == 1)
+    arc = 0.0
+    if len(fin) >= 4:
+        h = len(fin) // 2
+        arc = (sum(fin[:h]) / h) - (sum(fin[h:]) / (len(fin) - h))
+    return wins + arc
+
+
+def pick_yusho_protagonist(v, race, exclude=None):
+    """優勝戦の6艇から主役を選ぶ。
+
+    既定は「地元の最上位枠、地元が乗っていなければ1号艇（予選1位）」。
+    物語点が既定を YUSHO_MOVE_TH 以上うわまわる艇がいるときだけ、そちらへ動かす。
+    差が閾値未満のときは動かさない（着順平均2つぶん未満は誤差として扱う）。
+
+    114本の実測（source にある優勝戦の全数。節間は results/ の407日ぶんから復元）:
+        既定から動くのは 33.3%
+        地元が主役になるのは 46.5%（地元が1人も乗らない節34本を母数に含む）
+        主役の枠は 1号61% / 2号16% / 3号10% / 4号8% / 5号2% / 6号4%
+    """
+    exclude = set(exclude or ())
+    lmap = {l.get("toban"): l for l in (v.get("localRacers") or [])}
+    boats = [b for b in (race.get("boats") or []) if str(b.get("toban") or "") not in exclude]
+    if not boats:
+        return None
+    locals_ = [b for b in boats if str(b.get("toban") or "") in lmap]
+    base = min(locals_ or boats, key=lambda b: b.get("waku") or 99)
+    best = max(boats, key=lambda b: (_story_score(b),
+                                     1 if str(b.get("toban") or "") in lmap else 0,
+                                     -(b.get("waku") or 99)))
+    chosen = best if (_story_score(best) - _story_score(base)) >= YUSHO_MOVE_TH else base
+    tb = str(chosen.get("toban") or "")
+    return {"toban": tb,
+            "name": (chosen.get("name") or "").replace("　", ""),
+            "grade": chosen.get("grade"),
+            "branch": (lmap.get(tb) or {}).get("branch")}
+
+
 def _focus_by_toban(v, toban):
     """focusRacers から toban 一致の1件。無ければ None。"""
     if not toban:
@@ -333,7 +389,8 @@ def assign(src):
         used[best_t] = used.get(best_t, 0) + 1
         v = p["v"]
         jcd = v.get("jcd")
-        primary = pick_protagonist(v)
+        yr = yusho_race(v)
+        primary = pick_yusho_protagonist(v, yr) if yr else pick_protagonist(v)
         # 追補: 同一場の連日主役は2日連続まで可・3日連続は不可。
         # 過去2日が同一tobanで、今回もそれが筆頭なら代替主役を確定出力（居なければ切り口変更フラグ）。
         hist = venue_protag_history(jcd, date8, 2) if date8 else [None, None]
@@ -341,7 +398,8 @@ def assign(src):
         must_change = False
         prot = primary
         if primary and len([h for h in hist if h]) >= 2 and hist[0] == hist[1] == primary["toban"]:
-            alt = pick_protagonist(v, exclude={primary["toban"]})
+            alt = (pick_yusho_protagonist(v, yr, exclude={primary["toban"]}) if yr
+                   else pick_protagonist(v, exclude={primary["toban"]}))
             if alt:
                 prot, forced_alt = alt, True
             else:
@@ -357,6 +415,7 @@ def assign(src):
             "protagonistHistory": hist,                  # [前日, 前々日] の主役toban
             "styleHistoryTop3": (v.get("styleHistory") or [])[:3],
             "hasTodayProgram": bool(v.get("todayProgram")),
+            "yushoRace": ({"rno": yr.get("rno"), "deadline": yr.get("deadline")} if yr else None),
             "killerHints": killer_hints(v, (prot or {}).get("toban")),
         }
     return {"date": src.get("date"), "assignments": result,
