@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>検証：F持ちのイン ｜ データ攻め</title>
+<link rel="canonical" href="https://abeken1026395.github.io/pallas-mercato-7k9/kensho/fmochi/">
+<!-- data-seme signature: kensho / fmochi -->
+<style>
+:root{
+  --bg:#0b1219; --fg:#e0e6ed; --dim:#8a94a3; --faint:#6f7a89;
+  --line:#1f2b3a; --panel:#0f1a26; --accent:#ffd166;
+  --ok:#7ee08a; --ng:#e07a7a; --blue:#7ab5ea; --deep:#2f4a6b;
+  --track:#080e14;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);margin:0;padding-bottom:80px;
+  font-family:'Helvetica Neue',Arial,'Hiragino Kaku Gothic ProN',Meiryo,sans-serif;
+  -webkit-text-size-adjust:100%;font-variant-numeric:tabular-nums}
+.wrap{max-width:620px;margin:0 auto;padding:0 18px}
+.siteback{display:flex;align-items:center;gap:6px;min-height:44px;
+  font-size:13px;color:inherit;text-decoration:none;opacity:.7}
+
+/* ── ヘッダ ── */
+header{padding:4px 0 20px;border-bottom:1px solid var(--line)}
+header .eyebrow{font-size:11px;color:var(--accent);letter-spacing:.18em;margin:0 0 8px}
+header h1{font-size:23px;line-height:1.5;color:#fff;margin:0 0 10px;font-weight:700}
+header .sub{font-size:12px;color:var(--dim);line-height:1.9;margin:0}
+
+/* ── 記事 ── */
+.article{padding:32px 0 8px;font-size:15.5px;line-height:2.1;letter-spacing:.01em}
+.article p{margin:0 0 1.7em}
+.article p.tight{margin-bottom:.9em}
+.article .lead{font-size:16.5px;color:#fff;line-height:1.95;margin-bottom:1.9em}
+.article b{color:#fff;font-weight:600}
+
+/* ── 小見出し ── */
+.sec{margin:3em 0 1.6em;font-size:13px;color:var(--accent);font-weight:600;
+  letter-spacing:.09em;line-height:1.6;display:flex;align-items:center;gap:11px}
+.sec::before{content:"";width:20px;height:1px;background:var(--accent);flex:none;opacity:.6}
+.sec::after{content:"";flex:1;height:1px;background:var(--line)}
+
+/* ── 図：個体内の変化 ── */
+.curvefig{margin:0 0 1.3em;padding:22px 14px 16px;background:var(--panel);
+  border:1px solid var(--line);border-radius:10px}
+.curvefig .row{display:flex;align-items:center;gap:10px;margin-bottom:11px}
+.curvefig .row:last-of-type{margin-bottom:0}
+.curvefig .dy{width:74px;font-size:12px;color:var(--dim);flex:none}
+.curvefig .track{flex:1;height:20px;background:var(--track);border-radius:4px;
+  display:flex;justify-content:flex-start;overflow:hidden}
+.curvefig .fill{display:block;height:100%;background:linear-gradient(90deg,#6b7f96,#93a8c0);
+  border-radius:4px}
+.curvefig .kg{width:74px;text-align:right;font-size:16px;font-weight:700;color:#cfe0f0;
+  flex:none;letter-spacing:-.01em}
+.curvefig .cap{font-size:11px;color:var(--faint);margin-top:14px;line-height:1.7}
+
+/* ── 図：物差しとの対比 ── */
+.scalefig{margin:0 0 1.3em;padding:22px 18px 16px;background:var(--panel);
+  border:1px solid var(--line);border-radius:10px}
+.scalefig .row{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.scalefig .row:last-of-type{margin-bottom:0}
+.scalefig .nm{width:104px;font-size:12px;color:var(--dim);flex:none;line-height:1.5}
+.scalefig .track{flex:1;height:26px;background:var(--track);border-radius:4px;overflow:hidden}
+.scalefig .fill{display:block;height:100%;border-radius:4px}
+.scalefig .fa{background:linear-gradient(90deg,#6b7f96,#93a8c0)}
+.scalefig .fb{background:linear-gradient(90deg,#4d8fd6,#7ab5ea)}
+.scalefig .kg{width:78px;text-align:right;font-size:19px;font-weight:700;color:#fff;
+  flex:none;letter-spacing:-.02em}
+.scalefig .cap{font-size:11px;color:var(--faint);margin-top:14px;line-height:1.7}
+
+/* ── パンチライン ── */
+.punch{margin:2.2em 0 1.1em;font-size:24px;line-height:1.65;font-weight:700;color:#fff;
+  letter-spacing:.005em}
+.punch .big{color:var(--accent)}
+
+.tail{color:var(--dim);font-size:13.5px;line-height:2}
+
+/* ── 成立条件 ── */
+.cond{margin:-1.15em 0 1.7em;padding:9px 0 9px 12px;border-left:2px solid var(--line);
+  font-size:11.5px;color:var(--faint);line-height:1.85}
+.cond b{color:var(--dim);font-weight:600}
+.cond .st{font-weight:700;white-space:nowrap}
+.cond .st.ok{color:var(--ok)}
+.cond .st.ng{color:var(--ng)}
+.cond .st.na{color:var(--faint)}
+
+/* ── 折りたたみ ── */
+details{background:var(--panel);border:1px solid var(--line);border-radius:9px;margin:0 0 11px}
+details>summary{list-style:none;cursor:pointer;padding:13px 15px;font-size:13px;
+  color:#a9c6dd;display:flex;align-items:center;justify-content:space-between;min-height:46px}
+details>summary::-webkit-details-marker{display:none}
+details>summary::after{content:"";width:7px;height:7px;border-right:1.5px solid #7a8ea6;
+  border-bottom:1.5px solid #7a8ea6;transform:rotate(45deg);margin-left:12px;flex:none}
+details[open]>summary::after{transform:rotate(-135deg)}
+.dbody{padding:0 15px 15px;font-size:12.5px;color:var(--dim);line-height:2}
+.dbody p{margin:0 0 .9em}
+.dbody h4{font-size:12.5px;color:#cfe0f0;margin:16px 0 6px;font-weight:600}
+.dbody h4:first-child{margin-top:4px}
+.dbody b{color:#cfe0f0}
+
+/* ── 表 ── */
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin:8px 0 6px}
+th,td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:right}
+th{color:var(--faint);font-weight:400;font-size:11px;white-space:nowrap}
+td:first-child,th:first-child{text-align:left}
+tr.hi td{color:#fff;font-weight:700}
+
+/* ── 検証データ ── */
+.verify{margin-top:40px;padding-top:24px;border-top:1px solid var(--line)}
+.verify > h2{font-size:14px;color:var(--accent);margin:0 0 6px;letter-spacing:.05em}
+.verify > .vsub{font-size:11.5px;color:var(--dim);line-height:1.9;margin:0 0 18px}
+.stamp{font-size:11px;color:var(--faint);margin-top:26px;line-height:1.9}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<a class="siteback" href="../../">← データ攻め トップ</a>
+<a class="siteback" href="../">← 検証の一覧</a>
+
+<header>
+  <p class="eyebrow">検 証</p>
+  <h1>F持ちのインは<br>遅れるのか</h1>
+  <p class="sub">
+    「F2だから、ここは行けない」と言われます。<br>
+    1,745日・262,203回のスタートで確かめた記録です。
+  </p>
+</header>
+
+<!-- ══════════ 記事 ══════════ -->
+<div class="article">
+
+<p class="lead">「①はF2ですからね。ここは行けないでしょう」</p>
+
+<p class="sec">まず、よく聞く言い方</p>
+
+<p>レース前によく聞く一言です。言い方はいくつかあります。<br>
+行けない。行かない。行きたくない。慎重にならざるを得ない。<br>
+どれも、本人に聞いてはいません。</p>
+
+<p>Fはフライング。スタートラインを早く越えることです。<br>
+切れば、その期の残りをフライング休みで過ごすことになります。<br>
+2本目を切れば休みはさらに長くなる。だから攻められない、という理屈です。</p>
+
+<p>理屈としては通っています。通っているので、数えました。</p>
+
+<p class="sec">1,745日、262,203回</p>
+
+<p>2021年11月1日から2026年8月11日まで。<br>
+1コースに入った枠を数えると<b>262,203</b>回ありました（欠場の行は除いています）。<br>
+この間にFは<b>6,288</b>件。</p>
+
+<p>F本数の数え方は、出走表と同じにしました。<br>
+各期の初日、5月1日と11月1日に0へ戻し、そこからの累積を数えます。<br>
+読者が出走表で見ている「F1」「F2」の表記と、同じものを見ていることになります。</p>
+
+<p class="sec">やはりそうか、と思った</p>
+
+<p>F0・F1・F2に分け、級別も分けて並べました。1コースのスタートタイミングです。</p>
+
+<table>
+<thead><tr><th></th><th>平均ST</th><th>1着率</th><th>枠数</th></tr></thead>
+<tbody>
+<tr><td>F0 A級</td><td>0.1427</td><td>66.7%</td><td>132,508</td></tr>
+<tr><td>F1 A級</td><td>0.1534</td><td>62.9%</td><td>23,636</td></tr>
+<tr class="hi"><td>F2 A級</td><td>0.1786</td><td>52.9%</td><td>814</td></tr>
+<tr><td>F0 B級</td><td>0.1612</td><td>40.9%</td><td>92,759</td></tr>
+<tr><td>F1 B級</td><td>0.1751</td><td>36.6%</td><td>12,277</td></tr>
+<tr class="hi"><td>F2 B級</td><td>0.2014</td><td>21.1%</td><td>209</td></tr>
+</tbody>
+</table>
+
+<p>きれいに並びました。A級のF2は、B級のF0より遅い。<br>
+同じA級とは思えない数字です。</p>
+
+<p>やはりそうか、と思いました。</p>
+
+<p>ところが、これは見間違いです。<br>
+この表が比べているのは「F2の選手」と「F0の選手」で、<b>別人です</b>。<br>
+F2に乗っている814回を走ったのは、F2まで切ってしまう選手たちです。<br>
+もともとどういうスタートを踏む人たちなのかが、この表からは分かりません。</p>
+
+<p>262,203回ぶんの計算をして、別人は別人だという結論を得ていたことになります。</p>
+
+<div class="cond">
+  この段落は、うちが毎日集めている結果でも「F持ちのSTが遅い側にある」とき成立します。<br>
+  現在 F0 <b data-v="st_f0">0.1500</b> / F1 <b data-v="st_f1">0.1623</b> ──
+  <span class="st ok" data-v="st_group">✓ 成立</span>
+</div>
+
+<p class="sec">気持ちは見えない。時計は見える</p>
+
+<p>なぜ遅いのかを知るには、本人の胸の内が要ります。<br>
+それはデータに入っていません。うちが持っているのは、時計です。</p>
+
+<p>そこで、比べる相手を変えました。<br>
+<b>同じ選手の、F0だったときと、F1・F2になったあと</b>を引き算します。<br>
+この形なら、その人がもともと速いか遅いかは差し引かれて消えます。<br>
+級別も、年齢も、走る場も、たいていは同じ人のものです。</p>
+
+<p class="sec">同じ人の中で、こうなった</p>
+
+<div class="curvefig">
+  <div class="row">
+    <span class="dy">F0 → F1</span>
+    <span class="track"><span class="fill" style="width:39%"></span></span>
+    <span class="kg">+0.0138</span>
+  </div>
+  <div class="row">
+    <span class="dy">F0 → F2</span>
+    <span class="track"><span class="fill" style="width:100%"></span></span>
+    <span class="kg">+0.0353</span>
+  </div>
+  <p class="cap">同じ選手のF0時と比べたスタートタイミングの変化（秒）。
+  F1は1,120人、F2は83人</p>
+</div>
+
+<p>遅くなった人の割合は、F1で<b>79.1%</b>。<br>
+F2まで進んだ83人では<b>88.0%</b>で、73人が遅くなりました。<br>
+10人のうち9人です。</p>
+
+<p><b>+0.0353</b>秒がどれくらいかは、さきほどの表がそのまま物差しになります。<br>
+1コースのF0だけで見たとき、A級とB級の平均STの差は0.0185秒でした。<br>
+級がひとつ違うと、それだけ変わります。</p>
+
+<div class="scalefig">
+  <div class="row">
+    <span class="nm">A級とB級の<br>スタートの差</span>
+    <span class="track"><span class="fill fb" style="width:52%"></span></span>
+    <span class="kg">0.0185</span>
+  </div>
+  <div class="row">
+    <span class="nm">同じ選手が<br>F2になったとき</span>
+    <span class="track"><span class="fill fa" style="width:100%"></span></span>
+    <span class="kg">0.0353</span>
+  </div>
+  <p class="cap">単位は秒。いずれも1コースのスタートタイミング</p>
+</div>
+
+<p>級がひとつ違うより、大きい。<br>
+そして、この個体内の差は、別人同士を比べたときに出た差と、ほとんど同じ大きさでした。<br>
+<b>別人を比べていたときに見えていた差は、同じ人の中にもあった</b>ということになります。</p>
+
+<div class="cond">
+  この段落は、うちが毎日集めている結果でも「同じ選手の中で遅くなる側が半数を超える」とき成立します。<br>
+  現在 <b data-v="iv_slow">71.1</b>%（<b data-v="iv_n">384</b>人）──
+  <span class="st ok" data-v="st_indiv">✓ 成立</span>
+</div>
+
+<div class="cond">
+  F2は、うちが毎日集めている結果だけでは判定していません。<br>
+  1コースに入る回数が少なく、分母に届かないためです。<br>
+  現在 <b data-v="n_f2">61</b>枠 / 個体内 <b data-v="iv2_n">7</b>人 ──
+  <span class="st ok" data-v="st_f2">— 分母不足</span>
+</div>
+
+<p class="sec">速い人が、切っている</p>
+
+<p>もうひとつ、逆向きの数字が出ました。</p>
+
+<p>5年間で一度もFを切らなかった選手は<b>157</b>人。<br>
+F0側で10走以上ある1,674人が母数です。<br>
+この157人の1コースの平均STは<b>0.1710</b>。</p>
+
+<p>一方、期間中にFを切ったことがある選手が、<b>まだF0だったとき</b>のSTは<b>0.1534</b>でした。</p>
+
+<p class="punch">切らない人より、<br>切る人のほうが<span class="big">速い</span>。</p>
+
+<p>順序が逆なのです。<br>
+遅いからFになるのではなく、速く踏んでいる人が越えてしまい、そのあと遅くなる。<br>
+この記事で言えるのは、そこまでです。</p>
+
+<div class="cond">
+  この一行は、うちが毎日集めている結果でも「Fを切った選手のF0時STが、切っていない選手より速い」とき成立します。<br>
+  現在 切った側 <b data-v="ex_ever">0.1470</b> / 切っていない側 <b data-v="ex_never">0.1566</b> ──
+  <span class="st ok" data-v="st_exp">✓ 成立</span>
+</div>
+
+<p class="sec">断っておくこと</p>
+
+<p><b>数え方の穴があります。</b><br>
+期の初日にF本数を0へ戻す都合上、前の期に切ったFは「F0」に混ざります。<br>
+ただしこれは、本来F1・F2であるはずの走りをF0側に紛れ込ませる方向なので、差を小さく見せます。<br>
+結論を甘くする側の誤差です。</p>
+
+<p><b>制度が変わっています。</b><br>
+フライングの罰則は2022年5月と2025年4月に改正されました。<br>
+3つの区間に分けて数え直しても、F1のST差は+0.010秒から+0.013秒の範囲に収まりました。<br>
+制度が変わっても向きは変わっていません。</p>
+
+<p><b>全員ではありません。</b><br>
+F2を抱えたまま攻めている選手は実在します。<br>
+登番4351はA1級で、F2の状態で1コースに7回入り、その中に0.04、0.05、0.07というSTがあります。<br>
+88.0%の裏側には、12.0%がいます。</p>
+
+<p><b>理由は書けません。</b><br>
+遅くなった、という事実までがデータの届く範囲です。<br>
+その人が何を考えて踏んだかは、時計には映りません。</p>
+
+<p class="sec">　</p>
+
+<p>F2の選手が遅いのではありません。</p>
+
+<p class="punch">F2は遅いのではない。<br><span class="big">同じ選手</span>が、遅くなる。</p>
+
+</div>
+
+<!-- ══════════ 数え方 ══════════ -->
+<details>
+<summary>この検証の数え方</summary>
+<div class="dbody">
+<h4>記事の数字はどこから取ったか</h4>
+<p>公式の成績原簿（Kファイル）と番組表（Bファイル）を、2021年11月1日から2026年8月11日まで、
+1,745日分そろえて集計しました。この期間の数字は固定です。日々の更新では動きません。</p>
+
+<h4>下の「検証データ」はどこから取ったか</h4>
+<p>このサイトが毎日ためているレース結果だけを使っています。<b data-v="period">—</b>の分です。<br>
+記事の数字とは<b>期間もデータ源も別</b>で、同じ向きが出続けているかを見るための欄です。
+数字そのものは記事と一致しません。</p>
+
+<h4>F本数の数え方</h4>
+<p>各期の初日（5月1日・11月1日）に0へ戻し、そこからの累積です。出走表のF表記と同じ定義にしています。<br>
+期の頭には、前の期に切ったFが「F0」に混ざります。これは差を小さく見せる向きの誤差です。<br>
+検証データの欄ではF3以上もF2にまとめています（1コースではほとんど出現しません）。</p>
+
+<h4>なぜ「同じ選手の中」で比べるのか</h4>
+<p>F2まで切る選手と、一度も切らない選手は、もともと別の人たちです。<br>
+人をまたいで比べると、「Fを持つと遅くなる」のか「もともとそういう選手だった」のか区別がつきません。<br>
+同じ人のF0時と比べると、その区別がつきます。</p>
+
+<h4>スタートタイミングについて</h4>
+<p>スタートラインを通過した時刻で、数字が小さいほど早く踏んでいます。<br>
+本番のスタートだけを使っています（スタート展示は含みません）。</p>
+
+<h4>揃えきれていないもの</h4>
+<p>同じ選手の中で比べても、時期が違えばモーターも場も相手も変わります。<br>
+その分は揃えきれていません。断定はしていません。</p>
+</div>
+</details>
+
+<!-- ══════════ 検証データ ══════════ -->
+<div class="verify">
+  <h2>検証データ</h2>
+  <p class="vsub">
+    上の記事が今も成り立っているかを、毎日確かめている欄です。<br>
+    記事とは別の期間・別のデータ源で、同じ向きが出るかだけを見ています。<br>
+    読み物ではありません。向きが変わったら、記事のほうを書き直します。
+  </p>
+
+<details>
+<summary>成立条件の一覧</summary>
+<div class="dbody">
+<p>記事の中の断定的な一行が、今も成り立っているかの一覧です。<br>
+「—」は、判定できる分母に届いていないという意味です。</p>
+<table>
+<thead><tr><th>文</th><th>条件</th><th>現在</th><th></th></tr></thead>
+<tbody data-t="cond"></tbody>
+</table>
+</div>
+</details>
+
+<details>
+<summary>F本数ごとのスタート</summary>
+<div class="dbody">
+<p>この欄の期間だけで数え直した、1コースのスタートタイミングです。</p>
+<table>
+<thead><tr><th></th><th>枠数</th><th>平均ST</th><th>1着率</th></tr></thead>
+<tbody data-t="group"></tbody>
+</table>
+</div>
+</details>
+
+<details>
+<summary>いま数えている量</summary>
+<div class="dbody">
+<p>この検証がどれだけのデータで出ているかです。日が経つほど増えます。</p>
+<table>
+<thead><tr><th>項目</th><th>件数</th></tr></thead>
+<tbody data-t="scale"></tbody>
+</table>
+</div>
+</details>
+
+  <p class="stamp">
+    集計期間 <span data-v="period">—</span>　/　最終更新 <span data-v="updated">—</span><br>
+    このページは毎日、前日までの結果で自動更新されます。
+  </p>
+</div>
+
+<a class="siteback" href="../../">← データ攻め トップ</a>
+<a class="siteback" href="../">← 検証の一覧</a>
+
+</div>
+
+<script src="../../assets/guard.js" defer></script>
+</body>
+</html>
