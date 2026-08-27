@@ -233,6 +233,7 @@ header .sub { font-size:11px; color:#8a94a3; margin-top:4px; }
 .pill-pre { color:#7fe0a0; background:#12241a; border:1px solid #1e4a30; }
 .harvest-link { color:#0b1219; background:#ffd166; font-size:11px; font-weight:bold; border-radius:6px; padding:5px 10px; text-decoration:none; white-space:nowrap; flex:none; }
 .harvest-x { font-size:11px; color:#8a94a3; border:1px solid #2a3a4d; border-radius:6px; padding:5px 8px; background:none; cursor:pointer; flex:none; }
+.harvest-all { margin-left:auto; font-size:11px; color:#9fb0c3; border:1px solid #2a3a4d; border-radius:6px; padding:6px 10px; min-height:32px; background:none; cursor:pointer; flex:none; }
 .recent-chips { display:flex; gap:6px; flex-wrap:wrap; }
 .rchip { font-size:11px; color:#a9c6dd; background:#0d1622; border:1px solid #24344a; border-radius:14px; padding:3px 10px; cursor:pointer; }
 .my-empty { font-size:11px; color:#6f7d8c; }
@@ -780,7 +781,10 @@ function renderVenues(app,crumb,keys){
     var list=byDate[hd].sort(function(a,b){ var pa=isPin(a.jcd)?0:1, pb=isPin(b.jcd)?0:1; if(pa!==pb) return pa-pb; return a.jcd<b.jcd?-1:1; });
     var mm=hd.slice(4,6),dd=hd.slice(6,8);
     var dow=["日","月","火","水","木","金","土"][new Date(parseInt(hd.slice(0,4)),parseInt(mm)-1,parseInt(dd)).getDay()];
-    html+='<div class="date-head">'+esc((hd===todayJST?"本日":"翌日")+" "+mm+"/"+dd+"("+dow+")")+'</div>';
+    var dnum=function(x){ return Date.UTC(parseInt(x.slice(0,4),10),parseInt(x.slice(4,6),10)-1,parseInt(x.slice(6,8),10)); };
+    var df=Math.round((dnum(hd)-dnum(todayJST))/86400000);
+    var lab=df===0?"本日":df===1?"翌日":df===-1?"前日":(df<0?(-df)+"日前":df+"日後");
+    html+='<div class="date-head">'+esc(lab+" "+mm+"/"+dd+"("+dow+")")+'</div>';
     html+=list.map(function(v){
       var rs=Object.keys(v.races).map(Number).sort(function(a,b){return a-b;});
       var first=v.races[rs[0]],last=v.races[rs[rs.length-1]];
@@ -812,7 +816,8 @@ function buildMyPanel(){
   if(harvest.length){
     var oshiN=harvest.filter(function(x){return x.oshi;}).length;
     h+='<div class="my-sec harvest"><div class="my-h">🏁 結果を見る<span class="cnt">'+harvest.length+'</span>'
-      +(oshiN?'<span class="oshi-cnt" style="margin-left:2px">⭐'+oshiN+'</span>':'')+'</div>'
+      +(oshiN?'<span class="oshi-cnt" style="margin-left:2px">⭐'+oshiN+'</span>':'')
+      +'<button class="harvest-all" type="button">すべて確認済み</button></div>'
       +'<div class="my-note">締切を過ぎたレース。確定結果は公式ページで（発走直後は未掲示のことがあります）。</div>';
     h+=harvest.map(function(x){
       var k=rkey(x.jcd,x.hd,x.rno);
@@ -848,6 +853,15 @@ function myOpen(k){
 function wireMyPanel(app){
   Array.prototype.forEach.call(app.querySelectorAll("[data-open]"),function(el){
     el.onclick=function(){ myOpen(el.getAttribute("data-open")); };
+  });
+  Array.prototype.forEach.call(app.querySelectorAll(".harvest-all"),function(el){
+    el.onclick=function(){
+      var list=harvestList();
+      if(!list.length) return;
+      if(!window.confirm("結果を見る "+list.length+"件をすべて確認済みにしますか。")) return;
+      list.forEach(function(x){ markCollected(x.jcd,x.hd,x.rno); });
+      render();
+    };
   });
   Array.prototype.forEach.call(app.querySelectorAll(".harvest-x"),function(el){
     el.onclick=function(e){ e.stopPropagation(); var p=el.getAttribute("data-collect").split("_"); markCollected(p[0],p[1],p[2]); render(); };
