@@ -8,10 +8,10 @@
 - [既知の重大問題・運用上の注意（作業前に該当節を読む）](#既知の重大問題運用上の注意作業前に該当節を読む)
 - [ディレクトリ構成](#ディレクトリ構成)
 - [公開ページ一覧](#公開ページ一覧docs-github-pages全41ページ)
-- [スクリプト](#スクリプトscriptspython-126本ほか)
-- [GitHub Actions ワークフロー](#github-actions-ワークフローgithubworkflows全51本)
+- [スクリプト](#スクリプトscriptspython-143本ほか)
+- [GitHub Actions ワークフロー](#github-actions-ワークフローgithubworkflows全59本)
 - [データの流れ](#データの流れ)
-- [データの範囲](#データの範囲2026-07-31-時点の実測)
+- [データの範囲](#データの範囲実測日は行ごとに明記)
 - [ローカル運用](#ローカル運用windows-タスクスケジューラ)
 - [開発メモ](#開発メモ)
 - [未確認事項](#未確認事項判明していないことを判明していないまま記録する)
@@ -172,7 +172,8 @@
 
 ### (8) ⚠️ 監視が「緑」でも壊れている（異常が見えないことがこのリポジトリの主要な故障モード）
 (1) の単一障害点3つは「止まっても通知が飛ばない」問題だが、それとは別に
-**Actions の結果表示そのものが異常を隠す**経路が4つある。いずれも 2026-08-02 に判明。
+**Actions の結果表示そのものが異常を隠す**経路が4つある（a〜d。いずれも 2026-08-02 に判明）。
+さらに e. は「緑が隠す」ではなく**赤が誰にも見られていない**型（2026-08-21 判明）。
 **緑（success）や無言を「正常」と解釈しないこと。**
 
 #### a. `writeKansenki.yml` は書く対象が0でも success
@@ -230,6 +231,18 @@
   この SKIP が本当の非運用日なのか、執筆が丸ごと落ちた日なのかは**このログからは区別できない**。
 - 全欠の検知は `kansenkiMissingAlarm.yml`（JST 07:37・当日分のみ Issue 起票）が担当。
   ただし**当日分だけ**なので、過去日の全欠は誰も検知しない。
+
+#### e. 1艇の欠損で1日が全損し、9便の failure が4日間気づかれなかった
+- `fetchPartsExchange.py` の `assert_row_sane` が**体重欄の空を、書式不正と同じ FATAL** として
+  扱い `sys.exit(1)` していた。保存は全レース処理後の1回だけなので、途中で落ちるとその日は**0行**になる。
+- 実測: 開催日 **20260812 / 20260813 / 20260814 / 20260817** が `docs/data/motorParts.json` に0行。
+  ワークフロー「beforeinfo部品交換収集」は**9便が failure** だったが、**4日間だれも気づかなかった**。
+- 止血済み（PR #267）。体重が空なら1行 skip、値が入っているのに書式不正なら従来どおり FATAL。
+  **体重以外の検査条件は1つも緩めていない。**
+- 教訓は2つ。**「値が不正なら停止」と「値が無いだけ」を分ける**こと。欠損で全体を止める設計は、
+  1件の欠場で1日分を失う。もう1つは、**止めるゲートは、止めた事実がその場で見える形で残ること。**
+  a〜d は緑が異常を隠す型だが、これは**赤が出ていたのに誰も見ていない**型で、
+  根因は**ワークフローの失敗通知が無いこと**にある。
 
 ### (9) 観戦記の素材・検査に残る既知の穴（2026-08-02 記録）
 
@@ -317,8 +330,8 @@
 
 ## ディレクトリ構成
 ```
-.github/workflows/   GitHub Actions（自動収集・検証・観戦記のスケジュール定義、全51本）
-scripts/             Python 126本＋PowerShell 5本＋mjs 1本＋HTMLテンプレート2本
+.github/workflows/   GitHub Actions（自動収集・検証・観戦記のスケジュール定義、全59本）
+scripts/             Python 143本＋PowerShell 11本＋mjs 2本＋HTMLテンプレート5本
 docs/                GitHub Pages で公開する静的サイト＋データ本体（HTML 41ページ）
   index.html         データポータルの入口
   data/              定数・ロジック・生成JSON（weather / arare / tenkai_logic /
@@ -370,7 +383,7 @@ localdata/           Kファイル成果物のローカル保管。**.gitignore 
 
 ---
 
-## スクリプト（`scripts/`、Python 126本ほか）
+## スクリプト（`scripts/`、Python 143本ほか）
 本数が多いので**系統**で把握する。個別の仕様は各ファイル冒頭の docstring が正本。
 
 ### 中核（毎日動く）
@@ -410,7 +423,13 @@ localdata/           Kファイル成果物のローカル保管。**.gitignore 
 | `docs/racers/index.html` | `scrape_racers.py` | **`scripts/template_racers.html`** |
 | `docs/players/app.js` | `buildPlayersApp.mjs`（`node`） | **`scripts/players/app.jsx`** |
 | `docs/probe/beforeinfoProbe.html` | `buildBeforeinfoProbe.py` | 同スクリプト |
+| `docs/data/racerInRate.json` | `buildRacerInRate.py`（**WFなし・手動実行のみ**） | — |
+| `docs/data/collapsePattern.json` | `buildCollapsePattern.py`（**WFなし・手動実行のみ**） | — |
+| `docs/data/courseFinish.json` | `buildCourseFinish.py`（**WFなし・`kdata` 由来でローカル専用**） | — |
 
+- **上記3つの JSON は、再生成すると手で足した `出典` キーが消える。**
+  これら3本を回すワークフローは無いので即座には消えないが、**次に再生成するときは
+  生成スクリプト側へ `出典` の出力を先に足すこと。**
 - HTMLを書き出すスクリプトは**この3本（+ app.js 2本）だけ**。
   他の37ページ（払戻24場・highlights・stadium・glossary ほか）は**手書き**。
 - `docs/players/index.html` は**手書きページで生成物ではない**（`buildRacerStats.py:22` が
@@ -436,7 +455,7 @@ localdata/           Kファイル成果物のローカル保管。**.gitignore 
 
 ---
 
-## GitHub Actions ワークフロー（`.github/workflows/`、全52本）
+## GitHub Actions ワークフロー（`.github/workflows/`、全59本）
 生成物は `github-actions[bot]` / `github-actions` がコミット＆プッシュ。cron は **UTC 指定**（JST=UTC+9）。
 各ジョブは専用 `concurrency` グループでプッシュ競合を回避。ほぼ全てに `workflow_dispatch` あり。
 
@@ -565,16 +584,16 @@ docs/data/（横断集計）
 
 ---
 
-## データの範囲（2026-07-31 時点の実測）
+## データの範囲（実測日は行ごとに明記）
 | 対象 | 範囲 | 備考 |
 |---|---|---|
-| `kdata/` | **hd 250722〜260721**（2025-07-22〜2026-07-21） | races 54,696 / entries 328,176 / payouts 546,650。**保全用・読み取りのみ** |
-| `results/` | **20250715〜**（382ファイル） | 20250715 は BoatraceOpenAPI ミラーの最古配信日 |
-| `predictions/` | 20250715〜（379ファイル） | write-once |
-| `verify_log.csv` | 20250715〜20260730（378日分） | **欠番3日: `20260517` / `20260518` / `20260706`** |
-| `data/kfiles/` | k260401〜k260730（121本の lzh） | **.gitignore 済み＝非コミット。クラウドには存在しない** |
-| `docs/payouts/*Payouts.csv` | 〜20260801（全24場） | 2026-08-02 に today() 破損を修正し22場を埋め戻し。書き込み前ガード導入済み |
-| `docs/players/racerKimarite.csv` | 2026-07-30 まで（ローカルタスクへ移設して復旧） | →(3) |
+| `kdata/` | **hd 250722〜260721**（2025-07-22〜2026-07-21） | races 54,696 / entries 328,176 / payouts 546,650。**保全用・読み取りのみ**（2026-07-31 実測） |
+| `results/` | **20250715〜（日次で増える）** | 20250715 は BoatraceOpenAPI ミラーの最古配信日。件数は固定値で書かない（2026-08-27 実測: 409ファイル） |
+| `predictions/` | **20250715〜（日次で増える）** | write-once。件数は固定値で書かない（2026-08-27 実測: 406ファイル） |
+| `verify_log.csv` | 20250715〜**20260826**（405日分） | **欠番3日: `20260517` / `20260518` / `20260706`**（2026-08-27 実測・データ 61,186行） |
+| `data/kfiles/` | k260401〜k260730（121本の lzh） | **.gitignore 済み＝非コミット。クラウドには存在しない**（2026-07-31 実測） |
+| `docs/payouts/*Payouts.csv` | 〜20260801（全24場） | 2026-08-02 に today() 破損を修正し22場を埋め戻し。書き込み前ガード導入済み（2026-08-02 実測） |
+| `docs/players/racerKimarite.csv` | 2026-07-30 まで（ローカルタスクへ移設して復旧） | →(3)（2026-07-31 実測） |
 
 - **この表の書き方の原則: 複数対象をまとめた行を、1つの代表値で書かない。**
   ばらつくなら「最も古いもの」を書くか、ばらついている旨を書く。
