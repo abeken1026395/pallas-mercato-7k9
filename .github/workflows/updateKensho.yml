@@ -1,4 +1,4 @@
-name: 検証ページ /kensho/ 更新（勝負駆け・体重）
+name: 検証ページ /kensho/ 更新（勝負駆け・体重・F持ち）
 
 on:
   schedule:
@@ -29,13 +29,18 @@ jobs:
       # データ源=リポジトリ内の preview/ と results/ のみ。外部ネットワークに出ない。
       # 変わらない日は "taiju: no change (skip write)" を出して書き込まない。
       - run: python scripts/buildTaiju.py
+      # docs/kensho/fmochi/index.html を scripts/templateFmochi.html から生成する。
+      # データ源=リポジトリ内の results/ のみ。外部ネットワークに出ない。
+      # 記事本文の数値は凍結値でテンプレに直書き。動くのは検証データ欄だけ。
+      # 変わらない日は "fmochi: no change (skip write)" を出して書き込まない。
+      - run: python scripts/buildFmochi.py
       - name: commit and push
         if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/kensho/shobugake/index.html docs/kensho/taiju/index.html data/kenshoVerify.json
-          git diff --staged --quiet || git commit -m "update kensho pages (shobugake, taiju)"
+          git add docs/kensho/shobugake/index.html docs/kensho/taiju/index.html docs/kensho/fmochi/index.html data/kenshoVerify.json
+          git diff --staged --quiet || git commit -m "update kensho pages (shobugake, taiju, fmochi)"
           # push競合(cannot lock ref)は短いランダム待機でリトライする。
           BR="${GITHUB_REF_NAME}"
           for i in 1 2 3 4 5 6; do
