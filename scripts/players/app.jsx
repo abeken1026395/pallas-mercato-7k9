@@ -380,7 +380,7 @@ function App() {
     if(!open || slate!==null) return;
     fetch("../data/startLate.json").then(r=>r.ok?r.json():Promise.reject()).then(j=>{
       if(j && j.racers){ setSlate(j.racers); setSlMeta({基準:j.基準, 期間:j.集計期間, 日数:j.日数, ガード:j.母数ガード, 定義:j.遅れの定義, 出典:j.出典}); }
-    }).catch(()=>{ setSlate({}); });
+    }).catch(()=>{ setSlate(false); });
   },[open]);
   // URLに ?toban=登番 があれば、その選手を検索欄にプリセットして開く（モーター等からのリンク用）
   useEffect(()=>{
@@ -679,6 +679,7 @@ function App() {
                     if(slate===null) return (
                       <div style={{fontSize:11,color:"#6b7f95",margin:"12px 0",lineHeight:1.7}}>読み込み中…</div>
                     );
+                    if(slate===false) return null;
                     const sl = slate[String(p.no)];
                     if(!sl || !sl.n) return (
                       <div style={{marginBottom:14}}>

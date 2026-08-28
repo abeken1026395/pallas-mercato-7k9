@@ -871,7 +871,7 @@ function App() {
         });
       }
     }).catch(() => {
-      setSlate({});
+      setSlate(false);
     });
   }, [open]);
   // URLに ?toban=登番 があれば、その選手を検索欄にプリセットして開く（モーター等からのリンク用）
@@ -1698,6 +1698,7 @@ function App() {
           lineHeight: 1.7
         }
       }, "\u8AAD\u307F\u8FBC\u307F\u4E2D\u2026");
+      if (slate === false) return null;
       const sl = slate[String(p.no)];
       if (!sl || !sl.n) return /*#__PURE__*/React.createElement("div", {
         style: {
