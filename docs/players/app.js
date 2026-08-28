@@ -724,6 +724,8 @@ function App() {
   const [e30All, setE30All] = useState(false);
   const [rankHist, setRankHist] = useState(null);
   const [rhMeta, setRhMeta] = useState(null);
+  const [slate, setSlate] = useState(null);
+  const [slMeta, setSlMeta] = useState(null);
   const [oshi, setOshi] = useState(loadOshi);
   const [oshiOnly, setOshiOnly] = useState(false);
   const toggleOshi = (toban, name) => {
@@ -851,6 +853,25 @@ function App() {
       }
     }).catch(() => {
       setRankHist({});
+    });
+  }, [open]);
+  // スタートの遅れも詳細を開いた時だけ遅延読込（一覧を重くしない）
+  useEffect(() => {
+    if (!open || slate !== null) return;
+    fetch("../data/startLate.json").then(r => r.ok ? r.json() : Promise.reject()).then(j => {
+      if (j && j.racers) {
+        setSlate(j.racers);
+        setSlMeta({
+          基準: j.基準,
+          期間: j.集計期間,
+          日数: j.日数,
+          ガード: j.母数ガード,
+          定義: j.遅れの定義,
+          出典: j.出典
+        });
+      }
+    }).catch(() => {
+      setSlate(false);
     });
   }, [open]);
   // URLに ?toban=登番 があれば、その選手を検索欄にプリセットして開く（モーター等からのリンク用）
@@ -1668,6 +1689,185 @@ function App() {
           lineHeight: 1.6
         }
       }, "\u7D1A\u5225\u306F\u516C\u5F0F\u306E\u756A\u7D44\u8868\u306B\u8F09\u3063\u3066\u3044\u308B\u3001\u305D\u306E\u65E5\u305D\u306E\u9078\u624B\u306E\u7D1A\u5225\u3092\u305D\u306E\u307E\u307E\u62FE\u3063\u305F\u3082\u306E\u3002 \u534A\u5E74\u3054\u3068\u306E\u6539\u5B9A\u65E5\u3067\u306F\u306A\u304F\u3001\u6539\u5B9A\u5F8C\u306B\u305D\u306E\u9078\u624B\u304C\u521D\u3081\u3066\u51FA\u8D70\u3057\u305F\u65E5\u304C\u5165\u308B\u3002 1996\u5E747\u670819\u65E5\u3088\u308A\u524D\u306F\u756A\u7D44\u8868\u304C\u914D\u5E03\u3055\u308C\u3066\u3044\u306A\u3044\u305F\u3081\u3001\u305D\u308C\u4EE5\u524D\u306E\u7D1A\u5225\u306F\u5206\u304B\u3089\u306A\u3044\u3002", rhMeta && rhMeta.期間 ? "　対象期間 " + rhMeta.期間 + "。" : "")));
+    })(), (() => {
+      if (slate === null) return /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 11,
+          color: "#6b7f95",
+          margin: "12px 0",
+          lineHeight: 1.7
+        }
+      }, "\u8AAD\u307F\u8FBC\u307F\u4E2D\u2026");
+      if (slate === false) return null;
+      const sl = slate[String(p.no)];
+      if (!sl || !sl.n) return /*#__PURE__*/React.createElement("div", {
+        style: {
+          marginBottom: 14
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 11,
+          color: "#8faabe",
+          fontWeight: 700,
+          marginBottom: 6
+        }
+      }, "\u25A0 \u30B9\u30BF\u30FC\u30C8\u306E\u9045\u308C"), /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 11,
+          color: "#6b7f95",
+          background: "#0b1219",
+          borderRadius: 8,
+          padding: "10px 12px",
+          lineHeight: 1.7
+        }
+      }, "\u3053\u306E\u9078\u624B\u306F\u96C6\u8A08\u671F\u9593\u306E\u8D70\u6570\u304C", slMeta && slMeta.ガード ? slMeta.ガード : 20, "\u8D70\u306B\u5C4A\u304D\u307E\u305B\u3093\u3002"));
+      const base = slMeta && slMeta.基準 || null;
+      const pct = (a, b) => b ? Math.round(a / b * 1000) / 10 : null;
+      const my = pct(sl.late, sl.n);
+      const allPct = base && base.全体 ? pct(base.全体.late, base.全体.n) : null;
+      const rows = [];
+      for (let c = 1; c <= 6; c++) {
+        const o = sl.course && sl.course[String(c)];
+        if (!o) continue;
+        const bc = base && base.コース ? base.コース[String(c)] : null;
+        rows.push({
+          c: c,
+          n: o.n,
+          late: o.late === undefined ? null : o.late,
+          my: o.late === undefined ? null : pct(o.late, o.n),
+          all: bc ? pct(bc.late, bc.n) : null
+        });
+      }
+      return /*#__PURE__*/React.createElement("div", {
+        style: {
+          marginBottom: 14
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 11,
+          color: "#8faabe",
+          fontWeight: 700,
+          marginBottom: 6
+        }
+      }, "\u25A0 \u30B9\u30BF\u30FC\u30C8\u306E\u9045\u308C\u3000", /*#__PURE__*/React.createElement("span", {
+        style: {
+          color: "#6b7f95",
+          fontWeight: 400
+        }
+      }, "ST0.20\u3088\u308A\u9045\u3044\u8D70\u306E\u5272\u5408", slMeta && slMeta.日数 ? "／過去" + slMeta.日数 + "日" : "")), /*#__PURE__*/React.createElement("div", {
+        style: {
+          background: "#0b1219",
+          borderRadius: 8,
+          padding: "10px 12px"
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          display: "flex",
+          alignItems: "baseline",
+          gap: 10,
+          flexWrap: "wrap"
+        }
+      }, /*#__PURE__*/React.createElement("span", {
+        style: {
+          fontSize: 18,
+          fontWeight: 700,
+          color: "#e0e6ed",
+          fontVariantNumeric: "tabular-nums"
+        }
+      }, my, "%"), /*#__PURE__*/React.createElement("span", {
+        style: {
+          fontSize: 11,
+          color: "#8faabe",
+          fontVariantNumeric: "tabular-nums"
+        }
+      }, sl.n, "\u8D70\u4E2D", sl.late, "\u56DE")), allPct !== null && /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 11,
+          color: "#6b7f95",
+          marginTop: 6,
+          lineHeight: 1.7,
+          fontVariantNumeric: "tabular-nums"
+        }
+      }, "\u5168\u9078\u624B\u306E\u5E73\u5747 ", allPct, "%\uFF08", base.全体.n, "\u8D70\uFF09")), rows.length > 0 && /*#__PURE__*/React.createElement("details", {
+        style: {
+          marginTop: 6
+        }
+      }, /*#__PURE__*/React.createElement("summary", {
+        onClick: e => e.stopPropagation(),
+        style: {
+          fontSize: 12,
+          color: "#8faabe",
+          cursor: "pointer",
+          minHeight: 44,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 8,
+          listStyle: "none",
+          background: "#0b1219",
+          border: "1px solid #1a2535",
+          borderRadius: 8,
+          padding: "0 12px"
+        }
+      }, /*#__PURE__*/React.createElement("span", null, "\u30B3\u30FC\u30B9\u5225\u306B\u898B\u308B\uFF08", rows.length, "\u4EF6\uFF09"), /*#__PURE__*/React.createElement("span", {
+        style: {
+          color: "#6b7f95",
+          fontSize: 12
+        }
+      }, "\u25B8")), /*#__PURE__*/React.createElement("table", {
+        style: {
+          width: "100%",
+          borderCollapse: "collapse",
+          fontSize: 12,
+          marginTop: 4
+        }
+      }, /*#__PURE__*/React.createElement("tbody", null, rows.map((r, i) => /*#__PURE__*/React.createElement("tr", {
+        key: i
+      }, /*#__PURE__*/React.createElement("td", {
+        style: {
+          padding: "5px 0",
+          borderBottom: "1px solid #1a2535",
+          color: "#8faabe",
+          width: "5.2em",
+          whiteSpace: "nowrap"
+        }
+      }, r.c, "\u30B3\u30FC\u30B9"), /*#__PURE__*/React.createElement("td", {
+        style: {
+          padding: "5px 0",
+          borderBottom: "1px solid #1a2535",
+          width: "3.6em",
+          fontWeight: 700,
+          color: "#e0e6ed",
+          fontVariantNumeric: "tabular-nums",
+          whiteSpace: "nowrap"
+        }
+      }, r.my === null ? "—" : r.my + "%"), /*#__PURE__*/React.createElement("td", {
+        style: {
+          padding: "5px 0",
+          borderBottom: "1px solid #1a2535",
+          color: "#6b7f95",
+          fontSize: 11,
+          fontVariantNumeric: "tabular-nums",
+          whiteSpace: "nowrap"
+        }
+      }, r.my === null ? r.n + "走" : r.n + "走中" + r.late + "回"), /*#__PURE__*/React.createElement("td", {
+        style: {
+          padding: "5px 0",
+          borderBottom: "1px solid #1a2535",
+          color: "#6b7f95",
+          fontSize: 11,
+          textAlign: "right",
+          fontVariantNumeric: "tabular-nums",
+          whiteSpace: "nowrap"
+        }
+      }, r.all === null ? "" : "全体 " + r.all + "%"))))), /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 10,
+          color: "#6b7f95",
+          marginTop: 8,
+          lineHeight: 1.6
+        }
+      }, "\u3053\u3053\u3067\u306E\u300C\u9045\u308C\u300D\u306F\u516C\u5F0F\u306E\u51FA\u9045\u308C\uFF08\uFF2C\uFF09\u3067\u306F\u306A\u304F\u3001\u672C\u756A\u306E\u30B9\u30BF\u30FC\u30C8\u30BF\u30A4\u30DF\u30F3\u30B0\u304C 0.20\u3088\u308A\u9045\u304B\u3063\u305F\u8D70\u306E\u3053\u3068\u3002\u30B9\u30BF\u30FC\u30C8\u5C55\u793A\u3067\u306F\u306A\u304F\u672C\u756A\u306E\u5024\u3092\u6570\u3048\u3066\u3044\u308B\u3002", slMeta && slMeta.ガード ? "　" + slMeta.ガード + "走に満たないコースは割合を出さず走数だけを載せる。" : "", slMeta && slMeta.期間 ? "　対象期間 " + slMeta.期間 + "。" : "", slMeta && slMeta.出典 ? "　出典 " + slMeta.出典 : "")));
     })(), detail && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 11,

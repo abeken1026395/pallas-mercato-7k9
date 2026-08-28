@@ -303,6 +303,8 @@ function App() {
   const [e30All, setE30All] = useState(false);
   const [rankHist, setRankHist] = useState(null);
   const [rhMeta, setRhMeta] = useState(null);
+  const [slate, setSlate] = useState(null);
+  const [slMeta, setSlMeta] = useState(null);
   const [oshi, setOshi] = useState(loadOshi);
   const [oshiOnly, setOshiOnly] = useState(false);
   const toggleOshi = (toban, name) => { const nx = nextOshi(oshi, toban, name); setOshi(nx); lsSet("br_oshi", nx); };
@@ -372,6 +374,13 @@ function App() {
     fetch("../data/rankHistory.json").then(r=>r.ok?r.json():Promise.reject()).then(j=>{
       if(j && j.選手){ setRankHist(j.選手); setRhMeta({期間:j.期間, 出典:j.出典, 注記:j.注記}); }
     }).catch(()=>{ setRankHist({}); });
+  },[open]);
+  // スタートの遅れも詳細を開いた時だけ遅延読込（一覧を重くしない）
+  useEffect(()=>{
+    if(!open || slate!==null) return;
+    fetch("../data/startLate.json").then(r=>r.ok?r.json():Promise.reject()).then(j=>{
+      if(j && j.racers){ setSlate(j.racers); setSlMeta({基準:j.基準, 期間:j.集計期間, 日数:j.日数, ガード:j.母数ガード, 定義:j.遅れの定義, 出典:j.出典}); }
+    }).catch(()=>{ setSlate(false); });
   },[open]);
   // URLに ?toban=登番 があれば、その選手を検索欄にプリセットして開く（モーター等からのリンク用）
   useEffect(()=>{
@@ -662,6 +671,90 @@ function App() {
                             {rhMeta && rhMeta.期間 ? "　対象期間 "+rhMeta.期間+"。" : ""}
                           </div>
                         </details>
+                      </div>
+                    );
+                  })()}
+                  {/* ■ スタートの遅れ（本番ST・results 由来） */}
+                  {(()=>{
+                    if(slate===null) return (
+                      <div style={{fontSize:11,color:"#6b7f95",margin:"12px 0",lineHeight:1.7}}>読み込み中…</div>
+                    );
+                    if(slate===false) return null;
+                    const sl = slate[String(p.no)];
+                    if(!sl || !sl.n) return (
+                      <div style={{marginBottom:14}}>
+                        <div style={{fontSize:11,color:"#8faabe",fontWeight:700,marginBottom:6}}>■ スタートの遅れ</div>
+                        <div style={{fontSize:11,color:"#6b7f95",background:"#0b1219",borderRadius:8,padding:"10px 12px",lineHeight:1.7}}>
+                          この選手は集計期間の走数が{slMeta&&slMeta.ガード?slMeta.ガード:20}走に届きません。
+                        </div>
+                      </div>
+                    );
+                    const base = (slMeta&&slMeta.基準) || null;
+                    const pct = (a,b)=> b? Math.round(a/b*1000)/10 : null;
+                    const my = pct(sl.late, sl.n);
+                    const allPct = base&&base.全体 ? pct(base.全体.late, base.全体.n) : null;
+                    const rows = [];
+                    for(let c=1;c<=6;c++){
+                      const o = sl.course && sl.course[String(c)];
+                      if(!o) continue;
+                      const bc = base&&base.コース ? base.コース[String(c)] : null;
+                      rows.push({c:c, n:o.n, late:(o.late===undefined?null:o.late),
+                                 my:(o.late===undefined?null:pct(o.late,o.n)),
+                                 all:(bc?pct(bc.late,bc.n):null)});
+                    }
+                    return (
+                      <div style={{marginBottom:14}}>
+                        <div style={{fontSize:11,color:"#8faabe",fontWeight:700,marginBottom:6}}>
+                          ■ スタートの遅れ　<span style={{color:"#6b7f95",fontWeight:400}}>
+                            ST0.20より遅い走の割合{slMeta&&slMeta.日数?"／過去"+slMeta.日数+"日":""}
+                          </span>
+                        </div>
+                        <div style={{background:"#0b1219",borderRadius:8,padding:"10px 12px"}}>
+                          <div style={{display:"flex",alignItems:"baseline",gap:10,flexWrap:"wrap"}}>
+                            <span style={{fontSize:18,fontWeight:700,color:"#e0e6ed",fontVariantNumeric:"tabular-nums"}}>{my}%</span>
+                            <span style={{fontSize:11,color:"#8faabe",fontVariantNumeric:"tabular-nums"}}>{sl.n}走中{sl.late}回</span>
+                          </div>
+                          {allPct!==null&&(
+                            <div style={{fontSize:11,color:"#6b7f95",marginTop:6,lineHeight:1.7,fontVariantNumeric:"tabular-nums"}}>
+                              全選手の平均 {allPct}%（{base.全体.n}走）
+                            </div>
+                          )}
+                        </div>
+                        {rows.length>0&&(
+                        <details style={{marginTop:6}}>
+                          <summary onClick={e=>e.stopPropagation()} style={{fontSize:12,color:"#8faabe",cursor:"pointer",minHeight:44,display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,listStyle:"none",background:"#0b1219",border:"1px solid #1a2535",borderRadius:8,padding:"0 12px"}}>
+                            <span>コース別に見る（{rows.length}件）</span>
+                            <span style={{color:"#6b7f95",fontSize:12}}>▸</span>
+                          </summary>
+                          <table style={{width:"100%",borderCollapse:"collapse",fontSize:12,marginTop:4}}>
+                            <tbody>
+                              {rows.map((r,i)=>(
+                                <tr key={i}>
+                                  <td style={{padding:"5px 0",borderBottom:"1px solid #1a2535",color:"#8faabe",width:"5.2em",whiteSpace:"nowrap"}}>
+                                    {r.c}コース
+                                  </td>
+                                  <td style={{padding:"5px 0",borderBottom:"1px solid #1a2535",width:"3.6em",fontWeight:700,color:"#e0e6ed",fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap"}}>
+                                    {r.my===null?"—":r.my+"%"}
+                                  </td>
+                                  <td style={{padding:"5px 0",borderBottom:"1px solid #1a2535",color:"#6b7f95",fontSize:11,fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap"}}>
+                                    {r.my===null?r.n+"走":r.n+"走中"+r.late+"回"}
+                                  </td>
+                                  <td style={{padding:"5px 0",borderBottom:"1px solid #1a2535",color:"#6b7f95",fontSize:11,textAlign:"right",fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap"}}>
+                                    {r.all===null?"":"全体 "+r.all+"%"}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                          <div style={{fontSize:10,color:"#6b7f95",marginTop:8,lineHeight:1.6}}>
+                            ここでの「遅れ」は公式の出遅れ（Ｌ）ではなく、本番のスタートタイミングが
+                            0.20より遅かった走のこと。スタート展示ではなく本番の値を数えている。
+                            {slMeta&&slMeta.ガード?"　"+slMeta.ガード+"走に満たないコースは割合を出さず走数だけを載せる。":""}
+                            {slMeta&&slMeta.期間?"　対象期間 "+slMeta.期間+"。":""}
+                            {slMeta&&slMeta.出典?"　出典 "+slMeta.出典:""}
+                          </div>
+                        </details>
+                        )}
                       </div>
                     );
                   })()}
