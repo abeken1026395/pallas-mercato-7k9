@@ -11,8 +11,7 @@
 :root{
   --bg:#0b1219; --fg:#e0e6ed; --dim:#8a94a3; --faint:#6f7a89;
   --line:#1f2b3a; --panel:#0f1a26; --accent:#ffd166;
-  --ok:#7ee08a; --ng:#e07a7a; --blue:#7ab5ea; --deep:#2f4a6b;
-  --track:#080e14;
+  --ok:#7ee08a; --ng:#e07a7a;
 }
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--fg);margin:0;padding-bottom:80px;
@@ -39,34 +38,6 @@ header .sub{font-size:12px;color:var(--dim);line-height:1.9;margin:0}
   letter-spacing:.09em;line-height:1.6;display:flex;align-items:center;gap:11px}
 .sec::before{content:"";width:20px;height:1px;background:var(--accent);flex:none;opacity:.6}
 .sec::after{content:"";flex:1;height:1px;background:var(--line)}
-
-/* ── 図：個体内の変化 ── */
-.curvefig{margin:0 0 1.3em;padding:22px 14px 16px;background:var(--panel);
-  border:1px solid var(--line);border-radius:10px}
-.curvefig .row{display:flex;align-items:center;gap:10px;margin-bottom:11px}
-.curvefig .row:last-of-type{margin-bottom:0}
-.curvefig .dy{width:74px;font-size:12px;color:var(--dim);flex:none}
-.curvefig .track{flex:1;height:20px;background:var(--track);border-radius:4px;
-  display:flex;justify-content:flex-start;overflow:hidden}
-.curvefig .fill{display:block;height:100%;background:linear-gradient(90deg,#6b7f96,#93a8c0);
-  border-radius:4px}
-.curvefig .kg{width:74px;text-align:right;font-size:16px;font-weight:700;color:#cfe0f0;
-  flex:none;letter-spacing:-.01em}
-.curvefig .cap{font-size:11px;color:var(--faint);margin-top:14px;line-height:1.7}
-
-/* ── 図：物差しとの対比 ── */
-.scalefig{margin:0 0 1.3em;padding:22px 18px 16px;background:var(--panel);
-  border:1px solid var(--line);border-radius:10px}
-.scalefig .row{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-.scalefig .row:last-of-type{margin-bottom:0}
-.scalefig .nm{width:104px;font-size:12px;color:var(--dim);flex:none;line-height:1.5}
-.scalefig .track{flex:1;height:26px;background:var(--track);border-radius:4px;overflow:hidden}
-.scalefig .fill{display:block;height:100%;border-radius:4px}
-.scalefig .fa{background:linear-gradient(90deg,#6b7f96,#93a8c0)}
-.scalefig .fb{background:linear-gradient(90deg,#4d8fd6,#7ab5ea)}
-.scalefig .kg{width:78px;text-align:right;font-size:19px;font-weight:700;color:#fff;
-  flex:none;letter-spacing:-.02em}
-.scalefig .cap{font-size:11px;color:var(--faint);margin-top:14px;line-height:1.7}
 
 /* ── パンチライン ── */
 .punch{margin:2.2em 0 1.1em;font-size:24px;line-height:1.65;font-weight:700;color:#fff;
@@ -199,44 +170,21 @@ F2に乗っている1,671回を走ったのは、F2まで切ってしまう選�
 
 <p class="sec">同じ人の中で、こうなった</p>
 
-<div class="curvefig">
-  <div class="row">
-    <span class="dy">F0 → F1</span>
-    <span class="track"><span class="fill" style="width:37%"></span></span>
-    <span class="kg">+0.0158</span>
-  </div>
-  <div class="row">
-    <span class="dy">F0 → F2</span>
-    <span class="track"><span class="fill" style="width:100%"></span></span>
-    <span class="kg">+0.0430</span>
-  </div>
-  <p class="cap">同じ選手のF0時と比べたスタートタイミングの変化（秒）。
-  F1は1,746人、F2は274人</p>
-</div>
+<table>
+<thead><tr><th></th><th>STの変化</th><th>遅くなった人</th><th>対象</th></tr></thead>
+<tbody>
+<tr><td>F0 → F1</td><td>+0.0158秒</td><td>82.6%</td><td>1,746人</td></tr>
+<tr class="hi"><td>F0 → F2</td><td>+0.0430秒</td><td>88.3%</td><td>274人</td></tr>
+</tbody>
+</table>
 
-<p>遅くなった人の割合は、F1で<b>82.6%</b>。<br>
-F2まで進んだ274人では<b>88.3%</b>で、242人が遅くなりました。<br>
-10人のうち9人です。</p>
+<p>F2まで進んだ選手の10人のうち9人が、遅くなっています。</p>
 
-<p><b>+0.0430</b>秒がどれくらいかは、さきほどの表がそのまま物差しになります。<br>
+<p>この差がどれくらいかは、さきほどの表がそのまま物差しになります。<br>
 1コースのF0だけで見たとき、A級とB級の平均STの差は0.0190秒でした。<br>
 級がひとつ違うと、それだけ変わります。</p>
 
-<div class="scalefig">
-  <div class="row">
-    <span class="nm">A級とB級の<br>スタートの差</span>
-    <span class="track"><span class="fill fb" style="width:44%"></span></span>
-    <span class="kg">0.0190</span>
-  </div>
-  <div class="row">
-    <span class="nm">同じ選手が<br>F2になったとき</span>
-    <span class="track"><span class="fill fa" style="width:100%"></span></span>
-    <span class="kg">0.0430</span>
-  </div>
-  <p class="cap">単位は秒。いずれも1コースのスタートタイミング</p>
-</div>
-
-<p>級がひとつ違うときの、2倍以上です。</p>
+<p>同じ選手がF2になったときの遅れは、その2倍以上です。</p>
 
 <div class="cond">
   この段落は、うちが毎日集めている結果でも「同じ選手の中で遅くなる側が半数を超える」とき成立します。<br>
@@ -400,7 +348,7 @@ F3以上はF2にまとめています（1コースではほとんど出現しま
 <p>この欄の期間だけで数え直した、1コースのスタートタイミングです。</p>
 <table>
 <thead><tr><th></th><th>枠数</th><th>平均ST</th><th>1着率</th></tr></thead>
-<tbody><tr><td>F0</td><td>41,449</td><td>0.1497</td><td>55.8%</td></tr><tr><td>F1</td><td>4,430</td><td>0.1623</td><td>53.3%</td></tr><tr class="hi"><td>F2</td><td>67</td><td>0.1718</td><td>53.7%</td></tr></tbody>
+<tbody><tr><td>F0</td><td>41,455</td><td>0.1497</td><td>55.8%</td></tr><tr><td>F1</td><td>4,430</td><td>0.1623</td><td>53.3%</td></tr><tr class="hi"><td>F2</td><td>67</td><td>0.1718</td><td>53.7%</td></tr></tbody>
 </table>
 </div>
 </details>
@@ -411,7 +359,7 @@ F3以上はF2にまとめています（1コースではほとんど出現しま
 <p>この検証がどれだけのデータで出ているかです。日が経つほど増えます。</p>
 <table>
 <thead><tr><th>項目</th><th>件数</th></tr></thead>
-<tbody><tr><td>数えた日数</td><td>302</td></tr><tr><td>数えたレース</td><td>45,950</td></tr><tr><td>1コースの枠</td><td>45,946</td></tr><tr><td>個体内で比べた選手（F1）</td><td>428</td></tr><tr><td>個体内で比べた選手（F2）</td><td>8</td></tr><tr><td>Fを切った選手</td><td>626</td></tr><tr><td>一度も切っていない選手</td><td>813</td></tr></tbody>
+<tbody><tr><td>数えた日数</td><td>302</td></tr><tr><td>数えたレース</td><td>45,956</td></tr><tr><td>1コースの枠</td><td>45,952</td></tr><tr><td>個体内で比べた選手（F1）</td><td>428</td></tr><tr><td>個体内で比べた選手（F2）</td><td>8</td></tr><tr><td>Fを切った選手</td><td>626</td></tr><tr><td>一度も切っていない選手</td><td>813</td></tr></tbody>
 </table>
 </div>
 </details>
