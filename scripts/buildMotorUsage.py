@@ -275,6 +275,27 @@ def aggregate(records, teacher):
     return motors, venues
 
 
+def check_detail_mix(records):
+    """検算：明細の内訳。着順が記号（F・S0/S1/S2・L0/L1）の行が全体の何%かを出す。
+
+    この割合は正規表現 DETAIL_RE の空振り・拾いすぎを見るための指標。
+    Kアーカイブ1年分（kdata・2025-07-22〜2026-07-21）の実測で +1.21% だった。
+    0%に近い＝記号着順を1行も拾えていない（数え方が変更前に戻っている）。
+    +5%超＝明細以外の行を拾っている疑い。どちらも走行数の分母が狂う。
+    """
+    total = len(records)
+    if not total:
+        print("検算: 明細0件")
+        return
+    sym = sum(1 for r in records if not str(r[3]).isdigit())
+    num = total - sym
+    pct = sym / num * 100 if num else 0.0
+    verdict = "OK" if 0.5 <= pct <= 5.0 else (
+        "記号着順を拾えていない疑い" if pct < 0.5 else "明細以外の行を拾っている疑い")
+    print("検算: 明細{:,}行 = 数字着順{:,} + 記号着順(F・S・L){:,}（+{:.2f}%）"
+          "… {}（期待 +1.2%前後・許容 +0.5〜+5.0%）".format(total, num, sym, pct, verdict))
+
+
 def check_median(motors, venues):
     """検算：窓が効いていれば走行数の中央値は 100〜250 に入る。2000超は窓が効いていない。"""
     runs = [d["走"] for d in motors.values()]
@@ -317,6 +338,7 @@ def main():
             records.append((hd, jcd, mkey(mno), chaku))
         print("  [ok] {} ({}) … 明細{}件".format(os.path.basename(path), hd, len(details)))
 
+    check_detail_mix(records)
     motors, venues = aggregate(records, teacher)
     check_median(motors, venues)
 
