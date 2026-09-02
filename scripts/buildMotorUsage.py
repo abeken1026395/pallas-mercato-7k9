@@ -175,6 +175,22 @@ def parse_text(text):
 # 候補：その場でKファイルから読めた開催日すべて。
 # 評価：候補日D以降で数え直した2連率と教師の絶対差の平均。最小のDをその場の新替日(推定)とする。
 
+def teacher_dates(path=TEACHER):
+    """motors_all.csv の場ごと最終開催日 {jcd: YYYYMMDD}。
+    公式のモーター2連対率はその場の直近の節が終わった時点で更新され、
+    節間は据え置かれる。読者に「いつ時点の公式値か」を示すために持つ。"""
+    if not os.path.exists(path):
+        return {}
+    out = {}
+    with open(path, encoding="utf-8-sig", newline="") as f:
+        for row in csv.DictReader(f):
+            jcd = str(row.get("場コード") or "").strip().zfill(2)
+            hd = str(row.get("開催日") or "").strip()
+            if jcd and hd and hd > out.get(jcd, ""):
+                out[jcd] = hd
+    return out
+
+
 def load_teacher(path=TEACHER):
     """motors_all.csv → {jcd: {機番: 2連対率}}（場・機番ごとに最新開催日の行を採る）。"""
     if not os.path.exists(path):
@@ -287,10 +303,17 @@ def aggregate(records, teacher):
         print("  [ok] {} {} … 新替日(推定) {} / 平均誤差 {:.2f}pt / 照合{}機".format(
             jcd, name, start, err, matched))
 
-    for d in motors.values():
+    tdates = teacher_dates()
+    for jcd in venues:
+        if jcd in tdates:
+            venues[jcd]["officialAsOf"] = tdates[jcd]
+    for key, d in motors.items():
         w = d["走"]
         d["2連率"] = round(d["2連"] / w * 100, 1) if w else "-"
         d["3連率"] = round(d["3連"] / w * 100, 1) if w else "-"
+        rate = teacher.get(d["jcd"], {}).get(d["モーターNo"])
+        if rate is not None:
+            d["公式2連率"] = rate
     return motors, venues
 
 
@@ -408,7 +431,9 @@ def main():
         "source": "mbrace競走成績(K)由来・自前集計",
         "note": ("走行数はモーター新替(推定)以降の実測カウント。新替日は公式非公開のため、"
                  "公式のモーター2連対率（新替からの累計）と突き合わせて場ごとに逆算した推定値。"
-                 "推定できなかった場は出力しない。欠損期間は補完しない。"),
+                 "推定できなかった場は出力しない。欠損期間は補完しない。"
+                 "公式2連率は各場の直近の節が終わった時点の値（venues.officialAsOf）で、"
+                 "自前の集計はKアーカイブの最新開催日まで数えるため両者の基準日は異なる。"),
         "coverageFrom": min(dates) if dates else "",
         "coverageTo": max(dates) if dates else "",
         "venues": venues,

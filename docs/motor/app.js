@@ -480,11 +480,17 @@ function fmtHdY(hd) {
 }
 function MotorUsageLine({
   usage,
-  from
+  from,
+  officialAsOf
 }) {
   if (!usage || !from) return null;
   const w = usage["走"];
   if (!w) return null;
+  // 公式2連対率は各場の直近の節終了時点で更新され、節間は据え置かれる。
+  // 自前は最新開催日まで数えるので基準日が違う。片方だけ出すと食い違いが誤りに見えるため、
+  // 公式値がある場だけ「公式 M/D時点 ◯◯.◯%」を併記する。無い場は何も出さない。
+  const off = usage["公式2連率"];
+  const showOff = typeof off === "number" && officialAsOf;
   return /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: F.sm,
@@ -509,7 +515,13 @@ function MotorUsageLine({
     style: {
       color: "#79c0ff"
     }
-  }, "\uFF08", fmtRate(usage["3連率"]), "%\uFF09"));
+  }, "\uFF08", fmtRate(usage["3連率"]), "%\uFF09"), showOff && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 2,
+      color: C.muted
+    },
+    title: "\u516C\u5F0F\u306E\u30E2\u30FC\u30BF\u30FC2\u9023\u5BFE\u7387\u306F\u5404\u5834\u306E\u76F4\u8FD1\u306E\u7BC0\u304C\u7D42\u308F\u3063\u305F\u6642\u70B9\u306E\u5024\u3002\u3053\u3061\u3089\u306F\u6700\u65B0\u958B\u50AC\u65E5\u307E\u3067\u306E\u5B9F\u6E2C\u306A\u306E\u3067\u57FA\u6E96\u65E5\u304C\u7570\u306A\u308B\u3002"
+  }, "\u516C\u5F0F ", fmtHd(officialAsOf), "\u6642\u70B9 ", fmtRate(off), "%"));
 }
 
 // 1機のブロック。表層は 機番／選手名／級別／機力ランク／2連率バー の2行だけ。
@@ -524,7 +536,8 @@ function MotorRow({
   upd,
   usage,
   usageFrom,
-  median
+  median,
+  officialAsOf
 }) {
   const [open, setOpen] = useState(false);
   const v = row[CI.rate],
@@ -679,7 +692,8 @@ function MotorRow({
     }
   }, /*#__PURE__*/React.createElement(MotorUsageLine, {
     usage: usage,
-    from: usageFrom
+    from: usageFrom,
+    officialAsOf: officialAsOf
   }), /*#__PURE__*/React.createElement(MotorKarte, {
     parts: parts,
     upd: upd
@@ -753,6 +767,7 @@ function VenueCard({
   partsFor,
   usageFor,
   usageFromFor,
+  officialAsOfFor,
   upd
 }) {
   const [open, setOpen] = useState(pinned);
@@ -871,7 +886,8 @@ function VenueCard({
     upd: upd,
     usage: usageFor(r[CI.jcd], r[CI.mno]),
     usageFrom: usageFromFor(r[CI.jcd]),
-    median: median
+    median: median,
+    officialAsOf: officialAsOfFor(r[CI.jcd])
   })), !searching && rows.length > TOP_N && (hidden > 0 ? /*#__PURE__*/React.createElement(MoreBtn, {
     onClick: () => setOpen(true)
   }, "\u25BC \u6B8B\u308A", hidden, "\u6A5F\u3092\u898B\u308B") : /*#__PURE__*/React.createElement(MoreBtn, {
@@ -1056,6 +1072,12 @@ function App() {
     const v = usageVenues[String(jcd || "").padStart(2, "0")];
     const d = v ? String(v.coverageFrom || "") : "";
     return /^\d{8}$/.test(d) ? d : "";
+  };
+  // 公式2連対率の基準日（＝その場の直近の節の最終開催日・YYYYMMDD）。持たない場は ""。
+  const officialAsOfFor = jcd => {
+    if (!usageVenues) return "";
+    const v = usageVenues[String(jcd || "").padStart(2, "0")];
+    return v && v.officialAsOf || "";
   };
   const allVenues = useMemo(() => [...new Set(R.data.map(r => r[CI.venue]))].filter(Boolean), []);
   // 当日CSVの最新開催日（YYYYMMDD最大）。これ未満の開催日の場＝前節記録として区別する。
@@ -1393,6 +1415,7 @@ function App() {
     partsFor: partsFor,
     usageFor: usageFor,
     usageFromFor: usageFromFor,
+    officialAsOfFor: officialAsOfFor,
     upd: partsUpd
   })));
 }
