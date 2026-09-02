@@ -19,12 +19,26 @@
 #   「その日以降で数え直した2連率が公式値に最も近くなる開催日」を新替日として逆算する。
 #   逆算できなかった場のモーターは出力しない（推測で埋めない）。
 #
+# 安全ゲート（重要）:
+#   このスクリプトは scripts/dailyMotorUsage.ps1 から毎日06:00に無人で回され、
+#   結果はそのまま自動コミット＆pushされる。人が数字を見て止める機会が無いため、
+#   検算に通らなかった日は「出力を書かずに非0で落ちる」ことでその日の公開を止める。
+#   ps1 の Invoke-Step が非0終了を例外にするので、落ちればコミットもpushもされない。
+#   同じ実行の後段（backfillMotorPartsMotorNo.py によるモーターNo補填）も、
+#   このスクリプトより後ろに並んでいるため一緒にスキップされる。
+#   ゲートが働いた日は docs/data/motorUsage.json が前日のまま据え置かれる。
+#   ＝古い数字は残るが、壊れた数字は出ない。
+#     ゲート1（明細の内訳）  … 記号着順(F・S・L)の比率が 0.5%未満／5.0%超で NG
+#     ゲート2（走行数の規模）… 推定成功が0場、または走行数の中央値が 100未満／250超で NG
+#   ゲートを緩めて通すことはしない。通らない日は原因を直してから回すこと。
+#
 # ハルシネーション防止（絶対）:
 #   Kファイルから読めた明細のみカウント。欠けた期間は補完・推測しない。
 #   新替日は公式非公開のため推定値。推定に失敗した場は走行数を出さない。
 import os
 import re
 import csv
+import sys
 import glob
 import json
 import datetime
@@ -53,6 +67,11 @@ SCHEMA = "venueWindow-1"
 MIN_RUNS = 25      # 教師との照合に使うモーターの最低走行数（少走は率が振れて教師にならない）
 MIN_MATCHED = 15   # 照合できたモーターがこれ未満の場は推定失敗
 MAX_FIT_ERROR = 1.5  # 平均絶対誤差(pt)がこれを超えた場は推定失敗
+
+# 安全ゲートの合格域。緩めない（通らない日は原因を直す）。
+SYM_PCT_MIN, SYM_PCT_MAX = 0.5, 5.0    # ゲート1：記号着順(F・S・L)が数字着順に占める%
+MEDIAN_MIN, MEDIAN_MAX = 100, 250      # ゲート2：推定成功場の走行数の中央値
+GATE_EXIT = 2                          # ゲートNGの終了コード（ps1 はこれで止まる）
 
 # 24場コード（scrape_motors.py の VENUES と同一）
 VENUES = {
@@ -275,37 +294,68 @@ def aggregate(records, teacher):
     return motors, venues
 
 
-def check_detail_mix(records):
-    """検算：明細の内訳。着順が記号（F・S0/S1/S2・L0/L1）の行が全体の何%かを出す。
+def gate_detail_mix(records):
+    """ゲート1：明細の内訳。着順が記号（F・S0/S1/S2・L0/L1）の行が数字着順の何%か。
 
     この割合は正規表現 DETAIL_RE の空振り・拾いすぎを見るための指標。
     Kアーカイブ1年分（kdata・2025-07-22〜2026-07-21）の実測で +1.21% だった。
     0%に近い＝記号着順を1行も拾えていない（数え方が変更前に戻っている）。
-    +5%超＝明細以外の行を拾っている疑い。どちらも走行数の分母が狂う。
+    5%超＝明細以外の行を拾っている疑い。どちらも走行数の分母が狂う。
+    戻り値: (合格か, NGの説明文 or None)
     """
     total = len(records)
     if not total:
-        print("検算: 明細0件")
-        return
+        return False, ("ゲート1 NG: 明細0行。Kファイルから1行も読めていない。出力は書いていない。"
+                       "{} の中身と DETAIL_RE を確認すること".format(KFILES_DIR))
     sym = sum(1 for r in records if not str(r[3]).isdigit())
     num = total - sym
-    pct = sym / num * 100 if num else 0.0
-    verdict = "OK" if 0.5 <= pct <= 5.0 else (
-        "記号着順を拾えていない疑い" if pct < 0.5 else "明細以外の行を拾っている疑い")
-    print("検算: 明細{:,}行 = 数字着順{:,} + 記号着順(F・S・L){:,}（+{:.2f}%）"
-          "… {}（期待 +1.2%前後・許容 +0.5〜+5.0%）".format(total, num, sym, pct, verdict))
+    if not num:
+        return False, ("ゲート1 NG: 数字着順が0行（明細{:,}行すべてが記号着順）。出力は書いていない。"
+                       "DETAIL_RE が明細以外の行を拾っている".format(total))
+    pct = sym / num * 100.0
+    ok = SYM_PCT_MIN <= pct <= SYM_PCT_MAX
+    print("検算1: 明細{:,}行 = 数字着順{:,} + 記号着順(F・S・L){:,}（+{:.2f}%）… {}".format(
+        total, num, sym, pct, "OK" if ok else "NG"))
+    if ok:
+        return True, None
+    if pct < SYM_PCT_MIN:
+        return False, ("ゲート1 NG: 記号着順 {:.2f}%（期待 +1.2%前後）。正規表現が空振りしている疑い。"
+                       "出力は書いていない。DETAIL_RE を確認すること".format(pct))
+    return False, ("ゲート1 NG: 記号着順 {:.2f}%（期待 +1.2%前後）。明細以外の行を拾っている疑い。"
+                   "出力は書いていない。DETAIL_RE を確認すること".format(pct))
 
 
-def check_median(motors, venues):
-    """検算：窓が効いていれば走行数の中央値は 100〜250 に入る。2000超は窓が効いていない。"""
+def gate_usage_scale(motors, venues):
+    """ゲート2：走行数の規模。窓が効いていれば中央値は 100〜250 に入る。
+
+    推定に成功した場が0場＝全場で新替日を逆算できていない。教師データとKアーカイブの
+    期間が噛み合っていないときにこうなる。中央値が2000を超えるのは窓が効いておらず
+    全期間を通算しているとき（この修正の前の状態）。
+    戻り値: (合格か, NGの説明文 or None)
+    """
+    if not venues:
+        return False, ("ゲート2 NG: 推定に成功した場が0場。全場で新替日を逆算できていない。"
+                       "出力は書いていない。教師データ({}) の開催日とKアーカイブの期間が"
+                       "噛み合っているか確認すること".format(TEACHER))
     runs = [d["走"] for d in motors.values()]
     if not runs:
-        print("検算: 出力モーター0機（全場で推定失敗）")
-        return
+        return False, ("ゲート2 NG: 推定成功{}場だが出力モーターが0機。出力は書いていない。"
+                       "aggregate の窓の切り出しを確認すること".format(len(venues)))
     med = statistics.median(runs)
-    verdict = "OK" if 100 <= med <= 250 else ("窓が効いていない疑い" if med > 2000 else "要確認")
-    print("検算: 推定成功 {}場 / {}機 / 走行数中央値 {:.0f}（期待 100〜250）… {}".format(
-        len(venues), len(runs), med, verdict))
+    ok = MEDIAN_MIN <= med <= MEDIAN_MAX
+    print("検算2: 推定成功 {}場 / {}機 / 走行数中央値 {:.0f}（期待 {}〜{}）… {}".format(
+        len(venues), len(runs), med, MEDIAN_MIN, MEDIAN_MAX, "OK" if ok else "NG"))
+    if ok:
+        return True, None
+    if med > MEDIAN_MAX:
+        return False, ("ゲート2 NG: 走行数中央値 {:.0f}（期待 {}〜{}）。窓が効いていない疑い"
+                       "（2000超なら全期間を通算している）。出力は書いていない。"
+                       "venues の coverageFrom と solve_venue を確認すること".format(
+                           med, MEDIAN_MIN, MEDIAN_MAX))
+    return False, ("ゲート2 NG: 走行数中央値 {:.0f}（期待 {}〜{}）。窓が短すぎる疑い"
+                   "（Kアーカイブが新替日以降しか無いか、推定日が新しすぎる）。出力は書いていない。"
+                   "venues の coverageFrom とKファイルの期間を確認すること".format(
+                       med, MEDIAN_MIN, MEDIAN_MAX))
 
 
 def main():
@@ -338,9 +388,19 @@ def main():
             records.append((hd, jcd, mkey(mno), chaku))
         print("  [ok] {} ({}) … 明細{}件".format(os.path.basename(path), hd, len(details)))
 
-    check_detail_mix(records)
+    # 集計 → 検算 → 書き出し の順。ゲートに1つでも落ちたら書かずに非0で終わる
+    # （ps1 の Invoke-Step がここで例外を投げ、コミットもpushも後段のbackfillも走らない）。
+    ok, ng = gate_detail_mix(records)
+    if not ok:
+        print(ng)
+        sys.exit(GATE_EXIT)
+
     motors, venues = aggregate(records, teacher)
-    check_median(motors, venues)
+
+    ok, ng = gate_usage_scale(motors, venues)
+    if not ok:
+        print(ng)
+        sys.exit(GATE_EXIT)
 
     out = {
         "updated": datetime.datetime.now(JST).strftime("%Y-%m-%d %H:%M"),
@@ -357,8 +417,9 @@ def main():
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=2)
-    print("保存: {} … {}ファイル / 明細{}件 / {}機 / Kアーカイブ {}〜{}".format(
-        OUT, len(files), len(records), len(motors), out["coverageFrom"], out["coverageTo"]))
+    print("ゲート通過。{} を書き出した（venues {}場）".format(OUT.replace(os.sep, "/"), len(venues)))
+    print("  {}ファイル / 明細{}件 / {}機 / Kアーカイブ {}〜{}".format(
+        len(files), len(records), len(motors), out["coverageFrom"], out["coverageTo"]))
 
 
 if __name__ == "__main__":
