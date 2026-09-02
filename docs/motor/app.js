@@ -40,6 +40,9 @@ const F = {
   input: 16
 };
 
+// docs/data/motorUsage.json の形式印。scripts/buildMotorUsage.py の SCHEMA と揃えること。
+// 場ごとの集計窓（venues）を持たない旧形式は走行数を1行も出さない。
+const USAGE_SCHEMA = "venueWindow-1";
 // 場カードの既定表示機数。「残り◯機を見る」で全機。
 const TOP_N = 3;
 // 整備履歴の既定表示：部品交換のあった走＋直近この走数。
@@ -464,14 +467,22 @@ function MotorKarte({
   }, "\u51FA\u5178\uFF1Aboatrace.jp \u516C\u5F0F \u76F4\u524D\u60C5\u5831", upd ? `（${upd} 時点）` : "")));
 }
 
-// 初卸(推定)からの走行数集計を1行で控えめに表示（実測カウントのみ・推測なし）。
+// モーター新替(推定)以降の走行数集計を1行で控えめに表示（実測カウントのみ・推測なし）。
+// 集計窓は場ごとに違う（新替日は場ごとに逆算した推定値）ので、その場の新替日を必ず添える。
+// from（venues[jcd].coverageFrom）が無い＝窓が解けていない場は、走行数を出さない。
 function fmtRate(r) {
   return typeof r === "number" ? r.toFixed(1) : String(r || "-");
 }
+// 8桁を年入りの YYYY/M/D にする。fmtHd は年を落とすため別関数にした（fmtHd は他で使う）。
+function fmtHdY(hd) {
+  const h = String(hd || "");
+  return h.length === 8 ? `${+h.slice(0, 4)}/${+h.slice(4, 6)}/${+h.slice(6, 8)}` : h;
+}
 function MotorUsageLine({
-  usage
+  usage,
+  from
 }) {
-  if (!usage) return null;
+  if (!usage || !from) return null;
   const w = usage["走"];
   if (!w) return null;
   return /*#__PURE__*/React.createElement("div", {
@@ -481,12 +492,12 @@ function MotorUsageLine({
       color: C.dim,
       fontVariantNumeric: "tabular-nums"
     },
-    title: `初卸=Kファイル初出日(${fmtHd(usage["初出日"])})での推定。公式交換日は非公開。最新${fmtHd(usage["最新日"])}`
+    title: `新替日は公式非公開のため、公式のモーター2連対率と突き合わせた推定。窓内初出${fmtHd(usage["窓内初出日"])}・最新${fmtHd(usage["最新日"])}`
   }, /*#__PURE__*/React.createElement("span", {
     style: {
       color: C.label
     }
-  }, "\u521D\u5378(\u63A8\u5B9A)\u304B\u3089"), " ", /*#__PURE__*/React.createElement("b", {
+  }, "\u30E2\u30FC\u30BF\u30FC\u65B0\u66FF\uFF08\u63A8\u5B9A ", fmtHdY(from), "\uFF09\u4EE5\u964D"), " ", /*#__PURE__*/React.createElement("b", {
     style: {
       color: "#cdd9e5"
     }
@@ -512,13 +523,14 @@ function MotorRow({
   parts,
   upd,
   usage,
+  usageFrom,
   median
 }) {
   const [open, setOpen] = useState(false);
   const v = row[CI.rate],
     g = row[CI.grade];
   const my = myoumi(g, rk);
-  const hasDeep = !!(usage && usage["走"]) || !!(parts && parts.length);
+  const hasDeep = !!(usageFrom && usage && usage["走"]) || !!(parts && parts.length);
   const heart = fem ? /*#__PURE__*/React.createElement("span", {
     style: {
       color: C.fem,
@@ -666,7 +678,8 @@ function MotorRow({
       borderRadius: 8
     }
   }, /*#__PURE__*/React.createElement(MotorUsageLine, {
-    usage: usage
+    usage: usage,
+    from: usageFrom
   }), /*#__PURE__*/React.createElement(MotorKarte, {
     parts: parts,
     upd: upd
@@ -739,6 +752,7 @@ function VenueCard({
   females,
   partsFor,
   usageFor,
+  usageFromFor,
   upd
 }) {
   const [open, setOpen] = useState(pinned);
@@ -856,6 +870,7 @@ function VenueCard({
     parts: partsFor(r[CI.jcd], r[CI.mno]),
     upd: upd,
     usage: usageFor(r[CI.jcd], r[CI.mno]),
+    usageFrom: usageFromFor(r[CI.jcd]),
     median: median
   })), !searching && rows.length > TOP_N && (hidden > 0 ? /*#__PURE__*/React.createElement(MoreBtn, {
     onClick: () => setOpen(true)
@@ -875,8 +890,8 @@ function App() {
   const [partsMap, setPartsMap] = useState(null); // "jcd_モーターNo" -> [[開催日,rno,枠,氏名,節名,部品交換,プロペラ,展示タイム], ...]（時系列昇順）
   const [partsUpd, setPartsUpd] = useState(""); // motorKarte.json の updated（直前情報を最後に取りに行った時刻・出典行に出す）
   const [replMap, setReplMap] = useState(null); // jcd(2桁) -> {新替日,節名}
-  const [usageMap, setUsageMap] = useState(null); // "jcd_モーターNo" -> {走,勝,2連,3連,2連率,3連率,初出日,最新日}
-  const [usageCov, setUsageCov] = useState(""); // coverageFrom（集計開始日 YYYYMMDD）
+  const [usageMap, setUsageMap] = useState(null); // "jcd_モーターNo" -> {走,勝,2連,3連,2連率,3連率,窓内初出日,最新日}
+  const [usageVenues, setUsageVenues] = useState(null); // jcd(2桁) -> {coverageFrom,fitError,matched}（場ごとの集計窓）
   useEffect(() => {
     fetch("../players/female.json").then(r => r.ok ? r.json() : Promise.reject()).then(a => {
       if (Array.isArray(a)) setFemales(new Set(a.map(String)));
@@ -905,17 +920,23 @@ function App() {
         setPartsUpd(String(j.updated || ""));
       }
     }).catch(() => {});
-    // モーター初卸(推定)からの走行数集計（docs/data/motorUsage.json・Kファイル自前集計）。
+    // モーター新替(推定)以降の走行数集計（docs/data/motorUsage.json・Kファイル自前集計）。
     // 索引キーは jcd_モーターNo。欠落はフォールバック（非表示）で既存表示を壊さない。
+    // schema が USAGE_SCHEMA でないJSON（場ごとの集計窓を持たない旧形式）は採らない。
+    // 旧形式の走行数は「同じ機番を名乗った歴代モーターの合計」で、新替以降の数として読めないため。
     fetch("../data/motorUsage.json").then(r => r.ok ? r.json() : Promise.reject()).then(j => {
-      if (j && j.motors && typeof j.motors === "object") {
+      if (j && j.schema === USAGE_SCHEMA && j.motors && typeof j.motors === "object" && j.venues && typeof j.venues === "object") {
         const m = {};
         for (const k in j.motors) {
           const v = j.motors[k];
           m[String(v.jcd || "").padStart(2, "0") + "_" + String(v["モーターNo"] || "").trim()] = v;
         }
+        const w = {};
+        for (const k in j.venues) {
+          w[String(k).padStart(2, "0")] = j.venues[k];
+        }
         setUsageMap(m);
-        setUsageCov(String(j.coverageFrom || ""));
+        setUsageVenues(w);
       }
     }).catch(() => {});
     // モーター新替日。節初日に全機が実績0の場を build_highlights.py が記録する。
@@ -1029,6 +1050,13 @@ function App() {
     if (!usageMap) return null;
     return usageMap[String(jcd || "").padStart(2, "0") + "_" + String(mno || "").trim()] || null;
   };
+  // その場の集計窓の開始日（＝新替日の推定・YYYYMMDD）。窓が解けていない場は ""。
+  const usageFromFor = jcd => {
+    if (!usageVenues) return "";
+    const v = usageVenues[String(jcd || "").padStart(2, "0")];
+    const d = v ? String(v.coverageFrom || "") : "";
+    return /^\d{8}$/.test(d) ? d : "";
+  };
   const allVenues = useMemo(() => [...new Set(R.data.map(r => r[CI.venue]))].filter(Boolean), []);
   // 当日CSVの最新開催日（YYYYMMDD最大）。これ未満の開催日の場＝前節記録として区別する。
   const maxHd = useMemo(() => {
@@ -1106,18 +1134,7 @@ function App() {
       color: C.muted,
       marginBottom: 8
     }
-  }, "\u6700\u7D42\u66F4\u65B0: ", R.updated || "-"), usageCov && /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: F.xs,
-      lineHeight: 1.7,
-      color: C.dim,
-      marginBottom: 8
-    }
-  }, "\u30E2\u30FC\u30BF\u30FC\u8D70\u884C\u6570\u306F ", /*#__PURE__*/React.createElement("b", {
-    style: {
-      color: C.label
-    }
-  }, fmtHd(usageCov), "\u4EE5\u964D"), " \u306EK\u30D5\u30A1\u30A4\u30EB\u96C6\u8A08\uFF08\u521D\u51FA\u65E5=\u521D\u5378\u63A8\u5B9A\u30FB\u516C\u5F0F\u4EA4\u63DB\u65E5\u306F\u975E\u516C\u958B\uFF09\u3002\u51FA\u5178\uFF1A\u516C\u5F0F\u7AF6\u8D70\u6210\u7E3E(K)\u3002"), /*#__PURE__*/React.createElement("div", {
+  }, "\u6700\u7D42\u66F4\u65B0: ", R.updated || "-"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: F.sm,
       lineHeight: 1.7,
@@ -1270,13 +1287,32 @@ function App() {
     }
   }, "\u300CB\u7D1A\xD7\u9AD8\u6A5F\u529B\u300D\u30BF\u30B0"), /*#__PURE__*/React.createElement("div", {
     style: {
-      paddingLeft: 4
+      paddingLeft: 4,
+      marginBottom: 8
     }
   }, "\u4E0B\u7D1A\u306E\u9078\u624B\u304C\u6A5F\u529B\u4E0A\u4F4D\u306E\u30E2\u30FC\u30BF\u30FC\u3092\u5F15\u3044\u3066\u3044\u308B\u72B6\u614B\u3002\u4EBA\u6C17\u304C\u843D\u3061\u3084\u3059\u3044\u69CB\u9020\u3067\u3059\u3002", /*#__PURE__*/React.createElement("b", {
     style: {
       color: C.text
     }
   }, "\u8CB7\u3044\u76EE\u306F\u51FA\u3057\u307E\u305B\u3093"), "\u3002\u8AAD\u307F\u65B9\u306F\u5404\u81EA\u306E\u5224\u65AD\u3067\u3002"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: "#8faabe",
+      fontWeight: 700,
+      marginBottom: 4
+    }
+  }, "\u8D70\u884C\u6570\u306B\u3064\u3044\u3066"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      paddingLeft: 4
+    }
+  }, "\u8D70\u884C\u6570\u306F\u30E2\u30FC\u30BF\u30FC", /*#__PURE__*/React.createElement("b", {
+    style: {
+      color: C.text
+    }
+  }, "\u65B0\u66FF\u4EE5\u964D"), "\u306E\u5B9F\u6E2C\u30AB\u30A6\u30F3\u30C8\u3067\u3059\u3002\u65B0\u66FF\u65E5\u306F\u516C\u5F0F\u975E\u516C\u958B\u306E\u305F\u3081\u3001\u516C\u5F0F\u306E\u30E2\u30FC\u30BF\u30FC2\u9023\u5BFE\u7387\u3068\u7A81\u304D\u5408\u308F\u305B\u3066\u63A8\u5B9A\u3057\u3066\u3044\u307E\u3059\u3002", /*#__PURE__*/React.createElement("b", {
+    style: {
+      color: C.text
+    }
+  }, "\u63A8\u5B9A\u3067\u304D\u306A\u304B\u3063\u305F\u5834\u306F\u8D70\u884C\u6570\u3092\u8868\u793A\u3057\u307E\u305B\u3093"), "\u3002\u51FA\u5178\uFF1A\u516C\u5F0F\u7AF6\u8D70\u6210\u7E3E(K)\u3002"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: F.xs,
       color: C.muted,
@@ -1356,6 +1392,7 @@ function App() {
     females: females,
     partsFor: partsFor,
     usageFor: usageFor,
+    usageFromFor: usageFromFor,
     upd: partsUpd
   })));
 }

@@ -22,6 +22,9 @@ const C = {
 // 文字サイズ。本文は13px以上、select と input は16px（iOS Safari の自動ズーム回避）。
 const F = { xs:13, sm:14, md:15, lg:16, xl:17, hero:20, input:16 };
 
+// docs/data/motorUsage.json の形式印。scripts/buildMotorUsage.py の SCHEMA と揃えること。
+// 場ごとの集計窓（venues）を持たない旧形式は走行数を1行も出さない。
+const USAGE_SCHEMA = "venueWindow-1";
 // 場カードの既定表示機数。「残り◯機を見る」で全機。
 const TOP_N = 3;
 // 整備履歴の既定表示：部品交換のあった走＋直近この走数。
@@ -210,16 +213,20 @@ function MotorKarte({parts,upd}){
   );
 }
 
-// 初卸(推定)からの走行数集計を1行で控えめに表示（実測カウントのみ・推測なし）。
+// モーター新替(推定)以降の走行数集計を1行で控えめに表示（実測カウントのみ・推測なし）。
+// 集計窓は場ごとに違う（新替日は場ごとに逆算した推定値）ので、その場の新替日を必ず添える。
+// from（venues[jcd].coverageFrom）が無い＝窓が解けていない場は、走行数を出さない。
 function fmtRate(r){ return typeof r==="number" ? r.toFixed(1) : String(r||"-"); }
-function MotorUsageLine({usage}){
-  if(!usage) return null;
+// 8桁を年入りの YYYY/M/D にする。fmtHd は年を落とすため別関数にした（fmtHd は他で使う）。
+function fmtHdY(hd){ const h=String(hd||""); return h.length===8?`${+h.slice(0,4)}/${+h.slice(4,6)}/${+h.slice(6,8)}`:h; }
+function MotorUsageLine({usage,from}){
+  if(!usage || !from) return null;
   const w = usage["走"];
   if(!w) return null;
   return (
     <div style={{fontSize:F.sm,lineHeight:1.7,color:C.dim,fontVariantNumeric:"tabular-nums"}}
-      title={`初卸=Kファイル初出日(${fmtHd(usage["初出日"])})での推定。公式交換日は非公開。最新${fmtHd(usage["最新日"])}`}>
-      <span style={{color:C.label}}>初卸(推定)から</span> <b style={{color:"#cdd9e5"}}>{w}走</b> ・勝{usage["勝"]} ・2連{usage["2連"]}<span style={{color:C.ok}}>（{fmtRate(usage["2連率"])}%）</span> ・3連{usage["3連"]}<span style={{color:"#79c0ff"}}>（{fmtRate(usage["3連率"])}%）</span>
+      title={`新替日は公式非公開のため、公式のモーター2連対率と突き合わせた推定。窓内初出${fmtHd(usage["窓内初出日"])}・最新${fmtHd(usage["最新日"])}`}>
+      <span style={{color:C.label}}>モーター新替（推定 {fmtHdY(from)}）以降</span> <b style={{color:"#cdd9e5"}}>{w}走</b> ・勝{usage["勝"]} ・2連{usage["2連"]}<span style={{color:C.ok}}>（{fmtRate(usage["2連率"])}%）</span> ・3連{usage["3連"]}<span style={{color:"#79c0ff"}}>（{fmtRate(usage["3連率"])}%）</span>
     </div>
   );
 }
@@ -228,11 +235,11 @@ function MotorUsageLine({usage}){
 // 走行数と整備履歴は行タップで開く深層に置く（無くても今日の判断はできる＝表層に要らない）。
 // 閉じている間は深層のDOMを作らない。全場表示では1,000機超あり、常時描くと
 // 場の切り替え（unmount）でメインスレッドが数秒止まっていた。表示件数ではなく破棄ノード数が効く。
-function MotorRow({row,rk,fem,parts,upd,usage,median}){
+function MotorRow({row,rk,fem,parts,upd,usage,usageFrom,median}){
   const [open,setOpen] = useState(false);
   const v=row[CI.rate], g=row[CI.grade];
   const my=myoumi(g,rk);
-  const hasDeep = !!(usage && usage["走"]) || !!(parts && parts.length);
+  const hasDeep = !!(usageFrom && usage && usage["走"]) || !!(parts && parts.length);
   const heart = fem ? <span style={{color:C.fem,marginLeft:3}}>♥</span> : null;
   const nameColor = fem ? C.fem : C.link;
   const toggle = ()=>{ if(hasDeep) setOpen(o=>!o); };
@@ -267,7 +274,7 @@ function MotorRow({row,rk,fem,parts,upd,usage,median}){
       </div>
       {open && hasDeep && (
         <div style={{margin:"6px 0 0 12px",padding:"8px 10px",background:"#0d1622",border:"1px solid #16222f",borderRadius:8}}>
-          <MotorUsageLine usage={usage}/>
+          <MotorUsageLine usage={usage} from={usageFrom}/>
           <MotorKarte parts={parts} upd={upd}/>
         </div>
       )}
@@ -296,7 +303,7 @@ function E30Badge({info}){
 
 // 場カード。既定は上位3機だけ開いた状態。フォロー場は最初から全機、検索中は全機かつ畳みボタンを出さない
 //（絞り込んだ結果を勝手に隠さない）。
-function VenueCard({venue,rows,pinned,searching,e30,meta,prevTop,repl,isPrev,females,partsFor,usageFor,upd}){
+function VenueCard({venue,rows,pinned,searching,e30,meta,prevTop,repl,isPrev,females,partsFor,usageFor,usageFromFor,upd}){
   const [open,setOpen] = useState(pinned);
   const showAll = searching || open;
   const shown = showAll ? rows : rows.slice(0,TOP_N);
@@ -328,7 +335,7 @@ function VenueCard({venue,rows,pinned,searching,e30,meta,prevTop,repl,isPrev,fem
             rk={rankByPos(i+1, rows.length, r[CI.rate], usageFor(r[CI.jcd], r[CI.mno]))}
             fem={females&&females.has(String(r[CI.toban]))}
             parts={partsFor(r[CI.jcd], r[CI.mno])} upd={upd}
-            usage={usageFor(r[CI.jcd], r[CI.mno])} median={median}/>
+            usage={usageFor(r[CI.jcd], r[CI.mno])} usageFrom={usageFromFor(r[CI.jcd])} median={median}/>
         ))}
         {!searching && rows.length>TOP_N && (
           hidden>0
@@ -352,8 +359,8 @@ function App(){
   const [partsMap,setPartsMap]=useState(null);  // "jcd_モーターNo" -> [[開催日,rno,枠,氏名,節名,部品交換,プロペラ,展示タイム], ...]（時系列昇順）
   const [partsUpd,setPartsUpd]=useState("");    // motorKarte.json の updated（直前情報を最後に取りに行った時刻・出典行に出す）
   const [replMap,setReplMap]=useState(null);    // jcd(2桁) -> {新替日,節名}
-  const [usageMap,setUsageMap]=useState(null);  // "jcd_モーターNo" -> {走,勝,2連,3連,2連率,3連率,初出日,最新日}
-  const [usageCov,setUsageCov]=useState("");    // coverageFrom（集計開始日 YYYYMMDD）
+  const [usageMap,setUsageMap]=useState(null);  // "jcd_モーターNo" -> {走,勝,2連,3連,2連率,3連率,窓内初出日,最新日}
+  const [usageVenues,setUsageVenues]=useState(null); // jcd(2桁) -> {coverageFrom,fitError,matched}（場ごとの集計窓）
   useEffect(()=>{
     fetch("../players/female.json").then(r=>r.ok?r.json():Promise.reject())
       .then(a=>{ if(Array.isArray(a)) setFemales(new Set(a.map(String))); }).catch(()=>{});
@@ -367,10 +374,12 @@ function App(){
     // 欠落・該当無しはフォールバック（カルテを出さない）で既存表示を壊さない。
     fetch("../data/motorKarte.json").then(r=>r.ok?r.json():Promise.reject())
       .then(j=>{ const rs=j&&j.records; if(rs&&typeof rs==="object"){ setPartsMap(rs); setPartsUpd(String(j.updated||"")); } }).catch(()=>{});
-    // モーター初卸(推定)からの走行数集計（docs/data/motorUsage.json・Kファイル自前集計）。
+    // モーター新替(推定)以降の走行数集計（docs/data/motorUsage.json・Kファイル自前集計）。
     // 索引キーは jcd_モーターNo。欠落はフォールバック（非表示）で既存表示を壊さない。
+    // schema が USAGE_SCHEMA でないJSON（場ごとの集計窓を持たない旧形式）は採らない。
+    // 旧形式の走行数は「同じ機番を名乗った歴代モーターの合計」で、新替以降の数として読めないため。
     fetch("../data/motorUsage.json").then(r=>r.ok?r.json():Promise.reject())
-      .then(j=>{ if(j&&j.motors&&typeof j.motors==="object"){ const m={}; for(const k in j.motors){ const v=j.motors[k]; m[String(v.jcd||"").padStart(2,"0")+"_"+String(v["モーターNo"]||"").trim()]=v; } setUsageMap(m); setUsageCov(String(j.coverageFrom||"")); } }).catch(()=>{});
+      .then(j=>{ if(j&&j.schema===USAGE_SCHEMA&&j.motors&&typeof j.motors==="object"&&j.venues&&typeof j.venues==="object"){ const m={}; for(const k in j.motors){ const v=j.motors[k]; m[String(v.jcd||"").padStart(2,"0")+"_"+String(v["モーターNo"]||"").trim()]=v; } const w={}; for(const k in j.venues){ w[String(k).padStart(2,"0")]=j.venues[k]; } setUsageMap(m); setUsageVenues(w); } }).catch(()=>{});
     // モーター新替日。節初日に全機が実績0の場を build_highlights.py が記録する。
     // 未取得・該当なしは表示しないだけで既存表示は壊さない。
     fetch("../data/motorReplace.json").then(r=>r.ok?r.json():Promise.reject())
@@ -440,6 +449,13 @@ function App(){
     if(!usageMap) return null;
     return usageMap[String(jcd||"").padStart(2,"0")+"_"+String(mno||"").trim()] || null;
   };
+  // その場の集計窓の開始日（＝新替日の推定・YYYYMMDD）。窓が解けていない場は ""。
+  const usageFromFor = (jcd) => {
+    if(!usageVenues) return "";
+    const v = usageVenues[String(jcd||"").padStart(2,"0")];
+    const d = v ? String(v.coverageFrom||"") : "";
+    return /^\d{8}$/.test(d) ? d : "";
+  };
 
   const allVenues = useMemo(()=>[...new Set(R.data.map(r=>r[CI.venue]))].filter(Boolean),[]);
   // 当日CSVの最新開催日（YYYYMMDD最大）。これ未満の開催日の場＝前節記録として区別する。
@@ -476,7 +492,6 @@ function App(){
         <span style={{fontSize:F.xs,color:C.muted}}>{allVenues.length}場 / {R.data.length}件</span>
       </div>
       <div style={{fontSize:F.xs,color:C.muted,marginBottom:8}}>最終更新: {R.updated||"-"}</div>
-      {usageCov&&<div style={{fontSize:F.xs,lineHeight:1.7,color:C.dim,marginBottom:8}}>モーター走行数は <b style={{color:C.label}}>{fmtHd(usageCov)}以降</b> のKファイル集計（初出日=初卸推定・公式交換日は非公開）。出典：公式競走成績(K)。</div>}
       <div style={{fontSize:F.sm,lineHeight:1.7,color:C.sub,marginBottom:8}}><b style={{color:C.onLight,background:"#ffd166",padding:"1px 7px",borderRadius:3,fontSize:F.xs,fontWeight:800}}>超抜</b> ＝各場の上位3機だけ。本日は全{R.data.length}機中 <b style={{color:C.accent}}>{topCount}機</b>。</div>
       {/* 目盛と中央値の説明は「このデータの見方」に一本化した（同じ数字を1画面で2回言わない）。
           ここは操作のしかただけを1行で言う。 */}
@@ -506,7 +521,9 @@ function App(){
             <div style={{marginTop:4}}>バー上の<b style={{color:C.text}}>細い縦線</b>は、その場の2連率の中央値です。</div>
           </div>
           <div style={{color:"#8faabe",fontWeight:700,marginBottom:4}}>「B級×高機力」タグ</div>
-          <div style={{paddingLeft:4}}>下級の選手が機力上位のモーターを引いている状態。人気が落ちやすい構造です。<b style={{color:C.text}}>買い目は出しません</b>。読み方は各自の判断で。</div>
+          <div style={{paddingLeft:4,marginBottom:8}}>下級の選手が機力上位のモーターを引いている状態。人気が落ちやすい構造です。<b style={{color:C.text}}>買い目は出しません</b>。読み方は各自の判断で。</div>
+          <div style={{color:"#8faabe",fontWeight:700,marginBottom:4}}>走行数について</div>
+          <div style={{paddingLeft:4}}>走行数はモーター<b style={{color:C.text}}>新替以降</b>の実測カウントです。新替日は公式非公開のため、公式のモーター2連対率と突き合わせて推定しています。<b style={{color:C.text}}>推定できなかった場は走行数を表示しません</b>。出典：公式競走成績(K)。</div>
           <div style={{fontSize:F.xs,color:C.muted,borderTop:"1px solid #1e2d3d",paddingTop:6,marginTop:8}}>データ提供：boatrace.jp 公式</div>
         </div>
       )}
@@ -529,7 +546,7 @@ function App(){
           prevTop={prevTopFor(rows[0][CI.jcd], rows[0][CI.hd])}
           repl={replFor(rows[0][CI.jcd])}
           isPrev={isPrevSetsu(rows[0][CI.hd])}
-          females={females} partsFor={partsFor} usageFor={usageFor} upd={partsUpd}/>
+          females={females} partsFor={partsFor} usageFor={usageFor} usageFromFor={usageFromFor} upd={partsUpd}/>
       ))}
     </div>
   );
