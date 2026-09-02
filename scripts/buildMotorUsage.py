@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # buildMotorUsage.py
 # 人力で置かれた競走成績(Kファイル)群を自前集計し、各場のモーター機の
-# 「初卸(推定)からの走行数・勝・2連・3連」を docs/data/motorUsage.json に出力する。
+# 「モーター新替(推定)以降の走行数・勝・2連・3連」を docs/data/motorUsage.json に出力する。
 #
 # 収集はこのスクリプトの対象外（mbraceはActions/Code/本環境すべて403のため、
 # Kファイルは人力(iPhone/PC)で取得し data/kfiles/ に置かれる前提）。本スクリプトは
@@ -9,16 +9,26 @@
 #
 # 入力：KFILES_DIR（既定 data/kfiles/）内の kYYMMDD.lzh（SHIFT_JIS・lhafile解凍）。
 #       ローカル検証用に解凍済み .txt(SHIFT_JIS) も読める。
+#       教師データ TEACHER（既定 docs/motor/motors_all.csv）の「モーター2連対率」。
 # 出力：docs/data/motorUsage.json
+#
+# 集計窓（重要）:
+#   モーターは年1回新替されるため、Kアーカイブ全期間を素で通算すると
+#   「同じ機番を名乗った歴代モーターの合計」になる（若松49号機で 走2279・2連率36.4%）。
+#   公式の「モーター2連対率」が新替からの累計であることを使い、場ごとに
+#   「その日以降で数え直した2連率が公式値に最も近くなる開催日」を新替日として逆算する。
+#   逆算できなかった場のモーターは出力しない（推測で埋めない）。
 #
 # ハルシネーション防止（絶対）:
 #   Kファイルから読めた明細のみカウント。欠けた期間は補完・推測しない。
-#   「初卸」はKファイル初出日での推定（公式交換日は非公開）。coverageFrom を必ず出す。
+#   新替日は公式非公開のため推定値。推定に失敗した場は走行数を出さない。
 import os
 import re
+import csv
 import glob
 import json
 import datetime
+import statistics
 import tempfile
 import subprocess
 
@@ -33,7 +43,16 @@ BSDTAR = os.environ.get(
 )
 
 KFILES_DIR = os.environ.get("KFILES_DIR", os.path.join("data", "kfiles"))
+TEACHER = os.environ.get("MOTORS_ALL_CSV", os.path.join("docs", "motor", "motors_all.csv"))
 OUT = os.path.join("docs", "data", "motorUsage.json")
+
+# 出力JSONの形式印。app.jsx はこの値が無いJSONの走行数を表示しない（旧形式の止血）。
+SCHEMA = "venueWindow-1"
+
+# 窓の逆算パラメータ。ここを緩めると「窓が効いていない場」を出力してしまう。
+MIN_RUNS = 25      # 教師との照合に使うモーターの最低走行数（少走は率が振れて教師にならない）
+MIN_MATCHED = 15   # 照合できたモーターがこれ未満の場は推定失敗
+MAX_FIT_ERROR = 1.5  # 平均絶対誤差(pt)がこれを超えた場は推定失敗
 
 # 24場コード（scrape_motors.py の VENUES と同一）
 VENUES = {
@@ -48,10 +67,21 @@ VENUES = {
 NAME2JCD = sorted(((v, k) for k, v in VENUES.items()), key=lambda x: -len(x[0]))
 
 SEISEKI = "［成績］"  # ［成績］
-# 明細行（司令塔検証済み）：着順 艇 登番 氏名 モーターNo ボートNo レースタイム…
-DETAIL_RE = re.compile(r"\s*(\d{1,2})\s+(\d)\s+(\d{4})\s+(.+?)\s+(\d{1,3})\s+(\d{1,3})\s+\d+\.\d+")
+# 明細行（司令塔検証済み）：着順 艇 登番 氏名 モーターNo ボートNo 展示タイム…
+# 着順は 01〜06 のほか F(フライング)・S0/S1/S2(失格)・L0/L1(出遅れ)・K0/K1(欠場) を取る。
+# 公式の「モーター2連対率」の分母は出走回数で、フライングや失格も1走に数えられている
+# （若松49号機・2025-11-26以降が 走135 になるのはこの数え方のときだけ）。
+# 末尾の \d+\.\d+ は展示タイム。これが無い行＝出走していない（K0/K1 欠場等）は
+# パターンに当たらず、そのまま走からも外れる。
+DETAIL_RE = re.compile(r"\s*(\d{1,2}|[FSKL]\d?)\s+(\d)\s+(\d{4})\s+(.+?)\s+(\d{1,3})\s+(\d{1,3})\s+\d+\.\d+")
 # 開催日「2026/ 7/ 8」形式
 DATE_RE = re.compile(r"(\d{4})/\s*(\d{1,2})/\s*(\d{1,2})")
+
+
+def mkey(v):
+    """モーター番号の表記ゆれ（前ゼロ・空白）を吸収して比較キーにする。"""
+    s = str(v or "").strip()
+    return str(int(s)) if s.isdigit() else s
 
 
 def unlzh(path):
@@ -98,6 +128,7 @@ def file_date(text, path):
 
 def parse_text(text):
     """SHIFT_JIS本文から明細を返す：[(jcd, 着順, 艇, 登番, 氏名, モーターNo, ボートNo)]。
+    着順は生の記号のまま返す（"03" のほか "F" "S1" 等）。着順の解釈は呼び出し側で行う。
     場ブロック見出し「○○［成績］」で現在の場を切り替える。"""
     out = []
     cur_jcd = None
@@ -115,9 +146,166 @@ def parse_text(text):
         m = DETAIL_RE.match(ln)
         if not m:
             continue
-        out.append((cur_jcd, int(m.group(1)), int(m.group(2)),
+        out.append((cur_jcd, m.group(1), int(m.group(2)),
                     m.group(3), m.group(4).strip(), m.group(5), m.group(6)))
     return out
+
+
+# ===== 集計窓の逆算 =====================================================
+# 教師：公式の「モーター2連対率」（=新替からの累計）。場コード・機番ごとに最新開催日のものを採る。
+# 候補：その場でKファイルから読めた開催日すべて。
+# 評価：候補日D以降で数え直した2連率と教師の絶対差の平均。最小のDをその場の新替日(推定)とする。
+
+def load_teacher(path=TEACHER):
+    """motors_all.csv → {jcd: {機番: 2連対率}}（場・機番ごとに最新開催日の行を採る）。"""
+    if not os.path.exists(path):
+        print("  [warn] 教師データが無い: {}".format(path))
+        return {}
+    latest = {}  # (jcd, mno) -> (開催日, rate)
+    with open(path, encoding="utf-8-sig", newline="") as f:
+        for row in csv.DictReader(f):
+            jcd = str(row.get("場コード") or "").strip().zfill(2)
+            mno = mkey(row.get("モーター番号"))
+            hd = str(row.get("開催日") or "").strip()
+            try:
+                rate = float(row.get("モーター2連対率"))
+            except (TypeError, ValueError):
+                continue
+            if not jcd or not mno:
+                continue
+            cur = latest.get((jcd, mno))
+            if cur is None or hd >= cur[0]:
+                latest[(jcd, mno)] = (hd, rate)
+    out = {}
+    for (jcd, mno), (_hd, rate) in latest.items():
+        out.setdefault(jcd, {})[mno] = rate
+    return out
+
+
+def solve_venue(by_day, teacher_v):
+    """1場の集計窓を解く。
+
+    by_day: {開催日: {機番: [走, 勝, 2連, 3連]}}
+    teacher_v: {機番: 公式2連対率}
+    戻り値: (新替日, 平均絶対誤差, 照合機数) or None（推定失敗）
+    """
+    if not by_day or not teacher_v:
+        return None
+    cum = {}   # 機番 -> [走, 勝, 2連, 3連]（[D, 最新日] の累計）
+    best = None
+    # 最新日から遡って累計すると、各Dの [D, 最新日] が1パスで出る。
+    for D in sorted(by_day, reverse=True):
+        for mno, c in by_day[D].items():
+            a = cum.get(mno)
+            if a is None:
+                a = cum[mno] = [0, 0, 0, 0]
+            a[0] += c[0]; a[1] += c[1]; a[2] += c[2]; a[3] += c[3]
+        tot = 0.0
+        n = 0
+        for mno, rate in teacher_v.items():
+            a = cum.get(mno)
+            if a is None or a[0] < MIN_RUNS:  # 少走の機は教師にしない
+                continue
+            tot += abs(a[2] / a[0] * 100.0 - rate)
+            n += 1
+        if n < MIN_MATCHED:
+            continue
+        err = tot / n
+        # 同点は新しい日を採る（遡るループなので先に見つかった方が新しい）。
+        if best is None or err < best[1]:
+            best = (D, err, n)
+    if best is None or best[1] > MAX_FIT_ERROR:
+        return None
+    return best
+
+
+def aggregate(records, teacher):
+    """明細 [(開催日, jcd, 機番, 着順)] → (motors, venues)。
+
+    場ごとに新替日を逆算し、推定に成功した場のモーターだけを [新替日, 最新日] で集計する。
+    """
+    by_venue = {}  # jcd -> {開催日: {機番: [走, 勝, 2連, 3連]}}
+    for (hd, jcd, mno, chaku) in records:
+        day = by_venue.setdefault(jcd, {}).setdefault(hd, {})
+        a = day.get(mno)
+        if a is None:
+            a = day[mno] = [0, 0, 0, 0]
+        a[0] += 1  # 出走は着順記号によらず1走（F・失格も公式の分母に入る）
+        n = int(chaku) if str(chaku).isdigit() else 0
+        if n == 1:
+            a[1] += 1
+        if 1 <= n <= 2:
+            a[2] += 1
+        if 1 <= n <= 3:
+            a[3] += 1
+
+    motors = {}
+    venues = {}
+    for jcd in sorted(by_venue):
+        by_day = by_venue[jcd]
+        got = solve_venue(by_day, teacher.get(jcd, {}))
+        name = VENUES.get(jcd, jcd)
+        if got is None:
+            print("  [skip] {} {} … 新替日を推定できず（走行数を出さない）".format(jcd, name))
+            continue
+        start, err, matched = got
+        venues[jcd] = {"coverageFrom": start, "fitError": round(err, 3), "matched": matched}
+        for hd, day in by_day.items():
+            if hd < start:
+                continue
+            for mno, c in day.items():
+                key = "{}_{}".format(jcd, mno)
+                d = motors.get(key)
+                if d is None:
+                    d = motors[key] = {"jcd": jcd, "モーターNo": mno,
+                                       "走": 0, "勝": 0, "2連": 0, "3連": 0,
+                                       "窓内初出日": hd, "最新日": hd}
+                d["走"] += c[0]; d["勝"] += c[1]; d["2連"] += c[2]; d["3連"] += c[3]
+                if hd < d["窓内初出日"]:
+                    d["窓内初出日"] = hd
+                if hd > d["最新日"]:
+                    d["最新日"] = hd
+        print("  [ok] {} {} … 新替日(推定) {} / 平均誤差 {:.2f}pt / 照合{}機".format(
+            jcd, name, start, err, matched))
+
+    for d in motors.values():
+        w = d["走"]
+        d["2連率"] = round(d["2連"] / w * 100, 1) if w else "-"
+        d["3連率"] = round(d["3連"] / w * 100, 1) if w else "-"
+    return motors, venues
+
+
+def check_detail_mix(records):
+    """検算：明細の内訳。着順が記号（F・S0/S1/S2・L0/L1）の行が全体の何%かを出す。
+
+    この割合は正規表現 DETAIL_RE の空振り・拾いすぎを見るための指標。
+    Kアーカイブ1年分（kdata・2025-07-22〜2026-07-21）の実測で +1.21% だった。
+    0%に近い＝記号着順を1行も拾えていない（数え方が変更前に戻っている）。
+    +5%超＝明細以外の行を拾っている疑い。どちらも走行数の分母が狂う。
+    """
+    total = len(records)
+    if not total:
+        print("検算: 明細0件")
+        return
+    sym = sum(1 for r in records if not str(r[3]).isdigit())
+    num = total - sym
+    pct = sym / num * 100 if num else 0.0
+    verdict = "OK" if 0.5 <= pct <= 5.0 else (
+        "記号着順を拾えていない疑い" if pct < 0.5 else "明細以外の行を拾っている疑い")
+    print("検算: 明細{:,}行 = 数字着順{:,} + 記号着順(F・S・L){:,}（+{:.2f}%）"
+          "… {}（期待 +1.2%前後・許容 +0.5〜+5.0%）".format(total, num, sym, pct, verdict))
+
+
+def check_median(motors, venues):
+    """検算：窓が効いていれば走行数の中央値は 100〜250 に入る。2000超は窓が効いていない。"""
+    runs = [d["走"] for d in motors.values()]
+    if not runs:
+        print("検算: 出力モーター0機（全場で推定失敗）")
+        return
+    med = statistics.median(runs)
+    verdict = "OK" if 100 <= med <= 250 else ("窓が効いていない疑い" if med > 2000 else "要確認")
+    print("検算: 推定成功 {}場 / {}機 / 走行数中央値 {:.0f}（期待 100〜250）… {}".format(
+        len(venues), len(runs), med, verdict))
 
 
 def main():
@@ -127,9 +315,13 @@ def main():
         print("Kファイルが {} に無い。処理中止（既存を変更しない）。".format(KFILES_DIR))
         return
 
-    motors = {}
+    teacher = load_teacher()
+    if not teacher:
+        print("教師データ（{} のモーター2連対率）が読めない。処理中止（既存を変更しない）。".format(TEACHER))
+        return
+
+    records = []
     dates = []
-    n_detail = 0
     for path in files:
         try:
             text = decode_kfile(path)
@@ -142,45 +334,31 @@ def main():
             continue
         dates.append(hd)
         details = parse_text(text)
-        n_detail += len(details)
         for (jcd, chaku, tei, toban, name, mno, bno) in details:
-            key = "{}_{}".format(jcd, mno)
-            d = motors.get(key)
-            if d is None:
-                d = {"jcd": jcd, "モーターNo": mno, "走": 0, "勝": 0, "2連": 0, "3連": 0,
-                     "初出日": hd, "最新日": hd}
-                motors[key] = d
-            d["走"] += 1
-            if chaku == 1:
-                d["勝"] += 1
-            if chaku <= 2:
-                d["2連"] += 1
-            if chaku <= 3:
-                d["3連"] += 1
-            if hd < d["初出日"]:
-                d["初出日"] = hd
-            if hd > d["最新日"]:
-                d["最新日"] = hd
+            records.append((hd, jcd, mkey(mno), chaku))
         print("  [ok] {} ({}) … 明細{}件".format(os.path.basename(path), hd, len(details)))
 
-    for d in motors.values():
-        w = d["走"]
-        d["2連率"] = round(d["2連"] / w * 100, 1) if w else "-"
-        d["3連率"] = round(d["3連"] / w * 100, 1) if w else "-"
+    check_detail_mix(records)
+    motors, venues = aggregate(records, teacher)
+    check_median(motors, venues)
 
     out = {
         "updated": datetime.datetime.now(JST).strftime("%Y-%m-%d %H:%M"),
+        "schema": SCHEMA,
         "source": "mbrace競走成績(K)由来・自前集計",
-        "note": "初卸=Kファイル初出日で推定（公式交換日は非公開）。走行数・着順は実測カウントのみ。欠損期間は補完しない。",
+        "note": ("走行数はモーター新替(推定)以降の実測カウント。新替日は公式非公開のため、"
+                 "公式のモーター2連対率（新替からの累計）と突き合わせて場ごとに逆算した推定値。"
+                 "推定できなかった場は出力しない。欠損期間は補完しない。"),
         "coverageFrom": min(dates) if dates else "",
         "coverageTo": max(dates) if dates else "",
+        "venues": venues,
         "motors": motors,
     }
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=2)
-    print("保存: {} … {}ファイル / 明細{}件 / {}機 / 期間{}〜{}".format(
-        OUT, len(files), n_detail, len(motors), out["coverageFrom"], out["coverageTo"]))
+    print("保存: {} … {}ファイル / 明細{}件 / {}機 / Kアーカイブ {}〜{}".format(
+        OUT, len(files), len(records), len(motors), out["coverageFrom"], out["coverageTo"]))
 
 
 if __name__ == "__main__":
