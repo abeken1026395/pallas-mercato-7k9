@@ -129,8 +129,8 @@ def err_at(by_day, start, end, teacher_v):
 def run(label, teacher, bv, starts, tdays):
     print("")
     print("=== 教師: {} ===".format(label))
-    print("{:<8}{:>10}{:>10}{:>9}{:>9}{:>8}".format(
-        "場", "最終日", "最良終端", "その誤差", "9/1誤差", "改善"))
+    print("{:<8}{:>10}{:>10}{:>9}{:>9}{:>8}{:>7}".format(
+        "場", "最終日", "最良終端", "その誤差", "9/1誤差", "改善", "照合機"))
     gains = []
     for jcd in sorted(starts):
         tv = teacher.get(jcd, {})
@@ -143,10 +143,32 @@ def run(label, teacher, bv, starts, tdays):
             continue
         cands = days[-TAIL_DAYS:]
         base_end = days[-1]
-        base, _ = err_at(by_day, start, base_end, tv)
+
+        # 照合対象を固定する。終端を切ると MIN_RUNS を割る機が抜けて
+        # 平均誤差が下がるため、最短の終端でも MIN_RUNS を満たす機だけを使う。
+        fixed = None
+        for d in cands:
+            cum = {}
+            for hd in by_day:
+                if hd < start or hd > d:
+                    continue
+                for mno, c in by_day[hd].items():
+                    a = cum.get(mno)
+                    if a is None:
+                        a = cum[mno] = [0, 0, 0, 0]
+                    a[0] += c[0]; a[1] += c[1]; a[2] += c[2]; a[3] += c[3]
+            ok = set(m for m, a in cum.items() if m in tv and a[0] >= B.MIN_RUNS)
+            fixed = ok if fixed is None else (fixed & ok)
+        if not fixed or len(fixed) < B.MIN_MATCHED:
+            print("{:<8}{:>10}  照合機{}機で判定不能（MIN_MATCHED未満）".format(
+                B.VENUES.get(jcd, jcd), tdays.get(jcd, "-"), len(fixed or [])))
+            continue
+        tvf = {m: tv[m] for m in fixed}
+
+        base, nb = err_at2(by_day, start, base_end, tvf)
         best = None
         for d in cands:
-            e, n = err_at(by_day, start, d, tv)
+            e, n = err_at2(by_day, start, d, tvf)
             if e is None:
                 continue
             if best is None or e < best[1]:
@@ -155,12 +177,38 @@ def run(label, teacher, bv, starts, tdays):
             continue
         gain = base - best[1]
         gains.append(gain)
-        print("{:<8}{:>10}{:>10}{:>9.2f}{:>9.2f}{:>8.2f}".format(
-            B.VENUES.get(jcd, jcd), tdays.get(jcd, "-"), best[0], best[1], base, gain))
+        print("{:<8}{:>10}{:>10}{:>9.2f}{:>9.2f}{:>8.2f}{:>7}".format(
+            B.VENUES.get(jcd, jcd), tdays.get(jcd, "-"), best[0],
+            best[1], base, gain, len(tvf)))
     if gains:
         print("  改善の平均 {:+.2f}pt / 中央値 {:+.2f}pt / 改善した場 {}/{}".format(
             statistics.mean(gains), statistics.median(gains),
             sum(1 for g in gains if g > 0.01), len(gains)))
+
+
+def err_at2(by_day, start, end, teacher_v):
+    """err_at と同じだが MIN_RUNS / MIN_MATCHED の足切りをしない。
+    照合対象は呼び出し側で固定済みなので、ここで母集団を動かしてはいけない。"""
+    cum = {}
+    for hd in by_day:
+        if hd < start or hd > end:
+            continue
+        for mno, c in by_day[hd].items():
+            a = cum.get(mno)
+            if a is None:
+                a = cum[mno] = [0, 0, 0, 0]
+            a[0] += c[0]; a[1] += c[1]; a[2] += c[2]; a[3] += c[3]
+    tot = 0.0
+    n = 0
+    for mno, rate in teacher_v.items():
+        a = cum.get(mno)
+        if a is None or a[0] == 0:
+            continue
+        tot += abs(a[2] / a[0] * 100.0 - rate)
+        n += 1
+    if n == 0:
+        return None, 0
+    return tot / n, n
 
 
 def main():
