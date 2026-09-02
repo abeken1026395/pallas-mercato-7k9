@@ -351,7 +351,7 @@ function KarteRow({
 }) {
   const p = parts[i];
   const chg = String(p[PK.chg] || "");
-  const nm = String(p[PK.name] || "");
+  const nm = dispName(p[PK.name]); // 表層と同じ規則で畳む（同じ選手が2表記になるのを防ぐ）
   const setsu = String(p[PK.setsu] || "");
   const tenji = String(p[PK.tenji] || "");
   // 交換行のみ：この機のカルテ内で直前(iより前)の、展示タイムが空でない最も近い行を引く。
@@ -844,7 +844,7 @@ function VenueCard({
       whiteSpace: "nowrap",
       paddingTop: 2
     }
-  }, rows.length, "\u8247")), /*#__PURE__*/React.createElement("div", {
+  }, rows.length, "\u6A5F")), /*#__PURE__*/React.createElement("div", {
     style: {
       padding: "10px"
     }
@@ -1144,15 +1144,7 @@ function App() {
       color: C.dim,
       marginBottom: 8
     }
-  }, "\u30D0\u30FC\u306F\u30E2\u30FC\u30BF\u30FC2\u9023\u7387\u3002\u76EE\u76DB\u306F", /*#__PURE__*/React.createElement("b", {
-    style: {
-      color: C.label
-    }
-  }, "\u5168\u5834\u5171\u901A 0\u301C", BAR_MAX, "%"), "\uFF08\u672C\u65E5\u306E\u6700\u5927\u5024\u309210%\u523B\u307F\u3067\u5207\u308A\u4E0A\u3052\uFF09\u306A\u306E\u3067\u3001\u5834\u3092\u307E\u305F\u3044\u3067\u9577\u3055\u3092\u305D\u306E\u307E\u307E\u6BD4\u3079\u3089\u308C\u307E\u3059\u3002\u30D0\u30FC\u4E0A\u306E\u7D30\u3044\u7E26\u7DDA\u306F", /*#__PURE__*/React.createElement("b", {
-    style: {
-      color: C.label
-    }
-  }, "\u305D\u306E\u5834\u306E\u4E2D\u592E\u5024"), "\u3002\u5404\u5834\u306F\u4E0A\u4F4D", TOP_N, "\u6A5F\u3060\u3051\u958B\u3044\u305F\u72B6\u614B\u3067\u3001\u884C\u3092\u30BF\u30C3\u30D7\u3059\u308B\u3068\u8D70\u884C\u6570\u3068\u6574\u5099\u5C65\u6B74\u304C\u51FA\u307E\u3059\u3002"), /*#__PURE__*/React.createElement("button", {
+  }, "\u5404\u5834\u306F\u4E0A\u4F4D", TOP_N, "\u6A5F\u3060\u3051\u958B\u3044\u305F\u72B6\u614B\u3067\u3059\u3002\u884C\u3092\u30BF\u30C3\u30D7\u3059\u308B\u3068\u8D70\u884C\u6570\u3068\u6574\u5099\u5C65\u6B74\u304C\u51FA\u307E\u3059\u3002"), /*#__PURE__*/React.createElement("button", {
     onClick: () => setShowHelp(s => !s),
     style: {
       marginBottom: 8,
@@ -1203,19 +1195,11 @@ function App() {
       paddingLeft: 4,
       marginBottom: 8
     }
-  }, /*#__PURE__*/React.createElement("div", null, "\u5404\u5834\u306F", /*#__PURE__*/React.createElement("b", {
+  }, /*#__PURE__*/React.createElement("div", null, "\u300C\u6B8B\u308A\u25EF\u6A5F\u3092\u898B\u308B\u300D\u3067\u305D\u306E\u5834\u306E\u5168\u6A5F\u3092\u51FA\u3057\u307E\u3059\u3002", /*#__PURE__*/React.createElement("b", {
     style: {
       color: C.text
     }
-  }, "\u4E0A\u4F4D", TOP_N, "\u6A5F\u3060\u3051"), "\u958B\u3044\u305F\u72B6\u614B\u3067\u3059\u3002\u300C\u6B8B\u308A\u25EF\u6A5F\u3092\u898B\u308B\u300D\u3067\u5168\u6A5F\u3002\u30D5\u30A9\u30ED\u30FC\u4E2D\u306E\u5834\u3068\u691C\u7D22\u4E2D\u306F\u6700\u521D\u304B\u3089\u5168\u6A5F\u3092\u51FA\u3057\u307E\u3059\u3002"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: 4
-    }
-  }, "\u884C\u3092\u30BF\u30C3\u30D7\u3059\u308B\u3068\u3001\u305D\u306E\u6A5F\u306E", /*#__PURE__*/React.createElement("b", {
-    style: {
-      color: C.text
-    }
-  }, "\u8D70\u884C\u6570\u3068\u6574\u5099\u5C65\u6B74"), "\u304C\u958B\u304D\u307E\u3059\u3002")), /*#__PURE__*/React.createElement("div", {
+  }, "\u30D5\u30A9\u30ED\u30FC\u4E2D\u306E\u5834\u3068\u691C\u7D22\u4E2D"), "\u306F\u3001\u6700\u521D\u304B\u3089\u5168\u6A5F\u3092\u958B\u3044\u305F\u72B6\u614B\u306B\u3057\u307E\u3059\u3002")), /*#__PURE__*/React.createElement("div", {
     style: {
       color: "#8faabe",
       fontWeight: 700,
@@ -1307,7 +1291,7 @@ function App() {
     key: v,
     value: v
   }, v))), /*#__PURE__*/React.createElement("input", {
-    placeholder: "\u9078\u624B\u540D\u30FB\u30E2\u30FC\u30BF\u30FC\u756A\u53F7\u3067\u691C\u7D22...",
+    placeholder: "\u9078\u624B\u540D\u30FB\u6A5F\u756A\u3067\u691C\u7D22",
     value: q,
     onChange: e => setQ(e.target.value),
     style: {

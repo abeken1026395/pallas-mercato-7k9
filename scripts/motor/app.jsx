@@ -168,7 +168,7 @@ const PK = {hd:0, rno:1, waku:2, name:3, setsu:4, chg:5, pera:6, tenji:7};
 function KarteRow({parts,i,first}){
   const p = parts[i];
   const chg = String(p[PK.chg]||"");
-  const nm = String(p[PK.name]||"");
+  const nm = dispName(p[PK.name]);  // 表層と同じ規則で畳む（同じ選手が2表記になるのを防ぐ）
   const setsu = String(p[PK.setsu]||"");
   const tenji = String(p[PK.tenji]||"");
   // 交換行のみ：この機のカルテ内で直前(iより前)の、展示タイムが空でない最も近い行を引く。
@@ -320,7 +320,7 @@ function VenueCard({venue,rows,pinned,searching,e30,meta,prevTop,repl,isPrev,fem
             </div>
           )}
         </div>
-        <span style={{fontSize:F.xs,color:C.muted,flex:"none",whiteSpace:"nowrap",paddingTop:2}}>{rows.length}艇</span>
+        <span style={{fontSize:F.xs,color:C.muted,flex:"none",whiteSpace:"nowrap",paddingTop:2}}>{rows.length}機</span>
       </div>
       <div style={{padding:"10px"}}>
         {shown.map((r,i)=>(
@@ -478,8 +478,9 @@ function App(){
       <div style={{fontSize:F.xs,color:C.muted,marginBottom:8}}>最終更新: {R.updated||"-"}</div>
       {usageCov&&<div style={{fontSize:F.xs,lineHeight:1.7,color:C.dim,marginBottom:8}}>モーター走行数は <b style={{color:C.label}}>{fmtHd(usageCov)}以降</b> のKファイル集計（初出日=初卸推定・公式交換日は非公開）。出典：公式競走成績(K)。</div>}
       <div style={{fontSize:F.sm,lineHeight:1.7,color:C.sub,marginBottom:8}}><b style={{color:C.onLight,background:"#ffd166",padding:"1px 7px",borderRadius:3,fontSize:F.xs,fontWeight:800}}>超抜</b> ＝各場の上位3機だけ。本日は全{R.data.length}機中 <b style={{color:C.accent}}>{topCount}機</b>。</div>
-      {/* バーの読み方は全場共通なので、場カード24枚に書かず先頭で1度だけ言う（同じ値を2箇所に書かない）。 */}
-      <div style={{fontSize:F.xs,lineHeight:1.7,color:C.dim,marginBottom:8}}>バーはモーター2連率。目盛は<b style={{color:C.label}}>全場共通 0〜{BAR_MAX}%</b>（本日の最大値を10%刻みで切り上げ）なので、場をまたいで長さをそのまま比べられます。バー上の細い縦線は<b style={{color:C.label}}>その場の中央値</b>。各場は上位{TOP_N}機だけ開いた状態で、行をタップすると走行数と整備履歴が出ます。</div>
+      {/* 目盛と中央値の説明は「このデータの見方」に一本化した（同じ数字を1画面で2回言わない）。
+          ここは操作のしかただけを1行で言う。 */}
+      <div style={{fontSize:F.xs,lineHeight:1.7,color:C.dim,marginBottom:8}}>各場は上位{TOP_N}機だけ開いた状態です。行をタップすると走行数と整備履歴が出ます。</div>
 
       <button onClick={()=>setShowHelp(s=>!s)} style={{marginBottom:8,minHeight:40,padding:"8px 14px",background:"#1a2738",color:"#8faabe",border:"1px solid #2a3d52",borderRadius:8,fontSize:F.sm,cursor:"pointer",fontWeight:600,fontFamily:"inherit"}}>{showHelp?"▲ 見方を閉じる":"▼ このデータの見方"}</button>
       {showHelp&&(
@@ -488,8 +489,8 @@ function App(){
           <div style={{marginBottom:8}}>各場の<b style={{color:C.text}}>今節のモーター抽選結果</b>です。前検日に確定するため、同じ節の間は使用者は変わりません。</div>
           <div style={{color:"#8faabe",fontWeight:700,marginBottom:4}}>表示のしかた</div>
           <div style={{paddingLeft:4,marginBottom:8}}>
-            <div>各場は<b style={{color:C.text}}>上位{TOP_N}機だけ</b>開いた状態です。「残り◯機を見る」で全機。フォロー中の場と検索中は最初から全機を出します。</div>
-            <div style={{marginTop:4}}>行をタップすると、その機の<b style={{color:C.text}}>走行数と整備履歴</b>が開きます。</div>
+            {/* 既定が上位3機であること・行タップで開くことは地の文で言っているので、ここでは繰り返さず例外だけ書く。 */}
+            <div>「残り◯機を見る」でその場の全機を出します。<b style={{color:C.text}}>フォロー中の場と検索中</b>は、最初から全機を開いた状態にします。</div>
           </div>
           <div style={{color:"#8faabe",fontWeight:700,marginBottom:4}}>機力ランク（バー・色）</div>
           <div style={{paddingLeft:4,marginBottom:8}}>
@@ -508,7 +509,7 @@ function App(){
           <option value="ALL">全場</option>
           {allVenues.map(v=><option key={v} value={v}>{v}</option>)}
         </select>
-        <input placeholder="選手名・モーター番号で検索..." value={q} onChange={e=>setQ(e.target.value)} style={{flex:1,minWidth:120,minHeight:40,padding:"8px 10px",background:"#162232",color:C.text,border:"1px solid #1e2d3d",borderRadius:6,fontSize:F.input,fontFamily:"inherit"}}/>
+        <input placeholder="選手名・機番で検索" value={q} onChange={e=>setQ(e.target.value)} style={{flex:1,minWidth:120,minHeight:40,padding:"8px 10px",background:"#162232",color:C.text,border:"1px solid #1e2d3d",borderRadius:6,fontSize:F.input,fontFamily:"inherit"}}/>
         <span style={{color:C.muted,fontSize:F.sm,alignSelf:"center"}}>{total}件</span>
       </div>
 
