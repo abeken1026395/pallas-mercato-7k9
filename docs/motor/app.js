@@ -1205,7 +1205,7 @@ function App() {
       fontWeight: 700,
       marginBottom: 4
     }
-  }, "\u6A5F\u529B\u30E9\u30F3\u30AF\uFF08\u30D0\u30FC\u30FB\u8272\uFF09"), /*#__PURE__*/React.createElement("div", {
+  }, "\u6A5F\u529B\u30E9\u30F3\u30AF\uFF08\u8272\u30FB\u30E9\u30D9\u30EB\uFF09"), /*#__PURE__*/React.createElement("div", {
     style: {
       paddingLeft: 4,
       marginBottom: 8
@@ -1228,22 +1228,41 @@ function App() {
     }
   }, "\u4E0B\u4F4D"), "\u3067\u8272\u5206\u3051\u3002"), /*#__PURE__*/React.createElement("div", {
     style: {
-      marginTop: 4
-    }
-  }, "\u30D0\u30FC\u306E\u76EE\u76DB\u306F", /*#__PURE__*/React.createElement("b", {
-    style: {
-      color: C.text
-    }
-  }, "\u5168\u5834\u5171\u901A\u3067 0\u301C", BAR_MAX, "%"), "\uFF08\u672C\u65E5\u30C7\u30FC\u30BF\u306E\u6700\u5927\u5024\u309210%\u523B\u307F\u3067\u5207\u308A\u4E0A\u3052\uFF09\u3002\u5834\u3092\u307E\u305F\u3044\u3067\u3082\u9577\u3055\u3092\u305D\u306E\u307E\u307E\u6BD4\u3079\u3089\u308C\u307E\u3059\u3002\u30D0\u30FC\u4E0A\u306E", /*#__PURE__*/React.createElement("b", {
-    style: {
-      color: C.text
-    }
-  }, "\u7D30\u3044\u7E26\u7DDA"), "\u306F\u3001\u305D\u306E\u5834\u306E2\u9023\u7387\u306E\u4E2D\u592E\u5024\u3067\u3059\u3002"), /*#__PURE__*/React.createElement("div", {
-    style: {
       color: C.muted,
       marginTop: 4
     }
-  }, "\u203B\u5834\u3054\u3068\u306E\u76F8\u5BFE\u8A55\u4FA1\u3002\u4ED6\u5834\u3068\u306E\u6BD4\u8F03\u3067\u306F\u3042\u308A\u307E\u305B\u3093\u3002\u8D70\u884C\u6570\u304C\u5C11\u306A\u3044\u7BC0\u306F\u6570\u5B57\u304C\u632F\u308C\u3084\u3059\u3044\u306E\u3067\u3001\u6570\u5B57\u305D\u306E\u3082\u306E\u3082\u4F75\u305B\u3066\u3054\u78BA\u8A8D\u3092\u3002")), /*#__PURE__*/React.createElement("div", {
+  }, "\u203B\u30E9\u30F3\u30AF\u306F", /*#__PURE__*/React.createElement("b", {
+    style: {
+      color: C.sub
+    }
+  }, "\u305D\u306E\u5834\u306E\u4E2D\u3067\u306E\u76F8\u5BFE\u8A55\u4FA1"), "\u3067\u3059\u3002\u4ED6\u5834\u3068\u306E\u6BD4\u8F03\u3067\u306F\u3042\u308A\u307E\u305B\u3093\u3002\u8D70\u884C\u6570\u304C\u5C11\u306A\u3044\u7BC0\u306F\u6570\u5B57\u304C\u632F\u308C\u3084\u3059\u3044\u306E\u3067\u3001\u6570\u5B57\u305D\u306E\u3082\u306E\u3082\u4F75\u305B\u3066\u3054\u78BA\u8A8D\u3092\u3002")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: "#8faabe",
+      fontWeight: 700,
+      marginBottom: 4
+    }
+  }, "\u30D0\u30FC\u306E\u76EE\u76DB"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      paddingLeft: 4,
+      marginBottom: 8
+    }
+  }, /*#__PURE__*/React.createElement("div", null, "\u30D0\u30FC\u306E\u9577\u3055\u306F\u30E2\u30FC\u30BF\u30FC2\u9023\u7387\u3002\u76EE\u76DB\u306F", /*#__PURE__*/React.createElement("b", {
+    style: {
+      color: C.text
+    }
+  }, "\u5168\u5834\u5171\u901A\u3067 0\u301C", BAR_MAX, "%"), "\uFF08\u672C\u65E5\u30C7\u30FC\u30BF\u306E\u6700\u5927\u5024\u309210%\u523B\u307F\u3067\u5207\u308A\u4E0A\u3052\uFF09\u306A\u306E\u3067\u3001", /*#__PURE__*/React.createElement("b", {
+    style: {
+      color: C.text
+    }
+  }, "\u3053\u3061\u3089\u306F\u5834\u3092\u307E\u305F\u3044\u3067\u9577\u3055\u3092\u305D\u306E\u307E\u307E\u6BD4\u3079\u3089\u308C\u307E\u3059"), "\u3002"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 4
+    }
+  }, "\u30D0\u30FC\u4E0A\u306E", /*#__PURE__*/React.createElement("b", {
+    style: {
+      color: C.text
+    }
+  }, "\u7D30\u3044\u7E26\u7DDA"), "\u306F\u3001\u305D\u306E\u5834\u306E2\u9023\u7387\u306E\u4E2D\u592E\u5024\u3067\u3059\u3002")), /*#__PURE__*/React.createElement("div", {
     style: {
       color: "#8faabe",
       fontWeight: 700,

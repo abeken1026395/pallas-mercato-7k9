@@ -492,11 +492,18 @@ function App(){
             {/* 既定が上位3機であること・行タップで開くことは地の文で言っているので、ここでは繰り返さず例外だけ書く。 */}
             <div>「残り◯機を見る」でその場の全機を出します。<b style={{color:C.text}}>フォロー中の場と検索中</b>は、最初から全機を開いた状態にします。</div>
           </div>
-          <div style={{color:"#8faabe",fontWeight:700,marginBottom:4}}>機力ランク（バー・色）</div>
+          {/* ランクと目盛で見出しを分ける。ランクは場内の相対評価（他場と比べない）、
+              目盛は全場共通（他場と比べられる）で、かかる範囲が逆。同じ見出しの下に並べると
+              「比べられる／比べられない」の言い直しに読める。 */}
+          <div style={{color:"#8faabe",fontWeight:700,marginBottom:4}}>機力ランク（色・ラベル）</div>
           <div style={{paddingLeft:4,marginBottom:8}}>
             <div>その場の2連率の高い順に、<b style={{color:C.accent}}>超抜</b>（上位3機）／<b style={{color:"#79c0ff"}}>上位</b>（〜40%）／<b style={{color:C.label}}>普通</b>（〜75%）／<b style={{color:C.muted}}>下位</b>で色分け。</div>
-            <div style={{marginTop:4}}>バーの目盛は<b style={{color:C.text}}>全場共通で 0〜{BAR_MAX}%</b>（本日データの最大値を10%刻みで切り上げ）。場をまたいでも長さをそのまま比べられます。バー上の<b style={{color:C.text}}>細い縦線</b>は、その場の2連率の中央値です。</div>
-            <div style={{color:C.muted,marginTop:4}}>※場ごとの相対評価。他場との比較ではありません。走行数が少ない節は数字が振れやすいので、数字そのものも併せてご確認を。</div>
+            <div style={{color:C.muted,marginTop:4}}>※ランクは<b style={{color:C.sub}}>その場の中での相対評価</b>です。他場との比較ではありません。走行数が少ない節は数字が振れやすいので、数字そのものも併せてご確認を。</div>
+          </div>
+          <div style={{color:"#8faabe",fontWeight:700,marginBottom:4}}>バーの目盛</div>
+          <div style={{paddingLeft:4,marginBottom:8}}>
+            <div>バーの長さはモーター2連率。目盛は<b style={{color:C.text}}>全場共通で 0〜{BAR_MAX}%</b>（本日データの最大値を10%刻みで切り上げ）なので、<b style={{color:C.text}}>こちらは場をまたいで長さをそのまま比べられます</b>。</div>
+            <div style={{marginTop:4}}>バー上の<b style={{color:C.text}}>細い縦線</b>は、その場の2連率の中央値です。</div>
           </div>
           <div style={{color:"#8faabe",fontWeight:700,marginBottom:4}}>「B級×高機力」タグ</div>
           <div style={{paddingLeft:4}}>下級の選手が機力上位のモーターを引いている状態。人気が落ちやすい構造です。<b style={{color:C.text}}>買い目は出しません</b>。読み方は各自の判断で。</div>
