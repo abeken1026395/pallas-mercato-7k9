@@ -55,6 +55,30 @@ def target_dates():
 OUTPUT_DIR = os.path.join("docs", "racers")
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMPLATE_PATH = os.path.join(SCRIPT_DIR, "template_racers.html")
+RACER_STATS = os.path.join("docs", "data", "racerStats.json")
+
+
+def load_kana_map(path=RACER_STATS):
+    """登録番号 -> 氏名カナ（カタカナ）。出走表のフリガナ表示にだけ使う。
+
+    供給元は docs/data/racerStats.json の kana（期首固定・唯一の供給元）。
+    出走表の元HTMLにカナは無いため、ここで突き合わせる。
+    読めなければ空辞書を返す。フリガナが出ないだけで処理は止まらない。
+    姓名の区切りは全角スペースで入っているが、行幅を詰めるため半角スペースに直す。
+    """
+    try:
+        with open(path, encoding="utf-8") as f:
+            players = json.load(f).get("players", [])
+    except Exception as e:
+        print("カナ辞書スキップ:", e)
+        return {}
+    out = {}
+    for p in players:
+        no = str(p.get("no") or "").strip()
+        ka = (p.get("kana") or "").strip().replace("\u3000", " ")
+        if no and ka:
+            out[no] = ka
+    return out
 
 
 def cell_decimals(td):
@@ -572,9 +596,21 @@ def main():
     print("誕生日マーク: {}日 / のべ{}名".format(
         len(birthdays), sum(len(v) for v in birthdays.values())))
 
+    # 氏名カナ: {登録番号: カナ}。出走表に載る選手ぶんだけを持つ。
+    # 全行に列を足すと当日＋翌日で数千セルぶん埋め込みが太るため、行には足さない。
+    # racerStats.json に無い登番（新人など）はキーを持たず、フリガナが出ないだけ。
+    kana = {}
+    kana_map = load_kana_map()
+    if kana_map and "登録番号" in df.columns:
+        for toban in df["登録番号"].astype(str):
+            ka = kana_map.get(toban)
+            if ka:
+                kana[toban] = ka
+    print("氏名カナ: {}名（辞書{}名）".format(len(kana), len(kana_map)))
+
     data_json = json.dumps(
         {"columns": cols, "data": data, "venues": dict(VENUES), "updated": updated,
-         "birthdays": birthdays},
+         "birthdays": birthdays, "kana": kana},
         ensure_ascii=False, default=str,
     )
     with open(TEMPLATE_PATH, "r", encoding="utf-8") as f:

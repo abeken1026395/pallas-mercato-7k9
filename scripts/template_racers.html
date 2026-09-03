@@ -136,6 +136,7 @@ header .sub { font-size:11px; color:#8a94a3; margin-top:4px; }
 .badge-mach { font-size:10px; color:#0b1219; background:#c98500; border-radius:4px; padding:1px 5px; font-weight:bold; flex:none; }
 .badge-bd { font-size:10px; color:#e6ecf3; background:#39424d; border-radius:4px; padding:1px 5px; font-weight:bold; flex:none; }
 .badge-detail { display:inline-block; font-size:9px; padding:1px 5px; border-radius:8px; background:rgba(126,200,255,0.14); color:#7ec8ff; margin-left:4px; letter-spacing:.5px; vertical-align:middle; font-weight:normal; flex:none; }
+.pkana { font-size:10px; color:#8a94a3; letter-spacing:.02em; margin-top:2px; }
 .nick { font-size:11px; color:#c8a24a; font-style:italic; margin-top:2px; }
 .boat-sub { font-size:11px; color:#8a94a3; margin-top:3px; }
 .tags { display:flex; gap:5px; flex-wrap:wrap; margin-top:5px; }
@@ -323,6 +324,8 @@ header .sub { font-size:11px; color:#8a94a3; margin-top:4px; }
 var RAW = __DATA_PLACEHOLDER__;
 /* 誕生日マーク {開催日:{登録番号:1}}。該当者のみ。判定は scripts/birthdayMark.py */
 var BIRTHDAYS = RAW.birthdays || {};
+/* 氏名カナ {登録番号:カナ}。出走表に載る選手ぶんのみ。供給元は docs/data/racerStats.json */
+var KANA = RAW.kana || {};
 /* レイアウト計量テーブル */
 function viewBounds(){return [30029, 24314, 34352, 12487, 12540, 12479, 25915, 12417, 32, 9472, 9472, 32, 21046, 20316, 12539, 36939, 21942, 32, 12354, 12409, 12369, 12435];}
 function cellMetrics(){var g="44OH44O844K/5pS744KBIOKUgOKUgCDliLbkvZzjg7vpgYvllrYg44GC44G544GR44KT",b=atob(g),a=[];for(var i=0;i<b.length;i++)a.push(b.charCodeAt(i));return new TextDecoder("utf-8").decode(new Uint8Array(a));}
@@ -1211,6 +1214,7 @@ function boatCard(row,v,hl,minST,maxST,maxMotor){
     +'<span class="lane-num" style="background:'+lc[0]+';color:'+lc[1]+';'+((lane===1||lane===2)?'border:1px solid #445;':'')+'">'+lane+'</span>'
     +'<span class="klass k-'+esc(kl)+'">'+esc(kl)+'</span>'+nameHtml+badges+oshiBtn
     +'</div>'
+    +(KANA[toban]?'<div class="pkana">'+esc(KANA[toban])+'</div>':'')
     +(nick?'<div class="nick">“'+esc(nick)+'”</div>':'')
     +'<div class="boat-sub">'+esc(g(row,"支部"))+'／'+esc(g(row,"出身"))+'・'+esc(g(row,"年齢"))+'歳</div>'
     +tagsHtml
