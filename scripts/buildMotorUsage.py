@@ -82,6 +82,13 @@ VENUES = {
     "17": "宮島", "18": "徳山", "19": "下関", "20": "若松",
     "21": "芦屋", "22": "福岡", "23": "唐津", "24": "大村",
 }
+
+
+def _ord(hd):
+    """YYYYMMDD → 通算日。節の区切り（日が連続しているか）の判定に使う。"""
+    return datetime.date(int(hd[:4]), int(hd[4:6]), int(hd[6:8])).toordinal()
+
+
 # 場名（全角/半角スペース除去）→ jcd。長い名前優先で照合（「津」と「唐津」の誤判定を防ぐ）。
 NAME2JCD = sorted(((v, k) for k, v in VENUES.items()), key=lambda x: -len(x[0]))
 
@@ -217,19 +224,64 @@ def load_teacher(path=TEACHER):
     return out
 
 
-def solve_venue(by_day, teacher_v):
+def setsu_groups(days):
+    """開催日の昇順リストを節に割る。連続する日のかたまりを1節とみなす。
+    1日でも空けば別の節として扱うので、Kアーカイブに欠損日があると過分割される。"""
+    if not days:
+        return []
+    groups = [[days[0]]]
+    for d in days[1:]:
+        if _ord(d) - _ord(groups[-1][-1]) == 1:
+            groups[-1].append(d)
+        else:
+            groups.append([d])
+    return groups
+
+
+def measure_end(by_day, tdate):
+    """公式2連対率の基準日（＝誤差の測定終端）を返す。
+
+    公式値は「直近に締まった節の最終日」時点で固定されている。
+    教師の開催日 tdate がKの直近節と地続きなら、その節はまだ締まっていない
+    （tdate はその節の中の日）ので前節の最終日を採る。地続きでなければ
+    Kに見えていない新しい節が始まっているので、直近節の最終日を採る。
+    判定できないときは空文字（＝従来どおり全期間で測る）。
+    """
+    days = sorted(by_day)
+    if not days or not tdate:
+        return ""
+    groups = setsu_groups(days)
+    last_end = groups[-1][-1]
+    if _ord(tdate) <= _ord(last_end) + 1:
+        return groups[-2][-1] if len(groups) >= 2 else ""
+    return last_end
+
+
+def solve_venue(by_day, teacher_v, measure_to=""):
     """1場の集計窓を解く。
 
     by_day: {開催日: {機番: [走, 勝, 2連, 3連]}}
     teacher_v: {機番: 公式2連対率}
+    measure_to: 誤差を測る終端日（YYYYMMDD）。公式値の基準日を渡す。
+        公式のモーター2連対率は直近に締まった節の最終日時点の値で、
+        それより後の走行はうちにしか無い。同じ期間で比べないと誤差に下駄が乗る。
+        空文字なら従来どおり全期間で測る。
     戻り値: (新替日, 平均絶対誤差, 照合機数) or None（推定失敗）
+
+    注意: ここで切るのは誤差の測定期間だけ。出力する走行数は aggregate 側で
+    最新日まで数える。読者に見せるのは今日時点の実測。
     """
     if not by_day or not teacher_v:
         return None
-    cum = {}   # 機番 -> [走, 勝, 2連, 3連]（[D, 最新日] の累計）
+    days = sorted(by_day, reverse=True)
+    if measure_to:
+        days = [d for d in days if d <= measure_to]
+        if not days:
+            return None
+    cum = {}   # 機番 -> [走, 勝, 2連, 3連]（[D, measure_to] の累計）
     best = None
-    # 最新日から遡って累計すると、各Dの [D, 最新日] が1パスで出る。
-    for D in sorted(by_day, reverse=True):
+    # 終端から遡って累計すると、各Dの [D, 終端] が1パスで出る。
+    for D in days:
         for mno, c in by_day[D].items():
             a = cum.get(mno)
             if a is None:
@@ -276,12 +328,16 @@ def aggregate(records, teacher):
 
     motors = {}
     venues = {}
+    # 教師の開催日。公式値の基準日を割り出すのと venues に持たせるのに使う。
+    tdates = teacher_dates()
     for jcd in sorted(by_venue):
         by_day = by_venue[jcd]
-        got = solve_venue(by_day, teacher.get(jcd, {}))
+        mend = measure_end(by_day, tdates.get(jcd, ""))
+        got = solve_venue(by_day, teacher.get(jcd, {}), mend)
         name = VENUES.get(jcd, jcd)
         if got is None:
-            print("  [skip] {} {} … 新替日を推定できず（走行数を出さない）".format(jcd, name))
+            print("  [skip] {} {} … 新替日を推定できず（走行数を出さない・誤差測定は{}まで）".format(
+                jcd, name, mend or "全期間"))
             continue
         start, err, matched = got
         venues[jcd] = {"coverageFrom": start, "fitError": round(err, 3), "matched": matched}
@@ -300,10 +356,9 @@ def aggregate(records, teacher):
                     d["窓内初出日"] = hd
                 if hd > d["最新日"]:
                     d["最新日"] = hd
-        print("  [ok] {} {} … 新替日(推定) {} / 平均誤差 {:.2f}pt / 照合{}機".format(
-            jcd, name, start, err, matched))
+        print("  [ok] {} {} … 新替日(推定) {} / 平均誤差 {:.2f}pt / 照合{}機 / 誤差測定は{}まで".format(
+            jcd, name, start, err, matched, mend or "全期間"))
 
-    tdates = teacher_dates()
     for jcd in venues:
         if jcd in tdates:
             venues[jcd]["officialAsOf"] = tdates[jcd]
