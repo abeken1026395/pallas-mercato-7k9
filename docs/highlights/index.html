@@ -126,7 +126,8 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .wk1{background:var(--w1);color:#000}.wk2{background:var(--w2);color:#fff}.wk3{background:var(--w3);color:#fff}.wk4{background:var(--w4);color:#fff}.wk5{background:var(--w5);color:#000}.wk6{background:var(--w6);color:#fff}
 .lv{font-size:10.5px;font-weight:800;padding:1px 5px;border-radius:4px;flex-shrink:0}
 .lvA1{background:#c0392b;color:#fff}.lvA2{background:#e07b39;color:#fff}.lvB1{background:#33485c;color:#cfe}.lvB2{background:#26333f;color:#9ab}
-.nm{font-weight:700;min-width:58px}
+.nm{font-weight:700;min-width:58px;display:flex;flex-direction:column;justify-content:center;line-height:1.25}
+.nmkana{font-size:9.5px;font-weight:500;color:var(--sub);letter-spacing:.01em;white-space:nowrap;margin-top:1px}
 .fem{color:#ff6fae;font-size:11px;margin-left:2px}
 .venue{margin-bottom:8px}
 .vhead{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:13px 14px;cursor:pointer}
@@ -441,7 +442,7 @@ function boatRow(b, ba){
   return `<div class="boat" data-rid="${rid}" data-no="${no}">
     <span class="wk wk${b['枠']}">${b['枠']}</span>
     <span class="lv lv${b['級別']}">${b['級別']}</span>
-    <span class="nm${fem?' fem-nm':''}"><a href="../players/?toban=${no}" onclick="event.stopPropagation()" style="color:inherit;text-decoration:none;border-bottom:1px dotted #4a6a8a">${b['氏名']}</a>${jim?'<span class="jimoto">地元</span>':''}${b['誕生日']?'<span class="bdmk">誕</span>':''}${fl}${isOshi(no)?'<span class="oshi-mk">⭐</span>':''}</span>
+    <span class="nm${fem?' fem-nm':''}"><span class="nmline"><a href="../players/?toban=${no}" onclick="event.stopPropagation()" style="color:inherit;text-decoration:none;border-bottom:1px dotted #4a6a8a">${b['氏名']}</a>${jim?'<span class="jimoto">地元</span>':''}${b['誕生日']?'<span class="bdmk">誕</span>':''}${fl}${isOshi(no)?'<span class="oshi-mk">⭐</span>':''}</span>${b['氏名カナ']?`<span class="nmkana">${b['氏名カナ']}</span>`:''}</span>
     <span class="mtr${mc}">機${mtxt}</span>
     <span class="stat">全${b['全国勝率'].toFixed(2)}／当${up?'<span class="up">':''}${b['当地勝率']>0?b['当地勝率'].toFixed(2):'－'}${up?'▲</span>':''}</span>
     <span class="bchev">▶</span>

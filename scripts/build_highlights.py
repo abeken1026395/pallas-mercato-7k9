@@ -42,6 +42,26 @@ STATS_OUT = os.path.join(os.path.dirname(OUT) or '.', 'racerStatsToday.json')
 # racerStats.json が読めなければ空になり、マークが出ないだけで処理は止まらない。
 BIRTH_MAP = birthdayMark.load_birth_map(RACER_STATS)
 
+# 登録番号 -> 氏名カナ（カタカナ）。見どころの艇一覧でフリガナとして出すだけに使う。
+# 供給元は racerStats.json の kana（期首固定・唯一の供給元）。出走表CSVにカナは無い。
+# racerStats.json が読めなければ空になり、フリガナが出ないだけで処理は止まらない。
+# 姓名の区切りは全角スペースで入っているが、行幅を詰めるため半角スペースに直す。
+def _load_kana_map(path):
+    try:
+        with open(path, encoding='utf-8') as kf:
+            src = json.load(kf).get('players', [])
+    except Exception:
+        return {}
+    out = {}
+    for p in src:
+        no = str(p.get('no') or '').strip()
+        ka = (p.get('kana') or '').strip().replace('\u3000', ' ')
+        if no and ka:
+            out[no] = ka
+    return out
+
+KANA_MAP = _load_kana_map(RACER_STATS)
+
 # 収録対象は「当日」だけでは足りない。見どころには 当日/明日/前日/前々日 の4タブがあり、
 # いずれも同じ bProfHTML で選手情報を描画する。当日分だけに絞ると前日・前々日タブで
 # 最大305名が「図鑑データが見つかりません」になるため、4ファイルの和集合を収録する。
@@ -1185,6 +1205,11 @@ def main():
                 _boat['誕生日'] = {'歳': _bdm[0]}
                 if _bdm[1]:
                     _boat['誕生日']['注記'] = _bdm[1]
+            # 氏名カナ: racerStats.json に載っている選手だけキーを足す。
+            # 全艇に null を持たせると highlights.json が無駄に太るため該当者のみ。
+            _kana = KANA_MAP.get(b['登録番号'])
+            if _kana:
+                _boat['氏名カナ'] = _kana
             boats.append(_boat)
 
         out_entry = {
