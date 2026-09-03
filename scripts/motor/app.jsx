@@ -219,14 +219,23 @@ function MotorKarte({parts,upd}){
 function fmtRate(r){ return typeof r==="number" ? r.toFixed(1) : String(r||"-"); }
 // 8桁を年入りの YYYY/M/D にする。fmtHd は年を落とすため別関数にした（fmtHd は他で使う）。
 function fmtHdY(hd){ const h=String(hd||""); return h.length===8?`${+h.slice(0,4)}/${+h.slice(4,6)}/${+h.slice(6,8)}`:h; }
-function MotorUsageLine({usage,from}){
+function MotorUsageLine({usage,from,officialAsOf}){
   if(!usage || !from) return null;
   const w = usage["走"];
   if(!w) return null;
+  // 公式2連対率は各場の直近の節終了時点で更新され、節間は据え置かれる。
+  // 自前は最新開催日まで数えるので基準日が違う。片方だけ出すと食い違いが誤りに見えるため、
+  // 公式値がある場だけ「公式 M/D時点 ◯◯.◯%」を併記する。無い場は何も出さない。
+  const off = usage["公式2連率"];
+  const showOff = (typeof off === "number") && officialAsOf;
   return (
     <div style={{fontSize:F.sm,lineHeight:1.7,color:C.dim,fontVariantNumeric:"tabular-nums"}}
       title={`新替日は公式非公開のため、公式のモーター2連対率と突き合わせた推定。窓内初出${fmtHd(usage["窓内初出日"])}・最新${fmtHd(usage["最新日"])}`}>
       <span style={{color:C.label}}>モーター新替（推定 {fmtHdY(from)}）以降</span> <b style={{color:"#cdd9e5"}}>{w}走</b> ・勝{usage["勝"]} ・2連{usage["2連"]}<span style={{color:C.ok}}>（{fmtRate(usage["2連率"])}%）</span> ・3連{usage["3連"]}<span style={{color:"#79c0ff"}}>（{fmtRate(usage["3連率"])}%）</span>
+      {showOff && <div style={{marginTop:2,color:C.muted}}
+        title="公式のモーター2連対率は各場の直近の節が終わった時点の値。こちらは最新開催日までの実測なので基準日が異なる。">
+        公式 {fmtHd(officialAsOf)}時点 {fmtRate(off)}%
+      </div>}
     </div>
   );
 }
@@ -235,7 +244,7 @@ function MotorUsageLine({usage,from}){
 // 走行数と整備履歴は行タップで開く深層に置く（無くても今日の判断はできる＝表層に要らない）。
 // 閉じている間は深層のDOMを作らない。全場表示では1,000機超あり、常時描くと
 // 場の切り替え（unmount）でメインスレッドが数秒止まっていた。表示件数ではなく破棄ノード数が効く。
-function MotorRow({row,rk,fem,parts,upd,usage,usageFrom,median}){
+function MotorRow({row,rk,fem,parts,upd,usage,usageFrom,median,officialAsOf}){
   const [open,setOpen] = useState(false);
   const v=row[CI.rate], g=row[CI.grade];
   const my=myoumi(g,rk);
@@ -274,7 +283,7 @@ function MotorRow({row,rk,fem,parts,upd,usage,usageFrom,median}){
       </div>
       {open && hasDeep && (
         <div style={{margin:"6px 0 0 12px",padding:"8px 10px",background:"#0d1622",border:"1px solid #16222f",borderRadius:8}}>
-          <MotorUsageLine usage={usage} from={usageFrom}/>
+          <MotorUsageLine usage={usage} from={usageFrom} officialAsOf={officialAsOf}/>
           <MotorKarte parts={parts} upd={upd}/>
         </div>
       )}
@@ -303,7 +312,7 @@ function E30Badge({info}){
 
 // 場カード。既定は上位3機だけ開いた状態。フォロー場は最初から全機、検索中は全機かつ畳みボタンを出さない
 //（絞り込んだ結果を勝手に隠さない）。
-function VenueCard({venue,rows,pinned,searching,e30,meta,prevTop,repl,isPrev,females,partsFor,usageFor,usageFromFor,upd}){
+function VenueCard({venue,rows,pinned,searching,e30,meta,prevTop,repl,isPrev,females,partsFor,usageFor,usageFromFor,officialAsOfFor,upd}){
   const [open,setOpen] = useState(pinned);
   const showAll = searching || open;
   const shown = showAll ? rows : rows.slice(0,TOP_N);
@@ -335,7 +344,8 @@ function VenueCard({venue,rows,pinned,searching,e30,meta,prevTop,repl,isPrev,fem
             rk={rankByPos(i+1, rows.length, r[CI.rate], usageFor(r[CI.jcd], r[CI.mno]))}
             fem={females&&females.has(String(r[CI.toban]))}
             parts={partsFor(r[CI.jcd], r[CI.mno])} upd={upd}
-            usage={usageFor(r[CI.jcd], r[CI.mno])} usageFrom={usageFromFor(r[CI.jcd])} median={median}/>
+            usage={usageFor(r[CI.jcd], r[CI.mno])} usageFrom={usageFromFor(r[CI.jcd])} median={median}
+            officialAsOf={officialAsOfFor(r[CI.jcd])}/>
         ))}
         {!searching && rows.length>TOP_N && (
           hidden>0
@@ -456,6 +466,12 @@ function App(){
     const d = v ? String(v.coverageFrom||"") : "";
     return /^\d{8}$/.test(d) ? d : "";
   };
+  // 公式2連対率の基準日（＝その場の直近の節の最終開催日・YYYYMMDD）。持たない場は ""。
+  const officialAsOfFor = (jcd) => {
+    if(!usageVenues) return "";
+    const v = usageVenues[String(jcd||"").padStart(2,"0")];
+    return (v && v.officialAsOf) || "";
+  };
 
   const allVenues = useMemo(()=>[...new Set(R.data.map(r=>r[CI.venue]))].filter(Boolean),[]);
   // 当日CSVの最新開催日（YYYYMMDD最大）。これ未満の開催日の場＝前節記録として区別する。
@@ -546,7 +562,7 @@ function App(){
           prevTop={prevTopFor(rows[0][CI.jcd], rows[0][CI.hd])}
           repl={replFor(rows[0][CI.jcd])}
           isPrev={isPrevSetsu(rows[0][CI.hd])}
-          females={females} partsFor={partsFor} usageFor={usageFor} usageFromFor={usageFromFor} upd={partsUpd}/>
+          females={females} partsFor={partsFor} usageFor={usageFor} usageFromFor={usageFromFor} officialAsOfFor={officialAsOfFor} upd={partsUpd}/>
       ))}
     </div>
   );
