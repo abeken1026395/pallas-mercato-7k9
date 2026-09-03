@@ -217,19 +217,31 @@ def load_teacher(path=TEACHER):
     return out
 
 
-def solve_venue(by_day, teacher_v):
+def solve_venue(by_day, teacher_v, measure_to=""):
     """1場の集計窓を解く。
 
     by_day: {開催日: {機番: [走, 勝, 2連, 3連]}}
     teacher_v: {機番: 公式2連対率}
+    measure_to: 誤差を測る終端日（YYYYMMDD）。教師の基準日を渡す。
+        公式のモーター2連対率はその場の直近の節が終わった時点の値で、
+        それより後の走行はうちにしか無い。同じ期間で比べないと誤差に下駄が乗る。
+        空文字なら従来どおり全期間で測る。
     戻り値: (新替日, 平均絶対誤差, 照合機数) or None（推定失敗）
+
+    注意: ここで切るのは誤差の測定期間だけ。出力する走行数は aggregate 側で
+    最新日まで数える。読者に見せるのは今日時点の実測。
     """
     if not by_day or not teacher_v:
         return None
-    cum = {}   # 機番 -> [走, 勝, 2連, 3連]（[D, 最新日] の累計）
+    days = sorted(by_day, reverse=True)
+    if measure_to:
+        days = [d for d in days if d <= measure_to]
+        if not days:
+            return None
+    cum = {}   # 機番 -> [走, 勝, 2連, 3連]（[D, measure_to] の累計）
     best = None
-    # 最新日から遡って累計すると、各Dの [D, 最新日] が1パスで出る。
-    for D in sorted(by_day, reverse=True):
+    # 終端から遡って累計すると、各Dの [D, 終端] が1パスで出る。
+    for D in days:
         for mno, c in by_day[D].items():
             a = cum.get(mno)
             if a is None:
@@ -276,9 +288,11 @@ def aggregate(records, teacher):
 
     motors = {}
     venues = {}
+    # 教師の基準日。誤差の測定終端に使い、あわせて venues に持たせる。
+    tdates = teacher_dates()
     for jcd in sorted(by_venue):
         by_day = by_venue[jcd]
-        got = solve_venue(by_day, teacher.get(jcd, {}))
+        got = solve_venue(by_day, teacher.get(jcd, {}), tdates.get(jcd, ""))
         name = VENUES.get(jcd, jcd)
         if got is None:
             print("  [skip] {} {} … 新替日を推定できず（走行数を出さない）".format(jcd, name))
@@ -300,10 +314,9 @@ def aggregate(records, teacher):
                     d["窓内初出日"] = hd
                 if hd > d["最新日"]:
                     d["最新日"] = hd
-        print("  [ok] {} {} … 新替日(推定) {} / 平均誤差 {:.2f}pt / 照合{}機".format(
-            jcd, name, start, err, matched))
+        print("  [ok] {} {} … 新替日(推定) {} / 平均誤差 {:.2f}pt / 照合{}機 / 誤差測定は{}まで".format(
+            jcd, name, start, err, matched, tdates.get(jcd, "全期間")))
 
-    tdates = teacher_dates()
     for jcd in venues:
         if jcd in tdates:
             venues[jcd]["officialAsOf"] = tdates[jcd]
