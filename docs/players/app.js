@@ -885,7 +885,9 @@ function App() {
         setSoMeta({
           期間: j.期間,
           出典: j.出典,
-          方法: j.集計方法
+          方法: j.集計方法,
+          基準: j.基準,
+          閾値: j.言語化閾値
         });
       }
     }).catch(() => {
@@ -1746,6 +1748,16 @@ function App() {
       const guard = slMeta && slMeta.ガード ? slMeta.ガード : 20;
       const so = sord && sord !== false ? sord[String(p.no)] : null;
       const soAll = so && so.all ? so.all.course : null;
+      // 全選手を合算した基準。速いか遅いかはこれと比べないと読めない。
+      const sbase = soMeta && soMeta.基準 && soMeta.基準.all ? soMeta.基準.all.course : null;
+      const sayTh = soMeta && soMeta.閾値 ? soMeta.閾値 : 0.30;
+      const sayIt = (mine, all) => {
+        if (mine === null || all === null) return "";
+        const d = mine - all;
+        if (d <= -sayTh) return "速いほう";
+        if (d >= sayTh) return "遅いほう";
+        return "平均的";
+      };
       const soM6 = so && so.m6 ? so.m6.course : null;
       // 全体の平均ST順は、コース別の平均を走数で重みづけして出す
       const wmean = obj => {
@@ -1775,6 +1787,8 @@ function App() {
           my: o.late === undefined ? null : pct(o.late, o.n),
           all: bc ? pct(bc.late, bc.n) : null,
           sst: sc ? sc[1] : null,
+          sn: sc ? sc[0] : null,
+          sall: sbase && sbase[String(c)] ? sbase[String(c)][2] : null,
           srk: sc && sc[0] >= guard ? sc[2] : null
         });
       }
@@ -1889,7 +1903,7 @@ function App() {
           fontWeight: 400,
           textAlign: "right"
         }
-      }, "ST\u9806"))), /*#__PURE__*/React.createElement("tbody", null, rows.map((r, i) => /*#__PURE__*/React.createElement("tr", {
+      }, "\u30B9\u30BF\u30FC\u30C8\u9806"))), /*#__PURE__*/React.createElement("tbody", null, rows.map((r, i) => /*#__PURE__*/React.createElement("tr", {
         key: i
       }, /*#__PURE__*/React.createElement("td", {
         style: {
@@ -1942,7 +1956,13 @@ function App() {
           fontVariantNumeric: "tabular-nums",
           whiteSpace: "nowrap"
         }
-      }, r.srk === null ? "—" : r.srk + "番手"), /*#__PURE__*/React.createElement("div", {
+      }, r.srk === null ? "—" : "6艇中 " + r.srk.toFixed(1) + "番目", r.srk !== null && r.sall !== null && /*#__PURE__*/React.createElement("span", {
+        style: {
+          fontWeight: 400,
+          color: "#8faabe",
+          marginLeft: 6
+        }
+      }, sayIt(r.srk, r.sall))), /*#__PURE__*/React.createElement("div", {
         style: {
           color: "#6b7f95",
           fontSize: 10,
@@ -1950,7 +1970,14 @@ function App() {
           whiteSpace: "nowrap",
           marginTop: 1
         }
-      }, r.sst === null ? "\u00a0" : "ST " + r.sst.toFixed(2))))))), /*#__PURE__*/React.createElement("div", {
+      }, r.sn === null ? "\u00a0" : r.sn + "走"), /*#__PURE__*/React.createElement("div", {
+        style: {
+          color: "#6b7f95",
+          fontSize: 10,
+          fontVariantNumeric: "tabular-nums",
+          whiteSpace: "nowrap"
+        }
+      }, r.sall === null ? "\u00a0" : "全体 " + r.sall.toFixed(2))))))), /*#__PURE__*/React.createElement("div", {
         style: {
           fontSize: 11,
           color: "#8faabe",
@@ -1973,7 +2000,7 @@ function App() {
           marginTop: 6,
           lineHeight: 1.6
         }
-      }, "\u300CST\u9806\u300D\u306F\u3001\u305D\u306E\u30EC\u30FC\u30B9\u306E6\u8247\u3092\u672C\u756AST\u306E\u901F\u3044\u9806\u306B\u4E26\u3079\u305F\u3068\u304D\u306E\u9806\u4F4D\u3092\u5E73\u5747\u3057\u305F\u5024\u3002 1\u306B\u8FD1\u3044\u307B\u3069\u305D\u306E\u30B3\u30FC\u30B9\u3067\u5148\u306B\u30B9\u30BF\u30FC\u30C8\u3092\u5207\u3063\u3066\u3044\u308B\u3053\u3068\u3092\u793A\u3059\u3002\u540C\u3058ST\u304C\u8907\u6570\u8247\u3044\u305F\u5834\u5408\u306F \u9806\u4F4D\u3092\u5272\u3063\u3066\u5E73\u5747\u3067\u6570\u3048\u308B\u3002\u30D5\u30E9\u30A4\u30F3\u30B0\u307E\u305F\u306F\u6B20\u5834\u3092\u542B\u3080\u30EC\u30FC\u30B9\u306F\u3001 6\u8247\u305D\u308D\u308F\u306A\u3044\u305F\u3081\u4E38\u3054\u3068\u9664\u3044\u3066\u3044\u308B\u3002", "　" + guard + "走に満たないコースは順位を出さない。", soMeta && soMeta.期間 && soMeta.期間.all ? "　対象期間 " + soMeta.期間.all.from + "-" + soMeta.期間.all.to + "。" : "")));
+      }, "\u300C\u30B9\u30BF\u30FC\u30C8\u9806\u300D\u306F\u3001\u305D\u306E\u30EC\u30FC\u30B9\u3092\u4E00\u7DD2\u306B\u8D70\u3063\u305F\u8247\u3092\u672C\u756AST\u306E\u901F\u3044\u9806\u306B\u4E26\u3079\u305F\u3068\u304D\u306E \u9806\u4F4D\u3092\u5E73\u5747\u3057\u305F\u5024\u30021\u306B\u8FD1\u3044\u307B\u3069\u3001\u305D\u306E\u30B3\u30FC\u30B9\u3067\u5148\u306B\u30B9\u30BF\u30FC\u30C8\u3092\u5207\u3063\u3066\u3044\u308B\u3002 \u30B3\u30FC\u30B9\u306B\u3088\u3063\u3066\u51FA\u3084\u3059\u3044\u9806\u4F4D\u304C\u9055\u3046\u306E\u3067\u3001\u5168\u9078\u624B\u3092\u5408\u7B97\u3057\u305F\u300C\u5168\u4F53\u300D\u3068\u898B\u6BD4\u3079\u3066\u8AAD\u3080\u3002 \u8A00\u8449\u306F\u5168\u4F53\u3068\u306E\u5DEE\u304C", sayTh, "\u4EE5\u4E0A\u3042\u308B\u3068\u304D\u3060\u3051\u6DFB\u3048\u308B\u3002\u540C\u3058ST\u304C\u8907\u6570\u8247\u3044\u305F\u5834\u5408\u306F \u9806\u4F4D\u3092\u5272\u3063\u3066\u5E73\u5747\u3067\u6570\u3048\u308B\u3002\u30D5\u30E9\u30A4\u30F3\u30B0\u3068\u6B20\u5834\u306F\u305D\u306E1\u8D70\u3060\u3051\u3092\u9664\u304D\u3001 \u540C\u3058\u30EC\u30FC\u30B9\u306E\u4ED6\u8247\u306F\u6B8B\u3057\u3066\u3044\u308B\u3002", "　" + guard + "走に満たないコースは順位を出さない。", soMeta && soMeta.期間 && soMeta.期間.all ? "　対象期間 " + soMeta.期間.all.from + "-" + soMeta.期間.all.to + "。" : "")));
     })(), detail && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 11,
