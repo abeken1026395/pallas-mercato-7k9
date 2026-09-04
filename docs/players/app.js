@@ -726,6 +726,8 @@ function App() {
   const [rhMeta, setRhMeta] = useState(null);
   const [slate, setSlate] = useState(null);
   const [slMeta, setSlMeta] = useState(null);
+  const [sord, setSord] = useState(null);
+  const [soMeta, setSoMeta] = useState(null);
   const [oshi, setOshi] = useState(loadOshi);
   const [oshiOnly, setOshiOnly] = useState(false);
   const toggleOshi = (toban, name) => {
@@ -872,6 +874,22 @@ function App() {
       }
     }).catch(() => {
       setSlate(false);
+    });
+  }, [open]);
+  // ST順（発順）も詳細を開いた時だけ遅延読込
+  useEffect(() => {
+    if (!open || sord !== null) return;
+    fetch("../data/racerStartOrder.json").then(r => r.ok ? r.json() : Promise.reject()).then(j => {
+      if (j && j.racers) {
+        setSord(j.racers);
+        setSoMeta({
+          期間: j.期間,
+          出典: j.出典,
+          方法: j.集計方法
+        });
+      }
+    }).catch(() => {
+      setSord(false);
     });
   }, [open]);
   // URLに ?toban=登番 があれば、その選手を検索欄にプリセットして開く（モーター等からのリンク用）
@@ -1711,7 +1729,7 @@ function App() {
           fontWeight: 700,
           marginBottom: 6
         }
-      }, "\u25A0 \u30B9\u30BF\u30FC\u30C8\u306E\u9045\u308C"), /*#__PURE__*/React.createElement("div", {
+      }, "\u25A0 \u30B9\u30BF\u30FC\u30C8"), /*#__PURE__*/React.createElement("div", {
         style: {
           fontSize: 11,
           color: "#6b7f95",
@@ -1725,17 +1743,39 @@ function App() {
       const pct = (a, b) => b ? Math.round(a / b * 1000) / 10 : null;
       const my = pct(sl.late, sl.n);
       const allPct = base && base.全体 ? pct(base.全体.late, base.全体.n) : null;
+      const guard = slMeta && slMeta.ガード ? slMeta.ガード : 20;
+      const so = sord && sord !== false ? sord[String(p.no)] : null;
+      const soAll = so && so.all ? so.all.course : null;
+      const soM6 = so && so.m6 ? so.m6.course : null;
+      // 全体の平均ST順は、コース別の平均を走数で重みづけして出す
+      const wmean = obj => {
+        if (!obj) return null;
+        let n = 0,
+          s = 0;
+        Object.keys(obj).forEach(k => {
+          n += obj[k][0];
+          s += obj[k][0] * obj[k][2];
+        });
+        return n ? {
+          n: n,
+          rank: Math.round(s / n * 100) / 100
+        } : null;
+      };
+      const m6w = wmean(soM6);
       const rows = [];
       for (let c = 1; c <= 6; c++) {
         const o = sl.course && sl.course[String(c)];
         if (!o) continue;
         const bc = base && base.コース ? base.コース[String(c)] : null;
+        const sc = soAll ? soAll[String(c)] : null;
         rows.push({
           c: c,
           n: o.n,
           late: o.late === undefined ? null : o.late,
           my: o.late === undefined ? null : pct(o.late, o.n),
-          all: bc ? pct(bc.late, bc.n) : null
+          all: bc ? pct(bc.late, bc.n) : null,
+          sst: sc ? sc[1] : null,
+          srk: sc && sc[0] >= guard ? sc[2] : null
         });
       }
       return /*#__PURE__*/React.createElement("div", {
@@ -1749,7 +1789,7 @@ function App() {
           fontWeight: 700,
           marginBottom: 6
         }
-      }, "\u25A0 \u30B9\u30BF\u30FC\u30C8\u306E\u9045\u308C\u3000", /*#__PURE__*/React.createElement("span", {
+      }, "\u25A0 \u30B9\u30BF\u30FC\u30C8\u3000", /*#__PURE__*/React.createElement("span", {
         style: {
           color: "#6b7f95",
           fontWeight: 400
@@ -1821,53 +1861,119 @@ function App() {
           fontSize: 12,
           marginTop: 4
         }
-      }, /*#__PURE__*/React.createElement("tbody", null, rows.map((r, i) => /*#__PURE__*/React.createElement("tr", {
+      }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", {
+        style: {
+          padding: "4px 0",
+          borderBottom: "1px solid #1a2535",
+          color: "#6b7f95",
+          fontSize: 10,
+          fontWeight: 400,
+          textAlign: "left",
+          width: "5.2em"
+        }
+      }), /*#__PURE__*/React.createElement("th", {
+        style: {
+          padding: "4px 0",
+          borderBottom: "1px solid #1a2535",
+          color: "#6b7f95",
+          fontSize: 10,
+          fontWeight: 400,
+          textAlign: "left"
+        }
+      }, "\u9045\u308C"), /*#__PURE__*/React.createElement("th", {
+        style: {
+          padding: "4px 0",
+          borderBottom: "1px solid #1a2535",
+          color: "#6b7f95",
+          fontSize: 10,
+          fontWeight: 400,
+          textAlign: "right"
+        }
+      }, "ST\u9806"))), /*#__PURE__*/React.createElement("tbody", null, rows.map((r, i) => /*#__PURE__*/React.createElement("tr", {
         key: i
       }, /*#__PURE__*/React.createElement("td", {
         style: {
-          padding: "5px 0",
+          padding: "6px 0",
           borderBottom: "1px solid #1a2535",
           color: "#8faabe",
           width: "5.2em",
-          whiteSpace: "nowrap"
+          whiteSpace: "nowrap",
+          verticalAlign: "top"
         }
       }, r.c, "\u30B3\u30FC\u30B9"), /*#__PURE__*/React.createElement("td", {
         style: {
-          padding: "5px 0",
+          padding: "6px 0",
           borderBottom: "1px solid #1a2535",
-          width: "3.6em",
+          verticalAlign: "top"
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
           fontWeight: 700,
           color: "#e0e6ed",
           fontVariantNumeric: "tabular-nums",
           whiteSpace: "nowrap"
         }
-      }, r.my === null ? "—" : r.my + "%"), /*#__PURE__*/React.createElement("td", {
+      }, r.my === null ? "—" : r.my + "%"), /*#__PURE__*/React.createElement("div", {
         style: {
-          padding: "5px 0",
-          borderBottom: "1px solid #1a2535",
           color: "#6b7f95",
-          fontSize: 11,
+          fontSize: 10,
+          fontVariantNumeric: "tabular-nums",
+          whiteSpace: "nowrap",
+          marginTop: 1
+        }
+      }, r.my === null ? r.n + "走" : r.n + "走中" + r.late + "回"), r.all !== null && /*#__PURE__*/React.createElement("div", {
+        style: {
+          color: "#6b7f95",
+          fontSize: 10,
           fontVariantNumeric: "tabular-nums",
           whiteSpace: "nowrap"
         }
-      }, r.my === null ? r.n + "走" : r.n + "走中" + r.late + "回"), /*#__PURE__*/React.createElement("td", {
+      }, "\u5168\u4F53 ", r.all, "%")), /*#__PURE__*/React.createElement("td", {
         style: {
-          padding: "5px 0",
+          padding: "6px 0",
           borderBottom: "1px solid #1a2535",
-          color: "#6b7f95",
-          fontSize: 11,
           textAlign: "right",
+          verticalAlign: "top"
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontWeight: 700,
+          color: "#e0e6ed",
           fontVariantNumeric: "tabular-nums",
           whiteSpace: "nowrap"
         }
-      }, r.all === null ? "" : "全体 " + r.all + "%"))))), /*#__PURE__*/React.createElement("div", {
+      }, r.srk === null ? "—" : r.srk + "番手"), /*#__PURE__*/React.createElement("div", {
+        style: {
+          color: "#6b7f95",
+          fontSize: 10,
+          fontVariantNumeric: "tabular-nums",
+          whiteSpace: "nowrap",
+          marginTop: 1
+        }
+      }, r.sst === null ? "\u00a0" : "ST " + r.sst.toFixed(2))))))), /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 11,
+          color: "#8faabe",
+          marginTop: 6,
+          lineHeight: 1.7,
+          minHeight: "1.7em",
+          fontVariantNumeric: "tabular-nums"
+        }
+      }, m6w && m6w.n >= guard ? "直近6ヶ月は平均 " + m6w.rank + " 番手（" + m6w.n + "走）" : "\u00a0"), /*#__PURE__*/React.createElement("div", {
         style: {
           fontSize: 10,
           color: "#6b7f95",
           marginTop: 8,
           lineHeight: 1.6
         }
-      }, "\u3053\u3053\u3067\u306E\u300C\u9045\u308C\u300D\u306F\u516C\u5F0F\u306E\u51FA\u9045\u308C\uFF08\uFF2C\uFF09\u3067\u306F\u306A\u304F\u3001\u672C\u756A\u306E\u30B9\u30BF\u30FC\u30C8\u30BF\u30A4\u30DF\u30F3\u30B0\u304C 0.20\u3088\u308A\u9045\u304B\u3063\u305F\u8D70\u306E\u3053\u3068\u3002\u30B9\u30BF\u30FC\u30C8\u5C55\u793A\u3067\u306F\u306A\u304F\u672C\u756A\u306E\u5024\u3092\u6570\u3048\u3066\u3044\u308B\u3002", slMeta && slMeta.ガード ? "　" + slMeta.ガード + "走に満たないコースは割合を出さず走数だけを載せる。" : "", slMeta && slMeta.期間 ? "　対象期間 " + slMeta.期間 + "。" : "", slMeta && slMeta.出典 ? "　出典 " + slMeta.出典 : "")));
+      }, "\u3053\u3053\u3067\u306E\u300C\u9045\u308C\u300D\u306F\u516C\u5F0F\u306E\u51FA\u9045\u308C\uFF08\uFF2C\uFF09\u3067\u306F\u306A\u304F\u3001\u672C\u756A\u306E\u30B9\u30BF\u30FC\u30C8\u30BF\u30A4\u30DF\u30F3\u30B0\u304C 0.20\u3088\u308A\u9045\u304B\u3063\u305F\u8D70\u306E\u3053\u3068\u3002\u30B9\u30BF\u30FC\u30C8\u5C55\u793A\u3067\u306F\u306A\u304F\u672C\u756A\u306E\u5024\u3092\u6570\u3048\u3066\u3044\u308B\u3002", slMeta && slMeta.ガード ? "　" + slMeta.ガード + "走に満たないコースは割合を出さず走数だけを載せる。" : "", slMeta && slMeta.期間 ? "　対象期間 " + slMeta.期間 + "。" : "", slMeta && slMeta.出典 ? "　出典 " + slMeta.出典 : ""), /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 10,
+          color: "#6b7f95",
+          marginTop: 6,
+          lineHeight: 1.6
+        }
+      }, "\u300CST\u9806\u300D\u306F\u3001\u305D\u306E\u30EC\u30FC\u30B9\u306E6\u8247\u3092\u672C\u756AST\u306E\u901F\u3044\u9806\u306B\u4E26\u3079\u305F\u3068\u304D\u306E\u9806\u4F4D\u3092\u5E73\u5747\u3057\u305F\u5024\u3002 1\u306B\u8FD1\u3044\u307B\u3069\u305D\u306E\u30B3\u30FC\u30B9\u3067\u5148\u306B\u30B9\u30BF\u30FC\u30C8\u3092\u5207\u3063\u3066\u3044\u308B\u3053\u3068\u3092\u793A\u3059\u3002\u540C\u3058ST\u304C\u8907\u6570\u8247\u3044\u305F\u5834\u5408\u306F \u9806\u4F4D\u3092\u5272\u3063\u3066\u5E73\u5747\u3067\u6570\u3048\u308B\u3002\u30D5\u30E9\u30A4\u30F3\u30B0\u307E\u305F\u306F\u6B20\u5834\u3092\u542B\u3080\u30EC\u30FC\u30B9\u306F\u3001 6\u8247\u305D\u308D\u308F\u306A\u3044\u305F\u3081\u4E38\u3054\u3068\u9664\u3044\u3066\u3044\u308B\u3002", "　" + guard + "走に満たないコースは順位を出さない。", soMeta && soMeta.期間 && soMeta.期間.all ? "　対象期間 " + soMeta.期間.all.from + "-" + soMeta.期間.all.to + "。" : "")));
     })(), detail && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 11,
