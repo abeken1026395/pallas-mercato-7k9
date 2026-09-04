@@ -150,7 +150,7 @@ body {
     <a href="./announcers/"><span class="qn-ico">🎙️</span><span class="qn-lb">実況アナ</span></a>
     <a href="./updates/" id="qn-updates"><span class="qn-ico">🗒️</span><span class="qn-lb">更新履歴</span><span class="qn-sign" id="qn-sign" hidden><span class="qn-dot" aria-hidden="true"></span><span class="qn-date"></span></span></a>
     <a href="./glossary/"><span class="qn-ico">📖</span><span class="qn-lb">用語辞書</span></a>
-    <a href="./kensho/"><span class="qn-ico">🧪</span><span class="qn-lb">検証</span><span class="qn-new" id="qn-new-kensho" hidden>NEW</span></a>
+    <a href="./kensho/" data-new="2026-09-05"><span class="qn-ico">🧪</span><span class="qn-lb">検証</span><span class="qn-new" hidden>NEW</span></a>
     <a href="https://www.youtube.com/@abe-ken" target="_blank" rel="noopener"><span class="qn-ico">▶️</span><span class="qn-lb">YouTube</span></a>
   </nav>
 
@@ -339,11 +339,21 @@ if("serviceWorker" in navigator){ window.addEventListener("load",function(){ nav
 </script>
 <script>
 (function(){
-  /* 検証ページ公開のNEWバッジ。2026-08-24（JST）を過ぎたら二度と出ない。
-     期限後にこのブロックごと削除してよい。 */
-  var el = document.getElementById("qn-new-kensho");
-  if (el && Date.now() < new Date("2026-08-24T00:00:00+09:00").getTime()) {
-    el.hidden = false;
+  /* クイックナビのNEWバッジ。
+     a に data-new="YYYY-MM-DD"（JSTの公開日）を書くと、その日から3日間だけ出る。
+     4日目の0時に自動で消えるので、あとから消しに来る作業は要らない。
+     点滅・カウントダウン・残り時間の表示はしない。新着かどうかを示すだけ。 */
+  var DAYS = 3;
+  var links = document.querySelectorAll("a[data-new]");
+  for (var i = 0; i < links.length; i++) {
+    var d = links[i].getAttribute("data-new");
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) { continue; }
+    var end = new Date(d + "T00:00:00+09:00").getTime();
+    if (isNaN(end)) { continue; }
+    end += DAYS * 86400000;
+    if (Date.now() >= end) { continue; }
+    var b = links[i].querySelector(".qn-new");
+    if (b) { b.hidden = false; }
   }
 })();
 </script>
