@@ -388,7 +388,7 @@ function App() {
   useEffect(()=>{
     if(!open || sord!==null) return;
     fetch("../data/racerStartOrder.json").then(r=>r.ok?r.json():Promise.reject()).then(j=>{
-      if(j && j.racers){ setSord(j.racers); setSoMeta({期間:j.期間, 出典:j.出典, 方法:j.集計方法}); }
+      if(j && j.racers){ setSord(j.racers); setSoMeta({期間:j.期間, 出典:j.出典, 方法:j.集計方法, 基準:j.基準, 閾値:j.言語化閾値}); }
     }).catch(()=>{ setSord(false); });
   },[open]);
   // URLに ?toban=登番 があれば、その選手を検索欄にプリセットして開く（モーター等からのリンク用）
@@ -705,6 +705,16 @@ function App() {
                     const guard = (slMeta&&slMeta.ガード) ? slMeta.ガード : 20;
                     const so = (sord && sord!==false) ? sord[String(p.no)] : null;
                     const soAll = (so && so.all) ? so.all.course : null;
+                    // 全選手を合算した基準。速いか遅いかはこれと比べないと読めない。
+                    const sbase = (soMeta && soMeta.基準 && soMeta.基準.all) ? soMeta.基準.all.course : null;
+                    const sayTh = (soMeta && soMeta.閾値) ? soMeta.閾値 : 0.30;
+                    const sayIt = (mine, all)=>{
+                      if(mine===null || all===null) return "";
+                      const d = mine - all;
+                      if(d <= -sayTh) return "速いほう";
+                      if(d >=  sayTh) return "遅いほう";
+                      return "平均的";
+                    };
                     const soM6 = (so && so.m6) ? so.m6.course : null;
                     // 全体の平均ST順は、コース別の平均を走数で重みづけして出す
                     const wmean = (obj)=>{
@@ -724,6 +734,8 @@ function App() {
                                  my:(o.late===undefined?null:pct(o.late,o.n)),
                                  all:(bc?pct(bc.late,bc.n):null),
                                  sst:(sc?sc[1]:null),
+                                 sn:(sc?sc[0]:null),
+                                 sall:((sbase&&sbase[String(c)])?sbase[String(c)][2]:null),
                                  srk:(sc&&sc[0]>=guard?sc[2]:null)});
                     }
                     return (
@@ -755,7 +767,7 @@ function App() {
                               <tr>
                                 <th style={{padding:"4px 0",borderBottom:"1px solid #1a2535",color:"#6b7f95",fontSize:10,fontWeight:400,textAlign:"left",width:"5.2em"}}></th>
                                 <th style={{padding:"4px 0",borderBottom:"1px solid #1a2535",color:"#6b7f95",fontSize:10,fontWeight:400,textAlign:"left"}}>遅れ</th>
-                                <th style={{padding:"4px 0",borderBottom:"1px solid #1a2535",color:"#6b7f95",fontSize:10,fontWeight:400,textAlign:"right"}}>ST順</th>
+                                <th style={{padding:"4px 0",borderBottom:"1px solid #1a2535",color:"#6b7f95",fontSize:10,fontWeight:400,textAlign:"right"}}>スタート順</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -779,11 +791,17 @@ function App() {
                                   </td>
                                   <td style={{padding:"6px 0",borderBottom:"1px solid #1a2535",textAlign:"right",verticalAlign:"top"}}>
                                     <div style={{fontWeight:700,color:"#e0e6ed",fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap"}}>
-                                      {r.srk===null?"—":r.srk+"番手"}
+                                      {r.srk===null?"—":"6艇中 "+r.srk.toFixed(1)+"番目"}
+                                      {r.srk!==null&&r.sall!==null&&(
+                                        <span style={{fontWeight:400,color:"#8faabe",marginLeft:6}}>{sayIt(r.srk,r.sall)}</span>
+                                      )}
                                     </div>
                                     {/* 遅れて届く値で行の高さが動かないよう、空でも1行ぶん確保する */}
                                     <div style={{color:"#6b7f95",fontSize:10,fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap",marginTop:1}}>
-                                      {r.sst===null?"\u00a0":"ST "+r.sst.toFixed(2)}
+                                      {r.sn===null?"\u00a0":r.sn+"走"}
+                                    </div>
+                                    <div style={{color:"#6b7f95",fontSize:10,fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap"}}>
+                                      {r.sall===null?"\u00a0":"全体 "+r.sall.toFixed(2)}
                                     </div>
                                   </td>
                                 </tr>
@@ -802,10 +820,12 @@ function App() {
                             {slMeta&&slMeta.出典?"　出典 "+slMeta.出典:""}
                           </div>
                           <div style={{fontSize:10,color:"#6b7f95",marginTop:6,lineHeight:1.6}}>
-                            「ST順」は、そのレースの6艇を本番STの速い順に並べたときの順位を平均した値。
-                            1に近いほどそのコースで先にスタートを切っていることを示す。同じSTが複数艇いた場合は
-                            順位を割って平均で数える。フライングまたは欠場を含むレースは、
-                            6艇そろわないため丸ごと除いている。
+                            「スタート順」は、そのレースを一緒に走った艇を本番STの速い順に並べたときの
+                            順位を平均した値。1に近いほど、そのコースで先にスタートを切っている。
+                            コースによって出やすい順位が違うので、全選手を合算した「全体」と見比べて読む。
+                            言葉は全体との差が{sayTh}以上あるときだけ添える。同じSTが複数艇いた場合は
+                            順位を割って平均で数える。フライングと欠場はその1走だけを除き、
+                            同じレースの他艇は残している。
                             {"　"+guard+"走に満たないコースは順位を出さない。"}
                             {soMeta&&soMeta.期間&&soMeta.期間.all?"　対象期間 "+soMeta.期間.all.from+"-"+soMeta.期間.all.to+"。":""}
                           </div>

@@ -15,7 +15,7 @@
   指標  進入コース別に [N, 平均ST, 平均ST順, ST1番手率] を出す。
         ST1番手率は平均順位が 1.0 となった回数の割合（単独最速のみ）。
   期間  all = 全期間 / m6 = 最新データ日から遡って180日
-  母数  母数ガードは 10。ガード未満のセルも値は出力し、表示側で伏せる。
+  母数  母数ガードは 20。ガード未満のセルも値は出力し、表示側で伏せる。
 
 使い方:
   python3 scripts/buildRacerStartOrder.py [--results results] [--out docs/data/racerStartOrder.json]
