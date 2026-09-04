@@ -33,6 +33,10 @@ header .sub{font-size:13px;color:var(--dim);line-height:2;margin:0}
   font-variant-numeric:tabular-nums}
 .card .num b{font-size:17px;color:var(--accent);font-weight:700}
 .card .go{display:flex;justify-content:flex-end;font-size:13px;color:var(--accent);margin:0}
+.card .no .new{display:inline-block;margin-left:8px;padding:3px 4px;border-radius:3px;
+  font-size:9px;line-height:1;letter-spacing:.06em;
+  color:var(--bg);background:var(--accent);vertical-align:1px}
+.card .no .new[hidden]{display:none}
 .promise{margin:38px 0 0}
 .promise h2{font-size:12px;color:var(--faint);letter-spacing:.14em;
   font-weight:400;margin:0 0 10px;border-top:1px solid var(--line);padding-top:22px}
@@ -75,15 +79,43 @@ header .sub{font-size:13px;color:var(--dim);line-height:2;margin:0}
   <p class="go">読む →</p>
 </a>
 
+<a class="card" href="./ninki/" data-new="2026-09-05">
+  <p class="no">検証 04 ｜ 集計期間 固定<span class="new" hidden>NEW</span></p>
+  <p class="t">1番人気はどれだけ来るのか</p>
+  <p class="d">「大村は堅い」「戸田は荒れる」――場の名前と一緒に必ず出てくる言い方。3連単の1番人気が、そのまま入ったレースを数えました。</p>
+  <p class="num"><b>3,653</b>日・<b>534,330</b>レースの払戻を数えました。</p>
+  <p class="go">読む →</p>
+</a>
+
 <div class="promise">
   <h2>この読み物の約束</h2>
-  <p>検証の条件は結果を見る前に決め、あとから動かしません。「効かなかった」という結果もそのまま載せます。数字には母数と集計期間を必ず付けます。公開したあとも毎朝、新しいレース結果で答え合わせを続けます。</p>
+  <p>検証の条件は結果を見る前に決め、あとから動かしません。「効かなかった」という結果もそのまま載せます。数字には母数と集計期間を必ず付けます。毎日のデータで答え合わせができる検証は、公開したあとも毎朝続けます。</p>
 </div>
 
 <p class="stamp">検証記事は不定期で追加されます。</p>
 
 </div>
 
+<script>
+(function(){
+  /* カードのNEWバッジ。
+     card に data-new="YYYY-MM-DD"（JSTの公開日）を書くと、その日から3日間だけ出る。
+     4日目の0時に自動で消えるので、あとから消しに来る作業は要らない。
+     点滅・カウントダウン・残り時間の表示はしない。新着かどうかを示すだけ。 */
+  var DAYS = 3;
+  var cards = document.querySelectorAll(".card[data-new]");
+  for (var i = 0; i < cards.length; i++) {
+    var d = cards[i].getAttribute("data-new");
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) { continue; }
+    var end = new Date(d + "T00:00:00+09:00").getTime();
+    if (isNaN(end)) { continue; }
+    end += DAYS * 86400000;
+    if (Date.now() >= end) { continue; }
+    var b = cards[i].querySelector(".new");
+    if (b) { b.hidden = false; }
+  }
+})();
+</script>
 <script src="../assets/guard.js" defer></script>
 </body>
 </html>
