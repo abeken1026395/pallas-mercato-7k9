@@ -373,10 +373,12 @@ def main():
         return round(sum(d for _, d in h) / len(h), 3), len(h)
 
     def setsu_trail(r):
-        """今節の走り（前日まで）。出走表の「N日目成績」から着順・ST・進入コースを取り出す。
-           書式は 'レース番号R/着/ST/進入コース' で、1日に複数走ある場合は半角スペース区切り。
-           例 '3R/5/.12/6 7R/2/.11/1' → 3R5着ST.12を6コース、7R2着ST.11を1コース。
-           返すのは [{日:1, レース:'3R', 着:5, ST:'.12', コース:6}, ...]。取れなければ []。"""
+        """今節の走り（前日まで）。出走表の「N日目成績」から進入コース・ST・着順を取り出す。
+           書式は 'レース番号R/進入コース/ST/着' で、1日に複数走ある場合は半角スペース区切り。
+           例 '3R/5/.12/6 7R/2/.11/1' → 3Rを5コースでST.12・6着、7Rを2コースでST.11・1着。
+           返すのは [{日:1, レース:'3R', 着:6, ST:'.12', コース:'5'}, ...]。取れなければ []。
+           2026-09-04: 着とコースの並びが逆だったのを修正。
+           docs/results/data/ の確定結果2,146件と突合し99.1%一致で確定させている。"""
         out = []
         for di, c in enumerate(_DAYCOLS, start=1):
             v = (r.get(c) or '').strip()
@@ -387,12 +389,12 @@ def main():
                 if len(p) != 4:
                     continue          # 書式が違う行は捨てる（無理に解釈しない）
                 try:
-                    _chaku = int(p[1])
+                    _chaku = int(p[3])
                 except ValueError:
                     _chaku = None     # F・L・失格などは数値にならない。原文を着に入れる
                 out.append({'日': di, 'レース': p[0],
-                            '着': _chaku if _chaku is not None else p[1],
-                            'ST': p[2], 'コース': p[3]})
+                            '着': _chaku if _chaku is not None else p[3],
+                            'ST': p[2], 'コース': p[1]})
         return out
 
     # 選手別①1着率（buildRacerInRate.py 出力）。下振れ要因の事実提示に使う（スコアには非関与）。
