@@ -305,6 +305,8 @@ function App() {
   const [rhMeta, setRhMeta] = useState(null);
   const [slate, setSlate] = useState(null);
   const [slMeta, setSlMeta] = useState(null);
+  const [sord, setSord] = useState(null);
+  const [soMeta, setSoMeta] = useState(null);
   const [oshi, setOshi] = useState(loadOshi);
   const [oshiOnly, setOshiOnly] = useState(false);
   const toggleOshi = (toban, name) => { const nx = nextOshi(oshi, toban, name); setOshi(nx); lsSet("br_oshi", nx); };
@@ -381,6 +383,13 @@ function App() {
     fetch("../data/startLate.json").then(r=>r.ok?r.json():Promise.reject()).then(j=>{
       if(j && j.racers){ setSlate(j.racers); setSlMeta({基準:j.基準, 期間:j.集計期間, 日数:j.日数, ガード:j.母数ガード, 定義:j.遅れの定義, 出典:j.出典}); }
     }).catch(()=>{ setSlate(false); });
+  },[open]);
+  // ST順（発順）も詳細を開いた時だけ遅延読込
+  useEffect(()=>{
+    if(!open || sord!==null) return;
+    fetch("../data/racerStartOrder.json").then(r=>r.ok?r.json():Promise.reject()).then(j=>{
+      if(j && j.racers){ setSord(j.racers); setSoMeta({期間:j.期間, 出典:j.出典, 方法:j.集計方法}); }
+    }).catch(()=>{ setSord(false); });
   },[open]);
   // URLに ?toban=登番 があれば、その選手を検索欄にプリセットして開く（モーター等からのリンク用）
   useEffect(()=>{
@@ -683,7 +692,7 @@ function App() {
                     const sl = slate[String(p.no)];
                     if(!sl || !sl.n) return (
                       <div style={{marginBottom:14}}>
-                        <div style={{fontSize:11,color:"#8faabe",fontWeight:700,marginBottom:6}}>■ スタートの遅れ</div>
+                        <div style={{fontSize:11,color:"#8faabe",fontWeight:700,marginBottom:6}}>■ スタート</div>
                         <div style={{fontSize:11,color:"#6b7f95",background:"#0b1219",borderRadius:8,padding:"10px 12px",lineHeight:1.7}}>
                           この選手は集計期間の走数が{slMeta&&slMeta.ガード?slMeta.ガード:20}走に届きません。
                         </div>
@@ -693,19 +702,34 @@ function App() {
                     const pct = (a,b)=> b? Math.round(a/b*1000)/10 : null;
                     const my = pct(sl.late, sl.n);
                     const allPct = base&&base.全体 ? pct(base.全体.late, base.全体.n) : null;
+                    const guard = (slMeta&&slMeta.ガード) ? slMeta.ガード : 20;
+                    const so = (sord && sord!==false) ? sord[String(p.no)] : null;
+                    const soAll = (so && so.all) ? so.all.course : null;
+                    const soM6 = (so && so.m6) ? so.m6.course : null;
+                    // 全体の平均ST順は、コース別の平均を走数で重みづけして出す
+                    const wmean = (obj)=>{
+                      if(!obj) return null;
+                      let n=0, s=0;
+                      Object.keys(obj).forEach(k=>{ n+=obj[k][0]; s+=obj[k][0]*obj[k][2]; });
+                      return n ? {n:n, rank:Math.round(s/n*100)/100} : null;
+                    };
+                    const m6w = wmean(soM6);
                     const rows = [];
                     for(let c=1;c<=6;c++){
                       const o = sl.course && sl.course[String(c)];
                       if(!o) continue;
                       const bc = base&&base.コース ? base.コース[String(c)] : null;
+                      const sc = soAll ? soAll[String(c)] : null;
                       rows.push({c:c, n:o.n, late:(o.late===undefined?null:o.late),
                                  my:(o.late===undefined?null:pct(o.late,o.n)),
-                                 all:(bc?pct(bc.late,bc.n):null)});
+                                 all:(bc?pct(bc.late,bc.n):null),
+                                 sst:(sc?sc[1]:null),
+                                 srk:(sc&&sc[0]>=guard?sc[2]:null)});
                     }
                     return (
                       <div style={{marginBottom:14}}>
                         <div style={{fontSize:11,color:"#8faabe",fontWeight:700,marginBottom:6}}>
-                          ■ スタートの遅れ　<span style={{color:"#6b7f95",fontWeight:400}}>
+                          ■ スタート　<span style={{color:"#6b7f95",fontWeight:400}}>
                             ST0.20より遅い走の割合{slMeta&&slMeta.日数?"／過去"+slMeta.日数+"日":""}
                           </span>
                         </div>
@@ -727,31 +751,63 @@ function App() {
                             <span style={{color:"#6b7f95",fontSize:12}}>▸</span>
                           </summary>
                           <table style={{width:"100%",borderCollapse:"collapse",fontSize:12,marginTop:4}}>
+                            <thead>
+                              <tr>
+                                <th style={{padding:"4px 0",borderBottom:"1px solid #1a2535",color:"#6b7f95",fontSize:10,fontWeight:400,textAlign:"left",width:"5.2em"}}></th>
+                                <th style={{padding:"4px 0",borderBottom:"1px solid #1a2535",color:"#6b7f95",fontSize:10,fontWeight:400,textAlign:"left"}}>遅れ</th>
+                                <th style={{padding:"4px 0",borderBottom:"1px solid #1a2535",color:"#6b7f95",fontSize:10,fontWeight:400,textAlign:"right"}}>ST順</th>
+                              </tr>
+                            </thead>
                             <tbody>
                               {rows.map((r,i)=>(
                                 <tr key={i}>
-                                  <td style={{padding:"5px 0",borderBottom:"1px solid #1a2535",color:"#8faabe",width:"5.2em",whiteSpace:"nowrap"}}>
+                                  <td style={{padding:"6px 0",borderBottom:"1px solid #1a2535",color:"#8faabe",width:"5.2em",whiteSpace:"nowrap",verticalAlign:"top"}}>
                                     {r.c}コース
                                   </td>
-                                  <td style={{padding:"5px 0",borderBottom:"1px solid #1a2535",width:"3.6em",fontWeight:700,color:"#e0e6ed",fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap"}}>
-                                    {r.my===null?"—":r.my+"%"}
+                                  <td style={{padding:"6px 0",borderBottom:"1px solid #1a2535",verticalAlign:"top"}}>
+                                    <div style={{fontWeight:700,color:"#e0e6ed",fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap"}}>
+                                      {r.my===null?"—":r.my+"%"}
+                                    </div>
+                                    <div style={{color:"#6b7f95",fontSize:10,fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap",marginTop:1}}>
+                                      {r.my===null?r.n+"走":r.n+"走中"+r.late+"回"}
+                                    </div>
+                                    {r.all!==null&&(
+                                      <div style={{color:"#6b7f95",fontSize:10,fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap"}}>
+                                        全体 {r.all}%
+                                      </div>
+                                    )}
                                   </td>
-                                  <td style={{padding:"5px 0",borderBottom:"1px solid #1a2535",color:"#6b7f95",fontSize:11,fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap"}}>
-                                    {r.my===null?r.n+"走":r.n+"走中"+r.late+"回"}
-                                  </td>
-                                  <td style={{padding:"5px 0",borderBottom:"1px solid #1a2535",color:"#6b7f95",fontSize:11,textAlign:"right",fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap"}}>
-                                    {r.all===null?"":"全体 "+r.all+"%"}
+                                  <td style={{padding:"6px 0",borderBottom:"1px solid #1a2535",textAlign:"right",verticalAlign:"top"}}>
+                                    <div style={{fontWeight:700,color:"#e0e6ed",fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap"}}>
+                                      {r.srk===null?"—":r.srk+"番手"}
+                                    </div>
+                                    {/* 遅れて届く値で行の高さが動かないよう、空でも1行ぶん確保する */}
+                                    <div style={{color:"#6b7f95",fontSize:10,fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap",marginTop:1}}>
+                                      {r.sst===null?"\u00a0":"ST "+r.sst.toFixed(2)}
+                                    </div>
                                   </td>
                                 </tr>
                               ))}
                             </tbody>
                           </table>
+                          {/* 遅れて届く値で高さが動かないよう、出ない場合も1行ぶん確保する */}
+                          <div style={{fontSize:11,color:"#8faabe",marginTop:6,lineHeight:1.7,minHeight:"1.7em",fontVariantNumeric:"tabular-nums"}}>
+                            {(m6w&&m6w.n>=guard)?"直近6ヶ月は平均 "+m6w.rank+" 番手（"+m6w.n+"走）":"\u00a0"}
+                          </div>
                           <div style={{fontSize:10,color:"#6b7f95",marginTop:8,lineHeight:1.6}}>
                             ここでの「遅れ」は公式の出遅れ（Ｌ）ではなく、本番のスタートタイミングが
                             0.20より遅かった走のこと。スタート展示ではなく本番の値を数えている。
                             {slMeta&&slMeta.ガード?"　"+slMeta.ガード+"走に満たないコースは割合を出さず走数だけを載せる。":""}
                             {slMeta&&slMeta.期間?"　対象期間 "+slMeta.期間+"。":""}
                             {slMeta&&slMeta.出典?"　出典 "+slMeta.出典:""}
+                          </div>
+                          <div style={{fontSize:10,color:"#6b7f95",marginTop:6,lineHeight:1.6}}>
+                            「ST順」は、そのレースの6艇を本番STの速い順に並べたときの順位を平均した値。
+                            1に近いほどそのコースで先にスタートを切っていることを示す。同じSTが複数艇いた場合は
+                            順位を割って平均で数える。フライングまたは欠場を含むレースは、
+                            6艇そろわないため丸ごと除いている。
+                            {"　"+guard+"走に満たないコースは順位を出さない。"}
+                            {soMeta&&soMeta.期間&&soMeta.期間.all?"　対象期間 "+soMeta.期間.all.from+"-"+soMeta.期間.all.to+"。":""}
                           </div>
                         </details>
                         )}
