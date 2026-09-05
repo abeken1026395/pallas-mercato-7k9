@@ -3,7 +3,7 @@
 このファイルは運用の記録であり、読者向けの公開ページではない。
 毎回のチャット終了時に更新する。事実・仕様は `notes/facts.md`、行動規範はプロジェクト指示（L1）にある。
 
-最終更新 2026-09-05 JST ／ 基準 main `4521a3171`
+最終更新 2026-09-05 JST ／ 基準 main `0946a8d1f`
 
 ---
 
@@ -29,8 +29,9 @@
 
 ## 裁定待ち
 
+- **`racerCourseStats.json` の更新頻度**。現在は手動生成で 20250715-20260905 に固定されており、放置すると古くなる。日次（`results` 更新後）か週次（`startLate.json` の前例）かを決める。210KBの全選手分を毎日書き換えると差分が大きい点に注意
 - `racerInRate.json` の更新WF新設可否。新設するなら週1回・JST深夜0:00〜4:00・専用concurrency、かつ**「出典」キーを生成スクリプト側で出力してから**作る
-- コース別直近10走の表示。**案A＝足す / 案B＝置き換える**が未決。`/next/` で試作
+- コース別直近10走の表示。**案A＝足す / 案B＝置き換える**が未決。`/next/` で試作。**2026-09-05に選手カードへ「■ コース別の1着率」（通算・分母つき）が入ったため、同じ枠を取り合う**。役割は通算の癖 vs 今の状態で、直近10走は月別ブロック側に寄せる案が有力
 - `claude/syntax-id` の取り込み可否（`build_highlights.py` に13行・**文面が変わる**）
 - `docs/aisho-suminoe/`・`docs/shobuun-suminoe/` の削除（けんが可と明言・未実施）
 - `scripts/template_racers.html` の navtab から上記2ページへのリンク。`/uranai/` に修正するかリンク削除か
@@ -44,7 +45,7 @@
 - **C-2 機力低×展示速**。「①のモーター2連率が場平均を下回るとき、展示が6艇1位でも①着外率は下がらない」。**2×2で集計・条件を後から足さない**。使える期間は2026-04以降の約5ヶ月（`motorUsage.json` の制約）・想定n=1,800
 - 一周・まわり足のデータ源調査。`preview` に項目なし・過去分も遡れない。場公式（尼崎・桐生）の取得可否は**不明**
 - **WFの失敗通知が無い**。9便の failure が4日間気づかれなかった
-- リモートブランチの仕分け。**総数35本**・保護6本・削除待ち23本・メモ未記載の残余あり。判定は**merge-base の3点比較**（`git diff --name-only` も `git branch --merged` も使えない）。**クラウドCodeはブランチ削除ができない**（403 のほか `git push origin --delete` も send-pack で切断される・2026-09-05に5回失敗）。削除はローカルCodeかGitHub画面。マージ済み未削除に `claude/coverage-fail-20260812-03-av4dub`（PR #345・6e37953e）と `claude/players-guard-banner-standard-pd6ttn`（PR #351・9d1cc73e）が加わった
+- リモートブランチの仕分け。**総数35本**・保護6本・削除待ち23本・メモ未記載の残余あり。判定は**merge-base の3点比較**（`git diff --name-only` も `git branch --merged` も使えない）。**クラウドCodeはブランチ削除ができない**（403 のほか `git push origin --delete` も send-pack で切断される・2026-09-05に5回失敗）。削除はローカルCodeかGitHub画面。マージ済み未削除に `claude/coverage-fail-20260812-03-av4dub`（PR #345・6e37953e）と `claude/players-guard-banner-standard-pd6ttn`（PR #351・9d1cc73e）、2026-09-05の5本 `feat/racer-course-stats`（#347）・`feat/racer-course-display`（#348）・`feat/course-label-fix`（#349）・`feat/branch-course-rate`（#350）・`feat/sort-in-rate-results`（#352）が加わった
 - Stop hook の条件修正
 - 選手コメントの調査（公式に存在しない。所在・取得可否・著作権・カバー率）
 - `lintGuard.py` の検査軸変更（判定式リテラル依存をやめ、L2の7ページも canonical 照合へ）
@@ -58,6 +59,8 @@
 - **新しい公開ページを作ったら `lintGuard.py` の分類リストにも足す。** 実装済みでも台帳に無ければ「未分類のHTML」でFAILし、PR時のコピーガードWFが全PRで赤くなる（`docs/kensho/ninki/index.html` の実例・PR #353で解消）
 - `docs/data/motorParts.json`（15.68MB）・`docs/data/kansenki`（10.7MB）の削減
 - `buildRacerStatsSplit.py` に `--check` モード追加
+- **`racerStatsDetail.json` の `c1`（コース別1着率6値）が未使用になった**。2026-09-05に表示・支部傾向・並び替えのすべてが `racerCourseStats.json` へ移り、`core` の `c1[0]` だけが未着時の暫定値として残っている。detail 側から落とせば遅延fetchが軽くなるが、`split` の可逆性検証（core+detail=racerStats）を作り替える必要がある
+- **選手図鑑の遅延読込まわり3件（すべて実機未確認）**：①並び替え「イン1着率順」を選ぶと、データ到着時に一覧が並び直る（未着の間は fan の暫定値で並ぶ）②支部傾向タブを開いた直後、18支部×6コースに「—」「—走」が一瞬並ぶ ③選手カードを開いた直後の「読み込み中…」から本体への切り替わりで高さが動く。①は「読み込み中は並べ替えない」、②は1行の読み込み中表示、③は高さの先行予約で直せる
 - 決まり手エンドポイント特定（PCのF12 Networkで日和の `.php` を確認）
 - 潮位データ（気象庁天文潮位）の本格組込
 - 蒲郡(07)・芦屋(21)の水質を公式で裏取り
@@ -79,6 +82,8 @@
 
 |日付|決めたこと|適用範囲|
 |---|---|---|
+|2026-09-05|選手図鑑のコース別成績を results 由来に作り直す。**期間は全期間1本のみ**（直近6ヶ月は二項の率に母数が足りない）・分母を必ず併記・率は整数％・20走未満は率を伏せて走数だけ出す|選手図鑑|
+|2026-09-05|PRのマージは **squash のみ**。rebase マージ・merge commit は使わない。過去のPRが rebase で入っていてもそれに合わせない|全PR|
 |2026-09-05|選手図鑑の告知バナーを5者裁定の標準型へ（`position:relative`・閉じるボタン40×40px・`insertBefore`）。**文言は変えない**（書式差そのものが指紋のため）。`/motor/` は末尾39行の差分ゼロ規定により対象外|`scripts/players/app.jsx`|
 |2026-09-05|観戦記の網羅チェックは、前日が非開催（中止・順延）の場を欠場から除外する（案B）。記事は書かない|`lintKansenki.py --coverage`|
 |2026-09-05|残タスクの通番を廃止。期限あり／裁定待ち／別チャット送りの3区分へ|`notes/state.md`|
