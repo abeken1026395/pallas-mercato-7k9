@@ -38,11 +38,13 @@
 
 ## 別チャット送り（着手しない・報告のみ）
 
+- **`scripts/motor/app.jsx` の告知バナーが5者裁定と食い違う**。`spanTicks()`（574-581行）が `position:fixed`・閉じるボタンなし・`document.body.prepend`。選手図鑑と同型で、PR #351 と同じ直し方が使える。ただし当該箇所は facts.md 3章が「差分ゼロを保つ」と定めた末尾39行（570-608行）の内側にあるため、**規定の解除をけんが裁定してから着手する**
+
 - **C-1 被まくり艇の検証**。A/B/C 3群（Aまくられた / B他の負け方 / C3着内）。**A vs B が仮説の本体**。次走の進入コースを統制する。位置づけは新特徴でなく `last20` のノイズ除去
 - **C-2 機力低×展示速**。「①のモーター2連率が場平均を下回るとき、展示が6艇1位でも①着外率は下がらない」。**2×2で集計・条件を後から足さない**。使える期間は2026-04以降の約5ヶ月（`motorUsage.json` の制約）・想定n=1,800
 - 一周・まわり足のデータ源調査。`preview` に項目なし・過去分も遡れない。場公式（尼崎・桐生）の取得可否は**不明**
 - **WFの失敗通知が無い**。9便の failure が4日間気づかれなかった
-- リモートブランチの仕分け。**総数35本**・保護6本・削除待ち23本・メモ未記載の残余あり。判定は**merge-base の3点比較**（`git diff --name-only` も `git branch --merged` も使えない）。**クラウドCodeはブランチ削除ができない**（403 のほか `git push origin --delete` も send-pack で切断される・2026-09-05に5回失敗）。削除はローカルCodeかGitHub画面。マージ済み未削除に `claude/coverage-fail-20260812-03-av4dub`（PR #345・6e37953e）が加わった
+- リモートブランチの仕分け。**総数35本**・保護6本・削除待ち23本・メモ未記載の残余あり。判定は**merge-base の3点比較**（`git diff --name-only` も `git branch --merged` も使えない）。**クラウドCodeはブランチ削除ができない**（403 のほか `git push origin --delete` も send-pack で切断される・2026-09-05に5回失敗）。削除はローカルCodeかGitHub画面。マージ済み未削除に `claude/coverage-fail-20260812-03-av4dub`（PR #345・6e37953e）と `claude/players-guard-banner-standard-pd6ttn`（PR #351・9d1cc73e）が加わった
 - Stop hook の条件修正
 - 選手コメントの調査（公式に存在しない。所在・取得可否・著作権・カバー率）
 - `lintGuard.py` の検査軸変更（判定式リテラル依存をやめ、L2の7ページも canonical 照合へ）
@@ -53,7 +55,7 @@
 
 - **`writeHealthStatus.py` の `WATCH` に `motorUsage` が無い**（監視9項目に含まれず）。`buildMotorUsage.py` の安全ゲートが連日NGでJSONが据え置かれても毎朝の健全性チェックが鳴らない。`"motorUsage": "docs/data/motorUsage.json",` の1行追加で解決
 - **`/motor/` の初期取得4.3MB**：`motorKarte.json` 2.26MB＋`e30PlayerStats.json` 1.45MB＋`motorUsage.json` 0.39MB。**E30バッジ1個のために1.45MB読んでいる**。行を開いたとき・必要な場だけ取る形にする
-- コピーガード未実装3件：`motor-maintenance` / `kensho/shobugake` / `kensho/taiju`（すべて生成物・正本を直す2段階）
+- **新しい公開ページを作ったら `lintGuard.py` の分類リストにも足す。** 実装済みでも台帳に無ければ「未分類のHTML」でFAILし、PR時のコピーガードWFが全PRで赤くなる（`docs/kensho/ninki/index.html` の実例・PR #353で解消）
 - `docs/data/motorParts.json`（15.68MB）・`docs/data/kansenki`（10.7MB）の削減
 - `buildRacerStatsSplit.py` に `--check` モード追加
 - 決まり手エンドポイント特定（PCのF12 Networkで日和の `.php` を確認）
@@ -77,6 +79,7 @@
 
 |日付|決めたこと|適用範囲|
 |---|---|---|
+|2026-09-05|選手図鑑の告知バナーを5者裁定の標準型へ（`position:relative`・閉じるボタン40×40px・`insertBefore`）。**文言は変えない**（書式差そのものが指紋のため）。`/motor/` は末尾39行の差分ゼロ規定により対象外|`scripts/players/app.jsx`|
 |2026-09-05|観戦記の網羅チェックは、前日が非開催（中止・順延）の場を欠場から除外する（案B）。記事は書かない|`lintKansenki.py --coverage`|
 |2026-09-05|残タスクの通番を廃止。期限あり／裁定待ち／別チャット送りの3区分へ|`notes/state.md`|
 |2026-09-05|`notes/` を新設。`analysis/` は検証レポート専用として現状維持|リポジトリ構成|
