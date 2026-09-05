@@ -1,0 +1,350 @@
+<!-- データ攻め by あべけん https://abeken1026395.github.io/pallas-mercato-7k9/ -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="UTF-8">
+<meta name="author" content="あべけん（データ攻め）">
+<link rel="canonical" href="https://abeken1026395.github.io/pallas-mercato-7k9/next/courseLast10Preview.html">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>コース別直近10走 試作 | データ攻め</title>
+<style>
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#0b1219; color:#e0e6ed; font-family:'Helvetica Neue',Arial,'Hiragino Kaku Gothic ProN',Meiryo,sans-serif; padding-bottom:60px; -webkit-text-size-adjust:100%; }
+.wrap { max-width:660px; margin:0 auto; padding:14px 12px; }
+header h1 { font-size:20px; color:#ffd166; letter-spacing:1px; }
+header .sub { font-size:11px; color:#8a94a3; margin-top:4px; }
+.crumb { font-size:12px; color:#8a94a3; margin:10px 0 6px; }
+.crumb a { color:#ffd166; text-decoration:none; }
+
+/* 場カード */
+.venue-card { background:#121c28; border:1px solid #1f2b3a; border-radius:10px; padding:12px 14px; margin-top:10px; cursor:pointer; display:flex; align-items:center; gap:12px; }
+.venue-card:active { background:#182535; }
+.venue-name { font-size:17px; font-weight:bold; color:#fff; min-width:64px; }
+.venue-meta { flex:1; font-size:11px; color:#9fb0c3; line-height:1.6; }
+.venue-day { font-size:11px; color:#ffd166; border:1px solid #ffd16655; border-radius:4px; padding:1px 6px; white-space:nowrap; }
+.date-head { font-size:13px; font-weight:bold; color:#ffd166; margin:16px 2px 4px; padding-bottom:4px; border-bottom:1px solid #2a3548; }
+.date-head:first-child { margin-top:6px; }
+
+/* Rグリッド */
+.rgrid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px; }
+.rbtn { background:#121c28; border:1px solid #1f2b3a; border-radius:8px; padding:8px 4px; text-align:center; cursor:pointer; position:relative; }
+.rbtn:active { background:#182535; }
+.rbtn .rno { font-size:16px; font-weight:bold; color:#fff; }
+.rbtn .dl { font-size:10px; color:#8a94a3; margin-top:2px; }
+.rbtn.closed { opacity:.4; }
+.rbtn.closed .rno { color:#8a94a3; }
+.rbtn .dot { position:absolute; top:6px; right:6px; width:7px; height:7px; border-radius:50%; }
+.dot-高 { background:#e66767; } .dot-中 { background:#ffd166; } .dot-低 { background:#199e70; }
+
+/* レースヘッダ */
+.race-head { background:#121c28; border:1px solid #1f2b3a; border-radius:10px; padding:12px 14px; margin-top:10px; }
+.race-head .line1 { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+.race-head .rt { font-size:18px; font-weight:bold; color:#ffd166; }
+.race-head .kikaku { font-size:13px; color:#e0e6ed; }
+.race-head .dl { font-size:12px; color:#9fb0c3; margin-top:4px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+.race-links { margin-top:9px; display:flex; gap:8px; flex-wrap:wrap; }
+.offlink { display:inline-flex; align-items:center; gap:4px; font-size:12px; font-weight:bold; text-decoration:none; border-radius:6px; padding:5px 12px; }
+.offlink-result { color:#0b1219; background:#ffd166; }
+.offlink-result:active { background:#e8bd50; }
+.offlink-pend { color:#8a94a3; background:#0f1a26; border:1px solid #2a3a4d; }
+.offlink-card { color:#a9c6dd; background:#0f1a26; border:1px solid #24344a; }
+.cd { font-size:12px; font-weight:bold; border-radius:5px; padding:2px 8px; }
+.cd-open { background:#12301f; color:#69db7c; border:1px solid #1e5c38; }
+.cd-soon { background:#3a2a12; color:#ffd166; border:1px solid #6a4d18; }
+.cd-closed { background:#241820; color:#b98; border:1px solid #4a2f3a; }
+
+/* サマリーチップ */
+.chips { display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }
+.chip { font-size:11px; border-radius:14px; padding:3px 10px; border:1px solid #24344a; background:#0f1a26; color:#a9c6dd; display:flex; align-items:center; gap:5px; }
+.chip b { font-weight:bold; }
+.chip-arare-高 { border-color:#5a2b2b; color:#ff9c9c; }
+.chip-arare-中 { border-color:#5a4a1a; color:#ffd166; }
+.chip-arare-低 { border-color:#1e5c38; color:#7fe0a0; }
+.chip-fix { border-color:#3a4d63; color:#cdd6e0; }
+/* ①の下振れ要因（事実提示・件数のみ。荒れ判定と混同させないため赤系は使わない） */
+.chip-down-1 { border-color:#33465c; color:#9fb8cc; }
+.chip-down-2 { border-color:#3a3a5c; color:#b3a9dd; }
+.rbtn .rbtn-down { display:inline-flex; margin-top:4px; font-size:9px; padding:1px 6px; }
+/* ファン化：見どころへの導線チップ */
+.chip-link { border-color:#4a370f; color:#ffd166; text-decoration:none; background:rgba(255,209,102,.06); }
+/* ファン化：読む派の一言 */
+.reader-line { font-size:11px; color:#8a94a3; margin-top:2px; }
+.reader-line b { color:#cdd6e0; font-weight:600; }
+/* 企画レース（進入固定/A級系/選抜）＝teal。事実の当日判定・生名称由来 */
+.chip-plan { border-color:#2f5d55; color:#7fe0c8; background:rgba(127,224,200,.06); }
+/* 節ステージ（準優勝戦/優勝戦）＝gold。企画系と区分を分け「企画」と誤読させない */
+.chip-stage { border-color:#6a5320; color:#ffd166; background:rgba(255,209,102,.06); }
+
+/* パネル */
+.panel { border-radius:10px; padding:10px 12px; margin-top:8px; font-size:12px; line-height:1.7; }
+.panel .ttl { font-size:12px; font-weight:bold; margin-bottom:3px; }
+.panel-arare { background:#231a12; border:1px solid #4a370f; }
+.panel-arare .ttl { color:#ffd166; }
+.panel-arare ul { margin:2px 0 0 16px; color:#d8c9a5; }
+.panel-down { background:#131c26; border:1px solid #26384a; }
+.panel-down .ttl { color:#9fb8cc; }
+.panel-down ul { margin:2px 0 0 16px; color:#c2d0dc; }
+.panel-down ul li.none { color:#7d94a8; }
+.panel-down .note { font-size:10px; color:#7d94a8; margin-top:5px; }
+.panel-yomi { background:#131c26; border:1px solid #26384a; }
+.panel-yomi .ttl { color:#9fb8cc; }
+.yomi-btns { display:flex; gap:8px; margin-top:7px; }
+.yomibtn { flex:1; text-align:center; padding:10px 0; border:1px solid #2d4356; border-radius:8px; color:#c2d0dc; font-size:13px; cursor:pointer; }
+.yomibtn.on { background:#1d2b3a; border-color:#4a6b86; color:#e6eef5; }
+.yomi-line { font-size:12px; color:#c2d0dc; margin-top:5px; }
+.yomi-verdict { font-size:12px; color:#9fb8cc; margin-top:7px; }
+.panel-yomi .note { font-size:10px; color:#7d94a8; margin-top:6px; }
+.my-sec.yomi .my-note { margin-top:4px; }
+.panel-tenkai { background:#0f1c17; border:1px solid #1e4033; }
+.panel-tenkai .ttl { color:#7fe0a0; }
+.panel-tenkai ul { margin:3px 0 0 16px; color:#bcd6c8; }
+.panel-tenkai li { margin:2px 0; }
+.panel-tenkai .note { font-size:10px; color:#6f8a7d; margin-top:5px; }
+.panel-wind { background:#0f1e2b; border:1px solid #1c3a52; color:#a9c6dd; }
+.panel-wind .ttl { color:#7ec8ff; }
+.panel-tide { background:#0d1c1a; border:1px solid #1c3f39; color:#a9d6cc; }
+.panel-tide .ttl { color:#7fe0c8; }
+.panel-tide .note { font-size:10px; color:#6f8a82; margin-top:5px; }
+.lv-高 { color:#ff6b6b; font-weight:bold; } .lv-中 { color:#ffd166; font-weight:bold; } .lv-低 { color:#69db7c; font-weight:bold; }
+
+/* 並び替え */
+.sortbar { display:flex; gap:6px; margin-top:10px; flex-wrap:wrap; }
+.sortbtn { font-size:11px; border:1px solid #24344a; background:#0f1a26; color:#9fb0c3; border-radius:6px; padding:4px 10px; cursor:pointer; }
+.sortbtn.on { background:#1d2b3d; color:#ffd166; border-color:#3a5170; }
+
+/* 艇カード */
+.boat { background:#121c28; border:1px solid #1f2b3a; border-radius:10px; margin-top:8px; display:flex; overflow:hidden; }
+.lane-bar { width:8px; flex:none; }
+.boat-body { flex:1; padding:9px 12px; min-width:0; }
+.boat-top { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.lane-num { width:24px; height:24px; border-radius:5px; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:14px; flex:none; }
+.klass { font-size:11px; font-weight:bold; border-radius:4px; padding:1px 6px; color:#fff; flex:none; }
+.k-A1 { background:#c9184a; } .k-A2 { background:#e07a1f; } .k-B1 { background:#1d6fd6; } .k-B2 { background:#5c6773; }
+.pname { font-size:16px; font-weight:bold; color:#fff; }
+.badge-local { font-size:10px; color:#0b1219; background:#ffd166; border-radius:4px; padding:1px 5px; font-weight:bold; flex:none; }
+.badge-f { font-size:10px; color:#fff; background:#c9184a; border-radius:4px; padding:1px 5px; font-weight:bold; flex:none; }
+.badge-st { font-size:10px; color:#0b1219; background:#7ec8ff; border-radius:4px; padding:1px 5px; font-weight:bold; flex:none; }
+.badge-mach { font-size:10px; color:#0b1219; background:#c98500; border-radius:4px; padding:1px 5px; font-weight:bold; flex:none; }
+.badge-bd { font-size:10px; color:#e6ecf3; background:#39424d; border-radius:4px; padding:1px 5px; font-weight:bold; flex:none; }
+.badge-detail { display:inline-block; font-size:9px; padding:1px 5px; border-radius:8px; background:rgba(126,200,255,0.14); color:#7ec8ff; margin-left:4px; letter-spacing:.5px; vertical-align:middle; font-weight:normal; flex:none; }
+.pkana { font-size:10px; color:#8a94a3; letter-spacing:.02em; margin-top:2px; }
+.nick { font-size:11px; color:#c8a24a; font-style:italic; margin-top:2px; }
+.boat-sub { font-size:11px; color:#8a94a3; margin-top:3px; }
+.tags { display:flex; gap:5px; flex-wrap:wrap; margin-top:5px; }
+.tag { font-size:10px; border-radius:4px; padding:1px 6px; border:1px solid #2a3a4d; color:#9fb0c3; }
+.tag-mach-high { border-color:#6a4d18; color:#ffd166; } .tag-mach-low { border-color:#4a2f3a; color:#c98; }
+.tag-local { border-color:#5a4a1a; color:#ffd166; }
+
+.stats { display:flex; gap:10px; margin-top:8px; flex-wrap:wrap; }
+.stat { line-height:1.35; min-width:66px; }
+.stat .lb { font-size:10px; color:#8a94a3; }
+.stat .v { font-size:15px; font-weight:bold; color:#e0e6ed; font-variant-numeric:tabular-nums; }
+.stat .v2 { font-size:11px; color:#9fb0c3; font-variant-numeric:tabular-nums; }
+.stat.hot .v { color:#ffd166; } .stat.hot .lb { color:#ffd166; }
+.stat.mach .lb { color:#7ec8ff; } .stat.mach .v { color:#a9c6dd; }
+.up { font-size:11px; }
+/* 今節モーター（通算×今節の偏差・生データ／評価語なし） */
+.kinmotor { margin-top:7px; font-size:11.5px; color:#a9c6dd; background:#0f1a26; border:1px solid #23364a; border-radius:8px; padding:5px 9px; line-height:1.5; font-variant-numeric:tabular-nums; }
+.kinmotor b { color:#e0e6ed; }
+.kinmotor .km-tsu { color:#8a94a3; font-variant-numeric:tabular-nums; }
+.kinmotor .km-few { color:#e0a56a; font-size:10px; margin-left:4px; }
+.kinmotor .km-none { color:#8a94a3; }
+    .kinmotor .km-shinkae { color:#8a94a3; margin-left:6px; font-size:10px; font-variant-numeric:tabular-nums; }
+
+/* 相対バー（ST/機力） */
+.meter { margin-top:7px; }
+.meter-row { display:flex; align-items:center; gap:7px; margin-top:3px; }
+.meter-lb { font-size:10px; color:#8a94a3; width:42px; flex:none; }
+.meter-track { flex:1; height:7px; background:#0e1620; border-radius:4px; overflow:hidden; }
+.meter-fill { height:100%; border-radius:4px; }
+.meter-val { font-size:10px; color:#9fb0c3; width:46px; flex:none; text-align:right; font-variant-numeric:tabular-nums; }
+.meter-best { color:#ffd166; font-weight:bold; }
+
+/* E30該当場成績（事実の生データ・二層表示） */
+.e30d { margin-top:8px; border:1px solid #24344a; border-radius:8px; background:#0f1a26; overflow:hidden; }
+.e30d > summary { list-style:none; cursor:pointer; padding:7px 10px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.e30d > summary::-webkit-details-marker { display:none; }
+.e30-badge { font-size:10px; font-weight:bold; color:#0b1219; background:#8fd6c0; border-radius:4px; padding:1px 6px; flex:none; }
+.e30-sum { font-size:11px; color:#a9c6dd; }
+.e30-sum b { color:#e0e6ed; }
+.e30-few { font-size:9px; color:#c98; margin-left:2px; }
+.e30-caret { margin-left:auto; font-size:10px; color:#6f8aa3; }
+.e30d[open] .e30-caret::after { content:"閉じる ▲"; } .e30d:not([open]) .e30-caret::after { content:"内訳 ▼"; }
+.e30-body { padding:2px 10px 9px; }
+.e30-row { display:flex; align-items:center; font-size:11px; padding:4px 0; border-top:1px solid #16273a; }
+.e30-row.hd { color:#6f8aa3; font-weight:bold; border-top:none; }
+.e30-row .c { width:40px; color:#c5d2e0; font-weight:bold; }
+.e30-row .n { width:38px; text-align:right; color:#e0e6ed; font-variant-numeric:tabular-nums; }
+.e30-row .w1 { width:30px; text-align:right; color:#ffd166; font-weight:bold; font-variant-numeric:tabular-nums; }
+.e30-row .w2 { width:40px; text-align:right; color:#3fb1c9; font-weight:bold; font-variant-numeric:tabular-nums; }
+.e30-row .st { width:46px; text-align:right; color:#e0e6ed; font-variant-numeric:tabular-nums; }
+.e30-row .tk { flex:1; padding-left:8px; color:#8faabe; }
+.e30-row.dim { opacity:.5; }
+.e30-note { font-size:9px; color:#6f8aa3; margin-top:5px; line-height:1.5; }
+
+/* 決まり手構成バー */
+.kmr { margin-top:8px; }
+.kmr-ttl { font-size:10px; color:#8a94a3; margin-bottom:3px; display:flex; justify-content:space-between; }
+.kmr-bar { display:flex; height:9px; border-radius:5px; overflow:hidden; background:#0e1620; gap:2px; }
+.kmr-seg { height:100%; }
+.kmr-legend { display:flex; gap:9px; flex-wrap:wrap; margin-top:4px; font-size:9.5px; color:#9fb0c3; }
+.kmr-legend span { display:flex; align-items:center; gap:3px; }
+.kmr-dot { width:8px; height:8px; border-radius:2px; flex:none; }
+.kmr-def { font-size:10px; color:#6f7d8c; margin-top:3px; }
+
+/* 今節成績 */
+.shu-wrap { margin-top:9px; }
+.shu-cap { font-size:10px; color:#8a94a3; margin-bottom:3px; }
+.shu { width:100%; border-collapse:separate; border-spacing:2px 0; font-size:10px; table-layout:fixed; }
+.shu th { color:#7ec8ff; font-weight:normal; padding:2px 1px; }
+.shu td { text-align:center; padding:3px 1px; color:#cdd6e0; line-height:1.35; white-space:nowrap; background:#0f1a26; border-radius:3px; }
+.shu td.shu-empty { color:#33404f; background:#0c1420; }
+.shu .r1 { color:#ffd166; font-weight:bold; } .shu .r2 { color:#cfe3ff; } .shu .r3 { color:#a9c6dd; }
+.shu .rx { color:#8a94a3; }
+
+.empty { text-align:center; color:#8a94a3; font-size:13px; padding:40px 0; }
+.legend-note { font-size:10px; color:#6f7d8c; margin-top:14px; line-height:1.6; }
+
+/* マイ・パネル（記憶と回収ループ） */
+.my { border-radius:12px; margin:6px 0 4px; overflow:hidden; border:1px solid #1f2b3a; background:#101a26; }
+.my-sec { padding:10px 12px; }
+.my-sec + .my-sec { border-top:1px solid #1b2735; }
+.my-h { font-size:12px; font-weight:bold; display:flex; align-items:center; gap:7px; margin-bottom:7px; }
+.my-h .cnt { font-size:11px; color:#0b1219; background:#ffd166; border-radius:10px; padding:0 7px; font-weight:bold; }
+.harvest .my-h { color:#ffd166; }
+.watch .my-h { color:#7ec8ff; }
+.recent .my-h { color:#9fb0c3; }
+.my-row { display:flex; align-items:center; gap:9px; padding:7px 8px; border-radius:8px; background:#0d1622; margin-top:6px; cursor:pointer; }
+.my-row:active { background:#152233; }
+.my-rl { flex:1; min-width:0; }
+.my-rt { font-size:13px; font-weight:bold; color:#e8edf3; }
+.my-rs { font-size:10px; color:#8a94a3; margin-top:1px; }
+.pill { font-size:10px; font-weight:bold; border-radius:10px; padding:2px 9px; white-space:nowrap; flex:none; }
+.pill-done { color:#0b1219; background:#ffd166; }
+.pill-wait { color:#ffd166; background:#2e2712; border:1px solid #5a4a1a; }
+.pill-pre { color:#7fe0a0; background:#12241a; border:1px solid #1e4a30; }
+.harvest-link { color:#0b1219; background:#ffd166; font-size:11px; font-weight:bold; border-radius:6px; padding:5px 10px; text-decoration:none; white-space:nowrap; flex:none; }
+.harvest-x { font-size:11px; color:#8a94a3; border:1px solid #2a3a4d; border-radius:6px; padding:5px 8px; background:none; cursor:pointer; flex:none; }
+.harvest-all { margin-left:auto; font-size:11px; color:#9fb0c3; border:1px solid #2a3a4d; border-radius:6px; padding:6px 10px; min-height:32px; background:none; cursor:pointer; flex:none; }
+.recent-chips { display:flex; gap:6px; flex-wrap:wrap; }
+.rchip { font-size:11px; color:#a9c6dd; background:#0d1622; border:1px solid #24344a; border-radius:14px; padding:3px 10px; cursor:pointer; }
+.my-empty { font-size:11px; color:#6f7d8c; }
+.my-note { font-size:10px; color:#6f7d8c; margin:2px 2px 4px; line-height:1.5; }
+.oshi-result { color:#0b1219; background:#ffd166; font-size:11px; font-weight:bold; border-radius:6px; padding:5px 10px; text-decoration:none; white-space:nowrap; flex:none; }
+/* スター（気になる）ボタン */
+.watchbtn { display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:bold; border-radius:6px; padding:5px 12px; cursor:pointer; border:1px solid #3a5170; background:#0f1a26; color:#7ec8ff; transition:transform .12s; }
+.watchbtn.on { background:#12233a; color:#ffd166; border-color:#5a4a1a; }
+.watchbtn:active { transform:scale(.92); }
+.hdr-harvest { display:inline-block; margin-top:6px; font-size:11px; font-weight:bold; color:#0b1219; background:#ffd166; border-radius:12px; padding:3px 11px; cursor:pointer; }
+/* ポータルタブ */
+.navtabs { display:flex; gap:7px; overflow-x:auto; margin:10px 0 2px; padding-bottom:3px; -webkit-overflow-scrolling:touch; }
+.navtabs::-webkit-scrollbar { display:none; }
+.navtab { flex:none; font-size:12px; font-weight:bold; text-decoration:none; color:#9fb0c3; background:#101a26; border:1px solid #24344a; border-radius:16px; padding:6px 13px; white-space:nowrap; }
+.navtab.on { color:#0b1219; background:#ffd166; border-color:#ffd166; }
+.navtab:active { background:#182535; }
+.navtab.on:active { background:#e8bd50; }
+/* 今日の運勢（あそび）：既定は折りたたみの控えめ表示 */
+.fortune { border:1px solid #1f2b3a; background:#101a26; border-radius:10px; margin:6px 0 4px; }
+.fortune-bar { display:flex; align-items:center; gap:7px; padding:8px 12px; cursor:pointer; font-size:12px; color:#9fb0c3; }
+.fortune-dot { font-size:13px; opacity:.85; }
+.fortune-title { font-weight:bold; color:#b9c4d2; }
+.fortune-tag { font-size:9px; color:#7a7192; border:1px solid #2f2a44; border-radius:8px; padding:0 6px; }
+.fortune-inline { font-size:12px; color:#c8b57a; letter-spacing:1px; }
+.fortune-cta { font-size:11px; color:#8a94a3; }
+.fortune-caret { margin-left:auto; color:#6f7d8c; font-size:11px; }
+.fortune.open .fortune-bar { border-bottom:1px solid #1b2735; }
+.fortune-body, .fortune-pick, .fortune-nopick { padding:0 12px; }
+.fortune-nopick { font-size:12px; color:#9fb0c3; padding-top:8px; }
+.fortune-msg { font-size:12.5px; color:#dfe5ee; padding:9px 12px 0; line-height:1.6; }
+.fortune-sub { font-size:11px; color:#9fb0c3; padding:6px 12px 0; display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+.fortune-sub b { color:#cdd6e0; }
+.fortune-pick { display:flex; gap:6px; flex-wrap:wrap; padding-top:8px; padding-bottom:2px; }
+.zbtn { font-size:11px; color:#a9b4c4; background:#0d1622; border:1px solid #24344a; border-radius:12px; padding:4px 9px; cursor:pointer; }
+.zbtn:active { background:#182535; }
+.fortune-link { display:inline-block; padding:6px 4px; margin:-6px -4px; font-size:11px; color:#9db2c9; text-decoration:none; }
+.fortune-more { font-size:10px; color:#6f7d8c; padding:7px 12px 11px; }
+.fortune-reset { font-size:10px; color:#7a828f; cursor:pointer; text-decoration:underline; }
+/* 推し */
+.oshi { border-radius:12px; margin:6px 0 4px; border:1px solid #4a3a10; background:linear-gradient(135deg,#231a0e,#141c26); padding:10px 12px; }
+.oshi-h { font-size:12px; font-weight:bold; color:#ffd166; display:flex; align-items:center; gap:7px; }
+.oshi-cnt { font-size:11px; color:#0b1219; background:#ffd166; border-radius:10px; padding:0 7px; font-weight:bold; }
+.oshi-empty { font-size:11px; color:#8a7a4a; margin-top:6px; }
+.oshi-note { font-size:10px; color:#7a6c44; margin-top:8px; line-height:1.6; }
+.pin-mk { margin-right:4px; font-size:15px; }
+.oshi-nick { font-size:10px; color:#c8a24a; font-style:italic; font-weight:normal; }
+/* タップ領域は 24×24px 以上（WCAG 2.2 / 2.5.8 ターゲットサイズ 最小・AA）。
+   絵文字の見た目は font-size:16px のまま変えず、min-width/min-height で当たり判定だけ広げる */
+.oshibtn { margin-left:auto; font-size:16px; line-height:1; color:#8a94a3; cursor:pointer; flex:none; padding:0; min-width:24px; min-height:24px; display:inline-flex; align-items:center; justify-content:center; background:none; border:none; font-family:inherit; transition:transform .12s; }
+.oshibtn.on { color:#ffd166; }
+.oshibtn:active { transform:scale(1.3); }
+.boat.oshi-on { border-color:#5a4a1a; box-shadow:0 0 0 1px #5a4a1a inset; }
+.my-row.oshi-row { background:#191408; border:1px solid #4a3a10; }
+/* ホーム画面に追加（PWA導線） */
+.a2hs { max-width:660px; margin:0 auto; padding:9px 12px; display:flex; align-items:center; gap:10px; background:#12233a; border-bottom:1px solid #24344a; font-size:12px; color:#cdd6e0; }
+.a2hs img { width:26px; height:26px; border-radius:6px; flex:none; }
+.a2hs .a2t { flex:1; line-height:1.5; }
+.a2hs .a2t b { color:#ffd166; }
+.a2hs .a2add { flex:none; font-size:12px; font-weight:bold; color:#0b1219; background:#ffd166; border:none; border-radius:6px; padding:6px 12px; cursor:pointer; }
+.a2hs .a2x { flex:none; font-size:16px; color:#8a94a3; background:none; border:none; cursor:pointer; padding:2px 4px; }
+.siteback{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;margin:6px 0 2px;font-size:13px;line-height:1;color:inherit;text-decoration:underline;text-underline-offset:3px}
+.siteback:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+.sitelink{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;margin:6px 0 2px;font-size:13px;line-height:1;color:inherit;text-decoration:underline;text-underline-offset:3px}
+.sitelink:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+  .cl10{margin-top:8px;padding-top:7px;border-top:1px solid #1c2a3c}
+  .cl10-hd{display:flex;align-items:baseline;justify-content:space-between}
+  .cl10-lb{font-size:11px;color:#8a94a3}
+  .cl10-av{font-size:11px;color:#9fb0c3;font-variant-numeric:tabular-nums}
+  .cl10-av b{color:#e0e6ed;font-size:15px;font-weight:bold}
+  .cl10-seq{display:flex;gap:5px;margin-top:2px;font-size:13px;font-variant-numeric:tabular-nums;color:#5f7183}
+  .cl10-seq span{width:1.15em;text-align:center}
+  .cl10-seq .p1{color:#ffd166;font-weight:bold}
+  .cl10-seq .p2{color:#cfe3ff}
+  .cl10-seq .p3{color:#a9c6dd}
+  .cl10 details{margin-top:2px}
+  .cl10 summary{font-size:11px;color:#6f8aa3;cursor:pointer;min-height:32px;display:flex;align-items:center;list-style:none}
+  .cl10 summary::-webkit-details-marker{display:none}
+  .cl10 details[open] summary::after{content:"　閉じる ▲"}
+  .cl10 details:not([open]) summary::after{content:"　▼"}
+  .cl10-dp{padding-bottom:4px}
+  .cl10-dk{font-size:10px;color:#6f7d8c;margin-top:6px}
+  .cl10-dl{font-size:11px;color:#9fb0c3;font-variant-numeric:tabular-nums}
+  .prevwrap{max-width:660px;margin:0 auto;padding:0 12px}
+  .prevhead{border:1px solid #24344a;border-radius:8px;padding:8px 11px;margin-bottom:10px;font-size:12px;color:#9fb0c3;background:#0f1a26}
+  .prevhead b{color:#ffd166;font-size:15px}
+  .prevlead{font-size:12px;color:#8a94a3;margin-bottom:16px;line-height:1.8}
+  .prevbadge{font-size:11px;letter-spacing:.08em;color:#0b1219;background:#ffd166;border-radius:999px;padding:3px 10px;font-weight:bold}
+  .prevback{display:inline-flex;align-items:center;font-size:12px;color:#8a94a3;text-decoration:none;border:1px solid #24344a;border-radius:999px;padding:0 12px;min-height:32px}
+</style>
+</head>
+<body>
+<div class="prevwrap">
+  <div style="display:flex;align-items:center;gap:10px;padding:14px 0 6px">
+    <a class="prevback" href="../">← トップ</a>
+    <span class="prevbadge">実験場 / next</span>
+  </div>
+  <h1 style="font-size:20px;color:#ffd166;margin:14px 0 4px">コース別直近10走 表示試作</h1>
+  <div class="prevlead">本番の出走表と同じ1艇ブロックを再現し、決まり手構成の下に「コース別 直近10走」を足しました。
+  あわせて、同じ数字の繰り返しを2つ減らしています。機力メーター右端の数値（3列目と同じ値）を消してバーだけにし、
+  今節データが無い日の「今節モーター」行を出さないようにしました。数字は1つも減っていません。</div>
+  <div class="prevhead"><b>多摩川 1R</b>　初日　※過去のレースを題材にした試作。集計は 2026-08-31 まで</div>
+<div class="boat"><div class="lane-bar" style="background:#fff"></div><div class="boat-body"><div class="boat-top"><span class="lane-num" style="background:#fff;color:#111;border:1px solid #445;">1</span><span class="klass" style="background:#39424d">B2</span><span class="pname">福田 翔吾<span class="badge-detail">詳細</span></span></div><div class="boat-sub">群馬／群馬・52歳</div><div class="stats"><div class="stat"><div class="lb">全国勝率</div><div class="v">5.36</div><div class="v2">2連 33.6%</div></div><div class="stat"><div class="lb">当地勝率</div><div class="v">5.46</div><div class="v2">2連 34.6%</div></div><div class="stat mach"><div class="lb">モーター No.71</div><div class="v">32.7%</div><div class="v2">3連 47.9%</div></div></div><div class="meter"><div class="meter-row"><span class="meter-lb">ST</span><div class="meter-track"><div class="meter-fill" style="width:75%;background:#3987e5"></div></div><span class="meter-val">0.14</span></div><div class="meter-row"><span class="meter-lb">機力</span><div class="meter-track"><div class="meter-fill" style="width:64%;background:#256abf"></div></div></div></div><div class="kmr"><div class="kmr-ttl"><span>決まり手構成（1着20/141走）</span></div><div class="kmr-bar"><div class="kmr-seg" style="width:35.294118%;background:#3987e5"></div><div class="kmr-seg" style="width:17.647059%;background:#2fa36b"></div><div class="kmr-seg" style="width:17.647059%;background:#d99b2b"></div><div class="kmr-seg" style="width:29.411765%;background:#a58bd8"></div></div><div class="kmr-legend"><span><span class="kmr-dot" style="background:#3987e5"></span>逃げ 35%</span><span><span class="kmr-dot" style="background:#2fa36b"></span>差し 18%</span><span><span class="kmr-dot" style="background:#d99b2b"></span>まくり 18%</span><span><span class="kmr-dot" style="background:#a58bd8"></span>まくり差し 29%</span></div></div><div class="cl10"><div class="cl10-hd"><span class="cl10-lb">1コース 直近10走</span><span class="cl10-av"><b>1.9</b>着　全体 2.1</span></div><div class="cl10-seq"><span class="p1">1</span><span class="p2">2</span><span class="p3">3</span><span class="p2">2</span><span class="p2">2</span><span class="p2">2</span><span class="p1">1</span><span class="p2">2</span><span class="p1">1</span><span class="p3">3</span></div><details><summary>内訳</summary><div class="cl10-dp"><div class="cl10-dk">直近10走の進入コース</div><div class="cl10-dl">1コース 2回 / 2コース 1回 / 3コース 1回 / 4コース 3回 / 5コース 2回 / 6コース 1回</div><div class="cl10-dk">枠なり以外で3回以上入ったコース</div><div class="cl10-dl">4コース 3回・平均 4.0着</div><div class="cl10-dk">集計期間</div><div class="cl10-dl">2026.07.01 〜 2026.08.30</div></div></details></div></div></div>
+<div class="boat"><div class="lane-bar" style="background:#111"></div><div class="boat-body"><div class="boat-top"><span class="lane-num" style="background:#111;color:#fff;border:1px solid #445;">2</span><span class="klass" style="background:#39424d">B1</span><span class="pname">鹿島 敏弘<span class="badge-detail">詳細</span></span></div><div class="boat-sub">東京／東京・47歳</div><div class="stats"><div class="stat"><div class="lb">全国勝率</div><div class="v">4.76</div><div class="v2">2連 27.6%</div></div><div class="stat"><div class="lb">当地勝率</div><div class="v">4.86</div><div class="v2">2連 28.6%</div></div><div class="stat mach"><div class="lb">モーター No.18</div><div class="v">39.7%</div><div class="v2">3連 52.4%</div></div></div><div class="meter"><div class="meter-row"><span class="meter-lb">ST</span><div class="meter-track"><div class="meter-fill" style="width:0%;background:#3987e5"></div></div><span class="meter-val">0.17</span></div><div class="meter-row"><span class="meter-lb">機力</span><div class="meter-track"><div class="meter-fill" style="width:78%;background:#256abf"></div></div></div></div><div class="kmr"><div class="kmr-ttl"><span>決まり手構成（1着14/133走）</span></div><div class="kmr-bar"><div class="kmr-seg" style="width:53.846154%;background:#3987e5"></div><div class="kmr-seg" style="width:30.769231%;background:#2fa36b"></div><div class="kmr-seg" style="width:7.692308%;background:#d99b2b"></div><div class="kmr-seg" style="width:7.692308%;background:#a58bd8"></div></div><div class="kmr-legend"><span><span class="kmr-dot" style="background:#3987e5"></span>逃げ 54%</span><span><span class="kmr-dot" style="background:#2fa36b"></span>差し 31%</span><span><span class="kmr-dot" style="background:#d99b2b"></span>まくり 8%</span><span><span class="kmr-dot" style="background:#a58bd8"></span>まくり差し 8%</span></div></div><div class="cl10"><div class="cl10-hd"><span class="cl10-lb">2コース 直近10走</span><span class="cl10-av"><b>2.9</b>着　全体 3.2</span></div><div class="cl10-seq"><span class="p2">2</span><span class="p1">1</span><span class="">4</span><span class="">5</span><span class="">6</span><span class="p2">2</span><span class="p3">3</span><span class="p2">2</span><span class="p1">1</span><span class="p3">3</span></div><details><summary>内訳</summary><div class="cl10-dp"><div class="cl10-dk">直近10走の進入コース</div><div class="cl10-dl">1コース 2回 / 2コース 1回 / 3コース 2回 / 4コース 1回 / 5コース 2回 / 6コース 2回</div><div class="cl10-dk">集計期間</div><div class="cl10-dl">2026.05.06 〜 2026.08.22</div></div></details></div></div></div>
+<div class="boat"><div class="lane-bar" style="background:#e24b4a"></div><div class="boat-body"><div class="boat-top"><span class="lane-num" style="background:#e24b4a;color:#fff;">3</span><span class="klass" style="background:#39424d">A2</span><span class="pname">上原 崚<span class="badge-detail">詳細</span></span><span class="badge-mach">機力上位</span></div><div class="boat-sub">福岡／福岡・29歳</div><div class="stats"><div class="stat"><div class="lb">全国勝率</div><div class="v">4.16</div><div class="v2">2連 21.6%</div></div><div class="stat"><div class="lb">当地勝率</div><div class="v">4.26</div><div class="v2">2連 22.6%</div></div><div class="stat mach"><div class="lb">モーター No.57</div><div class="v">51.0%</div><div class="v2">3連 63.6%</div></div></div><div class="meter"><div class="meter-row"><span class="meter-lb">ST</span><div class="meter-track"><div class="meter-fill" style="width:50%;background:#3987e5"></div></div><span class="meter-val">0.15</span></div><div class="meter-row"><span class="meter-lb">機力</span><div class="meter-track"><div class="meter-fill" style="width:100%;background:#c98500"></div></div></div></div><div class="kmr"><div class="kmr-ttl"><span>決まり手構成（1着31/138走）</span></div><div class="kmr-bar"><div class="kmr-seg" style="width:37.931034%;background:#3987e5"></div><div class="kmr-seg" style="width:6.896552%;background:#2fa36b"></div><div class="kmr-seg" style="width:24.137931%;background:#d99b2b"></div><div class="kmr-seg" style="width:31.034483%;background:#a58bd8"></div></div><div class="kmr-legend"><span><span class="kmr-dot" style="background:#3987e5"></span>逃げ 38%</span><span><span class="kmr-dot" style="background:#2fa36b"></span>差し 7%</span><span><span class="kmr-dot" style="background:#d99b2b"></span>まくり 24%</span><span><span class="kmr-dot" style="background:#a58bd8"></span>まくり差し 31%</span></div></div><div class="cl10"><div class="cl10-hd"><span class="cl10-lb">3コース 直近10走</span><span class="cl10-av"><b>3.9</b>着　全体 3.3</span></div><div class="cl10-seq"><span class="p3">3</span><span class="p3">3</span><span class="p1">1</span><span class="">5</span><span class="">4</span><span class="">4</span><span class="">5</span><span class="">6</span><span class="p3">3</span><span class="">5</span></div><details><summary>内訳</summary><div class="cl10-dp"><div class="cl10-dk">直近10走の進入コース</div><div class="cl10-dl">1コース 3回 / 2コース 1回 / 4コース 2回 / 5コース 2回 / 6コース 2回</div><div class="cl10-dk">枠なり以外で3回以上入ったコース</div><div class="cl10-dl">1コース 3回・平均 1.3着</div><div class="cl10-dk">集計期間</div><div class="cl10-dl">2026.05.16 〜 2026.08.21</div></div></details></div></div></div>
+<div class="boat"><div class="lane-bar" style="background:#378add"></div><div class="boat-body"><div class="boat-top"><span class="lane-num" style="background:#378add;color:#fff;">4</span><span class="klass" style="background:#39424d">B1</span><span class="pname">菊地 敬介<span class="badge-detail">詳細</span></span></div><div class="boat-sub">埼玉／埼玉・41歳</div><div class="stats"><div class="stat"><div class="lb">全国勝率</div><div class="v">4.34</div><div class="v2">2連 23.4%</div></div><div class="stat"><div class="lb">当地勝率</div><div class="v">4.44</div><div class="v2">2連 24.4%</div></div><div class="stat mach"><div class="lb">モーター No.62</div><div class="v">42.8%</div><div class="v2">3連 55.9%</div></div></div><div class="meter"><div class="meter-row"><span class="meter-lb">ST</span><div class="meter-track"><div class="meter-fill" style="width:25%;background:#3987e5"></div></div><span class="meter-val">0.16</span></div><div class="meter-row"><span class="meter-lb">機力</span><div class="meter-track"><div class="meter-fill" style="width:84%;background:#256abf"></div></div></div></div><div class="kmr"><div class="kmr-ttl"><span>決まり手構成（1着7/99走）</span></div><div class="kmr-bar"><div class="kmr-seg" style="width:33.333333%;background:#3987e5"></div><div class="kmr-seg" style="width:33.333333%;background:#2fa36b"></div><div class="kmr-seg" style="width:16.666667%;background:#d99b2b"></div><div class="kmr-seg" style="width:16.666667%;background:#a58bd8"></div></div><div class="kmr-legend"><span><span class="kmr-dot" style="background:#3987e5"></span>逃げ 33%</span><span><span class="kmr-dot" style="background:#2fa36b"></span>差し 33%</span><span><span class="kmr-dot" style="background:#d99b2b"></span>まくり 17%</span><span><span class="kmr-dot" style="background:#a58bd8"></span>まくり差し 17%</span></div></div><div class="cl10"><div class="cl10-hd"><span class="cl10-lb">4コース 直近10走</span><span class="cl10-av"><b>3.6</b>着　全体 3.6</span></div><div class="cl10-seq"><span class="">6</span><span class="">5</span><span class="p3">3</span><span class="">5</span><span class="p1">1</span><span class="p3">3</span><span class="">5</span><span class="p3">3</span><span class="p2">2</span><span class="p3">3</span></div><details><summary>内訳</summary><div class="cl10-dp"><div class="cl10-dk">直近10走の進入コース</div><div class="cl10-dl">1コース 2回 / 2コース 2回 / 3コース 1回 / 4コース 1回 / 5コース 1回 / 6コース 3回</div><div class="cl10-dk">枠なり以外で3回以上入ったコース</div><div class="cl10-dl">6コース 3回・平均 4.7着</div><div class="cl10-dk">集計期間</div><div class="cl10-dl">2026.03.03 〜 2026.08.29</div></div></details></div></div></div>
+<div class="boat"><div class="lane-bar" style="background:#f6f6a0"></div><div class="boat-body"><div class="boat-top"><span class="lane-num" style="background:#f6f6a0;color:#111;">5</span><span class="klass" style="background:#39424d">B1</span><span class="pname">後藤 浩<span class="badge-detail">詳細</span></span></div><div class="boat-sub">大阪／大阪・58歳</div><div class="stats"><div class="stat"><div class="lb">全国勝率</div><div class="v">3.74</div><div class="v2">2連 17.4%</div></div><div class="stat"><div class="lb">当地勝率</div><div class="v">3.84</div><div class="v2">2連 18.4%</div></div><div class="stat mach"><div class="lb">モーター No.29</div><div class="v">36.5%</div><div class="v2">3連 49.2%</div></div></div><div class="meter"><div class="meter-row"><span class="meter-lb">ST</span><div class="meter-track"><div class="meter-fill" style="width:0%;background:#3987e5"></div></div><span class="meter-val">0.17</span></div><div class="meter-row"><span class="meter-lb">機力</span><div class="meter-track"><div class="meter-fill" style="width:72%;background:#256abf"></div></div></div></div><div class="kmr"><div class="kmr-ttl"><span>決まり手構成（1着13/101走）</span></div><div class="kmr-bar"><div class="kmr-seg" style="width:61.538462%;background:#3987e5"></div><div class="kmr-seg" style="width:15.384615%;background:#2fa36b"></div><div class="kmr-seg" style="width:7.692308%;background:#d99b2b"></div><div class="kmr-seg" style="width:15.384615%;background:#a58bd8"></div></div><div class="kmr-legend"><span><span class="kmr-dot" style="background:#3987e5"></span>逃げ 62%</span><span><span class="kmr-dot" style="background:#2fa36b"></span>差し 15%</span><span><span class="kmr-dot" style="background:#d99b2b"></span>まくり 8%</span><span><span class="kmr-dot" style="background:#a58bd8"></span>まくり差し 15%</span></div></div><div class="cl10"><div class="cl10-hd"><span class="cl10-lb">5コース 直近10走</span><span class="cl10-av"><b>4.6</b>着　全体 4.0</span></div><div class="cl10-seq"><span class="">5</span><span class="">4</span><span class="">5</span><span class="">5</span><span class="">4</span><span class="">5</span><span class="">5</span><span class="p2">2</span><span class="">5</span><span class="">6</span></div><details><summary>内訳</summary><div class="cl10-dp"><div class="cl10-dk">直近10走の進入コース</div><div class="cl10-dl">1コース 2回 / 2コース 2回 / 3コース 1回 / 4コース 2回 / 6コース 3回</div><div class="cl10-dk">枠なり以外で3回以上入ったコース</div><div class="cl10-dl">6コース 3回・平均 5.7着</div><div class="cl10-dk">集計期間</div><div class="cl10-dl">2026.04.26 〜 2026.08.12</div></div></details></div></div></div>
+<div class="boat"><div class="lane-bar" style="background:#4caf50"></div><div class="boat-body"><div class="boat-top"><span class="lane-num" style="background:#4caf50;color:#fff;">6</span><span class="klass" style="background:#39424d">B1</span><span class="pname">和田 操拓<span class="badge-detail">詳細</span></span><span class="badge-st">最速ST</span></div><div class="boat-sub">香川／香川・34歳</div><div class="stats"><div class="stat"><div class="lb">全国勝率</div><div class="v">3.68</div><div class="v2">2連 16.8%</div></div><div class="stat"><div class="lb">当地勝率</div><div class="v">3.78</div><div class="v2">2連 17.8%</div></div><div class="stat mach"><div class="lb">モーター No.73</div><div class="v">40.1%</div><div class="v2">3連 53.3%</div></div></div><div class="meter"><div class="meter-row"><span class="meter-lb">ST</span><div class="meter-track"><div class="meter-fill" style="width:100%;background:#ffd166"></div></div><span class="meter-val meter-best">0.13</span></div><div class="meter-row"><span class="meter-lb">機力</span><div class="meter-track"><div class="meter-fill" style="width:79%;background:#256abf"></div></div></div></div><div class="kmr"><div class="kmr-ttl"><span>決まり手構成（1着35/160走）</span></div><div class="kmr-bar"><div class="kmr-seg" style="width:45.161290%;background:#3987e5"></div><div class="kmr-seg" style="width:6.451613%;background:#2fa36b"></div><div class="kmr-seg" style="width:9.677419%;background:#d99b2b"></div><div class="kmr-seg" style="width:38.709677%;background:#a58bd8"></div></div><div class="kmr-legend"><span><span class="kmr-dot" style="background:#3987e5"></span>逃げ 45%</span><span><span class="kmr-dot" style="background:#2fa36b"></span>差し 6%</span><span><span class="kmr-dot" style="background:#d99b2b"></span>まくり 10%</span><span><span class="kmr-dot" style="background:#a58bd8"></span>まくり差し 39%</span></div></div><div class="cl10"><div class="cl10-hd"><span class="cl10-lb">6コース 直近10走</span><span class="cl10-av"><b>4.7</b>着　全体 4.5</span></div><div class="cl10-seq"><span class="">5</span><span class="">5</span><span class="">6</span><span class="">5</span><span class="">4</span><span class="p3">3</span><span class="">5</span><span class="">5</span><span class="">4</span><span class="">5</span></div><details><summary>内訳</summary><div class="cl10-dp"><div class="cl10-dk">直近10走の進入コース</div><div class="cl10-dl">1コース 2回 / 2コース 2回 / 3コース 1回 / 4コース 2回 / 5コース 1回 / 6コース 2回</div><div class="cl10-dk">集計期間</div><div class="cl10-dl">2026.06.17 〜 2026.08.31</div></div></details></div></div></div>
+  <div class="legend-note">
+    直近10走の着順は左が古く、右が新しい順。<span style="color:#ffd166">金</span>が1着。
+    枠番ではなく実際に進入したコースで数え、失格・妨害・転覆は6着として扱い、欠場はその1走だけ除いている。<br>
+    実データ：直近10走・平均着順・進入コースの内訳・集計期間・平均ST・決まり手構成は <code>results/*.json</code> の 2026-03-03 〜 2026-08-31（210日）から算出した。
+    全体の基準値（1コース 2.1着 ほか）は 2025-07-15 〜 2026-08-06 の実測中央値。<br>
+    仮の値：全国勝率・当地勝率・モーター2連率は、配置と高さを見るための仮置き。初日なので今節成績の表は出ていない。
+    このページは試作で、自動更新も新しい生成物も持たない。買い目・確率・予想は出さない。
+  </div>
+</div>
+<footer style="margin:24px auto 8px;max-width:900px;text-align:center;font-size:10px;color:#8a94a3;letter-spacing:.3px;line-height:1.7;">&copy; 2026 データ攻め ── 制作・運営 <a href="https://www.youtube.com/@abe-ken" target="_blank" rel="noopener" style="color:#9aa4b3;text-decoration:underline;">あべけん</a></footer>
+<script src="../assets/guard.js" defer></script>
+</body>
+</html>
