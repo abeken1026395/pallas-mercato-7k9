@@ -14,6 +14,7 @@
 1件でもFAILなら非ゼロ終了（執筆フロー最終段で必須実行し、合格までcommitしない）。
 網羅性チェックは source(N場)と記事(M場)の乖離＝欠場を機械検知する（07-11のカード欠落の
 再発防止。sourceはcronで場が増えて再生成されうるが記事は自動追随しないため）。
+前日が非開催（中止・順延）の場は前日成績が永久に空で執筆不能のため、欠場から除外する。
 
 方針: 「数値と語彙の網」に徹する。小整数（レース番号/コース/着/日目/本数等の構造値）は
 過剰検知を避けるため広めに許容。率(X.XX/XX.XX)・円・組番など捏造ベクトルを厳格照合。
@@ -25,9 +26,11 @@ import re
 import sys
 import json
 import glob
+import datetime
 
 ART_DIR = "docs/data/kansenki/articles"
 SRC_DIR = "docs/data/kansenki/source"
+RESULTS_DIR = "results"
 
 # --- 検査2: 他競技・他ギャンブル語彙（競艇語=舟券/万舟/節/水面）---
 OTHER_SPORT = ["馬券", "万馬券", "車券", "レコード勝ち", "レコード", "単勝", "枠連", "馬連", "馬単"]
@@ -253,29 +256,67 @@ def lint_article(art_path):
     return (fn, fails)
 
 
+def prev_day8(ymd):
+    """YYYYMMDD の前日を YYYYMMDD で返す。"""
+    d = datetime.datetime.strptime(ymd, "%Y%m%d") - datetime.timedelta(days=1)
+    return d.strftime("%Y%m%d")
+
+
+def prev_day_race_count(ymd, jcd):
+    """前日 results/YYYYMMDD.json に入っている当該場のレース数。
+    ファイル自体が無ければ None（＝判定不能）。中止と取得漏れを区別できないため、
+    ファイル不在のときは除外の根拠にしない。"""
+    path = os.path.join(RESULTS_DIR, prev_day8(ymd) + ".json")
+    if not os.path.exists(path):
+        return None
+    data = load(path)
+    lst = data.get("結果") if isinstance(data, dict) else data
+    n = 0
+    for r in lst or []:
+        if (r.get("場コード") or r.get("レース場コード")) == jcd:
+            n += 1
+    return n
+
+
 def check_coverage(ymd):
     """網羅性チェック: source/YYYYMMDD.json の全venueに記事があるか。
     源泉(source)は cron で場が増えて再生成されうる（不完全CSV時点の暫定sourceが後で
     完全CSVに差し替わる）。記事は人が書く自動追随しない生成物なので、source(N場)と
-    記事(M場)が乖離するとカードに穴が開く。それを機械検知する（欠場=FAIL）。"""
+    記事(M場)が乖離するとカードに穴が開く。それを機械検知する（欠場=FAIL）。
+
+    ただし前日が非開催（中止・順延）の場は除外する。buildKansenkiSource.py は前日を
+    カレンダー前日固定で引くため、前日非開催の場は results が空のまま埋まらず、
+    kansenki_pubplan.py の writable()（results非空 or 初日）が恒久的に False になる
+    ＝執筆不能。これは「一部書いて一部欠けた」乖離ではなく構造上の欠なので FAIL に
+    しない（実例: 20260812-03 江戸川。8/11が非開催で results/20260811.json に0件）。
+    判定は「初日でない」かつ「前日 results が存在し当該場のレースが0件」のときのみ。
+
+    戻り値: 記事0本の日は None、それ以外は {"miss": [...], "excused": [...], "venues": n}
+    """
     src_path = os.path.join(SRC_DIR, ymd + ".json")
     if not os.path.exists(src_path):
-        return [("素材欠", "source/%s.json なし" % ymd)]
+        return {"miss": [("素材欠", "source/%s.json なし" % ymd)],
+                "excused": [], "venues": 0}
     src = load(src_path)
     venues = src.get("venues", []) or []
-    present, miss = [], []
+    present, miss, excused = [], [], []
     for v in venues:
         jcd = v.get("jcd")
         name = v.get("venue", "")
         if os.path.exists(os.path.join(ART_DIR, "%s-%s.json" % (ymd, jcd))):
             present.append(jcd)
-        else:
-            miss.append(("記事欠", "%s-%s(%s) の記事が無い" % (ymd, jcd, name)))
+            continue
+        day1 = (v.get("dayNum") == 1) or (v.get("dayLabel") == "初日")
+        if (not day1) and prev_day_race_count(ymd, jcd) == 0:
+            excused.append("%s-%s(%s) 前日%sが非開催＝前日成績なしで執筆不能"
+                           % (ymd, jcd, name, prev_day8(ymd)))
+            continue
+        miss.append(("記事欠", "%s-%s(%s) の記事が無い" % (ymd, jcd, name)))
     # その日の記事が1本も無ければ「観戦記非運用日」としてスキップ（欠場検知の対象外）。
     # 「一部書いたのに一部欠けている」乖離だけを捕える設計。0本は執筆自体の未着手で別問題。
     if not present:
         return None
-    return miss
+    return {"miss": miss, "excused": excused, "venues": len(venues)}
 
 
 def run_coverage(ymds):
@@ -292,14 +333,18 @@ def run_coverage(ymds):
             print("SKIP 網羅 %s（当日記事0本＝観戦記非運用日）" % ymd)
             continue
         checked += 1
-        if res:
+        if res["miss"]:
             total_fail += 1
             print("FAIL 網羅 %s" % ymd)
-            for cat, tok in res:
+            for cat, tok in res["miss"]:
                 print("   [%s] %s" % (cat, tok))
+        elif res["excused"]:
+            print("PASS 網羅 %s（source全%d場中 %d場は執筆不能で除外）"
+                  % (ymd, res["venues"], len(res["excused"])))
         else:
-            n = len(load(os.path.join(SRC_DIR, ymd + ".json")).get("venues", []) or [])
-            print("PASS 網羅 %s（source全%d場に記事あり）" % (ymd, n))
+            print("PASS 網羅 %s（source全%d場に記事あり）" % (ymd, res["venues"]))
+        for tok in res["excused"]:
+            print("   [除外] %s" % tok)
     print("---")
     print("網羅結果: 検査%d日 / FAIL %d 日" % (checked, total_fail))
     sys.exit(1 if total_fail else 0)
