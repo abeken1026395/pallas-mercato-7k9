@@ -186,7 +186,7 @@ function rhBuild(changes, todayMs){
   }
   return {segs:segs, tot:tot, span:todayMs-rhDate(changes[0][0])};
 }
-function BranchPanel({bsort,setBsort,kim,players,hasDetail,detailErr}){
+function BranchPanel({bsort,setBsort,kim,players,hasDetail,detailErr,cstat,csMeta}){
   const stat = useMemo(()=>{
     const B={};
     players.forEach(p=>{(B[p.branch]=B[p.branch]||[]).push(p);});
@@ -194,16 +194,29 @@ function BranchPanel({bsort,setBsort,kim,players,hasDetail,detailErr}){
     const hasKim=kim&&Object.keys(kim).length>0;
     const natK={}; KIM.forEach(([k])=>natK[k]=0); let natTot=0;
     if(hasKim){ players.forEach(p=>{const o=kim[p.no]; if(o){KIM.forEach(([k])=>natK[k]+=o[k]||0); natTot+=KIM.reduce((s,[k])=>s+(o[k]||0),0);}}); }
+    const cs = (cstat && cstat!==false) ? cstat : null;
+    const cb = (csMeta && csMeta.基準) ? csMeta.基準.course : null;
+    const cbase = [1,2,3,4,5,6].map(c=>{
+      const v = cb ? cb[String(c)] : null;
+      return (v && v[0]) ? v[1]/v[0]*100 : null;
+    });
     const all={
       win:a(players.map(p=>p.win)),
       out:a(players.map(p=>p.out)),
       st:a(players.map(p=>parseFloat(p.avgst))),
+      cbase:cbase,
       makuriR:natTot?natK.makuri/natTot*100:0,
       sashiR:natTot?natK.sashi/natTot*100:0
     };
     const rows=Object.keys(B).map(b=>{
       const m=B[b];
-      const c1=[0,1,2,3,4,5].map(i=>a(m.map(p=>p.c1&&p.c1[i])));
+      // 支部の1着率は所属選手の走を合算して出す。選手ごとの率を平均すると、
+      // 3走の選手と300走の選手が同じ重みになってしまう。
+      const c1=[1,2,3,4,5,6].map(c=>{
+        let n=0, w=0;
+        m.forEach(p=>{ const v = cs && cs[String(p.no)] && cs[String(p.no)][String(c)]; if(v){ n+=v[0]; w+=v[1]; } });
+        return {n:n, r:(n? w/n*100 : null)};
+      });
       const kc={}; KIM.forEach(([k])=>kc[k]=0); let kt=0;
       if(hasKim){ m.forEach(p=>{const o=kim[p.no]; if(o){KIM.forEach(([k])=>kc[k]+=o[k]||0); kt+=KIM.reduce((s,[k])=>s+(o[k]||0),0);}}); }
       return {b,n:m.length,
@@ -216,7 +229,7 @@ function BranchPanel({bsort,setBsort,kim,players,hasDetail,detailErr}){
         sashiR:kt?kc.sashi/kt*100:0};
     });
     return {rows,all,hasKim};
-  },[kim,players]);
+  },[kim,players,cstat,csMeta]);
   const {rows,all,hasKim}=stat;
   const key=bsort==="makuri"?"makuriR":bsort==="sashi"?"sashiR":bsort;
   const sorted=[...rows].sort((x,y)=> bsort==="st" ? x.st-y.st : (y[key]-x[key]));
@@ -232,7 +245,7 @@ function BranchPanel({bsort,setBsort,kim,players,hasDetail,detailErr}){
   );
   return (
    <div>
-    <div style={{fontSize:11,color:"#6b7f95",margin:"2px 2px 10px",lineHeight:1.5}}>支部所属者の集計（2026後期fan2604）。決まり手は所属選手の1着実数を合算した比率。数値右は全国平均との差分。母数の少ない支部はブレやすく、個々の選手が従うわけではない目安。</div>
+    <div style={{fontSize:11,color:"#6b7f95",margin:"2px 2px 10px",lineHeight:1.5}}>支部所属者の集計。勝率・アウト戦・平均STは期首時点の値（2026後期fan2604）。コース別1着率は進入コース別の実走を合算したもので{csMeta&&csMeta.期間&&csMeta.期間.日数?"（過去"+csMeta.期間.日数+"日）":""}、細い横線は全選手の平均。決まり手は所属選手の1着実数を合算した比率。数値右は全国平均との差分。母数の少ない支部はブレやすく、個々の選手が従うわけではない目安。</div>
     <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}>
      {sk.map(([k,l])=>(
       <button key={k} onClick={()=>setBsort(k)} style={{padding:"6px 13px",fontSize:12,fontWeight:700,borderRadius:8,cursor:"pointer",border:"1px solid "+(bsort===k?"#ffd166":"#1e2d3d"),background:bsort===k?"#ffd166":"#162232",color:bsort===k?"#0b1219":"#8faabe"}}>{l}</button>
@@ -254,12 +267,16 @@ function BranchPanel({bsort,setBsort,kim,players,hasDetail,detailErr}){
         <div><span style={{color:"#6b7f95",fontSize:11}}>アウト戦 </span><b style={{color:"#e0e6ed",fontVariantNumeric:"tabular-nums"}}>{r.out.toFixed(1)}</b>{diff(r.out,all.out)}</div>
         <div><span style={{color:"#6b7f95",fontSize:11}}>平均ST </span><b style={{color:"#e0e6ed",fontVariantNumeric:"tabular-nums"}}>{r.st.toFixed(3)}</b>{diff(r.st,all.st,true)}</div>
        </div>
-       <div style={{display:"flex",gap:4,alignItems:"flex-end",height:40,marginBottom:12}}>
+       <div style={{display:"flex",gap:4,alignItems:"flex-end",marginBottom:12}}>
         {r.c1.map((v,i)=>(
          <div key={i} style={{flex:1,textAlign:"center"}}>
-          <div style={{fontSize:9,color:"#8faabe",marginBottom:2,fontVariantNumeric:"tabular-nums"}}>{v.toFixed(0)}</div>
-          <div style={{height:Math.max(2,v*0.28)+"px",background:i<2?"#ffd166":"#4593e5",borderRadius:"2px 2px 0 0"}}></div>
+          <div style={{fontSize:9,color:"#8faabe",marginBottom:2,fontVariantNumeric:"tabular-nums"}}>{v.r===null?"—":v.r.toFixed(0)}</div>
+          <div style={{height:30,position:"relative"}}>
+           {v.r!==null&&<div style={{position:"absolute",left:"16%",right:"16%",bottom:0,height:Math.max(2,v.r*0.28)+"px",background:i<2?"#ffd166":"#4593e5",borderRadius:"2px 2px 0 0"}}></div>}
+           {all.cbase[i]!==null&&<div style={{position:"absolute",left:0,right:0,bottom:Math.max(1,all.cbase[i]*0.28)+"px",height:1,background:"#6b7f95"}}></div>}
+          </div>
           <div style={{fontSize:9,color:"#6b7f95",marginTop:2}}>{i+1}</div>
+          <div style={{fontSize:9,color:"#6b7f95",fontVariantNumeric:"tabular-nums"}}>{v.n?v.n.toLocaleString():"—"}走</div>
          </div>
         ))}
        </div>
@@ -393,13 +410,13 @@ function App() {
       if(j && j.racers){ setSord(j.racers); setSoMeta({期間:j.期間, 出典:j.出典, 方法:j.集計方法, 基準:j.基準, 閾値:j.言語化閾値}); }
     }).catch(()=>{ setSord(false); });
   },[open]);
-  // コース別成績（results 由来）も詳細を開いた時だけ遅延読込
+  // コース別成績（results 由来）。詳細を開いた時と、支部傾向タブを開いた時に遅延読込
   useEffect(()=>{
-    if(!open || cstat!==null) return;
+    if((!open && tab!=="branch") || cstat!==null) return;
     fetch("../data/racerCourseStats.json").then(r=>r.ok?r.json():Promise.reject()).then(j=>{
       if(j && j.racers){ setCstat(j.racers); setCsMeta({期間:j.期間, 基準:j.基準, ガード:j.母数ガード, 出典:j.出典, 方法:j.集計方法}); }
     }).catch(()=>{ setCstat(false); });
-  },[open]);
+  },[open,tab]);
   // URLに ?toban=登番 があれば、その選手を検索欄にプリセットして開く（モーター等からのリンク用）
   useEffect(()=>{
     const t=new URLSearchParams(location.search).get("toban");
@@ -524,7 +541,7 @@ function App() {
       </div>
 
       <div style={{fontSize:11,color:"#6b7f95",lineHeight:1.7,marginBottom:12,padding:"9px 11px",background:"#131e2a",border:"1px solid #1e2d3d",borderRadius:8}}>☆を押すと推しフォロー。フォローした選手は出走表の「⭐ 推しの本日」に出ます。フォローはこの端末にのみ保存され、外部には送信されません。</div>
-      {tab==="branch" && <BranchPanel bsort={bsort} setBsort={setBsort} kim={kim} players={players} hasDetail={!!detail} detailErr={detailErr}/>}
+      {tab==="branch" && <BranchPanel bsort={bsort} setBsort={setBsort} kim={kim} players={players} hasDetail={!!detail} detailErr={detailErr} cstat={cstat} csMeta={csMeta}/>}
       <div style={{display:"flex",flexDirection:"column",gap:9}}>
         {tab!=="branch" && filtered.slice(0,300).map((p,idx)=>{
           const isOpen = open===p.no;
