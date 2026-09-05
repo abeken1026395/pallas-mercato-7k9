@@ -2638,7 +2638,7 @@ function App() {
             color: "#c5d2e0",
             fontWeight: 700
           }
-        }, c, "\u53F7\u8247"), /*#__PURE__*/React.createElement("span", {
+        }, c), /*#__PURE__*/React.createElement("span", {
           style: {
             width: 40,
             textAlign: "right",

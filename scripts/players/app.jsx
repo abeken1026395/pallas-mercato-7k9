@@ -1023,7 +1023,7 @@ function App() {
                               const tech=KTECH.filter(t=>r.決まり手[t]).map(t=>t+r.決まり手[t]).join("・");
                               return (
                                 <div key={c} style={{display:"flex",alignItems:"center",fontSize:12,padding:"5px 0",borderBottom:"1px solid #131f2e",opacity:few?0.55:1}}>
-                                  <span style={{width:40,color:"#c5d2e0",fontWeight:700}}>{c}号艇</span>
+                                  <span style={{width:40,color:"#c5d2e0",fontWeight:700}}>{c}</span>
                                   <span style={{width:40,textAlign:"right",color:"#e0e6ed",fontVariantNumeric:"tabular-nums"}}>{r.出走数}{few&&<span style={{fontSize:9,color:"#c98"}}> 少</span>}</span>
                                   <span style={{width:36,textAlign:"right",color:r["1着数"]>0?"#ffd166":"#6b7f95",fontWeight:700,fontVariantNumeric:"tabular-nums"}}>{r["1着数"]}</span>
                                   <span style={{width:44,textAlign:"right",color:"#3fb1c9",fontWeight:700,fontVariantNumeric:"tabular-nums"}}>{r["2連対数"]}</span>
