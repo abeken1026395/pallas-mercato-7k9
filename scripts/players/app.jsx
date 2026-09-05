@@ -410,13 +410,14 @@ function App() {
       if(j && j.racers){ setSord(j.racers); setSoMeta({期間:j.期間, 出典:j.出典, 方法:j.集計方法, 基準:j.基準, 閾値:j.言語化閾値}); }
     }).catch(()=>{ setSord(false); });
   },[open]);
-  // コース別成績（results 由来）。詳細を開いた時と、支部傾向タブを開いた時に遅延読込
+  // コース別成績（results 由来）。詳細を開いた時、支部傾向タブ、
+  // イン1着率順の並び替えを選んだ時に遅延読込
   useEffect(()=>{
-    if((!open && tab!=="branch") || cstat!==null) return;
+    if((!open && tab!=="branch" && sortKey!=="c1") || cstat!==null) return;
     fetch("../data/racerCourseStats.json").then(r=>r.ok?r.json():Promise.reject()).then(j=>{
       if(j && j.racers){ setCstat(j.racers); setCsMeta({期間:j.期間, 基準:j.基準, ガード:j.母数ガード, 出典:j.出典, 方法:j.集計方法}); }
     }).catch(()=>{ setCstat(false); });
-  },[open,tab]);
+  },[open,tab,sortKey]);
   // URLに ?toban=登番 があれば、その選手を検索欄にプリセットして開く（モーター等からのリンク用）
   useEffect(()=>{
     const t=new URLSearchParams(location.search).get("toban");
@@ -480,11 +481,23 @@ function App() {
       if (sortKey==="out") return (b.out||0)-(a.out||0);
       if (sortKey==="win") return b.win-a.win;
       if (sortKey==="yusyo") return b.yusyo-a.yusyo;
-      if (sortKey==="c1") return (b.c1[0]||0)-(a.c1[0]||0);
+      if (sortKey==="c1") {
+        // 並び替えも results 由来にする。期首固定の fan 値は分母を持たないため、
+        // 走数がガードに届かない選手は率を作らず末尾へ落とす（2走2勝を先頭に
+        // 置かないため）。racerCourseStats.json が未着の間だけ従来値を使う。
+        const g = (csMeta&&csMeta.ガード) ? csMeta.ガード : 20;
+        const cs = (cstat && cstat!==false) ? cstat : null;
+        const iv = p=>{
+          if(!cs) return (p.c1&&p.c1[0])||0;
+          const o = cs[String(p.no)] && cs[String(p.no)]["1"];
+          return (o && o[0]>=g) ? o[1]/o[0]*100 : -1;
+        };
+        return iv(b)-iv(a);
+      }
       return 0;
     });
     return rows;
-  }, [players, q, rankF, branchF, sortKey, femaleOnly, tab, kim, oshiOnly, oshi]);
+  }, [players, q, rankF, branchF, sortKey, femaleOnly, tab, kim, oshiOnly, oshi, cstat, csMeta]);
 
   // core が来るまでは一覧を出さない。ここで検索欄やフィルタを描くと「0名」や
   // 空の「⭐推しのみ」が出てしまい、フォローが消えたように見える。
