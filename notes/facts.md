@@ -4,7 +4,7 @@
 確定した仕様・数値・構造だけを置く。進行状況は `notes/state.md`、行動規範はプロジェクト指示（L1）にある。
 更新は月1回程度。**確定した事実だけを書き、推測を書かない。**
 
-最終更新 2026-09-05 JST ／ 基準 main `593557b5`
+最終更新 2026-09-05 JST ／ 基準 main `87491dad`
 
 ---
 
@@ -38,6 +38,8 @@
 |ブランチ削除（`git push origin --delete`）|**403で不可**|**可**|
 |`boatrace.jp` / `mbrace` 取得・観戦記自走・`courseFinish` 再生成|不可|**可**|
 
+- **Cowork（デスクトップアプリ）は push できない。**リポジトリを触る作業はClaude Code側で回す
+- **Google Driveの既存ファイルは編集できない**（読み取り・新規作成・コピーのみ）。だから進行状況は `notes/` に置く
 - クラウドCodeに `gh` CLI が無い環境がある。その場合は GitHub MCP でPR作成・マージ
 - クラウドCodeのクローンは **shallow** のことがある。作業ブランチは `git checkout -B <name> origin/main` で直接切る
 - クラウドCodeのPR本文には環境規約で生成元表記が自動付与される。読者に出ないため放置でよい
@@ -83,6 +85,7 @@
 |---|---|---|
 |`docs/racers/index.html`|`scripts/template_racers.html`|`scrape_racers.py`（update_racers.yml）|
 |`docs/motor/index.html`|`scripts/template.html`|`scrape_motors.py`（update_motors.yml）|
+|`docs/motor/app.js`|`scripts/motor/app.jsx`|`node scripts/buildMotorApp.mjs`（**Babel 7系を明示**）|
 |`docs/motor-maintenance/index.html`|`scripts/templateMaintenance.html`|`buildMotorMaintenance.py`|
 |`docs/players/app.js`|`scripts/players/app.jsx`|`node scripts/buildPlayersApp.mjs`（**Babel `@babel/core@^7` 必須**）|
 |`docs/results/data/*.json`|`results/*.json`|`buildResultsSite.py`（**直近30日のみ**）|
@@ -92,6 +95,9 @@
 |`docs/data/collapsePattern.json`|—|`buildCollapsePattern.py`（**WFなし・手動のみ**）|
 |`docs/data/racerInRate.json`|—|`buildRacerInRate.py`（**WFなし・手動のみ**）|
 |`docs/data/courseFinish.json`|—|`buildCourseFinish.py`（**kdata由来・クラウド再生成不可**）|
+
+**`/motor/` は2系統が同居する。**`docs/motor/index.html`（`scrape_motors.py` 生成）と `docs/motor/app.js`（`app.jsx` 由来）は別系統。片方を直すときもう片方を触らない。
+`scripts/motor/app.jsx` 末尾の「レイアウト計量テーブル」以降39行は著作権表示のガード。**差分ゼロを保つ。**
 
 上記以外の `docs/*/index.html` はすべて手書き。**トップ・`/results/`・`/kensho/` ハブ・`/highlights/` も手書きの一次ソース。**
 `docs/players/profile.json` は手入力。**Actionsの対象に絶対しない。**
@@ -180,7 +186,7 @@
 |タスク|時刻|内容|
 |---|---|---|
 |`boatrace-writeKansenkiLocal`|5:30|観戦記の自走|
-|`boatrace-dailyMotorUsage`|6:00|Kファイル収集→motorUsage再生成→補填|
+|`boatrace-dailyMotorUsage`|6:00|Kファイル収集→motorUsage再生成→補填。**稼働中**（2026-09-05 06:05 更新を実測）。ログは `scripts/logs/dailyMotorUsage_YYYYMMDD.log` の3行だけ読む|
 |`boatrace-dailyPartsBackfill`|**9:00 と 18:30**|モーターNo補填（本命は9:00）|
 |`boatrace-updateKimarite`|毎月2・16日 6:30|決まり手更新|
 
@@ -283,6 +289,19 @@ AUC 0.6937（2026実測比 −0.0171）／上位10%①着外率 41.1%（**再学
 |錘あり率|男11.6% / 女40.3%|
 
 成立条件5本を毎日自動判定。**walkaway：絞ってきた、は嘘ではない。終わったのがずっと前だっただけ。**
+
+### モーターの新替と走行数（`motorUsage.json`）
+
+**モーターは各場で年1回新替され、機番が振り直される。**通算の走行数は「同じ機番を名乗った歴代モーターの合計」であって、今走っている機の実績ではない。
+実測：若松M49は10年通算で走2279・2連率36.4%。新替以降で数え直すと**走135・2連率51.1%**（公式のモーター2連対率53.7%とほぼ一致）。1サイクルの走行数は**115〜198走**。
+
+新替日は**公式非公開**。「公式のモーター2連対率＝新替からの累計」という性質を使い、**自前の2連/走が公式レートに最も合う開始日を場ごとに総当たりで逆算**している。誤差1.5pt超・照合15機未満の場は推定失敗として**走行数を出さない**（推測で埋めない）。
+
+- `docs/data/motorUsage.json` は `schema: "venueWindow-1"`。**場ごとの窓は `venues.<場コード>.coverageFrom`**（`fitError`・`matched`・`officialAsOf` を併記）
+- **トップレベルの `coverageFrom: 20161101` は全体窓であって走行数の窓ではない。**ここを窓と読むと10年通算に戻る
+- 2026-09-05実測：`venues` 22場・`motors` 1,389機。未推定は **02戸田・07蒲郡**の2場。新替日は場ごとに時期が違う（例 01桐生 2025-12-27 / 04平和島 2026-06-18）
+- `buildMotorUsage.py` の安全ゲート（記号着順0.5〜5.0% ／ 走行数中央値100〜250）。NGの日は書かず `exit 2` で止まり、コミットもpushも後段のbackfillも走らない（前日のJSONが据え置き）。**合格域は緩めない**
+- Kファイルを `data/kfiles/` から読む。**Kアーカイブはローカルにしかなくクラウドでは再生成不可**
 
 ### モーター整備
 
@@ -409,3 +428,6 @@ URL変更時に直すファイル（L2の生き残り分）：
 
 `hikitsugiMemo20260901rev25a.md`（1,870行）は 2026-09-05 に凍結。
 本ファイルと `notes/state.md` へ移植済み。**更新しない。**移し漏れが見つかったときの参照元としてDriveに残す。
+
+`claude_motorHandoff.md`（2026-09-02時点・95行）も同日に凍結。移植済み。
+**このファイルの「今の公開ページは走行数が全場で非表示」「推定できたのは8場」は古い。**2026-09-05時点で `motorUsage.json` は新形式（`venueWindow-1`）で稼働し22場が推定できている。記載された8場の新替日も旧推定値なので使わない。

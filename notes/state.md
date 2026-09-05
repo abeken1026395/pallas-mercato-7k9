@@ -3,7 +3,7 @@
 このファイルは運用の記録であり、読者向けの公開ページではない。
 毎回のチャット終了時に更新する。事実・仕様は `notes/facts.md`、行動規範はプロジェクト指示（L1）にある。
 
-最終更新 2026-09-05 JST ／ 基準 main `593557b5`
+最終更新 2026-09-05 JST ／ 基準 main `87491dad`
 
 ---
 
@@ -52,6 +52,8 @@
 
 ## 小さい残件
 
+- **`writeHealthStatus.py` の `WATCH` に `motorUsage` が無い**（監視9項目に含まれず）。`buildMotorUsage.py` の安全ゲートが連日NGでJSONが据え置かれても毎朝の健全性チェックが鳴らない。`"motorUsage": "docs/data/motorUsage.json",` の1行追加で解決
+- **`/motor/` の初期取得4.3MB**：`motorKarte.json` 2.26MB＋`e30PlayerStats.json` 1.45MB＋`motorUsage.json` 0.39MB。**E30バッジ1個のために1.45MB読んでいる**。行を開いたとき・必要な場だけ取る形にする
 - コピーガード未実装3件：`motor-maintenance` / `kensho/shobugake` / `kensho/taiju`（すべて生成物・正本を直す2段階）
 - `docs/data/motorParts.json`（15.68MB）・`docs/data/kansenki`（10.7MB）の削減
 - `buildRacerStatsSplit.py` に `--check` モード追加
