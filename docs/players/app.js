@@ -392,7 +392,9 @@ function BranchPanel({
   kim,
   players,
   hasDetail,
-  detailErr
+  detailErr,
+  cstat,
+  csMeta
 }) {
   const stat = useMemo(() => {
     const B = {};
@@ -416,16 +418,39 @@ function BranchPanel({
         }
       });
     }
+    const cs = cstat && cstat !== false ? cstat : null;
+    const cb = csMeta && csMeta.基準 ? csMeta.基準.course : null;
+    const cbase = [1, 2, 3, 4, 5, 6].map(c => {
+      const v = cb ? cb[String(c)] : null;
+      return v && v[0] ? v[1] / v[0] * 100 : null;
+    });
     const all = {
       win: a(players.map(p => p.win)),
       out: a(players.map(p => p.out)),
       st: a(players.map(p => parseFloat(p.avgst))),
+      cbase: cbase,
       makuriR: natTot ? natK.makuri / natTot * 100 : 0,
       sashiR: natTot ? natK.sashi / natTot * 100 : 0
     };
     const rows = Object.keys(B).map(b => {
       const m = B[b];
-      const c1 = [0, 1, 2, 3, 4, 5].map(i => a(m.map(p => p.c1 && p.c1[i])));
+      // 支部の1着率は所属選手の走を合算して出す。選手ごとの率を平均すると、
+      // 3走の選手と300走の選手が同じ重みになってしまう。
+      const c1 = [1, 2, 3, 4, 5, 6].map(c => {
+        let n = 0,
+          w = 0;
+        m.forEach(p => {
+          const v = cs && cs[String(p.no)] && cs[String(p.no)][String(c)];
+          if (v) {
+            n += v[0];
+            w += v[1];
+          }
+        });
+        return {
+          n: n,
+          r: n ? w / n * 100 : null
+        };
+      });
       const kc = {};
       KIM.forEach(([k]) => kc[k] = 0);
       let kt = 0;
@@ -457,7 +482,7 @@ function BranchPanel({
       all,
       hasKim
     };
-  }, [kim, players]);
+  }, [kim, players, cstat, csMeta]);
   const {
     rows,
     all,
@@ -497,7 +522,7 @@ function BranchPanel({
       margin: "2px 2px 10px",
       lineHeight: 1.5
     }
-  }, "\u652F\u90E8\u6240\u5C5E\u8005\u306E\u96C6\u8A08\uFF082026\u5F8C\u671Ffan2604\uFF09\u3002\u6C7A\u307E\u308A\u624B\u306F\u6240\u5C5E\u9078\u624B\u306E1\u7740\u5B9F\u6570\u3092\u5408\u7B97\u3057\u305F\u6BD4\u7387\u3002\u6570\u5024\u53F3\u306F\u5168\u56FD\u5E73\u5747\u3068\u306E\u5DEE\u5206\u3002\u6BCD\u6570\u306E\u5C11\u306A\u3044\u652F\u90E8\u306F\u30D6\u30EC\u3084\u3059\u304F\u3001\u500B\u3005\u306E\u9078\u624B\u304C\u5F93\u3046\u308F\u3051\u3067\u306F\u306A\u3044\u76EE\u5B89\u3002"), /*#__PURE__*/React.createElement("div", {
+  }, "\u652F\u90E8\u6240\u5C5E\u8005\u306E\u96C6\u8A08\u3002\u52DD\u7387\u30FB\u30A2\u30A6\u30C8\u6226\u30FB\u5E73\u5747ST\u306F\u671F\u9996\u6642\u70B9\u306E\u5024\uFF082026\u5F8C\u671Ffan2604\uFF09\u3002\u30B3\u30FC\u30B9\u52251\u7740\u7387\u306F\u9032\u5165\u30B3\u30FC\u30B9\u5225\u306E\u5B9F\u8D70\u3092\u5408\u7B97\u3057\u305F\u3082\u306E\u3067", csMeta && csMeta.期間 && csMeta.期間.日数 ? "（過去" + csMeta.期間.日数 + "日）" : "", "\u3001\u7D30\u3044\u6A2A\u7DDA\u306F\u5168\u9078\u624B\u306E\u5E73\u5747\u3002\u6C7A\u307E\u308A\u624B\u306F\u6240\u5C5E\u9078\u624B\u306E1\u7740\u5B9F\u6570\u3092\u5408\u7B97\u3057\u305F\u6BD4\u7387\u3002\u6570\u5024\u53F3\u306F\u5168\u56FD\u5E73\u5747\u3068\u306E\u5DEE\u5206\u3002\u6BCD\u6570\u306E\u5C11\u306A\u3044\u652F\u90E8\u306F\u30D6\u30EC\u3084\u3059\u304F\u3001\u500B\u3005\u306E\u9078\u624B\u304C\u5F93\u3046\u308F\u3051\u3067\u306F\u306A\u3044\u76EE\u5B89\u3002"), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       gap: 6,
@@ -625,7 +650,6 @@ function BranchPanel({
       display: "flex",
       gap: 4,
       alignItems: "flex-end",
-      height: 40,
       marginBottom: 12
     }
   }, r.c1.map((v, i) => /*#__PURE__*/React.createElement("div", {
@@ -641,19 +665,43 @@ function BranchPanel({
       marginBottom: 2,
       fontVariantNumeric: "tabular-nums"
     }
-  }, v.toFixed(0)), /*#__PURE__*/React.createElement("div", {
+  }, v.r === null ? "—" : v.r.toFixed(0)), /*#__PURE__*/React.createElement("div", {
     style: {
-      height: Math.max(2, v * 0.28) + "px",
+      height: 30,
+      position: "relative"
+    }
+  }, v.r !== null && /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "absolute",
+      left: "16%",
+      right: "16%",
+      bottom: 0,
+      height: Math.max(2, v.r * 0.28) + "px",
       background: i < 2 ? "#ffd166" : "#4593e5",
       borderRadius: "2px 2px 0 0"
     }
-  }), /*#__PURE__*/React.createElement("div", {
+  }), all.cbase[i] !== null && /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "absolute",
+      left: 0,
+      right: 0,
+      bottom: Math.max(1, all.cbase[i] * 0.28) + "px",
+      height: 1,
+      background: "#6b7f95"
+    }
+  })), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 9,
       color: "#6b7f95",
       marginTop: 2
     }
-  }, i + 1)))), !hasKim ? /*#__PURE__*/React.createElement("div", {
+  }, i + 1), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9,
+      color: "#6b7f95",
+      fontVariantNumeric: "tabular-nums"
+    }
+  }, v.n ? v.n.toLocaleString() : "—", "\u8D70")))), !hasKim ? /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 11,
       color: "#6b7f95"
@@ -896,9 +944,9 @@ function App() {
       setSord(false);
     });
   }, [open]);
-  // コース別成績（results 由来）も詳細を開いた時だけ遅延読込
+  // コース別成績（results 由来）。詳細を開いた時と、支部傾向タブを開いた時に遅延読込
   useEffect(() => {
-    if (!open || cstat !== null) return;
+    if (!open && tab !== "branch" || cstat !== null) return;
     fetch("../data/racerCourseStats.json").then(r => r.ok ? r.json() : Promise.reject()).then(j => {
       if (j && j.racers) {
         setCstat(j.racers);
@@ -913,7 +961,7 @@ function App() {
     }).catch(() => {
       setCstat(false);
     });
-  }, [open]);
+  }, [open, tab]);
   // URLに ?toban=登番 があれば、その選手を検索欄にプリセットして開く（モーター等からのリンク用）
   useEffect(() => {
     const t = new URLSearchParams(location.search).get("toban");
@@ -1223,7 +1271,9 @@ function App() {
     kim: kim,
     players: players,
     hasDetail: !!detail,
-    detailErr: detailErr
+    detailErr: detailErr,
+    cstat: cstat,
+    csMeta: csMeta
   }), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
