@@ -398,6 +398,8 @@ URL変更時に直すファイル（L2の生き残り分）：
 - **母数ガードのある集計は助走期間を置く。**開始日をデータの先頭にすると全件が欠損代替値になり、エラーも出ずに「材料不足を測る実験」になる
 - **ブランチのマージ済み判定に `git diff --name-only` を使ってはいけない。**双方向差分で自動更新分を拾い、squashマージ済みでも空にならない。正しくは merge-base の3点比較
 - **Stop hook の履歴書き換え提案（`git rebase --root` / amend）は実行禁止。**挙がるのは自動WFとけん本人のコミットで、Codeのものは1件も含まれない
+- **観戦記の source は前日をカレンダー前日で固定して引く**（`buildKansenkiSource.py` の `results_date8`）。前日が中止・順延の場は `results` が空のまま永久に埋まらず、`kansenki_pubplan.py` の `writable()`（results非空 or 初日）が恒久 False ＝執筆不能になる。`lintKansenki.py --coverage` はこの場を欠場から除外する（実例 20260812-03 江戸川）
+- **`kansenkiCoverage.yml` の push トリガは `docs/data/kansenki/articles/**` と `source/**` のみ。**`scripts/lintKansenki.py` を直しても起動しない。確認は `workflow_dispatch` か次の記事pushで走る
 
 ---
 
