@@ -2784,7 +2784,7 @@ function emRatio(t) {
     return decodeURIComponent(escape(atob(s)));
   };
   var w = document.createElement("div");
-  w.style.cssText = d("cG9zaXRpb246Zml4ZWQ7dG9wOjA7bGVmdDowO3JpZ2h0OjA7ei1pbmRleDo5OTk5O2JhY2tncm91bmQ6I2IzMjYxZTtjb2xvcjojZmZmO3BhZGRpbmc6MTBweCAxMnB4O2ZvbnQtc2l6ZToxM3B4O3RleHQtYWxpZ246Y2VudGVyO2xpbmUtaGVpZ2h0OjEuNg==");
+  w.style.cssText = d("cG9zaXRpb246cmVsYXRpdmU7YmFja2dyb3VuZDojYjMyNjFlO2NvbG9yOiNmZmY7cGFkZGluZzoxMnB4IDQ0cHggMTJweCAxMnB4O2ZvbnQtc2l6ZToxM3B4O2xpbmUtaGVpZ2h0OjEuNzt0ZXh0LWFsaWduOmNlbnRlcg==");
   var a = document.createElement("a");
   a.href = d("aHR0cHM6Ly93d3cueW91dHViZS5jb20vQGFiZS1rZW4=");
   a.target = "_blank";
@@ -2793,9 +2793,18 @@ function emRatio(t) {
   a.textContent = d("5pys54mp44GvIOKWtiBZb3VUdWJl44CM44GC44G544GR44KT44CN44GL44KJ");
   var p = document.createElement("div");
   p.textContent = d("44GT44Gu44Oa44O844K444Gv44CM44OH44O844K/5pS744KB44CN44Gu54Sh5pat44Kz44OU44O844Gn44GZ44CC");
+  var b = document.createElement("button");
+  b.type = "button";
+  b.setAttribute("aria-label", d("6ZaJ44GY44KL"));
+  b.textContent = "\u00d7";
+  b.style.cssText = "position:absolute;top:2px;right:2px;width:40px;height:40px;background:none;border:0;color:#fff;font-size:20px;line-height:40px;cursor:pointer";
+  b.addEventListener("click", function () {
+    w.parentNode.removeChild(w);
+  });
   w.appendChild(p);
   w.appendChild(a);
-  document.body.prepend(w);
+  w.appendChild(b);
+  document.body.insertBefore(w, document.body.firstChild);
 }
 function clampRatio() {
   var a = String.fromCodePoint.apply(null, reflowHints().slice(4));
