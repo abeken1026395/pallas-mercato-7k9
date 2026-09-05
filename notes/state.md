@@ -45,7 +45,7 @@
 - **C-2 機力低×展示速**。「①のモーター2連率が場平均を下回るとき、展示が6艇1位でも①着外率は下がらない」。**2×2で集計・条件を後から足さない**。使える期間は2026-04以降の約5ヶ月（`motorUsage.json` の制約）・想定n=1,800
 - 一周・まわり足のデータ源調査。`preview` に項目なし・過去分も遡れない。場公式（尼崎・桐生）の取得可否は**不明**
 - **WFの失敗通知が無い**。9便の failure が4日間気づかれなかった
-- リモートブランチの仕分け。**総数35本**・保護6本・削除待ち23本・メモ未記載の残余あり。判定は**merge-base の3点比較**（`git diff --name-only` も `git branch --merged` も使えない）。**クラウドCodeはブランチ削除ができない**（403 のほか `git push origin --delete` も send-pack で切断される・2026-09-05に5回失敗）。削除はローカルCodeかGitHub画面。マージ済み未削除に `claude/coverage-fail-20260812-03-av4dub`（PR #345・6e37953e）と `claude/players-guard-banner-standard-pd6ttn`（PR #351・9d1cc73e）、2026-09-05の5本 `feat/racer-course-stats`（#347）・`feat/racer-course-display`（#348）・`feat/course-label-fix`（#349）・`feat/branch-course-rate`（#350）・`feat/sort-in-rate-results`（#352）が加わった
+- リモートブランチの仕分け。**残り16本**（2026-09-05実測・main含む）。**squash-merge されたブランチは `git log origin/main --oneline --grep="(#PR番号)"` で判定し、rebase で入ったブランチは patch-id の一致で判定する。**`git branch -r --contains` は squash では当たらず、`git diff --name-only` も `git branch --merged` も使えない。**クラウドCodeはブランチ削除ができない**（403 のほか `git push origin --delete` も send-pack で切断される・2026-09-05に5回失敗）。**ローカルCodeでは通る**（2026-09-05にマージ済み6本を削除して実証）。残り16本の仕分けは未着手
 - Stop hook の条件修正
 - 選手コメントの調査（公式に存在しない。所在・取得可否・著作権・カバー率）
 - `lintGuard.py` の検査軸変更（判定式リテラル依存をやめ、L2の7ページも canonical 照合へ）
