@@ -307,6 +307,8 @@ function App() {
   const [slMeta, setSlMeta] = useState(null);
   const [sord, setSord] = useState(null);
   const [soMeta, setSoMeta] = useState(null);
+  const [cstat, setCstat] = useState(null);
+  const [csMeta, setCsMeta] = useState(null);
   const [oshi, setOshi] = useState(loadOshi);
   const [oshiOnly, setOshiOnly] = useState(false);
   const toggleOshi = (toban, name) => { const nx = nextOshi(oshi, toban, name); setOshi(nx); lsSet("br_oshi", nx); };
@@ -390,6 +392,13 @@ function App() {
     fetch("../data/racerStartOrder.json").then(r=>r.ok?r.json():Promise.reject()).then(j=>{
       if(j && j.racers){ setSord(j.racers); setSoMeta({期間:j.期間, 出典:j.出典, 方法:j.集計方法, 基準:j.基準, 閾値:j.言語化閾値}); }
     }).catch(()=>{ setSord(false); });
+  },[open]);
+  // コース別成績（results 由来）も詳細を開いた時だけ遅延読込
+  useEffect(()=>{
+    if(!open || cstat!==null) return;
+    fetch("../data/racerCourseStats.json").then(r=>r.ok?r.json():Promise.reject()).then(j=>{
+      if(j && j.racers){ setCstat(j.racers); setCsMeta({期間:j.期間, 基準:j.基準, ガード:j.母数ガード, 出典:j.出典, 方法:j.集計方法}); }
+    }).catch(()=>{ setCstat(false); });
   },[open]);
   // URLに ?toban=登番 があれば、その選手を検索欄にプリセットして開く（モーター等からのリンク用）
   useEffect(()=>{
@@ -844,20 +853,90 @@ function App() {
                       </div>
                     ))}
                   </div>
-                  <div style={{fontSize:11,color:"#8faabe",fontWeight:700,marginBottom:4}}>■ コース別1着率　<span style={{color:"#79c0ff",fontWeight:400,fontVariantNumeric:"tabular-nums"}}>アウト戦(3-6) {p.out!==null?p.out+"%":"-"}</span></div>
-                  <div style={{display:"flex",gap:4,alignItems:"flex-end",background:"#0b1219",borderRadius:8,padding:"10px 6px"}}>
-                    {p.c1.map((rate,i)=>(
-                      <div key={i} style={{flex:1,textAlign:"center"}}>
-                        <div style={{height:44,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
-                          {rate!==null&&<div style={{width:"68%",height:Math.max(2,rate*0.42)+"px",background:i<2?"#ffd166":"#79c0ff",borderRadius:"2px 2px 0 0"}}></div>}
-                        </div>
-                        <div style={{fontSize:11,color:"#c5d2e0",marginTop:3,fontWeight:600,fontVariantNumeric:"tabular-nums"}}>{rate!==null?rate+"%":"-"}</div>
-                        <div style={{fontSize:10,color:"#6b7f95"}}>{i+1}号艇</div>
-                      </div>
-                    ))}
-                  </div>
-                  <div style={{fontSize:10,color:"#6b7f95",marginTop:6,lineHeight:1.5}}>黄=イン(1・2)、青=アウト(3〜6)。アウトが高い選手は外から攻めて勝てる攻撃型。</div>
                   </>)}
+                  {/* ■ コース別の1着率（進入コース別・results 由来）
+                      期首固定の fan 値（p.c1）は分母を持たず「52.4%」のように
+                      小数第1位まで出していたが、1コースは選手あたり中央値37走で
+                      1着1本が2.7pt動く。分母つきの実測に差し替える。 */}
+                  {(()=>{
+                    if(cstat===null) return (
+                      <div style={{fontSize:11,color:"#6b7f95",margin:"12px 0",lineHeight:1.7}}>読み込み中…</div>
+                    );
+                    if(cstat===false) return null;
+                    const cs = cstat[String(p.no)];
+                    if(!cs) return null;
+                    const guard = (csMeta&&csMeta.ガード) ? csMeta.ガード : 20;
+                    const base = (csMeta&&csMeta.基準) ? csMeta.基準.course : null;
+                    const pc = (a,b)=> b ? Math.round(a/b*100) : null;
+                    const rows = [];
+                    for(let c=1;c<=6;c++){
+                      const v = cs[String(c)];
+                      if(!v) continue;
+                      const b = base ? base[String(c)] : null;
+                      const n = v[0], ok = n>=guard;
+                      rows.push({c:c, n:n, w1:v[1], w2:v[1]+v[2], w3:v[1]+v[2]+v[3],
+                        r1:(ok?pc(v[1],n):null), r2:(ok?pc(v[1]+v[2],n):null), r3:(ok?pc(v[1]+v[2]+v[3],n):null),
+                        a1:(b?pc(b[1],b[0]):null), a2:(b?pc(b[1]+b[2],b[0]):null), a3:(b?pc(b[1]+b[2]+b[3],b[0]):null)});
+                    }
+                    if(!rows.length) return null;
+                    const cell = (mine, all, hit, n)=>(
+                      <td style={{padding:"6px 0",borderBottom:"1px solid #1a2535",textAlign:"right",verticalAlign:"top"}}>
+                        <div style={{fontWeight:700,color:"#e0e6ed",fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap"}}>{mine===null?"—":mine+"%"}</div>
+                        <div style={{color:"#6b7f95",fontSize:10,fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap",marginTop:1}}>{n}走中{hit}回</div>
+                        <div style={{color:"#6b7f95",fontSize:10,fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap"}}>{all===null?"":"全体 "+all+"%"}</div>
+                      </td>
+                    );
+                    return (
+                      <div style={{marginBottom:14}}>
+                        <div style={{fontSize:11,color:"#8faabe",fontWeight:700,marginBottom:4}}>■ コース別の1着率　<span style={{color:"#6b7f95",fontWeight:400}}>進入コース別{csMeta&&csMeta.期間&&csMeta.期間.日数?"／過去"+csMeta.期間.日数+"日":""}</span></div>
+                        <div style={{display:"flex",gap:4,alignItems:"flex-end",background:"#0b1219",borderRadius:8,padding:"10px 6px"}}>
+                          {rows.map(r=>(
+                            <div key={r.c} style={{flex:1,textAlign:"center"}}>
+                              <div style={{height:44,position:"relative"}}>
+                                {r.r1!==null&&<div style={{position:"absolute",left:"16%",bottom:0,width:"68%",height:Math.max(2,r.r1*0.42)+"px",background:r.c<3?"#ffd166":"#79c0ff",borderRadius:"2px 2px 0 0"}}></div>}
+                                {r.a1!==null&&<div style={{position:"absolute",left:0,right:0,bottom:Math.max(1,r.a1*0.42)+"px",height:1,background:"#6b7f95"}}></div>}
+                              </div>
+                              <div style={{fontSize:11,color:"#c5d2e0",marginTop:3,fontWeight:600,fontVariantNumeric:"tabular-nums"}}>{r.r1!==null?r.r1+"%":"—"}</div>
+                              <div style={{fontSize:10,color:"#6b7f95",fontVariantNumeric:"tabular-nums"}}>{r.n}走</div>
+                              <div style={{fontSize:10,color:"#6b7f95"}}>{r.c}コース</div>
+                            </div>
+                          ))}
+                        </div>
+                        <div style={{fontSize:10,color:"#6b7f95",marginTop:6,lineHeight:1.5}}>黄=イン(1・2)、青=アウト(3〜6)。細い横線は全選手の平均。{guard}走に満たないコースは割合を出さず走数だけを載せる。</div>
+                        <details style={{marginTop:6}}>
+                          <summary onClick={e=>e.stopPropagation()} style={{fontSize:12,color:"#8faabe",cursor:"pointer",minHeight:44,display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,listStyle:"none",background:"#0b1219",border:"1px solid #1a2535",borderRadius:8,padding:"0 12px"}}>
+                            <span>2着・3着まで見る（{rows.length}件）</span>
+                            <span style={{color:"#6b7f95",fontSize:12}}>▸</span>
+                          </summary>
+                          <table style={{width:"100%",borderCollapse:"collapse",fontSize:12,marginTop:4}}>
+                            <thead>
+                              <tr>
+                                <th style={{padding:"4px 0",borderBottom:"1px solid #1a2535",color:"#6b7f95",fontSize:10,fontWeight:400,textAlign:"left",width:"5.2em"}}></th>
+                                <th style={{padding:"4px 0",borderBottom:"1px solid #1a2535",color:"#6b7f95",fontSize:10,fontWeight:400,textAlign:"right"}}>1着</th>
+                                <th style={{padding:"4px 0",borderBottom:"1px solid #1a2535",color:"#6b7f95",fontSize:10,fontWeight:400,textAlign:"right"}}>2着まで</th>
+                                <th style={{padding:"4px 0",borderBottom:"1px solid #1a2535",color:"#6b7f95",fontSize:10,fontWeight:400,textAlign:"right"}}>3着まで</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {rows.map(r=>(
+                                <tr key={r.c}>
+                                  <td style={{padding:"6px 0",borderBottom:"1px solid #1a2535",color:"#8faabe",width:"5.2em",whiteSpace:"nowrap",verticalAlign:"top"}}>{r.c}コース</td>
+                                  {cell(r.r1,r.a1,r.w1,r.n)}
+                                  {cell(r.r2,r.a2,r.w2,r.n)}
+                                  {cell(r.r3,r.a3,r.w3,r.n)}
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                          <div style={{fontSize:10,color:"#6b7f95",marginTop:6,lineHeight:1.6}}>
+                            枠番ではなく実際に進入したコースで数えている。失格・妨害・転覆などは走数に含め、欠場はその1走だけ除いている。
+                            {csMeta&&csMeta.期間?"　対象期間 "+csMeta.期間.from+"-"+csMeta.期間.to+"。":""}
+                            {csMeta&&csMeta.出典?"　出典 "+csMeta.出典:""}
+                          </div>
+                        </details>
+                      </div>
+                    );
+                  })()}
 
                   {k && (
                     <div>

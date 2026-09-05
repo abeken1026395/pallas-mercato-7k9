@@ -728,6 +728,8 @@ function App() {
   const [slMeta, setSlMeta] = useState(null);
   const [sord, setSord] = useState(null);
   const [soMeta, setSoMeta] = useState(null);
+  const [cstat, setCstat] = useState(null);
+  const [csMeta, setCsMeta] = useState(null);
   const [oshi, setOshi] = useState(loadOshi);
   const [oshiOnly, setOshiOnly] = useState(false);
   const toggleOshi = (toban, name) => {
@@ -892,6 +894,24 @@ function App() {
       }
     }).catch(() => {
       setSord(false);
+    });
+  }, [open]);
+  // コース別成績（results 由来）も詳細を開いた時だけ遅延読込
+  useEffect(() => {
+    if (!open || cstat !== null) return;
+    fetch("../data/racerCourseStats.json").then(r => r.ok ? r.json() : Promise.reject()).then(j => {
+      if (j && j.racers) {
+        setCstat(j.racers);
+        setCsMeta({
+          期間: j.期間,
+          基準: j.基準,
+          ガード: j.母数ガード,
+          出典: j.出典,
+          方法: j.集計方法
+        });
+      }
+    }).catch(() => {
+      setCstat(false);
     });
   }, [open]);
   // URLに ?toban=登番 があれば、その選手を検索欄にプリセットして開く（モーター等からのリンク用）
@@ -2042,69 +2062,244 @@ function App() {
         color: l === "優勝" ? "#ffd166" : l === "F数" && p.f > 0 ? "#f85149" : "#e0e6ed",
         fontVariantNumeric: "tabular-nums"
       }
-    }, v)))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 11,
-        color: "#8faabe",
-        fontWeight: 700,
-        marginBottom: 4
+    }, v))))), (() => {
+      if (cstat === null) return /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 11,
+          color: "#6b7f95",
+          margin: "12px 0",
+          lineHeight: 1.7
+        }
+      }, "\u8AAD\u307F\u8FBC\u307F\u4E2D\u2026");
+      if (cstat === false) return null;
+      const cs = cstat[String(p.no)];
+      if (!cs) return null;
+      const guard = csMeta && csMeta.ガード ? csMeta.ガード : 20;
+      const base = csMeta && csMeta.基準 ? csMeta.基準.course : null;
+      const pc = (a, b) => b ? Math.round(a / b * 100) : null;
+      const rows = [];
+      for (let c = 1; c <= 6; c++) {
+        const v = cs[String(c)];
+        if (!v) continue;
+        const b = base ? base[String(c)] : null;
+        const n = v[0],
+          ok = n >= guard;
+        rows.push({
+          c: c,
+          n: n,
+          w1: v[1],
+          w2: v[1] + v[2],
+          w3: v[1] + v[2] + v[3],
+          r1: ok ? pc(v[1], n) : null,
+          r2: ok ? pc(v[1] + v[2], n) : null,
+          r3: ok ? pc(v[1] + v[2] + v[3], n) : null,
+          a1: b ? pc(b[1], b[0]) : null,
+          a2: b ? pc(b[1] + b[2], b[0]) : null,
+          a3: b ? pc(b[1] + b[2] + b[3], b[0]) : null
+        });
       }
-    }, "\u25A0 \u30B3\u30FC\u30B9\u52251\u7740\u7387\u3000", /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "#79c0ff",
-        fontWeight: 400,
-        fontVariantNumeric: "tabular-nums"
-      }
-    }, "\u30A2\u30A6\u30C8\u6226(3-6) ", p.out !== null ? p.out + "%" : "-")), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        gap: 4,
-        alignItems: "flex-end",
-        background: "#0b1219",
-        borderRadius: 8,
-        padding: "10px 6px"
-      }
-    }, p.c1.map((rate, i) => /*#__PURE__*/React.createElement("div", {
-      key: i,
-      style: {
-        flex: 1,
-        textAlign: "center"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        height: 44,
-        display: "flex",
-        alignItems: "flex-end",
-        justifyContent: "center"
-      }
-    }, rate !== null && /*#__PURE__*/React.createElement("div", {
-      style: {
-        width: "68%",
-        height: Math.max(2, rate * 0.42) + "px",
-        background: i < 2 ? "#ffd166" : "#79c0ff",
-        borderRadius: "2px 2px 0 0"
-      }
-    })), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 11,
-        color: "#c5d2e0",
-        marginTop: 3,
-        fontWeight: 600,
-        fontVariantNumeric: "tabular-nums"
-      }
-    }, rate !== null ? rate + "%" : "-"), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 10,
-        color: "#6b7f95"
-      }
-    }, i + 1, "\u53F7\u8247")))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 10,
-        color: "#6b7f95",
-        marginTop: 6,
-        lineHeight: 1.5
-      }
-    }, "\u9EC4=\u30A4\u30F3(1\u30FB2)\u3001\u9752=\u30A2\u30A6\u30C8(3\u301C6)\u3002\u30A2\u30A6\u30C8\u304C\u9AD8\u3044\u9078\u624B\u306F\u5916\u304B\u3089\u653B\u3081\u3066\u52DD\u3066\u308B\u653B\u6483\u578B\u3002")), k && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+      if (!rows.length) return null;
+      const cell = (mine, all, hit, n) => /*#__PURE__*/React.createElement("td", {
+        style: {
+          padding: "6px 0",
+          borderBottom: "1px solid #1a2535",
+          textAlign: "right",
+          verticalAlign: "top"
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontWeight: 700,
+          color: "#e0e6ed",
+          fontVariantNumeric: "tabular-nums",
+          whiteSpace: "nowrap"
+        }
+      }, mine === null ? "—" : mine + "%"), /*#__PURE__*/React.createElement("div", {
+        style: {
+          color: "#6b7f95",
+          fontSize: 10,
+          fontVariantNumeric: "tabular-nums",
+          whiteSpace: "nowrap",
+          marginTop: 1
+        }
+      }, n, "\u8D70\u4E2D", hit, "\u56DE"), /*#__PURE__*/React.createElement("div", {
+        style: {
+          color: "#6b7f95",
+          fontSize: 10,
+          fontVariantNumeric: "tabular-nums",
+          whiteSpace: "nowrap"
+        }
+      }, all === null ? "" : "全体 " + all + "%"));
+      return /*#__PURE__*/React.createElement("div", {
+        style: {
+          marginBottom: 14
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 11,
+          color: "#8faabe",
+          fontWeight: 700,
+          marginBottom: 4
+        }
+      }, "\u25A0 \u30B3\u30FC\u30B9\u5225\u306E1\u7740\u7387\u3000", /*#__PURE__*/React.createElement("span", {
+        style: {
+          color: "#6b7f95",
+          fontWeight: 400
+        }
+      }, "\u9032\u5165\u30B3\u30FC\u30B9\u5225", csMeta && csMeta.期間 && csMeta.期間.日数 ? "／過去" + csMeta.期間.日数 + "日" : "")), /*#__PURE__*/React.createElement("div", {
+        style: {
+          display: "flex",
+          gap: 4,
+          alignItems: "flex-end",
+          background: "#0b1219",
+          borderRadius: 8,
+          padding: "10px 6px"
+        }
+      }, rows.map(r => /*#__PURE__*/React.createElement("div", {
+        key: r.c,
+        style: {
+          flex: 1,
+          textAlign: "center"
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          height: 44,
+          position: "relative"
+        }
+      }, r.r1 !== null && /*#__PURE__*/React.createElement("div", {
+        style: {
+          position: "absolute",
+          left: "16%",
+          bottom: 0,
+          width: "68%",
+          height: Math.max(2, r.r1 * 0.42) + "px",
+          background: r.c < 3 ? "#ffd166" : "#79c0ff",
+          borderRadius: "2px 2px 0 0"
+        }
+      }), r.a1 !== null && /*#__PURE__*/React.createElement("div", {
+        style: {
+          position: "absolute",
+          left: 0,
+          right: 0,
+          bottom: Math.max(1, r.a1 * 0.42) + "px",
+          height: 1,
+          background: "#6b7f95"
+        }
+      })), /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 11,
+          color: "#c5d2e0",
+          marginTop: 3,
+          fontWeight: 600,
+          fontVariantNumeric: "tabular-nums"
+        }
+      }, r.r1 !== null ? r.r1 + "%" : "—"), /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 10,
+          color: "#6b7f95",
+          fontVariantNumeric: "tabular-nums"
+        }
+      }, r.n, "\u8D70"), /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 10,
+          color: "#6b7f95"
+        }
+      }, r.c, "\u30B3\u30FC\u30B9")))), /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 10,
+          color: "#6b7f95",
+          marginTop: 6,
+          lineHeight: 1.5
+        }
+      }, "\u9EC4=\u30A4\u30F3(1\u30FB2)\u3001\u9752=\u30A2\u30A6\u30C8(3\u301C6)\u3002\u7D30\u3044\u6A2A\u7DDA\u306F\u5168\u9078\u624B\u306E\u5E73\u5747\u3002", guard, "\u8D70\u306B\u6E80\u305F\u306A\u3044\u30B3\u30FC\u30B9\u306F\u5272\u5408\u3092\u51FA\u3055\u305A\u8D70\u6570\u3060\u3051\u3092\u8F09\u305B\u308B\u3002"), /*#__PURE__*/React.createElement("details", {
+        style: {
+          marginTop: 6
+        }
+      }, /*#__PURE__*/React.createElement("summary", {
+        onClick: e => e.stopPropagation(),
+        style: {
+          fontSize: 12,
+          color: "#8faabe",
+          cursor: "pointer",
+          minHeight: 44,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 8,
+          listStyle: "none",
+          background: "#0b1219",
+          border: "1px solid #1a2535",
+          borderRadius: 8,
+          padding: "0 12px"
+        }
+      }, /*#__PURE__*/React.createElement("span", null, "2\u7740\u30FB3\u7740\u307E\u3067\u898B\u308B\uFF08", rows.length, "\u4EF6\uFF09"), /*#__PURE__*/React.createElement("span", {
+        style: {
+          color: "#6b7f95",
+          fontSize: 12
+        }
+      }, "\u25B8")), /*#__PURE__*/React.createElement("table", {
+        style: {
+          width: "100%",
+          borderCollapse: "collapse",
+          fontSize: 12,
+          marginTop: 4
+        }
+      }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", {
+        style: {
+          padding: "4px 0",
+          borderBottom: "1px solid #1a2535",
+          color: "#6b7f95",
+          fontSize: 10,
+          fontWeight: 400,
+          textAlign: "left",
+          width: "5.2em"
+        }
+      }), /*#__PURE__*/React.createElement("th", {
+        style: {
+          padding: "4px 0",
+          borderBottom: "1px solid #1a2535",
+          color: "#6b7f95",
+          fontSize: 10,
+          fontWeight: 400,
+          textAlign: "right"
+        }
+      }, "1\u7740"), /*#__PURE__*/React.createElement("th", {
+        style: {
+          padding: "4px 0",
+          borderBottom: "1px solid #1a2535",
+          color: "#6b7f95",
+          fontSize: 10,
+          fontWeight: 400,
+          textAlign: "right"
+        }
+      }, "2\u7740\u307E\u3067"), /*#__PURE__*/React.createElement("th", {
+        style: {
+          padding: "4px 0",
+          borderBottom: "1px solid #1a2535",
+          color: "#6b7f95",
+          fontSize: 10,
+          fontWeight: 400,
+          textAlign: "right"
+        }
+      }, "3\u7740\u307E\u3067"))), /*#__PURE__*/React.createElement("tbody", null, rows.map(r => /*#__PURE__*/React.createElement("tr", {
+        key: r.c
+      }, /*#__PURE__*/React.createElement("td", {
+        style: {
+          padding: "6px 0",
+          borderBottom: "1px solid #1a2535",
+          color: "#8faabe",
+          width: "5.2em",
+          whiteSpace: "nowrap",
+          verticalAlign: "top"
+        }
+      }, r.c, "\u30B3\u30FC\u30B9"), cell(r.r1, r.a1, r.w1, r.n), cell(r.r2, r.a2, r.w2, r.n), cell(r.r3, r.a3, r.w3, r.n))))), /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 10,
+          color: "#6b7f95",
+          marginTop: 6,
+          lineHeight: 1.6
+        }
+      }, "\u67A0\u756A\u3067\u306F\u306A\u304F\u5B9F\u969B\u306B\u9032\u5165\u3057\u305F\u30B3\u30FC\u30B9\u3067\u6570\u3048\u3066\u3044\u308B\u3002\u5931\u683C\u30FB\u59A8\u5BB3\u30FB\u8EE2\u8986\u306A\u3069\u306F\u8D70\u6570\u306B\u542B\u3081\u3001\u6B20\u5834\u306F\u305D\u306E1\u8D70\u3060\u3051\u9664\u3044\u3066\u3044\u308B\u3002", csMeta && csMeta.期間 ? "　対象期間 " + csMeta.期間.from + "-" + csMeta.期間.to + "。" : "", csMeta && csMeta.出典 ? "　出典 " + csMeta.出典 : "")));
+    })(), k && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 11,
         color: "#8faabe",
