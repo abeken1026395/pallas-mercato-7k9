@@ -31,12 +31,26 @@ def jst_now():
     return datetime.now(timezone(timedelta(hours=9))).strftime("%Y-%m-%d %H:%M JST")
 
 
+def norm_chaku(v):
+    """着コードの表記ゆれを吸収する。Kファイル由来は "01".."06"、results 由来は "1".."6"。
+    失格・欠場等（S0/F/L0 等）はそのまま返す（2着判定に一致しないだけ）。"""
+    v = str(v).strip()
+    return v.lstrip("0") or v
+
+
 def read_base():
     if not os.path.exists(BASE):
         return []
     with io.open(BASE, "r", encoding="utf-8", newline="") as f:
         r = csv.DictReader(f)
-        return [dict(x) for x in r]
+        rows = []
+        for x in r:
+            x = dict(x)
+            x["chaku"] = norm_chaku(x.get("chaku"))
+            x["jcd"] = str(x.get("jcd")).zfill(2)
+            x["rno"] = str(x.get("rno")).strip().rstrip("R").lstrip("0") or "0"
+            rows.append(x)
+        return rows
 
 
 def write_base(rows):
