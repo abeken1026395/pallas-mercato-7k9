@@ -46,6 +46,36 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .fcstwx{font-size:11.5px;color:var(--sub);background:rgba(150,140,220,.12);border:1px solid rgba(150,140,220,.35);border-radius:9px;padding:5px 9px;margin:7px 0 2px;line-height:1.5}
 .fcstwx .cav{opacity:.7}
 .windsig .cav{opacity:.7}
+.nsfact{margin:4px 0 2px;border:1px solid rgba(143,180,214,.30);border-radius:9px;background:rgba(143,180,214,.09);overflow:hidden}
+.nsfact>summary{list-style:none;cursor:pointer;padding:6px 9px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11.5px;color:var(--sub)}
+.nsfact>summary::-webkit-details-marker{display:none}
+.nsfact .nsh{font-weight:800;color:#8fb4d6}
+.nsfact .nscar{margin-left:auto;font-size:10px;opacity:.75}
+.nsfact[open] .nscar::after{content:"\95c9\3058\308b \25b2"}
+.nsfact:not([open]) .nscar::after{content:"\4e00\89a7 \25bc"}
+.nsfact .nsb{padding:0 9px 8px}
+.nsfact .nsper{font-size:10px;color:var(--sub);opacity:.8;margin-bottom:5px}
+.nsfact table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.nsfact th{font-size:9.5px;color:var(--sub);opacity:.75;font-weight:400;padding:2px 0 4px;text-align:right}
+.nsfact th:first-child{text-align:left}
+.nsfact td{padding:3px 0;text-align:right;border-top:1px solid rgba(143,180,214,.18);vertical-align:top}
+.nsfact td:first-child{text-align:left;white-space:nowrap}
+.nsfact .nslane{display:inline-block;width:16px;height:16px;line-height:16px;text-align:center;border-radius:3px;font-size:10px;font-weight:700;margin-right:4px}
+.nsfact .nsnm{font-size:11px}
+.nsfact .nsn{font-size:10px;opacity:.75}
+.nsfact .nsp{font-size:12px;font-weight:700;display:block}
+.nsfact .nsk{font-size:9px;opacity:.7;display:block}
+.nsfact .nsself{background:rgba(143,180,214,.18);border-radius:3px}
+.nsfact .nsthin .nsp{font-weight:400;opacity:.6}
+.nsfact .nsbase td{border-top:1px solid rgba(143,180,214,.42)}
+.nsfact .nshelp{margin-top:8px;border-top:1px solid rgba(143,180,214,.18)}
+.nsfact .nshelp>summary{list-style:none;cursor:pointer;font-size:10px;color:var(--sub);opacity:.85;padding:6px 0 2px}
+.nsfact .nshelp>summary::-webkit-details-marker{display:none}
+.nsfact .nshelp[open]>summary::after{content:" \25b2"}
+.nsfact .nshelp:not([open])>summary::after{content:" \25bc"}
+.nsfact .nshelp dl{margin:4px 0 2px;font-size:10px;line-height:1.6}
+.nsfact .nshelp dt{opacity:.95;margin-top:6px}
+.nsfact .nshelp dd{opacity:.7;margin:1px 0 0}
 .e30fact{font-size:11.5px;color:var(--sub);background:rgba(143,214,192,.09);border:1px solid rgba(143,214,192,.30);border-radius:9px;padding:6px 9px;margin:4px 0 2px;line-height:1.55}
 .e30fact .e30h{font-weight:800;color:#8fd6c0}
 .e30fact .e30grid{display:flex;flex-wrap:wrap;gap:4px 12px;margin:5px 0 3px}
@@ -553,6 +583,7 @@ function renderCard(r, ctx){
       ${resRow}
       ${wx}
       ${e30Info(r)}
+      ${nigeSecondFact(r)}
       <div class="boats">${r['艇'].map(b=>boatRow(b, r['場名'])).join('')}</div>
       <div class="tenkai"><div class="t">展開の筋</div>${r['展開'].map(p=>`<p>${p}</p>`).join('')}</div>
       <div class="suji"><b>波及の連鎖</b>：${r['波及']}</div>
@@ -1105,6 +1136,48 @@ var E30STATS=null;
 fetch('../data/e30PlayerStats.json?_='+Date.now())
 .then(r=>r.ok?r.json():null)
 .then(doc=>{ if(doc&&doc['選手成績']){E30STATS=doc; if(typeof render==='function') render();} })
+.catch(()=>{});
+
+// 1号艇が逃げたときの2着コース分布（nigeSecond.json・直近730日・回数のみ）。
+// 進入が決まる前なので枠番＝コースとして引く。事実の提示のみ。判定には使わない。
+var NSDATA=null;
+var NSLANE={1:['#ffffff','#111111'],2:['#15181c','#ffffff'],3:['#e63946','#ffffff'],4:['#1d6fd6','#ffffff'],5:['#f2c94c','#111111'],6:['#27ae60','#ffffff']};
+function nsShrinkH(c,x,n,k){
+  const sp=NSDATA.shrink[String(c)]&&NSDATA.shrink[String(c)][String(x)]; if(!sp) return null;
+  const p=sp[0], t=sp[1]; if(!n) return p;
+  const w=t/(t+p*(1-p)/n); return w*(k/n)+(1-w)*p;
+}
+function nigeSecondFact(r){
+  if(!NSDATA||!NSDATA.cells||!NSDATA.base) return '';
+  const tot=(NSDATA.meta&&NSDATA.meta.races)||0; if(!tot) return '';
+  const bs=(r['艇']||[]).slice().sort((a,b)=>(a['枠']-b['枠'])); if(!bs.length) return '';
+  const head=`<tr><th>枠・選手</th><th>該当</th>`+[2,3,4,5,6].map(x=>`<th>2着${x}</th>`).join('')+`</tr>`;
+  const rows=bs.map(b=>{
+    const lane=+b['枠'], no=String(b['登録番号']), lc=NSLANE[lane]||['#333','#fff'];
+    const nm=String(b['氏名']||'').replace(/\u3000+/g,'').slice(0,4);
+    const cell=(NSDATA.cells[no]&&NSDATA.cells[no][String(lane)])||[0,0,0,0,0,0];
+    const n=cell[0];
+    const tds=[2,3,4,5,6].map(x=>{
+      const k=cell[x-1], s=nsShrinkH(lane,x,n,k);
+      const pct=(s===null)?'-':Math.round(s*100)+'%';
+      return `<td class="${x===lane?'nsself':''}"><span class="nsp">${pct}</span><span class="nsk">${n?k+'/'+n:'-'}</span></td>`;
+    }).join('');
+    return `<tr class="${n<20?'nsthin':''}"><td><span class="nslane" style="background:${lc[0]};color:${lc[1]};${(lane===1||lane===2)?'border:1px solid #445;':''}">${lane}</span><span class="nsnm">${nm}</span></td><td class="nsn">${n}</td>${tds}</tr>`;
+  }).join('');
+  const base=`<tr class="nsbase"><td>全体</td><td class="nsn">${tot}</td>`+[2,3,4,5,6].map(x=>{
+    const k=NSDATA.base[x-2]; return `<td><span class="nsp">${Math.round(k/tot*100)}%</span><span class="nsk">${k}</span></td>`;
+  }).join('')+`</tr>`;
+  const m=NSDATA.meta||{};
+  const per=(m.from&&m.to)?`${m.from.slice(0,4)}/${m.from.slice(4,6)}〜${m.to.slice(0,4)}/${m.to.slice(4,6)}`:'';
+  return `<details class="nsfact"><summary><span class="nsh">逃げ時２着</span>`
+    +`<span>1号艇が逃げたとき、2着はどのコースだったか</span>`
+    +`<span class="nscar"></span></summary>`
+    +`<div class="nsb"><div class="nsper">${per}・${tot}レース</div>`
+    +`<table>${head}${rows}${base}</table><details class="nshelp"><summary>表の読み方</summary><dl><dt>この表は何か</dt><dd>1号艇が逃げて決まったレースだけを集めて、そのとき2着がどのコースだったかを数えたもの。1着の話はしていない。</dd><dt>上段の％</dt><dd>母数が少ない選手ほど全体平均に近づける補正をかけた値。少ない回数のたまたまを、その選手の特徴として読ませないため。</dd><dt>下段の数字</dt><dd>補正をかける前の実数。左が回数、右がその選手の該当レース数。</dd><dt>いちばん下の全体行</dt><dd>全レースでの2着コース分布。各選手の％をこれと引き算して読む。</dd><dt>薄い字の行</dt><dd>該当レースが20回未満。1回の増減で大きく動くので目安にとどまる。</dd><dt>枠番で引いている</dt><dd>進入が決まる前の時点のため、枠番どおりに進入したものとして引いている。前づけがあれば実際の進入とずれる。</dd><dt>出典</dt><dd>公式競走成績（Kファイル）。判定には使っていません。</dd></dl></details></div></details>`;
+}
+fetch('../data/nigeSecond.json?_='+Date.now())
+.then(r=>r.ok?r.json():null)
+.then(j=>{ if(j&&j.cells){ NSDATA=j; if(typeof render==='function') render(); } })
 .catch(()=>{});
 var KINMOTOR={};
 // 今節モーター2連率（出走表CSVの今節成績から算出・事実情報・判定不介入）。登録番号で結合。
