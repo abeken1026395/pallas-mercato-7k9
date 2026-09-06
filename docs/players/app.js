@@ -777,6 +777,8 @@ function App() {
   const [sord, setSord] = useState(null);
   const [soMeta, setSoMeta] = useState(null);
   const [cstat, setCstat] = useState(null);
+  const [sched, setSched] = useState(null);
+  const [scMeta, setScMeta] = useState(null);
   const [csMeta, setCsMeta] = useState(null);
   const [oshi, setOshi] = useState(loadOshi);
   const [oshiOnly, setOshiOnly] = useState(false);
@@ -962,6 +964,24 @@ function App() {
       setCstat(false);
     });
   }, [open, tab]);
+  // 出場予定も詳細を開いた時だけ遅延読込（公式サイトの選手ページ由来）
+  useEffect(() => {
+    if (!open || sched !== null) return;
+    fetch("../data/racerSchedule.json").then(r => r.ok ? r.json() : Promise.reject()).then(j => {
+      if (j && j.racers) {
+        setSched(j.racers);
+        setScMeta({
+          取得: j.取得時刻,
+          上限: j.掲載上限,
+          出典: j.出典,
+          場: j.場 || {},
+          注記: j.注記
+        });
+      }
+    }).catch(() => {
+      setSched(false);
+    });
+  }, [open]);
   // URLに ?toban=登番 があれば、その選手を検索欄にプリセットして開く（モーター等からのリンク用）
   useEffect(() => {
     const t = new URLSearchParams(location.search).get("toban");
@@ -1572,6 +1592,109 @@ function App() {
         height: 14
       }
     }), (() => {
+      const fmt = d => Number(d.slice(4, 6)) + "/" + Number(d.slice(6, 8));
+      const span = (a, b) => a === b ? fmt(a) : a.slice(0, 6) === b.slice(0, 6) ? fmt(a) + "〜" + Number(b.slice(6, 8)) : fmt(a) + "〜" + fmt(b);
+      const es = sched && sched[String(p.no)];
+      return /*#__PURE__*/React.createElement("div", {
+        style: {
+          marginBottom: 14
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 11,
+          color: "#8faabe",
+          fontWeight: 700,
+          marginBottom: 6
+        }
+      }, "\u25A0 \u51FA\u5834\u4E88\u5B9A\u3000", /*#__PURE__*/React.createElement("span", {
+        style: {
+          color: "#6b7f95",
+          fontWeight: 400
+        }
+      }, "\u516C\u5F0F\u30B5\u30A4\u30C8 \u9078\u624B\u30DA\u30FC\u30B8", scMeta && scMeta.取得 ? "／" + scMeta.取得 + "時点" : "")), sched === null ? /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 11,
+          color: "#6b7f95",
+          background: "#0b1219",
+          borderRadius: 8,
+          padding: "12px"
+        }
+      }, "\u8AAD\u307F\u8FBC\u307F\u4E2D\u2026") : !es ? /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 11,
+          color: "#6b7f95",
+          background: "#0b1219",
+          borderRadius: 8,
+          padding: "12px"
+        }
+      }, "\u3053\u306E\u9078\u624B\u306E\u51FA\u5834\u4E88\u5B9A\u306F\u53D6\u5F97\u3067\u304D\u3066\u3044\u306A\u3044\u3002") : es.length === 0 ? /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 11,
+          color: "#6b7f95",
+          background: "#0b1219",
+          borderRadius: 8,
+          padding: "12px"
+        }
+      }, "\u516C\u5F0F\u30B5\u30A4\u30C8\u306B\u51FA\u5834\u4E88\u5B9A\u304C\u8F09\u3063\u3066\u3044\u306A\u3044\u3002") : /*#__PURE__*/React.createElement("div", {
+        style: {
+          background: "#0b1219",
+          borderRadius: 8,
+          padding: "8px 10px"
+        }
+      }, es.map((e, i) => /*#__PURE__*/React.createElement("div", {
+        key: i,
+        style: {
+          display: "flex",
+          alignItems: "baseline",
+          gap: 8,
+          padding: "6px 0",
+          borderBottom: i < es.length - 1 ? "1px solid #131f2e" : "none"
+        }
+      }, /*#__PURE__*/React.createElement("span", {
+        style: {
+          width: "5.4em",
+          color: "#e0e6ed",
+          fontWeight: 700,
+          fontSize: 12,
+          fontVariantNumeric: "tabular-nums",
+          whiteSpace: "nowrap"
+        }
+      }, span(e.f, e.t)), /*#__PURE__*/React.createElement("span", {
+        style: {
+          width: "4.2em",
+          color: "#79c0ff",
+          fontWeight: 700,
+          fontSize: 12,
+          whiteSpace: "nowrap"
+        }
+      }, scMeta && scMeta.場 && scMeta.場[String(e.j)] || "場" + e.j), /*#__PURE__*/React.createElement("span", {
+        style: {
+          flex: 1,
+          minWidth: 0
+        }
+      }, /*#__PURE__*/React.createElement("span", {
+        style: {
+          display: "block",
+          fontSize: 12,
+          color: "#c5d2e0",
+          lineHeight: 1.5
+        }
+      }, e.n), /*#__PURE__*/React.createElement("span", {
+        style: {
+          display: "block",
+          fontSize: 10,
+          color: "#6b7f95",
+          marginTop: 1
+        }
+      }, e.g || "一般", e.h ? "・" + e.h : "", e.s && e.s.length ? "・" + e.s.join("・") : "")))), /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 10,
+          color: "#6b7f95",
+          marginTop: 6,
+          lineHeight: 1.5
+        }
+      }, scMeta && scMeta.注記 ? scMeta.注記 : "", "\u3000\u3042\u3063\u305B\u3093\u306F\u5909\u308F\u308B\u3053\u3068\u304C\u3042\u308B\u3002")));
+    })(), (() => {
       if (rankHist === null) return /*#__PURE__*/React.createElement("div", {
         style: {
           fontSize: 11,
