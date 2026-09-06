@@ -325,6 +325,8 @@ function App() {
   const [sord, setSord] = useState(null);
   const [soMeta, setSoMeta] = useState(null);
   const [cstat, setCstat] = useState(null);
+  const [sched, setSched] = useState(null);
+  const [scMeta, setScMeta] = useState(null);
   const [csMeta, setCsMeta] = useState(null);
   const [oshi, setOshi] = useState(loadOshi);
   const [oshiOnly, setOshiOnly] = useState(false);
@@ -417,7 +419,14 @@ function App() {
     fetch("../data/racerCourseStats.json").then(r=>r.ok?r.json():Promise.reject()).then(j=>{
       if(j && j.racers){ setCstat(j.racers); setCsMeta({期間:j.期間, 基準:j.基準, ガード:j.母数ガード, 出典:j.出典, 方法:j.集計方法}); }
     }).catch(()=>{ setCstat(false); });
-  },[open,tab,sortKey]);
+  },[open,tab]);
+  // 出場予定も詳細を開いた時だけ遅延読込（公式サイトの選手ページ由来）
+  useEffect(()=>{
+    if(!open || sched!==null) return;
+    fetch("../data/racerSchedule.json").then(r=>r.ok?r.json():Promise.reject()).then(j=>{
+      if(j && j.racers){ setSched(j.racers); setScMeta({取得:j.取得時刻, 上限:j.掲載上限, 出典:j.出典, 場:j.場||{}, 注記:j.注記}); }
+    }).catch(()=>{ setSched(false); });
+  },[open]);
   // URLに ?toban=登番 があれば、その選手を検索欄にプリセットして開く（モーター等からのリンク用）
   useEffect(()=>{
     const t=new URLSearchParams(location.search).get("toban");
@@ -628,6 +637,40 @@ function App() {
                     </div>
                   );})()}
                   {pf&&(pf.hobby||pf.food||pf.note)&&<div style={{height:14}}></div>}
+                  {/* ■ 出場予定（公式サイトの選手ページ由来・先頭2節） */}
+                  {(()=>{
+                    const fmt=(d)=>Number(d.slice(4,6))+"/"+Number(d.slice(6,8));
+                    const span=(a,b)=>a===b?fmt(a):(a.slice(0,6)===b.slice(0,6)?fmt(a)+"〜"+Number(b.slice(6,8)):fmt(a)+"〜"+fmt(b));
+                    const es = sched && sched[String(p.no)];
+                    return (
+                      <div style={{marginBottom:14}}>
+                        <div style={{fontSize:11,color:"#8faabe",fontWeight:700,marginBottom:6}}>■ 出場予定　<span style={{color:"#6b7f95",fontWeight:400}}>公式サイト 選手ページ{scMeta&&scMeta.取得?"／"+scMeta.取得+"時点":""}</span></div>
+                        {sched===null ? (
+                          <div style={{fontSize:11,color:"#6b7f95",background:"#0b1219",borderRadius:8,padding:"12px"}}>読み込み中…</div>
+                        ) : !es ? (
+                          <div style={{fontSize:11,color:"#6b7f95",background:"#0b1219",borderRadius:8,padding:"12px"}}>この選手の出場予定は取得できていない。</div>
+                        ) : es.length===0 ? (
+                          <div style={{fontSize:11,color:"#6b7f95",background:"#0b1219",borderRadius:8,padding:"12px"}}>公式サイトに出場予定が載っていない。</div>
+                        ) : (
+                          <div style={{background:"#0b1219",borderRadius:8,padding:"8px 10px"}}>
+                            {es.map((e,i)=>(
+                              <div key={i} style={{display:"flex",alignItems:"baseline",gap:8,padding:"6px 0",borderBottom:i<es.length-1?"1px solid #131f2e":"none"}}>
+                                <span style={{width:"5.4em",color:"#e0e6ed",fontWeight:700,fontSize:12,fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap"}}>{span(e.f,e.t)}</span>
+                                <span style={{width:"4.2em",color:"#79c0ff",fontWeight:700,fontSize:12,whiteSpace:"nowrap"}}>{(scMeta&&scMeta.場&&scMeta.場[String(e.j)])||("場"+e.j)}</span>
+                                <span style={{flex:1,minWidth:0}}>
+                                  <span style={{display:"block",fontSize:12,color:"#c5d2e0",lineHeight:1.5}}>{e.n}</span>
+                                  <span style={{display:"block",fontSize:10,color:"#6b7f95",marginTop:1}}>
+                                    {e.g||"一般"}{e.h?"・"+e.h:""}{e.s&&e.s.length?"・"+e.s.join("・"):""}
+                                  </span>
+                                </span>
+                              </div>
+                            ))}
+                            <div style={{fontSize:10,color:"#6b7f95",marginTop:6,lineHeight:1.5}}>{scMeta&&scMeta.注記?scMeta.注記:""}　あっせんは変わることがある。</div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
                   {/* ■ 級別の推移（初出走から今日まで・公式番組表） */}
                   {(()=>{
                     if(rankHist===null) return (
