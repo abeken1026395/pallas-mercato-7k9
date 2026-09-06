@@ -93,8 +93,13 @@ def extract_lzh(lzh_path, workdir):
     )
 
     def _extracted():
-        return (glob.glob(os.path.join(workdir, "*.TXT"))
-                + glob.glob(os.path.join(workdir, "*.txt")))
+        # Windows の glob は大文字小文字を区別しないため "*.TXT" と "*.txt" が
+        # 同じファイルを二重に返す。normcase したパスをキーに重複を落とす。
+        found = {}
+        for pat in ("*.TXT", "*.txt"):
+            for path in glob.glob(os.path.join(workdir, pat)):
+                found.setdefault(os.path.normcase(path), path)
+        return sorted(found.values())
 
     lha_missing = False
     lha_err = []

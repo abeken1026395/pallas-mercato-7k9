@@ -155,7 +155,13 @@ try {
     $t0 = Get-Date
     # 取得失敗日があっても集計は続く（欠けた日は欠いたまま＝補完しない方針）。
     # 全滅時は本体が非0で落ちるが、その場合でも壊れるのは $NewCsv であって docs/ ではない。
-    $scrapeOut = Invoke-Native { & $Py scripts\scrapeKimarite.py }
+    # PS5.1 はネイティブ出力を [Console]::OutputEncoding で復号する。タスクスケジューラ
+    # 実行時の既定は OEM(cp932) のため、PYTHONIOENCODING=utf-8 の出力が文字化けし
+    # (検証4) の正規表現が外れる。この呼び出しの間だけ読み取りを UTF-8 に合わせる。
+    $savedEnc = [Console]::OutputEncoding
+    [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding($false)
+    try   { $scrapeOut = Invoke-Native { & $Py scripts\scrapeKimarite.py } }
+    finally { [Console]::OutputEncoding = $savedEnc }
     $scrapeRc  = $LASTEXITCODE
     $elapsed   = [int]((Get-Date) - $t0).TotalSeconds
     Log ("scrapeKimarite.py 終了 rc={0} 所要={1}秒:`n{2}" -f $scrapeRc, $elapsed, $scrapeOut.TrimEnd())
