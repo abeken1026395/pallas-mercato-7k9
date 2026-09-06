@@ -200,6 +200,35 @@ header .sub { font-size:11px; color:#8a94a3; margin-top:4px; }
 .kmr-legend span { display:flex; align-items:center; gap:3px; }
 .kmr-dot { width:8px; height:8px; border-radius:2px; flex:none; }
 .kmr-def { font-size:10px; color:#6f7d8c; margin-top:3px; }
+.ns { margin:10px 0 12px; border:1px solid #24344a; border-radius:8px; background:#0f1a26; overflow:hidden; }
+.ns > summary { list-style:none; cursor:pointer; padding:7px 10px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.ns > summary::-webkit-details-marker { display:none; }
+.ns-badge { font-size:10px; font-weight:bold; color:#0b1219; background:#8fb4d6; border-radius:4px; padding:1px 6px; flex:none; }
+.ns-sum { font-size:11px; color:#a9c6dd; }
+.ns-caret { margin-left:auto; font-size:10px; color:#6f8aa3; }
+.ns[open] .ns-caret::after { content:"\95c9\3058\308b \25b2"; } .ns:not([open]) .ns-caret::after { content:"\4e00\89a7 \25bc"; }
+.ns-body { padding:2px 10px 9px; }
+.ns-per { font-size:10px; color:#6b7f95; margin-bottom:5px; }
+.ns table { width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums; }
+.ns th { font-size:9.5px; color:#6b7f95; font-weight:400; padding:2px 0 4px; text-align:right; }
+.ns th:first-child { text-align:left; }
+.ns td { padding:3px 0; text-align:right; border-top:1px solid #16202b; vertical-align:top; }
+.ns td:first-child { text-align:left; white-space:nowrap; }
+.ns-lane { display:inline-block; width:16px; height:16px; line-height:16px; text-align:center; border-radius:3px; font-size:10px; font-weight:700; margin-right:4px; }
+.ns-nm { font-size:11px; }
+.ns-n { font-size:10px; color:#8a94a3; }
+.ns-p { font-size:12px; font-weight:700; color:#e0e6ed; display:block; }
+.ns-k { font-size:9px; color:#6b7f95; display:block; }
+.ns-self { background:#182a3d; border-radius:3px; }
+.ns-thin .ns-p { color:#8a94a3; font-weight:400; }
+.ns-base td { border-top:1px solid #2a3947; color:#9fb0c3; }
+.ns-help { margin-top:8px; border-top:1px solid #1b2836; }
+.ns-help > summary { list-style:none; cursor:pointer; font-size:10px; color:#6f8aa3; padding:6px 0 2px; }
+.ns-help > summary::-webkit-details-marker { display:none; }
+.ns-help[open] > summary::after { content:" \25b2"; } .ns-help:not([open]) > summary::after { content:" \25bc"; }
+.ns-help dl { margin:4px 0 2px; font-size:10px; line-height:1.6; }
+.ns-help dt { color:#9fb0c3; margin-top:6px; }
+.ns-help dd { color:#6f7d8c; margin:1px 0 0; }
 
 /* 今節成績 */
 .shu-wrap { margin-top:9px; }
@@ -386,6 +415,7 @@ var PROF={};       /* 登録番号 -> あだ名/note */
 var HL_META={fix:[], hd:"", repl:{}};
 var E30=null, E30META=null;  /* E30該当場成績（生データ・事実提示のみ） */
 var tide=null;               /* 当日干満（tideToday.json・潮汐場のみ・事実提示のみ） */
+var NS=null;                 /* 1号艇逃げ時の2着コース分布（nigeSecond.json・直近730日・回数のみ） */
 
 function loadJSON(u){ return fetch(u).then(function(r){return r.json();}); }
 function loadText(u){ return fetch(u).then(function(r){return r.text();}); }
@@ -397,6 +427,7 @@ loadJSON("../players/profile.json").then(function(j){PROF=j||{};rerender();}).ca
 loadText("../players/racerKimarite.csv").then(function(t){ parseKimarite(t); rerender(); }).catch(function(){});
 loadJSON("../highlights/highlights.json").then(function(j){ parseHL(j); rerender(); }).catch(function(){});
 loadJSON("../data/tideToday.json").then(function(j){ tide=j||null; rerender(); }).catch(function(){});
+loadJSON("../data/nigeSecond.json").then(function(j){ NS=j||null; rerender(); }).catch(function(){});
 loadJSON("../data/inSurvival.json").then(function(j){ ISV=j||null; yomiSync(); rerender(); }).catch(function(){});
 
 function parseKimarite(txt){
@@ -899,6 +930,43 @@ function renderRaces(app,crumb,v){
 }
 
 /* 決まり手構成バー */
+/* 1号艇が逃げたときの2着コース分布（選手別・直近730日・nigeSecond.json）。
+   出走表は進入未確定のため枠番＝コースとして引く。％は経験ベイズで全体平均に寄せた値、
+   下段は補正前の回数／該当レース数。母数20未満は薄字。1号艇の行は「自分が逃げたとき」。 */
+function nsShrink(c,x,n,k){
+  var sp=NS.shrink[String(c)]&&NS.shrink[String(c)][String(x)]; if(!sp) return null;
+  var p=sp[0], t=sp[1]; if(!n) return p;
+  var w=t/(t+p*(1-p)/n); return w*(k/n)+(1-w)*p;
+}
+function nigeSecondTable(boats){
+  if(!NS||!NS.cells||!NS.base) return "";
+  var tot=NS.meta&&NS.meta.races||0; if(!tot) return "";
+  var head='<tr><th>枠・選手</th><th>該当</th>'+[2,3,4,5,6].map(function(x){return '<th>2着'+x+'</th>';}).join("")+'</tr>';
+  var rows=boats.slice().sort(function(a,b){return parseInt(g(a,"枠"))-parseInt(g(b,"枠"));}).map(function(row){
+    var lane=parseInt(g(row,"枠")), toban=g(row,"登録番号"), lc=LANE_COLOR[lane]||["#333","#fff"];
+    var nm=g(row,"氏名").replace(/　+/g,"").slice(0,4);
+    var cell=(NS.cells[toban]&&NS.cells[toban][String(lane)])||[0,0,0,0,0,0];
+    var n=cell[0];
+    var tds=[2,3,4,5,6].map(function(x){
+      var k=cell[x-1], s=nsShrink(lane,x,n,k);
+      var pct=(s===null)?"-":Math.round(s*100)+"%";
+      return '<td'+(x===lane?' class="ns-self"':'')+'><span class="ns-p">'+pct+'</span><span class="ns-k">'+(n?k+"/"+n:"-")+'</span></td>';
+    }).join("");
+    return '<tr'+(n<20?' class="ns-thin"':'')+'><td><span class="ns-lane" style="background:'+lc[0]+';color:'+lc[1]+';'+((lane===1||lane===2)?'border:1px solid #445;':'')+'">'+lane+'</span><span class="ns-nm">'+esc(nm)+'</span></td><td class="ns-n">'+n+'</td>'+tds+'</tr>';
+  }).join("");
+  var base='<tr class="ns-base"><td>全体</td><td class="ns-n">'+tot+'</td>'+[2,3,4,5,6].map(function(x){
+    var k=NS.base[x-2]; return '<td><span class="ns-p">'+Math.round(k/tot*100)+'%</span><span class="ns-k">'+k+'</span></td>';
+  }).join("")+'</tr>';
+  var per=(NS.meta&&NS.meta.from&&NS.meta.to)?NS.meta.from.slice(0,4)+"/"+NS.meta.from.slice(4,6)+"〜"+NS.meta.to.slice(0,4)+"/"+NS.meta.to.slice(4,6):"";
+  return '<details class="ns"><summary>'
+    +'<span class="ns-badge">逃げ時２着</span>'
+    +'<span class="ns-sum">1号艇が逃げたとき、2着はどのコースだったか</span>'
+    +'<span class="ns-caret"></span></summary>'
+    +'<div class="ns-body"><div class="ns-per">'+esc(per)+'・'+tot+'レース</div>'
+    +'<table>'+head+rows+base+'</table>'
+    +'<details class="ns-help"><summary>表の読み方</summary><dl><dt>この表は何か</dt><dd>1号艇が逃げて決まったレースだけを集めて、そのとき2着がどのコースだったかを数えたもの。1着の話はしていない。</dd><dt>上段の％</dt><dd>母数が少ない選手ほど全体平均に近づける補正をかけた値。少ない回数のたまたまを、その選手の特徴として読ませないため。</dd><dt>下段の数字</dt><dd>補正をかける前の実数。左が回数、右がその選手の該当レース数。上段と食い違って見えるときは、右の数が小さい。</dd><dt>いちばん下の全体行</dt><dd>全レースでの2着コース分布。各選手の％をこれと引き算して読む。全体より高ければその選手のときは2着に来やすかった、低ければ来にくかった、というだけの話。</dd><dt>薄い字の行</dt><dd>該当レースが20回未満。数字は出しているが、1回の増減で大きく動くので目安にとどまる。</dd><dt>枠番で引いている</dt><dd>出走表の時点では進入が決まっていないため、枠番どおりに進入したものとして数字を引いている。前づけがあれば実際の進入とずれる。</dd><dt>出典</dt><dd>公式競走成績（Kファイル）。集計期間と対象レース数は表の上に記載。</dd></dl></details>'
+    +'</div></details>';
+}
 function kimariteBar(km){
   if(!km) return "";
   var cats=[["逃げ",km.nige],["差し",km.sashi],["まくり",km.makuri],["まくり差し",km.makurizashi]];
@@ -1137,6 +1205,7 @@ function renderRace(app,crumb,v){
   }
   boats.sort(function(a,b){ return sortKey(a)-sortKey(b); });
 
+  html+=nigeSecondTable(rc.boats);
   html+=boats.map(function(row){ return boatCard(row,v,hl,minST,maxST,maxMotor); }).join("");
 
   html+=yomiBox(v,view.rno);
