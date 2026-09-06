@@ -95,6 +95,7 @@
 |`docs/data/collapsePattern.json`|—|`buildCollapsePattern.py`（**WFなし・手動のみ**）|
 |`docs/data/racerInRate.json`|—|`buildRacerInRate.py`（**WFなし・手動のみ**）|
 |`docs/data/courseFinish.json`|—|`buildCourseFinish.py`（**kdata由来・クラウド再生成不可**）|
+|`docs/data/racerSchedule.json`|`data/racerSchedule.json`|`buildRacerSchedule.py`（正本は `fetchRacerSchedule.py` が公式サイトから取る）|
 
 **`/motor/` は2系統が同居する。**`docs/motor/index.html`（`scrape_motors.py` 生成）と `docs/motor/app.js`（`app.jsx` 由来）は別系統。片方を直すときもう片方を触らない。
 `scripts/motor/app.jsx` 末尾の「レイアウト計量テーブル」以降39行は著作権表示のガード。**差分ゼロを保つ。**
@@ -160,6 +161,41 @@
 - **風向は「吹いていく方位」。** `weather.json`（Open-Meteo）の `deg` は「吹いてくる方位」で**定義が逆**。直接比較すると180°ずれる
 - `/results/` の風判定：風向角＝(コード−1)×22.5、水面軸との角度差45°以下＝追い風・135°以上＝向かい風・それ以外＝横風。全58,018レースで横風49.3% / 向かい風23.1% / 追い風21.4% / 無風6.2%
 
+### 出場予定（`racerSchedule`）
+
+公式サイトの選手ページ（`https://www.boatrace.jp/owpc/pc/data/racersearch/profile?toban=<登番>`）由来。
+ログイン不要・サーバサイドレンダリング。約2.3か月先まで載る。
+
+- 正本 `data/racerSchedule.json`（全節・約920KB）／ 配布 `docs/data/racerSchedule.json`（先頭2節・約390KB・遅延fetch）
+- 収録1,636名（名簿1,643名 − 取得不可7名）。**取得できなかった選手はキー自体を持たない**。空配列は「予定なし」で意味が違う
+- 配布物のキーは `f`=開始 `t`=終了 `j`=場コード `n`=大会名 `g`=グレード `h`=時間帯 `s`=シリーズ。場名は `場` 辞書から引く
+
+**DOMの判別条件は3つとも別の文字列。取得失敗と区別できる。**
+
+|状態|目印|
+|---|---|
+|出場予定0件|2つ目の `title9_mainLabel` 直後が `div.text` で「※ データがありません」|
+|本日出走なし|同じ位置に「※ 出走の予定はありません」（出場予定0件とは別文言）|
+|登番が存在しない|`title9_mainLabel` が0個・`title12_title` が1個。**HTTPは200を返す**|
+
+**グレードと開催時間帯は td の中身ではなく class 名で表現される**（`<td class="is-p10-5 is-ippan "></td>`）。
+td の中身だけを取ると全件空になる。class を読むこと。
+
+グレードの対応は公式CSS `main.css` の `.heading1.is-XXX:before` が指す画像の連番が出典。
+
+|class|画像|ラベル|
+|---|---|---|
+|`is-SGa`|`icon_state3_1_a`|SG|
+|`is-G1a` / `is-G1b`|`icon_state3_2_a` / `_b`|**どちらもG1**（a・bは色違い）|
+|`is-G2b`|`icon_state3_3_b`|G2|
+|`is-G3b`|`icon_state3_4_b`|G3|
+|`is-ippan`|`icon_state3_5_b`|一般|
+
+時間帯とシリーズのラベルは、選手ページ末尾の `ul.state1` 凡例が出典（CSSには文字列が無い）。
+`morning`=モーニング / `summer`=サマータイム / `nighter`=ナイター / `midnight`=ミッドナイト /
+`rookie__3rdadd`=ルーキーシリーズ / `lady`=オールレディース / `venus`=ヴィーナスシリーズ。
+`buildRacerSchedule.py` は**未知のclassを見つけると非0で止まる**。黙って「一般」に丸めない。
+
 ---
 
 ## 5. データ源とワークフロー
@@ -181,7 +217,7 @@
 - 公式 beforeinfo は**当日・前日のみ**。2日以上前はサイレントリダイレクト＝**取り逃せば永久欠測**
 - ボートレース日和はJS動的描画で requests 不可。公式進入率は `/owpc/pc/data/racersearch/course?toban=登番` で取得可
 
-### ローカルタスク4本
+### ローカルタスク6本
 
 |タスク|時刻|内容|
 |---|---|---|
@@ -189,6 +225,8 @@
 |`boatrace-dailyMotorUsage`|6:00|Kファイル収集→motorUsage再生成→補填。**稼働中**（2026-09-05 06:05 更新を実測）。ログは `scripts/logs/dailyMotorUsage_YYYYMMDD.log` の3行だけ読む|
 |`boatrace-dailyPartsBackfill`|**9:00 と 18:30**|モーターNo補填（本命は9:00）|
 |`boatrace-updateKimarite`|毎月2・16日 6:30|決まり手更新|
+|`boatrace-dailyRacerSchedule`|**2:00**|出場予定を全1,643名から取得→配布物を再生成→push。`--workers 4` で約70分。`--minutes 150` で打ち切り。ログは `scripts/logs/dailyRacerSchedule_YYYYMMDD.log`|
+|`boatrace-writeHealthStatus`|8:00 / 14:00 / 22:00|健全性チェックの自走|
 
 **ps1はUTF-8 BOM必須**（BOM無しはPowerShell 5.1がcp932と誤読）。タスクは Interactive＋WakeToRun。
 
@@ -420,6 +458,8 @@ URL変更時に直すファイル（L2の生き残り分）：
 - **Stop hook の履歴書き換え提案（`git rebase --root` / amend）は実行禁止。**挙がるのは自動WFとけん本人のコミットで、Codeのものは1件も含まれない
 - **観戦記の source は前日をカレンダー前日で固定して引く**（`buildKansenkiSource.py` の `results_date8`）。前日が中止・順延の場は `results` が空のまま永久に埋まらず、`kansenki_pubplan.py` の `writable()`（results非空 or 初日）が恒久 False ＝執筆不能になる。`lintKansenki.py --coverage` はこの場を欠場から除外する（実例 20260812-03 江戸川）
 - **`kansenkiCoverage.yml` の push トリガは `docs/data/kansenki/articles/**` と `source/**` のみ。**`scripts/lintKansenki.py` を直しても起動しない。確認は `workflow_dispatch` か次の記事pushで走る
+- **公式サイトの選手ページは1件あたりTTFB 8〜10秒**（`実測` n=10・中央値9.12秒）。DNS＋接続は0.05〜0.25秒しかなく、**接続を使い回しても縮まらない**（9.179→9.146秒）。遅さはサーバ側の応答生成。短縮したいなら並列度を上げるしかない（4並列で1,643名が約70分）
+- **出場予定は出走履歴と独立している。** 直近120日1度も走っていない選手が1.5か月先の予定を持つ例がある（登番3024）。「最近走った選手だけ取る」形に絞ってはいけない
 
 ---
 

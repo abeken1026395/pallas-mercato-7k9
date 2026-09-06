@@ -3,7 +3,7 @@
 このファイルは運用の記録であり、読者向けの公開ページではない。
 毎回のチャット終了時に更新する。事実・仕様は `notes/facts.md`、行動規範はプロジェクト指示（L1）にある。
 
-最終更新 2026-09-05 JST ／ 基準 main `0946a8d1f`
+最終更新 2026-09-07 JST ／ 基準 main `9852d9916`
 
 ---
 
@@ -39,6 +39,9 @@
 
 ## 別チャット送り（着手しない・報告のみ）
 
+- **`boatrace-updateKimarite` が 2026-09-02 から Result=1 で失敗したまま**。次回実行は 9/16。放置すると `racerKimarite.csv` が古いままになる。原因未特定
+- **`lintGuard.py` が `docs/kensho/ninki/index.html` を「未分類のHTML」でFAILさせている**（2026-09-06時点）。PR #353 で解消したはずの型が再発している
+
 - **`scripts/motor/app.jsx` の告知バナーが5者裁定と食い違う**。`spanTicks()`（574-581行）が `position:fixed`・閉じるボタンなし・`document.body.prepend`。選手図鑑と同型で、PR #351 と同じ直し方が使える。ただし当該箇所は facts.md 3章が「差分ゼロを保つ」と定めた末尾39行（570-608行）の内側にあるため、**規定の解除をけんが裁定してから着手する**
 
 - **C-1 被まくり艇の検証**。A/B/C 3群（Aまくられた / B他の負け方 / C3着内）。**A vs B が仮説の本体**。次走の進入コースを統制する。位置づけは新特徴でなく `last20` のノイズ除去
@@ -54,6 +57,7 @@
 
 ## 小さい残件
 
+- **`racerSchedule` の初回実走が 2026-09-07 02:00**。翌朝ログ `scripts/logs/dailyRacerSchedule_20260907.log` の末尾を見て、「=== 完了 ===」で終わっているかを確認する。`main` 以外に居ると何もせず退避する設計なので、空振りしていたら作業ツリーの位置を疑う
 - **`writeHealthStatus.py` の `WATCH` に `motorUsage` が無い**（監視9項目に含まれず）。`buildMotorUsage.py` の安全ゲートが連日NGでJSONが据え置かれても毎朝の健全性チェックが鳴らない。`"motorUsage": "docs/data/motorUsage.json",` の1行追加で解決
 - **`/motor/` の初期取得4.3MB**：`motorKarte.json` 2.26MB＋`e30PlayerStats.json` 1.45MB＋`motorUsage.json` 0.39MB。**E30バッジ1個のために1.45MB読んでいる**。行を開いたとき・必要な場だけ取る形にする
 - **新しい公開ページを作ったら `lintGuard.py` の分類リストにも足す。** 実装済みでも台帳に無ければ「未分類のHTML」でFAILし、PR時のコピーガードWFが全PRで赤くなる（`docs/kensho/ninki/index.html` の実例・PR #353で解消）
