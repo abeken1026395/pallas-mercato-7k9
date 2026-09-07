@@ -3,7 +3,7 @@
 このファイルは運用の記録であり、読者向けの公開ページではない。
 毎回のチャット終了時に更新する。事実・仕様は `notes/facts.md`、行動規範はプロジェクト指示（L1）にある。
 
-最終更新 2026-09-07 JST ／ 基準 main `9852d9916`
+最終更新 2026-09-07 JST ／ 基準 main `e75f2742b`
 
 ---
 
@@ -57,7 +57,8 @@
 
 ## 小さい残件
 
-- **`racerSchedule` の初回実走が 2026-09-07 02:00**。翌朝ログ `scripts/logs/dailyRacerSchedule_20260907.log` の末尾を見て、「=== 完了 ===」で終わっているかを確認する。`main` 以外に居ると何もせず退避する設計なので、空振りしていたら作業ツリーの位置を疑う
+- **`racerSchedule` の日次実走は、02:00 に作業ツリーが main に無いと空振りする。** 2026-09-07 の初回は `feat/nige-second-highlights` に居たため退避した（ログに理由が1行残る・タスクは Last Result 0 で正常）。**2026-09-07 に案Aを裁定＝現状維持**。別クローンや `git worktree` は作らず、空振りした翌日に走らせる。夜間に別ブランチで作業する晩は走らないと理解しておく
+- **`writeHealthStatus.py` の `WATCH` に `racerSchedule` が無い**。`docs/data/racerSchedule.json` の「取得時刻」が3日以上古ければ鳴らす形にすれば、上の空振りが続いたときに気づける。`motorUsage` の未監視と同じ型なので、同時に直すのが早い
 - **`writeHealthStatus.py` の `WATCH` に `motorUsage` が無い**（監視9項目に含まれず）。`buildMotorUsage.py` の安全ゲートが連日NGでJSONが据え置かれても毎朝の健全性チェックが鳴らない。`"motorUsage": "docs/data/motorUsage.json",` の1行追加で解決
 - **`/motor/` の初期取得4.3MB**：`motorKarte.json` 2.26MB＋`e30PlayerStats.json` 1.45MB＋`motorUsage.json` 0.39MB。**E30バッジ1個のために1.45MB読んでいる**。行を開いたとき・必要な場だけ取る形にする
 - **新しい公開ページを作ったら `lintGuard.py` の分類リストにも足す。** 実装済みでも台帳に無ければ「未分類のHTML」でFAILし、PR時のコピーガードWFが全PRで赤くなる（`docs/kensho/ninki/index.html` の実例・PR #353で解消）
