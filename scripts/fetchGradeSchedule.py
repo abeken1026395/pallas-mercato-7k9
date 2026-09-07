@@ -13,6 +13,7 @@
 出力  : 当日と翌日の2日分のみ。読者に送る量を増やさないため、全日分は残さない。
         取得に失敗した場合は既存ファイルを書き換えない。
 """
+import csv
 import datetime
 import json
 import os
@@ -34,6 +35,8 @@ JST = datetime.timezone(datetime.timedelta(hours=9))
 REQ_TIMEOUT = 20
 SLEEP_SEC = 1.0
 OUT_PATH = os.path.join("docs", "data", "gradeSchedule.json")
+CSV_PATH = os.path.join("docs", "racers", "racers_today.csv")
+STATS_PATH = os.path.join("docs", "data", "racerStats.json")
 
 GRADE_MAP = {
     "is-gradeColorSG": "SG",
@@ -194,6 +197,64 @@ def build_days(sections, targets):
     return days
 
 
+def load_female_map():
+    """登録番号 -> 女子かどうか。読めなければ空の dict。"""
+    try:
+        with open(STATS_PATH, encoding="utf-8") as f:
+            players = json.load(f).get("players", [])
+    except Exception as e:
+        print("racerStats.json を読めない: {0}".format(e))
+        return {}
+    out = {}
+    for p in players:
+        no = str(p.get("no", "")).strip()
+        if no:
+            out[no] = bool(p.get("female"))
+    return out
+
+
+def load_entries():
+    """(開催日, 場コード) -> 登録番号の集合。読めなければ空の dict。"""
+    out = {}
+    try:
+        with open(CSV_PATH, encoding="utf-8-sig", newline="") as f:
+            for row in csv.DictReader(f):
+                hd = (row.get("開催日") or "").strip()
+                jcd = (row.get("場コード") or "").strip()
+                no = (row.get("登録番号") or "").strip()
+                if hd and jcd and no:
+                    out.setdefault((hd, jcd), set()).add(no)
+    except Exception as e:
+        print("racers_today.csv を読めない: {0}".format(e))
+    return out
+
+
+def annotate_female(days):
+    """その場・その日の出走選手が全員女子なら レディース=true を立てる。
+
+    判定は延べでなく実人数（登録番号の集合）。選手マスタに載っていない選手が
+    1人でもいる場合は判定しない。分母を残すため 女子・出走 も併記する。
+    公式の区分では女子のSG・G1が Lady にならないため、区分ではなく出走選手で見る。
+    """
+    fmap = load_female_map()
+    entries = load_entries()
+    if not fmap or not entries:
+        print("女子判定の入力が揃わないため付与しない")
+        return
+    for hd in days:
+        for jcd, info in days[hd].items():
+            ids = entries.get((hd, jcd))
+            if not ids:
+                continue
+            if any(i not in fmap for i in ids):
+                continue
+            n = len(ids)
+            f = sum(1 for i in ids if fmap[i])
+            info["女子"] = f
+            info["出走"] = n
+            info["レディース"] = (f == n)
+
+
 def target_months(today, tomorrow):
     """取得する年月(YYYYMM)を返す。前月・当月・翌日の月の順で重複を除く。
 
@@ -231,6 +292,7 @@ def main():
         return
 
     days = build_days(sections, targets)
+    annotate_female(days)
     out = {
         "updated": datetime.datetime.now(JST).strftime("%Y-%m-%d %H:%M"),
         "days": days,
