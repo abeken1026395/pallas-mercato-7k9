@@ -105,16 +105,18 @@ def header_dates(table, ym):
 
 def parse_sections(html, ym):
     """1か月ぶんのHTMLから節の一覧を返す。"""
-    soup = BeautifulSoup(html, "lxml")
+    soup = BeautifulSoup(html, "html.parser")
     sections = []
     for table in soup.select("div.table1 table"):
         dates = header_dates(table, ym)
         if not dates:
             continue
-        tbody = table.find("tbody")
-        if tbody is None:
+        rows = []
+        for tbody in table.find_all("tbody"):
+            rows.extend(tbody.find_all("tr"))
+        if not rows:
             continue
-        for tr in tbody.find_all("tr"):
+        for tr in rows:
             th = tr.find("th")
             if th is None:
                 continue
