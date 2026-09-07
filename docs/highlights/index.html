@@ -161,7 +161,18 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .fem{color:#ff6fae;font-size:11px;margin-left:2px}
 .venue{margin-bottom:8px}
 .vhead{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:13px 14px;cursor:pointer}
+/* 開催グレード。色を付けるのは SG・G1・女子戦の3種だけで、色だけで伝えないよう必ず文字バッジと併記する。
+   G1は公式の黄ではなく紫（既存の #ffd166 が日目・押しで2つの意味を持っており、3つ目を負わせると1色1意味が壊れるため）。
+   .vhead.open より前に置き、開いている場ではアクセント色の枠を勝たせる（現在地の表示を壊さない）。 */
+.vhead.g-sg{border-color:#ee3f3d;box-shadow:inset 4px 0 0 #ee3f3d;padding-left:18px}
+.vhead.g-g1{border-color:#b48ef0;box-shadow:inset 4px 0 0 #b48ef0;padding-left:18px}
+.vhead.g-lady{border-color:#fa628b;box-shadow:inset 4px 0 0 #fa628b;padding-left:18px}
 .vhead.open{border-color:var(--acc);background:#16222e}
+.gbadge{display:inline-block;font-size:11px;border-radius:4px;padding:1px 6px;margin-right:6px}
+.gb-sg{background:#ee3f3d;color:#0b1219}
+.gb-g1{background:#b48ef0;color:#0b1219}
+.gb-lady{background:#fa628b;color:#0b1219}
+.gb-plain{border:1px solid #9fb0c355;color:#9fb0c3}
 .vname{font-weight:800;font-size:15px}
 .pin-mk{margin-right:4px;font-size:15px}
 .vmeta{color:var(--sub);font-size:12px}
@@ -777,6 +788,33 @@ function kskTerm(cid){
   if(c) c.classList.toggle('on',show);
 }
 
+// 開催グレード（gradeSchedule.json・公式の月間スケジュール由来・当日と翌日の2日分）。
+// 前日・前々日タブは対象日を持たないため、バッジは出さず静かに欠番にする。
+let GRADE=null;
+fetch('../data/gradeSchedule.json?_='+Date.now())
+  .then(r=>r.ok?r.json():null)
+  .then(j=>{ GRADE=j||null; if(typeof render==='function') render(); })
+  .catch(()=>{});  // 取れなければバッジが出ないだけ
+// 女子戦は区分では判別できない（女子のSG・G1は SG・G1 の区分になる）ため、
+// その日の出走選手が全員女子かどうかで別に判定した値を使う。
+function gradeInfo(jcd,hd){
+  const d=(GRADE&&GRADE.days)?GRADE.days[hd]:null;
+  return d?(d[jcd]||null):null;
+}
+function gradeBadges(g){
+  if(!g) return {cls:'', html:''};
+  const k=String(g['区分']||'');
+  const lady=(g['レディース']===true)||k==='オールレディース'||k==='ヴィーナスシリーズ';
+  let cls='', b=[];
+  if(k==='SG'){ b.push('<span class="gbadge gb-sg">SG</span>'); cls=' g-sg'; }
+  else if(k==='G1'){ b.push('<span class="gbadge gb-g1">G1</span>'); cls=' g-g1'; }
+  else if(k==='G2'||k==='G3'){ b.push('<span class="gbadge gb-plain">'+k+'</span>'); }
+  else if(k==='ルーキーシリーズ'){ b.push('<span class="gbadge gb-plain">ルーキー</span>'); }
+  else if(k==='マスターズリーグ'){ b.push('<span class="gbadge gb-plain">マスターズ</span>'); }
+  if(lady){ b.push('<span class="gbadge gb-lady">女子</span>'); if(!cls) cls=' g-lady'; }
+  return {cls:cls, html:b.join('')};
+}
+
 function renderVenues(){
   // その日のjsonにある場だけを、場コード順に並べてアコーディオン表示
   const byVenue={};
@@ -791,7 +829,8 @@ function renderVenues(){
     const nx=races.map(r=>r['レース']+':'+dl2min(r['締切時刻'])).join(',');  // 場カードの次レース締切用
     const first=v.list[0]||{};
     const setsu=first['節名']||''; const nichi=first['日目']||'';
-    const setsuLine=setsu?`<div class="vsetsu">${setsu}${nichi?`（${nichi}）`:''}</div>`:'';
+    const gb=gradeBadges(gradeInfo(v.code,KAISAI));
+    const setsuLine=(setsu||gb.html)?`<div class="vsetsu">${gb.html}${setsu}${nichi?`（${nichi}）`:''}</div>`:'';
     // 明日タブ: 各場の鮮度（更新時刻）＋部分公開バッジ。欠けを誤解させないため部分は明示。
     let nextLine='';
     if(ISNEXT){ const m=NEXTMETA[v.code]||{};
@@ -814,7 +853,7 @@ function renderVenues(){
       }).join('')+`</div>`;
     }
     return `<div class="venue">
-      <div class="vhead${open?' open':''}" onclick="toggleVenue('${ba}')">
+      <div class="vhead${gb.cls}${open?' open':''}" onclick="toggleVenue('${ba}')">
         <span class="vname">${hasPin(PIN,v.code)?'<span class="pin-mk">📍</span>':''}${ba}</span>
         <span class="vmeta">${v.list.length}R${hot?` ・波乱${hot}`:''}</span>
         <span class="vnext" data-nx="${nx}"></span>
