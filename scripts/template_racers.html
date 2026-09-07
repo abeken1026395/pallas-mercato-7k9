@@ -31,6 +31,16 @@ header .sub { font-size:11px; color:#8a94a3; margin-top:4px; }
 .venue-name { font-size:17px; font-weight:bold; color:#fff; min-width:64px; }
 .venue-meta { flex:1; font-size:11px; color:#9fb0c3; line-height:1.6; }
 .venue-day { font-size:11px; color:#ffd166; border:1px solid #ffd16655; border-radius:4px; padding:1px 6px; white-space:nowrap; }
+/* 開催中のグレード。色は公式の月間スケジュールに合わせる（G1のみ、既存の黄と衝突するため紫に振替）。
+   色だけで伝えないよう、必ず文字バッジと併記する。色を付けるのは SG・G1・女子戦の3種だけ。 */
+.venue-card.g-sg { border-color:#ee3f3d; box-shadow:inset 4px 0 0 #ee3f3d; padding-left:18px; }
+.venue-card.g-g1 { border-color:#b48ef0; box-shadow:inset 4px 0 0 #b48ef0; padding-left:18px; }
+.venue-card.g-lady { border-color:#fa628b; box-shadow:inset 4px 0 0 #fa628b; padding-left:18px; }
+.gbadge { display:inline-block; font-size:11px; border-radius:4px; padding:1px 6px; margin-right:6px; }
+.gb-sg { background:#ee3f3d; color:#fff; }
+.gb-g1 { background:#b48ef0; color:#0b1219; }
+.gb-lady { background:#fa628b; color:#0b1219; }
+.gb-plain { border:1px solid #9fb0c355; color:#9fb0c3; }
 .date-head { font-size:13px; font-weight:bold; color:#ffd166; margin:16px 2px 4px; padding-bottom:4px; border-bottom:1px solid #2a3548; }
 .date-head:first-child { margin-top:6px; }
 
@@ -438,6 +448,7 @@ var HL_META={fix:[], hd:"", repl:{}};
 var E30=null, E30META=null;  /* E30該当場成績（生データ・事実提示のみ） */
 var tide=null;               /* 当日干満（tideToday.json・潮汐場のみ・事実提示のみ） */
 var NS=null;                 /* 1号艇逃げ時の2着コース分布（nigeSecond.json・直近730日・回数のみ） */
+var GRADE=null;              /* 開催グレード（gradeSchedule.json・公式の月間スケジュール由来） */
 var CL10=null, CL10_STATE="idle";  /* コース別直近10走。レース画面を開いたときだけ取得する */
 
 function loadJSON(u){ return fetch(u).then(function(r){return r.json();}); }
@@ -451,6 +462,26 @@ loadText("../players/racerKimarite.csv").then(function(t){ parseKimarite(t); rer
 loadJSON("../highlights/highlights.json").then(function(j){ parseHL(j); rerender(); }).catch(function(){});
 loadJSON("../data/tideToday.json").then(function(j){ tide=j||null; rerender(); }).catch(function(){});
 loadJSON("../data/nigeSecond.json").then(function(j){ NS=j||null; rerender(); }).catch(function(){});
+loadJSON("../data/gradeSchedule.json").then(function(j){ GRADE=j||null; rerender(); }).catch(function(){});
+/* 開催グレードと女子戦。区分は公式の月間スケジュールの class 由来。
+   女子戦は区分では判別できない（女子のSG・G1は SG・G1 の区分になる）ため、
+   その日の出走選手が全員女子かどうかで別に判定した値を使う。 */
+function gradeInfo(jcd,hd){
+  var d=GRADE&&GRADE.days?GRADE.days[hd]:null;
+  return d?(d[jcd]||null):null;
+}
+function gradeBadges(g){
+  if(!g) return {cls:"", html:""};
+  var k=String(g["区分"]||""), cls="", b=[];
+  var lady=(g["レディース"]===true)||k==="オールレディース"||k==="ヴィーナスシリーズ";
+  if(k==="SG"){ b.push('<span class="gbadge gb-sg">SG</span>'); cls=" g-sg"; }
+  else if(k==="G1"){ b.push('<span class="gbadge gb-g1">G1</span>'); cls=" g-g1"; }
+  else if(k==="G2"||k==="G3"){ b.push('<span class="gbadge gb-plain">'+k+'</span>'); }
+  else if(k==="ルーキーシリーズ"){ b.push('<span class="gbadge gb-plain">ルーキー</span>'); }
+  else if(k==="マスターズリーグ"){ b.push('<span class="gbadge gb-plain">マスターズ</span>'); }
+  if(lady){ b.push('<span class="gbadge gb-lady">女子</span>'); if(!cls) cls=" g-lady"; }
+  return {cls:cls, html:b.join("")};
+}
 loadJSON("../data/inSurvival.json").then(function(j){ ISV=j||null; yomiSync(); rerender(); }).catch(function(){});
 
 function parseKimarite(txt){
@@ -881,9 +912,10 @@ function renderVenues(app,crumb,keys){
       var rs=Object.keys(v.races).map(Number).sort(function(a,b){return a-b;});
       var first=v.races[rs[0]],last=v.races[rs[rs.length-1]];
       var fix=HL_META.fix.indexOf(v.name)>=0?'<span class="chip chip-fix" style="margin-left:6px">進入固定</span>':'';
-      return '<div class="venue-card" data-k="'+esc(v.key)+'">'
+      var gb=gradeBadges(gradeInfo(v.jcd,v.hd));
+      return '<div class="venue-card'+gb.cls+'" data-k="'+esc(v.key)+'">'
         +'<div class="venue-name">'+(isPin(v.jcd)?'<span class="pin-mk">📍</span>':'')+esc(v.name)+'</div>'
-        +'<div class="venue-meta">'+esc(v.setsu)+fix+'<br>'+rs.length+'R｜'+esc(first.deadline)+'〜'+esc(last.deadline)+'</div>'
+        +'<div class="venue-meta">'+gb.html+esc(v.setsu)+fix+'<br>'+rs.length+'R｜'+esc(first.deadline)+'〜'+esc(last.deadline)+'</div>'
         +'<div class="venue-day">'+esc(v.day)+'</div></div>';
     }).join("");
   });
