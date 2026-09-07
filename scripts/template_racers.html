@@ -803,7 +803,36 @@ var WIND_ARROW={"北":"↓","北東":"↙","東":"←","南東":"↖","南":"↑
 function windArrow(dir){ if(!dir) return ""; for(var k in WIND_ARROW){ if(dir.indexOf(k)>=0) return WIND_ARROW[k]; } return ""; }
 
 /* ===== 描画 ===== */
+
+/* レース画面は締切表示のため30秒ごとに render() で描き直す。innerHTML を作り直すため
+   開いていた <details> が閉じる。描き直しの前後で開閉状態を保存・復元する。
+   キーは summary のテキスト（同一画面内で重複しないため識別子として使える）。 */
+var DOPEN={};
+function nsSnapshotDetails(){
+  var app=document.getElementById("app"); if(!app) return;
+  DOPEN={};
+  var ds=app.querySelectorAll("details");
+  for(var i=0;i<ds.length;i++){
+    var s=ds[i].querySelector("summary");
+    var k=s?(s.textContent||"").replace(/\s+/g,"").slice(0,60):("i"+i);
+    if(k) DOPEN[k]=ds[i].open;
+  }
+}
+function nsRestoreDetails(){
+  var app=document.getElementById("app"); if(!app) return;
+  var ds=app.querySelectorAll("details");
+  for(var i=0;i<ds.length;i++){
+    var s=ds[i].querySelector("summary");
+    var k=s?(s.textContent||"").replace(/\s+/g,"").slice(0,60):("i"+i);
+    if(k && Object.prototype.hasOwnProperty.call(DOPEN,k)) ds[i].open=DOPEN[k];
+  }
+}
 function render(){
+  nsSnapshotDetails();
+  renderBody();
+  nsRestoreDetails();
+}
+function renderBody(){
   var _s=calcViewport(); if(!_s) return;
   var _add=function(){
     if(document.getElementById(_s.k)) return;
