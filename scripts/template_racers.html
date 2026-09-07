@@ -230,6 +230,28 @@ header .sub { font-size:11px; color:#8a94a3; margin-top:4px; }
 .ns-help dt { color:#9fb0c3; margin-top:6px; }
 .ns-help dd { color:#6f7d8c; margin:1px 0 0; }
 
+/* コース別直近10走（進入コース別の生データ・二層表示） */
+.cl10 { margin-top:8px; padding-top:7px; border-top:1px solid #1c2a3c; min-height:78px; }
+.cl10-hd { display:flex; align-items:baseline; justify-content:space-between; }
+.cl10-lb { font-size:11px; color:#8a94a3; }
+.cl10-av { font-size:11px; color:#9fb0c3; font-variant-numeric:tabular-nums; }
+.cl10-av b { color:#e0e6ed; font-size:15px; font-weight:bold; }
+.cl10-seq { display:flex; gap:5px; margin-top:2px; font-size:13px; font-variant-numeric:tabular-nums; color:#73899f; }
+.cl10-seq span { width:1.15em; text-align:center; }
+.cl10-seq .p1 { color:#ffd166; font-weight:bold; }
+.cl10-seq .p2 { color:#cfe3ff; }
+.cl10-seq .p3 { color:#a9c6dd; }
+.cl10 details { margin-top:2px; }
+.cl10 summary { font-size:11px; color:#6f8aa3; cursor:pointer; min-height:32px; display:flex; align-items:center; list-style:none; }
+.cl10 summary::-webkit-details-marker { display:none; }
+.cl10 details[open] summary::after { content:"　閉じる ▲"; }
+.cl10 details:not([open]) summary::after { content:"　▼"; }
+.cl10-dp { padding-bottom:4px; }
+.cl10-dk { font-size:10px; color:#7d8b9b; margin-top:6px; }
+.cl10-dl { font-size:11px; color:#9fb0c3; font-variant-numeric:tabular-nums; }
+.cl10-dl b { color:#e0e6ed; }
+.cl10-note { font-size:9px; color:#6f8aa3; margin-top:6px; line-height:1.5; }
+
 /* 今節成績 */
 .shu-wrap { margin-top:9px; }
 .shu-cap { font-size:10px; color:#8a94a3; margin-bottom:3px; }
@@ -416,6 +438,7 @@ var HL_META={fix:[], hd:"", repl:{}};
 var E30=null, E30META=null;  /* E30該当場成績（生データ・事実提示のみ） */
 var tide=null;               /* 当日干満（tideToday.json・潮汐場のみ・事実提示のみ） */
 var NS=null;                 /* 1号艇逃げ時の2着コース分布（nigeSecond.json・直近730日・回数のみ） */
+var CL10=null, CL10_STATE="idle";  /* コース別直近10走。レース画面を開いたときだけ取得する */
 
 function loadJSON(u){ return fetch(u).then(function(r){return r.json();}); }
 function loadText(u){ return fetch(u).then(function(r){return r.text();}); }
@@ -984,6 +1007,53 @@ function kimariteBar(km){
     +'<div class="kmr-bar">'+segs+'</div><div class="kmr-legend">'+legend+'</div></div>';
 }
 
+/* コース別直近10走（courseLast10.json・進入コース別の生データ）。
+   約900KB あるため初期取得には載せず、レース画面を最初に開いたときに1回だけ取る。
+   取得に失敗したときはブロックごと出さない（予約した高さも解除する）。 */
+function ensureCL10(){
+  if(CL10_STATE!=="idle") return;
+  CL10_STATE="loading";
+  loadJSON("../data/courseLast10.json").then(function(j){
+    CL10=(j&&j["選手"])?j:null;
+    CL10_STATE=CL10?"ready":"error";
+    rerender();
+  }).catch(function(){ CL10_STATE="error"; rerender(); });
+}
+function cl10Ymd(d){ var s=String(d||""); return /^\d{8}$/.test(s)?(s.slice(0,4)+"."+s.slice(4,6)+"."+s.slice(6,8)):"-"; }
+function courseLast10Block(toban,lane){
+  if(CL10_STATE==="error") return "";
+  if(CL10_STATE!=="ready") return '<div class="cl10"></div>';
+  var p=CL10["選手"][toban];
+  if(!p) return "";
+  var med=CL10["中央値"]||{}, key=String(lane);
+  var c=p[key]||null, n=c?c.n:0;
+  var mv=(med[key]!=null)?med[key].toFixed(1):"-";
+  /* 平均着は5走から出す。4走以下は着順を並べるだけにして平均を出さない。 */
+  var right=(c&&n>=5)?('<b>'+c.avg.toFixed(1)+'</b>着　全体中央値 '+mv):('全体中央値 '+mv);
+  var label=n?(lane+'コース 直近'+n+'走'):(lane+'コース 走行なし');
+  var seq=c?('<div class="cl10-seq">'+c.chaku.map(function(ch){
+      var cls=ch===1?"p1":ch===2?"p2":ch===3?"p3":"";
+      return '<span class="'+cls+'">'+ch+'</span>';
+    }).join("")+'</div>'):'';
+  var mix=p["mix"]||{}, mixKeys=Object.keys(mix).sort();
+  var mixHtml=mixKeys.map(function(k){
+    var mk=(parseInt(k,10)!==lane && mix[k]>=3);
+    return (mk?'<b>':'')+k+'コース '+mix[k]+'回'+(mk?'</b>':'');
+  }).join(' / ');
+  var per=CL10["集計期間"]||{};
+  return '<div class="cl10">'
+    +'<div class="cl10-hd"><span class="cl10-lb">'+label+'</span><span class="cl10-av">'+right+'</span></div>'
+    +seq
+    +'<details><summary>内訳</summary><div class="cl10-dp">'
+    +(mixKeys.length?'<div class="cl10-dk">直近10走（コース問わず）の進入</div><div class="cl10-dl">'+mixHtml+'</div>':'')
+    +(c?'<div class="cl10-dk">この'+n+'走の期間</div><div class="cl10-dl">'+cl10Ymd(c.from)+' 〜 '+cl10Ymd(c.to)+'</div>':'')
+    +'<div class="cl10-note">出走表の時点では進入が決まっていないため、枠番どおりに進入したものとして引いている。前づけがあれば実際の進入とずれる。'
+    +'着順は日付順で左が古い（同じ日の中は場・レース番号の順）。失格・妨害・転覆は6着として数え、欠場はその1走だけ分母から除いている。'
+    +'平均着は5走から出す。太字は枠なり以外で3回以上入ったコース。'
+    +'出典：results/*.json（'+cl10Ymd(per.from)+'〜'+cl10Ymd(per.to)+'）。全体中央値は2025.7.15〜2026.8.6の実測で、集計期間とは別。</div>'
+    +'</div></details></div>';
+}
+
 /* 今節モーター2連率（今節成績カラムの着から算出）。モーターは節を通じ艇に固定＝
    選手の今節結果＝そのモーターの今節結果。生データのみ・評価語なし。 */
 function kinsetuMotor(row){
@@ -1009,10 +1079,7 @@ function kinMotorLine(row){
   var tsu=g(row,"モーター2連率"), moNo=g(row,"モーターNo");
   var k=kinsetuMotor(row);
   var sk=shinkaeLabel(row);
-  if(k.n===0){
-    return '<div class="kinmotor">今節モーター No.'+esc(moNo)+'：<span class="km-none">今節データなし</span>'
-      +'<span class="km-tsu">／通算2連率 '+fmtPct(tsu)+'</span>'+sk+'</div>';
-  }
+  if(k.n===0) return "";
   var few=k.n<5;   // 節序盤の少数走はN少を明示（%は参考）
   return '<div class="kinmotor">今節モーター No.'+esc(moNo)+'：<b>'+k.n+'走</b> 2連対<b>'+k.w2+'</b>（'+k.rate+'%）'
     +(few?'<span class="km-few">N少</span>':'')
@@ -1205,6 +1272,7 @@ function renderRace(app,crumb,v){
   }
   boats.sort(function(a,b){ return sortKey(a)-sortKey(b); });
 
+  ensureCL10();
   html+=nigeSecondTable(rc.boats);
   html+=boats.map(function(row){ return boatCard(row,v,hl,minST,maxST,maxMotor); }).join("");
 
@@ -1259,7 +1327,7 @@ function boatCard(row,v,hl,minST,maxST,maxMotor){
   var moPct=(!isNaN(motor)&&maxMotor>0)?(motor/maxMotor*100):0;
   var meter='<div class="meter">'
     +'<div class="meter-row"><span class="meter-lb">ST</span><div class="meter-track"><div class="meter-fill" style="width:'+stPct.toFixed(0)+'%;background:'+(fastest?"#ffd166":"#3987e5")+'"></div></div><span class="meter-val'+(fastest?" meter-best":"")+'">'+(isNaN(st)?"-":st.toFixed(2))+'</span></div>'
-    +'<div class="meter-row"><span class="meter-lb">機力</span><div class="meter-track"><div class="meter-fill" style="width:'+moPct.toFixed(0)+'%;background:'+(bestMotor?"#c98500":"#256abf")+'"></div></div><span class="meter-val'+(bestMotor?" meter-best":"")+'">'+fmtPct(g(row,"モーター2連率"))+'</span></div>'
+    +'<div class="meter-row"><span class="meter-lb">機力</span><div class="meter-track"><div class="meter-fill" style="width:'+moPct.toFixed(0)+'%;background:'+(bestMotor?"#c98500":"#256abf")+'"></div></div><span class="meter-val"></span></div>'
     +'</div>';
 
   /* タグ */
@@ -1295,6 +1363,7 @@ function boatCard(row,v,hl,minST,maxST,maxMotor){
     +meter
     +kinMotorLine(row)
     +kimariteBar(km)
+    +courseLast10Block(toban,lane)
     +e30Block(toban,v.jcd)
     +shuTable(row)
     +'</div></div>';
