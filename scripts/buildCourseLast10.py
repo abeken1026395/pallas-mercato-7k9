@@ -10,11 +10,13 @@ buildCourseLast10.py
                           このファイルだけで完結する。外部アクセスは無い。
 
 出力:
-  data/courseLast10.json  （docs/ ではない。表示側の取り込みは別フェーズ）
-                          毎日変わる中間データなのでコミットしない。
+  docs/data/courseLast10.json
+                          出走表から fetch する。indent なしで出力する
+                          （indent=1 だと約1.9MB、minify で約890KB）。
 
 集計ルール:
-  - 着は 1〜6 のみ採用。7以上（妨害・転覆・F・欠場等の内部表現）はその走ごと捨てる。
+  - 着コードは 7〜15（妨害・転覆・失格等）を 6 に丸めて分母に残す。16（欠場）だけ分母から除く。
+    捨てると転覆や失格の多い選手ほど平均着が良く出るため、rounding で揃える。
   - コースが欠損している走も捨てる。
   - コース別に時系列の末尾10走を取る。10走に満たなければあるだけ。
   - mix はコース不問で直近10走を取り、その進入コースを数えたもの。
@@ -32,7 +34,7 @@ from datetime import datetime, timezone, timedelta
 # ---- 設定 ----
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RESULTS_DIR = os.path.join(REPO_ROOT, "results")
-OUT_PATH = os.path.join(REPO_ROOT, "data", "courseLast10.json")
+OUT_PATH = os.path.join(REPO_ROOT, "docs", "data", "courseLast10.json")
 
 LAST_N = 10
 JST = timezone(timedelta(hours=9))
@@ -122,10 +124,14 @@ def collectRuns(dates):
                     stat["登番なし"] += 1
                     continue
                 # 2つの除外条件は独立に数える（同じ走が両方に該当することがある）
-                okChaku = isinstance(chaku, int) and 1 <= chaku <= 6
+                # 着コード 7〜15 は 6 に丸めて分母に残す。16（欠場）だけ落とす。
+                okChaku = isinstance(chaku, int) and 1 <= chaku <= 15
                 okCourse = isinstance(course, int) and 1 <= course <= 6
+                if okChaku and chaku > 6:
+                    chaku = 6
+                    stat["7〜15を6に丸めた"] += 1
                 if not okChaku:
-                    stat["着が1〜6でない"] += 1
+                    stat["着が対象外(16等)"] += 1
                 if not okCourse:
                     stat["コース欠損"] += 1
                 if not okChaku or not okCourse:
@@ -194,7 +200,7 @@ def main():
 
     os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
     with open(OUT_PATH, "w", encoding="utf-8") as f:
-        json.dump(doc, f, ensure_ascii=False, indent=1)
+        json.dump(doc, f, ensure_ascii=False, separators=(",", ":"))
         f.write("\n")
 
     print(
