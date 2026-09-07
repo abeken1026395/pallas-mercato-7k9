@@ -3,7 +3,7 @@
 このファイルは運用の記録であり、読者向けの公開ページではない。
 毎回のチャット終了時に更新する。事実・仕様は `notes/facts.md`、行動規範はプロジェクト指示（L1）にある。
 
-最終更新 2026-09-07 JST ／ 基準 main `5bc070e61`
+最終更新 2026-09-07 JST ／ 基準 main `9380c9192`
 
 ---
 
@@ -12,10 +12,11 @@
 |テーマ|状態|次の一手|
 |---|---|---|
 |けんの実オッズ記録|2026-09-04 住之江から開始|レース / z / 買ったか見送ったか / 締切直前オッズ / 結果。**見送りも1行書く**。n=20〜30で帯ごとの妙味を判定|
+|開催グレードのバッジ|**出走表は完了・本番反映済み**（main `9380c9192`）。データ側 `fetchGradeSchedule.py` も稼働中|**見どころ（`/highlights/`）への移植が残り**。`scripts/template_racers.html` の `gradeInfo()` / `gradeBadges()` とCSS（`.gbadge` / `.g-sg` / `.g-g1` / `.g-lady`）をそのまま移す。場ヘッダは `.vhead`（163行）・節名は `.vsetsu`（41行／793-794行で生成）。**未確認：当日タブと明日タブで `hd` をどう取っているか**（`ISNEXT` / `KAISAI`）。現物を読んでから設計する。`docs/` を触るのでPRを立てて停止|
 
 ## 未マージPR・作業ブランチ
 
-なし。
+なし。マージ済みで未削除のブランチは「別チャット送り」のリモートブランチ仕分けに記載。
 
 ---
 
@@ -44,7 +45,8 @@
 - **C-2 機力低×展示速**。「①のモーター2連率が場平均を下回るとき、展示が6艇1位でも①着外率は下がらない」。**2×2で集計・条件を後から足さない**。使える期間は2026-04以降の約5ヶ月（`motorUsage.json` の制約）・想定n=1,800
 - 一周・まわり足のデータ源調査。`preview` に項目なし・過去分も遡れない。場公式（尼崎・桐生）の取得可否は**不明**
 - **WFの失敗通知が無い**。9便の failure が4日間気づかれなかった
-- リモートブランチの仕分け。**総数35本**・保護6本・削除待ち23本・メモ未記載の残余あり。判定は**merge-base の3点比較**（`git diff --name-only` も `git branch --merged` も使えない）。**クラウドCodeはブランチ削除ができない**（403 のほか `git push origin --delete` も send-pack で切断される・2026-09-05に5回失敗）。削除はローカルCodeかGitHub画面。マージ済み未削除に `claude/coverage-fail-20260812-03-av4dub`（PR #345・6e37953e）と `claude/players-guard-banner-standard-pd6ttn`（PR #351・9d1cc73e）、2026-09-05の5本 `feat/racer-course-stats`（#347）・`feat/racer-course-display`（#348）・`feat/course-label-fix`（#349）・`feat/branch-course-rate`（#350）・`feat/sort-in-rate-results`（#352）、2026-09-07の3本 `claude/course-last10-preview-vz6x0o`（#357）・`claude/course-last10-build`（#364）・`claude/merge-pr-364-d8crpj`、2026-09-07 の `claude/racers-detail-keys-0jkzsh`（#372）が加わった
+- **`update_racers.yml` は push に失敗しても success になる**。`git pull --rebase` が他の run と衝突すると5回のリトライが全て失敗するが、`for` ループ末尾の `sleep 5` が終了コード0を返すためステップは緑になり、**コミットが静かに捨てられる**（2026-09-07 run 34088406499 で実測・`gradeSchedule.json` の生成が消えた）。同型の `git add`＋`pull --rebase`＋`push` を持つ全WFが同じ穴を持つ可能性がある。当座の回避は「dispatch 前に走行中のWFが0本になるのを待つ」
+- リモートブランチの仕分け。**総数35本**・保護6本・削除待ち23本・メモ未記載の残余あり。判定は**merge-base の3点比較**（`git diff --name-only` も `git branch --merged` も使えない）。**クラウドCodeはブランチ削除ができない**（403 のほか `git push origin --delete` も send-pack で切断される・2026-09-05に5回失敗）。削除はローカルCodeかGitHub画面。マージ済み未削除に `claude/coverage-fail-20260812-03-av4dub`（PR #345・6e37953e）と `claude/players-guard-banner-standard-pd6ttn`（PR #351・9d1cc73e）、2026-09-05の5本 `feat/racer-course-stats`（#347）・`feat/racer-course-display`（#348）・`feat/course-label-fix`（#349）・`feat/branch-course-rate`（#350）・`feat/sort-in-rate-results`（#352）、2026-09-07の3本 `claude/course-last10-preview-vz6x0o`（#357）・`claude/course-last10-build`（#364）・`claude/merge-pr-364-d8crpj`、2026-09-07 の `claude/racers-detail-keys-0jkzsh`（#372）、2026-09-07 のグレードバッジ4本（#369・#370 `claude/grade-schedule-parser-20260907`・#375 `claude/grade-schedule-female-20260907`・#376 `claude/racers-grade-badges-20260907`）が加わった
 - Stop hook の条件修正
 - 選手コメントの調査（公式に存在しない。所在・取得可否・著作権・カバー率）
 - `lintGuard.py` の検査軸変更（判定式リテラル依存をやめ、L2の7ページも canonical 照合へ）
@@ -86,6 +88,11 @@
 
 |日付|決めたこと|適用範囲|
 |---|---|---|
+|2026-09-07|**開催グレードのバッジは出走表・見どころに出す。カードごと色を変えるのは SG・G1・女子戦の3種だけ**。G2・G3・ルーキー・マスターズは文字バッジのみ。色は公式の月間スケジュール準拠（SG `#ee3f3d` / 女子 `#fa628b`）だが、**G1だけ公式の黄 `#f0bb1c` を使わず紫 `#b48ef0`**（既存の `#ffd166` が日目バッジ・押し艇で2つの意味を持っており、3つ目を負わせると1色1意味が壊れるため）。色帯は `box-shadow:inset 4px 0 0` で出し、角丸を保つ|出走表・見どころ|
+|2026-09-07|グレード区分の一次データは**公式の月間スケジュール** `monthlyschedule?ym=YYYYMM` の `td.is-gradeColor*` class（`SG` / `G1` / `G2` / `G3` / `Lady` / `Venus` / `Rookie` / `Takumi` / `Ippan` の9区分）。**開始日は列位置とcolspanから計算する**（セル内 `a` の `hd=` は開催中だと当日を指すため使用禁止）。地区テーブルは**1場につき1つの `tbody`** なので `find("tbody")` では先頭1場しか読めない。パーサは `html.parser`（`lxml` は当該ページをXMLと解釈して打ち切る）|`fetchGradeSchedule.py`|
+|2026-09-07|**女子戦は公式の区分では判定できない**（女子のSG・G1は `Lady` でなく `SG`・`G1` になる）。その場・その日の**出走選手が全員 `female:true` か**で判定する（実人数・分母は `racers_today.csv`、性別は `racerStats.json`）。マスタ未収載の選手が1人でもいれば判定しない。JSONに `女子`／`出走` を併記して分母を残す。平和島「ほぼ女子戦」は39/47で false になることを実測確認|`fetchGradeSchedule.py`|
+|2026-09-07|`gradeSchedule.json` に載せるのは**当日と翌日の2日分のみ**。全日分を持つと読者への転送量が増える。取得0件のときは既存ファイルを書き換えない|データ配布|
+|2026-09-07|`racerStats.json`（681KB）を出走表ページで読ませない。**女子判定はWF側で行い、結果だけJSONに書く**|出走表|
 |2026-09-07|`courseLast10.json` は初期取得に載せず、**レース画面を最初に開いたときに1回だけ**取る。取得に失敗したときはブロックごと出さない（高さの予約も解除する）。gzip 122KB は出走表の初期取得を26%増やし、`sw.js` が network-first のため毎訪問かかるため|出走表|
 |2026-09-07|コース別直近10走の**平均着は5走から**出す。4走以下は着順を並べるだけで平均を出さない。0走は「走行なし」と書く。表層のラベルは「◯コース 直近n走」で分母を必ず出す|出走表|
 |2026-09-07|比較値の表記は「**全体中央値**」。`buildCourseLast10.py` の `MEDIAN` は集計期間とは別の固定期間（2025-07-15〜2026-08-06）なので、その旨を内訳の注記に書く|出走表|
