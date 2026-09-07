@@ -35,6 +35,7 @@ jobs:
           python-version: '3.12'
       - run: pip install requests beautifulsoup4 pandas lxml
       - run: python scripts/scrape_racers.py
+      - run: python scripts/fetchGradeSchedule.py
       # 節完結（venueMetaの日目=最終日）の場のモーター節成績を motorHistory.json に蓄積。
       # venueMeta.json は直前の scrape_racers で再生成済み、motors_all.csv はcheckout済みの既存を読む（読み取りのみ）。
       - run: python scripts/buildMotorHistory.py
