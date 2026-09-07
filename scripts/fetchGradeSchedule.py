@@ -111,10 +111,12 @@ def parse_sections(html, ym):
         dates = header_dates(table, ym)
         if not dates:
             continue
-        tbody = table.find("tbody")
-        if tbody is None:
+        rows = []
+        for tbody in table.find_all("tbody"):
+            rows.extend(tbody.find_all("tr"))
+        if not rows:
             continue
-        for tr in tbody.find_all("tr"):
+        for tr in rows:
             th = tr.find("th")
             if th is None:
                 continue
