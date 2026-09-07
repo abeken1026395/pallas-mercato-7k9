@@ -3,7 +3,7 @@
 このファイルは運用の記録であり、読者向けの公開ページではない。
 毎回のチャット終了時に更新する。事実・仕様は `notes/facts.md`、行動規範はプロジェクト指示（L1）にある。
 
-最終更新 2026-09-07 JST ／ 基準 main `04bb0584e`
+最終更新 2026-09-07 JST ／ 基準 main `5bc070e61`
 
 ---
 
@@ -12,7 +12,6 @@
 |テーマ|状態|次の一手|
 |---|---|---|
 |けんの実オッズ記録|2026-09-04 住之江から開始|レース / z / 買ったか見送ったか / 締切直前オッズ / 結果。**見送りも1行書く**。n=20〜30で帯ごとの妙味を判定|
-|コース別直近10走の出走表表示（PR-B）|データ側は PR #364 で完了。表示側が未着手|`scripts/template_racers.html` を3箇所。①`meter` の機力行から `meter-val` を削除（3列目と同値）②`kinMotorLine` の `k.n===0` 分岐を空文字に ③`courseLast10Block` を追加し決まり手構成と今節成績の間へ挿入・`docs/data/courseLast10.json` を fetch。**表示仕様は `/next/courseLast10Preview.html` が正**。`[updates]` を書く|
 
 ## 未マージPR・作業ブランチ
 
@@ -45,7 +44,7 @@
 - **C-2 機力低×展示速**。「①のモーター2連率が場平均を下回るとき、展示が6艇1位でも①着外率は下がらない」。**2×2で集計・条件を後から足さない**。使える期間は2026-04以降の約5ヶ月（`motorUsage.json` の制約）・想定n=1,800
 - 一周・まわり足のデータ源調査。`preview` に項目なし・過去分も遡れない。場公式（尼崎・桐生）の取得可否は**不明**
 - **WFの失敗通知が無い**。9便の failure が4日間気づかれなかった
-- リモートブランチの仕分け。**総数35本**・保護6本・削除待ち23本・メモ未記載の残余あり。判定は**merge-base の3点比較**（`git diff --name-only` も `git branch --merged` も使えない）。**クラウドCodeはブランチ削除ができない**（403 のほか `git push origin --delete` も send-pack で切断される・2026-09-05に5回失敗）。削除はローカルCodeかGitHub画面。マージ済み未削除に `claude/coverage-fail-20260812-03-av4dub`（PR #345・6e37953e）と `claude/players-guard-banner-standard-pd6ttn`（PR #351・9d1cc73e）、2026-09-05の5本 `feat/racer-course-stats`（#347）・`feat/racer-course-display`（#348）・`feat/course-label-fix`（#349）・`feat/branch-course-rate`（#350）・`feat/sort-in-rate-results`（#352）、2026-09-07の3本 `claude/course-last10-preview-vz6x0o`（#357）・`claude/course-last10-build`（#364）・`claude/merge-pr-364-d8crpj` が加わった
+- リモートブランチの仕分け。**総数35本**・保護6本・削除待ち23本・メモ未記載の残余あり。判定は**merge-base の3点比較**（`git diff --name-only` も `git branch --merged` も使えない）。**クラウドCodeはブランチ削除ができない**（403 のほか `git push origin --delete` も send-pack で切断される・2026-09-05に5回失敗）。削除はローカルCodeかGitHub画面。マージ済み未削除に `claude/coverage-fail-20260812-03-av4dub`（PR #345・6e37953e）と `claude/players-guard-banner-standard-pd6ttn`（PR #351・9d1cc73e）、2026-09-05の5本 `feat/racer-course-stats`（#347）・`feat/racer-course-display`（#348）・`feat/course-label-fix`（#349）・`feat/branch-course-rate`（#350）・`feat/sort-in-rate-results`（#352）、2026-09-07の3本 `claude/course-last10-preview-vz6x0o`（#357）・`claude/course-last10-build`（#364）・`claude/merge-pr-364-d8crpj`、2026-09-07 の `claude/racers-detail-keys-0jkzsh`（#372）が加わった
 - Stop hook の条件修正
 - 選手コメントの調査（公式に存在しない。所在・取得可否・著作権・カバー率）
 - `lintGuard.py` の検査軸変更（判定式リテラル依存をやめ、L2の7ページも canonical 照合へ）
@@ -59,6 +58,7 @@
 - **`writeHealthStatus.py` の `WATCH` に `motorUsage` が無い**（監視9項目に含まれず）。`buildMotorUsage.py` の安全ゲートが連日NGでJSONが据え置かれても毎朝の健全性チェックが鳴らない。`"motorUsage": "docs/data/motorUsage.json",` の1行追加で解決
 - **`/motor/` の初期取得4.3MB**：`motorKarte.json` 2.26MB＋`e30PlayerStats.json` 1.45MB＋`motorUsage.json` 0.39MB。**E30バッジ1個のために1.45MB読んでいる**。行を開いたとき・必要な場だけ取る形にする
 - **`updateResults.yml` の `build course last10` ステップの初回実行を確認する**（2026-09-07 23:37 が初回）。`docs/data/courseLast10.json` の `生成時刻` が翌朝更新されていればWF組み込みは完了。失敗していれば `updateResults.yml` のログを見る
+- **`buildCourseLast10.py` の `MEDIAN` が固定値**（44行・2025-07-15〜2026-08-06 の実測をハードコード）。`courseLast10.json` の `集計期間` は毎晩伸びるので、全体中央値だけ期間がずれ続ける。現在は内訳の注記に「集計期間とは別」と書いて逃がしている。生成時に中央値もJSONへ書き出す形にすれば解消する
 - **`scrapeKimarite.py` は毎回183日を mbrace から取り直している**（実測1,915秒）。同じKファイルは `data/kfiles/` に全日あるので、在庫を読む形にすれば32分→1分になり mbrace への負荷も消える。`rowdiff.py` が在庫だけで同じ集計（28,088レース）を再現できることを実測済み
 - **新しい公開ページを作ったら `lintGuard.py` の分類リストにも足す。** 実装済みでも台帳に無ければ「未分類のHTML」でFAILし、PR時のコピーガードWFが全PRで赤くなる（`docs/kensho/ninki/index.html` の実例・PR #353で解消）
 - `docs/data/motorParts.json`（15.68MB）・`docs/data/kansenki`（10.7MB）の削減
@@ -86,6 +86,12 @@
 
 |日付|決めたこと|適用範囲|
 |---|---|---|
+|2026-09-07|`courseLast10.json` は初期取得に載せず、**レース画面を最初に開いたときに1回だけ**取る。取得に失敗したときはブロックごと出さない（高さの予約も解除する）。gzip 122KB は出走表の初期取得を26%増やし、`sw.js` が network-first のため毎訪問かかるため|出走表|
+|2026-09-07|コース別直近10走の**平均着は5走から**出す。4走以下は着順を並べるだけで平均を出さない。0走は「走行なし」と書く。表層のラベルは「◯コース 直近n走」で分母を必ず出す|出走表|
+|2026-09-07|比較値の表記は「**全体中央値**」。`buildCourseLast10.py` の `MEDIAN` は集計期間とは別の固定期間（2025-07-15〜2026-08-06）なので、その旨を内訳の注記に書く|出走表|
+|2026-09-07|`.cl10` の文字色2つを WCAG 4.5:1 以上へ引き上げた（4着以上の数字 `#5f7183`→`#73899f`／内訳見出し `#6f7d8c`→`#7d8b9b`）。プレビューの見た目より監査基準を優先する|出走表|
+|2026-09-07|`details` の開閉状態のキーは **`data-dk` 属性で一意にする**。summary の文字だけで識別すると、艇ごとの「内訳」6個が1キーに潰れて同時に開閉する（PR #372 で実測・修正）。同じ文言の `details` を複数出すブロックには必ず付ける|出走表・全 `details`|
+|2026-09-07|**`[updates]` を書くPRは、マージ後に `workflow_dispatch` で生成WFの手動実行までを1セットにする。** `update_racers.yml` は JST 20:07 / 22:07 / 22:37 / 23:07 / 23:37 / 0:07 / 0:22 / 0:37 / 0:52 の9本で**日中は1本も走らない**ため、告知だけ先に読者へ出る事故が起きる（2026-09-07 に発生）|`[updates]` を書くPR|
 |2026-09-07|1号艇逃げ時の2着分布の窓は**直近2年（730日ローリング）**。out-of-sample の実測では5年が最良（対数損失1.4041）だが、2年との差は0.0119・Top1で0.7ptにとどまる。1年は母数不足で明確に劣る|`nigeSecond`|
 |2026-09-07|選手別の値は**縮小推定（経験ベイズ）でしか出さない**。生の率をそのまま使うと対数損失が1.4547→2.5259に悪化し、コース分布だけで買うより悪くなる|`nigeSecond`|
 |2026-09-07|土台はKファイル、以後の日次追加は `results` から（C方式）。417日の突合で値の不一致0件を確認済み|`nigeSecond`|
