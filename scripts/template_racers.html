@@ -808,13 +808,20 @@ function windArrow(dir){ if(!dir) return ""; for(var k in WIND_ARROW){ if(dir.in
    開いていた <details> が閉じる。描き直しの前後で開閉状態を保存・復元する。
    キーは summary のテキスト（同一画面内で重複しないため識別子として使える）。 */
 var DOPEN={};
+/* data-dk があればそれを開閉のキーにする。summary の文字が同じ details（艇ごとの内訳）を
+   1つのキーに潰して、6艇まとめて開閉させないため。data-dk が無いものは従来どおり文字で識別する。 */
+function nsDetailKey(d,i){
+  var a=d.getAttribute("data-dk");
+  if(a) return a;
+  var s=d.querySelector("summary");
+  return s?(s.textContent||"").replace(/\s+/g,"").slice(0,60):("i"+i);
+}
 function nsSnapshotDetails(){
   var app=document.getElementById("app"); if(!app) return;
   DOPEN={};
   var ds=app.querySelectorAll("details");
   for(var i=0;i<ds.length;i++){
-    var s=ds[i].querySelector("summary");
-    var k=s?(s.textContent||"").replace(/\s+/g,"").slice(0,60):("i"+i);
+    var k=nsDetailKey(ds[i],i);
     if(k) DOPEN[k]=ds[i].open;
   }
 }
@@ -822,8 +829,7 @@ function nsRestoreDetails(){
   var app=document.getElementById("app"); if(!app) return;
   var ds=app.querySelectorAll("details");
   for(var i=0;i<ds.length;i++){
-    var s=ds[i].querySelector("summary");
-    var k=s?(s.textContent||"").replace(/\s+/g,"").slice(0,60):("i"+i);
+    var k=nsDetailKey(ds[i],i);
     if(k && Object.prototype.hasOwnProperty.call(DOPEN,k)) ds[i].open=DOPEN[k];
   }
 }
@@ -1073,7 +1079,7 @@ function courseLast10Block(toban,lane){
   return '<div class="cl10">'
     +'<div class="cl10-hd"><span class="cl10-lb">'+label+'</span><span class="cl10-av">'+right+'</span></div>'
     +seq
-    +'<details><summary>内訳</summary><div class="cl10-dp">'
+    +'<details data-dk="cl10-'+toban+'"><summary>内訳</summary><div class="cl10-dp">'
     +(mixKeys.length?'<div class="cl10-dk">直近10走（コース問わず）の進入</div><div class="cl10-dl">'+mixHtml+'</div>':'')
     +(c?'<div class="cl10-dk">この'+n+'走の期間</div><div class="cl10-dl">'+cl10Ymd(c.from)+' 〜 '+cl10Ymd(c.to)+'</div>':'')
     +'<div class="cl10-note">出走表の時点では進入が決まっていないため、枠番どおりに進入したものとして引いている。前づけがあれば実際の進入とずれる。'
@@ -1151,7 +1157,7 @@ function e30Block(toban,jcd){
   }).join("");
   var per=E30META.期間, fmtP=function(d){return d?(d.slice(0,4)+"."+d.slice(4,6)+"."+d.slice(6,8)):"-";};
   var venue=E30META.対象場[jcd]["場名"];
-  return '<details class="e30d"><summary>'
+  return '<details class="e30d" data-dk="e30-'+toban+'"><summary>'
     +'<span class="e30-badge">E30該当場</span>'
     +'<span class="e30-sum">当地'+esc(venue)+'含む該当場 <b>'+tot+'</b>走 ・ 1着<b>'+w1+'</b> ・ 2連対<b>'+w2+'</b>'+(few?'<span class="e30-few"> N少</span>':'')+'</span>'
     +'<span class="e30-caret"></span></summary>'
