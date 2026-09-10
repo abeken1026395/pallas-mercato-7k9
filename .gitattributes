@@ -1,0 +1,3 @@
+# core.autocrlf=true の環境でも、フックのシェルスクリプトは LF で取り出す
+# （CRLF だと bash が壊れ、prepushVerify が全 push をブロックする）。
+.claude/hooks/*.sh text eol=lf
