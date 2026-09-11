@@ -15,6 +15,7 @@
   - GitHub API が取れなくても、git の情報だけで成立させる（api は任意）。
   - 例外で落とさない。取れなかった項目は null と理由を書く。
 """
+import glob
 import json
 import os
 import re
@@ -61,6 +62,23 @@ LOCAL_TASKS = {
 # 起動しなかった 09-10）。所要は最長 26 分（writeKansenki）。60 分あれば起動と完了を待てる。
 START_GRACE_MIN = 60
 TASK_RUNNING = 267009
+# 退避: ps1 が「main 以外のブランチ／作業ツリーに未コミット変更」を見てユーザー作業を避けたとき（exit 3）。
+# 成功とも失敗とも別の状態として出す。旧版の ps1 は退避でも exit 0 だったため、ログの文言でも判定する。
+TASK_RETREAT = 3
+TASK_LOGS = {  # scripts/logs/<接頭辞>_YYYYMMDD.log
+    "writeKansenkiLocal": "writeKansenki",
+    "dailyMotorUsage": "dailyMotorUsage",
+    "dailyPartsBackfill": "dailyPartsBackfill",
+}
+RETREAT_RE = re.compile(r"\[退避\] 理由=([^（。\n]*)"
+                        r"|main ではなく '([^']*)' に居るため何もせず終了"
+                        r"|(追跡ファイルに未コミット変更があるため)何もせず終了")
+# 直近から続いた退避が2日以上にまたがったら「退避（連続）」として強く出す。
+# 根拠（2026-08-12〜09-11 の scripts/logs）: 退避は8回（dailyPartsBackfill 6・dailyRacerSchedule 2）。
+# 7回は1回で終わり次の回は成功（夕方の手作業で main 以外に居た一時的なもの）。日をまたいで続いたのは
+# dailyRacerSchedule の 09-07〜09-08 だけで、作業ブランチのまま一晩以上置かれていた。
+# 2日続くのは main ツリーの置き忘れで、日次の出力が実際に欠け始める。
+RETREAT_STREAK_DAYS = 2
 
 
 def now():
@@ -339,6 +357,35 @@ def _latest_due(times, n):
     return max(cands) if cands else None
 
 
+def retreat_runs(key):
+    """タスクのログの各回を古い順に [(開始時刻, 退避理由 or None)] で返す（ログが無ければ空）。"""
+    pre = TASK_LOGS.get(key)
+    runs = []
+    for p in sorted(glob.glob(os.path.join(ROOT, "scripts", "logs", "%s_*.log" % pre))):
+        try:
+            with open(p, encoding="utf-8-sig", errors="replace") as f:
+                txt = f.read()
+        except OSError:
+            continue
+        for b in re.split(r"(?m)^(?=\[\d{4}-\d\d-\d\d \d\d:\d\d:\d\d\] [^\n]*=== 開始)", txt):
+            m = re.match(r"\[(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d)\] [^\n]*=== 開始", b)
+            if not m:
+                continue
+            t = datetime.strptime(m.group(1), "%Y-%m-%d %H:%M:%S").replace(tzinfo=JST)
+            r = RETREAT_RE.search(b)
+            reason = None
+            if r:
+                if r.group(1):
+                    reason = r.group(1).strip()
+                elif r.group(2):
+                    reason = "main 以外のブランチ '%s'" % r.group(2)
+                else:
+                    reason = "作業ツリーに未コミット変更"
+            runs.append((t, reason))
+    runs.sort(key=lambda x: x[0])
+    return runs
+
+
 def local_tasks(prev):
     """ローカルタスク3本の状態・最終起動・最終終了コード・最終成功。
     「最終成功」はタスクスケジューラが持たないため、前回の status.json から引き継ぐ。"""
@@ -386,10 +433,16 @@ def local_tasks(prev):
             last = None
         due = _latest_due(times, n) if times and not other else None
         fmt = lambda x: x.strftime("%Y-%m-%d %H:%M") if x else None
+        # 最終起動に対応するログの回（起動から5分以内に始まった回）が退避だったか
+        runs = retreat_runs(key)
+        mine = [r for r in runs if last and last <= r[0] <= last + timedelta(minutes=5)]
+        retreat = mine[0][1] if mine and mine[0][1] else None
+        if code == TASK_RETREAT and not retreat:
+            retreat = "理由不明（ログに退避の記録が無い）"
         e = {"予定": " ".join(sorted(times)), "直近の予定": fmt(due), "最終起動": fmt(last),
              "最終終了コード": code,
              "最終終了コード16進": ("0x%08X" % (code & 0xFFFFFFFF)) if isinstance(code, int) else None,
-             "最終成功": fmt(last) if (code == 0 and last) else prev_ok,
+             "最終成功": fmt(last) if (code == 0 and last and not retreat) else prev_ok,
              "タスク状態": t.get("state")}
         if other or not times:
             e["状態"], e["理由"] = "未検証", "予定時刻を計算できない（日次以外のトリガ: %s）" % other
@@ -399,6 +452,17 @@ def local_tasks(prev):
             e["状態"], e["理由"] = "未検証", "直近の予定を計算できない"
         elif last is None or last < due:
             e["状態"], e["理由"] = "未実行", "直近の予定 %s 以降に起動記録が無い（記録なし＝未検証）" % fmt(due)
+        elif retreat:
+            # 直近から続いた退避の回が、何日にまたがっているか
+            days = set()
+            for t_run, reason in reversed([r for r in runs if r[0] <= (last + timedelta(minutes=5))]):
+                if not reason:
+                    break
+                days.add(t_run.date())
+            streak = max(len(days), 1)
+            e["状態"] = "退避（連続）" if streak >= RETREAT_STREAK_DAYS else "退避"
+            e["理由"] = "退避により未実行: " + retreat
+            e["連続退避日数"] = streak
         elif code == 0:
             e["状態"] = "成功"
         else:
