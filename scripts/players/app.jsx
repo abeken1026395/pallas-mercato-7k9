@@ -586,7 +586,7 @@ function App() {
                     <span style={{fontSize:19,fontWeight:800,color:"#e8edf2"}}>{p.name}{p.female&&<span style={{color:"#ff7eb6",marginLeft:3,fontSize:15}}>♥</span>}</span>
                     <span style={{fontSize:13,color:"#6b7f95"}}>{p.branch}</span>
                   </div>
-                  {p.kana&&<div style={{fontSize:10,color:"#4a6070",marginTop:1}}>{p.kana}</div>}
+                  {p.kana&&<div style={{fontSize:10,color:"#8aa0b4",marginTop:1}}>{p.kana}</div>}
                 </div>
                 <div style={{display:"flex",gap:18,flexShrink:0}}>
                   {tab!=="list" && k ? [["率",(tab==="makuri"?k.makuriRate:k.sashiRate)||"-",tab==="makuri"?"#ff9e64":"#7ee787",(tab==="makuri"?"まくり率":"差し率")],["数",tab==="makuri"?k.makuri:k.sashi,"#e0e6ed",(tab==="makuri"?"まくり数":"差し数")]].map(([t,v,col,lb],i)=>(
@@ -834,7 +834,7 @@ function App() {
                           </div>
                           {allPct!==null&&(
                             <div style={{fontSize:11,color:"#6b7f95",marginTop:6,lineHeight:1.7,fontVariantNumeric:"tabular-nums"}}>
-                              全選手の平均 {allPct}%（{base.全体.n}走）
+                              全選手の平均 {allPct}%（{Number(base.全体.n).toLocaleString()}走）
                             </div>
                           )}
                         </div>
@@ -975,7 +975,7 @@ function App() {
                             </div>
                           ))}
                         </div>
-                        <div style={{fontSize:10,color:"#6b7f95",marginTop:6,lineHeight:1.5}}>黄=イン(1・2)、青=アウト(3〜6)。細い横線は全選手の平均。{guard}走に満たないコースは割合を出さず走数だけを載せる。</div>
+                        <div style={{fontSize:10,color:"#6b7f95",marginTop:6,lineHeight:1.5}}>黄=1・2コース、青=3〜6コース。細い横線は全選手の平均。{guard}走に満たないコースは割合を出さず走数だけを載せる。</div>
                         <details style={{marginTop:6}}>
                           <summary onClick={e=>e.stopPropagation()} style={{fontSize:12,color:"#8faabe",cursor:"pointer",minHeight:44,display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,listStyle:"none",background:"#0b1219",border:"1px solid #1a2535",borderRadius:8,padding:"0 12px"}}>
                             <span>2着・3着まで見る（{rows.length}件）</span>
