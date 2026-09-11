@@ -5,7 +5,10 @@
 #
 # 処理順（writeKansenki.yml のローカル移植）:
 #   a. main へ同期（checkout main → pull）。作業ツリーが汚れていれば何もせず退避（ユーザー作業の巻き込み回避）。
-#   b. kansenki_pubplan.py で掲載日の toWrite を得る。空なら「執筆対象なし」で正常終了。
+#   b. kansenki_pubplan.py で掲載日の toWrite を得て、三状態で判定する（writeKansenki.yml の plan と同じ分類）。
+#      正常な0（全場執筆済・前日非開催の構造上の除外だけ）→ 正常終了（exit 0）。
+#      source が無い・掲載日が取れない・場数0・入力が揃わず書けない場が残る → 未検証（exit 1）。
+#      実例: 2026-08-28・08-29 は 05:30 時点で source が無く toWrite=0 のまま「正常終了」していた。
 #   c. 二重執筆防止: articles/<pubdate>-*.json が既に在れば skip（既存記事は不変）。
 #   d. assign_styles.py（位置引数）でスタイル決定。
 #   e. claude -p ... で未執筆場のみ執筆（runbook 全文＋kansenkiRules をシステムプロンプト）。claude は push しない。
@@ -18,16 +21,17 @@
 
 $ErrorActionPreference = 'Stop'
 
-$Repo    = 'C:\Users\USER\boatrace'
+# KANSENKI_LOCAL_REPO / KANSENKI_LOCAL_CLAUDE / KANSENKI_LOCAL_PUBDATE は検証用の上書き（本番のタスクでは未設定）。
+$Repo    = if ($env:KANSENKI_LOCAL_REPO) { $env:KANSENKI_LOCAL_REPO } else { 'C:\Users\USER\boatrace' }
 # 絶対パス固定: タスクスケジューラの PATH は対話シェルと異なり、py.exe/npm系エイリアスは非対話で不安定。
 $Py      = 'C:\Users\USER\AppData\Local\Python\pythoncore-3.14-64\python.exe'
 $Git     = 'C:\Program Files\Git\cmd\git.exe'
-$Claude  = 'C:\Users\USER\.local\bin\claude.exe'
+$Claude  = if ($env:KANSENKI_LOCAL_CLAUDE) { $env:KANSENKI_LOCAL_CLAUDE } else { 'C:\Users\USER\.local\bin\claude.exe' }
 $PyDir   = Split-Path $Py   # claude 内部の Bash が叩く `python scripts/...` を実体に解決させるため PATH 先頭へ
 $Ps      = "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe"  # 破壊防止ガード呼び出し用
-$Guard   = 'C:\Users\USER\boatrace\scripts\checkRepoGuard.ps1'               # ガード本体（pull前後で呼ぶ）
+$Guard   = Join-Path $Repo 'scripts\checkRepoGuard.ps1'                      # ガード本体（pull前後で呼ぶ）
 
-$Pubdate = (Get-Date).ToString('yyyyMMdd')   # 掲載日＝当日（JST）。source/articles もこの日付。
+$Pubdate = if ($env:KANSENKI_LOCAL_PUBDATE) { $env:KANSENKI_LOCAL_PUBDATE } else { (Get-Date).ToString('yyyyMMdd') }   # 掲載日＝当日（JST）
 $LogDir  = Join-Path $Repo 'scripts\logs'    # .gitignore 済み（logは決してcommitしない）
 $LogFile = Join-Path $LogDir ("writeKansenki_{0}.log" -f $Pubdate)
 $LockFile = Join-Path $LogDir '.writeKansenki.lock'
@@ -58,6 +62,40 @@ function Invoke-Step($what, [scriptblock]$block) {
     if ($LASTEXITCODE -ne 0) { throw ("{0} が失敗 (exit {1})" -f $what, $LASTEXITCODE) }
     return $out
 }
+
+# 執筆計画の三状態判定。.github/workflows/writeKansenki.yml の plan ステップ（PR #387）と同じ分類。
+#   執筆 : 未執筆かつ書ける場がある
+#   正常 : 全場執筆済、または書けない場が前日非開催（lint --coverage と同じ除外）だけ
+#   未検証: 掲載日が取れない / source が無い / 場数0 / 入力が揃わず書けない場がある
+# 引数: plan.json のパス。出力: {state, why, unresolved:[..], excused:[..]} の JSON 1行。
+$PlanJudgePy = @'
+import json, sys
+sys.path.insert(0, "scripts")
+from lintKansenki import prev_day_race_count
+p = json.load(open(sys.argv[1], encoding="utf-8-sig"))
+pub = p.get("pubdate") or ""
+to_write = p.get("toWrite") or []
+venues = (p.get("counts") or {}).get("venues", 0)
+unresolved, excused = [], []
+for s in p.get("skip") or []:
+    if "results空" in (s.get("reason") or "") and pub and prev_day_race_count(pub, s.get("jcd")) == 0:
+        excused.append(s.get("jcd"))
+    else:
+        unresolved.append("%s(%s): %s" % (s.get("jcd"), s.get("venue"), s.get("reason")))
+if not pub:
+    state, why = "未検証", "掲載日を決定できない（CSV・highlights とも取れない）"
+elif not p.get("source"):
+    state, why = "未検証", "source/%s.json が無い（入力なし）" % pub
+elif venues == 0:
+    state, why = "未検証", "source/%s.json の場数が0（判定できない）" % pub
+elif to_write:
+    state, why = "執筆", "未執筆かつ書ける場 %d" % len(to_write)
+elif unresolved:
+    state, why = "未検証", "書ける場0・入力が揃わず書けない場 %d" % len(unresolved)
+else:
+    state, why = "正常", "全%d場 執筆済 %d・構造上除外 %d" % (venues, len(p.get("done") or []), len(excused))
+print(json.dumps({"state": state, "why": why, "unresolved": unresolved, "excused": excused}, ensure_ascii=False))
+'@
 
 # 生成済み記事(articles/<pubdate>-<jcd>.json)の jcd 一覧を返す（レジューム判定用）。
 function Get-DoneJcds {
@@ -109,16 +147,30 @@ try {
     $plan = $planText | ConvertFrom-Json
     $toWrite = @($plan.toWrite)
     Log ("pubplan: pubdate={0} toWrite=[{1}] (計{2}場)" -f $plan.pubdate, ($toWrite -join ' '), $toWrite.Count)
-    if ($toWrite.Count -eq 0) {
-        Log "執筆対象なし（toWrite空）＝全場執筆済/未確定。正常終了。"
+    # 三状態の判定（旧: toWrite 空なら理由を問わず「正常終了」）
+    $judgePath = Join-Path $env:TEMP 'kansenki_plan_judge.py'
+    Set-Content -Path $judgePath -Value $PlanJudgePy -Encoding utf8
+    $judgeText = Invoke-Native { & $Py $judgePath $planPath }
+    if ($LASTEXITCODE -ne 0) { throw ("執筆計画の判定が失敗 (exit {0})`n{1}" -f $LASTEXITCODE, $judgeText.TrimEnd()) }
+    $judge = $judgeText | ConvertFrom-Json
+    $unresolved = @($judge.unresolved | Where-Object { $_ })
+    Log ("判定: {0} — {1}" -f $judge.state, $judge.why)
+    foreach ($u in $unresolved) { Log ("  書けない場: {0}" -f $u) }
+    if ($judge.state -eq '未検証') {
+        Log "※ 未検証（入力が無い・判定できない）のため失敗として終了。"
+        exit 1
+    }
+    if ($judge.state -eq '正常') {
+        Log "執筆対象なし（正常な0）。正常終了。"
         exit 0
     }
 
     # --- c) 二重執筆防止 ------------------------------------------------
     $existing = @(Get-ChildItem -Path (Join-Path $ArticlesDir ("{0}-*.json" -f $Pubdate)) -ErrorAction SilentlyContinue)
     if ($existing.Count -gt 0) {
-        Log ("既存記事 {0} 本あり（既執筆）→ 二重執筆防止のためスキップ。正常終了。" -f $existing.Count)
-        exit 0
+        # 書ける場が残っているのに書かずに終わる＝未完了。旧: 正常終了（exit 0）。
+        Log ("既存記事 {0} 本あり → 二重執筆防止のため書かない。未執筆 {1}場=[{2}] が残るので失敗として終了。" -f $existing.Count, $toWrite.Count, ($toWrite -join ' '))
+        exit 1
     }
 
     # --- d) スタイル決定（位置引数フォーム） ----------------------------
@@ -172,7 +224,7 @@ try {
 
     # --- f) 検査: 各記事 lint → FAIL は削除（持ち越し）。PASS分は必ず公開する ---
     $written = @(Get-ChildItem -Path (Join-Path $ArticlesDir ("{0}-*.json" -f $Pubdate)) -ErrorAction SilentlyContinue)
-    if ($written.Count -eq 0) { Log "生成物なし → 公開なし（持ち越し）。正常終了。"; exit 0 }
+    if ($written.Count -eq 0) { Log "生成物なし（書ける場があるのに記事が1本も出ない）→ 公開なし。不合格として失敗終了。"; exit 1 }
     $keep = @()
     foreach ($f in $written) {
         $rel = 'docs/data/kansenki/articles/' + $f.Name
@@ -185,12 +237,12 @@ try {
         }
     }
     Log ("lint 結果: PASS {0}場 / 生成 {1}場" -f $keep.Count, $written.Count)
-    if ($keep.Count -eq 0) { Log "全対象 lint FAIL → 公開なし（持ち越し）。正常終了。"; exit 0 }
+    if ($keep.Count -eq 0) { Log "全対象 lint FAIL → 公開なし。不合格として失敗終了。"; exit 1 }
 
     # --- g) 公開: lint PASS 記事は途中終了でも必ず add → commit → pull --rebase → push ---
     Invoke-Step 'git add' { & $Git add $keep } | Out-Null
     $staged = & $Git diff --staged --name-only
-    if (-not $staged) { Log "差分なし（公開なし）。正常終了。"; exit 0 }
+    if (-not $staged) { Log "新規記事なのに差分なし（判定できない）→ 未検証として失敗終了。"; exit 1 }
     $msg = "kansenki: $Pubdate 掲載分 観戦記 +$($keep.Count)場（local・場単位・lint PASS分）"
     Invoke-Step 'git commit' { & $Git commit -m $msg } | Out-Null
     try {
@@ -207,6 +259,10 @@ try {
     $missing = @($toWrite | Where-Object { $_ -notin $passJcds })
     if ($missing.Count -eq 0) {
         Invoke-Native { & $Py scripts\lintKansenki.py --coverage $Pubdate } | Out-Null
+        if ($unresolved.Count -gt 0) {
+            Log ("{0}場を push（{1}）。ただし入力が揃わず書けない場 {2} が残る（未検証）→ 失敗として終了。" -f $keep.Count, $head, $unresolved.Count)
+            exit 1
+        }
         Log ("=== 完了: {0}場を push（{1}）・全{2}場網羅 ===" -f $keep.Count, $head, $toWrite.Count)
         exit 0
     }
