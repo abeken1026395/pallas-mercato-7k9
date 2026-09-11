@@ -54,6 +54,8 @@
 body::after{content:"データ攻め ／ YouTube あべけん";display:block;margin:18px 0 20px;font-size:11px;color:#8a8f98;letter-spacing:.02em;text-align:center}
 html[data-vr] body::after{content:none;margin:0}
 .vr-note{display:block;margin:18px 0 20px;font-size:11px;color:#8a8f98;letter-spacing:.02em;text-align:center}
+/* 読み込み時のレイアウトずれ防止：データで埋まる欄の高さを先に確保（幅390pxの実測値。一覧は1画面ぶん） */
+#total{min-height:22px} #kindTabs{min-height:34px} #rowTabs{min-height:74px} #count{min-height:19px} #list{min-height:100vh}
 </style>
 </head>
 <body>
@@ -62,7 +64,7 @@ html[data-vr] body::after{content:none;margin:0}
   <div class="hero">
     <div class="row">
       <div class="icon">📖</div>
-      <div><h1>競艇用語辞典<span class="dot">.</span></h1></div>
+      <div><h1>競艇用語辞典</h1></div>
     </div>
     <div class="lead">決まり手・進入・番組・水面環境まで、ボートレースを見るときに出会う言葉を事実だけで整理しました。買い目や予想は含みません。</div>
     <div class="total" id="total"></div>
