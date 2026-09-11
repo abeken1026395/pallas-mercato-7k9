@@ -13,11 +13,12 @@
 
 $ErrorActionPreference = 'Stop'
 
-$Repo = 'C:\Users\USER\boatrace'
+# BOATRACE_LOCAL_REPO は検証用の上書き（本番のタスクでは未設定）。
+$Repo = if ($env:BOATRACE_LOCAL_REPO) { $env:BOATRACE_LOCAL_REPO } else { 'C:\Users\USER\boatrace' }
 $Py   = 'C:\Users\USER\AppData\Local\Python\pythoncore-3.14-64\python.exe'
 $Git  = 'C:\Program Files\Git\cmd\git.exe'
 $Ps    = "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe"
-$Guard = 'C:\Users\USER\boatrace\scripts\checkRepoGuard.ps1'
+$Guard = Join-Path $Repo 'scripts\checkRepoGuard.ps1'
 
 $Workers   = 4
 $Minutes   = 150   # 4並列なら約70分。詰まった日でも打ち切れるよう余裕を持たせる
@@ -70,15 +71,16 @@ try {
     Log "=== 開始 ==="
 
     # --- 安全確認: ユーザーの作業に触らない -----------------------------
+    # 退避（ユーザー作業の巻き込み回避）は exit 3。成功(0)・失敗(1)と区別し、health/status.json で「退避」として出す。
     $branch = & $Git rev-parse --abbrev-ref HEAD
     if ($branch -ne 'main') {
-        Log ("main ではなく '{0}' に居るため何もせず終了（ユーザー作業の巻き込み回避）" -f $branch)
-        exit 0
+        Log ("[退避] 理由=main 以外のブランチ '{0}'（ユーザー作業の巻き込み回避）。何もせず終了" -f $branch)
+        exit 3
     }
     $dirty = & $Git status --porcelain --untracked-files=no
     if ($dirty) {
-        Log ("追跡ファイルに未コミット変更があるため何もせず終了:`n{0}" -f ($dirty | Out-String).TrimEnd())
-        exit 0
+        Log ("[退避] 理由=作業ツリーに未コミット変更（ユーザー作業の巻き込み回避）。何もせず終了:`n{0}" -f ($dirty | Out-String).TrimEnd())
+        exit 3
     }
 
     # --- 0.5) 最新originへ同期 -------------------------------------------
