@@ -42,10 +42,10 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .livewx{font-size:11.5px;color:var(--sub);background:rgba(120,180,220,.10);border:1px solid var(--line);border-radius:9px;padding:5px 9px;margin:7px 0 2px;line-height:1.5}
 .windsig{font-size:11.5px;color:var(--sub);background:rgba(255,209,102,.10);border:1px solid rgba(255,209,102,.35);border-radius:9px;padding:5px 9px;margin:4px 0 2px;line-height:1.5}
 .tideinfo{font-size:11.5px;color:var(--sub);background:rgba(90,200,180,.10);border:1px solid var(--line);border-radius:9px;padding:5px 9px;margin:4px 0 2px;line-height:1.5}
-.tideinfo .cav,.windsig .cav{opacity:.7}
+.tideinfo .cav,.windsig .cav{opacity:1}
 .fcstwx{font-size:11.5px;color:var(--sub);background:rgba(150,140,220,.12);border:1px solid rgba(150,140,220,.35);border-radius:9px;padding:5px 9px;margin:7px 0 2px;line-height:1.5}
-.fcstwx .cav{opacity:.7}
-.windsig .cav{opacity:.7}
+.fcstwx .cav{opacity:1}
+.windsig .cav{opacity:1}
 .nsfact{margin:4px 0 2px;border:1px solid rgba(143,180,214,.30);border-radius:9px;background:rgba(143,180,214,.09);overflow:hidden}
 .nsfact>summary{list-style:none;cursor:pointer;padding:6px 9px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11.5px;color:var(--sub)}
 .nsfact>summary::-webkit-details-marker{display:none}
@@ -56,7 +56,7 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .nsfact .nsb{padding:0 9px 8px}
 .nsfact .nsper{font-size:10px;color:var(--sub);opacity:.8;margin-bottom:5px}
 .nsfact table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
-.nsfact th{font-size:9.5px;color:var(--sub);opacity:.75;font-weight:400;padding:2px 0 4px;text-align:right}
+.nsfact th{font-size:9.5px;color:var(--sub);font-weight:400;padding:2px 0 4px;text-align:right}
 .nsfact th:first-child{text-align:left}
 .nsfact td{padding:3px 0;text-align:right;border-top:1px solid rgba(143,180,214,.18);vertical-align:top}
 .nsfact td:first-child{text-align:left;white-space:nowrap}
@@ -83,7 +83,7 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .e30fact .e30p .w{color:#ffd166;font-weight:700}
 .e30fact .e30p .r2{color:#5ac8b4;font-weight:700}
 .e30fact .few{color:#e0a56a}
-.e30fact .cav{opacity:.7}
+.e30fact .cav{opacity:1}
 .badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;background:transparent}
 .b-hot{background:transparent;color:#e07a6e;border:1px solid rgba(255,107,91,.4)}
 .b-firm{background:transparent;color:#6f9fca;border:1px solid rgba(74,168,255,.4)}
@@ -342,9 +342,9 @@ html[data-vr] body::after{content:none;margin:0}
     展開文はコース別の役割（①逃げ／②差し／③④まくり）に沿った<b>複数の筋の併置</b>。最後の一歩は読み手が埋めてください。
     <div class="mtr-legend">
       <span class="mtr-leg-title">機バッジの枠色</span>
-      <span class="mtr-leg-item"><span class="mtr hi">機</span>場平均より上位</span>
+      <span class="mtr-leg-item"><span class="mtr hi">機</span>6艇平均より上位</span>
       <span class="mtr-leg-item"><span class="mtr">機</span>平均並み</span>
-      <span class="mtr-leg-item"><span class="mtr lo">機</span>場平均より下位</span>
+      <span class="mtr-leg-item"><span class="mtr lo">機</span>6艇平均より下位</span>
       <span class="mtr-leg-item"><span class="mtr na">機</span>実績なし・10走未満</span>
       <span class="mtr-leg-note">数字＝モーター番号／枠色＝モーター2連率がそのレース6艇の平均±5%に対しどの位置か。新替直後など走破数が少ない機は、分母が小さすぎるため評価しない</span>
     </div>
@@ -354,7 +354,7 @@ html[data-vr] body::after{content:none;margin:0}
       <span class="mtr-leg-item"><span class="flag fF">F</span>今節フライング持ち</span>
       <span class="mtr-leg-item"><span class="flag fST">ST</span>平均STが鋭い（目安0.15以下）</span>
       <span class="mtr-leg-item"><span class="up">▲</span>当地勝率が全国勝率より高い（その場を得意）</span>
-      <span class="mtr-leg-item"><span class="badge b-mid">波乱</span>荷れ条件の件数（4以上赤／2-3金／0-1灰）</span>
+      <span class="mtr-leg-item"><span class="badge b-mid">波乱</span>荒れ条件の件数（4以上赤／2-3金／0-1灰）</span>
       <span class="mtr-leg-item"><span class="rchip-mk" style="font-size:12px">⚡</span>その場で波乱指数が最も高いレース</span>
     </div>
   </div>
@@ -912,10 +912,10 @@ function downFactorHtml(r){
       return `<span class="df-cmp">全体の真ん中は${Math.round(base['中央値'])}%${nn}</span>`;
     }
     if(/モーター2連率/.test(it) && r['モーター場平均']!=null){
-      return `<span class="df-cmp">この場の平均は${Math.round(r['モーター場平均'])}%</span>`;
+      return `<span class="df-cmp">6艇平均は${Math.round(r['モーター場平均'])}%</span>`;
     }
-    if(/着外率/.test(it) && cp['inOutRate']!=null && cp['n']!=null){
-      return `<span class="df-cmp">実数は${cp['inOutRate']}%・${cp['n']}レース</span>`;
+    if(/着外率/.test(it) && cp['inOutRate']!=null && cp['n']!=null && cp['total']!=null){
+      return `<span class="df-cmp">${cp['inOutRate']}%（${cp['total']}レース中${cp['n']}レース）</span>`;
     }
     return '';
   };
@@ -1211,7 +1211,7 @@ function nigeSecondFact(r){
   return `<details class="nsfact"><summary><span class="nsh">逃げ時２着</span>`
     +`<span>1号艇が逃げたとき、2着はどのコースだったか</span>`
     +`<span class="nscar"></span></summary>`
-    +`<div class="nsb"><div class="nsper">${per}・${tot}レース</div>`
+    +`<div class="nsb"><div class="nsper">${per}・${tot.toLocaleString('ja-JP')}レース</div>`
     +`<table>${head}${rows}${base}</table><details class="nshelp"><summary>表の読み方</summary><dl><dt>この表は何か</dt><dd>1号艇が逃げて決まったレースだけを集めて、そのとき2着がどのコースだったかを数えたもの。1着の話はしていない。</dd><dt>上段の％</dt><dd>母数が少ない選手ほど全体平均に近づける補正をかけた値。少ない回数のたまたまを、その選手の特徴として読ませないため。</dd><dt>下段の数字</dt><dd>補正をかける前の実数。左が回数、右がその選手の該当レース数。</dd><dt>いちばん下の全体行</dt><dd>全レースでの2着コース分布。各選手の％をこれと引き算して読む。</dd><dt>薄い字の行</dt><dd>該当レースが20回未満。1回の増減で大きく動くので目安にとどまる。</dd><dt>枠番で引いている</dt><dd>進入が決まる前の時点のため、枠番どおりに進入したものとして引いている。前づけがあれば実際の進入とずれる。</dd><dt>出典</dt><dd>公式競走成績（Kファイル）。判定には使っていません。</dd></dl></details></div></details>`;
 }
 fetch('../data/nigeSecond.json?_='+Date.now())

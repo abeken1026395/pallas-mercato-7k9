@@ -554,16 +554,9 @@ def main():
         wind = best.get('wind'); d = best.get('dir', ''); wx = best.get('wx', '')
         if wind is None:
             return ''
-        # 事実の描写のみ。有利不利の結論には踏み込まない。
-        wxs = f"{wx}天で" if wx and wx not in ('晴',) else ''
-        if wind < 3:
-            return f"当日は{wxs}{d}の風{wind:.0f}m前後と穏やかで、水面は落ち着いた条件。"
-        elif wind < 5:
-            return f"当日は{wxs}{d}の風{wind:.0f}m。スタート隊形に影響しうる風速。"
-        elif wind < 7:
-            return f"当日は{wxs}{d}の風{wind:.0f}mとやや強く、水面は波立ちやすい。"
-        else:
-            return f"当日は{wxs}{d}の風{wind:.0f}mの強風で、水面は落ち着かない。"
+        # 事実の描写のみ。有利不利の結論にも、穏やか・波立ちやすい等の解釈にも踏み込まない。
+        wxs = f"{wx}、" if wx and wx not in ('晴',) else ''
+        return f"当日は{wxs}{d}の風{wind:.0f}m。"
 
     races = defaultdict(list)
     for r in rac:
@@ -684,17 +677,27 @@ def main():
             return kim_type(bo[w-1]['登録番号'])
         # 述語は「連絡み」寄り（実測: 波乱④は1着20.6%/3着内61.1%＝勝ち切りは薄く連絡みが実態）。
         # 決まり手×場特性で分岐。語感刷新分は新ID(H4-6/M8-10/N1)で検証追跡できるよう振り直す。
+        #   2026-09-11: 「連を脅かす」等の述語を削り、根拠（決まり手・機力上位・カド/ダッシュ）と実数で終える。
+        def _kim_fact(w, lbl):
+            _y = yarare.get(bo[w-1]['登録番号'], {}) or {}
+            _wn = _y.get('1着数'); _nv = _y.get('まくり数' if lbl == 'まくり' else '差し数')
+            if _wn and _nv is not None:
+                return f"1着{_wn}本のうち{_nv}本が{lbl}"
+            _rt = _y.get('まくり率' if lbl == 'まくり' else '差し率')
+            return f"1着のうち{lbl}が{round(_rt)}%" if _rt is not None else f"{lbl}型"
+        def _pos_fact(t, pos):
+            return f"は{pos}の{t['lv']}" + (f"、当地勝率{t['loc']:.2f}" if t['loc'] > 0 else "")
         def _out_pred(t, strong):
             w = t['w']; kt = _kt_of(w)
             if kt == 'makuri' and (ba in NARROW or ba in MAKURI):
-                return ('のまくりが狭水面で連を脅かす', 'H4' if strong else 'M8')
+                return (f"は{_kim_fact(w, 'まくり')}", 'H4' if strong else 'M8')
             if kt == 'sashi':
-                return ('のまくり差しが連に食い込む', 'H5' if strong else 'M9')
+                return (f"は{_kim_fact(w, '差し')}", 'H5' if strong else 'M9')
             if t.get('mhi'):
-                return ('は機力上位で連軸を脅かす', 'H6' if strong else 'M10')
+                return (f"は機力上位（モーター2連率{round(mt[w-1])}%、6艇平均{round(mavg)}%）", 'H6' if strong else 'M10')
             if w == 4:
-                return ('はカドから連に押し込む形', 'H7' if strong else 'M11')
-            return ('はダッシュから連絡み、連軸を脅かす', 'H8' if strong else 'M12')
+                return (_pos_fact(t, 'カド'), 'H7' if strong else 'M11')
+            return (_pos_fact(t, 'ダッシュ'), 'H8' if strong else 'M12')
         # downFactorsで“①が崩れる理由”を書き分ける（判定・head_w・述語は不変。文面/IDのみ）。
         #   0個=①自体に材料薄い→理由を相手側に置く(M14)／1個=要因を名指し(M15)／2個+=要因を重ねる(M16)。
         # 「①に不安」の断定を廃し、下振れ要因ゼロのレースでは“不安”を書かない（事実ブロックと整合）。
@@ -722,15 +725,19 @@ def main():
                 band = 'mid' if abs(d) < 3 else ('hi' if d > 0 else 'lo')
                 return f"①{n1h}{lvs}の1コース1着率は{round(_in1_rate)}%{nn}", band
             if _m14_mv is not None and mavg2:
-                return f"①{n1h}{lvs}のモーター2連率は{_m14_mv}%（場平均{round(mavg2)}%）", 'mtr'
+                return f"①{n1h}{lvs}のモーター2連率は{_m14_mv}%（6艇平均{round(mavg2)}%）", 'mtr'
             return None, None
-        def _lay(rival):
+        def _lay(rival=None):
             """①の値域で語順を決める。高い＝①先／並み・低い＝相手先。
                ①が疑わしいレースは相手が主役なので、語順が意味と一致する。
-               ローテを使わないため表示順に依存せず、値が毎レース変わるので書き出しも散る。"""
+               ローテを使わないため表示順に依存せず、値が毎レース変わるので書き出しも散る。
+               rival が無いときは①の実数の事実文だけを置く。"""
             f1, band = _in1_fact()
             if not f1:
-                return f"{rival}。①{n1h}は1コース進入の走数が足りず率を出せない"
+                f0 = f"①{n1h}は1コース進入の走数が足りず率を出せない"
+                return f"{rival}。{f0}" if rival else f0
+            if not rival:
+                return f1
             if band in ('mid', 'lo'):
                 return f"{rival}。{f1}"
             return f"{f1}。{rival}"
@@ -745,17 +752,15 @@ def main():
                 return _m14(rival)
             # 機力の一言は表層に置かない（結論が2つになるため）。深層の事実ブロックに既出。
             return _lay(rival), ('M16' if any(x.startswith('機力') for x in _pf) else 'M15')
-        def _k5rk():
-            return f"{K[o4s[0]['w']-1]}{o4s[0]['nm']}" if o4s else "外"
         if in_strong and diff >= tk_ba:
             if downFactors['count'] == 0:
-                headline = _lay(f"相手を{_k5rk()}に求める形"); hid = 'K5'
+                headline = _lay(); hid = 'K5'
             elif diff >= 0.30:
-                headline = _lay("相手探しの一戦"); hid = 'K1'
+                headline = _lay(); hid = 'K1'
             elif it >= 60:
                 headline = _lay("水面も後押しする形"); hid = 'K2'
             else:
-                headline = _lay("外の一発をどこまで測るか"); hid = 'K3'
+                headline = _lay(); hid = 'K3'
         elif o4 and ((in_weak and diff <= th_ba) or (in_strong and verdict == '波乱')):
             # 波乱×外主役（①不安 or in_strongでも④優勢）。述語は連絡み寄り。カド⑤優位なら⑤主役。
             w0 = o4s[0]; suf, _ = _out_pred(w0, True)
@@ -763,9 +768,9 @@ def main():
             head_w = w0['w']
         elif in_strong:
             if downFactors['count'] == 0:
-                headline = _lay(f"相手を{_k5rk()}に求める形"); hid = 'K5'
+                headline = _lay(); hid = 'K5'
             else:
-                headline = _lay("外の一発をどこまで測るか"); hid = 'K4'
+                headline = _lay(); hid = 'K4'
         elif in_weak and o4:
             # 混戦寄り×外主役。連絡み寄りの主役候補文。カド⑤優位なら⑤主役。
             w0 = o4s[0]; suf, _ = _out_pred(w0, False)
@@ -780,7 +785,7 @@ def main():
             headline, hid = _fuan(f"{K[inn[0]['w']-1]}{inn[0]['nm']}の差しが突け入る一戦")
             head_w = inn[0]['w']
         elif in_weak:
-            headline, hid = _fuan("外の仕掛け待ちで波乱含み")
+            headline, hid = _fuan(None)
         elif o4:
             w0 = o4s[0]; head_w = w0['w']
             if w0.get('mhi'):
@@ -812,7 +817,7 @@ def main():
 
         # 〔軸〕①を記者表現で（主語を必ず書く／実数を先、評価を後／短く切る）。
         #   2026-08-19 改稿：主語の欠けた条件節（「先マイを許さなければ」等）を全廃した。
-        m1 = '機力は場上位' if hi(mt[0]) else '機力は場下位' if lo(mt[0]) else ('機力は場平均並み' if use_m and mt[0] > 0 else '')
+        m1 = '機力は6艇中上位' if hi(mt[0]) else '機力は6艇中下位' if lo(mt[0]) else ('機力は6艇平均並み' if use_m and mt[0] > 0 else '')
         in_f = int(in1['F数']) >= 1
         in_kt = kim_type(in1['登録番号'])
         _in_no = f"①{nm(in1['氏名'])}"
@@ -820,20 +825,20 @@ def main():
                    if _in1_rate is not None else f"当地{il:.2f}")
         if in_strong:
             if diff >= 0.30:
-                tenkai.append(f"{_in_no}は{in1['級別']}で{_in_num}。{('で'+m1)[1:] if m1 else '当地は全国を上回る'}。①のSが五分なら、主導権は譲るまい。")
+                tenkai.append(f"{_in_no}は{in1['級別']}で{_in_num}。{('で'+m1)[1:] if m1 else '当地は全国を上回る'}。")
             else:
-                tenkai.append(f"逃げたい{_in_no}は{in1['級別']}で{_in_num}。②③が壁を作れば、①は主導権を譲りにくい。")
+                tenkai.append(f"{_in_no}は{in1['級別']}で{_in_num}。②③が壁を作れば、①は主導権を譲りにくい。")
         elif in_weak:
             why = []
             if not inA: why.append('格')
             if il > 0 and il < ina: why.append('当地')
             if in_lo: why.append('機力')
-            fnote = 'F持ちで踏み込みにくい。' if in_f else ''
+            fnote = f"F{int(in1['F数'])}。" if in_f else ''
             _upA = [K[int(b['枠'])-1] for b in bo[1:] if b['級別'] in ('A1', 'A2')]
             _upS = ('・'.join(_upA) + 'がA級。') if _upA else ''
-            tenkai.append(f"逃げたい{_in_no}だが{in1['級別']}で{_in_num}。{_upS}{fnote}①に先マイを許さなければ、主導権は外へ。")
+            tenkai.append(f"{_in_no}は{in1['級別']}で{_in_num}。{_upS}{fnote}①に先マイを許さなければ、主導権は外へ。")
         else:
-            tenkai.append(f"逃げたい{_in_no}は{in1['級別']}で{_in_num}。①のSが決まれば逃げ。①が遅れれば、外に隙。")
+            tenkai.append(f"{_in_no}は{in1['級別']}で{_in_num}。①のスタートが決まれば逃げ。①が遅れれば、外に隙。")
 
         # 〔主役〕見出しの主役艇を先頭に、次点はST順（見出しと展開のズレを防ぐ）
         th_sorted = sorted(threats, key=lambda t: (t['st'] if t['st'] > 0 else 9, t['w']))
@@ -892,7 +897,7 @@ def main():
             _num_lbl = 'まくり' if t['w'] >= 4 else '差し'
             _nv = _ty2.get(_num_key)
             _f_kim = f"1着{_tw}本のうち{_nv}本が{_num_lbl}" if (_tw and _tw >= 10 and _nv is not None) else None
-            _f_mtr = f"モーター2連率{round(_tm)}%（場平均{round(mavg2)}%）" if (_tm > 0 and mavg2) else None
+            _f_mtr = f"モーター2連率{round(_tm)}%（6艇平均{round(mavg2)}%）" if (_tm > 0 and mavg2) else None
             _f_loc = f"当地{f(_tb['当地勝率']):.2f}"
             _order = {'motorFirst':    [_f_mtr, _f_kim, _f_loc],
                       'collapseFirst': [_f_kim, _f_mtr, _f_loc],
@@ -900,15 +905,16 @@ def main():
             _facts = next(x for x in _order if x)
             _st = f"、平均ST{_tb['平均ST']}" if t['st'] > 0 else ""
             _bno = f"{K[t['w']-1]}{t['nm']}"
+            # 「対抗は」「も侮れない」は使わない。選んだ根拠（見立ての主役艇／平均ST順）の実数を事実文で置く。
             if idx == 0:
-                tenkai.append(f"対抗は{_bno}。{_tb['級別']}で{_facts}{_st}。{K[t['w']-1]}のSが決まれば{base_kim}。")
+                tenkai.append(f"{_bno}は{_tb['級別']}で{_facts}{_st}。{K[t['w']-1]}のスタートが決まれば{base_kim}。")
                 used_shuyaku = True
                 # 実力上位でも今節機が下位なら、機力を材料に切り替えて一言
                 if t.get('mlo') and t.get('n2', 0) >= 35 and use_m:
                     tenkai.append(f"ただ{K[t['w']-1]}は全国2連率{round(t['n2'])}%に対し、今節機は{round(_tm)}%。")
             else:
                 pred2 = 'まくり差し' if t['w'] >= 4 else '差し'
-                tenkai.append(f"{_bno}も侮れない。{_tb['級別']}で{_facts}。{K[t['w']-1]}は{pred2}から連に。")
+                tenkai.append(f"{_bno}は{_tb['級別']}で{_facts}{_st}。{K[t['w']-1]}は{pred2}から連に。")
 
         # 修正1：主役より格上・当地上位の艇がいれば、主役でない理由を一言添える
         mentioned_w = {t['w'] for t in th2}
@@ -927,16 +933,11 @@ def main():
                 # A級のみ「地力最上位/上位」と表現。非A級は控えめに
                 if sm['lv'] in ('A1', 'A2'):
                     if sw <= 3:
-                        tenkai.append(f"{K[sw-1]}{sm['nm']}は{sm['lv']}で地力最上位だが、内寄りで一撃の形を作りにくく、Sの決まった主役に主導権を譲る形。")
+                        tenkai.append(f"{K[sw-1]}{sm['nm']}は{sm['lv']}で地力最上位だが、内寄りで一撃の形を作りにくく、スタートの決まった主役に主導権を譲る形。")
                     else:
                         tenkai.append(f"{K[sw-1]}{sm['nm']}は{sm['lv']}で地力上位だが、進入位置で分があるのは主役側。")
 
-        # 〔混戦の痩せ対策〕言及すべき対抗が拾えなかったレースでも、主役側の一文を必ず置く
-        if not th2:
-            if hero == 4:
-                tenkai.append(f"対するカド④{nm(bo[3]['氏名'])}。目立つ材料は薄いが、Sひとつで景色の変わる位置ではある。")
-            else:
-                tenkai.append("相手は横一線。②の差し、④のダッシュと、二番手争いは展示の気配次第。")
+        # 〔混戦の痩せ対策〕は 2026-09-11 に廃止（「相手は横一線」「展示の気配次第」等の実数の無い文を置かない）。
 
         # 〔死角〕必ず1つ（実装テーブルA④：F・級・機力から。同文を避け条件で散らす）
         saten = None; skw = None; sid = None
@@ -955,23 +956,23 @@ def main():
         o4top = o4[0] if o4 else None
         # 場の①着外率（実測・分母つき）。死角の文で「どれくらい起きるか」を数字で示すために使う。
         _cpv = _collapse.get(bo[0]['場コード']) or {}
-        _cp_rate = (f"{_cpv.get('inOutRate')}%（{_cpv.get('n')}レース）"
-                    if _cpv.get('inOutRate') is not None else "実数を出せていない")
+        _cp_rate = (f"{_cpv.get('inOutRate')}%（{_cpv.get('total')}レース中{_cpv.get('n')}レース）"
+                    if _cpv.get('inOutRate') is not None and _cpv.get('total') else "実数を出せていない")
         o4kt = kim_type(toban_by_w.get(o4top['w'], '')) if o4top else None
         if f_out:
             t = f_out[0]
-            saten = f"{K[t['w']-1]}{nm(bo[t['w']-1]['氏名'])}はF{bo[t['w']-1]['F数']}本。{K[t['w']-1]}が慎重に構えるなら、①の残り目も。"
+            saten = f"{K[t['w']-1]}{nm(bo[t['w']-1]['氏名'])}はF{bo[t['w']-1]['F数']}本。{K[t['w']-1]}のスタートが遅れれば、①が残る展開も。"
             skw = t['w']; sid = 'D1'
         elif f_in:
             fw = int(f_in[0]['枠'])
-            saten = f"{K[fw-1]}{nm(bo[fw-1]['氏名'])}はF{bo[fw-1]['F数']}本。{K[fw-1]}が慎重に構えるなら、①の残り目も。"
+            saten = f"{K[fw-1]}{nm(bo[fw-1]['氏名'])}はF{bo[fw-1]['F数']}本。{K[fw-1]}のスタートが遅れれば、①が残る展開も。"
             skw = fw; sid = 'D2'
         elif in_strong:
             saten = f"①{nm(in1['氏名'])}が先マイを決めれば、そのまま押し切る形。"
             skw = 1; sid = 'D3'
         elif any(t['mhi'] for t in threats if t['w'] < 4):
             mb = next(t for t in threats if t['w'] < 4 and t['mhi'])
-            saten = f"{K[mb['w']-1]}{nm(bo[mb['w']-1]['氏名'])}はモーター2連率{round(bo[mb['w']-1]['_mtr'])}%（場平均{round(mavg2)}%）。{K[mb['w']-1]}は差し・まくり差しから連に。"
+            saten = f"{K[mb['w']-1]}{nm(bo[mb['w']-1]['氏名'])}はモーター2連率{round(bo[mb['w']-1]['_mtr'])}%（6艇平均{round(mavg2)}%）。{K[mb['w']-1]}は差し・まくり差しから連に。"
             skw = mb['w']; sid = 'D4'
         elif in_weak:
             # ①不安時の死角を、弱点理由×外主役の決まり手で分岐（同文回避）
@@ -991,16 +992,16 @@ def main():
                 saten = f"{K[o4top['w']-1]}{nm(bo[o4top['w']-1]['氏名'])}の差しが甘くなれば、①{nm(in1['氏名'])}の粘り込みも。"
                 skw = 1; sid = 'D7'
             elif in_lo:
-                saten = f"①{nm(in1['氏名'])}のモーター2連率は{round(mt[0])}%（場平均{round(mavg2)}%）。①の伸びが戻れば、逃げ残りも。"
+                saten = f"①{nm(in1['氏名'])}のモーター2連率は{round(mt[0])}%（6艇平均{round(mavg2)}%）。"
                 skw = 1; sid = 'D8'
             elif '格' in wl and '当地' not in wl:
-                saten = f"①{nm(in1['氏名'])}は当地{il:.2f}で全国{ina:.2f}を上回る。①のSが五分なら、押し切る目も。"
+                saten = f"①{nm(in1['氏名'])}は当地{il:.2f}で全国{ina:.2f}を上回る。"
                 skw = 1; sid = 'D9'
             elif '当地' in wl:
-                saten = f"①{nm(in1['氏名'])}は当地{il:.2f}。①が水面に慣れていれば、連の一角に残る目も。"
+                saten = f"①{nm(in1['氏名'])}は当地{il:.2f}。"
                 skw = 1; sid = 'D10'
             else:
-                saten = f"①{nm(in1['氏名'])}のSが五分なら、外の攻めは届きにくい。①の残り目も。"
+                saten = f"①{nm(in1['氏名'])}のスタートが五分なら、外の攻めは届きにくい。①が残る展開も。"
                 skw = 1; sid = 'D11'
         elif any(t['w'] >= 4 for t in threats):
             # 外の仕掛けを担う筆頭＝threatsのw>=4で最内の艇（実測：D12死角艇は内ほど絡む
@@ -1023,6 +1024,7 @@ def main():
                 'top': (_cp_pats[0] if _cp_pats else None),
                 'patterns': (_cp_pats[:3] if _cp_pats else None),  # 表示用 上位3（母数不足はnull）
                 'n': _cp.get('n'),
+                'total': _cp.get('total'),   # 分母（当場の全レース数）。①着外 n レースと並べて出す
                 'inOutRate': _cp.get('inOutRate'),
                 'kimariteSum': _cp.get('kimariteSum') or {}
             }
@@ -1071,12 +1073,13 @@ def main():
             if downFactors['count'] == 0:
                 suji = f"①{n1}に下振れの材料は出ていない。{ba}で①が3着以内を外したのは{_cp_rate}。"; fid = 'S10'
             elif collapse and _mak >= 72 and _ctop.get('boat'):
-                suji = f"{ba}で①が着外に沈んだ{_cn}レースのうち、{_mak}%がまくり決着。差しは{_sas}%。最多は{_ctop['boat']}号艇。"; fid = 'S8'
+                suji = (f"{ba}で①が着外に沈んだ{_cn}レースのうち、{_mak}%がまくり決着。差しは{_sas}%。"
+                        f"{_cn}レースの中で最も多いのは{_ctop['boat']}号艇の{_ctop.get('kimarite', '')}（{_ctop.get('pct')}%）。"); fid = 'S8'
             elif collapse and _sas >= 22:
                 # 差しパターンは full patterns(上位5)から拾う（表示用top3にはまくりしか無い場があるため）。
                 _sp = next((p for p in ((_cp or {}).get('patterns') or []) if p.get('kimarite') == '差し'), None)
-                _spt = f"{_sp['boat']}号艇の差し{_sp['pct']}%" if _sp else "内の差し"
-                suji = f"{ba}で①が着外に沈んだ{_cn}レースのうち、差しが{_sas}%。最多は{_spt}。"; fid = 'S9'
+                _spt = f"で、差しのうち最も多いのは{_sp['boat']}号艇の{_sp['pct']}%" if _sp else ""
+                suji = f"{ba}で①が着外に沈んだ{_cn}レースのうち、差しは{_sas}%{_spt}。"; fid = 'S9'
             else:
                 suji = f"{K[head_w-1]}{boat_meta[head_w]['nm']}が仕掛ければ、②③は外に張られる形。{ba}で①が3着以内を外したのは{_cp_rate}。"; fid = 'S5'
         elif out4:
@@ -1111,22 +1114,26 @@ def main():
             if diff >= 0.30 and in_strong:
                 shime = f"展示では、①{nm(in1['氏名'])}の直線と{_shw}の行き足を見たい。"; cid = 'C1'
             elif in_strong:
-                shime = f"展示では、{_shw}のSと行き足を見たい。"; cid = 'C2'
+                shime = f"展示では、{_shw}のスタートと行き足を見たい。"; cid = 'C2'
             else:
                 # 数字は①寄りだが文面は主役を絞れていない：矛盾しない締めに落とす
                 shime = f"展示では、①{nm(in1['氏名'])}の直線を見たい。"; cid = 'C6'
         elif verdict == '波乱':
             tgt = K[head_w-1] if head_w else '外'
             if in_weak:
-                shime = f"展示では、{_shw}のSと①{nm(in1['氏名'])}の直線を見たい。"; cid = 'C3'
+                shime = f"展示では、{_shw}のスタートと①{nm(in1['氏名'])}の直線を見たい。"; cid = 'C3'
             else:
                 shime = f"展示では、{_shw}の行き足を見たい。"; cid = 'C7'
         else:
             if hero == 4:
                 shime = f"展示では、進入と{_shw}の行き足を見たい。"; cid = 'C4'
             else:
-                shime = f"展示では、{_shw}のSを見たい。"; cid = 'C5'
+                shime = f"展示では、{_shw}のスタートを見たい。"; cid = 'C5'
         tenkai.append(shime)
+        # 見立て・展開・波及の各文は句点で終える（定型によって句点が欠けていたのを揃える）。
+        headline = headline if headline.endswith('。') else headline + '。'
+        tenkai = [s if s.endswith('。') else s + '。' for s in tenkai if s]
+        suji = suji if suji.endswith('。') else suji + '。'
 
         # --- 検証ログ（拡張）：対抗・死角・文パターンIDまで保存し、書き方自体を検証可能に ---
         # --- 波乱指数（連続値・並び替え専用。既存の '波乱' は残す）---
