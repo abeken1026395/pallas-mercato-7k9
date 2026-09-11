@@ -51,10 +51,16 @@ WATCH = {
 #   未実行 : 直近の予定時刻以降に起動記録が無い（記録が無い＝未検証。正常ではない）
 #   実行中 : 終了コード 267009（SCHED_S_TASK_RUNNING）
 #   未検証 : 照会できない・予定時刻を計算できない
+#   退避   : ps1 がユーザー作業を避けて何もせず終了した（下の TASK_RETREAT）
+#   回復済み: 予定の回は失敗したが、その後の回（手動実行など）がログ上で完了している
+#            （タスクスケジューラの LastResult は予定の回の値のまま残るため、ログで補う）
+# 予定時刻はタスク定義の XML（CalendarTrigger の日次・月次）から読む。
 LOCAL_TASKS = {
     "writeKansenkiLocal": "boatrace-writeKansenkiLocal",
     "dailyMotorUsage": "boatrace-dailyMotorUsage",
     "dailyPartsBackfill": "boatrace-dailyPartsBackfill",
+    "dailyRacerSchedule": "boatrace-dailyRacerSchedule",   # 毎日 02:00（所要 約70分）
+    "updateKimarite": "boatrace-updateKimarite",           # 毎月 2・16日 06:30（所要 約30分）
 }
 # 予定時刻から START_GRACE_MIN 分を過ぎたものだけを「直近の予定」として数える（猶予内はまだ判定しない）。
 # 根拠（2026-08-12〜09-11 の scripts/logs 実測）: 予定からの起動遅れは通常 0.1 分以内
@@ -69,6 +75,8 @@ TASK_LOGS = {  # scripts/logs/<接頭辞>_YYYYMMDD.log
     "writeKansenkiLocal": "writeKansenki",
     "dailyMotorUsage": "dailyMotorUsage",
     "dailyPartsBackfill": "dailyPartsBackfill",
+    "dailyRacerSchedule": "dailyRacerSchedule",
+    "updateKimarite": "updateKimarite",
 }
 RETREAT_RE = re.compile(r"\[退避\] 理由=([^（。\n]*)"
                         r"|main ではなく '([^']*)' に居るため何もせず終了"
@@ -329,6 +337,7 @@ foreach ($n in @(%s)) {
       result   = [int64]$i.LastTaskResult
       state    = "$($t.State)"
       triggers = @($t.Triggers | ForEach-Object { [ordered]@{ kind = $_.CimClass.CimClassName; enabled = [bool]$_.Enabled; start = "$($_.StartBoundary)" } })
+      xml      = [string](Export-ScheduledTask -TaskName $n)
     }
   } catch { $o[$n] = [ordered]@{ error = $_.Exception.Message } }
 }
@@ -344,21 +353,79 @@ def query_tasks(names):
     return json.loads(r.stdout)
 
 
-def _latest_due(times, n):
-    """times（["05:30", ...]・毎日）のうち、猶予を過ぎた直近の予定時刻。"""
+_TASK_NS = "{http://schemas.microsoft.com/windows/2004/02/mit/task}"
+_MONTHS = ["January", "February", "March", "April", "May", "June", "July",
+           "August", "September", "October", "November", "December"]
+
+
+def _rules_from_xml(xml):
+    """タスク定義 XML の CalendarTrigger から予定の規則を読む。
+    戻り値 (rules, other)。rules は ("daily", "HH:MM") / ("monthly", "HH:MM", {日}, {月})。
+    other は読めなかったトリガの説明（1つでもあれば予定は計算しない＝未検証）。"""
+    import xml.etree.ElementTree as ET
+    root = ET.fromstring(re.sub(r"^\s*<\?xml[^>]*\?>", "", xml))
+    rules, other = [], []
+    for trg in root.iter(_TASK_NS + "CalendarTrigger"):
+        if (trg.findtext(_TASK_NS + "Enabled") or "true").strip().lower() == "false":
+            continue
+        m = re.search(r"(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d)", trg.findtext(_TASK_NS + "StartBoundary") or "")
+        if not m:
+            other.append("開始時刻が無い")
+            continue
+        hm = "%s:%s" % (m.group(4), m.group(5))
+        # 開始日（タスクを登録した日）より前の予定は数えない（登録前の日を「未実行」にしない）
+        sd = datetime(int(m.group(1)), int(m.group(2)), int(m.group(3))).date()
+        byday = trg.find(_TASK_NS + "ScheduleByDay")
+        bymon = trg.find(_TASK_NS + "ScheduleByMonth")
+        if byday is not None and (byday.findtext(_TASK_NS + "DaysInterval") or "1").strip() == "1":
+            rules.append(("daily", hm, sd))
+        elif bymon is not None:
+            days = {int(x.text) for x in bymon.iter(_TASK_NS + "Day") if (x.text or "").strip().isdigit()}
+            mon = bymon.find(_TASK_NS + "Months")
+            months = {i + 1 for i, nm in enumerate(_MONTHS) if mon is not None and mon.find(_TASK_NS + nm) is not None}
+            if days and months:
+                rules.append(("monthly", hm, days, months, sd))
+            else:
+                other.append("月次の日付が読めない")
+        else:
+            other.append("毎日・毎月以外の CalendarTrigger")
+    for tag in ("TimeTrigger", "LogonTrigger", "BootTrigger", "IdleTrigger", "EventTrigger",
+                "RegistrationTrigger", "SessionStateChangeTrigger"):
+        other += [tag for _ in root.iter(_TASK_NS + tag)]
+    return rules, other
+
+
+def _fmt_rules(rules):
+    out = []
+    for r in rules:
+        if r[0] == "daily":
+            out.append(r[1])
+        else:
+            out.append("毎月%s日 %s" % ("・".join(str(x) for x in sorted(r[2])), r[1]))
+    return " / ".join(sorted(out))
+
+
+def _latest_due(rules, n):
+    """規則のうち、開始猶予を過ぎた直近の予定時刻（月次は最大62日さかのぼる）。"""
     cands = []
-    for back in (0, 1, 2):
+    for back in range(0, 63):
         d = (n - timedelta(days=back)).date()
-        for hm in times:
-            h, m = map(int, hm.split(":"))
+        for r in rules:
+            if r[0] == "monthly" and (d.day not in r[2] or d.month not in r[3]):
+                continue
+            if d < r[-1]:  # 開始日（登録日）より前
+                continue
+            h, m = map(int, r[1].split(":"))
             dt = datetime(d.year, d.month, d.day, h, m, tzinfo=JST)
             if dt + timedelta(minutes=START_GRACE_MIN) <= n:
                 cands.append(dt)
+        if cands and back >= 1:
+            break
     return max(cands) if cands else None
 
 
 def retreat_runs(key):
-    """タスクのログの各回を古い順に [(開始時刻, 退避理由 or None)] で返す（ログが無ければ空）。"""
+    """タスクのログの各回を古い順に [(開始時刻, 退避理由 or None, 「=== 完了」まで進んだか)] で返す（ログが無ければ空）。"""
     pre = TASK_LOGS.get(key)
     runs = []
     for p in sorted(glob.glob(os.path.join(ROOT, "scripts", "logs", "%s_*.log" % pre))):
@@ -381,13 +448,13 @@ def retreat_runs(key):
                     reason = "main 以外のブランチ '%s'" % r.group(2)
                 else:
                     reason = "作業ツリーに未コミット変更"
-            runs.append((t, reason))
+            runs.append((t, reason, "=== 完了" in b))
     runs.sort(key=lambda x: x[0])
     return runs
 
 
 def local_tasks(prev):
-    """ローカルタスク3本の状態・最終起動・最終終了コード・最終成功。
+    """ローカルタスク（LOCAL_TASKS）の状態・最終起動・最終終了コード・最終成功。
     「最終成功」はタスクスケジューラが持たないため、前回の status.json から引き継ぐ。"""
     pv = (((prev or {}).get("ローカルタスク") or {}).get("タスク")) or {}
     res = {"取得": False, "理由": None, "開始猶予分": START_GRACE_MIN, "タスク": {}}
@@ -412,18 +479,25 @@ def local_tasks(prev):
         if not t or "error" in t:
             out[key] = {"状態": "未検証", "理由": "照会失敗: " + str(t.get("error"))[:100], "最終成功": prev_ok}
             continue
-        trig = t.get("triggers") or []
-        if isinstance(trig, dict):  # ConvertTo-Json は要素1つだと配列にしない
-            trig = [trig]
-        times, other = [], []
-        for g in trig:
-            if not g.get("enabled"):
-                continue
-            m = re.search(r"T(\d\d):(\d\d)", g.get("start") or "")
-            if g.get("kind") == "MSFT_TaskDailyTrigger" and m:
-                times.append("%s:%s" % m.groups())
-            else:
-                other.append(g.get("kind"))
+        rules, other = [], []
+        if t.get("xml"):
+            try:
+                rules, other = _rules_from_xml(t["xml"])
+            except Exception as ex:  # XML が壊れている等
+                other = ["タスク定義XMLを読めない: " + str(ex)[:60]]
+        else:  # XML が取れない場合は CIM のトリガ（毎日だけ）で代替する
+            trig = t.get("triggers") or []
+            if isinstance(trig, dict):  # ConvertTo-Json は要素1つだと配列にしない
+                trig = [trig]
+            for g in trig:
+                if not g.get("enabled"):
+                    continue
+                m = re.search(r"(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d)", g.get("start") or "")
+                if g.get("kind") == "MSFT_TaskDailyTrigger" and m:
+                    rules.append(("daily", "%s:%s" % (m.group(4), m.group(5)),
+                                  datetime(int(m.group(1)), int(m.group(2)), int(m.group(3))).date()))
+                else:
+                    other.append(g.get("kind"))
         code = t.get("result")
         try:
             last = datetime.fromisoformat(t.get("lastRun") or "").replace(tzinfo=JST)
@@ -431,7 +505,7 @@ def local_tasks(prev):
                 last = None
         except ValueError:
             last = None
-        due = _latest_due(times, n) if times and not other else None
+        due = _latest_due(rules, n) if rules and not other else None
         fmt = lambda x: x.strftime("%Y-%m-%d %H:%M") if x else None
         # 最終起動に対応するログの回（起動から5分以内に始まった回）が退避だったか
         runs = retreat_runs(key)
@@ -439,13 +513,13 @@ def local_tasks(prev):
         retreat = mine[0][1] if mine and mine[0][1] else None
         if code == TASK_RETREAT and not retreat:
             retreat = "理由不明（ログに退避の記録が無い）"
-        e = {"予定": " ".join(sorted(times)), "直近の予定": fmt(due), "最終起動": fmt(last),
+        e = {"予定": _fmt_rules(rules), "直近の予定": fmt(due), "最終起動": fmt(last),
              "最終終了コード": code,
              "最終終了コード16進": ("0x%08X" % (code & 0xFFFFFFFF)) if isinstance(code, int) else None,
              "最終成功": fmt(last) if (code == 0 and last and not retreat) else prev_ok,
              "タスク状態": t.get("state")}
-        if other or not times:
-            e["状態"], e["理由"] = "未検証", "予定時刻を計算できない（日次以外のトリガ: %s）" % other
+        if other or not rules:
+            e["状態"], e["理由"] = "未検証", "予定時刻を計算できない（%s）" % (other or "有効な予定が無い")
         elif code == TASK_RUNNING:
             e["状態"] = "実行中"
         elif due is None:
@@ -455,7 +529,7 @@ def local_tasks(prev):
         elif retreat:
             # 直近から続いた退避の回が、何日にまたがっているか
             days = set()
-            for t_run, reason in reversed([r for r in runs if r[0] <= (last + timedelta(minutes=5))]):
+            for t_run, reason, _done in reversed([r for r in runs if r[0] <= (last + timedelta(minutes=5))]):
                 if not reason:
                     break
                 days.add(t_run.date())
@@ -466,7 +540,15 @@ def local_tasks(prev):
         elif code == 0:
             e["状態"] = "成功"
         else:
-            e["状態"] = "失敗"
+            # 予定の回は失敗。その後の回（手動実行など。タスクスケジューラの記録には残らない）が
+            # ログ上で完了していれば「回復済み」（例: updateKimarite 09-02 失敗 → 09-06 手動で完了）
+            later = [r for r in runs if last and r[0] > last + timedelta(minutes=5) and r[2]]
+            if later:
+                e["状態"] = "回復済み"
+                e["理由"] = "予定の回は失敗（終了コード %s）。その後 %s に始まった回がログ上で完了" % (code, fmt(later[-1][0]))
+                e["最終成功"] = fmt(later[-1][0])
+            else:
+                e["状態"] = "失敗"
         out[key] = e
     res.update({"取得": True, "理由": None, "タスク": out})
     return res
