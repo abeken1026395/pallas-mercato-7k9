@@ -19,3 +19,4 @@
 - T17 観戦記：完了（2026-09-11 16:50 JST）。大村「迫る」→「上回る」、平和島「60ポイント近い」→「60ポイントを超える」、鳴門「1着2号」→「2着2号」を訂正。N16 は素材の算出方法（その日の出走72艇の平均）で再計算し桐生・江戸川とも33.2%で誤りなし（01・03は未変更）。kansenkiRules.md §8 に表記規則6項目を追記
 
 ## pageAuditFixPlan20260911b（保留分の追加修正）の進捗
+- U1 場の文化・24場：完了（2026-09-11 19:10 JST）。P5・J7・N9 を正本 docs/data/yosouya.json・docs/data/fanfareBgm.json で修正（AI提供・memo保留・present=unknown を含む文を削除、住之江の人数は「人数は未確認」、hook の「かつて21名」も削除、「全国で唯一」「開場から70年級…だが」「日本一堅い」を削除・言い換え）。24場カードの締切BGM分類を /fan/ と同じく status=none を「BGMなし」に（docs/stadium/index.html）。_policy 等の非表示キーと yosouyaMemo.md は読者に出ないため未変更。docs/stadium/gourmet.json の「全国で唯一の河川コース」は予想屋の文ではなく台帳外のため未変更

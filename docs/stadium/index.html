@@ -45,7 +45,8 @@ const OPP_DIR = {"北": "南", "北東": "南西", "東": "西", "南東": "北�
 const TIDE = {"03": "日本唯一の河川コース。潮の満ち引き＋川の流れが複合。上げ潮はスロー有利、下げ潮はダッシュ有利。満潮時は2マーク側の河川方面から逆流しうねりが出る。風と複合で大荒れ。当地経験の有無が大きい。", "04": "運河を介すため海と直結せず干満差は小さめ。基本は満潮=イン寄り/干潮=アウト寄りだが影響は限定的。大潮の満潮時のみうねりに注意。", "06": "汽水で潮の影響あり。満潮・上げ潮=イン寄り、干潮・下げ潮=アウト寄り。風の影響が大きい水面なので潮と風を合わせて見る。", "07": "汽水で潮の影響あり。満潮・上げ潮=イン寄り、干潮・下げ潮=アウト寄り。普段はイン堅めの静水面寄り。", "08": "海水で潮あり。満潮・上げ潮=イン寄り、干潮・下げ潮=アウト寄り。横風(伊勢湾)の影響も受ける。", "14": "海水で潮あり(鳴門海峡の潮流域)。満潮・上げ潮=イン寄り、干潮・下げ潮=アウト寄り。大潮は影響強。小潮は潮より番組・場特性(終盤R荒れ)が優先。", "15": "海水で潮あり。満潮・上げ潮=イン寄り、干潮・下げ潮=アウト寄り。ナイター。", "16": "海水で潮あり。満潮・上げ潮=イン寄り、干潮・下げ潮=アウト寄り。", "17": "海水で潮あり。満潮・上げ潮=イン寄り、干潮・下げ潮=アウト寄り。瀬戸内の潮流・横風に注意。", "18": "海水で潮あり(潮見表あり)。満潮・上げ潮=イン寄り、干潮・下げ潮=アウト寄り。元々イン1着率が高い場で、満潮はさらにイン優勢。", "19": "堤防で仕切られ干満差は小さめ。基本は満潮=イン寄り/干潮=アウト寄りだが影響は限定的。", "20": "2マーク付近が洞海湾と直結し潮流をもろに受ける。上げ潮はイン2艇有利、下げ潮はセンター有利。満潮時は1マークが潮溜まりになり全速ターンが決めにくくイン優勢、干潮・下げ潮はセンターまくりが増える。", "22": "汽水(那珂川河口)で潮＋川の流れの影響。満潮・上げ潮=イン寄り、干潮・下げ潮=アウト寄り。うねりが出ると難水面。", "24": "防波堤で仕切られ干満差は小さめ。静水面。潮の影響は限定的だが、時間で風向きが変わりやすい。"};
 const ARARE_COLOR = { "低":"#3fb950", "中":"#d29922", "高":"#f85149" };
 const WATER_COLOR = { "淡水":"#58a6ff", "海水":"#3fb1c9", "汽水":"#a371f7" };
-const PSYCH = { "gap":{label:"射幸心×童謡",c:"#ffd166"}, "nostalgia":{label:"郷愁",c:"#7fe0a0"}, "tension":{label:"緊張・高揚",c:"#f85149"}, "local-pride":{label:"ご当地",c:"#58a6ff"}, "mystery":{label:"ミステリー",c:"#a371f7"}, "class":{label:"格調",c:"#e59ac9"} };
+const PSYCH = { "gap":{label:"射幸心×童謡",c:"#ffd166"}, "nostalgia":{label:"郷愁",c:"#7fe0a0"}, "tension":{label:"緊張・高揚",c:"#f85149"}, "local-pride":{label:"ご当地",c:"#58a6ff"}, "mystery":{label:"ミステリー",c:"#a371f7"}, "class":{label:"格調",c:"#e59ac9"}, "none":{label:"BGMなし",c:"#8faabe"} };
+const psychOf = (bg) => bg.status === "none" ? "none" : bg.psych;
 const STATUS_LABEL = { "none":"締切BGMなし", "unknown":"曲名は未特定", "page_exists":"公式ページに記載あり（曲名は未確認）" };
 const PRESENT = { "yes":{label:"場立ちあり",c:"#3fb950"}, "official":{label:"公式記載",c:"#58a6ff"}, "advisor":{label:"解説アドバイザー",c:"#a371f7"}, "paper":{label:"予想紙",c:"#d29922"} };
 const AROUND_KIND = { "food":{ord:0,label:""}, "bath":{ord:1,label:"♨ 温泉"}, "spot":{ord:2,label:"📍 立ち寄り"} };
@@ -410,7 +411,7 @@ function App() {
                   {fanfare && fanfare.venues && fanfare.venues[s.code] && (() => {
                     const bg = fanfare.venues[s.code];
                     const songs = bg.songs || [];
-                    const ps = bg.psych && PSYCH[bg.psych];
+                    const ps = psychOf(bg) && PSYCH[psychOf(bg)];
                     return (
                     <div style={{marginTop:8,background:"#1a1222",border:"1px solid #4a2f5a",borderRadius:8,padding:"8px 10px"}}>
                       <div onClick={e=>{e.stopPropagation();setBOpen(bOpen===s.code?null:s.code);}} style={{display:"flex",alignItems:"center",cursor:"pointer",flexWrap:"wrap",gap:4}}>
