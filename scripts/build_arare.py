@@ -90,7 +90,7 @@ def eval_race(boats, jcd, motor_map):
         rank1 = str(b1.get("級別", "")).strip()
         if rank1 in ("B1", "B2"):
             score += 1
-            factors.append("1号艇が{}(インの格が軽い)".format(rank1))
+            factors.append("1号艇が{}".format(rank1))
         # 当地勝率が6艇中で下位(下から2番以内)
         locs = [(int(str(b.get("枠")).strip()), fnum(b.get("当地勝率")))
                 for b in boats if str(b.get("枠", "")).strip().isdigit()]
@@ -112,7 +112,7 @@ def eval_race(boats, jcd, motor_map):
             fastest = min(v for _, v in st_vals)
             if st4 <= fastest:
                 score += 1
-                factors.append("4号艇のスタートが6艇中最速(カドの一撃)")
+                factors.append("4号艇のスタートが6艇中最速")
 
     # 4) モーター機力のちぐはぐ(1号艇の機力が6艇平均未満 & 外3艇に最高機)
     if b1:
