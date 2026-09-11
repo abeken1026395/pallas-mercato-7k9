@@ -46,10 +46,20 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add docs/data/motorParts.json
           git add docs/data/motorKarte.json
-          git diff --staged --quiet && echo "no change" && exit 0
+          # 変更なし＝push しない（正常）。
+          git diff --staged --quiet && echo "no change（push 不要）" && exit 0
           git commit -m "beforeinfo部品交換収集 $(date +'%Y-%m-%d %H:%M')"
+          # push に失敗したらリトライし、尽きたら落とす（旧: ループが sleep で終わり exit 0＝緑のまま未公開）。
+          # 衝突で止まった rebase は解いてから再試行する（旧: unmerged のまま残り、2回目以降は必ず失敗していた）。
+          PUSHED=0
           for i in 1 2 3 4 5; do
-            git pull --rebase origin main && git push origin main && break
+            if git pull --rebase origin main && git push origin main; then PUSHED=1; break; fi
+            git rebase --abort 2>/dev/null || true
             echo "push retry $i ..."
             sleep 5
           done
+          if [ "$PUSHED" != "1" ]; then
+            echo "::error::push に失敗（5回のリトライを使い切った）。コミットは公開されていない"
+            exit 1
+          fi
+          echo "pushed"

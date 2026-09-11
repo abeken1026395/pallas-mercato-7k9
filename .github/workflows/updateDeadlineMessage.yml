@@ -41,17 +41,37 @@ jobs:
         run: python scripts/build_deadline_message.py
       # トークンが登録されている場合のみ LINE に投稿
       - name: post to LINE
+        id: line
         if: ${{ env.LINE_CHANNEL_TOKEN != '' }}
         run: python scripts/post_line_message.py
+      # 順序は「LINE 送信 → commit/push」。送信済みで push に失敗すると、送った内容と公開物が食い違う。
+      # 送信は取り消さない。食い違ったことをログ（::error::）とステップサマリに残し、ジョブを落とす。
       - name: commit and push
+        env:
+          LINE_OUTCOME: ${{ steps.line.outcome }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add docs/
-          git diff --staged --quiet && echo "no change" && exit 0
+          # 変更なし＝push しない（正常）。
+          git diff --staged --quiet && echo "no change（push 不要）" && exit 0
           git commit -m "締切一覧メッセージ自動生成 $(date +'%Y-%m-%d %H:%M')"
+          # push に失敗したらリトライし、尽きたら落とす（旧: ループが sleep で終わり exit 0＝緑のまま未公開）。
+          # 衝突で止まった rebase は解いてから再試行する（旧: unmerged のまま残り、2回目以降は必ず失敗していた）。
+          PUSHED=0
           for i in 1 2 3 4 5; do
-            git pull --rebase origin main && git push origin main && break
+            if git pull --rebase origin main && git push origin main; then PUSHED=1; break; fi
+            git rebase --abort 2>/dev/null || true
             echo "push retry $i ..."
             sleep 5
           done
+          if [ "$PUSHED" != "1" ]; then
+            if [ "$LINE_OUTCOME" = "success" ]; then
+              echo "::error::LINE は送信済みだが push に失敗（5回のリトライを使い切った）。送信した締切一覧と公開物が食い違っている"
+              echo "- **食い違い**: LINE 送信済み・push 失敗（公開物は前回のまま）" >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "::error::push に失敗（5回のリトライを使い切った）。コミットは公開されていない（LINE 送信: ${LINE_OUTCOME:-なし}）"
+            fi
+            exit 1
+          fi
+          echo "pushed"
