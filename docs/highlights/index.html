@@ -59,7 +59,7 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .nsfact th{font-size:9.5px;color:var(--sub);font-weight:400;padding:2px 0 4px;text-align:right}
 .nsfact th:first-child{text-align:left}
 .nsfact td{padding:3px 0;text-align:right;border-top:1px solid rgba(143,180,214,.18);vertical-align:top}
-.nsfact td:first-child{text-align:left;white-space:nowrap}
+.nsfact td:first-child{text-align:left}
 .nsfact .nslane{display:inline-block;width:16px;height:16px;line-height:16px;text-align:center;border-radius:3px;font-size:10px;font-weight:700;margin-right:4px}
 .nsfact .nsnm{font-size:11px}
 .nsfact .nsn{font-size:10px;opacity:.75}
@@ -1193,7 +1193,7 @@ function nigeSecondFact(r){
   const head=`<tr><th>枠・選手</th><th>該当</th>`+[2,3,4,5,6].map(x=>`<th>2着${x}</th>`).join('')+`</tr>`;
   const rows=bs.map(b=>{
     const lane=+b['枠'], no=String(b['登録番号']), lc=NSLANE[lane]||['#333','#fff'];
-    const nm=String(b['氏名']||'').replace(/\u3000+/g,'').slice(0,4);
+    const nm=String(b['氏名']||'').replace(/\u3000+/g,'');
     const cell=(NSDATA.cells[no]&&NSDATA.cells[no][String(lane)])||[0,0,0,0,0,0];
     const n=cell[0];
     const tds=[2,3,4,5,6].map(x=>{
