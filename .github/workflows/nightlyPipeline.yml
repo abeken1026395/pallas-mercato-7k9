@@ -46,8 +46,25 @@ jobs:
 
       # 2) 自己判断（現物比較）。DO_SWITCH / HAS_NEXT を GITHUB_ENV へ。
       - name: decide (self-judgement)
+        id: decide
         run: |
+          # 既定シェルは bash -e（pipefail なし）で、`| tee` だと nightly_decide の終了コードが消える。明示する。
+          set -o pipefail
           python scripts/nightly_decide.py | tee /tmp/decide.json
+          # 判定の検算。nightly_decide は入力が読めないと例外を握って空扱いにし、
+          # DO_SWITCH=0 / HAS_NEXT=0（no-op＝緑）を返す。入力欠損を no-op と区別できないので、ここで落とす。
+          python - <<'PY'
+          import json, sys
+          d = json.load(open('/tmp/decide.json', encoding='utf-8'))
+          bad = [f"{k}={d.get(k)!r}（0/1 でない）" for k in ('DO_SWITCH', 'HAS_NEXT') if d.get(k) not in (0, 1)]
+          if not d.get('today'):
+              bad.append('today が空（highlights.json の開催日を読めていない）')
+          if not d.get('csvDates'):
+              bad.append('csvDates が空（racers_today.csv を読めていない・0件）')
+          if bad:
+              print('::error::判定を検算できない: ' + ' / '.join(bad))
+              sys.exit(1)
+          PY
           # 発火実績の後日検証用に判定を step summary へ（GITHUB_ENVは次step反映のため値はJSONから読む）。
           SW=$(python -c "import json;print(json.load(open('/tmp/decide.json')).get('DO_SWITCH'))")
           NX=$(python -c "import json;print(json.load(open('/tmp/decide.json')).get('HAS_NEXT'))")
@@ -89,8 +106,10 @@ jobs:
             docs/data/weather.json
 
       # 5) 変更ファイルのみ commit（commit-first＋rebase）。他WF同時pushの非fast-forwardを機械解消。
+      # decide が success のときだけ commit する（旧: if: always()）。decide が落ちた・検算で落ちた・
+      # 前段の失敗で走らなかった run では、出走表を含め何も push しない。
       - name: commit
-        if: always()
+        if: ${{ !cancelled() && steps.decide.outcome == 'success' }}
         env:
           BR: ${{ github.ref_name }}
         run: |

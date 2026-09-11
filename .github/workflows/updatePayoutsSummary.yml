@@ -34,9 +34,14 @@ jobs:
         with:
           python-version: '3.12'
 
+      # 生成4本の continue-on-error は残す。4本は入力も出力も互いに独立で、1本が落ちても
+      # 他3本の更新と検算は続けたいから。落ちたことは verify で NG になり、最後の gate で
+      # ジョブを赤にする（continue-on-error の緑をそのまま結果にしない）。
+
       # 全24場を BoatraceOpenAPI(v2) から横断集計（mbrace非依存）
       - name: build payouts summary (all 24 venues)
-        continue-on-error: true
+        id: summary
+        continue-on-error: true   # 残す: 入力はミラーAPI。CSV集計3本とは独立
         env:
           START: ${{ github.event.inputs.START }}
           END: ${{ github.event.inputs.END }}
@@ -44,24 +49,44 @@ jobs:
 
       # 24場 3連単の最多出目（払戻CSVのcombo集計・新規取得なし）
       - name: build trifecta top (24 venues)
-        continue-on-error: true
+        id: trifecta
+        continue-on-error: true   # 残す: 出力 trifectaTop.json は他の生成物の入力ではない
         run: python scripts/buildTrifectaTop.py
 
       # 24場 1号艇1着時の2着内訳（払戻CSVのcombo集計・新規取得なし）
       - name: build boat1 second breakdown (24 venues)
-        continue-on-error: true
+        id: boat1
+        continue-on-error: true   # 残す: 出力 boat1Second.json は他の生成物の入力ではない
         run: python scripts/buildBoat1Second.py
 
       # 24場 優勝戦の出目ランキング（公式番組で優勝戦を特定＋払戻CSVのcombo）
       - name: build championship-race combos (24 venues)
-        continue-on-error: true
+        id: champ
+        continue-on-error: true   # 残す: 入力は番組ミラー＋CSV。上の3本の出力を使わない
         env:
           START: ${{ github.event.inputs.START }}
           END: ${{ github.event.inputs.END }}
         run: python scripts/buildChampRace.py
 
+      # 検算。生成が落ちていても走らせる（!cancelled()）。4本を1本ずつ確かめ、不合格
+      # （生成失敗・0件・累計の減少・最新日の遅れ＝上流の沈黙）は HEAD の版に戻して commit に乗せない。
+      # continue-on-error は付けない（検算が完走しなかったら、そのまま赤にする）。
+      - name: verify outputs
+        id: verify
+        if: ${{ !cancelled() }}
+        env:
+          O_SUMMARY: ${{ steps.summary.outcome }}
+          O_TRIFECTA: ${{ steps.trifecta.outcome }}
+          O_BOAT1: ${{ steps.boat1.outcome }}
+          O_CHAMP: ${{ steps.champ.outcome }}
+          START: ${{ github.event.inputs.START }}
+          END: ${{ github.event.inputs.END }}
+        run: python scripts/verifyPayoutsSummary.py
+
+      # commit は検算が4本とも最後まで走ったときだけ（旧: if: always()）。
+      # 検算が落ちた・走らなかった run では何も公開しない。
       - name: commit
-        if: always()
+        if: ${{ !cancelled() && steps.verify.outcome == 'success' && steps.verify.outputs.checked == '4' }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -82,3 +107,26 @@ jobs:
             sleep $(( (RANDOM % 6) + 3 ))
           done
           echo "push retries exhausted"; exit 1
+
+      # 集計。生成4本・検算のどれか1つでも success でない、検算が4本を終えていない、
+      # 不合格が1本でもある → ジョブを落とす。値が空（未実行）も失敗として扱う。
+      - name: gate (fail if any build or verify did not pass)
+        if: always()
+        env:
+          O_SUMMARY: ${{ steps.summary.outcome }}
+          O_TRIFECTA: ${{ steps.trifecta.outcome }}
+          O_BOAT1: ${{ steps.boat1.outcome }}
+          O_CHAMP: ${{ steps.champ.outcome }}
+          O_VERIFY: ${{ steps.verify.outcome }}
+          V_CHECKED: ${{ steps.verify.outputs.checked }}
+          V_NG: ${{ steps.verify.outputs.ng }}
+        run: |
+          bad=0
+          for kv in "summary=$O_SUMMARY" "trifecta=$O_TRIFECTA" "boat1=$O_BOAT1" "champ=$O_CHAMP" "verify=$O_VERIFY"; do
+            k="${kv%%=*}"; v="${kv#*=}"
+            if [ "$v" != "success" ]; then echo "::error::${k} の outcome=${v:-未実行}"; bad=1; fi
+          done
+          if [ "$V_CHECKED" != "4" ]; then echo "::error::検算を終えた本数が4でない（checked=${V_CHECKED:-未出力}）＝検算が走っていない"; bad=1; fi
+          if [ "$V_NG" != "0" ]; then echo "::error::検算で不合格 ${V_NG:-未出力} 本（その出力は公開せず HEAD の版を維持）"; bad=1; fi
+          if [ "$bad" = 0 ]; then echo "gate: 生成4本・検算ともに合格"; fi
+          exit $bad
