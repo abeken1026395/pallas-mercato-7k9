@@ -41,6 +41,27 @@ WATCH = {
     "preview": "preview",
 }
 
+# ローカルタスク（タスクスケジューラ）の結果（表示名 -> タスク名）。WATCH と並べて監視する。
+# WATCH はリポジトリ内パスの最終更新しか見ないため、タスクが「起動しなかった日」は
+# 出力の更新停止としてしか現れない（2026-09-10: Windows Update の再起動でログオフ中になり、
+# Interactive のタスクが起動しなかった）。タスクの記録そのものを見て、状態を分ける:
+#   成功   : 直近の予定時刻以降に起動し、終了コード 0
+#   失敗   : 直近の予定時刻以降に起動し、終了コード 0 以外
+#   未実行 : 直近の予定時刻以降に起動記録が無い（記録が無い＝未検証。正常ではない）
+#   実行中 : 終了コード 267009（SCHED_S_TASK_RUNNING）
+#   未検証 : 照会できない・予定時刻を計算できない
+LOCAL_TASKS = {
+    "writeKansenkiLocal": "boatrace-writeKansenkiLocal",
+    "dailyMotorUsage": "boatrace-dailyMotorUsage",
+    "dailyPartsBackfill": "boatrace-dailyPartsBackfill",
+}
+# 予定時刻から START_GRACE_MIN 分を過ぎたものだけを「直近の予定」として数える（猶予内はまだ判定しない）。
+# 根拠（2026-08-12〜09-11 の scripts/logs 実測）: 予定からの起動遅れは通常 0.1 分以内
+# （writeKansenki 31回・dailyMotorUsage 29回・dailyPartsBackfill 60回。例外は 08-12 の手動再実行と、
+# 起動しなかった 09-10）。所要は最長 26 分（writeKansenki）。60 分あれば起動と完了を待てる。
+START_GRACE_MIN = 60
+TASK_RUNNING = 267009
+
 
 def now():
     return datetime.now(JST)
@@ -277,7 +298,122 @@ def deploys():
     }
 
 
+_PS_TASKS = r"""
+$ErrorActionPreference = 'Stop'
+[Console]::OutputEncoding = New-Object System.Text.UTF8Encoding $false
+$o = [ordered]@{}
+foreach ($n in @(%s)) {
+  try {
+    $t = Get-ScheduledTask -TaskName $n
+    $i = $t | Get-ScheduledTaskInfo
+    $o[$n] = [ordered]@{
+      lastRun  = $i.LastRunTime.ToString('yyyy-MM-ddTHH:mm:ss')
+      result   = [int64]$i.LastTaskResult
+      state    = "$($t.State)"
+      triggers = @($t.Triggers | ForEach-Object { [ordered]@{ kind = $_.CimClass.CimClassName; enabled = [bool]$_.Enabled; start = "$($_.StartBoundary)" } })
+    }
+  } catch { $o[$n] = [ordered]@{ error = $_.Exception.Message } }
+}
+$o | ConvertTo-Json -Depth 5 -Compress
+"""
+
+
+def query_tasks(names):
+    """タスクスケジューラの記録を {タスク名: {...}} で返す。照会できなければ例外。"""
+    script = _PS_TASKS % ",".join("'%s'" % n for n in names)
+    r = subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-Command", script],
+                       capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=90)
+    return json.loads(r.stdout)
+
+
+def _latest_due(times, n):
+    """times（["05:30", ...]・毎日）のうち、猶予を過ぎた直近の予定時刻。"""
+    cands = []
+    for back in (0, 1, 2):
+        d = (n - timedelta(days=back)).date()
+        for hm in times:
+            h, m = map(int, hm.split(":"))
+            dt = datetime(d.year, d.month, d.day, h, m, tzinfo=JST)
+            if dt + timedelta(minutes=START_GRACE_MIN) <= n:
+                cands.append(dt)
+    return max(cands) if cands else None
+
+
+def local_tasks(prev):
+    """ローカルタスク3本の状態・最終起動・最終終了コード・最終成功。
+    「最終成功」はタスクスケジューラが持たないため、前回の status.json から引き継ぐ。"""
+    pv = (((prev or {}).get("ローカルタスク") or {}).get("タスク")) or {}
+    res = {"取得": False, "理由": None, "開始猶予分": START_GRACE_MIN, "タスク": {}}
+
+    def unverified(reason):
+        res["理由"] = reason
+        res["タスク"] = {k: {"状態": "未検証", "理由": reason,
+                            "最終成功": (pv.get(k) or {}).get("最終成功")} for k in LOCAL_TASKS}
+        return res
+
+    if os.name != "nt":
+        return unverified("ローカルPC（Windows）以外で実行された")
+    try:
+        info = query_tasks(list(LOCAL_TASKS.values()))
+    except Exception as e:  # PowerShell 不在・タイムアウト・JSON崩れ
+        return unverified("タスクスケジューラを照会できない: " + str(e)[:100])
+    n = now()
+    out = {}
+    for key, tname in LOCAL_TASKS.items():
+        t = info.get(tname) or {}
+        prev_ok = (pv.get(key) or {}).get("最終成功")
+        if not t or "error" in t:
+            out[key] = {"状態": "未検証", "理由": "照会失敗: " + str(t.get("error"))[:100], "最終成功": prev_ok}
+            continue
+        trig = t.get("triggers") or []
+        if isinstance(trig, dict):  # ConvertTo-Json は要素1つだと配列にしない
+            trig = [trig]
+        times, other = [], []
+        for g in trig:
+            if not g.get("enabled"):
+                continue
+            m = re.search(r"T(\d\d):(\d\d)", g.get("start") or "")
+            if g.get("kind") == "MSFT_TaskDailyTrigger" and m:
+                times.append("%s:%s" % m.groups())
+            else:
+                other.append(g.get("kind"))
+        code = t.get("result")
+        try:
+            last = datetime.fromisoformat(t.get("lastRun") or "").replace(tzinfo=JST)
+            if last.year < 2000:  # 一度も起動していないと 1999-11-30 が入る
+                last = None
+        except ValueError:
+            last = None
+        due = _latest_due(times, n) if times and not other else None
+        fmt = lambda x: x.strftime("%Y-%m-%d %H:%M") if x else None
+        e = {"予定": " ".join(sorted(times)), "直近の予定": fmt(due), "最終起動": fmt(last),
+             "最終終了コード": code,
+             "最終終了コード16進": ("0x%08X" % (code & 0xFFFFFFFF)) if isinstance(code, int) else None,
+             "最終成功": fmt(last) if (code == 0 and last) else prev_ok,
+             "タスク状態": t.get("state")}
+        if other or not times:
+            e["状態"], e["理由"] = "未検証", "予定時刻を計算できない（日次以外のトリガ: %s）" % other
+        elif code == TASK_RUNNING:
+            e["状態"] = "実行中"
+        elif due is None:
+            e["状態"], e["理由"] = "未検証", "直近の予定を計算できない"
+        elif last is None or last < due:
+            e["状態"], e["理由"] = "未実行", "直近の予定 %s 以降に起動記録が無い（記録なし＝未検証）" % fmt(due)
+        elif code == 0:
+            e["状態"] = "成功"
+        else:
+            e["状態"] = "失敗"
+        out[key] = e
+    res.update({"取得": True, "理由": None, "タスク": out})
+    return res
+
+
 def main():
+    try:
+        with open(OUT, encoding="utf-8") as f:
+            prev = json.load(f)   # ローカルタスクの「最終成功」を引き継ぐため、上書き前に読む
+    except (OSError, ValueError):
+        prev = None
     git("fetch", "origin", "main")
     head = git("log", "-1", "--format=%cI|%h", "origin/main")
     head_t, head_sha = (head.split("|") + ["", ""])[:2] if "|" in head else ("", "")
@@ -296,6 +432,7 @@ def main():
         "データ更新": {k: last_commit(v) for k, v in WATCH.items()},
         "観戦記": kansenki(),
         "ローカルログ": local_logs(),
+        "ローカルタスク": local_tasks(prev),
         "Actions失敗": actions_failures(),
         "デプロイ": deploys(),
     }
