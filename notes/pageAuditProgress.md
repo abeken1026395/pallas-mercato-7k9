@@ -4,3 +4,4 @@
 - T2 出走表：完了（2026-09-11 15:33 JST）。N3・J10・D2・D3・N18 を scripts/template_racers.html で修正。T1 の見立て文は出走表の「展開の見どころ」に highlights.json 経由で出ることを確認し、出走表側の定型「過去1年、該当#つのレースの①着外率」を T1 と同じ規則で直した。J10 の docs/highlights/index.html 側（逃げ時2着の4文字切り）は T2 の触ってよいファイル外のため未変更
 - T3 万舟：完了（2026-09-11 15:44 JST）。N2 は集計元 docs/payouts/*Payouts.csv に同じ (開催日, R) の行が重複（蒲郡・丸亀440・大村404・常滑1）。CSV は触らず、R別万舟率24本・trifectaTop・boat1Second の集計時に重複を除いて再生成。N12・N17・N19・D1 を25ページに同じ変更で反映。summary.json はネットワーク集計のため再生成せず（境界の変更は次回の定時集計で反映）
 - T4 24場：完了（2026-09-11 15:50 JST）。P1・P2・N8・N9・J4・D2・N18 を docs/stadium/index.html で修正。P2 の第三者サイト名は、非表示にした内容だけの出典に当たるものが無く、削除対象なし（古い注記とともに艇国データバンクは消えた）
+- T5 場の文化：一部実施（2026-09-11 15:56 JST）。J7（締切BGMなしの場を「BGMなし」に分類）・D2（未確認・注記）・D6・D1 を docs/fan/index.html で修正。保留：P5（AI提供・memo保留・present=unknown・人数）・J7（「全国で唯一」「70年級」）・N9（「日本一堅い」）は文面の正本が docs/data/yosouya.json・docs/data/fanfareBgm.json で、T5 の触ってよいファイル（docs/fan/index.html）外のため未実施
