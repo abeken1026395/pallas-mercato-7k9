@@ -66,14 +66,50 @@ jobs:
           fi
           cat /tmp/plan.json
           PUB=$(python -c "import json;print(json.load(open('/tmp/plan.json')).get('pubdate') or '')")
-          NW=$(python -c "import json;print(len(json.load(open('/tmp/plan.json')).get('toWrite') or []))")
           TOWRITE=$(python -c "import json;print(' '.join(json.load(open('/tmp/plan.json')).get('toWrite') or []))")
-          RUN=1; REASON="run（未執筆かつ書ける場=${NW}）"
-          if [ -z "$PUB" ]; then RUN=0; REASON="skip: 掲載日を決定できない"; fi
-          if [ "$NW" = "0" ]; then RUN=0; REASON="skip: 未執筆かつ書ける場なし（全場執筆済/未確定）"; fi
-          echo "pubdate=$PUB"     >> "$GITHUB_OUTPUT"
-          echo "run=$RUN"         >> "$GITHUB_OUTPUT"
-          echo "towrite=$TOWRITE" >> "$GITHUB_OUTPUT"
+          # 三状態の判定（toWrite=0 の意味を分ける。旧: 0 なら理由を問わず skip＝緑）
+          #   執筆 : 未執筆かつ書ける場がある → 執筆へ（書けない場が残れば最後に落とす）
+          #   正常 : 全場が執筆済、または構造上書けない（前日非開催。lint --coverage と同じ除外）だけ
+          #   未検証: 掲載日が取れない / source が無い / 場数0 / 入力が揃わず書けない場が残る → 落とす
+          #   実例: 20260828・0829 は 05:30 時点で source が無く toWrite=0 のまま「正常終了」していた
+          python - <<'PY'
+          import json, os, sys
+          sys.path.insert(0, "scripts")
+          from lintKansenki import prev_day_race_count
+          p = json.load(open("/tmp/plan.json", encoding="utf-8"))
+          pub = p.get("pubdate") or ""
+          to_write = p.get("toWrite") or []
+          venues = (p.get("counts") or {}).get("venues", 0)
+          unresolved, excused = [], []
+          for s in p.get("skip") or []:
+              if "results空" in (s.get("reason") or "") and pub and prev_day_race_count(pub, s.get("jcd")) == 0:
+                  excused.append(s.get("jcd"))
+              else:
+                  unresolved.append("%s(%s): %s" % (s.get("jcd"), s.get("venue"), s.get("reason")))
+          if not pub:
+              state, why = "未検証", "掲載日を決定できない（CSV・highlights とも取れない）"
+          elif not p.get("source"):
+              state, why = "未検証", "source/%s.json が無い（入力なし）" % pub
+          elif venues == 0:
+              state, why = "未検証", "source/%s.json の場数が0（判定できない）" % pub
+          elif to_write:
+              state, why = "執筆", "未執筆かつ書ける場 %d" % len(to_write)
+          elif unresolved:
+              state, why = "未検証", "書ける場0・入力が揃わず書けない場 %d" % len(unresolved)
+          else:
+              state, why = "正常", "全%d場 執筆済 %d・構造上除外 %d" % (venues, len(p.get("done") or []), len(excused))
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as o:
+              o.write("pubdate=%s\nrun=%s\ntowrite=%s\nunresolved=%d\n"
+                      % (pub, "1" if state == "執筆" else "0", " ".join(to_write), len(unresolved)))
+          print("判定: %s — %s" % (state, why))
+          for u in unresolved:
+              print("  書けない場: " + u)
+          if state == "未検証":
+              print("::error::観戦記 執筆計画を検算できない: " + why)
+          open("/tmp/plan_state.txt", "w", encoding="utf-8").write("%s|%s\n" % (state, why))
+          PY
+          IFS='|' read -r STATE WHY < /tmp/plan_state.txt
+          REASON="${STATE}（${WHY}）"
           # 既執筆/持ち越しの明細は pubplan の JSON から1行スクリプトで整形
           python -c "import json;p=json.load(open('/tmp/plan.json'));dn=p.get('done') or [];sk=p.get('skip') or [];print(('- 既執筆(不変): \`%s\`\n' % ' '.join(dn)) if dn else '',end='');[print('- 持ち越し %s(%s): %s' % (s.get('jcd'),s.get('venue'),s.get('reason'))) for s in sk]" > /tmp/plan_md.txt
           {
@@ -82,6 +118,7 @@ jobs:
             echo "- 執筆対象場: \`$TOWRITE\`"
             cat /tmp/plan_md.txt
           } >> "$GITHUB_STEP_SUMMARY"
+          if [ "$STATE" = "未検証" ]; then exit 1; fi
 
       # 執筆（headless）。未執筆場のみ。書き込みは articles と /tmp のみ、git/mergeはWF側。
       - name: write articles (headless claude)
@@ -124,29 +161,30 @@ jobs:
             f="docs/data/kansenki/articles/${PUB}-${j}.json"
             [ -f "$f" ] && FILES="$FILES $f"
           done
+          # 書ける場があるのに結果が出ない・検査に落ちたものは「不合格」として落とす（旧: exit 0＝緑）。
           if [ -z "$FILES" ]; then
-            echo "生成物なし → 公開なし（持ち越し）"
-            echo "- 検査: **生成物なし → 公開なし（持ち越し）**" >> "$GITHUB_STEP_SUMMARY"
-            exit 0
+            echo "::error::生成物なし（書ける場 ${TOWRITE} があるのに記事が1本も出ない）＝不合格"
+            echo "- 検査: **生成物なし → 公開なし（不合格）**" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
           fi
           # lint FAIL のファイルは公開しない（削除して持ち越し）。PASSのみ残す。
-          KEEP=""
+          KEEP=""; NFAIL=0
           for f in $FILES; do
             if python scripts/lintKansenki.py "$f"; then
               KEEP="$KEEP $f"
             else
-              echo "lint FAIL → 除外(持ち越し): $f"; rm -f "$f"
+              echo "lint FAIL → 除外(持ち越し): $f"; rm -f "$f"; NFAIL=$((NFAIL + 1))
             fi
           done
           if [ -z "$KEEP" ]; then
-            echo "全対象が lint FAIL → 公開なし（持ち越し）"
-            echo "- 検査: **全対象 lint FAIL → 公開なし（持ち越し）**" >> "$GITHUB_STEP_SUMMARY"
-            exit 0
+            echo "::error::全対象が lint FAIL → 公開なし＝不合格"
+            echo "- 検査: **全対象 lint FAIL → 公開なし（不合格）**" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
           fi
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add $KEEP
-          if git diff --staged --quiet; then echo "差分なし"; exit 0; fi
+          if git diff --staged --quiet; then echo "::error::新規記事なのに差分なし（判定できない）＝未検証"; exit 1; fi
           N=$(echo $KEEP | wc -w | tr -d ' ')
           git commit -m "kansenki: ${PUB} 掲載分 観戦記 +${N}場（headless・場単位・lint全場PASS）"
           # commit-first＋rebase -X theirs（他WF同時pushの非fast-forwardを機械解消）
@@ -162,3 +200,8 @@ jobs:
           done
           if [ "$PUSHED" != "1" ]; then echo "push retries exhausted"; exit 1; fi
           echo "- 公開: **${N}場を main へ追記（自動公開・場単位）**" >> "$GITHUB_STEP_SUMMARY"
+          # 公開したうえで、残りがあれば落とす（lint FAIL で持ち越した場／入力が揃わず書けなかった場）。
+          BAD=0
+          if [ "$NFAIL" -gt 0 ]; then echo "::error::lint FAIL で持ち越した場 ${NFAIL}＝不合格"; BAD=1; fi
+          if [ "${{ steps.plan.outputs.unresolved }}" != "0" ]; then echo "::error::入力が揃わず書けない場 ${{ steps.plan.outputs.unresolved }}＝未検証"; BAD=1; fi
+          exit $BAD

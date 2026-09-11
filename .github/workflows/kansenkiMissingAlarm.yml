@@ -38,13 +38,23 @@ jobs:
             PUB=$(python -c "import json;print(json.load(open('docs/highlights/highlights.json')).get('開催日',''))")
           fi
           echo "pubdate=$PUB" >> "$GITHUB_OUTPUT"
+          # 入力の検算。取れない・食い違うときは「未検証」として落とす（旧: MISS=0 のまま緑）。
+          # 実測（07-12〜09-11 の定時 62 run）では、掲載日空・日付ずれ・source 無しは0回。
+          TODAY="${KANSENKI_TODAY:-$(TZ=Asia/Tokyo date +%Y%m%d)}"   # KANSENKI_TODAY は検証用の上書き
+          if [ -z "$PUB" ]; then
+            echo "::error::掲載日を決定できない（highlights.json の開催日が空）＝未検証"; exit 1
+          fi
+          if [ "${{ github.event_name }}" = "schedule" ] && [ "$PUB" != "$TODAY" ]; then
+            echo "::error::掲載日 ${PUB} が今日 ${TODAY} と一致しない（highlights が切り替わっていない）＝未検証"; exit 1
+          fi
+          if [ ! -f "docs/data/kansenki/source/${PUB}.json" ]; then
+            echo "::error::source/${PUB}.json が無い（点検できない）＝未検証"; exit 1
+          fi
           MISS=0
-          if [ -n "$PUB" ] && [ -f "docs/data/kansenki/source/${PUB}.json" ]; then
-            if ! ls docs/data/kansenki/articles/${PUB}-*.json >/dev/null 2>&1; then
-              # 記事0本。未マージ記事PR（ブランチ kansenki/PUB）が無ければ執筆漏れ。
-              if ! git ls-remote --exit-code --heads origin "kansenki/${PUB}" >/dev/null 2>&1; then
-                MISS=1
-              fi
+          if ! ls docs/data/kansenki/articles/${PUB}-*.json >/dev/null 2>&1; then
+            # 記事0本。未マージ記事PR（ブランチ kansenki/PUB）が無ければ執筆漏れ。
+            if ! git ls-remote --exit-code --heads origin "kansenki/${PUB}" >/dev/null 2>&1; then
+              MISS=1
             fi
           fi
           echo "missing=$MISS" >> "$GITHUB_OUTPUT"
@@ -72,3 +82,10 @@ jobs:
             --label kansenki-missing \
             --body "$(printf '掲載日 %s の観戦記が1本も生成されておらず、未マージの記事PR（kansenki/%s）もありません。\n\nsource は存在します（対象場: %s）。\n\n対応: writeKansenki を起動して執筆→PR、または手動執筆。lint 全場PASS を確認のうえ人がマージ＝公開してください。\n（この Issue は執筆漏れ検知の自動起票です。記事PRが出れば次回は起票されません。）' "$PUB" "$PUB" "$VEN")"
           echo "起票しました（掲載日 ${PUB}）"
+
+      # 不合格（掲載日なのに記事0本）は Issue を起票したうえでジョブも落とす（旧: 起票しても緑）。
+      - name: fail if missing
+        if: ${{ !cancelled() && steps.d.outputs.missing == '1' }}
+        run: |
+          echo "::error::観戦記 執筆漏れ: ${{ steps.d.outputs.pubdate }} 掲載分が0本＝不合格（Issue で追跡）"
+          exit 1

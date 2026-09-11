@@ -27,6 +27,61 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      # 全source日付を対象（0本日は自動SKIP）。一部書いたのに一部欠けている乖離を検知。
+      # 全source日付を対象。一部書いたのに一部欠けている乖離は lint が FAIL にする。
+      # lint が SKIP にする「記事0本の日」は、ここで三状態に分ける（旧: SKIP＝理由を問わず緑）。
+      #   正常  : 期限前（掲載日が明日以降、または当日 07:30 JST 前）／全場が前日非開催で構造上書けない
+      #   不合格: 期限後（当日 07:30 以降・前日）なのに source の場があって記事0本
+      #   未検証: source の場数0（判定できない）／検査した日が1日も無い（source を読めていない）
+      # 期限の根拠: 08-04 以降のローカル自動執筆（05:30）で、漏れた日を除き記事は毎日 05:41〜05:55 に揃う。
+      # 前々日より古い0本の日は表示だけ（当日・前日の検査で不合格として出たもの。Issue で追跡）。
+      # 過去日の FAIL を持ち越し続けると常時赤になり、警報として死ぬため（REFERENCE.md (8)c）。
       - name: coverage check (all days)
-        run: python scripts/lintKansenki.py --coverage
+        run: |
+          set +e
+          python scripts/lintKansenki.py --coverage > /tmp/coverage.txt
+          RC=$?
+          set -e
+          cat /tmp/coverage.txt
+          set +e
+          python - <<'PY'
+          import datetime, json, os, re, sys
+          sys.path.insert(0, "scripts")
+          from lintKansenki import prev_day_race_count
+          JST = datetime.timezone(datetime.timedelta(hours=9))
+          ov = os.environ.get("KANSENKI_NOW")  # 検証用の上書き（YYYYMMDDHHMM・JST）
+          now = datetime.datetime.strptime(ov, "%Y%m%d%H%M").replace(tzinfo=JST) if ov else datetime.datetime.now(JST)
+          today = now.strftime("%Y%m%d")
+          yday = (now - datetime.timedelta(days=1)).strftime("%Y%m%d")
+          due_today = (now.hour, now.minute) >= (7, 30)
+          txt = open("/tmp/coverage.txt", encoding="utf-8").read()
+          skips = re.findall(r"^SKIP 網羅 (\d{8})", txt, re.M)
+          m = re.search(r"網羅結果: 検査(\d+)日", txt)
+          bad = []
+          if not m:
+              bad.append("未検証: lint の網羅結果が出ていない")
+          elif int(m.group(1)) == 0 and not skips:
+              bad.append("未検証: 検査した日が1日も無い（source を読めていない）")
+          for d in skips:
+              venues = json.load(open("docs/data/kansenki/source/%s.json" % d, encoding="utf-8")).get("venues") or []
+              if d > today or (d == today and not due_today):
+                  print("正常 0本 %s: 期限前（掲載日 %s 07:30 JST より前）" % (d, d))
+                  continue
+              if not venues:
+                  bad.append("未検証 %s: source の場数0（判定できない）" % d)
+                  continue
+              exc = [v for v in venues if not (v.get("dayNum") == 1 or v.get("dayLabel") == "初日")
+                     and prev_day_race_count(d, v.get("jcd")) == 0]
+              if len(exc) == len(venues):
+                  print("正常 0本 %s: 全%d場が前日非開催で執筆不能（構造上の0）" % (d, len(venues)))
+              elif d in (today, yday):
+                  bad.append("不合格 %s: source %d場があるのに記事0本（期限後）" % (d, len(venues)))
+              else:
+                  print("窓外 0本 %s: 過去日（当日・前日の検査で不合格として出たもの）" % d)
+          for b in bad:
+              print("::error::" + b)
+          sys.exit(1 if bad else 0)
+          PY
+          ZRC=$?
+          set -e
+          if [ "$RC" != 0 ]; then echo "::error::網羅性 FAIL（一部の場の記事が無い）"; fi
+          if [ "$RC" != 0 ] || [ "$ZRC" != 0 ]; then exit 1; fi
