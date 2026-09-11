@@ -1442,7 +1442,7 @@ function App() {
     }, p.branch)), p.kana && /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 10,
-        color: "#4a6070",
+        color: "#8aa0b4",
         marginTop: 1
       }
     }, p.kana)), /*#__PURE__*/React.createElement("div", {
@@ -2048,7 +2048,7 @@ function App() {
           lineHeight: 1.7,
           fontVariantNumeric: "tabular-nums"
         }
-      }, "\u5168\u9078\u624B\u306E\u5E73\u5747 ", allPct, "%\uFF08", base.全体.n, "\u8D70\uFF09")), rows.length > 0 && /*#__PURE__*/React.createElement("details", {
+      }, "\u5168\u9078\u624B\u306E\u5E73\u5747 ", allPct, "%\uFF08", Number(base.全体.n).toLocaleString(), "\u8D70\uFF09")), rows.length > 0 && /*#__PURE__*/React.createElement("details", {
         style: {
           marginTop: 6
         }
@@ -2396,7 +2396,7 @@ function App() {
           marginTop: 6,
           lineHeight: 1.5
         }
-      }, "\u9EC4=\u30A4\u30F3(1\u30FB2)\u3001\u9752=\u30A2\u30A6\u30C8(3\u301C6)\u3002\u7D30\u3044\u6A2A\u7DDA\u306F\u5168\u9078\u624B\u306E\u5E73\u5747\u3002", guard, "\u8D70\u306B\u6E80\u305F\u306A\u3044\u30B3\u30FC\u30B9\u306F\u5272\u5408\u3092\u51FA\u3055\u305A\u8D70\u6570\u3060\u3051\u3092\u8F09\u305B\u308B\u3002"), /*#__PURE__*/React.createElement("details", {
+      }, "\u9EC4=1\u30FB2\u30B3\u30FC\u30B9\u3001\u9752=3\u301C6\u30B3\u30FC\u30B9\u3002\u7D30\u3044\u6A2A\u7DDA\u306F\u5168\u9078\u624B\u306E\u5E73\u5747\u3002", guard, "\u8D70\u306B\u6E80\u305F\u306A\u3044\u30B3\u30FC\u30B9\u306F\u5272\u5408\u3092\u51FA\u3055\u305A\u8D70\u6570\u3060\u3051\u3092\u8F09\u305B\u308B\u3002"), /*#__PURE__*/React.createElement("details", {
         style: {
           marginTop: 6
         }
