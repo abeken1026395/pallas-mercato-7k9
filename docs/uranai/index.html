@@ -409,7 +409,7 @@ function profHTML(p){
   <div class="cell"><div class="lb">F数</div><div class="vl">${p.f}</div></div>
   <div class="cell"><div class="lb">アウト戦</div><div class="vl">${p.out}<span style="font-size:10px">%</span></div></div>
  </div>
- <div class="c1wrap"><div class="c1ttl">コース別 1着率（黄=イン／青=アウト）</div>${bars}</div>`;
+ <div class="c1wrap"><div class="c1ttl">コース別 1着率（黄=1・2コース／青=3〜6コース）</div>${bars}</div>`;
 }
 $('list').addEventListener('click',e=>{
  if(e.target.closest('a'))return;
