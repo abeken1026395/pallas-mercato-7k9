@@ -111,8 +111,10 @@ def write_odds(data, hd):
     venues = len(set(x["場コード"] for x in rows))
     os.makedirs("odds", exist_ok=True)
     outpath = os.path.join("odds", "%s.json" % hd)
+    # 取得時刻はこのサイトが取り込んだ時刻（取得元にスナップショット時刻は無い）。
+    # Actions の壁時計は UTC なので、JST のオフセット付きで書く（2026-09-11 まではオフセット無しの UTC）。
     obj = {"開催日": hd,
-           "取得時刻": datetime.datetime.now().isoformat(timespec="seconds"),
+           "取得時刻": datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9))).isoformat(timespec="seconds"),
            "注記": NOTE,
            "レース数": len(rows),
            "オッズ": rows}

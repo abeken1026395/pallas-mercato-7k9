@@ -146,6 +146,9 @@
 body::after{content:"データ攻め ／ YouTube あべけん";display:block;margin:18px 0 20px;font-size:11px;color:#8a8f98;letter-spacing:.02em;text-align:center}
 html[data-vr] body::after{content:none;margin:0}
 .vr-note{display:block;margin:18px 0 20px;font-size:11px;color:#8a8f98;letter-spacing:.02em;text-align:center}
+/* 読み込み時のレイアウトずれ防止：日付の選択肢と結果が入る前から高さを確保（.bar は幅390pxの実測値） */
+.bar{min-height:101px}
+#out{min-height:100vh}
 </style>
 </head>
 <body>
@@ -211,6 +214,16 @@ function loadBearing(){
       .catch(()=>{ BEARING = null; });
   }
   return bearingReq;
+}
+// オッズの「取得時刻」は、このサイトが取り込んだ時刻（取得元にスナップショット時刻は無い）。
+// 2026-09-11 まではオフセット無しの UTC（Actions の壁時計）、以降は +09:00 付き。どちらも JST で出す
+function ingestJst(s){
+  if(!s) return '';
+  const iso = /[zZ]$|[+-]\d\d:\d\d$/.test(s) ? s : s+'Z';
+  const t = Date.parse(iso);
+  if(isNaN(t)) return '';
+  const j = new Date(t + 9*3600*1000);
+  return (j.getUTCMonth()+1)+'/'+j.getUTCDate()+' '+j.getUTCHours()+':'+String(j.getUTCMinutes()).padStart(2,'0')+' JST';
 }
 // 締切前の単勝オッズ（docs/results/odds/YYYYMMDD.json）。開いた日ぶんを一度だけ読む
 let oddsHd = null, oddsReq = null;
@@ -417,7 +430,8 @@ function renderRace(r, hd){
           sec.appendChild(line);
         });
         const nt = document.createElement('span'); nt.className='note';
-        nt.textContent = (o['注記']||'') + '（取得 ' + (o['取得時刻']||'') + '）';
+        const ing = ingestJst(o['取得時刻']);
+        nt.textContent = (o['注記']||'') + (ing ? '（このサイトが取り込んだ日時 ' + ing + '）' : '');
         sec.appendChild(nt);
         body.appendChild(sec);
       });
