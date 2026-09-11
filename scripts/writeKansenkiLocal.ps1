@@ -130,8 +130,9 @@ try {
     if ($branch -ne 'main') { Invoke-Step 'git checkout main' { & $Git checkout main } | Out-Null }
     $dirty = & $Git status --porcelain --untracked-files=no
     if ($dirty) {
-        Log ("追跡ファイルに未コミット変更があるため何もせず終了:`n{0}" -f ($dirty | Out-String).TrimEnd())
-        exit 0
+        # 退避（ユーザー作業の巻き込み回避）は exit 3。成功(0)・失敗(1)と区別し、health/status.json で「退避」として出す。
+        Log ("[退避] 理由=作業ツリーに未コミット変更（ユーザー作業の巻き込み回避）。何もせず終了:`n{0}" -f ($dirty | Out-String).TrimEnd())
+        exit 3
     }
     # 破壊防止ガード1（pull前）: remoteが想定リポか検証。旧URL(空リポ)なら非0で中断。
     Invoke-Step 'ガード1(remote検証)' { & $Ps -NoProfile -ExecutionPolicy Bypass -File $Guard -Stage pre -Repo $Repo -LogFile $LogFile -Git $Git } | Out-Null

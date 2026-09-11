@@ -15,13 +15,14 @@
 
 $ErrorActionPreference = 'Stop'
 
-$Repo = 'C:\Users\USER\boatrace'
+# BOATRACE_LOCAL_REPO は検証用の上書き（本番のタスクでは未設定）。
+$Repo = if ($env:BOATRACE_LOCAL_REPO) { $env:BOATRACE_LOCAL_REPO } else { 'C:\Users\USER\boatrace' }
 # 絶対パス固定: タスクスケジューラのPATHは対話シェルと異なる。
 # py.exe は WindowsApps のアプリ実行エイリアスで非対話だと不安定なため実体を直に指す。
 $Py  = 'C:\Users\USER\AppData\Local\Python\pythoncore-3.14-64\python.exe'
 $Git = 'C:\Program Files\Git\cmd\git.exe'
 $Ps    = "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe"  # 破壊防止ガード呼び出し用
-$Guard = 'C:\Users\USER\boatrace\scripts\checkRepoGuard.ps1'               # ガード本体（pull前後で呼ぶ）
+$Guard = Join-Path $Repo 'scripts\checkRepoGuard.ps1'                     # ガード本体（pull前後で呼ぶ）
 
 $LookbackDays = 7   # 取りこぼし吸収。既存ファイルはfetch側でスキップされるので実質差分だけ落ちる
 $LogDir       = Join-Path $Repo 'scripts\logs'
@@ -75,15 +76,16 @@ try {
     Log "=== 開始 ==="
 
     # --- 安全確認: ユーザーの作業に触らない -----------------------------
+    # 退避（ユーザー作業の巻き込み回避）は exit 3。成功(0)・失敗(1)と区別し、health/status.json で「退避」として出す。
     $branch = & $Git rev-parse --abbrev-ref HEAD
     if ($branch -ne 'main') {
-        Log ("main ではなく '{0}' に居るため何もせず終了（ユーザー作業の巻き込み回避）" -f $branch)
-        exit 0
+        Log ("[退避] 理由=main 以外のブランチ '{0}'（ユーザー作業の巻き込み回避）。何もせず終了" -f $branch)
+        exit 3
     }
     $dirty = & $Git status --porcelain --untracked-files=no
     if ($dirty) {
-        Log ("追跡ファイルに未コミット変更があるため何もせず終了:`n{0}" -f ($dirty | Out-String).TrimEnd())
-        exit 0
+        Log ("[退避] 理由=作業ツリーに未コミット変更（ユーザー作業の巻き込み回避）。何もせず終了:`n{0}" -f ($dirty | Out-String).TrimEnd())
+        exit 3
     }
 
     # --- 0.5) 最新originへ同期 -------------------------------------------
