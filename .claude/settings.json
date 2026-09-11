@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash",
+      "Edit",
+      "Write"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "h=''; t=$(git rev-parse --show-toplevel 2>/dev/null); c=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null); for d in \"$t\" \"${c%/.git}\" \"$CLAUDE_PROJECT_DIR\"; do if [ -n \"$d\" ] && [ -f \"$d/.claude/hooks/prepushVerify.sh\" ]; then h=\"$d/.claude/hooks/prepushVerify.sh\"; break; fi; done; if [ -z \"$h\" ]; then echo '[prepushVerify] BLOCK: フック本体が見つからない（cwd のリポジトリ・main worktree・CLAUDE_PROJECT_DIR のどこにも無い）。未検証は合格にしない。' >&2; exit 2; fi; bash \"$h\" || exit 2",
+            "timeout": 120
+          }
+        ]
+      }
+    ]
+  }
+}
