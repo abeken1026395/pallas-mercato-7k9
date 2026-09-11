@@ -93,6 +93,8 @@ th.ev, td.ev { width:38%; }
 footer { margin-top:18px; font-size:10.5px; color:#6b7f95; }
 .siteback{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;margin:6px 0 2px;font-size:13px;line-height:1;color:inherit;text-decoration:underline;text-underline-offset:3px}
 .siteback:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+/* 読み込み時のレイアウトずれ防止：スクリプトで埋める欄の高さを先に確保（幅390pxの実測値。表は1画面ぶん） */
+#head-sub{min-height:53px} #findings{min-height:103px} #findings-foot{min-height:42px} .filters{min-height:267px} #status{min-height:113px} .tblwrap{min-height:100vh}
 </style>
 </head>
 <body>
@@ -186,9 +188,8 @@ footer { margin-top:18px; font-size:10.5px; color:#6b7f95; }
         <h3>節の状態（旗）</h3>
         <p>節がどう欠けているかを示します。各バッジにカーソルを合わせると理由が出ます。</p>
         <ul>
-          <li><span class="flag">開催中</span> … 節がまだ終わっていない。節名と節末2連率は節の完結時に確定します</li>
+          <li><span class="flag">開催中</span> … 節がまだ終わっていない（データ窓の最終日で節が切れている行を含む）。節名は節の完結時に確定します。2連率の欄は、節が終わるまでは最新の2連率です</li>
           <li><span class="flag">中止</span> … 節が異常終了した。節名の記録が無いのが正常です</li>
-          <li><span class="flag">尻切れ</span> … データ窓の最終日で節が切れている</li>
           <li><span class="flag">頭切れ</span> … データ窓の初日で節が切れている。2026-07-13・14 は公式から再取得できず欠測です</li>
         </ul>
         <p>いずれの場合も<b>日数・走数・交換点数は下限値</b>で、末尾に「+」が付きます。
@@ -271,7 +272,7 @@ footer { margin-top:18px; font-size:10.5px; color:#6b7f95; }
     {k:"走数",    label:"走数",     n:1, get:function(r){return r["走数"];}},
     {k:"整備規模",label:"整備規模", w:1, get:function(r){return r["整備規模"] || "";}},
     {k:"交換イベント", label:"交換内容（節内日・部品）", nosort:1, cls:"ev"},
-    {k:"節末2連率",label:"節末2連率", n:1, get:function(r){return r["節末2連率"];}},
+    {k:"節末2連率",label:"節末2連率（開催中は最新）", n:1, get:function(r){return r["節末2連率"];}},
     {k:"_flags",  label:"節の状態", nosort:1}
   ];
 
@@ -414,14 +415,18 @@ footer { margin-top:18px; font-size:10.5px; color:#6b7f95; }
   function badge(label, tip) {
     return '<span class="flag" title="' + esc(tip) + '">' + esc(label) + "</span>";
   }
+  // 節がまだ終わっていない行（節名が未完了、またはデータ窓の最終日で切れている）。2連率は節末ではなく最新の値
+  function isOpenSetsu(r) {
+    return r["節名_出所"] === "未完了" || (r["不完全節"] && r["終了日"] === D.window.to);
+  }
   function flagsHtml(r) {
     var out = [];
     if (r["節名_出所"] === "中止") {
       out.push(badge("中止", r["節名_注記"] || "節が異常終了した。節名の記録が無いのが正常"));
     } else if (r["節名_出所"] === "未完了") {
-      out.push(badge("開催中", "節がまだ終わっていない。節名と節末2連率は節の完結時に確定する。" + LOWER_NOTE));
+      out.push(badge("開催中", "節がまだ終わっていない。節名は節の完結時に確定する。2連率は最新の値。" + LOWER_NOTE));
     } else if (r["不完全節"] && r["終了日"] === D.window.to) {
-      out.push(badge("尻切れ", "データ窓の最終日で節が切れている。" + LOWER_NOTE));
+      out.push(badge("開催中", "節がまだ終わっていない（データ窓の最終日で節が切れている）。2連率は最新の値。" + LOWER_NOTE));
     }
     if (r["欠測あり"]) {
       out.push(badge("頭切れ", "データ窓の初日で節が切れている。2026-07-13・14は公式から再取得できず欠測。" + LOWER_NOTE));
@@ -485,7 +490,7 @@ footer { margin-top:18px; font-size:10.5px; color:#6b7f95; }
         + '<td class="num">' + r["走数"] + (r["不完全節"] ? '<span class="dim">+</span>' : "") + "</td>"
         + "<td>" + (r["整備規模"] ? '<span class="chip h">' + esc(r["整備規模"]) + "</span>" : NA) + "</td>"
         + '<td class="ev">' + evHtml(r) + "</td>"
-        + '<td class="num">' + (r["節末2連率"] == null ? NA : r["節末2連率"].toFixed(1)) + "</td>"
+        + '<td class="num"' + (isOpenSetsu(r) ? ' title="節がまだ終わっていないので最新の2連率"' : "") + '>' + (r["節末2連率"] == null ? NA : r["節末2連率"].toFixed(1)) + "</td>"
         + "<td>" + flags + "</td>"   // flagsHtml が空のとき NA を返す
         + "</tr>";
     }).join("");
