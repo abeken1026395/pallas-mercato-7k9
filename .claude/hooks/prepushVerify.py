@@ -20,6 +20,9 @@ nightlyPipeline は検算（nightly_decide）を持つが commit が `if: always
   3. SCOPE 内のテキストに衝突マーカー（<<<<<<< / >>>>>>>）が残っていれば FAIL。
   4. SCOPE 内の削除は FAIL。検算方法を定義していない拡張子も FAIL。
 
+コマンド解析: && || ; | 改行で区切り、各部分のリダイレクト（2>&1・>log 等）を除いてから
+git push の引数を読む。解析できない・語を対応づけられない場合は通さない（exit 2）。
+
 終了コード: 0 = push ではない、または検算 PASS を確認できた / 2 = FAIL（ブロック）。
 **検算が走らなかった・完走しなかった場合も 2。** 0 を返すのは PASS を確認できたときだけ。
 """
@@ -47,6 +50,8 @@ PRED_ONLY_KEYS = {"判定", "主役艇", "スコア", "スコア内訳", "対抗
 TEXT_EXT = {".csv", ".html", ".js", ".css", ".txt", ".md", ".svg"}
 MARKER_RE = re.compile(r"^(<{7}|>{7})( |$)", re.M)
 SEP_RE = re.compile(r"&&|\|\||[;|\n]")
+# シェルのリダイレクト語（2>&1 / >log / 2> err / &>x / >>x / <in など）。group(1) が空なら対象は次の語。
+REDIR_RE = re.compile(r"^(?:\d+|&)?(?:>>|>&|>\||>|<<<|<<|<&|<>|<)(.*)$")
 GIT_TIMEOUT = 20
 
 
@@ -81,18 +86,47 @@ def to_local_path(p, base):
     return os.path.normpath(os.path.join(base, p))
 
 
+def strip_redirections(seg, toks):
+    """toks からシェルのリダイレクト（2>&1・>log・2> err・&>x・<in）と末尾の & を除く。
+    引用符付きの語はリダイレクトとみなさない。語の対応が取れなければ Unverifiable（通さない）。"""
+    if not any(t == "&" or REDIR_RE.match(t) for t in toks):
+        return toks
+    try:
+        lx = shlex.shlex(seg, posix=False)
+        lx.whitespace_split = True
+        raw = list(lx)
+    except ValueError as e:
+        raise Unverifiable(f"リダイレクトを含む部分を解析できない（{e}）: {seg}")
+    if len(raw) != len(toks):
+        raise Unverifiable(f"リダイレクトを含む部分の語を対応づけられない: {seg}")
+    out, i = [], 0
+    while i < len(toks):
+        quoted = "'" in raw[i] or '"' in raw[i]
+        m = None if quoted else REDIR_RE.match(toks[i])
+        if not quoted and toks[i] == "&":
+            i += 1
+        elif m:
+            i += 1 if m.group(1) else 2  # "> log" のように対象が別の語なら、それも除く
+        else:
+            out.append(toks[i])
+            i += 1
+    return out
+
+
 def find_pushes(command, cwd):
     """command 内の git push を [(repo_dir, push_args)] で返す。解析できなければ Unverifiable。"""
     pushes = []
     for seg in (s.strip() for s in SEP_RE.split(command)):
         if not seg:
             continue
+        s = seg.replace("\\", "/")
         try:
-            toks = shlex.split(seg.replace("\\", "/"), posix=True)
+            toks = shlex.split(s, posix=True)
         except ValueError as e:
             if re.search(r"\bgit\b.*\bpush\b", seg):
                 raise Unverifiable(f"push を含みうる部分を解析できない（{e}）: {seg}")
             continue
+        toks = strip_redirections(s, toks)
         while toks and (re.match(r"^\w+=", toks[0]) or toks[0] in ("&", "command", "exec", "time", "sudo")):
             toks = toks[1:]
         if not toks:
