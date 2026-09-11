@@ -64,6 +64,10 @@
   .chip{padding:6px 11px;background:var(--card);border:1px solid var(--line);border-radius:999px;color:var(--sub);font-size:12.5px;cursor:pointer;user-select:none;transition:.12s}
   .chip.on{background:var(--accent);color:#1a1305;border-color:var(--accent);font-weight:700}
   .chip[data-region].on{color:#fff}
+  /* 「全地区」は地区色を持たず黄の地色のままなので、白では読めない（1.44:1） */
+  .chip[data-region=""].on{color:#0b1219}
+  /* 読み込み時のレイアウトずれ防止：データで埋まる欄の高さを先に確保（幅390pxの実測値。一覧は1画面ぶん） */
+  #featWrap{min-height:231px} #regionFilters{min-height:74px} #count{min-height:19px} #list{min-height:100vh}
   .count{color:var(--sub);font-size:12px;margin-bottom:10px}
 
   .anc{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:9px;overflow:hidden;position:relative}
@@ -105,7 +109,7 @@ html[data-vr] body::after{content:none;margin:0}
     <div class="bars" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
     <div class="mic">
       <div class="micicon">🎙</div>
-      <div><h1>実況アナ図鑑<span class="dot">.</span></h1></div>
+      <div><h1>実況アナ図鑑</h1></div>
     </div>
     <div class="lead">レースを彩るのは選手だけじゃない。全国24場、それぞれの水面に「声の主」がいる。場の顔を知ると、ボートレースはもっと面白い。</div>
   </div>
@@ -114,7 +118,7 @@ html[data-vr] body::after{content:none;margin:0}
     <b>ご注意</b>　実況アナ情報は当サイト調べ（公開情報・聞き取りベース）です。実況は<b>交代制・臨時担当</b>があり、ここに載らない担当回もあります。異動・誤りに気づいたらご指摘ください。
   </div>
 
-  <div id="featWrap" style="display:none">
+  <div id="featWrap">
     <div class="sec-label"><span class="tag">🔥 名物実況</span><span class="ln"></span></div>
     <div class="feat-scroll" id="featList"></div>
   </div>
@@ -187,7 +191,7 @@ function buildRegionChips(){
 
 function renderFeatured(){
   const fs=FEATURED.map(n=>DATA.find(a=>a.name===n)).filter(Boolean);
-  if(!fs.length) return;
+  if(!fs.length){ document.getElementById('featWrap').style.display='none'; return; }
   document.getElementById('featWrap').style.display='block';
   document.getElementById('featList').innerHTML=fs.map(a=>{
     const yomi=a.yomi?`<span class="fy">${a.yomi}</span>`:'';
@@ -274,7 +278,7 @@ document.getElementById('nickOnly').onclick=function(){this.classList.toggle('on
 fetch('announcers.json?v='+Date.now())
   .then(r=>r.json())
   .then(d=>{DATA=d;buildRegionChips();document.querySelector('[data-sort="venue"]').classList.add('on');renderFeatured();render()})
-  .catch(()=>{document.getElementById('list').innerHTML='<div class="empty">データを読み込めませんでした</div>'});
+  .catch(()=>{document.getElementById('featWrap').style.display='none';document.getElementById('list').innerHTML='<div class="empty">データを読み込めませんでした</div>'});
 </script>
 <footer style="margin:24px auto 8px;max-width:900px;text-align:center;font-size:10px;color:#8a94a3;letter-spacing:.3px;line-height:1.7;">© 2026 データ攻め ── 制作・運営 <a href="https://www.youtube.com/@abe-ken" target="_blank" rel="noopener" style="color:#9aa4b3;text-decoration:underline;">あべけん</a></footer>
 <script src="../assets/guard.js" defer></script>
