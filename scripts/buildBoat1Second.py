@@ -45,13 +45,20 @@ def build_one(path):
     first1 = 0           # うち1着＝1号艇
     second = {b: 0 for b in range(2, 7)}   # 1着1号艇のときの2着号艇分布
     days = set()
+    seen = set()
     with open(path, "r", encoding="utf-8-sig", newline="") as f:
         for row in csv.DictReader(f):
             m = COMBO_RE.match((row.get("combo") or "").strip())
             if not m:
                 continue
-            total += 1
             hd = (row.get("hd") or "").strip()
+            # 払戻CSVに同じ (開催日, R) の行が重複して入っていることがある（2026-09-11 実測: 蒲郡・丸亀440行、大村404行、常滑1行）。
+            # 集計時に (hd, rno) の2回目以降を除く（CSV そのものは触らない）。
+            key = (hd, (row.get("rno") or "").strip())
+            if key in seen:
+                continue
+            seen.add(key)
+            total += 1
             if len(hd) == 8:
                 days.add(hd)
             if m.group(1) == "1":

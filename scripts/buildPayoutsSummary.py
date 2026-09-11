@@ -21,7 +21,7 @@ import datetime
 import urllib.request
 import urllib.error
 
-MAN = 10000
+MAN = 10000  # 万舟の閾値（1万円以上）
 RAW = "https://raw.githubusercontent.com/BoatraceOpenAPI/results/gh-pages/docs/v2/{y}/{ymd}.json"
 OUT = os.path.join("docs", "payouts", "summary.json")
 UA = "Mozilla/5.0 boatrace-data-collector"
@@ -81,7 +81,7 @@ def main():
                 continue
             s = stat[j]
             s[0] += 1
-            if p > MAN:
+            if p >= MAN:
                 s[1] += 1
             if p > s[2]:
                 s[2] = p

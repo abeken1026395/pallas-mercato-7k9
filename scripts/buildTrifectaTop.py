@@ -44,12 +44,19 @@ def build_one(path):
     counts = {}
     days = set()
     total = 0
+    seen = set()
     with open(path, "r", encoding="utf-8-sig", newline="") as f:
         for row in csv.DictReader(f):
             combo = (row.get("combo") or "").strip()
             hd = (row.get("hd") or "").strip()
             if not COMBO_RE.match(combo):
                 continue
+            # 払戻CSVに同じ (開催日, R) の行が重複して入っていることがある（2026-09-11 実測: 蒲郡・丸亀440行、大村404行、常滑1行）。
+            # 集計時に (hd, rno) の2回目以降を除く（CSV そのものは触らない）。
+            key = (hd, (row.get("rno") or "").strip())
+            if key in seen:
+                continue
+            seen.add(key)
             counts[combo] = counts.get(combo, 0) + 1
             total += 1
             if len(hd) == 8:

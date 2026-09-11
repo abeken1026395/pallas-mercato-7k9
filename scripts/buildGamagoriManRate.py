@@ -16,13 +16,14 @@ import json
 
 SRC = os.path.join("docs", "payouts", "gamagoriPayouts.csv")
 OUT = os.path.join("docs", "payouts", "gamagoriManRate.json")
-MAN = 10000  # 万舟の閾値（1万円“超”。徳山・桐生と統一）
+MAN = 10000  # 万舟の閾値（1万円以上）
 
 
 def main():
     stats = {}
     total_races = 0
     all_rows = []
+    seen = set()
     win_lane = {}
     man_total = 0
 
@@ -36,11 +37,16 @@ def main():
             rno = int(row[1])
             combo = row[2]
             payout = int(row[3])
+            # 払戻CSVに同じ (開催日, R) の行が重複して入っていることがある（2026-09-11 実測: 蒲郡・丸亀440行、大村404行、常滑1行）。
+            # 集計時に (hd, rno) の2回目以降を除く（CSV そのものは触らない）。
+            if (hd, rno) in seen:
+                continue
+            seen.add((hd, rno))
             all_rows.append((hd, rno, combo, payout))
 
             s = stats.setdefault(rno, [0, 0, 0, 0])  # total, man, sum, max
             s[0] += 1
-            if payout > MAN:
+            if payout >= MAN:
                 s[1] += 1
                 man_total += 1
                 lane = combo.split("-")[0]
