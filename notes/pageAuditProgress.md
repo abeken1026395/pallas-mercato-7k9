@@ -20,3 +20,4 @@
 
 ## pageAuditFixPlan20260911b（保留分の追加修正）の進捗
 - U1 場の文化・24場：完了（2026-09-11 19:10 JST）。P5・J7・N9 を正本 docs/data/yosouya.json・docs/data/fanfareBgm.json で修正（AI提供・memo保留・present=unknown を含む文を削除、住之江の人数は「人数は未確認」、hook の「かつて21名」も削除、「全国で唯一」「開場から70年級…だが」「日本一堅い」を削除・言い換え）。24場カードの締切BGM分類を /fan/ と同じく status=none を「BGMなし」に（docs/stadium/index.html）。_policy 等の非表示キーと yosouyaMemo.md は読者に出ないため未変更。docs/stadium/gourmet.json の「全国で唯一の河川コース」は予想屋の文ではなく台帳外のため未変更
+- U2 見立て文の残り（あられ）：完了（2026-09-11 19:13 JST）。P3・J8 の残りを正本 scripts/build_arare.py で修正。「(インの格が軽い)」「(カドの一撃)」を括弧ごと削除。同じファイルで読者に見える文字列の半角括弧はこの2か所だけで、ほかに全角化の対象なし。マージ後に「荒れ指数 更新」WF を dispatch し、生成物 docs/data/arare.json で M2 を確認
