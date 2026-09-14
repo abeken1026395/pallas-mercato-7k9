@@ -1,0 +1,50 @@
+name: updateSitemap
+
+# docs/sitemap.xml を作り直す（siteReachPlan20260911 V3）。
+# 検索に開いている35本だけを列挙し、lastmod は各ファイルの最終コミット日時。
+# 変化が無ければコミットしない。docs/ を触るので、コミットがあれば Pages が起動する。
+
+on:
+  schedule:
+    - cron: "0 19 * * *"   # UTC 19:00 = JST 04:00（updateNigeSecond の 03:30 と重ならない）
+  workflow_dispatch:
+
+concurrency:
+  group: updateSitemap
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0   # lastmod に git log を使うため全履歴が要る
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: build
+        run: python3 scripts/buildSitemap.py
+      - name: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/sitemap.xml
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          git commit -m "auto: sitemap.xml update"
+          PUSHED=0
+          for i in 1 2 3 4 5; do
+            if git pull --rebase origin main && git push origin main; then PUSHED=1; break; fi
+            git rebase --abort 2>/dev/null || true
+            echo "push retry $i ..."
+            sleep 5
+          done
+          if [ "$PUSHED" != "1" ]; then
+            echo "::error::push に失敗（5回のリトライを使い切った）。sitemap.xml は公開されていない"
+            exit 1
+          fi
+          echo "pushed"
