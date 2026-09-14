@@ -22,8 +22,8 @@
     "script": "scripts/buildKensho05Flow.py",
     "python": "3.14.6",
     "numpy": "2.4.6",
-    "runStartedJST": "2026-09-14 19:47 JST",
-    "runFinishedJST": "2026-09-14 19:56 JST",
+    "runStartedJST": "2026-09-14 22:38 JST",
+    "runFinishedJST": "2026-09-14 22:50 JST",
     "seed": 20260914,
     "reps": 1000,
     "input": "payrank/json（リポジトリ外・読み取りのみ）"
@@ -1134,5 +1134,1804 @@
       "windBlankBeforePeriod": 42,
       "windBlankMissingInPeriod": 0
     }
+  },
+  "stage11": {
+    "definition": "段階9と同じ突合（results と開催日・場・Rで一致したレース）だけを使う。系列(場×日)・隣接ペア(R差1)・連続の数え方（重複を許さない最大連長、Rが連続する区間のみ）は段階6b・段階10と同一。帰無は突合済みレースの中で系列内並べ替え1000回（default_rng(20260914) から開始、場・系列をまたがない）",
+    "vars": {
+      "K1": "1号艇が1着か（1/0）。1着〜3着が全て整数のレースのみ",
+      "①着外": "buildInSurvival.py と同一（1着〜3着が全て整数のとき、3つの中に1が無い）",
+      "K2": "results の決まり手をそのまま（逃げ/差し/まくり/まくり差し/抜き/恵まれ）。統合しない。欠損は欠測（連続を切る・一致率の分母から除く）",
+      "K3": "1着艇の本番進入コース（results の コース。展示進入は使わない）"
+    },
+    "races": 60977,
+    "adjacentPairs": 54354,
+    "kimariteCounts": {
+      "逃げ": 32366,
+      "差し": 7291,
+      "まくり": 9817,
+      "まくり差し": 7515,
+      "抜き": 3946,
+      "恵まれ": 42
+    },
+    "kimariteMissing": 0,
+    "nRule": "n が300未満のセルは比・net・pTwoSided を出さず note に n不足（n は表示）。連続の n はその事象が起きたレース数、一致率・相関の n は両側とも欠測でない隣接ペア数",
+    "streaks": {
+      "①着外": {
+        "n": 11450,
+        "k": {
+          "2": {
+            "observed": 1369,
+            "nullMean": 1351.604,
+            "nullSd": 28.990337,
+            "ratio": 1.012871,
+            "pTwoSided": 0.539461,
+            "note": ""
+          },
+          "3": {
+            "observed": 312,
+            "nullMean": 242.856,
+            "nullSd": 14.077835,
+            "ratio": 1.284712,
+            "pTwoSided": 0.001998,
+            "note": ""
+          },
+          "4": {
+            "observed": 94,
+            "nullMean": 46.01,
+            "nullSd": 6.289472,
+            "ratio": 2.043034,
+            "pTwoSided": 0.001998,
+            "note": ""
+          },
+          "5": {
+            "observed": 19,
+            "nullMean": 8.855,
+            "nullSd": 2.792091,
+            "ratio": 2.14568,
+            "pTwoSided": 0.003996,
+            "note": ""
+          },
+          "6": {
+            "observed": 5,
+            "nullMean": 1.767,
+            "nullSd": 1.316223,
+            "ratio": 2.829655,
+            "pTwoSided": 0.071928,
+            "note": ""
+          },
+          "7+": {
+            "observed": 0,
+            "nullMean": 0.468,
+            "nullSd": 0.638266,
+            "ratio": 0.0,
+            "pTwoSided": 1.0,
+            "note": ""
+          }
+        }
+      },
+      "決まり手:逃げ": {
+        "n": 32366,
+        "k": {
+          "2": {
+            "observed": 4153,
+            "nullMean": 4115.82,
+            "nullSd": 53.206922,
+            "ratio": 1.009033,
+            "pTwoSided": 0.485514,
+            "note": ""
+          },
+          "3": {
+            "observed": 1967,
+            "nullMean": 1959.077,
+            "nullSd": 39.798706,
+            "ratio": 1.004044,
+            "pTwoSided": 0.859141,
+            "note": ""
+          },
+          "4": {
+            "observed": 968,
+            "nullMean": 947.26,
+            "nullSd": 27.945937,
+            "ratio": 1.021895,
+            "pTwoSided": 0.461538,
+            "note": ""
+          },
+          "5": {
+            "observed": 455,
+            "nullMean": 468.839,
+            "nullSd": 20.342982,
+            "ratio": 0.970482,
+            "pTwoSided": 0.513487,
+            "note": ""
+          },
+          "6": {
+            "observed": 238,
+            "nullMean": 236.049,
+            "nullSd": 13.842768,
+            "ratio": 1.008265,
+            "pTwoSided": 0.957043,
+            "note": ""
+          },
+          "7+": {
+            "observed": 222,
+            "nullMean": 245.442,
+            "nullSd": 12.307401,
+            "ratio": 0.904491,
+            "pTwoSided": 0.063936,
+            "note": ""
+          }
+        }
+      },
+      "決まり手:差し": {
+        "n": 7291,
+        "k": {
+          "2": {
+            "observed": 681,
+            "nullMean": 639.764,
+            "nullSd": 20.330264,
+            "ratio": 1.064455,
+            "pTwoSided": 0.03996,
+            "note": ""
+          },
+          "3": {
+            "observed": 87,
+            "nullMean": 75.601,
+            "nullSd": 7.881238,
+            "ratio": 1.150778,
+            "pTwoSided": 0.157842,
+            "note": ""
+          },
+          "4": {
+            "observed": 8,
+            "nullMean": 9.356,
+            "nullSd": 2.912,
+            "ratio": 0.855066,
+            "pTwoSided": 0.821179,
+            "note": ""
+          },
+          "5": {
+            "observed": 2,
+            "nullMean": 1.262,
+            "nullSd": 1.089285,
+            "ratio": 1.584786,
+            "pTwoSided": 0.709291,
+            "note": ""
+          },
+          "6": {
+            "observed": 0,
+            "nullMean": 0.159,
+            "nullSd": 0.397337,
+            "ratio": 0.0,
+            "pTwoSided": 1.0,
+            "note": ""
+          },
+          "7+": {
+            "observed": 0,
+            "nullMean": 0.019,
+            "nullSd": 0.136593,
+            "ratio": 0.0,
+            "pTwoSided": 1.0,
+            "note": ""
+          }
+        }
+      },
+      "決まり手:まくり": {
+        "n": 9817,
+        "k": {
+          "2": {
+            "observed": 1109,
+            "nullMean": 1065.028,
+            "nullSd": 25.768338,
+            "ratio": 1.041287,
+            "pTwoSided": 0.07992,
+            "note": ""
+          },
+          "3": {
+            "observed": 193,
+            "nullMean": 174.355,
+            "nullSd": 12.022958,
+            "ratio": 1.106937,
+            "pTwoSided": 0.131868,
+            "note": ""
+          },
+          "4": {
+            "observed": 48,
+            "nullMean": 30.928,
+            "nullSd": 5.246364,
+            "ratio": 1.551992,
+            "pTwoSided": 0.005994,
+            "note": ""
+          },
+          "5": {
+            "observed": 4,
+            "nullMean": 5.704,
+            "nullSd": 2.297316,
+            "ratio": 0.701262,
+            "pTwoSided": 0.635365,
+            "note": ""
+          },
+          "6": {
+            "observed": 2,
+            "nullMean": 1.061,
+            "nullSd": 0.993109,
+            "ratio": 1.885014,
+            "pTwoSided": 0.599401,
+            "note": ""
+          },
+          "7+": {
+            "observed": 0,
+            "nullMean": 0.266,
+            "nullSd": 0.501493,
+            "ratio": 0.0,
+            "pTwoSided": 1.0,
+            "note": ""
+          }
+        }
+      },
+      "決まり手:まくり差し": {
+        "n": 7515,
+        "k": {
+          "2": {
+            "observed": 715,
+            "nullMean": 674.893,
+            "nullSd": 21.744387,
+            "ratio": 1.059427,
+            "pTwoSided": 0.071928,
+            "note": ""
+          },
+          "3": {
+            "observed": 92,
+            "nullMean": 78.125,
+            "nullSd": 7.734675,
+            "ratio": 1.1776,
+            "pTwoSided": 0.077922,
+            "note": ""
+          },
+          "4": {
+            "observed": 15,
+            "nullMean": 9.04,
+            "nullSd": 2.882136,
+            "ratio": 1.659292,
+            "pTwoSided": 0.075924,
+            "note": ""
+          },
+          "5": {
+            "observed": 2,
+            "nullMean": 0.997,
+            "nullSd": 0.979771,
+            "ratio": 2.006018,
+            "pTwoSided": 0.509491,
+            "note": ""
+          },
+          "6": {
+            "observed": 0,
+            "nullMean": 0.09,
+            "nullSd": 0.293234,
+            "ratio": 0.0,
+            "pTwoSided": 1.0,
+            "note": ""
+          },
+          "7+": {
+            "observed": 0,
+            "nullMean": 0.0,
+            "nullSd": 0.0,
+            "ratio": null,
+            "pTwoSided": 1.0,
+            "note": ""
+          }
+        }
+      },
+      "決まり手:抜き": {
+        "n": 3946,
+        "k": {
+          "2": {
+            "observed": 209,
+            "nullMean": 202.852,
+            "nullSd": 11.993496,
+            "ratio": 1.030308,
+            "pTwoSided": 0.641359,
+            "note": ""
+          },
+          "3": {
+            "observed": 13,
+            "nullMean": 11.918,
+            "nullSd": 3.330821,
+            "ratio": 1.090787,
+            "pTwoSided": 0.785215,
+            "note": ""
+          },
+          "4": {
+            "observed": 2,
+            "nullMean": 0.77,
+            "nullSd": 0.844875,
+            "ratio": 2.597403,
+            "pTwoSided": 0.36963,
+            "note": ""
+          },
+          "5": {
+            "observed": 0,
+            "nullMean": 0.072,
+            "nullSd": 0.262459,
+            "ratio": 0.0,
+            "pTwoSided": 1.0,
+            "note": ""
+          },
+          "6": {
+            "observed": 0,
+            "nullMean": 0.009,
+            "nullSd": 0.094488,
+            "ratio": 0.0,
+            "pTwoSided": 1.0,
+            "note": ""
+          },
+          "7+": {
+            "observed": 0,
+            "nullMean": 0.0,
+            "nullSd": 0.0,
+            "ratio": null,
+            "pTwoSided": 1.0,
+            "note": ""
+          }
+        }
+      },
+      "決まり手:恵まれ": {
+        "n": 42,
+        "k": {
+          "2": {
+            "observed": 0,
+            "nullMean": 0.0,
+            "nullSd": 0.0,
+            "ratio": null,
+            "pTwoSided": null,
+            "note": "n不足"
+          },
+          "3": {
+            "observed": 0,
+            "nullMean": 0.0,
+            "nullSd": 0.0,
+            "ratio": null,
+            "pTwoSided": null,
+            "note": "n不足"
+          },
+          "4": {
+            "observed": 0,
+            "nullMean": 0.0,
+            "nullSd": 0.0,
+            "ratio": null,
+            "pTwoSided": null,
+            "note": "n不足"
+          },
+          "5": {
+            "observed": 0,
+            "nullMean": 0.0,
+            "nullSd": 0.0,
+            "ratio": null,
+            "pTwoSided": null,
+            "note": "n不足"
+          },
+          "6": {
+            "observed": 0,
+            "nullMean": 0.0,
+            "nullSd": 0.0,
+            "ratio": null,
+            "pTwoSided": null,
+            "note": "n不足"
+          },
+          "7+": {
+            "observed": 0,
+            "nullMean": 0.0,
+            "nullSd": 0.0,
+            "ratio": null,
+            "pTwoSided": null,
+            "note": "n不足"
+          }
+        }
+      },
+      "決まり手:同一カテゴリ計": {
+        "n": 60977,
+        "k": {
+          "2": {
+            "observed": 6867,
+            "nullMean": 6698.357,
+            "nullSd": 67.181194,
+            "ratio": 1.025177,
+            "pTwoSided": 0.011988,
+            "note": ""
+          },
+          "3": {
+            "observed": 2352,
+            "nullMean": 2299.076,
+            "nullSd": 44.069313,
+            "ratio": 1.02302,
+            "pTwoSided": 0.243756,
+            "note": ""
+          },
+          "4": {
+            "observed": 1041,
+            "nullMean": 997.354,
+            "nullSd": 28.757045,
+            "ratio": 1.043762,
+            "pTwoSided": 0.133866,
+            "note": ""
+          },
+          "5": {
+            "observed": 463,
+            "nullMean": 476.874,
+            "nullSd": 20.608222,
+            "ratio": 0.970906,
+            "pTwoSided": 0.527473,
+            "note": ""
+          },
+          "6": {
+            "observed": 240,
+            "nullMean": 237.368,
+            "nullSd": 13.915539,
+            "ratio": 1.011088,
+            "pTwoSided": 0.901099,
+            "note": ""
+          },
+          "7+": {
+            "observed": 222,
+            "nullMean": 245.727,
+            "nullSd": 12.310891,
+            "ratio": 0.903442,
+            "pTwoSided": 0.05994,
+            "note": ""
+          }
+        }
+      }
+    },
+    "streakNote": "H相当＝①着外の連続、L相当＝決まり手:逃げの連続。決まり手:同一カテゴリ計はカテゴリ別の連続件数の合計（同じ決まり手が続いた最大連の件数）",
+    "matchRate": {
+      "n": 54354,
+      "observed": 0.355668,
+      "nullMean": 0.351444,
+      "nullSd": 0.001487,
+      "ratio": 1.012019,
+      "pTwoSided": 0.005994,
+      "note": ""
+    },
+    "corr": {
+      "K1": {
+        "n": 54354,
+        "observed": 0.02826,
+        "nullA_center": 0.020146,
+        "sd": 0.003676,
+        "p2_5": 0.013075,
+        "p97_5": 0.027152,
+        "net": 0.008113,
+        "pTwoSided": 0.033966,
+        "note": ""
+      },
+      "K3": {
+        "n": 54354,
+        "observed": 0.023621,
+        "nullA_center": 0.015446,
+        "sd": 0.003927,
+        "p2_5": 0.007669,
+        "p97_5": 0.023374,
+        "net": 0.008176,
+        "pTwoSided": 0.045954,
+        "note": ""
+      }
+    },
+    "corrDefinition": "K1・K3 を突合済みレースの(場,R)セル平均で中心化した残差の隣接Pearson相関。帰無は中心化済みの値を系列内で並べ替え",
+    "file": "decisionStreaks.csv"
+  },
+  "stage12": {
+    "definition": "10年534,330行・系列45,995・隣接ペア475,478。場ごとに段階6bと同一の T3q（eq の隣接Pearson）と帰無A_eq（段階6bと同じ置換1000回）。net＝T3q−帰無A_eq平均",
+    "requiredPairs": 55500,
+    "venues": [
+      {
+        "jcd": "01",
+        "venue": "桐生",
+        "nSeries": 1940,
+        "nPairs": 20088,
+        "pairsPerRequired": 0.361946,
+        "underpowered": true,
+        "T3q": 0.028214,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.021106,
+          "median": 0.021331,
+          "sd": 0.006491,
+          "p2_5": 0.00758,
+          "p50": 0.021331,
+          "p97_5": 0.03381,
+          "observed": 0.028214,
+          "pTwoSided": 0.251748
+        },
+        "net": 0.007107,
+        "sd": 0.006491,
+        "pTwoSided": 0.251748,
+        "nQ1": 3961,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 495,
+            "nullMean": 448.825,
+            "ratio": 1.10288,
+            "pTwoSided": 0.00999,
+            "note": ""
+          },
+          "3": {
+            "observed": 110,
+            "nullMean": 77.838,
+            "ratio": 1.413192,
+            "pTwoSided": 0.001998,
+            "note": ""
+          },
+          "4": {
+            "observed": 24,
+            "nullMean": 14.841,
+            "ratio": 1.617142,
+            "pTwoSided": 0.017982,
+            "note": ""
+          },
+          "5": {
+            "observed": 13,
+            "nullMean": 2.903,
+            "ratio": 4.478126,
+            "pTwoSided": 0.001998,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "02",
+        "venue": "戸田",
+        "nSeries": 1931,
+        "nPairs": 19987,
+        "pairsPerRequired": 0.360126,
+        "underpowered": true,
+        "T3q": 0.015834,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.008607,
+          "median": 0.008646,
+          "sd": 0.006615,
+          "p2_5": -0.005234,
+          "p50": 0.008646,
+          "p97_5": 0.021273,
+          "observed": 0.015834,
+          "pTwoSided": 0.285714
+        },
+        "net": 0.007227,
+        "sd": 0.006615,
+        "pTwoSided": 0.285714,
+        "nQ1": 2202,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 169,
+            "nullMean": 168.962,
+            "ratio": 1.000225,
+            "pTwoSided": 1.0,
+            "note": ""
+          },
+          "3": {
+            "observed": 26,
+            "nullMean": 17.656,
+            "ratio": 1.472587,
+            "pTwoSided": 0.051948,
+            "note": ""
+          },
+          "4": {
+            "observed": 2,
+            "nullMean": 2.452,
+            "ratio": 0.815661,
+            "pTwoSided": 1.0,
+            "note": ""
+          },
+          "5": {
+            "observed": 0,
+            "nullMean": 0.434,
+            "ratio": 0.0,
+            "pTwoSided": 1.0,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "03",
+        "venue": "江戸川",
+        "nSeries": 1805,
+        "nPairs": 17715,
+        "pairsPerRequired": 0.319189,
+        "underpowered": true,
+        "T3q": 0.03436,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.030201,
+          "median": 0.030119,
+          "sd": 0.006548,
+          "p2_5": 0.017271,
+          "p50": 0.030119,
+          "p97_5": 0.043731,
+          "observed": 0.03436,
+          "pTwoSided": 0.525475
+        },
+        "net": 0.004159,
+        "sd": 0.006548,
+        "pTwoSided": 0.525475,
+        "nQ1": 2054,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 199,
+            "nullMean": 168.587,
+            "ratio": 1.180399,
+            "pTwoSided": 0.015984,
+            "note": ""
+          },
+          "3": {
+            "observed": 19,
+            "nullMean": 20.219,
+            "ratio": 0.93971,
+            "pTwoSided": 0.887113,
+            "note": ""
+          },
+          "4": {
+            "observed": 5,
+            "nullMean": 2.957,
+            "ratio": 1.690903,
+            "pTwoSided": 0.375624,
+            "note": ""
+          },
+          "5": {
+            "observed": 0,
+            "nullMean": 0.394,
+            "ratio": 0.0,
+            "pTwoSided": 1.0,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "04",
+        "venue": "平和島",
+        "nSeries": 1824,
+        "nPairs": 18762,
+        "pairsPerRequired": 0.338054,
+        "underpowered": true,
+        "T3q": 0.020445,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.020224,
+          "median": 0.020067,
+          "sd": 0.006604,
+          "p2_5": 0.007778,
+          "p50": 0.020067,
+          "p97_5": 0.033508,
+          "observed": 0.020445,
+          "pTwoSided": 0.965035
+        },
+        "net": 0.000221,
+        "sd": 0.006604,
+        "pTwoSided": 0.965035,
+        "nQ1": 2250,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 171,
+            "nullMean": 185.524,
+            "ratio": 0.921714,
+            "pTwoSided": 0.201798,
+            "note": ""
+          },
+          "3": {
+            "observed": 29,
+            "nullMean": 22.374,
+            "ratio": 1.296147,
+            "pTwoSided": 0.157842,
+            "note": ""
+          },
+          "4": {
+            "observed": 3,
+            "nullMean": 3.197,
+            "ratio": 0.93838,
+            "pTwoSided": 1.0,
+            "note": ""
+          },
+          "5": {
+            "observed": 2,
+            "nullMean": 0.622,
+            "ratio": 3.215434,
+            "pTwoSided": 0.247752,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "05",
+        "venue": "多摩川",
+        "nSeries": 1882,
+        "nPairs": 19593,
+        "pairsPerRequired": 0.353027,
+        "underpowered": true,
+        "T3q": 0.016762,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.013487,
+          "median": 0.013654,
+          "sd": 0.006256,
+          "p2_5": 0.001395,
+          "p50": 0.013654,
+          "p97_5": 0.024986,
+          "observed": 0.016762,
+          "pTwoSided": 0.647353
+        },
+        "net": 0.003275,
+        "sd": 0.006256,
+        "pTwoSided": 0.647353,
+        "nQ1": 3747,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 424,
+            "nullMean": 416.546,
+            "ratio": 1.017895,
+            "pTwoSided": 0.675325,
+            "note": ""
+          },
+          "3": {
+            "observed": 73,
+            "nullMean": 70.968,
+            "ratio": 1.028633,
+            "pTwoSided": 0.847153,
+            "note": ""
+          },
+          "4": {
+            "observed": 16,
+            "nullMean": 12.359,
+            "ratio": 1.294603,
+            "pTwoSided": 0.311688,
+            "note": ""
+          },
+          "5": {
+            "observed": 4,
+            "nullMean": 2.394,
+            "ratio": 1.670844,
+            "pTwoSided": 0.43956,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "06",
+        "venue": "浜名湖",
+        "nSeries": 2011,
+        "nPairs": 20649,
+        "pairsPerRequired": 0.372054,
+        "underpowered": true,
+        "T3q": 0.028063,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.019948,
+          "median": 0.019988,
+          "sd": 0.006233,
+          "p2_5": 0.008129,
+          "p50": 0.019988,
+          "p97_5": 0.031962,
+          "observed": 0.028063,
+          "pTwoSided": 0.185814
+        },
+        "net": 0.008115,
+        "sd": 0.006233,
+        "pTwoSided": 0.185814,
+        "nQ1": 3959,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 445,
+            "nullMean": 445.259,
+            "ratio": 0.999418,
+            "pTwoSided": 1.0,
+            "note": ""
+          },
+          "3": {
+            "observed": 75,
+            "nullMean": 72.924,
+            "ratio": 1.028468,
+            "pTwoSided": 0.795205,
+            "note": ""
+          },
+          "4": {
+            "observed": 13,
+            "nullMean": 12.051,
+            "ratio": 1.078749,
+            "pTwoSided": 0.853147,
+            "note": ""
+          },
+          "5": {
+            "observed": 2,
+            "nullMean": 2.021,
+            "ratio": 0.989609,
+            "pTwoSided": 1.0,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "07",
+        "venue": "蒲郡",
+        "nSeries": 1947,
+        "nPairs": 20185,
+        "pairsPerRequired": 0.363694,
+        "underpowered": true,
+        "T3q": 0.019023,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.013275,
+          "median": 0.013486,
+          "sd": 0.006497,
+          "p2_5": 0.000338,
+          "p50": 0.013486,
+          "p97_5": 0.025616,
+          "observed": 0.019023,
+          "pTwoSided": 0.367632
+        },
+        "net": 0.005748,
+        "sd": 0.006497,
+        "pTwoSided": 0.367632,
+        "nQ1": 4608,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 596,
+            "nullMean": 563.512,
+            "ratio": 1.057653,
+            "pTwoSided": 0.083916,
+            "note": ""
+          },
+          "3": {
+            "observed": 138,
+            "nullMean": 109.108,
+            "ratio": 1.264802,
+            "pTwoSided": 0.003996,
+            "note": ""
+          },
+          "4": {
+            "observed": 33,
+            "nullMean": 21.496,
+            "ratio": 1.535169,
+            "pTwoSided": 0.015984,
+            "note": ""
+          },
+          "5": {
+            "observed": 8,
+            "nullMean": 4.584,
+            "ratio": 1.745201,
+            "pTwoSided": 0.163836,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "08",
+        "venue": "常滑",
+        "nSeries": 2018,
+        "nPairs": 20917,
+        "pairsPerRequired": 0.376883,
+        "underpowered": true,
+        "T3q": 0.034336,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.025742,
+          "median": 0.025715,
+          "sd": 0.005934,
+          "p2_5": 0.01461,
+          "p50": 0.025715,
+          "p97_5": 0.037561,
+          "observed": 0.034336,
+          "pTwoSided": 0.133866
+        },
+        "net": 0.008594,
+        "sd": 0.005934,
+        "pTwoSided": 0.133866,
+        "nQ1": 4954,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 652,
+            "nullMean": 622.41,
+            "ratio": 1.047541,
+            "pTwoSided": 0.157842,
+            "note": ""
+          },
+          "3": {
+            "observed": 127,
+            "nullMean": 129.474,
+            "ratio": 0.980892,
+            "pTwoSided": 0.851149,
+            "note": ""
+          },
+          "4": {
+            "observed": 37,
+            "nullMean": 29.316,
+            "ratio": 1.262109,
+            "pTwoSided": 0.17982,
+            "note": ""
+          },
+          "5": {
+            "observed": 9,
+            "nullMean": 7.063,
+            "ratio": 1.274246,
+            "pTwoSided": 0.551449,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "09",
+        "venue": "津",
+        "nSeries": 1891,
+        "nPairs": 19400,
+        "pairsPerRequired": 0.34955,
+        "underpowered": true,
+        "T3q": 0.03253,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.023446,
+          "median": 0.023124,
+          "sd": 0.006448,
+          "p2_5": 0.012154,
+          "p50": 0.023124,
+          "p97_5": 0.03649,
+          "observed": 0.03253,
+          "pTwoSided": 0.173826
+        },
+        "net": 0.009084,
+        "sd": 0.006448,
+        "pTwoSided": 0.173826,
+        "nQ1": 5106,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 657,
+            "nullMean": 662.302,
+            "ratio": 0.991995,
+            "pTwoSided": 0.803197,
+            "note": ""
+          },
+          "3": {
+            "observed": 143,
+            "nullMean": 149.822,
+            "ratio": 0.954466,
+            "pTwoSided": 0.563437,
+            "note": ""
+          },
+          "4": {
+            "observed": 29,
+            "nullMean": 36.515,
+            "ratio": 0.794194,
+            "pTwoSided": 0.223776,
+            "note": ""
+          },
+          "5": {
+            "observed": 9,
+            "nullMean": 9.443,
+            "ratio": 0.953087,
+            "pTwoSided": 1.0,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "10",
+        "venue": "三国",
+        "nSeries": 1899,
+        "nPairs": 19532,
+        "pairsPerRequired": 0.351928,
+        "underpowered": true,
+        "T3q": 0.031164,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.019052,
+          "median": 0.01908,
+          "sd": 0.006256,
+          "p2_5": 0.006845,
+          "p50": 0.01908,
+          "p97_5": 0.031137,
+          "observed": 0.031164,
+          "pTwoSided": 0.051948
+        },
+        "net": 0.012112,
+        "sd": 0.006256,
+        "pTwoSided": 0.051948,
+        "nQ1": 4796,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 651,
+            "nullMean": 608.414,
+            "ratio": 1.069995,
+            "pTwoSided": 0.027972,
+            "note": ""
+          },
+          "3": {
+            "observed": 162,
+            "nullMean": 126.476,
+            "ratio": 1.280875,
+            "pTwoSided": 0.005994,
+            "note": ""
+          },
+          "4": {
+            "observed": 30,
+            "nullMean": 27.168,
+            "ratio": 1.10424,
+            "pTwoSided": 0.607393,
+            "note": ""
+          },
+          "5": {
+            "observed": 5,
+            "nullMean": 5.664,
+            "ratio": 0.882768,
+            "pTwoSided": 0.987013,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "11",
+        "venue": "びわこ",
+        "nSeries": 1852,
+        "nPairs": 19324,
+        "pairsPerRequired": 0.34818,
+        "underpowered": true,
+        "T3q": 0.037355,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.02549,
+          "median": 0.025373,
+          "sd": 0.006414,
+          "p2_5": 0.012733,
+          "p50": 0.025373,
+          "p97_5": 0.038235,
+          "observed": 0.037355,
+          "pTwoSided": 0.06993
+        },
+        "net": 0.011865,
+        "sd": 0.006414,
+        "pTwoSided": 0.06993,
+        "nQ1": 4065,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 488,
+            "nullMean": 482.508,
+            "ratio": 1.011382,
+            "pTwoSided": 0.763237,
+            "note": ""
+          },
+          "3": {
+            "observed": 87,
+            "nullMean": 90.703,
+            "ratio": 0.959174,
+            "pTwoSided": 0.719281,
+            "note": ""
+          },
+          "4": {
+            "observed": 20,
+            "nullMean": 17.814,
+            "ratio": 1.122712,
+            "pTwoSided": 0.661339,
+            "note": ""
+          },
+          "5": {
+            "observed": 2,
+            "nullMean": 3.9,
+            "ratio": 0.512821,
+            "pTwoSided": 0.485514,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "12",
+        "venue": "住之江",
+        "nSeries": 1909,
+        "nPairs": 19866,
+        "pairsPerRequired": 0.357946,
+        "underpowered": true,
+        "T3q": 0.031776,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.022035,
+          "median": 0.022017,
+          "sd": 0.00639,
+          "p2_5": 0.009206,
+          "p50": 0.022017,
+          "p97_5": 0.034786,
+          "observed": 0.031776,
+          "pTwoSided": 0.137862
+        },
+        "net": 0.009741,
+        "sd": 0.00639,
+        "pTwoSided": 0.137862,
+        "nQ1": 4952,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 631,
+            "nullMean": 638.479,
+            "ratio": 0.988286,
+            "pTwoSided": 0.743257,
+            "note": ""
+          },
+          "3": {
+            "observed": 152,
+            "nullMean": 134.96,
+            "ratio": 1.12626,
+            "pTwoSided": 0.127872,
+            "note": ""
+          },
+          "4": {
+            "observed": 47,
+            "nullMean": 30.102,
+            "ratio": 1.561358,
+            "pTwoSided": 0.005994,
+            "note": ""
+          },
+          "5": {
+            "observed": 10,
+            "nullMean": 7.437,
+            "ratio": 1.344628,
+            "pTwoSided": 0.455544,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "13",
+        "venue": "尼崎",
+        "nSeries": 1870,
+        "nPairs": 19515,
+        "pairsPerRequired": 0.351622,
+        "underpowered": true,
+        "T3q": 0.044304,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.02442,
+          "median": 0.024482,
+          "sd": 0.006558,
+          "p2_5": 0.011425,
+          "p50": 0.024482,
+          "p97_5": 0.037372,
+          "observed": 0.044304,
+          "pTwoSided": 0.005994
+        },
+        "net": 0.019884,
+        "sd": 0.006558,
+        "pTwoSided": 0.005994,
+        "nQ1": 5037,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 684,
+            "nullMean": 655.034,
+            "ratio": 1.044221,
+            "pTwoSided": 0.167832,
+            "note": ""
+          },
+          "3": {
+            "observed": 156,
+            "nullMean": 150.442,
+            "ratio": 1.036944,
+            "pTwoSided": 0.641359,
+            "note": ""
+          },
+          "4": {
+            "observed": 40,
+            "nullMean": 36.975,
+            "ratio": 1.081812,
+            "pTwoSided": 0.625375,
+            "note": ""
+          },
+          "5": {
+            "observed": 18,
+            "nullMean": 9.65,
+            "ratio": 1.865285,
+            "pTwoSided": 0.021978,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "14",
+        "venue": "鳴門",
+        "nSeries": 1839,
+        "nPairs": 19018,
+        "pairsPerRequired": 0.342667,
+        "underpowered": true,
+        "T3q": 0.018345,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.019185,
+          "median": 0.019218,
+          "sd": 0.006393,
+          "p2_5": 0.006659,
+          "p50": 0.019218,
+          "p97_5": 0.032118,
+          "observed": 0.018345,
+          "pTwoSided": 0.887113
+        },
+        "net": -0.000841,
+        "sd": 0.006393,
+        "pTwoSided": 0.887113,
+        "nQ1": 3447,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 346,
+            "nullMean": 374.517,
+            "ratio": 0.923857,
+            "pTwoSided": 0.067932,
+            "note": ""
+          },
+          "3": {
+            "observed": 60,
+            "nullMean": 59.234,
+            "ratio": 1.012932,
+            "pTwoSided": 0.943057,
+            "note": ""
+          },
+          "4": {
+            "observed": 9,
+            "nullMean": 8.903,
+            "ratio": 1.010895,
+            "pTwoSided": 1.0,
+            "note": ""
+          },
+          "5": {
+            "observed": 4,
+            "nullMean": 1.295,
+            "ratio": 3.088803,
+            "pTwoSided": 0.067932,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "15",
+        "venue": "丸亀",
+        "nSeries": 1957,
+        "nPairs": 20194,
+        "pairsPerRequired": 0.363856,
+        "underpowered": true,
+        "T3q": 0.042121,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.014475,
+          "median": 0.01419,
+          "sd": 0.00646,
+          "p2_5": 0.001887,
+          "p50": 0.01419,
+          "p97_5": 0.026937,
+          "observed": 0.042121,
+          "pTwoSided": 0.001998
+        },
+        "net": 0.027646,
+        "sd": 0.00646,
+        "pTwoSided": 0.001998,
+        "nQ1": 4552,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 568,
+            "nullMean": 559.824,
+            "ratio": 1.014605,
+            "pTwoSided": 0.697303,
+            "note": ""
+          },
+          "3": {
+            "observed": 149,
+            "nullMean": 107.816,
+            "ratio": 1.381984,
+            "pTwoSided": 0.001998,
+            "note": ""
+          },
+          "4": {
+            "observed": 38,
+            "nullMean": 21.817,
+            "ratio": 1.741761,
+            "pTwoSided": 0.001998,
+            "note": ""
+          },
+          "5": {
+            "observed": 12,
+            "nullMean": 4.479,
+            "ratio": 2.679169,
+            "pTwoSided": 0.005994,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "16",
+        "venue": "児島",
+        "nSeries": 1945,
+        "nPairs": 20146,
+        "pairsPerRequired": 0.362991,
+        "underpowered": true,
+        "T3q": 0.029548,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.012212,
+          "median": 0.012291,
+          "sd": 0.006411,
+          "p2_5": 0.000356,
+          "p50": 0.012291,
+          "p97_5": 0.02501,
+          "observed": 0.029548,
+          "pTwoSided": 0.011988
+        },
+        "net": 0.017335,
+        "sd": 0.006411,
+        "pTwoSided": 0.011988,
+        "nQ1": 4708,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 610,
+            "nullMean": 589.12,
+            "ratio": 1.035443,
+            "pTwoSided": 0.261738,
+            "note": ""
+          },
+          "3": {
+            "observed": 115,
+            "nullMean": 114.67,
+            "ratio": 1.002878,
+            "pTwoSided": 1.0,
+            "note": ""
+          },
+          "4": {
+            "observed": 22,
+            "nullMean": 22.401,
+            "ratio": 0.982099,
+            "pTwoSided": 1.0,
+            "note": ""
+          },
+          "5": {
+            "observed": 5,
+            "nullMean": 4.194,
+            "ratio": 1.192179,
+            "pTwoSided": 0.849151,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "17",
+        "venue": "宮島",
+        "nSeries": 1991,
+        "nPairs": 20622,
+        "pairsPerRequired": 0.371568,
+        "underpowered": true,
+        "T3q": 0.033134,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.020118,
+          "median": 0.019879,
+          "sd": 0.006357,
+          "p2_5": 0.008046,
+          "p50": 0.019879,
+          "p97_5": 0.032586,
+          "observed": 0.033134,
+          "pTwoSided": 0.045954
+        },
+        "net": 0.013016,
+        "sd": 0.006357,
+        "pTwoSided": 0.045954,
+        "nQ1": 4992,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 605,
+            "nullMean": 632.715,
+            "ratio": 0.956197,
+            "pTwoSided": 0.161838,
+            "note": ""
+          },
+          "3": {
+            "observed": 148,
+            "nullMean": 130.72,
+            "ratio": 1.132191,
+            "pTwoSided": 0.091908,
+            "note": ""
+          },
+          "4": {
+            "observed": 37,
+            "nullMean": 27.92,
+            "ratio": 1.325215,
+            "pTwoSided": 0.093906,
+            "note": ""
+          },
+          "5": {
+            "observed": 5,
+            "nullMean": 5.948,
+            "ratio": 0.840619,
+            "pTwoSided": 0.917083,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "18",
+        "venue": "徳山",
+        "nSeries": 1979,
+        "nPairs": 20641,
+        "pairsPerRequired": 0.37191,
+        "underpowered": true,
+        "T3q": 0.033824,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.025944,
+          "median": 0.025999,
+          "sd": 0.006174,
+          "p2_5": 0.013906,
+          "p50": 0.025999,
+          "p97_5": 0.037651,
+          "observed": 0.033824,
+          "pTwoSided": 0.175824
+        },
+        "net": 0.00788,
+        "sd": 0.006174,
+        "pTwoSided": 0.175824,
+        "nQ1": 6539,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 895,
+            "nullMean": 917.49,
+            "ratio": 0.975487,
+            "pTwoSided": 0.375624,
+            "note": ""
+          },
+          "3": {
+            "observed": 262,
+            "nullMean": 247.473,
+            "ratio": 1.058701,
+            "pTwoSided": 0.305694,
+            "note": ""
+          },
+          "4": {
+            "observed": 76,
+            "nullMean": 68.566,
+            "ratio": 1.108421,
+            "pTwoSided": 0.337662,
+            "note": ""
+          },
+          "5": {
+            "observed": 20,
+            "nullMean": 19.363,
+            "ratio": 1.032898,
+            "pTwoSided": 0.953047,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "19",
+        "venue": "下関",
+        "nSeries": 1835,
+        "nPairs": 19069,
+        "pairsPerRequired": 0.343586,
+        "underpowered": true,
+        "T3q": 0.017955,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.018327,
+          "median": 0.018303,
+          "sd": 0.006402,
+          "p2_5": 0.004901,
+          "p50": 0.018303,
+          "p97_5": 0.030661,
+          "observed": 0.017955,
+          "pTwoSided": 0.959041
+        },
+        "net": -0.000372,
+        "sd": 0.006402,
+        "pTwoSided": 0.959041,
+        "nQ1": 5063,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 671,
+            "nullMean": 672.578,
+            "ratio": 0.997654,
+            "pTwoSided": 0.941059,
+            "note": ""
+          },
+          "3": {
+            "observed": 139,
+            "nullMean": 152.543,
+            "ratio": 0.911218,
+            "pTwoSided": 0.265734,
+            "note": ""
+          },
+          "4": {
+            "observed": 62,
+            "nullMean": 34.715,
+            "ratio": 1.785971,
+            "pTwoSided": 0.001998,
+            "note": ""
+          },
+          "5": {
+            "observed": 8,
+            "nullMean": 8.195,
+            "ratio": 0.976205,
+            "pTwoSided": 1.0,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "20",
+        "venue": "若松",
+        "nSeries": 1937,
+        "nPairs": 19992,
+        "pairsPerRequired": 0.360216,
+        "underpowered": true,
+        "T3q": 0.018124,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.012169,
+          "median": 0.012076,
+          "sd": 0.006454,
+          "p2_5": -0.000432,
+          "p50": 0.012076,
+          "p97_5": 0.025015,
+          "observed": 0.018124,
+          "pTwoSided": 0.325674
+        },
+        "net": 0.005954,
+        "sd": 0.006454,
+        "pTwoSided": 0.325674,
+        "nQ1": 4739,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 597,
+            "nullMean": 589.694,
+            "ratio": 1.012389,
+            "pTwoSided": 0.721279,
+            "note": ""
+          },
+          "3": {
+            "observed": 151,
+            "nullMean": 114.026,
+            "ratio": 1.324259,
+            "pTwoSided": 0.001998,
+            "note": ""
+          },
+          "4": {
+            "observed": 36,
+            "nullMean": 22.275,
+            "ratio": 1.616162,
+            "pTwoSided": 0.007992,
+            "note": ""
+          },
+          "5": {
+            "observed": 12,
+            "nullMean": 4.644,
+            "ratio": 2.583979,
+            "pTwoSided": 0.005994,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "21",
+        "venue": "芦屋",
+        "nSeries": 1946,
+        "nPairs": 20230,
+        "pairsPerRequired": 0.364505,
+        "underpowered": true,
+        "T3q": 0.017796,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.016272,
+          "median": 0.016299,
+          "sd": 0.006495,
+          "p2_5": 0.004054,
+          "p50": 0.016299,
+          "p97_5": 0.028813,
+          "observed": 0.017796,
+          "pTwoSided": 0.829171
+        },
+        "net": 0.001524,
+        "sd": 0.006495,
+        "pTwoSided": 0.829171,
+        "nQ1": 5993,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 878,
+            "nullMean": 823.965,
+            "ratio": 1.065579,
+            "pTwoSided": 0.021978,
+            "note": ""
+          },
+          "3": {
+            "observed": 203,
+            "nullMean": 202.787,
+            "ratio": 1.00105,
+            "pTwoSided": 1.0,
+            "note": ""
+          },
+          "4": {
+            "observed": 54,
+            "nullMean": 50.273,
+            "ratio": 1.074135,
+            "pTwoSided": 0.647353,
+            "note": ""
+          },
+          "5": {
+            "observed": 16,
+            "nullMean": 12.692,
+            "ratio": 1.260637,
+            "pTwoSided": 0.385614,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "22",
+        "venue": "福岡",
+        "nSeries": 1904,
+        "nPairs": 19838,
+        "pairsPerRequired": 0.357441,
+        "underpowered": true,
+        "T3q": 0.030538,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.019645,
+          "median": 0.019337,
+          "sd": 0.0065,
+          "p2_5": 0.005573,
+          "p50": 0.019337,
+          "p97_5": 0.032524,
+          "observed": 0.030538,
+          "pTwoSided": 0.097902
+        },
+        "net": 0.010893,
+        "sd": 0.0065,
+        "pTwoSided": 0.097902,
+        "nQ1": 4923,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 607,
+            "nullMean": 632.725,
+            "ratio": 0.959343,
+            "pTwoSided": 0.215784,
+            "note": ""
+          },
+          "3": {
+            "observed": 150,
+            "nullMean": 141.485,
+            "ratio": 1.060183,
+            "pTwoSided": 0.425574,
+            "note": ""
+          },
+          "4": {
+            "observed": 26,
+            "nullMean": 33.752,
+            "ratio": 0.770325,
+            "pTwoSided": 0.213786,
+            "note": ""
+          },
+          "5": {
+            "observed": 11,
+            "nullMean": 8.276,
+            "ratio": 1.329145,
+            "pTwoSided": 0.387612,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "23",
+        "venue": "唐津",
+        "nSeries": 1917,
+        "nPairs": 19780,
+        "pairsPerRequired": 0.356396,
+        "underpowered": true,
+        "T3q": 0.024394,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.015959,
+          "median": 0.016077,
+          "sd": 0.006356,
+          "p2_5": 0.003395,
+          "p50": 0.016077,
+          "p97_5": 0.028381,
+          "observed": 0.024394,
+          "pTwoSided": 0.185814
+        },
+        "net": 0.008435,
+        "sd": 0.006356,
+        "pTwoSided": 0.185814,
+        "nQ1": 5024,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 680,
+            "nullMean": 650.593,
+            "ratio": 1.0452,
+            "pTwoSided": 0.137862,
+            "note": ""
+          },
+          "3": {
+            "observed": 167,
+            "nullMean": 138.643,
+            "ratio": 1.204533,
+            "pTwoSided": 0.007992,
+            "note": ""
+          },
+          "4": {
+            "observed": 37,
+            "nullMean": 30.413,
+            "ratio": 1.216585,
+            "pTwoSided": 0.243756,
+            "note": ""
+          },
+          "5": {
+            "observed": 7,
+            "nullMean": 6.565,
+            "ratio": 1.06626,
+            "pTwoSided": 0.953047,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "24",
+        "venue": "大村",
+        "nSeries": 1966,
+        "nPairs": 20415,
+        "pairsPerRequired": 0.367838,
+        "underpowered": true,
+        "T3q": 0.039318,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.015441,
+          "median": 0.015561,
+          "sd": 0.006194,
+          "p2_5": 0.003694,
+          "p50": 0.015561,
+          "p97_5": 0.027421,
+          "observed": 0.039318,
+          "pTwoSided": 0.001998
+        },
+        "net": 0.023877,
+        "sd": 0.006194,
+        "pTwoSided": 0.001998,
+        "nQ1": 6467,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 916,
+            "nullMean": 911.202,
+            "ratio": 1.005266,
+            "pTwoSided": 0.853147,
+            "note": ""
+          },
+          "3": {
+            "observed": 288,
+            "nullMean": 237.452,
+            "ratio": 1.212877,
+            "pTwoSided": 0.001998,
+            "note": ""
+          },
+          "4": {
+            "observed": 66,
+            "nullMean": 62.622,
+            "ratio": 1.053943,
+            "pTwoSided": 0.673327,
+            "note": ""
+          },
+          "5": {
+            "observed": 22,
+            "nullMean": 16.694,
+            "ratio": 1.317839,
+            "pTwoSided": 0.245754,
+            "note": ""
+          }
+        }
+      }
+    ],
+    "betweenVenueVariance": {
+      "reps": 1000,
+      "mean": 4.1e-05,
+      "median": 4e-05,
+      "sd": 1.2e-05,
+      "p2_5": 2e-05,
+      "p50": 4e-05,
+      "p97_5": 6.7e-05,
+      "observed": 5.2e-05,
+      "pTwoSided": 0.345654,
+      "definition": "24場の net の分散（ddof=1）。帰無は各置換回の24場の T3q から各場の帰無平均を引いた値の分散"
+    },
+    "lowestBandNote": "最安帯 q=1 の最大連長（段階10のLと同一）を場別に。n は場の q=1 レース数",
+    "file": "venueBreakdown.csv"
   }
 }

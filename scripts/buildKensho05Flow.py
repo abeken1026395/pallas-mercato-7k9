@@ -230,6 +230,56 @@ def ols(X, y):
     return beta, se, 1 - rss / tss, n
 
 
+KIMARITE = ["逃げ", "差し", "まくり", "まくり差し", "抜き", "恵まれ"]
+MIN_N11 = 300
+
+
+def load_results_decision(dirpath, date_to):
+    """results → {(開催日, 場コード'NN', R int): (K1, ①着外, 決まり手, 1着艇の本番コース)}。
+    K1＝1号艇が1着か（1/0）。①着外は buildInSurvival.py と同一（1着〜3着が全て整数のとき
+    3つの中に1が無ければ1）。揃わなければ K1・①着外とも None。決まり手はそのまま（統合しない）。"""
+    out = {}
+    names = sorted(n for n in os.listdir(dirpath)
+                   if len(n) == 13 and n.endswith(".json") and n[:8].isdigit()
+                   and n[:8] <= date_to)
+    for name in names:
+        hd = name[:8]
+        with open(os.path.join(dirpath, name), encoding="utf-8") as f:
+            d = json.load(f)
+        for r in d.get("結果", []) or []:
+            jcd = str(r.get("場コード", "")).zfill(2)
+            key = (hd, jcd, int(str(r.get("レース"))[:-1]))
+            top = [r.get("1着"), r.get("2着"), r.get("3着")]
+            if all(is_int(x) for x in top):
+                k1 = 1 if top[0] == 1 else 0
+                o1 = 0 if 1 in top else 1
+            else:
+                k1 = o1 = None
+            kim = r.get("決まり手")
+            kim = kim if isinstance(kim, str) and kim else None
+            wc = None
+            if is_int(top[0]):
+                for b in r.get("艇", []) or []:
+                    if b.get("枠") == top[0] and is_int(b.get("コース")):
+                        wc = b.get("コース")
+            out[key] = (k1, o1, kim, wc)
+    return out
+
+
+def grouped_pearson(x, y, g, ng):
+    """グループごとの Pearson 相関（g はペアのグループ番号）。"""
+    n = np.bincount(g, minlength=ng).astype(float)
+    sx = np.bincount(g, weights=x, minlength=ng)
+    sy = np.bincount(g, weights=y, minlength=ng)
+    sxx = np.bincount(g, weights=x * x, minlength=ng)
+    syy = np.bincount(g, weights=y * y, minlength=ng)
+    sxy = np.bincount(g, weights=x * y, minlength=ng)
+    cov = sxy - sx * sy / n
+    vx = sxx - sx * sx / n
+    vy = syy - sy * sy / n
+    return cov / np.sqrt(vx * vy)
+
+
 def runs(y, seg_start):
     """y(bool) の最大連（区間の切れ目 seg_start をまたがない）の開始位置と長さ。"""
     prev_on = np.r_[False, y[:-1]] & ~seg_start
@@ -354,12 +404,13 @@ RELOCATED = {("stage5", "finiteSeriesBias_nullACenter"): ("stage4", "nullA", "me
 ADDED = {("stage5", "finiteSeriesBias_nullBCenter"): ("stage4", "nullB", "mean"),
          ("stage5", "finiteSeriesBiasNote"): None}
 CHECKED = ["stage0", "stage1", "stage2", "stage3", "stage4", "stage5", "stage6",
-           "stage6b", "stage7", "stage8", "stage9"]
+           "stage6b", "stage7", "stage8", "stage9", "stage10"]
 # 既存出力にあれば照合する（後から足した段階）
-CHECKED_IF_PRESENT = ["stage10"]
+CHECKED_IF_PRESENT = ["stage11", "stage12"]
 # 後から足したCSV（既存出力に無ければ照合しない）
 NEW_CSVS = {"distanceCorrQ.csv", "quintileTransitionS3.csv", "windMediation.csv",
-            "streakCounts.csv", "extremeDays.csv"}
+            "streakCounts.csv", "extremeDays.csv", "decisionStreaks.csv",
+            "venueBreakdown.csv"}
 
 
 def getpath(o, path):
@@ -690,6 +741,93 @@ def main():
     nullH = np.empty((NREP, len(hH_obs)))
     nullL = np.empty((NREP, len(hL_obs)))
 
+    # 段階11：決まり方の流れ。段階9と同じ突合（M の行）だけを使い、その中で系列内並べ替え
+    decmap = load_results_decision(RESULTS_DIR, RESULTS_TO)
+    nU = len(Midx)
+    usid = sid[Midx]
+    urno = rno[Midx]
+    ucell = cell[Midx]
+    u_out = np.zeros(nU, dtype=bool)
+    u_k1 = np.full(nU, np.nan)
+    u_k3 = np.full(nU, np.nan)
+    u_kim = np.full(nU, -1, dtype=np.int64)
+    for j, i in enumerate(Midx):
+        v = decmap.get((rows[i][0], rows[i][1], rows[i][2]))
+        if v is None:
+            stop("段階11: 突合済みのレースが results に無い: %s" % (rows[i][:3],))
+        k1, o1, kim, wc = v
+        if k1 is not None:
+            u_k1[j] = k1
+        if o1 is not None:
+            u_out[j] = o1 == 1
+        if kim is not None:
+            if kim not in KIMARITE:
+                stop("段階11: 想定外の決まり手 %r（統合せず停止）" % kim)
+            u_kim[j] = KIMARITE.index(kim)
+        if wc is not None:
+            u_k3[j] = wc
+    useg = np.r_[True, (usid[1:] != usid[:-1]) | (urno[1:] - urno[:-1] != 1)]
+    upa = np.flatnonzero(~useg[1:])
+    upb = upa + 1
+    if len(upa) != len(aW):
+        stop("段階11: 隣接ペア数が段階9と一致しない %d != %d" % (len(upa), len(aW)))
+
+    def ucenter(x):
+        ok = ~np.isnan(x)
+        s = np.bincount(ucell[ok], weights=x[ok], minlength=len(ncell))
+        c = np.bincount(ucell[ok], minlength=len(ncell))
+        m = np.divide(s, c, out=np.zeros_like(s), where=c > 0)
+        return x - m[ucell]
+    u_k1c = ucenter(u_k1)
+    u_k3c = ucenter(u_k3)
+
+    def dec_stats(out_b, kim, k1c, k3c):
+        hs = {"①着外": runhist(out_b, useg)}
+        cat = []
+        for ci, c in enumerate(KIMARITE):
+            h = runhist(kim == ci, useg)
+            hs["決まり手:" + c] = h
+            cat.append(h)
+        hs["決まり手:同一カテゴリ計"] = np.sum(cat, axis=0)
+        ok = (kim[upa] >= 0) & (kim[upb] >= 0)
+        match = float((kim[upa][ok] == kim[upb][ok]).mean())
+        cr = {}
+        for name, x in (("K1", k1c), ("K3", k3c)):
+            m = ~np.isnan(x[upa]) & ~np.isnan(x[upb])
+            cr[name] = (pearson(x[upa][m], x[upb][m]), int(m.sum()))
+        return hs, (match, int(ok.sum())), cr
+    obs11 = dec_stats(u_out, u_kim, u_k1c, u_k3c)
+    n11hit = {"①着外": int(u_out.sum()),
+              "決まり手:同一カテゴリ計": int((u_kim >= 0).sum())}
+    for ci, c in enumerate(KIMARITE):
+        n11hit["決まり手:" + c] = int((u_kim == ci).sum())
+    rng11 = np.random.default_rng(SEED)
+    usf = usid.astype(float)
+    null11h = {key: np.empty((NREP, 13)) for key in obs11[0]}
+    null11m = np.empty(NREP)
+    null11c = {"K1": np.empty(NREP), "K3": np.empty(NREP)}
+    for k in range(NREP):
+        pu = np.argsort(usf + rng11.random(nU))
+        hs, mt, cr = dec_stats(u_out[pu], u_kim[pu], u_k1c[pu], u_k3c[pu])
+        for key, h in hs.items():
+            null11h[key][k] = h
+        null11m[k] = mt[0]
+        for name in null11c:
+            null11c[name][k] = cr[name][0]
+    print("段階11 帰無 %d回 完了" % NREP)
+
+    # 段階12：場別。段階6bの帰無A と同じ置換で場ごとの T3q と最安帯連続を数える
+    NV = len(venues)
+    gv = ven[a1]
+    TV = grouped_pearson(eq[a1], eq[b1], gv, NV)
+    v_series = np.bincount(ven[starts], minlength=NV)
+    v_pairs = np.bincount(gv, minlength=NV)
+    v_q1 = np.bincount(ven, weights=yL.astype(float), minlength=NV)
+    siL0, lL0 = runs(yL, seg_start)
+    LV_obs = np.bincount(ven[siL0] * 13 + lL0, minlength=NV * 13).reshape(NV, 13)
+    nullV = np.empty((NREP, NV))
+    nullLV = np.empty((NREP, NV, 13), dtype=np.int32)
+
     # ------------------------------------------------------------ 段階4・6の帰無
     # 帰無A：系列内で並べ替え。e と q に同じ置換を使う。
     rng = np.random.default_rng(SEED)
@@ -735,6 +873,11 @@ def main():
         nullL[k] = runhist(qp == 1, seg_start)
         sk = np.bincount(sid[a1], weights=eqp[a1] * eqp[b1], minlength=nseries)
         s_ge += sk >= s_obs - 1e-12
+        # 段階12：同じ置換で場ごとの T3q と最安帯の連続
+        nullV[k] = grouped_pearson(eqp[a1], eqp[b1], gv, NV)
+        siLk, lLk = runs(qp == 1, seg_start)
+        nullLV[k] = np.bincount(ven[siLk] * 13 + lLk,
+                                minlength=NV * 13).reshape(NV, 13)
         if (k + 1) % 100 == 0:
             print("帰無A %d/%d" % (k + 1, NREP))
     # 帰無B：(場,R)セル内で日をまたいで並べ替え。セル平均は不変なので p(場,R) はそのまま。
@@ -850,6 +993,70 @@ def main():
     for (hd, jcd, _), (ms, _) in resmap.items():
         if is_int(ms):
             dvw.setdefault((hd, jcd), []).append(ms)
+    # 段階11 集計
+    def streak_n(h_obs, h_null, nhit):
+        out = {}
+        short = nhit < MIN_N11
+        cols = [(str(k), h_obs[k], h_null[:, k]) for k in range(2, 7)]
+        cols.append(("7+", h_obs[7:].sum(), h_null[:, 7:].sum(axis=1)))
+        for label, ob, nu in cols:
+            dsc = describe(nu.astype(float), float(ob))
+            out[label] = {
+                "observed": int(ob), "nullMean": dsc["mean"], "nullSd": dsc["sd"],
+                "ratio": None if short or dsc["mean"] <= 0 else float(ob) / dsc["mean"],
+                "pTwoSided": None if short else dsc["pTwoSided"],
+                "note": "n不足" if short else ""}
+        return out
+    st11s = {key: {"n": n11hit[key],
+                   "k": streak_n(obs11[0][key], null11h[key], n11hit[key])}
+             for key in obs11[0]}
+    dm = describe(null11m, obs11[1][0])
+    m_short = obs11[1][1] < MIN_N11
+    st11m = {"n": obs11[1][1], "observed": obs11[1][0], "nullMean": dm["mean"],
+             "nullSd": dm["sd"],
+             "ratio": None if m_short else obs11[1][0] / dm["mean"],
+             "pTwoSided": None if m_short else dm["pTwoSided"],
+             "note": "n不足" if m_short else ""}
+    st11c = {}
+    for name in ("K1", "K3"):
+        ob, nn = obs11[2][name]
+        dc = describe(null11c[name], ob)
+        c_short = nn < MIN_N11
+        st11c[name] = {"n": nn, "observed": ob, "nullA_center": dc["mean"],
+                       "sd": dc["sd"], "p2_5": dc["p2_5"], "p97_5": dc["p97_5"],
+                       "net": None if c_short else ob - dc["mean"],
+                       "pTwoSided": None if c_short else dc["pTwoSided"],
+                       "note": "n不足" if c_short else ""}
+
+    # 段階12 集計
+    centerV = nullV.mean(axis=0)
+    st12v = []
+    for v in range(NV):
+        dv = describe(nullV[:, v], float(TV[v]))
+        lk = {}
+        short = v_q1[v] < MIN_N11
+        for kk in range(2, 6):
+            nu = nullLV[:, v, kk].astype(float)
+            dl = describe(nu, float(LV_obs[v, kk]))
+            lk[str(kk)] = {
+                "observed": int(LV_obs[v, kk]), "nullMean": dl["mean"],
+                "ratio": None if short or dl["mean"] <= 0
+                else float(LV_obs[v, kk]) / dl["mean"],
+                "pTwoSided": None if short else dl["pTwoSided"],
+                "note": "n不足" if short else ""}
+        st12v.append({
+            "jcd": venues[v], "venue": vnames.get(venues[v], ""),
+            "nSeries": int(v_series[v]), "nPairs": int(v_pairs[v]),
+            "pairsPerRequired": int(v_pairs[v]) / REQUIRED_PAIRS,
+            "underpowered": bool(v_pairs[v] < REQUIRED_PAIRS),
+            "T3q": float(TV[v]), "nullA_eq": dv, "net": float(TV[v]) - dv["mean"],
+            "sd": dv["sd"], "pTwoSided": dv["pTwoSided"],
+            "nQ1": int(v_q1[v]), "lowestBandStreaks": lk})
+    netV = TV - centerV
+    obs_var = float(np.var(netV, ddof=1))
+    null_var = np.var(nullV - centerV, axis=1, ddof=1)
+    dvar = describe(null_var, obs_var)
+
     top = np.lexsort((-s_obs, p_series))[:50]
     exrow = []
     blank_before = blank_missing = 0
@@ -1078,6 +1285,36 @@ def main():
                 "windBlankMissingInPeriod": blank_missing,
             },
         },
+        "stage11": {
+            "definition": "段階9と同じ突合（results と開催日・場・Rで一致したレース）だけを使う。系列(場×日)・隣接ペア(R差1)・連続の数え方（重複を許さない最大連長、Rが連続する区間のみ）は段階6b・段階10と同一。帰無は突合済みレースの中で系列内並べ替え1000回（default_rng(20260914) から開始、場・系列をまたがない）",
+            "vars": {
+                "K1": "1号艇が1着か（1/0）。1着〜3着が全て整数のレースのみ",
+                "①着外": "buildInSurvival.py と同一（1着〜3着が全て整数のとき、3つの中に1が無い）",
+                "K2": "results の決まり手をそのまま（逃げ/差し/まくり/まくり差し/抜き/恵まれ）。統合しない。欠損は欠測（連続を切る・一致率の分母から除く）",
+                "K3": "1着艇の本番進入コース（results の コース。展示進入は使わない）",
+            },
+            "races": nU,
+            "adjacentPairs": int(len(upa)),
+            "kimariteCounts": {c: n11hit["決まり手:" + c] for c in KIMARITE},
+            "kimariteMissing": int((u_kim < 0).sum()),
+            "nRule": "n が300未満のセルは比・net・pTwoSided を出さず note に n不足（n は表示）。連続の n はその事象が起きたレース数、一致率・相関の n は両側とも欠測でない隣接ペア数",
+            "streaks": st11s,
+            "streakNote": "H相当＝①着外の連続、L相当＝決まり手:逃げの連続。決まり手:同一カテゴリ計はカテゴリ別の連続件数の合計（同じ決まり手が続いた最大連の件数）",
+            "matchRate": st11m,
+            "corr": st11c,
+            "corrDefinition": "K1・K3 を突合済みレースの(場,R)セル平均で中心化した残差の隣接Pearson相関。帰無は中心化済みの値を系列内で並べ替え",
+            "file": "decisionStreaks.csv",
+        },
+        "stage12": {
+            "definition": "10年534,330行・系列45,995・隣接ペア475,478。場ごとに段階6bと同一の T3q（eq の隣接Pearson）と帰無A_eq（段階6bと同じ置換1000回）。net＝T3q−帰無A_eq平均",
+            "requiredPairs": REQUIRED_PAIRS,
+            "venues": st12v,
+            "betweenVenueVariance": dict(
+                dvar,
+                definition="24場の net の分散（ddof=1）。帰無は各置換回の24場の T3q から各場の帰無平均を引いた値の分散"),
+            "lowestBandNote": "最安帯 q=1 の最大連長（段階10のLと同一）を場別に。n は場の q=1 レース数",
+            "file": "venueBreakdown.csv",
+        },
     }
     summary = roundtree(summary)
 
@@ -1127,6 +1364,31 @@ def main():
     wmrow.append(["mediation", "referenceResidual_S3D1net", ref_resid, None, None,
                   "段階8 S3-D1 の net"])
 
+    dsrow = []
+    for key, v in st11s.items():
+        for kk, c in v["k"].items():
+            dsrow.append(["streak", key, kk, v["n"], c["observed"], c["nullMean"],
+                          c["nullSd"], c["ratio"], None, c["pTwoSided"], c["note"]])
+    dsrow.append(["matchRate", "決まり手", None, st11m["n"], st11m["observed"],
+                  st11m["nullMean"], st11m["nullSd"], st11m["ratio"], None,
+                  st11m["pTwoSided"], st11m["note"]])
+    for name, c in st11c.items():
+        dsrow.append(["corr", name, None, c["n"], c["observed"], c["nullA_center"],
+                      c["sd"], None, c["net"], c["pTwoSided"], c["note"]])
+
+    vbrow = []
+    for v in st12v:
+        line = [v["jcd"], v["venue"], v["nSeries"], v["nPairs"],
+                v["pairsPerRequired"], v["underpowered"], v["T3q"],
+                v["nullA_eq"]["mean"], v["sd"], v["net"], v["pTwoSided"], v["nQ1"]]
+        notes = set()
+        for kk in range(2, 6):
+            c = v["lowestBandStreaks"][str(kk)]
+            line += [c["observed"], c["nullMean"], c["ratio"], c["pTwoSided"]]
+            if c["note"]:
+                notes.add(c["note"])
+        vbrow.append(line + ["/".join(sorted(notes))])
+
     strow = []
     for typ, tab in (("H", st10H), ("L", st10L)):
         for kk, v in tab.items():
@@ -1166,6 +1428,16 @@ def main():
         "extremeDays.csv": (["rank", "date", "jcd", "venue", "seriesLen",
                              "maxRunH", "maxRunL", "s", "p", "windMean",
                              "windRange", "windN"], exrow),
+        "decisionStreaks.csv": (["section", "type", "k", "n", "observed",
+                                 "nullMean", "nullSd", "ratio", "net",
+                                 "pTwoSided", "note"], dsrow),
+        "venueBreakdown.csv": (["jcd", "venue", "nSeries", "nPairs",
+                                "pairsPerRequired", "underpowered", "T3q",
+                                "nullA_eq_mean", "nullA_eq_sd", "net",
+                                "pTwoSided", "nQ1"]
+                               + ["L%d_%s" % (kk, c) for kk in range(2, 6)
+                                  for c in ("obs", "nullMean", "ratio", "p")]
+                               + ["note"], vbrow),
     }
 
     # 既存出力の再現チェック：1つでも変わったら何も書かずに止まる
@@ -1247,6 +1519,29 @@ def main():
           % (ks_d, ks_p, (p_series < 0.05).sum(), (p_series < 0.05).mean(),
              (npairs_series == 0).sum(), hist10.tolist()))
     print("top1 %s / blank before=%d missing=%d" % (exrow[0], blank_before, blank_missing))
+    print("段階11 races=%d pairs=%d kim=%s missing=%d"
+          % (nU, len(upa), {c: n11hit["決まり手:" + c] for c in KIMARITE},
+             (u_kim < 0).sum()))
+    for key in ("①着外", "決まり手:逃げ", "決まり手:同一カテゴリ計"):
+        v = st11s[key]
+        print("%s n=%d: " % (key, v["n"]) + " / ".join(
+            "k=%s %d %.2f %s %s" % (kk, c["observed"], c["nullMean"],
+                                   "%.3f" % c["ratio"] if c["ratio"] is not None else "-",
+                                   "%.4f" % c["pTwoSided"] if c["pTwoSided"] is not None else c["note"])
+            for kk, c in v["k"].items()))
+    print("一致率 obs %.6f null %.6f ratio %.4f p %.4f n=%d"
+          % (st11m["observed"], st11m["nullMean"], st11m["ratio"], st11m["pTwoSided"], st11m["n"]))
+    for name, c in st11c.items():
+        print("%s r=%.6f center=%.6f sd=%.6f net=%.6f p=%.4f n=%d"
+              % (name, c["observed"], c["nullA_center"], c["sd"], c["net"], c["pTwoSided"], c["n"]))
+    for v in sorted(st12v, key=lambda v: -v["net"]):
+        l5 = v["lowestBandStreaks"]["5"]
+        print("%s %s net=%.6f pairs=%d p=%.4f under=%s L5 %d/%.2f/%s"
+              % (v["jcd"], v["venue"], v["net"], v["nPairs"], v["pTwoSided"],
+                 v["underpowered"], l5["observed"], l5["nullMean"],
+                 "%.3f" % l5["ratio"] if l5["ratio"] is not None else l5["note"]))
+    print("場間分散 obs %.3e null %.3e [%.3e, %.3e] p=%.4f"
+          % (dvar["observed"], dvar["mean"], dvar["p2_5"], dvar["p97_5"], dvar["pTwoSided"]))
     for key, v in st8cases.items():
         print("%s n=%d exS=%d exSinSet=%d exP=%d T3q=%.6f nullA=%.6f net=%.6f p=%.4f"
               % (key, v["nPairs"], v["excludedSeries"],
