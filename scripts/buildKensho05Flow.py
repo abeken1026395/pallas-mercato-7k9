@@ -18,6 +18,7 @@ import os
 import sys
 import csv
 import json
+import math
 import datetime
 
 import numpy as np
@@ -25,6 +26,12 @@ import numpy as np
 INDIR = r"C:\Users\USER\payrank\json"
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUTDIR = os.path.join(ROOT, "analysis", "kensho05")
+
+RESULTS_DIR = os.path.join(ROOT, "results")
+RESULTS_TO = "20260913"   # results の最終確定日（buildKensho05Wind.py と同じ）
+BEARING_PATH = os.path.join(ROOT, "docs", "data", "stadiumBearing.json")
+MISSING_MONTH_MAX = 0.10
+REQUIRED_PAIRS = 55500
 
 SEED = 20260914
 NREP = 1000
@@ -168,6 +175,61 @@ def detrend_check(res, sid, ns, X, inv, keep):
     return worst
 
 
+def is_int(x):
+    return isinstance(x, int) and not isinstance(x, bool)
+
+
+def load_results(dirpath, date_to):
+    """results/YYYYMMDD.json → {(開催日, 場コード'NN', R int): (風速, 風向コード)}。
+    results は 場コード="01" 文字列・レース="1R" 文字列なので int に変換してキーを揃える。"""
+    out = {}
+    names = sorted(n for n in os.listdir(dirpath)
+                   if len(n) == 13 and n.endswith(".json") and n[:8].isdigit()
+                   and n[:8] <= date_to)
+    for name in names:
+        hd = name[:8]
+        with open(os.path.join(dirpath, name), encoding="utf-8") as f:
+            d = json.load(f)
+        for r in d.get("結果", []) or []:
+            jcd = str(r.get("場コード", "")).zfill(2)
+            race = str(r.get("レース", ""))
+            if not race.endswith("R") or not race[:-1].isdigit():
+                stop("results のレース列が想定外: %r (%s)" % (race, name))
+            key = (hd, jcd, int(race[:-1]))
+            if key in out:
+                stop("results に同じレースが重複: %s" % (key,))
+            out[key] = (r.get("風速"), r.get("風向コード"))
+    return out, (names[0][:8], names[-1][:8])
+
+
+def water_component(bearing, code):
+    """facts.md の判定式（docs/results/index.html の windRel と同一）。
+    追い風=+1 / 横風=0 / 向かい風=-1。17=無風は None（欠測）。"""
+    if code == 17:
+        return None
+    d = (code - 1) * 22.5
+    diff = abs((((d - bearing + 180) % 360) + 360) % 360 - 180)
+    if diff <= 45:
+        return 1
+    if diff >= 135:
+        return -1
+    return 0
+
+
+def ols(X, y):
+    """最小二乗。係数・標準誤差（通常のOLS）・R²・n を返す。"""
+    n, k = X.shape
+    if np.linalg.matrix_rank(X) != k:
+        stop("回帰の説明変数が退化している")
+    xtx_inv = np.linalg.inv(X.T @ X)
+    beta = xtx_inv @ (X.T @ y)
+    res = y - X @ beta
+    rss = float(res @ res)
+    tss = float(((y - y.mean()) ** 2).sum())
+    se = np.sqrt(np.diag(xtx_inv) * rss / (n - k))
+    return beta, se, 1 - rss / tss, n
+
+
 def lendist7(lens):
     c = np.bincount(np.array(lens), minlength=8)
     out = {str(L): int(c[L]) for L in range(1, 7)}
@@ -266,11 +328,11 @@ RELOCATED = {("stage5", "finiteSeriesBias_nullACenter"): ("stage4", "nullA", "me
 ADDED = {("stage5", "finiteSeriesBias_nullBCenter"): ("stage4", "nullB", "mean"),
          ("stage5", "finiteSeriesBiasNote"): None}
 CHECKED = ["stage0", "stage1", "stage2", "stage3", "stage4", "stage5", "stage6",
-           "stage6b", "stage7"]
+           "stage6b", "stage7", "stage8"]
 # 既存出力にあれば照合する（後から足した段階）
-CHECKED_IF_PRESENT = ["stage8"]
+CHECKED_IF_PRESENT = ["stage9"]
 # 後から足したCSV（既存出力に無ければ照合しない）
-NEW_CSVS = {"distanceCorrQ.csv", "quintileTransitionS3.csv"}
+NEW_CSVS = {"distanceCorrQ.csv", "quintileTransitionS3.csv", "windMediation.csv"}
 
 
 def getpath(o, path):
@@ -489,6 +551,104 @@ def main():
     T8 = {key: pearson(res8[key[1]][v["pairs"][0]], res8[key[1]][v["pairs"][1]])
           for key, v in c8.items()}
 
+    # 段階9：風。作業1 突合（開催日・場・R）
+    resmap, res_files = load_results(RESULTS_DIR, RESULTS_TO)
+    with open(BEARING_PATH, encoding="utf-8") as f:
+        bearing = {j: float(v["方位"]) for j, v in json.load(f)["場"].items()}
+    have = np.zeros(n, dtype=bool)
+    wmiss = np.zeros(n, dtype=bool)
+    wsp = np.full(n, np.nan)
+    wcode = np.zeros(n, dtype=np.int64)
+    months = np.array([t[0][:6] for t in rows])
+    for i, t in enumerate(rows):
+        v = resmap.get((t[0], t[1], t[2]))
+        if v is None:
+            continue
+        have[i] = True
+        ms, code = v
+        if is_int(ms) and is_int(code) and 1 <= code <= 17:
+            wsp[i] = ms
+            wcode[i] = code
+        else:
+            wmiss[i] = True
+    monthly = []
+    excluded_months = []
+    for mo in sorted(set(months[have].tolist())):
+        mm = months == mo
+        nm = int((have & mm).sum())
+        nmiss = int((wmiss & mm).sum())
+        rate = nmiss / nm
+        monthly.append({"month": mo, "adopted": int(mm.sum()), "matched": nm,
+                        "windMissing": nmiss, "missingRate": rate})
+        if rate > MISSING_MONTH_MAX:
+            excluded_months.append(mo)
+    M = have & ~wmiss & ~np.isin(months, excluded_months)
+    Midx = np.flatnonzero(M)
+    mdates = [rows[i][0] for i in Midx]
+    in_period = {k for k in resmap
+                 if mdates and mdates[0] <= k[0] <= mdates[-1]}
+    mkeys = {(rows[i][0], rows[i][1], rows[i][2]) for i in Midx}
+    mW = M[a1] & M[b1]
+    aW, bW = a1[mW], b1[mW]
+
+    # 作業2 a：風の隣接自己相関（(場,R)セルで中心化。17=無風は角度・水面成分では欠測）
+    ang = np.where(M & (wcode >= 1) & (wcode <= 16),
+                   np.deg2rad((wcode - 1) * 22.5), np.nan)
+    comp = np.full(n, np.nan)
+    for i in Midx:
+        c = water_component(bearing[rows[i][1]], int(wcode[i]))
+        if c is not None:
+            comp[i] = c
+    wvars = {"speed": np.where(M, wsp, np.nan), "sin": np.sin(ang),
+             "cos": np.cos(ang), "component": comp}
+
+    def cell_center(x):
+        ok = ~np.isnan(x)
+        s = np.bincount(cell[ok], weights=x[ok], minlength=len(ncell))
+        c = np.bincount(cell[ok], minlength=len(ncell))
+        m = np.divide(s, c, out=np.zeros_like(s), where=c > 0)
+        return x - m[cell]
+    a9 = {}
+    for name, x in wvars.items():
+        xc = cell_center(x)
+        ok = ~np.isnan(xc[aW]) & ~np.isnan(xc[bW])
+        a9[name] = {"r": pearson(xc[aW][ok], xc[bW][ok]),
+                    "nPairs": int(ok.sum())}
+
+    # 作業3 b：eq を風に回帰（突合できた行）
+    lvl = np.array(["無風" if wcode[i] == 17 else
+                    {1: "追い風", 0: "横風", -1: "向かい風"}[int(comp[i])]
+                    for i in Midx])
+    spd = wsp[Midx]
+    ym = eq[Midx]
+    one = np.ones(len(Midx))
+    d_oi = (lvl == "追い風").astype(float)
+    d_mu = (lvl == "向かい風").astype(float)
+    d_nw = (lvl == "無風").astype(float)
+    bdefs = {
+        "b1": (["intercept", "speed"], np.column_stack([one, spd])),
+        "b2": (["intercept", "追い風", "向かい風", "無風"],
+               np.column_stack([one, d_oi, d_mu, d_nw])),
+        "b3": (["intercept", "追い風", "向かい風", "無風", "speed",
+                "speed×追い風", "speed×向かい風"],
+               np.column_stack([one, d_oi, d_mu, d_nw, spd,
+                                spd * d_oi, spd * d_mu])),
+    }
+    b9 = {}
+    for bname, (terms, X) in bdefs.items():
+        beta, se, r2, nb = ols(X, ym)
+        b9[bname] = {"n": nb, "R2": r2,
+                     "coef": {t: {"est": float(b), "se": float(s)}
+                              for t, b, s in zip(terms, beta, se)}}
+    Xb3 = bdefs["b3"][1]
+    Pb3 = np.linalg.inv(Xb3.T @ Xb3) @ Xb3.T
+
+    # 作業5：直接検定（W0 風を統制しない / W1 eq から b3 予測値を引いた残差）
+    rW1 = np.zeros(n)
+    rW1[Midx] = ym - Xb3 @ (Pb3 @ ym)
+    TW0 = pearson(eq[aW], eq[bW])
+    TW1 = pearson(rW1[aW], rW1[bW])
+
     # ------------------------------------------------------------ 段階4・6の帰無
     # 帰無A：系列内で並べ替え。e と q に同じ置換を使う。
     rng = np.random.default_rng(SEED)
@@ -500,6 +660,9 @@ def main():
     nullAS = {s: np.empty(NREP) for s in spairs}
     nullAqd = {d: np.empty(NREP) for d in pairs}
     nullA8 = {key: np.empty(NREP) for key in c8}
+    nullW0 = np.empty(NREP)
+    nullW1 = np.empty(NREP)
+    bufW1 = np.zeros(n)
     for k in range(NREP):
         perm = np.argsort(sidf + rng.random(n))
         ep = e[perm]
@@ -521,6 +684,11 @@ def main():
         for key, v in c8.items():
             aa, bb = v["pairs"]
             nullA8[key][k] = pearson(resp[key[1]][aa], resp[key[1]][bb])
+        # 段階9：並べ替え後の eq に観測と同じ b3 の当てはめ・残差化をかけてから計算する
+        nullW0[k] = pearson(eqp[aW], eqp[bW])
+        yk = eqp[Midx]
+        bufW1[Midx] = yk - Xb3 @ (Pb3 @ yk)
+        nullW1[k] = pearson(bufW1[aW], bufW1[bW])
         if (k + 1) % 100 == 0:
             print("帰無A %d/%d" % (k + 1, NREP))
     # 帰無B：(場,R)セル内で日をまたいで並べ替え。セル平均は不変なので p(場,R) はそのまま。
@@ -590,6 +758,21 @@ def main():
             "net": T8[(S, D)] - dA8["mean"],
             "pTwoSided": dA8["pTwoSided"],
         }
+
+    ref_resid = st8cases["S3-D1"]["net"]
+    b3r = math.sqrt(b9["b3"]["R2"])
+    med9 = {
+        "b_b3_corr": b3r,
+        "upper_speed": a9["speed"]["r"] * b3r ** 2,
+        "upper_component": a9["component"]["r"] * b3r ** 2,
+        "referenceResidual_S3D1net": ref_resid,
+    }
+    st9W = {}
+    for wname, obs, nul in (("W0", TW0, nullW0), ("W1", TW1, nullW1)):
+        dW = describe(nul, obs)
+        st9W[wname] = {"nPairs": int(len(aW)), "T3q": obs, "nullA_eq": dW,
+                       "net": obs - dW["mean"], "pTwoSided": dW["pTwoSided"]}
+    underpowered = len(aW) < REQUIRED_PAIRS
 
     # ------------------------------------------------------------ 段階5
     cnt_s = np.bincount(sid, weights=yA)
@@ -738,6 +921,37 @@ def main():
             "pairSets": {"S0": SDEF["S0"], "S3": SDEF["S3"]},
             "cases": st8cases,
         },
+        "stage9": {
+            "method": "中心化(eq)・ペア定義(同一系列R差1)・統計量(Pearson)・帰無A_eq(1000回・seed 20260914・同じ置換)は段階6bと同一。ペア集合を突合できた行どうしに限定",
+            "match": {
+                "key": "開催日・場・R（results の 場コード文字列・レース'NR'文字列を変換して照合）",
+                "resultsFiles": {"from": res_files[0], "to": res_files[1]},
+                "windMissingDefinition": "風速が整数でない、または風向コードが1〜17の整数でない",
+                "monthExclusion": "突合できたレースの風欠損率が10%を超える月を除外",
+                "monthly": monthly,
+                "excludedMonths": excluded_months,
+                "period": {"start": mdates[0] if mdates else None,
+                           "end": mdates[-1] if mdates else None},
+                "matchedBeforeMonthExclusion": int(have.sum()),
+                "matchedRaces": int(M.sum()),
+                "resultsRacesInPeriod": len(in_period),
+                "resultsRacesNotInAdopted": len(in_period - mkeys),
+                "adjacentPairs": int(len(aW)),
+            },
+            "a": {
+                "definition": "同一系列R差1ペアの隣接Pearson相関。各変数を(場,R)セル平均で中心化。風向角=(コード-1)×22.5。17=無風は sin/cos/水面成分で欠測（角度0として扱わない）。水面成分は追い風+1/横風0/向かい風-1（facts.md の判定式・stadiumBearing.json）",
+                "vars": a9,
+            },
+            "b": {
+                "definition": "突合できた行で eq を回帰（OLS・通常の標準誤差）。水面成分ダミーの基準は横風。b3 は 風速×水面成分の交互作用あり。無風は風速が常に0のため speed×無風 は恒等的に0で推定不能（列に入れない）",
+                "models": b9,
+            },
+            "mediationUpper": dict(med9, definition="上限 = a × b²。a は作業2の風速・水面成分、b は b3 の √R²。比較対象は段階8 S3-D1 の net"),
+            "W0": dict(st9W["W0"], definition="風を統制しない"),
+            "W1": dict(st9W["W1"], definition="eq から b3 の予測値を引いた残差で計算。帰無は並べ替え後の eq に b3 を当てはめ直して残差化してから計算"),
+            "underpowered": underpowered,
+            "requiredPairs": REQUIRED_PAIRS,
+        },
     }
     summary = roundtree(summary)
 
@@ -773,6 +987,20 @@ def main():
         dqrow.append([d, int(len(pairs[d][0])), Tqd[d], s["mean"], s["sd"],
                       s["p2_5"], s["p97_5"], Tqd[d] - s["mean"], s["pTwoSided"]])
 
+    wmrow = []
+    for name, v in a9.items():
+        wmrow.append(["a", name, v["r"], None, v["nPairs"], "隣接Pearson・(場,R)中心化"])
+    for bname, v in b9.items():
+        for t, c in v["coef"].items():
+            wmrow.append([bname, t, c["est"], c["se"], v["n"], "係数"])
+        wmrow.append([bname, "R2", v["R2"], None, v["n"], "決定係数"])
+    wmrow.append(["mediation", "b_b3_corr", med9["b_b3_corr"], None, None, "√R²(b3)"])
+    wmrow.append(["mediation", "upper_speed", med9["upper_speed"], None, None, "a(風速)×b²"])
+    wmrow.append(["mediation", "upper_component", med9["upper_component"], None, None,
+                  "a(水面成分)×b²"])
+    wmrow.append(["mediation", "referenceResidual_S3D1net", ref_resid, None, None,
+                  "段階8 S3-D1 の net"])
+
     tsrow = []
     for s, t in trS.items():
         for i in range(NQ):
@@ -799,6 +1027,8 @@ def main():
                                "nullA_eq_p97_5", "net", "pTwoSided"], dqrow),
         "quintileTransitionS3.csv": (["set", "fromQ", "toQ", "n", "rowPct"],
                                      tsrow),
+        "windMediation.csv": (["section", "name", "value", "se", "n", "note"],
+                              wmrow),
     }
 
     # 既存出力の再現チェック：1つでも変わったら何も書かずに止まる
@@ -857,6 +1087,19 @@ def main():
         print("%s n=%d T3q=%.6f nullA=%.6f T4q=%.6f p=%.4f"
               % (s, v["nPairs"], v["T3q_cell"], v["nullA_eq"]["mean"],
                  v["T4q_net"], v["pTwoSided"]))
+    print("stage9 matched=%d (before month excl %d) excluded=%s period=%s〜%s pairs=%d"
+          % (M.sum(), have.sum(), excluded_months,
+             mdates[0] if mdates else None, mdates[-1] if mdates else None, len(aW)))
+    print("a: " + " / ".join("%s %.6f (n=%d)" % (k, v["r"], v["nPairs"])
+                             for k, v in a9.items()))
+    print("b R2: " + " / ".join("%s %.6f" % (k, v["R2"]) for k, v in b9.items()))
+    print("upper speed %.8f / component %.8f / ref %.6f"
+          % (med9["upper_speed"], med9["upper_component"], ref_resid))
+    for wname, v in st9W.items():
+        print("%s n=%d T3q=%.6f nullA=%.6f sd=%.6f net=%.6f p=%.4f"
+              % (wname, v["nPairs"], v["T3q"], v["nullA_eq"]["mean"],
+                 v["nullA_eq"]["sd"], v["net"], v["pTwoSided"]))
+    print("underpowered=%s" % underpowered)
     for key, v in st8cases.items():
         print("%s n=%d exS=%d exSinSet=%d exP=%d T3q=%.6f nullA=%.6f net=%.6f p=%.4f"
               % (key, v["nPairs"], v["excludedSeries"],

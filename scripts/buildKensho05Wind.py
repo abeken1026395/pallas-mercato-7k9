@@ -4,6 +4,8 @@
 #
 # 入力 : results/YYYYMMDD.json（DATE_FROM〜DATE_TO）／ docs/data/stadiumBearing.json（読むだけ）
 # 出力 : analysis/kensho05/windCourse1.csv（Z1・Z2・Z3 を unit 列で区別）
+#        analysis/kensho05/windCourse1Venue.csv（場を統制した風速帯別の残差平均・場別の無風率）
+#        既存の windCourse1.csv は再計算して一致を確かめるだけで書き直さない
 #
 # 定義（既存の定義をそのまま使う。変えない）
 #   ①着外   … buildInSurvival.py と同一。「1着」「2着」「3着」が全て整数のとき、
@@ -30,6 +32,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RESULTS_DIR = os.path.join(ROOT, "results")
 BEARING_PATH = os.path.join(ROOT, "docs", "data", "stadiumBearing.json")
 OUT_PATH = os.path.join(ROOT, "analysis", "kensho05", "windCourse1.csv")
+OUT_VENUE_PATH = os.path.join(ROOT, "analysis", "kensho05", "windCourse1Venue.csv")
 
 DATE_FROM = "20250715"
 DATE_TO = "20260913"      # 最終の確定日（20260914 は当日途中のため含めない）
@@ -187,11 +190,76 @@ def main():
               "n_all", "out_all", "rate_all", "ciLow_all", "ciHigh_all", "note_all",
               "n_in1", "out_in1", "rate_in1", "ciLow_in1", "ciHigh_in1", "note_in1",
               "diffPt_in1MinusAll"]
-    os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
-    with open(OUT_PATH, "w", encoding="utf-8", newline="") as f:
+
+    # 作業A：場の統制。①着外(0/1) − その場の①着外率 の残差を風速帯ごとに平均する。
+    # 場の率は版ごと（全レース版／①イン限定版）にその版の標本で計算する。
+    vrows = []
+    versions = (recs, [t for t in recs if t[4]])
+    resid = []
+    for sel in versions:
+        k = {}
+        for t in sel:
+            a = k.setdefault(t[0], [0, 0])
+            a[0] += 1
+            a[1] += t[3]
+        pv = {j: a[1] / a[0] for j, a in k.items()}
+        resid.append([(t[1], t[3] - pv[t[0]]) for t in sel])
+    for band in BANDS + [NOWIND]:
+        line = ["bandResidual", band, band]
+        for rs in resid:
+            x = [v for b, v in rs if b == band]
+            n = len(x)
+            m = sum(x) / n
+            sd = math.sqrt(sum((v - m) ** 2 for v in x) / (n - 1))
+            h = Z95 * sd / math.sqrt(n)
+            line += [n, round(100.0 * m, 2), round(100.0 * (m - h), 2),
+                     round(100.0 * (m + h), 2)]
+        vrows.append(line)
+    for jcd in sorted(bearing):
+        line = ["venueNoWind", jcd, vname[jcd]]
+        for sel in versions:
+            sub = [t for t in sel if t[0] == jcd]
+            n = len(sub)
+            k = sum(1 for t in sub if t[2] == NOWIND)
+            lo, hi = wilson(k, n)
+            lo = max(0.0, lo)   # k=0 のとき浮動小数の誤差で -0.0 になるのを防ぐ
+            line += [n, round(100.0 * k / n, 2), round(100.0 * lo, 2),
+                     round(100.0 * hi, 2)]
+        vrows.append(line)
+    vheader = ["table", "key", "label",
+               "n_all", "value_all", "ciLow_all", "ciHigh_all",
+               "n_in1", "value_in1", "ciLow_in1", "ciHigh_in1"]
+
+    # windCourse1.csv の再現チェック：既存と1つでも違えば何も書かずに止まる
+    if os.path.exists(OUT_PATH):
+        with open(OUT_PATH, encoding="utf-8", newline="") as f:
+            old = list(csv.reader(f))
+        new = [header] + [[str(v) for v in r] for r in rows]
+        if old != new:
+            for i, (a, b) in enumerate(zip(old, new)):
+                if a != b:
+                    print("REPRO NG: windCourse1.csv row%d / 前 %s / 後 %s" % (i, a, b))
+            if len(old) != len(new):
+                print("REPRO NG: windCourse1.csv 行数 / 前 %d / 後 %d" % (len(old), len(new)))
+            stop("windCourse1.csv が再現しない。何も書かない。")
+        print("再現チェック OK: windCourse1.csv")
+    else:
+        os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
+        with open(OUT_PATH, "w", encoding="utf-8", newline="") as f:
+            w = csv.writer(f, lineterminator="\n")
+            w.writerow(header)
+            w.writerows(rows)
+    with open(OUT_VENUE_PATH, "w", encoding="utf-8", newline="") as f:
         w = csv.writer(f, lineterminator="\n")
-        w.writerow(header)
-        w.writerows(rows)
+        w.writerow(vheader)
+        w.writerows(vrows)
+    for r in vrows:
+        if r[0] == "bandResidual":
+            print("残差 %s: 全 n=%d %+.2fpt [%+.2f, %+.2f] / イン n=%d %+.2fpt [%+.2f, %+.2f]"
+                  % tuple(r[2:]))
+    nw = sorted((r for r in vrows if r[0] == "venueNoWind"), key=lambda r: r[4])
+    print("無風率 最小 %s %.2f%% (n=%d) / 最大 %s %.2f%% (n=%d)"
+          % (nw[0][2], nw[0][4], nw[0][3], nw[-1][2], nw[-1][4], nw[-1][3]))
 
     n = len(recs)
     nin = sum(t[4] for t in recs)

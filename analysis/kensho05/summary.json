@@ -22,8 +22,8 @@
     "script": "scripts/buildKensho05Flow.py",
     "python": "3.14.6",
     "numpy": "2.4.6",
-    "runStartedJST": "2026-09-14 16:52 JST",
-    "runFinishedJST": "2026-09-14 17:03 JST",
+    "runStartedJST": "2026-09-14 18:26 JST",
+    "runFinishedJST": "2026-09-14 18:37 JST",
     "seed": 20260914,
     "reps": 1000,
     "input": "payrank/json（リポジトリ外・読み取りのみ）"
@@ -704,5 +704,275 @@
         "pTwoSided": 0.017982
       }
     }
+  },
+  "stage9": {
+    "method": "中心化(eq)・ペア定義(同一系列R差1)・統計量(Pearson)・帰無A_eq(1000回・seed 20260914・同じ置換)は段階6bと同一。ペア集合を突合できた行どうしに限定",
+    "match": {
+      "key": "開催日・場・R（results の 場コード文字列・レース'NR'文字列を変換して照合）",
+      "resultsFiles": {
+        "from": "20250715",
+        "to": "20260913"
+      },
+      "windMissingDefinition": "風速が整数でない、または風向コードが1〜17の整数でない",
+      "monthExclusion": "突合できたレースの風欠損率が10%を超える月を除外",
+      "monthly": [
+        {
+          "month": "202507",
+          "adopted": 4995,
+          "matched": 2729,
+          "windMissing": 0,
+          "missingRate": 0.0
+        },
+        {
+          "month": "202508",
+          "adopted": 4940,
+          "matched": 4940,
+          "windMissing": 0,
+          "missingRate": 0.0
+        },
+        {
+          "month": "202509",
+          "adopted": 4113,
+          "matched": 4113,
+          "windMissing": 0,
+          "missingRate": 0.0
+        },
+        {
+          "month": "202510",
+          "adopted": 4015,
+          "matched": 4015,
+          "windMissing": 0,
+          "missingRate": 0.0
+        },
+        {
+          "month": "202511",
+          "adopted": 3830,
+          "matched": 3830,
+          "windMissing": 0,
+          "missingRate": 0.0
+        },
+        {
+          "month": "202512",
+          "adopted": 4657,
+          "matched": 4657,
+          "windMissing": 0,
+          "missingRate": 0.0
+        },
+        {
+          "month": "202601",
+          "adopted": 5001,
+          "matched": 5001,
+          "windMissing": 0,
+          "missingRate": 0.0
+        },
+        {
+          "month": "202602",
+          "adopted": 4057,
+          "matched": 4057,
+          "windMissing": 0,
+          "missingRate": 0.0
+        },
+        {
+          "month": "202603",
+          "adopted": 4529,
+          "matched": 4529,
+          "windMissing": 0,
+          "missingRate": 0.0
+        },
+        {
+          "month": "202604",
+          "adopted": 4200,
+          "matched": 4200,
+          "windMissing": 0,
+          "missingRate": 0.0
+        },
+        {
+          "month": "202605",
+          "adopted": 4682,
+          "matched": 4682,
+          "windMissing": 0,
+          "missingRate": 0.0
+        },
+        {
+          "month": "202606",
+          "adopted": 4490,
+          "matched": 4490,
+          "windMissing": 0,
+          "missingRate": 0.0
+        },
+        {
+          "month": "202607",
+          "adopted": 4803,
+          "matched": 4803,
+          "windMissing": 0,
+          "missingRate": 0.0
+        },
+        {
+          "month": "202608",
+          "adopted": 4790,
+          "matched": 4790,
+          "windMissing": 0,
+          "missingRate": 0.0
+        },
+        {
+          "month": "202609",
+          "adopted": 141,
+          "matched": 141,
+          "windMissing": 0,
+          "missingRate": 0.0
+        }
+      ],
+      "excludedMonths": [],
+      "period": {
+        "start": "20250715",
+        "end": "20260901"
+      },
+      "matchedBeforeMonthExclusion": 60977,
+      "matchedRaces": 60977,
+      "resultsRacesInPeriod": 62658,
+      "resultsRacesNotInAdopted": 1681,
+      "adjacentPairs": 54354
+    },
+    "a": {
+      "definition": "同一系列R差1ペアの隣接Pearson相関。各変数を(場,R)セル平均で中心化。風向角=(コード-1)×22.5。17=無風は sin/cos/水面成分で欠測（角度0として扱わない）。水面成分は追い風+1/横風0/向かい風-1（facts.md の判定式・stadiumBearing.json）",
+      "vars": {
+        "speed": {
+          "r": 0.789698,
+          "nPairs": 54354
+        },
+        "sin": {
+          "r": 0.822844,
+          "nPairs": 49453
+        },
+        "cos": {
+          "r": 0.789098,
+          "nPairs": 49453
+        },
+        "component": {
+          "r": 0.759228,
+          "nPairs": 49453
+        }
+      }
+    },
+    "b": {
+      "definition": "突合できた行で eq を回帰（OLS・通常の標準誤差）。水面成分ダミーの基準は横風。b3 は 風速×水面成分の交互作用あり。無風は風速が常に0のため speed×無風 は恒等的に0で推定不能（列に入れない）",
+      "models": {
+        "b1": {
+          "n": 60977,
+          "R2": 0.001047,
+          "coef": {
+            "intercept": {
+              "est": -0.098761,
+              "se": 0.010633
+            },
+            "speed": {
+              "est": 0.0259,
+              "se": 0.003239
+            }
+          }
+        },
+        "b2": {
+          "n": 60977,
+          "R2": 0.000107,
+          "coef": {
+            "intercept": {
+              "est": -0.037913,
+              "se": 0.008071
+            },
+            "追い風": {
+              "est": 0.01762,
+              "se": 0.014755
+            },
+            "向かい風": {
+              "est": 0.033405,
+              "se": 0.014161
+            },
+            "無風": {
+              "est": -0.008123,
+              "se": 0.024359
+            }
+          }
+        },
+        "b3": {
+          "n": 60977,
+          "R2": 0.001271,
+          "coef": {
+            "intercept": {
+              "est": -0.136804,
+              "se": 0.016405
+            },
+            "追い風": {
+              "est": 0.034306,
+              "se": 0.029842
+            },
+            "向かい風": {
+              "est": 0.067667,
+              "se": 0.029744
+            },
+            "無風": {
+              "est": 0.090769,
+              "se": 0.028226
+            },
+            "speed": {
+              "est": 0.033752,
+              "se": 0.004875
+            },
+            "speed×追い風": {
+              "est": -0.00572,
+              "se": 0.008849
+            },
+            "speed×向かい風": {
+              "est": -0.012496,
+              "se": 0.008702
+            }
+          }
+        }
+      }
+    },
+    "mediationUpper": {
+      "b_b3_corr": 0.03565,
+      "upper_speed": 0.001004,
+      "upper_component": 0.000965,
+      "referenceResidual_S3D1net": 0.007496,
+      "definition": "上限 = a × b²。a は作業2の風速・水面成分、b は b3 の √R²。比較対象は段階8 S3-D1 の net"
+    },
+    "W0": {
+      "nPairs": 54354,
+      "T3q": 0.028841,
+      "nullA_eq": {
+        "reps": 1000,
+        "mean": 0.02136,
+        "median": 0.021312,
+        "sd": 0.003758,
+        "p2_5": 0.013929,
+        "p50": 0.021312,
+        "p97_5": 0.028881,
+        "observed": 0.028841,
+        "pTwoSided": 0.053946
+      },
+      "net": 0.007481,
+      "pTwoSided": 0.053946,
+      "definition": "風を統制しない"
+    },
+    "W1": {
+      "nPairs": 54354,
+      "T3q": 0.02773,
+      "nullA_eq": {
+        "reps": 1000,
+        "mean": 0.0207,
+        "median": 0.020619,
+        "sd": 0.003766,
+        "p2_5": 0.013281,
+        "p50": 0.020619,
+        "p97_5": 0.028251,
+        "observed": 0.02773,
+        "pTwoSided": 0.065934
+      },
+      "net": 0.00703,
+      "pTwoSided": 0.065934,
+      "definition": "eq から b3 の予測値を引いた残差で計算。帰無は並べ替え後の eq に b3 を当てはめ直して残差化してから計算"
+    },
+    "underpowered": true,
+    "requiredPairs": 55500
   }
 }
