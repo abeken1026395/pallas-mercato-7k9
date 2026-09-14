@@ -230,6 +230,32 @@ def ols(X, y):
     return beta, se, 1 - rss / tss, n
 
 
+def runs(y, seg_start):
+    """y(bool) の最大連（区間の切れ目 seg_start をまたがない）の開始位置と長さ。"""
+    prev_on = np.r_[False, y[:-1]] & ~seg_start
+    next_on = np.r_[y[1:], False] & ~np.r_[seg_start[1:], True]
+    si = np.flatnonzero(y & ~prev_on)
+    ei = np.flatnonzero(y & ~next_on)
+    return si, ei - si + 1
+
+
+def runhist(y, seg_start):
+    """最大連長ごとの件数（添字＝長さ、0〜12）。"""
+    return np.bincount(runs(y, seg_start)[1], minlength=13)[:13]
+
+
+def ks_uniform(p):
+    """一様分布[0,1]に対する1標本 Kolmogorov–Smirnov。統計量Dと漸近p値。"""
+    x = np.sort(p)
+    n = len(x)
+    i = np.arange(1, n + 1)
+    d = float(max((i / n - x).max(), (x - (i - 1) / n).max()))
+    lam = (math.sqrt(n) + 0.12 + 0.11 / math.sqrt(n)) * d
+    j = np.arange(1, 201)
+    pv = float(2 * np.sum((-1.0) ** (j - 1) * np.exp(-2 * j * j * lam * lam)))
+    return d, min(1.0, max(0.0, pv))
+
+
 def lendist7(lens):
     c = np.bincount(np.array(lens), minlength=8)
     out = {str(L): int(c[L]) for L in range(1, 7)}
@@ -328,11 +354,12 @@ RELOCATED = {("stage5", "finiteSeriesBias_nullACenter"): ("stage4", "nullA", "me
 ADDED = {("stage5", "finiteSeriesBias_nullBCenter"): ("stage4", "nullB", "mean"),
          ("stage5", "finiteSeriesBiasNote"): None}
 CHECKED = ["stage0", "stage1", "stage2", "stage3", "stage4", "stage5", "stage6",
-           "stage6b", "stage7", "stage8"]
+           "stage6b", "stage7", "stage8", "stage9"]
 # 既存出力にあれば照合する（後から足した段階）
-CHECKED_IF_PRESENT = ["stage9"]
+CHECKED_IF_PRESENT = ["stage10"]
 # 後から足したCSV（既存出力に無ければ照合しない）
-NEW_CSVS = {"distanceCorrQ.csv", "quintileTransitionS3.csv", "windMediation.csv"}
+NEW_CSVS = {"distanceCorrQ.csv", "quintileTransitionS3.csv", "windMediation.csv",
+            "streakCounts.csv", "extremeDays.csv"}
 
 
 def getpath(o, path):
@@ -554,7 +581,9 @@ def main():
     # 段階9：風。作業1 突合（開催日・場・R）
     resmap, res_files = load_results(RESULTS_DIR, RESULTS_TO)
     with open(BEARING_PATH, encoding="utf-8") as f:
-        bearing = {j: float(v["方位"]) for j, v in json.load(f)["場"].items()}
+        bj = json.load(f)["場"]
+    bearing = {j: float(v["方位"]) for j, v in bj.items()}
+    vnames = {j: v["場名"] for j, v in bj.items()}
     have = np.zeros(n, dtype=bool)
     wmiss = np.zeros(n, dtype=bool)
     wsp = np.full(n, np.nan)
@@ -649,6 +678,18 @@ def main():
     TW0 = pearson(eq[aW], eq[bW])
     TW1 = pearson(rW1[aW], rW1[bW])
 
+    # 段階10 作業1：連続の回数（系列内でRが連続する区間のみ。重複を許さない最大連長）
+    seg_start = np.r_[True, (sid[1:] != sid[:-1]) | (rno[1:] - rno[:-1] != 1)]
+    yH = yA.astype(bool)
+    yL = q == 1
+    hH_obs = runhist(yH, seg_start)
+    hL_obs = runhist(yL, seg_start)
+    # 作業2：系列ごとの s＝隣接ペアの eq の積和
+    s_obs = np.bincount(sid[a1], weights=eq[a1] * eq[b1], minlength=nseries)
+    s_ge = np.zeros(nseries, dtype=np.int64)
+    nullH = np.empty((NREP, len(hH_obs)))
+    nullL = np.empty((NREP, len(hL_obs)))
+
     # ------------------------------------------------------------ 段階4・6の帰無
     # 帰無A：系列内で並べ替え。e と q に同じ置換を使う。
     rng = np.random.default_rng(SEED)
@@ -689,6 +730,11 @@ def main():
         yk = eqp[Midx]
         bufW1[Midx] = yk - Xb3 @ (Pb3 @ yk)
         nullW1[k] = pearson(bufW1[aW], bufW1[bW])
+        # 段階10：同じ系列内の置換で連続の回数と系列ごとの s を数える
+        nullH[k] = runhist(yH[perm], seg_start)
+        nullL[k] = runhist(qp == 1, seg_start)
+        sk = np.bincount(sid[a1], weights=eqp[a1] * eqp[b1], minlength=nseries)
+        s_ge += sk >= s_obs - 1e-12
         if (k + 1) % 100 == 0:
             print("帰無A %d/%d" % (k + 1, NREP))
     # 帰無B：(場,R)セル内で日をまたいで並べ替え。セル平均は不変なので p(場,R) はそのまま。
@@ -773,6 +819,57 @@ def main():
         st9W[wname] = {"nPairs": int(len(aW)), "T3q": obs, "nullA_eq": dW,
                        "net": obs - dW["mean"], "pTwoSided": dW["pTwoSided"]}
     underpowered = len(aW) < REQUIRED_PAIRS
+
+    # 段階10 集計
+    def streak_table(h_obs, h_null):
+        out = {}
+        cols = [(str(k), h_obs[k], h_null[:, k]) for k in range(2, 7)]
+        cols.append(("7+", h_obs[7:].sum(), h_null[:, 7:].sum(axis=1)))
+        for label, ob, nu in cols:
+            dsc = describe(nu.astype(float), float(ob))
+            out[label] = {"observed": int(ob), "nullMean": dsc["mean"],
+                          "nullSd": dsc["sd"], "p2_5": dsc["p2_5"],
+                          "p97_5": dsc["p97_5"],
+                          "ratio": float(ob) / dsc["mean"] if dsc["mean"] > 0 else None,
+                          "pTwoSided": dsc["pTwoSided"]}
+        return out
+    st10H = streak_table(hH_obs, nullH)
+    st10L = streak_table(hL_obs, nullL)
+    p_series = (1 + s_ge) / (1 + NREP)
+    ks_d, ks_p = ks_uniform(p_series)
+    hist10 = np.histogram(p_series, bins=np.linspace(0, 1, 21))[0]
+    npairs_series = np.bincount(sid[a1], minlength=nseries)
+    # 作業3：p値の小さい順に上位50系列（同p値は s の大きい順）
+    siH, lH = runs(yH, seg_start)
+    siL, lL = runs(yL, seg_start)
+    maxH = np.zeros(nseries, dtype=np.int64)
+    maxL = np.zeros(nseries, dtype=np.int64)
+    np.maximum.at(maxH, sid[siH], lH)
+    np.maximum.at(maxL, sid[siL], lL)
+    dvw = {}
+    for (hd, jcd, _), (ms, _) in resmap.items():
+        if is_int(ms):
+            dvw.setdefault((hd, jcd), []).append(ms)
+    top = np.lexsort((-s_obs, p_series))[:50]
+    exrow = []
+    blank_before = blank_missing = 0
+    for rank, s in enumerate(top, 1):
+        i = starts[s]
+        hd, jcd = rows[i][0], rows[i][1]
+        ws = dvw.get((hd, jcd)) if hd >= res_files[0] else None
+        if ws:
+            wm, wr = sum(ws) / len(ws), max(ws) - min(ws)
+            wn = len(ws)
+        else:
+            wm = wr = wn = None
+            if hd < res_files[0]:
+                blank_before += 1
+            else:
+                blank_missing += 1
+        exrow.append([rank, hd, jcd, vnames.get(jcd, ""), int(slen[s]),
+                      int(maxH[s]), int(maxL[s]), float(s_obs[s]),
+                      float(p_series[s]),
+                      None if wm is None else round(wm, 2), wr, wn])
 
     # ------------------------------------------------------------ 段階5
     cnt_s = np.bincount(sid, weights=yA)
@@ -952,6 +1049,35 @@ def main():
             "underpowered": underpowered,
             "requiredPairs": REQUIRED_PAIRS,
         },
+        "stage10": {
+            "streaks": {
+                "definition": "系列(場×日)内でRが連続する区間だけを対象（欠番をまたいで繋がない）。重複を許さない最大連長方式：前後が途切れる最大の連を1件とし、その長さ k にだけ数える（長さ5の連は k=5 に1件、k=2〜4 には数えない）。H＝3連単払戻10,000円以上、L＝払戻の最安帯 q=1。長さ7以上は参考として 7+ にまとめる",
+                "null": "各系列内で並べ替え（段階6bの帰無Aと同じ置換・1000回・seed 20260914）。系列をまたがない",
+                "segments": int(seg_start.sum()),
+                "H": st10H,
+                "L": st10L,
+                "file": "streakCounts.csv",
+            },
+            "seriesConcentration": {
+                "definition": "系列ごとに s＝その系列の隣接ペア(R差1)の eq の積和（eq は段階6bと同一）。系列内並べ替え1000回（帰無Aと同じ置換）で片側p＝(1+#{s_null>=s})/(1+1000)。隣接ペアが無い系列は s=0 で p=1",
+                "nSeries": nseries,
+                "nSeriesNoPairs": int((npairs_series == 0).sum()),
+                "ksStatistic": ks_d,
+                "ksPValue": ks_p,
+                "ksNote": "一様分布[0,1]に対する1標本KS（漸近p値）。p値は 1/1001 刻みの離散値",
+                "nBelow05": int((p_series < 0.05).sum()),
+                "shareBelow05": float((p_series < 0.05).mean()),
+                "histogram005": [int(c) for c in hist10],
+                "histogramNote": "0.05刻み20階級 [0,0.05),[0.05,0.10),…,[0.95,1.00]",
+            },
+            "extremeDays": {
+                "file": "extremeDays.csv",
+                "order": "p値の小さい順、同p値は s の大きい順に上位50系列",
+                "wind": "results の同じ開催日・場の全レースの風速から平均と最大−最小。results の期間（%s〜）外、または該当レースが無い系列は空欄" % res_files[0],
+                "windBlankBeforePeriod": blank_before,
+                "windBlankMissingInPeriod": blank_missing,
+            },
+        },
     }
     summary = roundtree(summary)
 
@@ -1001,6 +1127,12 @@ def main():
     wmrow.append(["mediation", "referenceResidual_S3D1net", ref_resid, None, None,
                   "段階8 S3-D1 の net"])
 
+    strow = []
+    for typ, tab in (("H", st10H), ("L", st10L)):
+        for kk, v in tab.items():
+            strow.append([typ, kk, v["observed"], v["nullMean"], v["nullSd"],
+                          v["p2_5"], v["p97_5"], v["ratio"], v["pTwoSided"]])
+
     tsrow = []
     for s, t in trS.items():
         for i in range(NQ):
@@ -1029,6 +1161,11 @@ def main():
                                      tsrow),
         "windMediation.csv": (["section", "name", "value", "se", "n", "note"],
                               wmrow),
+        "streakCounts.csv": (["type", "k", "observed", "nullMean", "nullSd",
+                              "p2_5", "p97_5", "ratio", "pTwoSided"], strow),
+        "extremeDays.csv": (["rank", "date", "jcd", "venue", "seriesLen",
+                             "maxRunH", "maxRunL", "s", "p", "windMean",
+                             "windRange", "windN"], exrow),
     }
 
     # 既存出力の再現チェック：1つでも変わったら何も書かずに止まる
@@ -1100,6 +1237,16 @@ def main():
               % (wname, v["nPairs"], v["T3q"], v["nullA_eq"]["mean"],
                  v["nullA_eq"]["sd"], v["net"], v["pTwoSided"]))
     print("underpowered=%s" % underpowered)
+    for typ, tab in (("H", st10H), ("L", st10L)):
+        print(typ + ": " + " / ".join(
+            "k=%s obs %d null %.2f ratio %s p %.4f"
+            % (kk, v["observed"], v["nullMean"],
+               "%.3f" % v["ratio"] if v["ratio"] is not None else "-",
+               v["pTwoSided"]) for kk, v in tab.items()))
+    print("KS D=%.6f p=%.3g below05=%d (%.4f) noPairs=%d hist=%s"
+          % (ks_d, ks_p, (p_series < 0.05).sum(), (p_series < 0.05).mean(),
+             (npairs_series == 0).sum(), hist10.tolist()))
+    print("top1 %s / blank before=%d missing=%d" % (exrow[0], blank_before, blank_missing))
     for key, v in st8cases.items():
         print("%s n=%d exS=%d exSinSet=%d exP=%d T3q=%.6f nullA=%.6f net=%.6f p=%.4f"
               % (key, v["nPairs"], v["excludedSeries"],

@@ -22,8 +22,8 @@
     "script": "scripts/buildKensho05Flow.py",
     "python": "3.14.6",
     "numpy": "2.4.6",
-    "runStartedJST": "2026-09-14 18:26 JST",
-    "runFinishedJST": "2026-09-14 18:37 JST",
+    "runStartedJST": "2026-09-14 19:47 JST",
+    "runFinishedJST": "2026-09-14 19:56 JST",
     "seed": 20260914,
     "reps": 1000,
     "input": "payrank/json（リポジトリ外・読み取りのみ）"
@@ -974,5 +974,165 @@
     },
     "underpowered": true,
     "requiredPairs": 55500
+  },
+  "stage10": {
+    "streaks": {
+      "definition": "系列(場×日)内でRが連続する区間だけを対象（欠番をまたいで繋がない）。重複を許さない最大連長方式：前後が途切れる最大の連を1件とし、その長さ k にだけ数える（長さ5の連は k=5 に1件、k=2〜4 には数えない）。H＝3連単払戻10,000円以上、L＝払戻の最安帯 q=1。長さ7以上は参考として 7+ にまとめる",
+      "null": "各系列内で並べ替え（段階6bの帰無Aと同じ置換・1000回・seed 20260914）。系列をまたがない",
+      "segments": 58852,
+      "H": {
+        "2": {
+          "observed": 10394,
+          "nullMean": 10218.689,
+          "nullSd": 82.690302,
+          "p2_5": 10055.875,
+          "p97_5": 10380.025,
+          "ratio": 1.017156,
+          "pTwoSided": 0.023976
+        },
+        "3": {
+          "observed": 1685,
+          "nullMean": 1606.518,
+          "nullSd": 37.301086,
+          "p2_5": 1530.975,
+          "p97_5": 1677.05,
+          "ratio": 1.048852,
+          "pTwoSided": 0.035964
+        },
+        "4": {
+          "observed": 237,
+          "nullMean": 257.742,
+          "nullSd": 15.107935,
+          "p2_5": 229.0,
+          "p97_5": 288.025,
+          "ratio": 0.919524,
+          "pTwoSided": 0.183816
+        },
+        "5": {
+          "observed": 41,
+          "nullMean": 41.224,
+          "nullSd": 6.159689,
+          "p2_5": 29.0,
+          "p97_5": 53.0,
+          "ratio": 0.994566,
+          "pTwoSided": 0.991009
+        },
+        "6": {
+          "observed": 5,
+          "nullMean": 6.617,
+          "nullSd": 2.408758,
+          "p2_5": 2.0,
+          "p97_5": 12.0,
+          "ratio": 0.755629,
+          "pTwoSided": 0.663337
+        },
+        "7+": {
+          "observed": 2,
+          "nullMean": 1.35,
+          "nullSd": 1.128172,
+          "p2_5": 0.0,
+          "p97_5": 4.0,
+          "ratio": 1.481481,
+          "pTwoSided": 0.801199
+        }
+      },
+      "L": {
+        "2": {
+          "observed": 13635,
+          "nullMean": 13420.785,
+          "nullSd": 93.766534,
+          "p2_5": 13224.975,
+          "p97_5": 13608.025,
+          "ratio": 1.015961,
+          "pTwoSided": 0.031968
+        },
+        "3": {
+          "observed": 3129,
+          "nullMean": 2819.813,
+          "nullSd": 47.486872,
+          "p2_5": 2725.0,
+          "p97_5": 2906.0,
+          "ratio": 1.109648,
+          "pTwoSided": 0.001998
+        },
+        "4": {
+          "observed": 762,
+          "nullMean": 630.9,
+          "nullSd": 23.079789,
+          "p2_5": 588.0,
+          "p97_5": 679.025,
+          "ratio": 1.207798,
+          "pTwoSided": 0.001998
+        },
+        "5": {
+          "observed": 204,
+          "nullMean": 148.854,
+          "nullSd": 11.523518,
+          "p2_5": 127.0,
+          "p97_5": 172.0,
+          "ratio": 1.37047,
+          "pTwoSided": 0.001998
+        },
+        "6": {
+          "observed": 47,
+          "nullMean": 35.914,
+          "nullSd": 5.74017,
+          "p2_5": 25.0,
+          "p97_5": 48.0,
+          "ratio": 1.308682,
+          "pTwoSided": 0.077922
+        },
+        "7+": {
+          "observed": 19,
+          "nullMean": 12.196,
+          "nullSd": 3.067735,
+          "p2_5": 7.0,
+          "p97_5": 19.0,
+          "ratio": 1.557888,
+          "pTwoSided": 0.053946
+        }
+      },
+      "file": "streakCounts.csv"
+    },
+    "seriesConcentration": {
+      "definition": "系列ごとに s＝その系列の隣接ペア(R差1)の eq の積和（eq は段階6bと同一）。系列内並べ替え1000回（帰無Aと同じ置換）で片側p＝(1+#{s_null>=s})/(1+1000)。隣接ペアが無い系列は s=0 で p=1",
+      "nSeries": 45995,
+      "nSeriesNoPairs": 17,
+      "ksStatistic": 0.012718,
+      "ksPValue": 1e-06,
+      "ksNote": "一様分布[0,1]に対する1標本KS（漸近p値）。p値は 1/1001 刻みの離散値",
+      "nBelow05": 2505,
+      "shareBelow05": 0.054462,
+      "histogram005": [
+        2505,
+        2455,
+        2307,
+        2379,
+        2284,
+        2317,
+        2398,
+        2243,
+        2305,
+        2301,
+        2220,
+        2288,
+        2305,
+        2272,
+        2265,
+        2261,
+        2256,
+        2176,
+        2199,
+        2259
+      ],
+      "histogramNote": "0.05刻み20階級 [0,0.05),[0.05,0.10),…,[0.95,1.00]"
+    },
+    "extremeDays": {
+      "file": "extremeDays.csv",
+      "order": "p値の小さい順、同p値は s の大きい順に上位50系列",
+      "wind": "results の同じ開催日・場の全レースの風速から平均と最大−最小。results の期間（20250715〜）外、または該当レースが無い系列は空欄",
+      "windBlankBeforePeriod": 42,
+      "windBlankMissingInPeriod": 0
+    }
   }
 }

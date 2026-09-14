@@ -249,10 +249,24 @@ def main():
             w = csv.writer(f, lineterminator="\n")
             w.writerow(header)
             w.writerows(rows)
-    with open(OUT_VENUE_PATH, "w", encoding="utf-8", newline="") as f:
-        w = csv.writer(f, lineterminator="\n")
-        w.writerow(vheader)
-        w.writerows(vrows)
+    # windCourse1Venue.csv も既存があれば一致を確かめるだけで書き直さない
+    if os.path.exists(OUT_VENUE_PATH):
+        with open(OUT_VENUE_PATH, encoding="utf-8", newline="") as f:
+            old = list(csv.reader(f))
+        new = [vheader] + [[str(v) for v in r] for r in vrows]
+        if old != new:
+            for i, (a, b) in enumerate(zip(old, new)):
+                if a != b:
+                    print("REPRO NG: windCourse1Venue.csv row%d / 前 %s / 後 %s" % (i, a, b))
+            if len(old) != len(new):
+                print("REPRO NG: windCourse1Venue.csv 行数 / 前 %d / 後 %d" % (len(old), len(new)))
+            stop("windCourse1Venue.csv が再現しない。")
+        print("再現チェック OK: windCourse1Venue.csv")
+    else:
+        with open(OUT_VENUE_PATH, "w", encoding="utf-8", newline="") as f:
+            w = csv.writer(f, lineterminator="\n")
+            w.writerow(vheader)
+            w.writerows(vrows)
     for r in vrows:
         if r[0] == "bandResidual":
             print("残差 %s: 全 n=%d %+.2fpt [%+.2f, %+.2f] / イン n=%d %+.2fpt [%+.2f, %+.2f]"
