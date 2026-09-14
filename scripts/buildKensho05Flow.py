@@ -7,7 +7,8 @@
 # 入力 : payrank/json/*.json（リポジトリ外・読み取り専用）。1行＝1レース。
 # 出力 : analysis/kensho05/ に集計結果のみ（生データは置かない）
 #   summary.json / cellRates.csv / distanceCorr.csv / dayDispersion.csv /
-#   quintileTransition.csv / nullDist.csv
+#   quintileTransition.csv / nullDist.csv / distanceCorrQ.csv /
+#   quintileTransitionS3.csv
 #
 # 段階0 の分母アサートが1つでも外れたら、何も書かずに終了コード1で止まる。
 #
@@ -64,6 +65,7 @@ def load(indir):
     cnt = dict(total=0, dash0=0, dash0Chushi=0, dash0Other=0, dash1=0,
                dash5=0, dashOther=0, ninkiNonNum=0)
     days = set()
+    vdays = set()
     rows = []
     for n in names:
         with open(os.path.join(indir, n), encoding="utf-8") as f:
@@ -72,6 +74,7 @@ def load(indir):
         for r in d["払戻"]:
             cnt["total"] += 1
             days.add(hd)
+            vdays.add((hd, r["場コード"]))
             kumi = r["組番"]
             k = kumi.count("-")
             if k == 0:
@@ -105,7 +108,37 @@ def load(indir):
     cnt["adopted"] = len(rows)
     cnt["excluded"] = (cnt["dash0"] + cnt["dash1"] + cnt["dash5"]
                        + cnt["dashOther"] + cnt["ninkiNonNum"])
-    return cnt, rows
+    return cnt, rows, vdays
+
+
+def build_setsu(vdays):
+    """同一場で日付を昇順に並べ、1日ずつ連続する塊を1節とする。
+    返り値: {(開催日, 場): (節の何日目, 節の日数)}, 節の日数のリスト"""
+    byv = {}
+    for hd, v in vdays:
+        byv.setdefault(v, []).append(
+            datetime.date(int(hd[:4]), int(hd[4:6]), int(hd[6:])))
+    info = {}
+    lens = []
+    for v, ds in byv.items():
+        ds.sort()
+        block = [ds[0]]
+        for d in ds[1:] + [None]:
+            if d is not None and (d - block[-1]).days == 1:
+                block.append(d)
+                continue
+            lens.append(len(block))
+            for i, b in enumerate(block):
+                info[(b.strftime("%Y%m%d"), v)] = (i + 1, len(block))
+            block = [d]
+    return info, lens
+
+
+def lendist7(lens):
+    c = np.bincount(np.array(lens), minlength=8)
+    out = {str(L): int(c[L]) for L in range(1, 7)}
+    out["7+"] = int(c[7:].sum())
+    return out
 
 
 def assert_stage0(cnt):
@@ -198,7 +231,12 @@ RELOCATED = {("stage5", "finiteSeriesBias_nullACenter"): ("stage4", "nullA", "me
 # 今回足した項目（前の出力には無い）
 ADDED = {("stage5", "finiteSeriesBias_nullBCenter"): ("stage4", "nullB", "mean"),
          ("stage5", "finiteSeriesBiasNote"): None}
-CHECKED = ["stage0", "stage1", "stage2", "stage3", "stage4", "stage5", "stage6"]
+CHECKED = ["stage0", "stage1", "stage2", "stage3", "stage4", "stage5", "stage6",
+           "stage6b"]
+# 既存出力にあれば照合する（後から足した段階）
+CHECKED_IF_PRESENT = ["stage7"]
+# 後から足したCSV（既存出力に無ければ照合しない）
+NEW_CSVS = {"distanceCorrQ.csv", "quintileTransitionS3.csv"}
 
 
 def getpath(o, path):
@@ -232,6 +270,10 @@ def check_repro(summary, csvs):
             continue
         oldf.update(flatten(old[st], (st,)))
         newf.update(flatten(summary[st], (st,)))
+    for st in CHECKED_IF_PRESENT:
+        if st in old:
+            oldf.update(flatten(old[st], (st,)))
+            newf.update(flatten(summary[st], (st,)))
     for op, np_ in RENAMED.items():
         if op in oldf:
             oldf[np_] = oldf.pop(op)
@@ -252,6 +294,8 @@ def check_repro(summary, csvs):
                           newf.get(k, "(なし)")))
     for name, (header, rows) in csvs.items():
         p = os.path.join(OUTDIR, name)
+        if name in NEW_CSVS and not os.path.exists(p):
+            continue
         with open(p, encoding="utf-8", newline="") as f:
             oldrows = list(csv.reader(f))
         w = len(oldrows[0])
@@ -271,7 +315,7 @@ def check_repro(summary, csvs):
 def main():
     indir = sys.argv[1] if len(sys.argv) > 1 else INDIR
     started = jst_now()
-    cnt, rows = load(indir)
+    cnt, rows, vdays = load(indir)
     assert_stage0(cnt)
 
     # 系列キー(開催日, 場)、系列内はR昇順
@@ -349,6 +393,38 @@ def main():
     T2q = pearson(zVq[a1], zVq[b1])
     T3q = pearson(eq[a1], eq[b1])
 
+    # 段階7：節の復元とペア集合の差し替え（中心化・統計量・帰無は段階6bと同一）
+    # 開催日＝入力にその場の行がある日（全行が除外の日も含む）
+    setsu, setsu_lens = build_setsu(vdays)
+    _, setsu_lens_adopted = build_setsu({(t[0], t[1]) for t in rows})
+    starts = np.flatnonzero(np.r_[True, sid[1:] != sid[:-1]])
+    s_day = np.empty(nseries, dtype=np.int64)
+    s_len = np.empty(nseries, dtype=np.int64)
+    for s, i in enumerate(starts):
+        key = (rows[i][0], rows[i][1])
+        if key not in setsu:
+            stop("系列が節に割り当てられない: %s" % (key,))
+        s_day[s], s_len[s] = setsu[key]
+    s_last = s_day == s_len
+    s_pen = s_day == s_len - 1
+    la = s_last[sid[a1]]
+    pa = s_pen[sid[a1]]
+    SDEF = {
+        "S0": "全ペア（段階6bの再掲）",
+        "S1": "節の最終日の系列を除外",
+        "S2": "節の最終日と前日の系列を除外",
+        "S3": "S2 に加えて、ペアの片方でも R>=10 のものを除外",
+    }
+    smask = {
+        "S0": np.ones(len(a1), dtype=bool),
+        "S1": ~la,
+        "S2": ~(la | pa),
+        "S3": ~(la | pa) & (rno[a1] < 10) & (rno[b1] < 10),
+    }
+    spairs = {k: (a1[m], b1[m]) for k, m in smask.items()}
+    T3qS = {k: pearson(eq[aa], eq[bb]) for k, (aa, bb) in spairs.items()}
+    Tqd = {d: pearson(eq[pairs[d][0]], eq[pairs[d][1]]) for d in pairs}
+
     # ------------------------------------------------------------ 段階4・6の帰無
     # 帰無A：系列内で並べ替え。e と q に同じ置換を使う。
     rng = np.random.default_rng(SEED)
@@ -357,6 +433,8 @@ def main():
     nullAd = {d: np.empty(NREP) for d in pairs}
     nullAq = np.empty(NREP)
     nullAeq = np.empty(NREP)
+    nullAS = {s: np.empty(NREP) for s in spairs}
+    nullAqd = {d: np.empty(NREP) for d in pairs}
     for k in range(NREP):
         perm = np.argsort(sidf + rng.random(n))
         ep = e[perm]
@@ -367,6 +445,10 @@ def main():
         nullA[k] = nullAd[1][k]
         nullAq[k] = spearman(qp[a1], qp[b1])
         nullAeq[k] = pearson(eqp[a1], eqp[b1])
+        for s, (aa, bb) in spairs.items():
+            nullAS[s][k] = pearson(eqp[aa], eqp[bb])
+        for d, (aa, bb) in pairs.items():
+            nullAqd[d][k] = pearson(eqp[aa], eqp[bb])
         if (k + 1) % 100 == 0:
             print("帰無A %d/%d" % (k + 1, NREP))
     # 帰無B：(場,R)セル内で日をまたいで並べ替え。セル平均は不変なので p(場,R) はそのまま。
@@ -376,6 +458,7 @@ def main():
     nullB = np.empty(NREP)
     nullBq = np.empty(NREP)
     nullBeq = np.empty(NREP)
+    nullBS = {s: np.empty(NREP) for s in spairs}
     yp = np.empty(n)
     qp = np.empty(n, dtype=np.int64)
     for k in range(NREP):
@@ -387,6 +470,8 @@ def main():
         nullBq[k] = spearman(qp[a1], qp[b1])
         eqp = qp - mqcell[cell]
         nullBeq[k] = pearson(eqp[a1], eqp[b1])
+        for s, (aa, bb) in spairs.items():
+            nullBS[s][k] = pearson(eqp[aa], eqp[bb])
         if (k + 1) % 100 == 0:
             print("帰無B %d/%d" % (k + 1, NREP))
 
@@ -399,6 +484,24 @@ def main():
     dAeq = describe(nullAeq, T3q)
     dBeq = describe(nullBeq, T3q)
     T4q = T3q - dAeq["mean"]
+    st7sets = {}
+    for s, (aa, bb) in spairs.items():
+        dAs = describe(nullAS[s], T3qS[s])
+        st7sets[s] = {
+            "definition": SDEF[s],
+            "nPairs": int(len(aa)),
+            "T3q_cell": T3qS[s],
+            "nullA_eq": dAs,
+            "T4q_net": T3qS[s] - dAs["mean"],
+            "pTwoSided": dAs["pTwoSided"],
+            "nullB_q": describe(nullBS[s], T3qS[s]),
+        }
+
+    def transition(aa, bb):
+        t = np.zeros((NQ, NQ), dtype=np.int64)
+        np.add.at(t, (q[aa] - 1, q[bb] - 1), 1)
+        return t
+    trS = {s: transition(*spairs[s]) for s in ("S0", "S3")}
 
     # ------------------------------------------------------------ 段階5
     cnt_s = np.bincount(sid, weights=yA)
@@ -525,6 +628,21 @@ def main():
             "nullB_q_definition": "(場,R)セル内で日をまたいで q を並べ替え、T3q と同じ中心化で再計算（帰無Bと同じ置換）",
             "note": "yA版とq版のどちらを主にするかは判断しない。Spearman版は stage6 に残す",
         },
+        "stage7": {
+            "setsuDefinition": "同一場で開催日を昇順に並べ、日付が1日ずつ連続する塊を1節とする。1日でも空いたら切る。開催日＝入力にその場の行がある日（全行が除外の場日も含む）",
+            "setsuCount": len(setsu_lens),
+            "setsuLenDist": lendist7(setsu_lens),
+            "venueDaysAllExcluded": len(vdays) - nseries,
+            "reference_setsuLenDist_adoptedDaysOnly": lendist7(setsu_lens_adopted),
+            "reference_setsuCount_adoptedDaysOnly": len(setsu_lens_adopted),
+            "seriesLastDay": int(s_last.sum()),
+            "seriesPenultimateDay": int(s_pen.sum()),
+            "seriesOther": int((~(s_last | s_pen)).sum()),
+            "method": "中心化(eq)・統計量(Pearson)・帰無A_eq・帰無B_q は段階6bと同一（同じ置換）。ペア集合だけ差し替え。pTwoSided は帰無A_eq に対するもの",
+            "sets": st7sets,
+            "distanceCorrQ": "distanceCorrQ.csv",
+            "transition": "quintileTransitionS3.csv（S0 と S3）",
+        },
     }
     summary = roundtree(summary)
 
@@ -554,8 +672,22 @@ def main():
                     + [float(nullAd[d][k]) for d in range(2, DMAX + 1)]
                     + [float(nullAeq[k]), float(nullBeq[k])])
 
+    dqrow = []
+    for d in pairs:
+        s = describe(nullAqd[d], Tqd[d])
+        dqrow.append([d, int(len(pairs[d][0])), Tqd[d], s["mean"], s["sd"],
+                      s["p2_5"], s["p97_5"], Tqd[d] - s["mean"], s["pTwoSided"]])
+
+    tsrow = []
+    for s, t in trS.items():
+        for i in range(NQ):
+            rs = int(t[i].sum())
+            for j in range(NQ):
+                tsrow.append([s, i + 1, j + 1, int(t[i, j]),
+                              float(100.0 * t[i, j] / rs) if rs else float("nan")])
+
     csvs = {
-        "cellRates.csv": (["jcd", "R", "n", "man", "rate"], crow),
+        "cellRates.csv":(["jcd", "R", "n", "man", "rate"], crow),
         "distanceCorr.csv": (["d", "nPairs", "residCorr", "nullA_center",
                               "nullA_sd", "nullA_p2_5", "nullA_p97_5", "net",
                               "pTwoSided"], drow),
@@ -567,10 +699,30 @@ def main():
                           "nullB_qSpearman"]
                          + ["nullA_T_d%d" % d for d in range(2, DMAX + 1)]
                          + ["nullA_eqT", "nullB_qT"], nrow),
+        "distanceCorrQ.csv": (["d", "nPairs", "residCorrQ", "nullA_eq_center",
+                               "nullA_eq_sd", "nullA_eq_p2_5",
+                               "nullA_eq_p97_5", "net", "pTwoSided"], dqrow),
+        "quintileTransitionS3.csv": (["set", "fromQ", "toQ", "n", "rowPct"],
+                                     tsrow),
     }
 
     # 既存出力の再現チェック：1つでも変わったら何も書かずに止まる
     diffs = check_repro(summary, csvs)
+    # 段階7 S0 は段階6bの再掲。支給の期待値とも照合する
+    s0 = summary["stage7"]["sets"]["S0"]
+    b6 = summary["stage6b"]
+    for label, got, exp in [
+            ("stage7/S0/T3q_cell", s0["T3q_cell"], 0.028486),
+            ("stage7/S0/nullA_eq/mean", s0["nullA_eq"]["mean"], 0.018992),
+            ("stage7/S0/T3q_cell vs stage6b", s0["T3q_cell"], b6["T3q_cell"]),
+            ("stage7/S0/T4q_net vs stage6b", s0["T4q_net"], b6["T4q_net"]),
+            ("stage7/S0/nullA_eq vs stage6b", s0["nullA_eq"], b6["nullA_eq"]),
+            ("stage7/S0/nullB_q vs stage6b", s0["nullB_q"], b6["nullB_q"]),
+            ("distanceCorrQ d=1 vs stage6b", r6(Tqd[1]), b6["T3q_cell"]),
+            ("quintileTransitionS3 S0 vs quintileTransition",
+             trS["S0"].tolist(), tr.tolist())]:
+        if got != exp:
+            diffs.append((label, exp, got))
     if diffs:
         for path, old, new in diffs:
             print("REPRO NG: %s / 前 %s / 後 %s" % (path, old, new))
@@ -593,6 +745,11 @@ def main():
     print("Spearman=%.6f nullAq mean=%.6f nullBq mean=%.6f"
           % (S_obs, dAq["mean"], dBq["mean"]))
     print("T1q=%.6f T2q=%.6f T3q=%.6f T4q=%.6f" % (T1q, T2q, T3q, T4q))
+    print("setsu=%d dist=%s" % (len(setsu_lens), lendist7(setsu_lens)))
+    for s, v in st7sets.items():
+        print("%s n=%d T3q=%.6f nullA=%.6f T4q=%.6f p=%.4f"
+              % (s, v["nPairs"], v["T3q_cell"], v["nullA_eq"]["mean"],
+                 v["T4q_net"], v["pTwoSided"]))
     print("nullA_eq mean=%.6f [%.6f, %.6f] p=%.4f / nullB_q mean=%.6f p=%.4f"
           % (dAeq["mean"], dAeq["p2_5"], dAeq["p97_5"], dAeq["pTwoSided"],
              dBeq["mean"], dBeq["pTwoSided"]))
