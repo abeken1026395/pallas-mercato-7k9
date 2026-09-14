@@ -70,10 +70,14 @@
 - quicknav は内部14件＋YouTube＝**15タイル**。ラベル4文字以内（`.qn-lb` 9px・幅56px固定）。**16件目でレイアウトが4行になる**（裁定が要る）
 - 現在地表示は見送りで確定
 
-### 検索エンジン遮断は意図的（削除禁止）
+### 検索エンジンへの公開範囲（2026-09-11 裁定・C案）
 
-`docs/robots.txt` は `User-agent: * / Disallow: /`、全HTMLに `noindex, nofollow`。
-オープンチャット参加者だけが見られる状態を維持するため。**事故ではない。**
+読み物35本は検索に開き、毎日更新される判断画面14本は閉じる（ページの一覧は 7章「制約の3層分け」の C 行）。
+
+- 開く35本：noindex なし・description と OGP あり・`docs/sitemap.xml` に列挙
+- 閉じた14本：`noindex, nofollow` を残す（**削除禁止**）。`docs/robots.txt` でも1本ずつ Disallow
+- **`docs/robots.txt` はクローラーに読まれていない。** robots.txt はホスト直下（`https://abeken1026395.github.io/robots.txt`）だけが読まれ、そこは404（2026-09-14 実測）。閉じたページを実際に守っているのは noindex
+- 2026-09-11 までは robots.txt 全面 Disallow・全HTML noindex で、オープンチャット参加者だけが見る状態だった
 
 ---
 
@@ -96,6 +100,7 @@
 |`docs/data/racerInRate.json`|—|`buildRacerInRate.py`（**WFなし・手動のみ**）|
 |`docs/data/courseFinish.json`|—|`buildCourseFinish.py`（**kdata由来・クラウド再生成不可**）|
 |`docs/data/racerSchedule.json`|`data/racerSchedule.json`|`buildRacerSchedule.py`（正本は `fetchRacerSchedule.py` が公式サイトから取る）|
+|`docs/sitemap.xml`|—|`buildSitemap.py`（`updateSitemap.yml`・JST 04:00）。開く35本だけを列挙、lastmod は最終コミット日時|
 |`docs/data/nigeSecond.json`|`data/nigeSecond/base.csv`|`updateNigeSecond.py`（`updateNigeSecond.yml`・JST 03:30）。**正本も日次で書き換わる**（730日ローリングで古い日を落とす）|
 
 **`/motor/` は2系統が同居する。**`docs/motor/index.html`（`scrape_motors.py` 生成）と `docs/motor/app.js`（`app.jsx` 由来）は別系統。片方を直すときもう片方を触らない。
@@ -434,7 +439,7 @@ AUC 0.6937（2026実測比 −0.0171）／上位10%①着外率 41.1%（**再学
 |---|---|---|
 |**A 触らない**|買い目・確率・予想／選手の内心推測／分母の見えない率／煽り・ダークパターン|**緩めない**|
 |**B 実装の癖**|「数字は貼らない」「表層はバッジ1つ」|**撤回済み**|
-|**C 到達性**|robots.txt 全面 Disallow・noindex・検証への直リンク非公開|**別テーマ**|
+|**C 到達性**|2026-09-11 裁定の C案で実施（siteReachPlan20260911・#427〜#430）。**読み物35本（トップ／検証5本／用語辞典／24場／場の文化／実況アナ／万舟25本）は検索に開く**：noindex 削除・description と OGP・`sitemap.xml`。**毎日更新される判断画面14本（出走表・見どころ・結果・モーター・整備・選手図鑑・更新履歴・占い・相性・勝負運・`next/` 3本・`probe/`）は閉じたまま**：noindex を残し、robots.txt でも1本ずつ Disallow|**実施済み**（計測 V5・Search Console V6 は保留）|
 
 **「誰にも見られていない」の主因はCであってBではない。**文章の質で解こうとしても届かない。
 
