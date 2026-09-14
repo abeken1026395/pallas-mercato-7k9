@@ -178,12 +178,93 @@ def roundtree(o):
     return o
 
 
+def csvcells(row):
+    return [r6(v) if isinstance(v, float) else v for v in row]
+
+
 def write_csv(path, header, rows):
     with open(path, "w", encoding="utf-8", newline="") as f:
         w = csv.writer(f, lineterminator="\n")
         w.writerow(header)
         for row in rows:
-            w.writerow([r6(v) if isinstance(v, float) else v for v in row])
+            w.writerow(csvcells(row))
+
+
+# 過去の出力とキー名が変わった項目（前の名前 → 今の名前）
+RENAMED = {("stage3", "decomposition", "finiteSeriesBias_T3minusT4"):
+           ("stage3", "decomposition", "dayCommon_T3minusT4")}
+# 値の出どころが同じ別項目と照合する（前の場所 → 今の場所）
+RELOCATED = {("stage5", "finiteSeriesBias_nullACenter"): ("stage4", "nullA", "mean")}
+# 今回足した項目（前の出力には無い）
+ADDED = {("stage5", "finiteSeriesBias_nullBCenter"): ("stage4", "nullB", "mean"),
+         ("stage5", "finiteSeriesBiasNote"): None}
+CHECKED = ["stage0", "stage1", "stage2", "stage3", "stage4", "stage5", "stage6"]
+
+
+def getpath(o, path):
+    for k in path:
+        o = o[k]
+    return o
+
+
+def flatten(o, prefix=()):
+    if isinstance(o, dict):
+        out = {}
+        for k, v in o.items():
+            out.update(flatten(v, prefix + (k,)))
+        return out
+    return {prefix: o}
+
+
+def check_repro(summary, csvs):
+    """既存の analysis/kensho05/ と比べ、変わった項目を (項目, 前, 後) で返す。
+    既存出力が無ければ空（初回）。"""
+    sp = os.path.join(OUTDIR, "summary.json")
+    if not os.path.exists(sp):
+        return []
+    with open(sp, encoding="utf-8") as f:
+        old = json.load(f)
+    diffs = []
+    oldf, newf = {}, {}
+    for st in CHECKED:
+        if st not in old:
+            diffs.append((st, "(なし)", "(あり)"))
+            continue
+        oldf.update(flatten(old[st], (st,)))
+        newf.update(flatten(summary[st], (st,)))
+    for op, np_ in RENAMED.items():
+        if op in oldf:
+            oldf[np_] = oldf.pop(op)
+    for op, src in RELOCATED.items():
+        if op in oldf:
+            v = oldf.pop(op)
+            if v != getpath(summary, src):
+                diffs.append(("/".join(op), v, getpath(summary, src)))
+    for np_, src in ADDED.items():
+        if np_ in oldf:
+            continue
+        v = newf.pop(np_, None)
+        if src is not None and v != getpath(old, src):
+            diffs.append(("/".join(np_), getpath(old, src), v))
+    for k in sorted(set(oldf) | set(newf), key=str):
+        if oldf.get(k, "(なし)") != newf.get(k, "(なし)"):
+            diffs.append(("/".join(map(str, k)), oldf.get(k, "(なし)"),
+                          newf.get(k, "(なし)")))
+    for name, (header, rows) in csvs.items():
+        p = os.path.join(OUTDIR, name)
+        with open(p, encoding="utf-8", newline="") as f:
+            oldrows = list(csv.reader(f))
+        w = len(oldrows[0])
+        if header[:w] != oldrows[0]:
+            diffs.append((name + " header", oldrows[0], header[:w]))
+        newrows = [["" if v is None else str(v) for v in csvcells(r)][:w]
+                   for r in rows]
+        if len(newrows) != len(oldrows) - 1:
+            diffs.append((name + " rows", len(oldrows) - 1, len(newrows)))
+        for i, (a, b) in enumerate(zip(oldrows[1:], newrows)):
+            if a != b:
+                diffs.append(("%s row%d" % (name, i + 1), a, b))
+    return diffs
 
 
 # ---------------------------------------------------------------- 本体
@@ -258,6 +339,16 @@ def main():
     # 段階6 の観測値
     S_obs = spearman(q[a1], q[b1])
 
+    # 段階6b：q を段階3と同じ手順で中心化し Pearson で出す
+    qf = q.astype(float)
+    mqcell = np.bincount(cell, weights=qf, minlength=len(venues) * 12) / ncell
+    mqven = np.bincount(ven, weights=qf) / np.bincount(ven)
+    zVq = qf - mqven[ven]
+    eq = qf - mqcell[cell]
+    T1q = pearson(qf[a1], qf[b1])
+    T2q = pearson(zVq[a1], zVq[b1])
+    T3q = pearson(eq[a1], eq[b1])
+
     # ------------------------------------------------------------ 段階4・6の帰無
     # 帰無A：系列内で並べ替え。e と q に同じ置換を使う。
     rng = np.random.default_rng(SEED)
@@ -265,14 +356,17 @@ def main():
     nullA = np.empty(NREP)
     nullAd = {d: np.empty(NREP) for d in pairs}
     nullAq = np.empty(NREP)
+    nullAeq = np.empty(NREP)
     for k in range(NREP):
         perm = np.argsort(sidf + rng.random(n))
         ep = e[perm]
         qp = q[perm]
+        eqp = eq[perm]
         for d, (aa, bb) in pairs.items():
             nullAd[d][k] = pearson(ep[aa], ep[bb])
         nullA[k] = nullAd[1][k]
         nullAq[k] = spearman(qp[a1], qp[b1])
+        nullAeq[k] = pearson(eqp[a1], eqp[b1])
         if (k + 1) % 100 == 0:
             print("帰無A %d/%d" % (k + 1, NREP))
     # 帰無B：(場,R)セル内で日をまたいで並べ替え。セル平均は不変なので p(場,R) はそのまま。
@@ -281,6 +375,7 @@ def main():
     base = np.argsort(cell, kind="stable")
     nullB = np.empty(NREP)
     nullBq = np.empty(NREP)
+    nullBeq = np.empty(NREP)
     yp = np.empty(n)
     qp = np.empty(n, dtype=np.int64)
     for k in range(NREP):
@@ -290,6 +385,8 @@ def main():
         ep = yp - pcell[cell]
         nullB[k] = pearson(ep[a1], ep[b1])
         nullBq[k] = spearman(qp[a1], qp[b1])
+        eqp = qp - mqcell[cell]
+        nullBeq[k] = pearson(eqp[a1], eqp[b1])
         if (k + 1) % 100 == 0:
             print("帰無B %d/%d" % (k + 1, NREP))
 
@@ -299,6 +396,9 @@ def main():
     dBq = describe(nullBq, S_obs)
     centerA = dA["mean"]
     T4 = T3 - centerA
+    dAeq = describe(nullAeq, T3q)
+    dBeq = describe(nullBeq, T3q)
+    T4q = T3q - dAeq["mean"]
 
     # ------------------------------------------------------------ 段階5
     cnt_s = np.bincount(sid, weights=yA)
@@ -377,7 +477,7 @@ def main():
             "decomposition": {
                 "venueDiff_T1minusT2": T1 - T2,
                 "rShape_T2minusT3": T2 - T3,
-                "finiteSeriesBias_T3minusT4": T3 - T4,
+                "dayCommon_T3minusT4": T3 - T4,
             },
         },
         "stage4": {
@@ -394,7 +494,8 @@ def main():
             "dayCommon_definition": "系列ごとの荒れ本数の分散(ddof=1) ÷ 同じ系列長の二項分布の期待分散 L*p*(1-p)（p=その系列長群の荒れ率）。系列長別は dayDispersion.csv、pooled は (nSeries-1) 重み",
             "rShape_rateByR": rateR,
             "venueDiff_rateByVenue": rateV,
-            "finiteSeriesBias_nullACenter": centerA,
+            "finiteSeriesBias_nullBCenter": dB["mean"],
+            "finiteSeriesBiasNote": "帰無Bは日の共通要因を壊し(場,R)は保存するため、その中心が有限系列バイアス単独の量",
         },
         "stage6": {
             "statistic": "隣接ペアの q の Spearman 順位相関（中心化なし、同順位は平均順位）",
@@ -405,33 +506,39 @@ def main():
             "transition": "quintileTransition.csv",
             "note": "yA版とq版のどちらを主にするかは判断しない",
         },
+        "stage6b": {
+            "statistic": "q を段階3と同じ手順で中心化した隣接ペアの Pearson 相関（eq = q - mean_q(場,R)、288セル）",
+            "T1q_raw": T1q,
+            "T2q_venue": T2q,
+            "T3q_cell": T3q,
+            "T4q_net": T4q,
+            "cells": 288,
+            "decomposition": {
+                "venueDiff_T1qminusT2q": T1q - T2q,
+                "rShape_T2qminusT3q": T2q - T3q,
+                "dayCommon_T3qminusT4q": T3q - T4q,
+            },
+            "nullA_eq_center_shiftFromZero": dAeq["mean"],
+            "nullA_eq": dAeq,
+            "nullA_eq_definition": "各系列内で eq を並べ替えて T3q を再計算（帰無Aと同じ置換）",
+            "nullB_q": dBeq,
+            "nullB_q_definition": "(場,R)セル内で日をまたいで q を並べ替え、T3q と同じ中心化で再計算（帰無Bと同じ置換）",
+            "note": "yA版とq版のどちらを主にするかは判断しない。Spearman版は stage6 に残す",
+        },
     }
-    os.makedirs(OUTDIR, exist_ok=True)
-    with open(os.path.join(OUTDIR, "summary.json"), "w", encoding="utf-8",
-              newline="\n") as f:
-        json.dump(roundtree(summary), f, ensure_ascii=False, indent=2)
-        f.write("\n")
+    summary = roundtree(summary)
 
     crow = []
     for i, v in enumerate(venues):
         for R in range(1, 13):
             c = i * 12 + R - 1
             crow.append([v, R, int(ncell[c]), int(mcell[c]), float(pcell[c])])
-    write_csv(os.path.join(OUTDIR, "cellRates.csv"),
-              ["jcd", "R", "n", "man", "rate"], crow)
 
     drow = []
     for d in pairs:
         s = describe(nullAd[d], Td[d])
         drow.append([d, int(len(pairs[d][0])), Td[d], s["mean"], s["sd"],
                      s["p2_5"], s["p97_5"], Td[d] - s["mean"], s["pTwoSided"]])
-    write_csv(os.path.join(OUTDIR, "distanceCorr.csv"),
-              ["d", "nPairs", "residCorr", "nullA_center", "nullA_sd",
-               "nullA_p2_5", "nullA_p97_5", "net", "pTwoSided"], drow)
-
-    write_csv(os.path.join(OUTDIR, "dayDispersion.csv"),
-              ["seriesLen", "nSeries", "meanMan", "varMan", "pHat",
-               "expVarBinom", "overdispersionRatio"], disp_rows)
 
     qrow = []
     for i in range(NQ):
@@ -439,17 +546,44 @@ def main():
         for j in range(NQ):
             qrow.append([i + 1, j + 1, int(tr[i, j]),
                          float(100.0 * tr[i, j] / rs) if rs else float("nan")])
-    write_csv(os.path.join(OUTDIR, "quintileTransition.csv"),
-              ["fromQ", "toQ", "n", "rowPct"], qrow)
 
     nrow = []
     for k in range(NREP):
         nrow.append([k + 1, float(nullA[k]), float(nullB[k]),
                      float(nullAq[k]), float(nullBq[k])]
-                    + [float(nullAd[d][k]) for d in range(2, DMAX + 1)])
-    write_csv(os.path.join(OUTDIR, "nullDist.csv"),
-              ["rep", "nullA_T", "nullB_T", "nullA_qSpearman", "nullB_qSpearman"]
-              + ["nullA_T_d%d" % d for d in range(2, DMAX + 1)], nrow)
+                    + [float(nullAd[d][k]) for d in range(2, DMAX + 1)]
+                    + [float(nullAeq[k]), float(nullBeq[k])])
+
+    csvs = {
+        "cellRates.csv": (["jcd", "R", "n", "man", "rate"], crow),
+        "distanceCorr.csv": (["d", "nPairs", "residCorr", "nullA_center",
+                              "nullA_sd", "nullA_p2_5", "nullA_p97_5", "net",
+                              "pTwoSided"], drow),
+        "dayDispersion.csv": (["seriesLen", "nSeries", "meanMan", "varMan",
+                               "pHat", "expVarBinom", "overdispersionRatio"],
+                              disp_rows),
+        "quintileTransition.csv": (["fromQ", "toQ", "n", "rowPct"], qrow),
+        "nullDist.csv": (["rep", "nullA_T", "nullB_T", "nullA_qSpearman",
+                          "nullB_qSpearman"]
+                         + ["nullA_T_d%d" % d for d in range(2, DMAX + 1)]
+                         + ["nullA_eqT", "nullB_qT"], nrow),
+    }
+
+    # 既存出力の再現チェック：1つでも変わったら何も書かずに止まる
+    diffs = check_repro(summary, csvs)
+    if diffs:
+        for path, old, new in diffs:
+            print("REPRO NG: %s / 前 %s / 後 %s" % (path, old, new))
+        stop("既存値が再現しない。何も書かない。")
+    print("再現チェック OK")
+
+    os.makedirs(OUTDIR, exist_ok=True)
+    with open(os.path.join(OUTDIR, "summary.json"), "w", encoding="utf-8",
+              newline="\n") as f:
+        json.dump(summary, f, ensure_ascii=False, indent=2)
+        f.write("\n")
+    for name, (header, rows_) in csvs.items():
+        write_csv(os.path.join(OUTDIR, name), header, rows_)
 
     print("manRate=%.6f bounds=%s series=%d pairs=%d breaks=%d"
           % (yA.mean(), bounds, nseries, len(a1), breaks))
@@ -458,6 +592,10 @@ def main():
           % (dA["mean"], dA["p2_5"], dA["p97_5"], dA["pTwoSided"], dB["mean"]))
     print("Spearman=%.6f nullAq mean=%.6f nullBq mean=%.6f"
           % (S_obs, dAq["mean"], dBq["mean"]))
+    print("T1q=%.6f T2q=%.6f T3q=%.6f T4q=%.6f" % (T1q, T2q, T3q, T4q))
+    print("nullA_eq mean=%.6f [%.6f, %.6f] p=%.4f / nullB_q mean=%.6f p=%.4f"
+          % (dAeq["mean"], dAeq["p2_5"], dAeq["p97_5"], dAeq["pTwoSided"],
+             dBeq["mean"], dBeq["pTwoSided"]))
 
 
 if __name__ == "__main__":

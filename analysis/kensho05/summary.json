@@ -22,8 +22,8 @@
     "script": "scripts/buildKensho05Flow.py",
     "python": "3.14.6",
     "numpy": "2.4.6",
-    "runStartedJST": "2026-09-14 12:32 JST",
-    "runFinishedJST": "2026-09-14 12:37 JST",
+    "runStartedJST": "2026-09-14 14:21 JST",
+    "runFinishedJST": "2026-09-14 14:26 JST",
     "seed": 20260914,
     "reps": 1000,
     "input": "payrank/json（リポジトリ外・読み取りのみ）"
@@ -84,7 +84,7 @@
     "decomposition": {
       "venueDiff_T1minusT2": 0.001478,
       "rShape_T2minusT3": 0.001021,
-      "finiteSeriesBias_T3minusT4": 0.002388
+      "dayCommon_T3minusT4": 0.002388
     }
   },
   "stage4": {
@@ -339,7 +339,8 @@
         "rate": 0.148223
       }
     ],
-    "finiteSeriesBias_nullACenter": 0.002388
+    "finiteSeriesBias_nullBCenter": -4.8e-05,
+    "finiteSeriesBiasNote": "帰無Bは日の共通要因を壊し(場,R)は保存するため、その中心が有限系列バイアス単独の量"
   },
   "stage6": {
     "statistic": "隣接ペアの q の Spearman 順位相関（中心化なし、同順位は平均順位）",
@@ -369,5 +370,44 @@
     "nullA_q_center_shiftFromZero": 0.028294,
     "transition": "quintileTransition.csv",
     "note": "yA版とq版のどちらを主にするかは判断しない"
+  },
+  "stage6b": {
+    "statistic": "q を段階3と同じ手順で中心化した隣接ペアの Pearson 相関（eq = q - mean_q(場,R)、288セル）",
+    "T1q_raw": 0.05149,
+    "T2q_venue": 0.039888,
+    "T3q_cell": 0.028486,
+    "T4q_net": 0.009494,
+    "cells": 288,
+    "decomposition": {
+      "venueDiff_T1qminusT2q": 0.011601,
+      "rShape_T2qminusT3q": 0.011402,
+      "dayCommon_T3qminusT4q": 0.018992
+    },
+    "nullA_eq_center_shiftFromZero": 0.018992,
+    "nullA_eq": {
+      "reps": 1000,
+      "mean": 0.018992,
+      "median": 0.018978,
+      "sd": 0.001308,
+      "p2_5": 0.0165,
+      "p50": 0.018978,
+      "p97_5": 0.021518,
+      "observed": 0.028486,
+      "pTwoSided": 0.001998
+    },
+    "nullA_eq_definition": "各系列内で eq を並べ替えて T3q を再計算（帰無Aと同じ置換）",
+    "nullB_q": {
+      "reps": 1000,
+      "mean": -2.7e-05,
+      "median": -7.1e-05,
+      "sd": 0.001458,
+      "p2_5": -0.002802,
+      "p50": -7.1e-05,
+      "p97_5": 0.002807,
+      "observed": 0.028486,
+      "pTwoSided": 0.001998
+    },
+    "nullB_q_definition": "(場,R)セル内で日をまたいで q を並べ替え、T3q と同じ中心化で再計算（帰無Bと同じ置換）",
+    "note": "yA版とq版のどちらを主にするかは判断しない。Spearman版は stage6 に残す"
   }
 }
