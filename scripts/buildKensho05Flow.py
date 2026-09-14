@@ -134,6 +134,40 @@ def build_setsu(vdays):
     return info, lens
 
 
+def detrend_prep(sid, x, slen, deg):
+    """系列ごとの多項式回帰（切片つき）の準備。
+    返り値: 説明変数行列, 系列ごとの (X'X)^-1, 残す系列のマスク"""
+    ns = len(slen)
+    X = np.vstack([x ** p for p in range(deg + 1)]).T
+    k = deg + 1
+    xtx = np.zeros((ns, k, k))
+    for i in range(k):
+        for j in range(k):
+            xtx[:, i, j] = np.bincount(sid, weights=X[:, i] * X[:, j],
+                                       minlength=ns)
+    keep = slen >= deg + 2
+    inv = np.zeros_like(xtx)
+    inv[keep] = np.linalg.inv(xtx[keep])
+    return X, inv, keep
+
+
+def detrend(y, sid, ns, X, inv, keep):
+    """系列ごとに y を X に回帰した残差。除外系列は係数0（使わない）。"""
+    xty = np.stack([np.bincount(sid, weights=X[:, i] * y, minlength=ns)
+                    for i in range(X.shape[1])], axis=1)
+    beta = np.einsum("sij,sj->si", inv, xty)
+    return y - (X * beta[sid]).sum(axis=1)
+
+
+def detrend_check(res, sid, ns, X, inv, keep):
+    """残す系列で残差が各説明変数と直交しているか（最大絶対値）。"""
+    worst = 0.0
+    for i in range(X.shape[1]):
+        g = np.bincount(sid, weights=X[:, i] * res, minlength=ns)[keep]
+        worst = max(worst, float(np.abs(g).max()))
+    return worst
+
+
 def lendist7(lens):
     c = np.bincount(np.array(lens), minlength=8)
     out = {str(L): int(c[L]) for L in range(1, 7)}
@@ -232,9 +266,9 @@ RELOCATED = {("stage5", "finiteSeriesBias_nullACenter"): ("stage4", "nullA", "me
 ADDED = {("stage5", "finiteSeriesBias_nullBCenter"): ("stage4", "nullB", "mean"),
          ("stage5", "finiteSeriesBiasNote"): None}
 CHECKED = ["stage0", "stage1", "stage2", "stage3", "stage4", "stage5", "stage6",
-           "stage6b"]
+           "stage6b", "stage7"]
 # 既存出力にあれば照合する（後から足した段階）
-CHECKED_IF_PRESENT = ["stage7"]
+CHECKED_IF_PRESENT = ["stage8"]
 # 後から足したCSV（既存出力に無ければ照合しない）
 NEW_CSVS = {"distanceCorrQ.csv", "quintileTransitionS3.csv"}
 
@@ -425,6 +459,36 @@ def main():
     T3qS = {k: pearson(eq[aa], eq[bb]) for k, (aa, bb) in spairs.items()}
     Tqd = {d: pearson(eq[pairs[d][0]], eq[pairs[d][1]]) for d in pairs}
 
+    # 段階8：系列内で eq を R の多項式に回帰した残差で統計量を計算（日内トレンドの除去）
+    # 系列長 < 次数+2 の系列は系列ごと除外。帰無側は並べ替え後に同じ残差化を行う。
+    Rc = rno.astype(float) - 6.5
+    DDEG = {"D0": None, "D1": 1, "D2": 2}
+    dprep = {D: detrend_prep(sid, Rc, slen, deg)
+             for D, deg in DDEG.items() if deg is not None}
+    c8 = {}
+    for S in ("S0", "S3"):
+        aa0, bb0 = spairs[S]
+        for D, deg in DDEG.items():
+            if deg is None:
+                c8[(S, D)] = dict(pairs=(aa0, bb0), exSeries=0, exSeriesInSet=0,
+                                  exPairs=0)
+                continue
+            keep_s = dprep[D][2]
+            m = keep_s[sid[aa0]]
+            c8[(S, D)] = dict(
+                pairs=(aa0[m], bb0[m]),
+                exSeries=int((~keep_s).sum()),
+                exSeriesInSet=int(np.unique(sid[aa0[~m]]).size),
+                exPairs=int((~m).sum()))
+    res8 = {"D0": eq}
+    for D in dprep:
+        res8[D] = detrend(eq, sid, nseries, *dprep[D])
+        chk = detrend_check(res8[D], sid, nseries, *dprep[D])
+        if chk > 1e-8:
+            stop("残差化の直交性が崩れている: %s %.3g" % (D, chk))
+    T8 = {key: pearson(res8[key[1]][v["pairs"][0]], res8[key[1]][v["pairs"][1]])
+          for key, v in c8.items()}
+
     # ------------------------------------------------------------ 段階4・6の帰無
     # 帰無A：系列内で並べ替え。e と q に同じ置換を使う。
     rng = np.random.default_rng(SEED)
@@ -435,6 +499,7 @@ def main():
     nullAeq = np.empty(NREP)
     nullAS = {s: np.empty(NREP) for s in spairs}
     nullAqd = {d: np.empty(NREP) for d in pairs}
+    nullA8 = {key: np.empty(NREP) for key in c8}
     for k in range(NREP):
         perm = np.argsort(sidf + rng.random(n))
         ep = e[perm]
@@ -449,6 +514,13 @@ def main():
             nullAS[s][k] = pearson(eqp[aa], eqp[bb])
         for d, (aa, bb) in pairs.items():
             nullAqd[d][k] = pearson(eqp[aa], eqp[bb])
+        # 並べ替え後の系列に観測と同じ残差化をかけてから計算する
+        resp = {"D0": eqp}
+        for D in dprep:
+            resp[D] = detrend(eqp, sid, nseries, *dprep[D])
+        for key, v in c8.items():
+            aa, bb = v["pairs"]
+            nullA8[key][k] = pearson(resp[key[1]][aa], resp[key[1]][bb])
         if (k + 1) % 100 == 0:
             print("帰無A %d/%d" % (k + 1, NREP))
     # 帰無B：(場,R)セル内で日をまたいで並べ替え。セル平均は不変なので p(場,R) はそのまま。
@@ -502,6 +574,22 @@ def main():
         np.add.at(t, (q[aa] - 1, q[bb] - 1), 1)
         return t
     trS = {s: transition(*spairs[s]) for s in ("S0", "S3")}
+
+    st8cases = {}
+    for (S, D), v in c8.items():
+        dA8 = describe(nullA8[(S, D)], T8[(S, D)])
+        st8cases["%s-%s" % (S, D)] = {
+            "pairSet": S,
+            "detrend": D,
+            "nPairs": int(len(v["pairs"][0])),
+            "excludedSeries": v["exSeries"],
+            "excludedSeriesInPairSet": v["exSeriesInSet"],
+            "excludedPairs": v["exPairs"],
+            "T3q": T8[(S, D)],
+            "nullA_eq": dA8,
+            "net": T8[(S, D)] - dA8["mean"],
+            "pTwoSided": dA8["pTwoSided"],
+        }
 
     # ------------------------------------------------------------ 段階5
     cnt_s = np.bincount(sid, weights=yA)
@@ -643,6 +731,13 @@ def main():
             "distanceCorrQ": "distanceCorrQ.csv",
             "transition": "quintileTransitionS3.csv（S0 と S3）",
         },
+        "stage8": {
+            "method": "中心化(eq)・ペア定義・統計量(Pearson)・帰無A_eq(1000回・seed 20260914・同じ置換)は段階6bと同一。系列(場×日)ごとに eq を R の多項式（切片つき）に回帰した残差で統計量を計算。帰無は系列内で eq を並べ替えた後に同じ回帰・残差化を行ってから計算",
+            "detrendDefinition": {"D0": "トレンド除去なし", "D1": "R の1次式", "D2": "R の2次式"},
+            "exclusion": "系列長が次数+2 に満たない系列は系列ごと除外（D1: 3本未満、D2: 4本未満）。excludedSeries は全体の除外系列数、excludedSeriesInPairSet はそのペア集合にペアを持っていた除外系列数、excludedPairs はそれで落ちたペア数",
+            "pairSets": {"S0": SDEF["S0"], "S3": SDEF["S3"]},
+            "cases": st8cases,
+        },
     }
     summary = roundtree(summary)
 
@@ -720,7 +815,19 @@ def main():
             ("stage7/S0/nullB_q vs stage6b", s0["nullB_q"], b6["nullB_q"]),
             ("distanceCorrQ d=1 vs stage6b", r6(Tqd[1]), b6["T3q_cell"]),
             ("quintileTransitionS3 S0 vs quintileTransition",
-             trS["S0"].tolist(), tr.tolist())]:
+             trS["S0"].tolist(), tr.tolist()),
+            ("stage8/S0-D0/T3q", summary["stage8"]["cases"]["S0-D0"]["T3q"],
+             0.028486),
+            ("stage8/S0-D0/nullA_eq/mean",
+             summary["stage8"]["cases"]["S0-D0"]["nullA_eq"]["mean"], 0.018992),
+            ("stage8/S0-D0/nullA_eq vs stage6b",
+             summary["stage8"]["cases"]["S0-D0"]["nullA_eq"], b6["nullA_eq"]),
+            ("stage8/S3-D0/T3q vs stage7 S3",
+             summary["stage8"]["cases"]["S3-D0"]["T3q"],
+             summary["stage7"]["sets"]["S3"]["T3q_cell"]),
+            ("stage8/S3-D0/nullA_eq vs stage7 S3",
+             summary["stage8"]["cases"]["S3-D0"]["nullA_eq"],
+             summary["stage7"]["sets"]["S3"]["nullA_eq"])]:
         if got != exp:
             diffs.append((label, exp, got))
     if diffs:
@@ -750,6 +857,11 @@ def main():
         print("%s n=%d T3q=%.6f nullA=%.6f T4q=%.6f p=%.4f"
               % (s, v["nPairs"], v["T3q_cell"], v["nullA_eq"]["mean"],
                  v["T4q_net"], v["pTwoSided"]))
+    for key, v in st8cases.items():
+        print("%s n=%d exS=%d exSinSet=%d exP=%d T3q=%.6f nullA=%.6f net=%.6f p=%.4f"
+              % (key, v["nPairs"], v["excludedSeries"],
+                 v["excludedSeriesInPairSet"], v["excludedPairs"], v["T3q"],
+                 v["nullA_eq"]["mean"], v["net"], v["pTwoSided"]))
     print("nullA_eq mean=%.6f [%.6f, %.6f] p=%.4f / nullB_q mean=%.6f p=%.4f"
           % (dAeq["mean"], dAeq["p2_5"], dAeq["p97_5"], dAeq["pTwoSided"],
              dBeq["mean"], dBeq["pTwoSided"]))

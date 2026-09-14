@@ -22,8 +22,8 @@
     "script": "scripts/buildKensho05Flow.py",
     "python": "3.14.6",
     "numpy": "2.4.6",
-    "runStartedJST": "2026-09-14 15:49 JST",
-    "runFinishedJST": "2026-09-14 15:56 JST",
+    "runStartedJST": "2026-09-14 16:52 JST",
+    "runFinishedJST": "2026-09-14 17:03 JST",
     "seed": 20260914,
     "reps": 1000,
     "input": "payrank/json（リポジトリ外・読み取りのみ）"
@@ -557,5 +557,152 @@
     },
     "distanceCorrQ": "distanceCorrQ.csv",
     "transition": "quintileTransitionS3.csv（S0 と S3）"
+  },
+  "stage8": {
+    "method": "中心化(eq)・ペア定義・統計量(Pearson)・帰無A_eq(1000回・seed 20260914・同じ置換)は段階6bと同一。系列(場×日)ごとに eq を R の多項式（切片つき）に回帰した残差で統計量を計算。帰無は系列内で eq を並べ替えた後に同じ回帰・残差化を行ってから計算",
+    "detrendDefinition": {
+      "D0": "トレンド除去なし",
+      "D1": "R の1次式",
+      "D2": "R の2次式"
+    },
+    "exclusion": "系列長が次数+2 に満たない系列は系列ごと除外（D1: 3本未満、D2: 4本未満）。excludedSeries は全体の除外系列数、excludedSeriesInPairSet はそのペア集合にペアを持っていた除外系列数、excludedPairs はそれで落ちたペア数",
+    "pairSets": {
+      "S0": "全ペア（段階6bの再掲）",
+      "S3": "S2 に加えて、ペアの片方でも R>=10 のものを除外"
+    },
+    "cases": {
+      "S0-D0": {
+        "pairSet": "S0",
+        "detrend": "D0",
+        "nPairs": 475478,
+        "excludedSeries": 0,
+        "excludedSeriesInPairSet": 0,
+        "excludedPairs": 0,
+        "T3q": 0.028486,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.018992,
+          "median": 0.018978,
+          "sd": 0.001308,
+          "p2_5": 0.0165,
+          "p50": 0.018978,
+          "p97_5": 0.021518,
+          "observed": 0.028486,
+          "pTwoSided": 0.001998
+        },
+        "net": 0.009494,
+        "pTwoSided": 0.001998
+      },
+      "S0-D1": {
+        "pairSet": "S0",
+        "detrend": "D1",
+        "nPairs": 475465,
+        "excludedSeries": 30,
+        "excludedSeriesInPairSet": 13,
+        "excludedPairs": 13,
+        "T3q": -0.179196,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": -0.184684,
+          "median": -0.184694,
+          "sd": 0.001367,
+          "p2_5": -0.187257,
+          "p50": -0.184694,
+          "p97_5": -0.18198,
+          "observed": -0.179196,
+          "pTwoSided": 0.003996
+        },
+        "net": 0.005487,
+        "pTwoSided": 0.003996
+      },
+      "S0-D2": {
+        "pairSet": "S0",
+        "detrend": "D2",
+        "nPairs": 475431,
+        "excludedSeries": 48,
+        "excludedSeriesInPairSet": 31,
+        "excludedPairs": 47,
+        "T3q": -0.268022,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": -0.270934,
+          "median": -0.270964,
+          "sd": 0.001326,
+          "p2_5": -0.273461,
+          "p50": -0.270964,
+          "p97_5": -0.268378,
+          "observed": -0.268022,
+          "pTwoSided": 0.031968
+        },
+        "net": 0.002913,
+        "pTwoSided": 0.031968
+      },
+      "S3-D0": {
+        "pairSet": "S3",
+        "detrend": "D0",
+        "nPairs": 221167,
+        "excludedSeries": 0,
+        "excludedSeriesInPairSet": 0,
+        "excludedPairs": 0,
+        "T3q": 0.024375,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.018692,
+          "median": 0.018615,
+          "sd": 0.00201,
+          "p2_5": 0.014878,
+          "p50": 0.018615,
+          "p97_5": 0.022765,
+          "observed": 0.024375,
+          "pTwoSided": 0.015984
+        },
+        "net": 0.005683,
+        "pTwoSided": 0.015984
+      },
+      "S3-D1": {
+        "pairSet": "S3",
+        "detrend": "D1",
+        "nPairs": 221157,
+        "excludedSeries": 30,
+        "excludedSeriesInPairSet": 10,
+        "excludedPairs": 10,
+        "T3q": -0.153276,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": -0.160772,
+          "median": -0.160796,
+          "sd": 0.001989,
+          "p2_5": -0.16467,
+          "p50": -0.160796,
+          "p97_5": -0.156706,
+          "observed": -0.153276,
+          "pTwoSided": 0.001998
+        },
+        "net": 0.007496,
+        "pTwoSided": 0.001998
+      },
+      "S3-D2": {
+        "pairSet": "S3",
+        "detrend": "D2",
+        "nPairs": 221129,
+        "excludedSeries": 48,
+        "excludedSeriesInPairSet": 25,
+        "excludedPairs": 38,
+        "T3q": -0.245512,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": -0.25073,
+          "median": -0.250709,
+          "sd": 0.001958,
+          "p2_5": -0.254367,
+          "p50": -0.250709,
+          "p97_5": -0.24702,
+          "observed": -0.245512,
+          "pTwoSided": 0.017982
+        },
+        "net": 0.005218,
+        "pTwoSided": 0.017982
+      }
+    }
   }
 }
