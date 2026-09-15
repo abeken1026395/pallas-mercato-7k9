@@ -30,7 +30,7 @@ VENUES = [
 # 開く35本（トップ／検証5本／用語辞典・24場・場の文化・実況アナ／万舟25本）
 OPEN = (
     [""]
-    + ["kensho/", "kensho/shobugake/", "kensho/taiju/", "kensho/fmochi/", "kensho/ninki/"]
+    + ["kensho/", "kensho/shobugake/", "kensho/taiju/", "kensho/fmochi/", "kensho/flow/", "kensho/ninki/"]
     + ["glossary/", "stadium/", "fan/", "announcers/"]
     + ["payouts/"]
     + ["%s-payouts/" % v for v in VENUES]
@@ -49,8 +49,8 @@ def lastmod(rel):
 
 
 def main():
-    if len(OPEN) != 35 or len(set(OPEN)) != 35:
-        sys.exit("開くページの数が35本ではない: %d" % len(OPEN))
+    if len(OPEN) != 36 or len(set(OPEN)) != 36:
+        sys.exit("開くページの数が36本ではない: %d" % len(OPEN))
     rows = []
     for path in OPEN:
         rel = "docs/%sindex.html" % path
