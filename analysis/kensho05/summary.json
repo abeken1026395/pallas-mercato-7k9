@@ -22,8 +22,8 @@
     "script": "scripts/buildKensho05Flow.py",
     "python": "3.14.6",
     "numpy": "2.4.6",
-    "runStartedJST": "2026-09-14 22:38 JST",
-    "runFinishedJST": "2026-09-14 22:50 JST",
+    "runStartedJST": "2026-09-16 01:56 JST",
+    "runFinishedJST": "2026-09-16 02:09 JST",
     "seed": 20260914,
     "reps": 1000,
     "input": "payrank/json（リポジトリ外・読み取りのみ）"
@@ -2933,5 +2933,982 @@
     },
     "lowestBandNote": "最安帯 q=1 の最大連長（段階10のLと同一）を場別に。n は場の q=1 レース数",
     "file": "venueBreakdown.csv"
+  },
+  "stage13": {
+    "items": {
+      "keys": [
+        "風速",
+        "風向コード",
+        "波高",
+        "気温",
+        "水温",
+        "天候コード"
+      ],
+      "note": "results の race レベルに実在する実測条件のキーは6つ（風速・風向コード・波高・気温・水温・天候コード）。指示の「7項目」の7つ目に当たるキーは無く、補わない。風向コードは 角度(sin・cos) と 水面成分 の2通りで表す"
+    },
+    "missing": {
+      "definition": "風速・波高＝0以上の整数でない、風向コード＝1〜17の整数でない、天候コード＝1〜6の整数でない、気温・水温＝有限の数でない を欠測",
+      "base": "段階9と同じ突合済みレース（開催日・場・R）",
+      "monthExclusion": "項目ごとに月別欠損率が10%を超える月を除外",
+      "monthly": {
+        "風速": [
+          {
+            "month": "202507",
+            "matched": 2729,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202508",
+            "matched": 4940,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202509",
+            "matched": 4113,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202510",
+            "matched": 4015,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202511",
+            "matched": 3830,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202512",
+            "matched": 4657,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202601",
+            "matched": 5001,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202602",
+            "matched": 4057,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202603",
+            "matched": 4529,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202604",
+            "matched": 4200,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202605",
+            "matched": 4682,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202606",
+            "matched": 4490,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202607",
+            "matched": 4803,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202608",
+            "matched": 4790,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202609",
+            "matched": 141,
+            "missing": 0,
+            "missingRate": 0.0
+          }
+        ],
+        "風向コード": [
+          {
+            "month": "202507",
+            "matched": 2729,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202508",
+            "matched": 4940,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202509",
+            "matched": 4113,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202510",
+            "matched": 4015,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202511",
+            "matched": 3830,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202512",
+            "matched": 4657,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202601",
+            "matched": 5001,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202602",
+            "matched": 4057,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202603",
+            "matched": 4529,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202604",
+            "matched": 4200,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202605",
+            "matched": 4682,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202606",
+            "matched": 4490,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202607",
+            "matched": 4803,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202608",
+            "matched": 4790,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202609",
+            "matched": 141,
+            "missing": 0,
+            "missingRate": 0.0
+          }
+        ],
+        "波高": [
+          {
+            "month": "202507",
+            "matched": 2729,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202508",
+            "matched": 4940,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202509",
+            "matched": 4113,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202510",
+            "matched": 4015,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202511",
+            "matched": 3830,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202512",
+            "matched": 4657,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202601",
+            "matched": 5001,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202602",
+            "matched": 4057,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202603",
+            "matched": 4529,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202604",
+            "matched": 4200,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202605",
+            "matched": 4682,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202606",
+            "matched": 4490,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202607",
+            "matched": 4803,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202608",
+            "matched": 4790,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202609",
+            "matched": 141,
+            "missing": 0,
+            "missingRate": 0.0
+          }
+        ],
+        "気温": [
+          {
+            "month": "202507",
+            "matched": 2729,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202508",
+            "matched": 4940,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202509",
+            "matched": 4113,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202510",
+            "matched": 4015,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202511",
+            "matched": 3830,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202512",
+            "matched": 4657,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202601",
+            "matched": 5001,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202602",
+            "matched": 4057,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202603",
+            "matched": 4529,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202604",
+            "matched": 4200,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202605",
+            "matched": 4682,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202606",
+            "matched": 4490,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202607",
+            "matched": 4803,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202608",
+            "matched": 4790,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202609",
+            "matched": 141,
+            "missing": 0,
+            "missingRate": 0.0
+          }
+        ],
+        "水温": [
+          {
+            "month": "202507",
+            "matched": 2729,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202508",
+            "matched": 4940,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202509",
+            "matched": 4113,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202510",
+            "matched": 4015,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202511",
+            "matched": 3830,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202512",
+            "matched": 4657,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202601",
+            "matched": 5001,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202602",
+            "matched": 4057,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202603",
+            "matched": 4529,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202604",
+            "matched": 4200,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202605",
+            "matched": 4682,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202606",
+            "matched": 4490,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202607",
+            "matched": 4803,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202608",
+            "matched": 4790,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202609",
+            "matched": 141,
+            "missing": 0,
+            "missingRate": 0.0
+          }
+        ],
+        "天候コード": [
+          {
+            "month": "202507",
+            "matched": 2729,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202508",
+            "matched": 4940,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202509",
+            "matched": 4113,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202510",
+            "matched": 4015,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202511",
+            "matched": 3830,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202512",
+            "matched": 4657,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202601",
+            "matched": 5001,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202602",
+            "matched": 4057,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202603",
+            "matched": 4529,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202604",
+            "matched": 4200,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202605",
+            "matched": 4682,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202606",
+            "matched": 4490,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202607",
+            "matched": 4803,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202608",
+            "matched": 4790,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202609",
+            "matched": 141,
+            "missing": 0,
+            "missingRate": 0.0
+          }
+        ]
+      },
+      "excludedMonths": {
+        "風速": [],
+        "風向コード": [],
+        "波高": [],
+        "気温": [],
+        "水温": [],
+        "天候コード": []
+      }
+    },
+    "schemaChange": {
+      "before20260101": {
+        "resultsRaces": 24937,
+        "matched": 24284,
+        "items": {
+          "風速": {
+            "keyPresentInResults": 24937,
+            "missing": 0,
+            "fractionalValues": 0
+          },
+          "風向コード": {
+            "keyPresentInResults": 24937,
+            "missing": 0,
+            "fractionalValues": 0
+          },
+          "波高": {
+            "keyPresentInResults": 24937,
+            "missing": 0,
+            "fractionalValues": 0
+          },
+          "気温": {
+            "keyPresentInResults": 24937,
+            "missing": 0,
+            "fractionalValues": 473
+          },
+          "水温": {
+            "keyPresentInResults": 24937,
+            "missing": 0,
+            "fractionalValues": 481
+          },
+          "天候コード": {
+            "keyPresentInResults": 24937,
+            "missing": 0,
+            "fractionalValues": 0
+          }
+        }
+      },
+      "from20260101": {
+        "resultsRaces": 39532,
+        "matched": 36693,
+        "items": {
+          "風速": {
+            "keyPresentInResults": 39532,
+            "missing": 0,
+            "fractionalValues": 0
+          },
+          "風向コード": {
+            "keyPresentInResults": 39532,
+            "missing": 0,
+            "fractionalValues": 0
+          },
+          "波高": {
+            "keyPresentInResults": 39532,
+            "missing": 0,
+            "fractionalValues": 0
+          },
+          "気温": {
+            "keyPresentInResults": 39532,
+            "missing": 0,
+            "fractionalValues": 2615
+          },
+          "水温": {
+            "keyPresentInResults": 39532,
+            "missing": 0,
+            "fractionalValues": 2629
+          },
+          "天候コード": {
+            "keyPresentInResults": 39532,
+            "missing": 0,
+            "fractionalValues": 0
+          }
+        }
+      },
+      "note": "2026-01-01 前後で race レベルのキーの出現数・欠測数・小数値（整数でない値）の数を比較。keyPresentInResults は results 全体（〜20260913）のレース数"
+    },
+    "rows": {
+      "races": 60977,
+      "adjacentPairs": 54354,
+      "sameAsStage9": true
+    },
+    "mediation": {
+      "definition": "中心化(eq, (場,R)288セル)・ペア(同一系列R差1)・突合は段階9と同一。b² は eq をその項目だけに回帰した R²（OLS）。a はその回帰の当てはめ値を(場,R)セル平均で中心化した隣接Pearson（説明変数が1列の項目では項目そのものの a と一致）。上限 = a × b²。比較対象は段階8 S3-D1 の net",
+      "items": {
+        "風速": {
+          "definition": "風速(m)・連続量",
+          "a": 0.789698,
+          "aPairs": 54354,
+          "b2_R2": 0.001047,
+          "n": 60977,
+          "upper": 0.000827,
+          "coef": {
+            "intercept": {
+              "est": -0.098761,
+              "se": 0.010633
+            },
+            "speed": {
+              "est": 0.0259,
+              "se": 0.003239
+            }
+          }
+        },
+        "風向コード:角度": {
+          "definition": "風向角=(コード-1)×22.5 の sin・cos。17=無風は欠測（行ごと除く）",
+          "a": 0.810253,
+          "aPairs": 49453,
+          "b2_R2": 0.000181,
+          "n": 57275,
+          "upper": 0.000147,
+          "coef": {
+            "intercept": {
+              "est": -0.02434,
+              "se": 0.005877
+            },
+            "sin": {
+              "est": -0.020473,
+              "se": 0.007756
+            },
+            "cos": {
+              "est": 0.017594,
+              "se": 0.008964
+            }
+          }
+        },
+        "風向コード:水面成分": {
+          "definition": "facts.md の判定式・stadiumBearing.json。横風基準のダミー（追い風/向かい風/無風）＝段階9 b2",
+          "a": 0.566634,
+          "aPairs": 54354,
+          "b2_R2": 0.000107,
+          "n": 60977,
+          "upper": 6.1e-05,
+          "coef": {
+            "intercept": {
+              "est": -0.037913,
+              "se": 0.008071
+            },
+            "追い風": {
+              "est": 0.01762,
+              "se": 0.014755
+            },
+            "向かい風": {
+              "est": 0.033405,
+              "se": 0.014161
+            },
+            "無風": {
+              "est": -0.008123,
+              "se": 0.024359
+            }
+          }
+        },
+        "波高": {
+          "definition": "波高(cm)・連続量",
+          "a": 0.833113,
+          "aPairs": 54354,
+          "b2_R2": 0.000976,
+          "n": 60977,
+          "upper": 0.000813,
+          "coef": {
+            "intercept": {
+              "est": -0.081518,
+              "se": 0.009073
+            },
+            "波高": {
+              "est": 0.021878,
+              "se": 0.002835
+            }
+          }
+        },
+        "気温": {
+          "definition": "気温(℃)・連続量",
+          "a": 0.997733,
+          "aPairs": 54354,
+          "b2_R2": 7.7e-05,
+          "n": 60977,
+          "upper": 7.7e-05,
+          "coef": {
+            "intercept": {
+              "est": -0.055019,
+              "se": 0.014221
+            },
+            "気温": {
+              "est": 0.001382,
+              "se": 0.000639
+            }
+          }
+        },
+        "水温": {
+          "definition": "水温(℃)・連続量",
+          "a": 0.999579,
+          "aPairs": 54354,
+          "b2_R2": 0.000119,
+          "n": 60977,
+          "upper": 0.000119,
+          "coef": {
+            "intercept": {
+              "est": -0.065191,
+              "se": 0.015362
+            },
+            "水温": {
+              "est": 0.001902,
+              "se": 0.000707
+            }
+          }
+        },
+        "天候コード": {
+          "definition": "晴(1)基準のダミー（出現した水準 [1, 2, 3, 4]）",
+          "a": 0.806437,
+          "aPairs": 54354,
+          "b2_R2": 4.5e-05,
+          "n": 60977,
+          "upper": 3.6e-05,
+          "coef": {
+            "intercept": {
+              "est": -0.021006,
+              "se": 0.007015
+            },
+            "天候2": {
+              "est": -0.021542,
+              "se": 0.013175
+            },
+            "天候3": {
+              "est": -0.001929,
+              "se": 0.020484
+            },
+            "天候4": {
+              "est": -0.015503,
+              "se": 0.090727
+            }
+          }
+        }
+      },
+      "referenceResidual_S3D1net": 0.007496
+    },
+    "control": {
+      "method": "eq を W7 の説明変数に回帰（OLS）した残差で T3q を計算。統計量・ペア・帰無A_eq（系列内並べ替え1000回・default_rng(20260914)・段階6bと同じ置換）は段階6b・段階9と同一。帰無は並べ替え後の eq に同じ当てはめ・残差化をかけてから計算",
+      "W7model": {
+        "terms": [
+          "intercept",
+          "speed",
+          "追い風",
+          "向かい風",
+          "無風",
+          "speed×追い風",
+          "speed×向かい風",
+          "sin",
+          "cos",
+          "波高",
+          "気温",
+          "水温",
+          "天候2",
+          "天候3",
+          "天候4"
+        ],
+        "n": 60977,
+        "R2": 0.001758,
+        "coef": {
+          "intercept": {
+            "est": -0.177801,
+            "se": 0.022629
+          },
+          "speed": {
+            "est": 0.022929,
+            "se": 0.00652
+          },
+          "追い風": {
+            "est": 0.02793,
+            "se": 0.029903
+          },
+          "向かい風": {
+            "est": 0.068179,
+            "se": 0.029851
+          },
+          "無風": {
+            "est": 0.086281,
+            "se": 0.028551
+          },
+          "speed×追い風": {
+            "est": -0.001851,
+            "se": 0.008907
+          },
+          "speed×向かい風": {
+            "est": -0.011338,
+            "se": 0.008743
+          },
+          "sin": {
+            "est": -0.022685,
+            "se": 0.007798
+          },
+          "cos": {
+            "est": 0.017603,
+            "se": 0.009082
+          },
+          "波高": {
+            "est": 0.011045,
+            "se": 0.004387
+          },
+          "気温": {
+            "est": -0.002954,
+            "se": 0.00193
+          },
+          "水温": {
+            "est": 0.00525,
+            "se": 0.00211
+          },
+          "天候2": {
+            "est": -0.01324,
+            "se": 0.013328
+          },
+          "天候3": {
+            "est": 0.007746,
+            "se": 0.020987
+          },
+          "天候4": {
+            "est": -0.025531,
+            "se": 0.091893
+          }
+        },
+        "note": "風の部分は段階9 b3 と同じ列（横風基準）。sin・cos は無風(17)の行で0（無風ダミーが吸収するため角度としては欠測扱い）。天候は晴(1)基準のダミー"
+      },
+      "W0": {
+        "nPairs": 54354,
+        "T3q": 0.028841,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.02136,
+          "median": 0.021312,
+          "sd": 0.003758,
+          "p2_5": 0.013929,
+          "p50": 0.021312,
+          "p97_5": 0.028881,
+          "observed": 0.028841,
+          "pTwoSided": 0.053946
+        },
+        "net": 0.007481,
+        "pTwoSided": 0.053946,
+        "insideNull95": true,
+        "definition": "統制なし（段階9 W0 の再掲）"
+      },
+      "W1": {
+        "nPairs": 54354,
+        "T3q": 0.02773,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.0207,
+          "median": 0.020619,
+          "sd": 0.003766,
+          "p2_5": 0.013281,
+          "p50": 0.020619,
+          "p97_5": 0.028251,
+          "observed": 0.02773,
+          "pTwoSided": 0.065934
+        },
+        "net": 0.00703,
+        "pTwoSided": 0.065934,
+        "insideNull95": true,
+        "definition": "風だけ統制（段階9 W1 の再掲）"
+      },
+      "W7": {
+        "nPairs": 54354,
+        "T3q": 0.027312,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.020301,
+          "median": 0.020219,
+          "sd": 0.003768,
+          "p2_5": 0.012825,
+          "p50": 0.020219,
+          "p97_5": 0.027762,
+          "observed": 0.027312,
+          "pTwoSided": 0.06993
+        },
+        "net": 0.007011,
+        "pTwoSided": 0.06993,
+        "insideNull95": true,
+        "definition": "実在する6項目すべてを統制（指示上の W7。7つ目の項目は results に無い）"
+      },
+      "insideNullDefinition": "帰無A_eq の 2.5〜97.5 パーセンタイルの内側に T3q がある（net 尺度では net が [p2_5−mean, p97_5−mean] の内側）"
+    },
+    "conditionCourse1": {
+      "file": "conditionCourse1.csv",
+      "sample": "段階9の突合済みレースのうち ①着外（段階11と同一）が判定できるもの",
+      "races": 60977,
+      "quartileBounds": {
+        "気温": [
+          13.0,
+          21.0,
+          29.0
+        ],
+        "水温": [
+          13.0,
+          21.0,
+          28.0
+        ]
+      },
+      "quartileRule": "ソート後 ceil(k*n/4) 番目の値を境界、同値は下位帯",
+      "nRule": "n が300未満のセルは率・区間・残差を出さず note に n不足（n は表示）",
+      "residual": "各レースの①着外(0/1)からその場の①着外率（同じ標本）を引いた残差の平均。区間は正規近似95%。単位は pt"
+    }
   }
 }
