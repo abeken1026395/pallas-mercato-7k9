@@ -1,0 +1,3914 @@
+{
+  "stage1": {
+    "manRate": 0.172691,
+    "manCount": 92274,
+    "n": 534330,
+    "quintileBounds": [
+      1070,
+      1910,
+      3640,
+      8540
+    ],
+    "quintileCounts": {
+      "1": 108138,
+      "2": 105892,
+      "3": 106880,
+      "4": 106669,
+      "5": 106751
+    },
+    "definition": "yA=1 if 3連単払戻>=10000。q=払戻の五分位（境界はソート後 ceil(k*n/5) 番目の額、同額は下位帯）"
+  },
+  "meta": {
+    "script": "scripts/buildKensho05Flow.py",
+    "python": "3.14.6",
+    "numpy": "2.4.6",
+    "runStartedJST": "2026-09-16 01:56 JST",
+    "runFinishedJST": "2026-09-16 02:09 JST",
+    "seed": 20260914,
+    "reps": 1000,
+    "input": "payrank/json（リポジトリ外・読み取りのみ）"
+  },
+  "stage0": {
+    "総行数": 557172,
+    "除外合計": 22842,
+    "採用": 534330,
+    "開催日数": 3653,
+    "\"-\"0個": 6945,
+    "うち中止": 6866,
+    "うちその他": 79,
+    "\"-\"1個": 227,
+    "\"-\"5個": 209,
+    "人気非数字": 15461
+  },
+  "stage2": {
+    "seriesKey": "(開催日, 場)、系列内R昇順",
+    "series": 45995,
+    "seriesLenDist": {
+      "12": 32801,
+      "11": 10359,
+      "10": 2174,
+      "9": 360,
+      "8": 86,
+      "7": 52,
+      "6": 77,
+      "5": 24,
+      "4": 14,
+      "3": 18,
+      "2": 15,
+      "1": 15
+    },
+    "adjacentPairs": 475478,
+    "breaks": 12857,
+    "breaksDefinition": "同一系列で次の行とのR差が2以上に飛んだ箇所の数",
+    "pairsByDistance": {
+      "1": 475478,
+      "2": 432032,
+      "3": 388690,
+      "4": 345587,
+      "5": 302340,
+      "6": 259014,
+      "7": 215745,
+      "8": 172607,
+      "9": 129474,
+      "10": 86356,
+      "11": 43126
+    }
+  },
+  "stage3": {
+    "statistic": "隣接ペア(R差=1)の Pearson 相関（ペア両側の標本平均で中心化する通常のPearson）",
+    "T1_raw": 0.005471,
+    "T2_venueCentered": 0.003993,
+    "T3_cellCentered": 0.002972,
+    "T4_net": 0.000584,
+    "cells": 288,
+    "decomposition": {
+      "venueDiff_T1minusT2": 0.001478,
+      "rShape_T2minusT3": 0.001021,
+      "dayCommon_T3minusT4": 0.002388
+    }
+  },
+  "stage4": {
+    "nullA_center_shiftFromZero": 0.002388,
+    "nullA_center_definition": "帰無A(系列内でeを並べ替え) 1000回の平均。ランダムでも偏って見える量",
+    "nullA": {
+      "reps": 1000,
+      "mean": 0.002388,
+      "median": 0.002422,
+      "sd": 0.001349,
+      "p2_5": -0.000181,
+      "p50": 0.002422,
+      "p97_5": 0.005055,
+      "observed": 0.002972,
+      "pTwoSided": 0.683317
+    },
+    "nullB": {
+      "reps": 1000,
+      "mean": -4.8e-05,
+      "median": -3.1e-05,
+      "sd": 0.001454,
+      "p2_5": -0.002793,
+      "p50": -3.1e-05,
+      "p97_5": 0.002748,
+      "observed": 0.002972,
+      "pTwoSided": 0.033966
+    },
+    "nullB_definition": "(場,R)セル内で日をまたいでyAを並べ替え、T3と同じ中心化で再計算",
+    "seedNote": "帰無A・帰無Bはそれぞれ default_rng(20260914) から開始。帰無Aは e と q に同じ置換を使う（帰無Bも yA と q に同じ置換）",
+    "pValueDefinition": "min(1, 2*min((1+#null>=obs)/(1+B), (1+#null<=obs)/(1+B)))"
+  },
+  "stage5": {
+    "dayCommon_overdispersionPooled": 1.039243,
+    "dayCommon_definition": "系列ごとの荒れ本数の分散(ddof=1) ÷ 同じ系列長の二項分布の期待分散 L*p*(1-p)（p=その系列長群の荒れ率）。系列長別は dayDispersion.csv、pooled は (nSeries-1) 重み",
+    "rShape_rateByR": [
+      {
+        "R": 1,
+        "n": 44965,
+        "man": 7526,
+        "rate": 0.167375
+      },
+      {
+        "R": 2,
+        "n": 44906,
+        "man": 8566,
+        "rate": 0.190754
+      },
+      {
+        "R": 3,
+        "n": 44854,
+        "man": 8488,
+        "rate": 0.189236
+      },
+      {
+        "R": 4,
+        "n": 44828,
+        "man": 8304,
+        "rate": 0.185241
+      },
+      {
+        "R": 5,
+        "n": 44694,
+        "man": 7503,
+        "rate": 0.167875
+      },
+      {
+        "R": 6,
+        "n": 44662,
+        "man": 7542,
+        "rate": 0.168868
+      },
+      {
+        "R": 7,
+        "n": 44466,
+        "man": 7312,
+        "rate": 0.16444
+      },
+      {
+        "R": 8,
+        "n": 44289,
+        "man": 7180,
+        "rate": 0.162117
+      },
+      {
+        "R": 9,
+        "n": 44162,
+        "man": 7665,
+        "rate": 0.173566
+      },
+      {
+        "R": 10,
+        "n": 44156,
+        "man": 7702,
+        "rate": 0.174427
+      },
+      {
+        "R": 11,
+        "n": 44234,
+        "man": 7336,
+        "rate": 0.165845
+      },
+      {
+        "R": 12,
+        "n": 44114,
+        "man": 7150,
+        "rate": 0.16208
+      }
+    ],
+    "venueDiff_rateByVenue": [
+      {
+        "jcd": "01",
+        "n": 22536,
+        "man": 4158,
+        "rate": 0.184505
+      },
+      {
+        "jcd": "02",
+        "n": 22448,
+        "man": 4392,
+        "rate": 0.195652
+      },
+      {
+        "jcd": "03",
+        "n": 20290,
+        "man": 3818,
+        "rate": 0.188172
+      },
+      {
+        "jcd": "04",
+        "n": 21156,
+        "man": 4319,
+        "rate": 0.20415
+      },
+      {
+        "jcd": "05",
+        "n": 21969,
+        "man": 3911,
+        "rate": 0.178024
+      },
+      {
+        "jcd": "06",
+        "n": 23272,
+        "man": 4243,
+        "rate": 0.182322
+      },
+      {
+        "jcd": "07",
+        "n": 22675,
+        "man": 3684,
+        "rate": 0.16247
+      },
+      {
+        "jcd": "08",
+        "n": 23476,
+        "man": 4000,
+        "rate": 0.170387
+      },
+      {
+        "jcd": "09",
+        "n": 21866,
+        "man": 3468,
+        "rate": 0.158602
+      },
+      {
+        "jcd": "10",
+        "n": 22011,
+        "man": 3918,
+        "rate": 0.178002
+      },
+      {
+        "jcd": "11",
+        "n": 21624,
+        "man": 3818,
+        "rate": 0.176563
+      },
+      {
+        "jcd": "12",
+        "n": 22284,
+        "man": 3653,
+        "rate": 0.163929
+      },
+      {
+        "jcd": "13",
+        "n": 21836,
+        "man": 3337,
+        "rate": 0.152821
+      },
+      {
+        "jcd": "14",
+        "n": 21351,
+        "man": 4225,
+        "rate": 0.197883
+      },
+      {
+        "jcd": "15",
+        "n": 22693,
+        "man": 3981,
+        "rate": 0.175429
+      },
+      {
+        "jcd": "16",
+        "n": 22638,
+        "man": 4016,
+        "rate": 0.177401
+      },
+      {
+        "jcd": "17",
+        "n": 23163,
+        "man": 4088,
+        "rate": 0.176488
+      },
+      {
+        "jcd": "18",
+        "n": 23121,
+        "man": 3371,
+        "rate": 0.145798
+      },
+      {
+        "jcd": "19",
+        "n": 21379,
+        "man": 3469,
+        "rate": 0.162262
+      },
+      {
+        "jcd": "20",
+        "n": 22456,
+        "man": 3921,
+        "rate": 0.174608
+      },
+      {
+        "jcd": "21",
+        "n": 22698,
+        "man": 3807,
+        "rate": 0.167724
+      },
+      {
+        "jcd": "22",
+        "n": 22229,
+        "man": 3557,
+        "rate": 0.160016
+      },
+      {
+        "jcd": "23",
+        "n": 22261,
+        "man": 3726,
+        "rate": 0.167378
+      },
+      {
+        "jcd": "24",
+        "n": 22898,
+        "man": 3394,
+        "rate": 0.148223
+      }
+    ],
+    "finiteSeriesBias_nullBCenter": -4.8e-05,
+    "finiteSeriesBiasNote": "帰無Bは日の共通要因を壊し(場,R)は保存するため、その中心が有限系列バイアス単独の量"
+  },
+  "stage6": {
+    "statistic": "隣接ペアの q の Spearman 順位相関（中心化なし、同順位は平均順位）",
+    "spearmanObserved": 0.051302,
+    "nullA_q": {
+      "reps": 1000,
+      "mean": 0.028294,
+      "median": 0.028287,
+      "sd": 0.001292,
+      "p2_5": 0.025892,
+      "p50": 0.028287,
+      "p97_5": 0.030816,
+      "observed": 0.051302,
+      "pTwoSided": 0.001998
+    },
+    "nullB_q": {
+      "reps": 1000,
+      "mean": 0.024076,
+      "median": 0.024041,
+      "sd": 0.001401,
+      "p2_5": 0.021383,
+      "p50": 0.024041,
+      "p97_5": 0.026797,
+      "observed": 0.051302,
+      "pTwoSided": 0.001998
+    },
+    "nullA_q_center_shiftFromZero": 0.028294,
+    "transition": "quintileTransition.csv",
+    "note": "yA版とq版のどちらを主にするかは判断しない"
+  },
+  "stage6b": {
+    "statistic": "q を段階3と同じ手順で中心化した隣接ペアの Pearson 相関（eq = q - mean_q(場,R)、288セル）",
+    "T1q_raw": 0.05149,
+    "T2q_venue": 0.039888,
+    "T3q_cell": 0.028486,
+    "T4q_net": 0.009494,
+    "cells": 288,
+    "decomposition": {
+      "venueDiff_T1qminusT2q": 0.011601,
+      "rShape_T2qminusT3q": 0.011402,
+      "dayCommon_T3qminusT4q": 0.018992
+    },
+    "nullA_eq_center_shiftFromZero": 0.018992,
+    "nullA_eq": {
+      "reps": 1000,
+      "mean": 0.018992,
+      "median": 0.018978,
+      "sd": 0.001308,
+      "p2_5": 0.0165,
+      "p50": 0.018978,
+      "p97_5": 0.021518,
+      "observed": 0.028486,
+      "pTwoSided": 0.001998
+    },
+    "nullA_eq_definition": "各系列内で eq を並べ替えて T3q を再計算（帰無Aと同じ置換）",
+    "nullB_q": {
+      "reps": 1000,
+      "mean": -2.7e-05,
+      "median": -7.1e-05,
+      "sd": 0.001458,
+      "p2_5": -0.002802,
+      "p50": -7.1e-05,
+      "p97_5": 0.002807,
+      "observed": 0.028486,
+      "pTwoSided": 0.001998
+    },
+    "nullB_q_definition": "(場,R)セル内で日をまたいで q を並べ替え、T3q と同じ中心化で再計算（帰無Bと同じ置換）",
+    "note": "yA版とq版のどちらを主にするかは判断しない。Spearman版は stage6 に残す"
+  },
+  "stage7": {
+    "setsuDefinition": "同一場で開催日を昇順に並べ、日付が1日ずつ連続する塊を1節とする。1日でも空いたら切る。開催日＝入力にその場の行がある日（全行が除外の場日も含む）",
+    "setsuCount": 8394,
+    "setsuLenDist": {
+      "1": 7,
+      "2": 6,
+      "3": 20,
+      "4": 1431,
+      "5": 1582,
+      "6": 4755,
+      "7+": 593
+    },
+    "venueDaysAllExcluded": 436,
+    "reference_setsuLenDist_adoptedDaysOnly": {
+      "1": 159,
+      "2": 148,
+      "3": 136,
+      "4": 1544,
+      "5": 1609,
+      "6": 4728,
+      "7+": 363
+    },
+    "reference_setsuCount_adoptedDaysOnly": 8687,
+    "seriesLastDay": 8360,
+    "seriesPenultimateDay": 8308,
+    "seriesOther": 29327,
+    "method": "中心化(eq)・統計量(Pearson)・帰無A_eq・帰無B_q は段階6bと同一（同じ置換）。ペア集合だけ差し替え。pTwoSided は帰無A_eq に対するもの",
+    "sets": {
+      "S0": {
+        "definition": "全ペア（段階6bの再掲）",
+        "nPairs": 475478,
+        "T3q_cell": 0.028486,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.018992,
+          "median": 0.018978,
+          "sd": 0.001308,
+          "p2_5": 0.0165,
+          "p50": 0.018978,
+          "p97_5": 0.021518,
+          "observed": 0.028486,
+          "pTwoSided": 0.001998
+        },
+        "T4q_net": 0.009494,
+        "pTwoSided": 0.001998,
+        "nullB_q": {
+          "reps": 1000,
+          "mean": -2.7e-05,
+          "median": -7.1e-05,
+          "sd": 0.001458,
+          "p2_5": -0.002802,
+          "p50": -7.1e-05,
+          "p97_5": 0.002807,
+          "observed": 0.028486,
+          "pTwoSided": 0.001998
+        }
+      },
+      "S1": {
+        "definition": "節の最終日の系列を除外",
+        "nPairs": 388277,
+        "T3q_cell": 0.027394,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.018753,
+          "median": 0.018783,
+          "sd": 0.00147,
+          "p2_5": 0.015896,
+          "p50": 0.018783,
+          "p97_5": 0.021612,
+          "observed": 0.027394,
+          "pTwoSided": 0.001998
+        },
+        "T4q_net": 0.008642,
+        "pTwoSided": 0.001998,
+        "nullB_q": {
+          "reps": 1000,
+          "mean": -6e-06,
+          "median": -3.7e-05,
+          "sd": 0.001565,
+          "p2_5": -0.003072,
+          "p50": -3.7e-05,
+          "p97_5": 0.003079,
+          "observed": 0.027394,
+          "pTwoSided": 0.001998
+        }
+      },
+      "S2": {
+        "definition": "節の最終日と前日の系列を除外",
+        "nPairs": 302461,
+        "T3q_cell": 0.026748,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.018706,
+          "median": 0.018653,
+          "sd": 0.00165,
+          "p2_5": 0.015519,
+          "p50": 0.018653,
+          "p97_5": 0.02222,
+          "observed": 0.026748,
+          "pTwoSided": 0.001998
+        },
+        "T4q_net": 0.008042,
+        "pTwoSided": 0.001998,
+        "nullB_q": {
+          "reps": 1000,
+          "mean": -3e-06,
+          "median": 4e-05,
+          "sd": 0.001783,
+          "p2_5": -0.003446,
+          "p50": 4e-05,
+          "p97_5": 0.003445,
+          "observed": 0.026748,
+          "pTwoSided": 0.001998
+        }
+      },
+      "S3": {
+        "definition": "S2 に加えて、ペアの片方でも R>=10 のものを除外",
+        "nPairs": 221167,
+        "T3q_cell": 0.024375,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.018692,
+          "median": 0.018615,
+          "sd": 0.00201,
+          "p2_5": 0.014878,
+          "p50": 0.018615,
+          "p97_5": 0.022765,
+          "observed": 0.024375,
+          "pTwoSided": 0.015984
+        },
+        "T4q_net": 0.005683,
+        "pTwoSided": 0.015984,
+        "nullB_q": {
+          "reps": 1000,
+          "mean": -3.7e-05,
+          "median": 3.1e-05,
+          "sd": 0.002052,
+          "p2_5": -0.004408,
+          "p50": 3.1e-05,
+          "p97_5": 0.004,
+          "observed": 0.024375,
+          "pTwoSided": 0.001998
+        }
+      }
+    },
+    "distanceCorrQ": "distanceCorrQ.csv",
+    "transition": "quintileTransitionS3.csv（S0 と S3）"
+  },
+  "stage8": {
+    "method": "中心化(eq)・ペア定義・統計量(Pearson)・帰無A_eq(1000回・seed 20260914・同じ置換)は段階6bと同一。系列(場×日)ごとに eq を R の多項式（切片つき）に回帰した残差で統計量を計算。帰無は系列内で eq を並べ替えた後に同じ回帰・残差化を行ってから計算",
+    "detrendDefinition": {
+      "D0": "トレンド除去なし",
+      "D1": "R の1次式",
+      "D2": "R の2次式"
+    },
+    "exclusion": "系列長が次数+2 に満たない系列は系列ごと除外（D1: 3本未満、D2: 4本未満）。excludedSeries は全体の除外系列数、excludedSeriesInPairSet はそのペア集合にペアを持っていた除外系列数、excludedPairs はそれで落ちたペア数",
+    "pairSets": {
+      "S0": "全ペア（段階6bの再掲）",
+      "S3": "S2 に加えて、ペアの片方でも R>=10 のものを除外"
+    },
+    "cases": {
+      "S0-D0": {
+        "pairSet": "S0",
+        "detrend": "D0",
+        "nPairs": 475478,
+        "excludedSeries": 0,
+        "excludedSeriesInPairSet": 0,
+        "excludedPairs": 0,
+        "T3q": 0.028486,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.018992,
+          "median": 0.018978,
+          "sd": 0.001308,
+          "p2_5": 0.0165,
+          "p50": 0.018978,
+          "p97_5": 0.021518,
+          "observed": 0.028486,
+          "pTwoSided": 0.001998
+        },
+        "net": 0.009494,
+        "pTwoSided": 0.001998
+      },
+      "S0-D1": {
+        "pairSet": "S0",
+        "detrend": "D1",
+        "nPairs": 475465,
+        "excludedSeries": 30,
+        "excludedSeriesInPairSet": 13,
+        "excludedPairs": 13,
+        "T3q": -0.179196,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": -0.184684,
+          "median": -0.184694,
+          "sd": 0.001367,
+          "p2_5": -0.187257,
+          "p50": -0.184694,
+          "p97_5": -0.18198,
+          "observed": -0.179196,
+          "pTwoSided": 0.003996
+        },
+        "net": 0.005487,
+        "pTwoSided": 0.003996
+      },
+      "S0-D2": {
+        "pairSet": "S0",
+        "detrend": "D2",
+        "nPairs": 475431,
+        "excludedSeries": 48,
+        "excludedSeriesInPairSet": 31,
+        "excludedPairs": 47,
+        "T3q": -0.268022,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": -0.270934,
+          "median": -0.270964,
+          "sd": 0.001326,
+          "p2_5": -0.273461,
+          "p50": -0.270964,
+          "p97_5": -0.268378,
+          "observed": -0.268022,
+          "pTwoSided": 0.031968
+        },
+        "net": 0.002913,
+        "pTwoSided": 0.031968
+      },
+      "S3-D0": {
+        "pairSet": "S3",
+        "detrend": "D0",
+        "nPairs": 221167,
+        "excludedSeries": 0,
+        "excludedSeriesInPairSet": 0,
+        "excludedPairs": 0,
+        "T3q": 0.024375,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.018692,
+          "median": 0.018615,
+          "sd": 0.00201,
+          "p2_5": 0.014878,
+          "p50": 0.018615,
+          "p97_5": 0.022765,
+          "observed": 0.024375,
+          "pTwoSided": 0.015984
+        },
+        "net": 0.005683,
+        "pTwoSided": 0.015984
+      },
+      "S3-D1": {
+        "pairSet": "S3",
+        "detrend": "D1",
+        "nPairs": 221157,
+        "excludedSeries": 30,
+        "excludedSeriesInPairSet": 10,
+        "excludedPairs": 10,
+        "T3q": -0.153276,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": -0.160772,
+          "median": -0.160796,
+          "sd": 0.001989,
+          "p2_5": -0.16467,
+          "p50": -0.160796,
+          "p97_5": -0.156706,
+          "observed": -0.153276,
+          "pTwoSided": 0.001998
+        },
+        "net": 0.007496,
+        "pTwoSided": 0.001998
+      },
+      "S3-D2": {
+        "pairSet": "S3",
+        "detrend": "D2",
+        "nPairs": 221129,
+        "excludedSeries": 48,
+        "excludedSeriesInPairSet": 25,
+        "excludedPairs": 38,
+        "T3q": -0.245512,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": -0.25073,
+          "median": -0.250709,
+          "sd": 0.001958,
+          "p2_5": -0.254367,
+          "p50": -0.250709,
+          "p97_5": -0.24702,
+          "observed": -0.245512,
+          "pTwoSided": 0.017982
+        },
+        "net": 0.005218,
+        "pTwoSided": 0.017982
+      }
+    }
+  },
+  "stage9": {
+    "method": "中心化(eq)・ペア定義(同一系列R差1)・統計量(Pearson)・帰無A_eq(1000回・seed 20260914・同じ置換)は段階6bと同一。ペア集合を突合できた行どうしに限定",
+    "match": {
+      "key": "開催日・場・R（results の 場コード文字列・レース'NR'文字列を変換して照合）",
+      "resultsFiles": {
+        "from": "20250715",
+        "to": "20260913"
+      },
+      "windMissingDefinition": "風速が整数でない、または風向コードが1〜17の整数でない",
+      "monthExclusion": "突合できたレースの風欠損率が10%を超える月を除外",
+      "monthly": [
+        {
+          "month": "202507",
+          "adopted": 4995,
+          "matched": 2729,
+          "windMissing": 0,
+          "missingRate": 0.0
+        },
+        {
+          "month": "202508",
+          "adopted": 4940,
+          "matched": 4940,
+          "windMissing": 0,
+          "missingRate": 0.0
+        },
+        {
+          "month": "202509",
+          "adopted": 4113,
+          "matched": 4113,
+          "windMissing": 0,
+          "missingRate": 0.0
+        },
+        {
+          "month": "202510",
+          "adopted": 4015,
+          "matched": 4015,
+          "windMissing": 0,
+          "missingRate": 0.0
+        },
+        {
+          "month": "202511",
+          "adopted": 3830,
+          "matched": 3830,
+          "windMissing": 0,
+          "missingRate": 0.0
+        },
+        {
+          "month": "202512",
+          "adopted": 4657,
+          "matched": 4657,
+          "windMissing": 0,
+          "missingRate": 0.0
+        },
+        {
+          "month": "202601",
+          "adopted": 5001,
+          "matched": 5001,
+          "windMissing": 0,
+          "missingRate": 0.0
+        },
+        {
+          "month": "202602",
+          "adopted": 4057,
+          "matched": 4057,
+          "windMissing": 0,
+          "missingRate": 0.0
+        },
+        {
+          "month": "202603",
+          "adopted": 4529,
+          "matched": 4529,
+          "windMissing": 0,
+          "missingRate": 0.0
+        },
+        {
+          "month": "202604",
+          "adopted": 4200,
+          "matched": 4200,
+          "windMissing": 0,
+          "missingRate": 0.0
+        },
+        {
+          "month": "202605",
+          "adopted": 4682,
+          "matched": 4682,
+          "windMissing": 0,
+          "missingRate": 0.0
+        },
+        {
+          "month": "202606",
+          "adopted": 4490,
+          "matched": 4490,
+          "windMissing": 0,
+          "missingRate": 0.0
+        },
+        {
+          "month": "202607",
+          "adopted": 4803,
+          "matched": 4803,
+          "windMissing": 0,
+          "missingRate": 0.0
+        },
+        {
+          "month": "202608",
+          "adopted": 4790,
+          "matched": 4790,
+          "windMissing": 0,
+          "missingRate": 0.0
+        },
+        {
+          "month": "202609",
+          "adopted": 141,
+          "matched": 141,
+          "windMissing": 0,
+          "missingRate": 0.0
+        }
+      ],
+      "excludedMonths": [],
+      "period": {
+        "start": "20250715",
+        "end": "20260901"
+      },
+      "matchedBeforeMonthExclusion": 60977,
+      "matchedRaces": 60977,
+      "resultsRacesInPeriod": 62658,
+      "resultsRacesNotInAdopted": 1681,
+      "adjacentPairs": 54354
+    },
+    "a": {
+      "definition": "同一系列R差1ペアの隣接Pearson相関。各変数を(場,R)セル平均で中心化。風向角=(コード-1)×22.5。17=無風は sin/cos/水面成分で欠測（角度0として扱わない）。水面成分は追い風+1/横風0/向かい風-1（facts.md の判定式・stadiumBearing.json）",
+      "vars": {
+        "speed": {
+          "r": 0.789698,
+          "nPairs": 54354
+        },
+        "sin": {
+          "r": 0.822844,
+          "nPairs": 49453
+        },
+        "cos": {
+          "r": 0.789098,
+          "nPairs": 49453
+        },
+        "component": {
+          "r": 0.759228,
+          "nPairs": 49453
+        }
+      }
+    },
+    "b": {
+      "definition": "突合できた行で eq を回帰（OLS・通常の標準誤差）。水面成分ダミーの基準は横風。b3 は 風速×水面成分の交互作用あり。無風は風速が常に0のため speed×無風 は恒等的に0で推定不能（列に入れない）",
+      "models": {
+        "b1": {
+          "n": 60977,
+          "R2": 0.001047,
+          "coef": {
+            "intercept": {
+              "est": -0.098761,
+              "se": 0.010633
+            },
+            "speed": {
+              "est": 0.0259,
+              "se": 0.003239
+            }
+          }
+        },
+        "b2": {
+          "n": 60977,
+          "R2": 0.000107,
+          "coef": {
+            "intercept": {
+              "est": -0.037913,
+              "se": 0.008071
+            },
+            "追い風": {
+              "est": 0.01762,
+              "se": 0.014755
+            },
+            "向かい風": {
+              "est": 0.033405,
+              "se": 0.014161
+            },
+            "無風": {
+              "est": -0.008123,
+              "se": 0.024359
+            }
+          }
+        },
+        "b3": {
+          "n": 60977,
+          "R2": 0.001271,
+          "coef": {
+            "intercept": {
+              "est": -0.136804,
+              "se": 0.016405
+            },
+            "追い風": {
+              "est": 0.034306,
+              "se": 0.029842
+            },
+            "向かい風": {
+              "est": 0.067667,
+              "se": 0.029744
+            },
+            "無風": {
+              "est": 0.090769,
+              "se": 0.028226
+            },
+            "speed": {
+              "est": 0.033752,
+              "se": 0.004875
+            },
+            "speed×追い風": {
+              "est": -0.00572,
+              "se": 0.008849
+            },
+            "speed×向かい風": {
+              "est": -0.012496,
+              "se": 0.008702
+            }
+          }
+        }
+      }
+    },
+    "mediationUpper": {
+      "b_b3_corr": 0.03565,
+      "upper_speed": 0.001004,
+      "upper_component": 0.000965,
+      "referenceResidual_S3D1net": 0.007496,
+      "definition": "上限 = a × b²。a は作業2の風速・水面成分、b は b3 の √R²。比較対象は段階8 S3-D1 の net"
+    },
+    "W0": {
+      "nPairs": 54354,
+      "T3q": 0.028841,
+      "nullA_eq": {
+        "reps": 1000,
+        "mean": 0.02136,
+        "median": 0.021312,
+        "sd": 0.003758,
+        "p2_5": 0.013929,
+        "p50": 0.021312,
+        "p97_5": 0.028881,
+        "observed": 0.028841,
+        "pTwoSided": 0.053946
+      },
+      "net": 0.007481,
+      "pTwoSided": 0.053946,
+      "definition": "風を統制しない"
+    },
+    "W1": {
+      "nPairs": 54354,
+      "T3q": 0.02773,
+      "nullA_eq": {
+        "reps": 1000,
+        "mean": 0.0207,
+        "median": 0.020619,
+        "sd": 0.003766,
+        "p2_5": 0.013281,
+        "p50": 0.020619,
+        "p97_5": 0.028251,
+        "observed": 0.02773,
+        "pTwoSided": 0.065934
+      },
+      "net": 0.00703,
+      "pTwoSided": 0.065934,
+      "definition": "eq から b3 の予測値を引いた残差で計算。帰無は並べ替え後の eq に b3 を当てはめ直して残差化してから計算"
+    },
+    "underpowered": true,
+    "requiredPairs": 55500
+  },
+  "stage10": {
+    "streaks": {
+      "definition": "系列(場×日)内でRが連続する区間だけを対象（欠番をまたいで繋がない）。重複を許さない最大連長方式：前後が途切れる最大の連を1件とし、その長さ k にだけ数える（長さ5の連は k=5 に1件、k=2〜4 には数えない）。H＝3連単払戻10,000円以上、L＝払戻の最安帯 q=1。長さ7以上は参考として 7+ にまとめる",
+      "null": "各系列内で並べ替え（段階6bの帰無Aと同じ置換・1000回・seed 20260914）。系列をまたがない",
+      "segments": 58852,
+      "H": {
+        "2": {
+          "observed": 10394,
+          "nullMean": 10218.689,
+          "nullSd": 82.690302,
+          "p2_5": 10055.875,
+          "p97_5": 10380.025,
+          "ratio": 1.017156,
+          "pTwoSided": 0.023976
+        },
+        "3": {
+          "observed": 1685,
+          "nullMean": 1606.518,
+          "nullSd": 37.301086,
+          "p2_5": 1530.975,
+          "p97_5": 1677.05,
+          "ratio": 1.048852,
+          "pTwoSided": 0.035964
+        },
+        "4": {
+          "observed": 237,
+          "nullMean": 257.742,
+          "nullSd": 15.107935,
+          "p2_5": 229.0,
+          "p97_5": 288.025,
+          "ratio": 0.919524,
+          "pTwoSided": 0.183816
+        },
+        "5": {
+          "observed": 41,
+          "nullMean": 41.224,
+          "nullSd": 6.159689,
+          "p2_5": 29.0,
+          "p97_5": 53.0,
+          "ratio": 0.994566,
+          "pTwoSided": 0.991009
+        },
+        "6": {
+          "observed": 5,
+          "nullMean": 6.617,
+          "nullSd": 2.408758,
+          "p2_5": 2.0,
+          "p97_5": 12.0,
+          "ratio": 0.755629,
+          "pTwoSided": 0.663337
+        },
+        "7+": {
+          "observed": 2,
+          "nullMean": 1.35,
+          "nullSd": 1.128172,
+          "p2_5": 0.0,
+          "p97_5": 4.0,
+          "ratio": 1.481481,
+          "pTwoSided": 0.801199
+        }
+      },
+      "L": {
+        "2": {
+          "observed": 13635,
+          "nullMean": 13420.785,
+          "nullSd": 93.766534,
+          "p2_5": 13224.975,
+          "p97_5": 13608.025,
+          "ratio": 1.015961,
+          "pTwoSided": 0.031968
+        },
+        "3": {
+          "observed": 3129,
+          "nullMean": 2819.813,
+          "nullSd": 47.486872,
+          "p2_5": 2725.0,
+          "p97_5": 2906.0,
+          "ratio": 1.109648,
+          "pTwoSided": 0.001998
+        },
+        "4": {
+          "observed": 762,
+          "nullMean": 630.9,
+          "nullSd": 23.079789,
+          "p2_5": 588.0,
+          "p97_5": 679.025,
+          "ratio": 1.207798,
+          "pTwoSided": 0.001998
+        },
+        "5": {
+          "observed": 204,
+          "nullMean": 148.854,
+          "nullSd": 11.523518,
+          "p2_5": 127.0,
+          "p97_5": 172.0,
+          "ratio": 1.37047,
+          "pTwoSided": 0.001998
+        },
+        "6": {
+          "observed": 47,
+          "nullMean": 35.914,
+          "nullSd": 5.74017,
+          "p2_5": 25.0,
+          "p97_5": 48.0,
+          "ratio": 1.308682,
+          "pTwoSided": 0.077922
+        },
+        "7+": {
+          "observed": 19,
+          "nullMean": 12.196,
+          "nullSd": 3.067735,
+          "p2_5": 7.0,
+          "p97_5": 19.0,
+          "ratio": 1.557888,
+          "pTwoSided": 0.053946
+        }
+      },
+      "file": "streakCounts.csv"
+    },
+    "seriesConcentration": {
+      "definition": "系列ごとに s＝その系列の隣接ペア(R差1)の eq の積和（eq は段階6bと同一）。系列内並べ替え1000回（帰無Aと同じ置換）で片側p＝(1+#{s_null>=s})/(1+1000)。隣接ペアが無い系列は s=0 で p=1",
+      "nSeries": 45995,
+      "nSeriesNoPairs": 17,
+      "ksStatistic": 0.012718,
+      "ksPValue": 1e-06,
+      "ksNote": "一様分布[0,1]に対する1標本KS（漸近p値）。p値は 1/1001 刻みの離散値",
+      "nBelow05": 2505,
+      "shareBelow05": 0.054462,
+      "histogram005": [
+        2505,
+        2455,
+        2307,
+        2379,
+        2284,
+        2317,
+        2398,
+        2243,
+        2305,
+        2301,
+        2220,
+        2288,
+        2305,
+        2272,
+        2265,
+        2261,
+        2256,
+        2176,
+        2199,
+        2259
+      ],
+      "histogramNote": "0.05刻み20階級 [0,0.05),[0.05,0.10),…,[0.95,1.00]"
+    },
+    "extremeDays": {
+      "file": "extremeDays.csv",
+      "order": "p値の小さい順、同p値は s の大きい順に上位50系列",
+      "wind": "results の同じ開催日・場の全レースの風速から平均と最大−最小。results の期間（20250715〜）外、または該当レースが無い系列は空欄",
+      "windBlankBeforePeriod": 42,
+      "windBlankMissingInPeriod": 0
+    }
+  },
+  "stage11": {
+    "definition": "段階9と同じ突合（results と開催日・場・Rで一致したレース）だけを使う。系列(場×日)・隣接ペア(R差1)・連続の数え方（重複を許さない最大連長、Rが連続する区間のみ）は段階6b・段階10と同一。帰無は突合済みレースの中で系列内並べ替え1000回（default_rng(20260914) から開始、場・系列をまたがない）",
+    "vars": {
+      "K1": "1号艇が1着か（1/0）。1着〜3着が全て整数のレースのみ",
+      "①着外": "buildInSurvival.py と同一（1着〜3着が全て整数のとき、3つの中に1が無い）",
+      "K2": "results の決まり手をそのまま（逃げ/差し/まくり/まくり差し/抜き/恵まれ）。統合しない。欠損は欠測（連続を切る・一致率の分母から除く）",
+      "K3": "1着艇の本番進入コース（results の コース。展示進入は使わない）"
+    },
+    "races": 60977,
+    "adjacentPairs": 54354,
+    "kimariteCounts": {
+      "逃げ": 32366,
+      "差し": 7291,
+      "まくり": 9817,
+      "まくり差し": 7515,
+      "抜き": 3946,
+      "恵まれ": 42
+    },
+    "kimariteMissing": 0,
+    "nRule": "n が300未満のセルは比・net・pTwoSided を出さず note に n不足（n は表示）。連続の n はその事象が起きたレース数、一致率・相関の n は両側とも欠測でない隣接ペア数",
+    "streaks": {
+      "①着外": {
+        "n": 11450,
+        "k": {
+          "2": {
+            "observed": 1369,
+            "nullMean": 1351.604,
+            "nullSd": 28.990337,
+            "ratio": 1.012871,
+            "pTwoSided": 0.539461,
+            "note": ""
+          },
+          "3": {
+            "observed": 312,
+            "nullMean": 242.856,
+            "nullSd": 14.077835,
+            "ratio": 1.284712,
+            "pTwoSided": 0.001998,
+            "note": ""
+          },
+          "4": {
+            "observed": 94,
+            "nullMean": 46.01,
+            "nullSd": 6.289472,
+            "ratio": 2.043034,
+            "pTwoSided": 0.001998,
+            "note": ""
+          },
+          "5": {
+            "observed": 19,
+            "nullMean": 8.855,
+            "nullSd": 2.792091,
+            "ratio": 2.14568,
+            "pTwoSided": 0.003996,
+            "note": ""
+          },
+          "6": {
+            "observed": 5,
+            "nullMean": 1.767,
+            "nullSd": 1.316223,
+            "ratio": 2.829655,
+            "pTwoSided": 0.071928,
+            "note": ""
+          },
+          "7+": {
+            "observed": 0,
+            "nullMean": 0.468,
+            "nullSd": 0.638266,
+            "ratio": 0.0,
+            "pTwoSided": 1.0,
+            "note": ""
+          }
+        }
+      },
+      "決まり手:逃げ": {
+        "n": 32366,
+        "k": {
+          "2": {
+            "observed": 4153,
+            "nullMean": 4115.82,
+            "nullSd": 53.206922,
+            "ratio": 1.009033,
+            "pTwoSided": 0.485514,
+            "note": ""
+          },
+          "3": {
+            "observed": 1967,
+            "nullMean": 1959.077,
+            "nullSd": 39.798706,
+            "ratio": 1.004044,
+            "pTwoSided": 0.859141,
+            "note": ""
+          },
+          "4": {
+            "observed": 968,
+            "nullMean": 947.26,
+            "nullSd": 27.945937,
+            "ratio": 1.021895,
+            "pTwoSided": 0.461538,
+            "note": ""
+          },
+          "5": {
+            "observed": 455,
+            "nullMean": 468.839,
+            "nullSd": 20.342982,
+            "ratio": 0.970482,
+            "pTwoSided": 0.513487,
+            "note": ""
+          },
+          "6": {
+            "observed": 238,
+            "nullMean": 236.049,
+            "nullSd": 13.842768,
+            "ratio": 1.008265,
+            "pTwoSided": 0.957043,
+            "note": ""
+          },
+          "7+": {
+            "observed": 222,
+            "nullMean": 245.442,
+            "nullSd": 12.307401,
+            "ratio": 0.904491,
+            "pTwoSided": 0.063936,
+            "note": ""
+          }
+        }
+      },
+      "決まり手:差し": {
+        "n": 7291,
+        "k": {
+          "2": {
+            "observed": 681,
+            "nullMean": 639.764,
+            "nullSd": 20.330264,
+            "ratio": 1.064455,
+            "pTwoSided": 0.03996,
+            "note": ""
+          },
+          "3": {
+            "observed": 87,
+            "nullMean": 75.601,
+            "nullSd": 7.881238,
+            "ratio": 1.150778,
+            "pTwoSided": 0.157842,
+            "note": ""
+          },
+          "4": {
+            "observed": 8,
+            "nullMean": 9.356,
+            "nullSd": 2.912,
+            "ratio": 0.855066,
+            "pTwoSided": 0.821179,
+            "note": ""
+          },
+          "5": {
+            "observed": 2,
+            "nullMean": 1.262,
+            "nullSd": 1.089285,
+            "ratio": 1.584786,
+            "pTwoSided": 0.709291,
+            "note": ""
+          },
+          "6": {
+            "observed": 0,
+            "nullMean": 0.159,
+            "nullSd": 0.397337,
+            "ratio": 0.0,
+            "pTwoSided": 1.0,
+            "note": ""
+          },
+          "7+": {
+            "observed": 0,
+            "nullMean": 0.019,
+            "nullSd": 0.136593,
+            "ratio": 0.0,
+            "pTwoSided": 1.0,
+            "note": ""
+          }
+        }
+      },
+      "決まり手:まくり": {
+        "n": 9817,
+        "k": {
+          "2": {
+            "observed": 1109,
+            "nullMean": 1065.028,
+            "nullSd": 25.768338,
+            "ratio": 1.041287,
+            "pTwoSided": 0.07992,
+            "note": ""
+          },
+          "3": {
+            "observed": 193,
+            "nullMean": 174.355,
+            "nullSd": 12.022958,
+            "ratio": 1.106937,
+            "pTwoSided": 0.131868,
+            "note": ""
+          },
+          "4": {
+            "observed": 48,
+            "nullMean": 30.928,
+            "nullSd": 5.246364,
+            "ratio": 1.551992,
+            "pTwoSided": 0.005994,
+            "note": ""
+          },
+          "5": {
+            "observed": 4,
+            "nullMean": 5.704,
+            "nullSd": 2.297316,
+            "ratio": 0.701262,
+            "pTwoSided": 0.635365,
+            "note": ""
+          },
+          "6": {
+            "observed": 2,
+            "nullMean": 1.061,
+            "nullSd": 0.993109,
+            "ratio": 1.885014,
+            "pTwoSided": 0.599401,
+            "note": ""
+          },
+          "7+": {
+            "observed": 0,
+            "nullMean": 0.266,
+            "nullSd": 0.501493,
+            "ratio": 0.0,
+            "pTwoSided": 1.0,
+            "note": ""
+          }
+        }
+      },
+      "決まり手:まくり差し": {
+        "n": 7515,
+        "k": {
+          "2": {
+            "observed": 715,
+            "nullMean": 674.893,
+            "nullSd": 21.744387,
+            "ratio": 1.059427,
+            "pTwoSided": 0.071928,
+            "note": ""
+          },
+          "3": {
+            "observed": 92,
+            "nullMean": 78.125,
+            "nullSd": 7.734675,
+            "ratio": 1.1776,
+            "pTwoSided": 0.077922,
+            "note": ""
+          },
+          "4": {
+            "observed": 15,
+            "nullMean": 9.04,
+            "nullSd": 2.882136,
+            "ratio": 1.659292,
+            "pTwoSided": 0.075924,
+            "note": ""
+          },
+          "5": {
+            "observed": 2,
+            "nullMean": 0.997,
+            "nullSd": 0.979771,
+            "ratio": 2.006018,
+            "pTwoSided": 0.509491,
+            "note": ""
+          },
+          "6": {
+            "observed": 0,
+            "nullMean": 0.09,
+            "nullSd": 0.293234,
+            "ratio": 0.0,
+            "pTwoSided": 1.0,
+            "note": ""
+          },
+          "7+": {
+            "observed": 0,
+            "nullMean": 0.0,
+            "nullSd": 0.0,
+            "ratio": null,
+            "pTwoSided": 1.0,
+            "note": ""
+          }
+        }
+      },
+      "決まり手:抜き": {
+        "n": 3946,
+        "k": {
+          "2": {
+            "observed": 209,
+            "nullMean": 202.852,
+            "nullSd": 11.993496,
+            "ratio": 1.030308,
+            "pTwoSided": 0.641359,
+            "note": ""
+          },
+          "3": {
+            "observed": 13,
+            "nullMean": 11.918,
+            "nullSd": 3.330821,
+            "ratio": 1.090787,
+            "pTwoSided": 0.785215,
+            "note": ""
+          },
+          "4": {
+            "observed": 2,
+            "nullMean": 0.77,
+            "nullSd": 0.844875,
+            "ratio": 2.597403,
+            "pTwoSided": 0.36963,
+            "note": ""
+          },
+          "5": {
+            "observed": 0,
+            "nullMean": 0.072,
+            "nullSd": 0.262459,
+            "ratio": 0.0,
+            "pTwoSided": 1.0,
+            "note": ""
+          },
+          "6": {
+            "observed": 0,
+            "nullMean": 0.009,
+            "nullSd": 0.094488,
+            "ratio": 0.0,
+            "pTwoSided": 1.0,
+            "note": ""
+          },
+          "7+": {
+            "observed": 0,
+            "nullMean": 0.0,
+            "nullSd": 0.0,
+            "ratio": null,
+            "pTwoSided": 1.0,
+            "note": ""
+          }
+        }
+      },
+      "決まり手:恵まれ": {
+        "n": 42,
+        "k": {
+          "2": {
+            "observed": 0,
+            "nullMean": 0.0,
+            "nullSd": 0.0,
+            "ratio": null,
+            "pTwoSided": null,
+            "note": "n不足"
+          },
+          "3": {
+            "observed": 0,
+            "nullMean": 0.0,
+            "nullSd": 0.0,
+            "ratio": null,
+            "pTwoSided": null,
+            "note": "n不足"
+          },
+          "4": {
+            "observed": 0,
+            "nullMean": 0.0,
+            "nullSd": 0.0,
+            "ratio": null,
+            "pTwoSided": null,
+            "note": "n不足"
+          },
+          "5": {
+            "observed": 0,
+            "nullMean": 0.0,
+            "nullSd": 0.0,
+            "ratio": null,
+            "pTwoSided": null,
+            "note": "n不足"
+          },
+          "6": {
+            "observed": 0,
+            "nullMean": 0.0,
+            "nullSd": 0.0,
+            "ratio": null,
+            "pTwoSided": null,
+            "note": "n不足"
+          },
+          "7+": {
+            "observed": 0,
+            "nullMean": 0.0,
+            "nullSd": 0.0,
+            "ratio": null,
+            "pTwoSided": null,
+            "note": "n不足"
+          }
+        }
+      },
+      "決まり手:同一カテゴリ計": {
+        "n": 60977,
+        "k": {
+          "2": {
+            "observed": 6867,
+            "nullMean": 6698.357,
+            "nullSd": 67.181194,
+            "ratio": 1.025177,
+            "pTwoSided": 0.011988,
+            "note": ""
+          },
+          "3": {
+            "observed": 2352,
+            "nullMean": 2299.076,
+            "nullSd": 44.069313,
+            "ratio": 1.02302,
+            "pTwoSided": 0.243756,
+            "note": ""
+          },
+          "4": {
+            "observed": 1041,
+            "nullMean": 997.354,
+            "nullSd": 28.757045,
+            "ratio": 1.043762,
+            "pTwoSided": 0.133866,
+            "note": ""
+          },
+          "5": {
+            "observed": 463,
+            "nullMean": 476.874,
+            "nullSd": 20.608222,
+            "ratio": 0.970906,
+            "pTwoSided": 0.527473,
+            "note": ""
+          },
+          "6": {
+            "observed": 240,
+            "nullMean": 237.368,
+            "nullSd": 13.915539,
+            "ratio": 1.011088,
+            "pTwoSided": 0.901099,
+            "note": ""
+          },
+          "7+": {
+            "observed": 222,
+            "nullMean": 245.727,
+            "nullSd": 12.310891,
+            "ratio": 0.903442,
+            "pTwoSided": 0.05994,
+            "note": ""
+          }
+        }
+      }
+    },
+    "streakNote": "H相当＝①着外の連続、L相当＝決まり手:逃げの連続。決まり手:同一カテゴリ計はカテゴリ別の連続件数の合計（同じ決まり手が続いた最大連の件数）",
+    "matchRate": {
+      "n": 54354,
+      "observed": 0.355668,
+      "nullMean": 0.351444,
+      "nullSd": 0.001487,
+      "ratio": 1.012019,
+      "pTwoSided": 0.005994,
+      "note": ""
+    },
+    "corr": {
+      "K1": {
+        "n": 54354,
+        "observed": 0.02826,
+        "nullA_center": 0.020146,
+        "sd": 0.003676,
+        "p2_5": 0.013075,
+        "p97_5": 0.027152,
+        "net": 0.008113,
+        "pTwoSided": 0.033966,
+        "note": ""
+      },
+      "K3": {
+        "n": 54354,
+        "observed": 0.023621,
+        "nullA_center": 0.015446,
+        "sd": 0.003927,
+        "p2_5": 0.007669,
+        "p97_5": 0.023374,
+        "net": 0.008176,
+        "pTwoSided": 0.045954,
+        "note": ""
+      }
+    },
+    "corrDefinition": "K1・K3 を突合済みレースの(場,R)セル平均で中心化した残差の隣接Pearson相関。帰無は中心化済みの値を系列内で並べ替え",
+    "file": "decisionStreaks.csv"
+  },
+  "stage12": {
+    "definition": "10年534,330行・系列45,995・隣接ペア475,478。場ごとに段階6bと同一の T3q（eq の隣接Pearson）と帰無A_eq（段階6bと同じ置換1000回）。net＝T3q−帰無A_eq平均",
+    "requiredPairs": 55500,
+    "venues": [
+      {
+        "jcd": "01",
+        "venue": "桐生",
+        "nSeries": 1940,
+        "nPairs": 20088,
+        "pairsPerRequired": 0.361946,
+        "underpowered": true,
+        "T3q": 0.028214,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.021106,
+          "median": 0.021331,
+          "sd": 0.006491,
+          "p2_5": 0.00758,
+          "p50": 0.021331,
+          "p97_5": 0.03381,
+          "observed": 0.028214,
+          "pTwoSided": 0.251748
+        },
+        "net": 0.007107,
+        "sd": 0.006491,
+        "pTwoSided": 0.251748,
+        "nQ1": 3961,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 495,
+            "nullMean": 448.825,
+            "ratio": 1.10288,
+            "pTwoSided": 0.00999,
+            "note": ""
+          },
+          "3": {
+            "observed": 110,
+            "nullMean": 77.838,
+            "ratio": 1.413192,
+            "pTwoSided": 0.001998,
+            "note": ""
+          },
+          "4": {
+            "observed": 24,
+            "nullMean": 14.841,
+            "ratio": 1.617142,
+            "pTwoSided": 0.017982,
+            "note": ""
+          },
+          "5": {
+            "observed": 13,
+            "nullMean": 2.903,
+            "ratio": 4.478126,
+            "pTwoSided": 0.001998,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "02",
+        "venue": "戸田",
+        "nSeries": 1931,
+        "nPairs": 19987,
+        "pairsPerRequired": 0.360126,
+        "underpowered": true,
+        "T3q": 0.015834,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.008607,
+          "median": 0.008646,
+          "sd": 0.006615,
+          "p2_5": -0.005234,
+          "p50": 0.008646,
+          "p97_5": 0.021273,
+          "observed": 0.015834,
+          "pTwoSided": 0.285714
+        },
+        "net": 0.007227,
+        "sd": 0.006615,
+        "pTwoSided": 0.285714,
+        "nQ1": 2202,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 169,
+            "nullMean": 168.962,
+            "ratio": 1.000225,
+            "pTwoSided": 1.0,
+            "note": ""
+          },
+          "3": {
+            "observed": 26,
+            "nullMean": 17.656,
+            "ratio": 1.472587,
+            "pTwoSided": 0.051948,
+            "note": ""
+          },
+          "4": {
+            "observed": 2,
+            "nullMean": 2.452,
+            "ratio": 0.815661,
+            "pTwoSided": 1.0,
+            "note": ""
+          },
+          "5": {
+            "observed": 0,
+            "nullMean": 0.434,
+            "ratio": 0.0,
+            "pTwoSided": 1.0,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "03",
+        "venue": "江戸川",
+        "nSeries": 1805,
+        "nPairs": 17715,
+        "pairsPerRequired": 0.319189,
+        "underpowered": true,
+        "T3q": 0.03436,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.030201,
+          "median": 0.030119,
+          "sd": 0.006548,
+          "p2_5": 0.017271,
+          "p50": 0.030119,
+          "p97_5": 0.043731,
+          "observed": 0.03436,
+          "pTwoSided": 0.525475
+        },
+        "net": 0.004159,
+        "sd": 0.006548,
+        "pTwoSided": 0.525475,
+        "nQ1": 2054,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 199,
+            "nullMean": 168.587,
+            "ratio": 1.180399,
+            "pTwoSided": 0.015984,
+            "note": ""
+          },
+          "3": {
+            "observed": 19,
+            "nullMean": 20.219,
+            "ratio": 0.93971,
+            "pTwoSided": 0.887113,
+            "note": ""
+          },
+          "4": {
+            "observed": 5,
+            "nullMean": 2.957,
+            "ratio": 1.690903,
+            "pTwoSided": 0.375624,
+            "note": ""
+          },
+          "5": {
+            "observed": 0,
+            "nullMean": 0.394,
+            "ratio": 0.0,
+            "pTwoSided": 1.0,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "04",
+        "venue": "平和島",
+        "nSeries": 1824,
+        "nPairs": 18762,
+        "pairsPerRequired": 0.338054,
+        "underpowered": true,
+        "T3q": 0.020445,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.020224,
+          "median": 0.020067,
+          "sd": 0.006604,
+          "p2_5": 0.007778,
+          "p50": 0.020067,
+          "p97_5": 0.033508,
+          "observed": 0.020445,
+          "pTwoSided": 0.965035
+        },
+        "net": 0.000221,
+        "sd": 0.006604,
+        "pTwoSided": 0.965035,
+        "nQ1": 2250,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 171,
+            "nullMean": 185.524,
+            "ratio": 0.921714,
+            "pTwoSided": 0.201798,
+            "note": ""
+          },
+          "3": {
+            "observed": 29,
+            "nullMean": 22.374,
+            "ratio": 1.296147,
+            "pTwoSided": 0.157842,
+            "note": ""
+          },
+          "4": {
+            "observed": 3,
+            "nullMean": 3.197,
+            "ratio": 0.93838,
+            "pTwoSided": 1.0,
+            "note": ""
+          },
+          "5": {
+            "observed": 2,
+            "nullMean": 0.622,
+            "ratio": 3.215434,
+            "pTwoSided": 0.247752,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "05",
+        "venue": "多摩川",
+        "nSeries": 1882,
+        "nPairs": 19593,
+        "pairsPerRequired": 0.353027,
+        "underpowered": true,
+        "T3q": 0.016762,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.013487,
+          "median": 0.013654,
+          "sd": 0.006256,
+          "p2_5": 0.001395,
+          "p50": 0.013654,
+          "p97_5": 0.024986,
+          "observed": 0.016762,
+          "pTwoSided": 0.647353
+        },
+        "net": 0.003275,
+        "sd": 0.006256,
+        "pTwoSided": 0.647353,
+        "nQ1": 3747,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 424,
+            "nullMean": 416.546,
+            "ratio": 1.017895,
+            "pTwoSided": 0.675325,
+            "note": ""
+          },
+          "3": {
+            "observed": 73,
+            "nullMean": 70.968,
+            "ratio": 1.028633,
+            "pTwoSided": 0.847153,
+            "note": ""
+          },
+          "4": {
+            "observed": 16,
+            "nullMean": 12.359,
+            "ratio": 1.294603,
+            "pTwoSided": 0.311688,
+            "note": ""
+          },
+          "5": {
+            "observed": 4,
+            "nullMean": 2.394,
+            "ratio": 1.670844,
+            "pTwoSided": 0.43956,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "06",
+        "venue": "浜名湖",
+        "nSeries": 2011,
+        "nPairs": 20649,
+        "pairsPerRequired": 0.372054,
+        "underpowered": true,
+        "T3q": 0.028063,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.019948,
+          "median": 0.019988,
+          "sd": 0.006233,
+          "p2_5": 0.008129,
+          "p50": 0.019988,
+          "p97_5": 0.031962,
+          "observed": 0.028063,
+          "pTwoSided": 0.185814
+        },
+        "net": 0.008115,
+        "sd": 0.006233,
+        "pTwoSided": 0.185814,
+        "nQ1": 3959,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 445,
+            "nullMean": 445.259,
+            "ratio": 0.999418,
+            "pTwoSided": 1.0,
+            "note": ""
+          },
+          "3": {
+            "observed": 75,
+            "nullMean": 72.924,
+            "ratio": 1.028468,
+            "pTwoSided": 0.795205,
+            "note": ""
+          },
+          "4": {
+            "observed": 13,
+            "nullMean": 12.051,
+            "ratio": 1.078749,
+            "pTwoSided": 0.853147,
+            "note": ""
+          },
+          "5": {
+            "observed": 2,
+            "nullMean": 2.021,
+            "ratio": 0.989609,
+            "pTwoSided": 1.0,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "07",
+        "venue": "蒲郡",
+        "nSeries": 1947,
+        "nPairs": 20185,
+        "pairsPerRequired": 0.363694,
+        "underpowered": true,
+        "T3q": 0.019023,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.013275,
+          "median": 0.013486,
+          "sd": 0.006497,
+          "p2_5": 0.000338,
+          "p50": 0.013486,
+          "p97_5": 0.025616,
+          "observed": 0.019023,
+          "pTwoSided": 0.367632
+        },
+        "net": 0.005748,
+        "sd": 0.006497,
+        "pTwoSided": 0.367632,
+        "nQ1": 4608,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 596,
+            "nullMean": 563.512,
+            "ratio": 1.057653,
+            "pTwoSided": 0.083916,
+            "note": ""
+          },
+          "3": {
+            "observed": 138,
+            "nullMean": 109.108,
+            "ratio": 1.264802,
+            "pTwoSided": 0.003996,
+            "note": ""
+          },
+          "4": {
+            "observed": 33,
+            "nullMean": 21.496,
+            "ratio": 1.535169,
+            "pTwoSided": 0.015984,
+            "note": ""
+          },
+          "5": {
+            "observed": 8,
+            "nullMean": 4.584,
+            "ratio": 1.745201,
+            "pTwoSided": 0.163836,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "08",
+        "venue": "常滑",
+        "nSeries": 2018,
+        "nPairs": 20917,
+        "pairsPerRequired": 0.376883,
+        "underpowered": true,
+        "T3q": 0.034336,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.025742,
+          "median": 0.025715,
+          "sd": 0.005934,
+          "p2_5": 0.01461,
+          "p50": 0.025715,
+          "p97_5": 0.037561,
+          "observed": 0.034336,
+          "pTwoSided": 0.133866
+        },
+        "net": 0.008594,
+        "sd": 0.005934,
+        "pTwoSided": 0.133866,
+        "nQ1": 4954,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 652,
+            "nullMean": 622.41,
+            "ratio": 1.047541,
+            "pTwoSided": 0.157842,
+            "note": ""
+          },
+          "3": {
+            "observed": 127,
+            "nullMean": 129.474,
+            "ratio": 0.980892,
+            "pTwoSided": 0.851149,
+            "note": ""
+          },
+          "4": {
+            "observed": 37,
+            "nullMean": 29.316,
+            "ratio": 1.262109,
+            "pTwoSided": 0.17982,
+            "note": ""
+          },
+          "5": {
+            "observed": 9,
+            "nullMean": 7.063,
+            "ratio": 1.274246,
+            "pTwoSided": 0.551449,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "09",
+        "venue": "津",
+        "nSeries": 1891,
+        "nPairs": 19400,
+        "pairsPerRequired": 0.34955,
+        "underpowered": true,
+        "T3q": 0.03253,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.023446,
+          "median": 0.023124,
+          "sd": 0.006448,
+          "p2_5": 0.012154,
+          "p50": 0.023124,
+          "p97_5": 0.03649,
+          "observed": 0.03253,
+          "pTwoSided": 0.173826
+        },
+        "net": 0.009084,
+        "sd": 0.006448,
+        "pTwoSided": 0.173826,
+        "nQ1": 5106,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 657,
+            "nullMean": 662.302,
+            "ratio": 0.991995,
+            "pTwoSided": 0.803197,
+            "note": ""
+          },
+          "3": {
+            "observed": 143,
+            "nullMean": 149.822,
+            "ratio": 0.954466,
+            "pTwoSided": 0.563437,
+            "note": ""
+          },
+          "4": {
+            "observed": 29,
+            "nullMean": 36.515,
+            "ratio": 0.794194,
+            "pTwoSided": 0.223776,
+            "note": ""
+          },
+          "5": {
+            "observed": 9,
+            "nullMean": 9.443,
+            "ratio": 0.953087,
+            "pTwoSided": 1.0,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "10",
+        "venue": "三国",
+        "nSeries": 1899,
+        "nPairs": 19532,
+        "pairsPerRequired": 0.351928,
+        "underpowered": true,
+        "T3q": 0.031164,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.019052,
+          "median": 0.01908,
+          "sd": 0.006256,
+          "p2_5": 0.006845,
+          "p50": 0.01908,
+          "p97_5": 0.031137,
+          "observed": 0.031164,
+          "pTwoSided": 0.051948
+        },
+        "net": 0.012112,
+        "sd": 0.006256,
+        "pTwoSided": 0.051948,
+        "nQ1": 4796,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 651,
+            "nullMean": 608.414,
+            "ratio": 1.069995,
+            "pTwoSided": 0.027972,
+            "note": ""
+          },
+          "3": {
+            "observed": 162,
+            "nullMean": 126.476,
+            "ratio": 1.280875,
+            "pTwoSided": 0.005994,
+            "note": ""
+          },
+          "4": {
+            "observed": 30,
+            "nullMean": 27.168,
+            "ratio": 1.10424,
+            "pTwoSided": 0.607393,
+            "note": ""
+          },
+          "5": {
+            "observed": 5,
+            "nullMean": 5.664,
+            "ratio": 0.882768,
+            "pTwoSided": 0.987013,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "11",
+        "venue": "びわこ",
+        "nSeries": 1852,
+        "nPairs": 19324,
+        "pairsPerRequired": 0.34818,
+        "underpowered": true,
+        "T3q": 0.037355,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.02549,
+          "median": 0.025373,
+          "sd": 0.006414,
+          "p2_5": 0.012733,
+          "p50": 0.025373,
+          "p97_5": 0.038235,
+          "observed": 0.037355,
+          "pTwoSided": 0.06993
+        },
+        "net": 0.011865,
+        "sd": 0.006414,
+        "pTwoSided": 0.06993,
+        "nQ1": 4065,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 488,
+            "nullMean": 482.508,
+            "ratio": 1.011382,
+            "pTwoSided": 0.763237,
+            "note": ""
+          },
+          "3": {
+            "observed": 87,
+            "nullMean": 90.703,
+            "ratio": 0.959174,
+            "pTwoSided": 0.719281,
+            "note": ""
+          },
+          "4": {
+            "observed": 20,
+            "nullMean": 17.814,
+            "ratio": 1.122712,
+            "pTwoSided": 0.661339,
+            "note": ""
+          },
+          "5": {
+            "observed": 2,
+            "nullMean": 3.9,
+            "ratio": 0.512821,
+            "pTwoSided": 0.485514,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "12",
+        "venue": "住之江",
+        "nSeries": 1909,
+        "nPairs": 19866,
+        "pairsPerRequired": 0.357946,
+        "underpowered": true,
+        "T3q": 0.031776,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.022035,
+          "median": 0.022017,
+          "sd": 0.00639,
+          "p2_5": 0.009206,
+          "p50": 0.022017,
+          "p97_5": 0.034786,
+          "observed": 0.031776,
+          "pTwoSided": 0.137862
+        },
+        "net": 0.009741,
+        "sd": 0.00639,
+        "pTwoSided": 0.137862,
+        "nQ1": 4952,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 631,
+            "nullMean": 638.479,
+            "ratio": 0.988286,
+            "pTwoSided": 0.743257,
+            "note": ""
+          },
+          "3": {
+            "observed": 152,
+            "nullMean": 134.96,
+            "ratio": 1.12626,
+            "pTwoSided": 0.127872,
+            "note": ""
+          },
+          "4": {
+            "observed": 47,
+            "nullMean": 30.102,
+            "ratio": 1.561358,
+            "pTwoSided": 0.005994,
+            "note": ""
+          },
+          "5": {
+            "observed": 10,
+            "nullMean": 7.437,
+            "ratio": 1.344628,
+            "pTwoSided": 0.455544,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "13",
+        "venue": "尼崎",
+        "nSeries": 1870,
+        "nPairs": 19515,
+        "pairsPerRequired": 0.351622,
+        "underpowered": true,
+        "T3q": 0.044304,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.02442,
+          "median": 0.024482,
+          "sd": 0.006558,
+          "p2_5": 0.011425,
+          "p50": 0.024482,
+          "p97_5": 0.037372,
+          "observed": 0.044304,
+          "pTwoSided": 0.005994
+        },
+        "net": 0.019884,
+        "sd": 0.006558,
+        "pTwoSided": 0.005994,
+        "nQ1": 5037,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 684,
+            "nullMean": 655.034,
+            "ratio": 1.044221,
+            "pTwoSided": 0.167832,
+            "note": ""
+          },
+          "3": {
+            "observed": 156,
+            "nullMean": 150.442,
+            "ratio": 1.036944,
+            "pTwoSided": 0.641359,
+            "note": ""
+          },
+          "4": {
+            "observed": 40,
+            "nullMean": 36.975,
+            "ratio": 1.081812,
+            "pTwoSided": 0.625375,
+            "note": ""
+          },
+          "5": {
+            "observed": 18,
+            "nullMean": 9.65,
+            "ratio": 1.865285,
+            "pTwoSided": 0.021978,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "14",
+        "venue": "鳴門",
+        "nSeries": 1839,
+        "nPairs": 19018,
+        "pairsPerRequired": 0.342667,
+        "underpowered": true,
+        "T3q": 0.018345,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.019185,
+          "median": 0.019218,
+          "sd": 0.006393,
+          "p2_5": 0.006659,
+          "p50": 0.019218,
+          "p97_5": 0.032118,
+          "observed": 0.018345,
+          "pTwoSided": 0.887113
+        },
+        "net": -0.000841,
+        "sd": 0.006393,
+        "pTwoSided": 0.887113,
+        "nQ1": 3447,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 346,
+            "nullMean": 374.517,
+            "ratio": 0.923857,
+            "pTwoSided": 0.067932,
+            "note": ""
+          },
+          "3": {
+            "observed": 60,
+            "nullMean": 59.234,
+            "ratio": 1.012932,
+            "pTwoSided": 0.943057,
+            "note": ""
+          },
+          "4": {
+            "observed": 9,
+            "nullMean": 8.903,
+            "ratio": 1.010895,
+            "pTwoSided": 1.0,
+            "note": ""
+          },
+          "5": {
+            "observed": 4,
+            "nullMean": 1.295,
+            "ratio": 3.088803,
+            "pTwoSided": 0.067932,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "15",
+        "venue": "丸亀",
+        "nSeries": 1957,
+        "nPairs": 20194,
+        "pairsPerRequired": 0.363856,
+        "underpowered": true,
+        "T3q": 0.042121,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.014475,
+          "median": 0.01419,
+          "sd": 0.00646,
+          "p2_5": 0.001887,
+          "p50": 0.01419,
+          "p97_5": 0.026937,
+          "observed": 0.042121,
+          "pTwoSided": 0.001998
+        },
+        "net": 0.027646,
+        "sd": 0.00646,
+        "pTwoSided": 0.001998,
+        "nQ1": 4552,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 568,
+            "nullMean": 559.824,
+            "ratio": 1.014605,
+            "pTwoSided": 0.697303,
+            "note": ""
+          },
+          "3": {
+            "observed": 149,
+            "nullMean": 107.816,
+            "ratio": 1.381984,
+            "pTwoSided": 0.001998,
+            "note": ""
+          },
+          "4": {
+            "observed": 38,
+            "nullMean": 21.817,
+            "ratio": 1.741761,
+            "pTwoSided": 0.001998,
+            "note": ""
+          },
+          "5": {
+            "observed": 12,
+            "nullMean": 4.479,
+            "ratio": 2.679169,
+            "pTwoSided": 0.005994,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "16",
+        "venue": "児島",
+        "nSeries": 1945,
+        "nPairs": 20146,
+        "pairsPerRequired": 0.362991,
+        "underpowered": true,
+        "T3q": 0.029548,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.012212,
+          "median": 0.012291,
+          "sd": 0.006411,
+          "p2_5": 0.000356,
+          "p50": 0.012291,
+          "p97_5": 0.02501,
+          "observed": 0.029548,
+          "pTwoSided": 0.011988
+        },
+        "net": 0.017335,
+        "sd": 0.006411,
+        "pTwoSided": 0.011988,
+        "nQ1": 4708,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 610,
+            "nullMean": 589.12,
+            "ratio": 1.035443,
+            "pTwoSided": 0.261738,
+            "note": ""
+          },
+          "3": {
+            "observed": 115,
+            "nullMean": 114.67,
+            "ratio": 1.002878,
+            "pTwoSided": 1.0,
+            "note": ""
+          },
+          "4": {
+            "observed": 22,
+            "nullMean": 22.401,
+            "ratio": 0.982099,
+            "pTwoSided": 1.0,
+            "note": ""
+          },
+          "5": {
+            "observed": 5,
+            "nullMean": 4.194,
+            "ratio": 1.192179,
+            "pTwoSided": 0.849151,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "17",
+        "venue": "宮島",
+        "nSeries": 1991,
+        "nPairs": 20622,
+        "pairsPerRequired": 0.371568,
+        "underpowered": true,
+        "T3q": 0.033134,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.020118,
+          "median": 0.019879,
+          "sd": 0.006357,
+          "p2_5": 0.008046,
+          "p50": 0.019879,
+          "p97_5": 0.032586,
+          "observed": 0.033134,
+          "pTwoSided": 0.045954
+        },
+        "net": 0.013016,
+        "sd": 0.006357,
+        "pTwoSided": 0.045954,
+        "nQ1": 4992,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 605,
+            "nullMean": 632.715,
+            "ratio": 0.956197,
+            "pTwoSided": 0.161838,
+            "note": ""
+          },
+          "3": {
+            "observed": 148,
+            "nullMean": 130.72,
+            "ratio": 1.132191,
+            "pTwoSided": 0.091908,
+            "note": ""
+          },
+          "4": {
+            "observed": 37,
+            "nullMean": 27.92,
+            "ratio": 1.325215,
+            "pTwoSided": 0.093906,
+            "note": ""
+          },
+          "5": {
+            "observed": 5,
+            "nullMean": 5.948,
+            "ratio": 0.840619,
+            "pTwoSided": 0.917083,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "18",
+        "venue": "徳山",
+        "nSeries": 1979,
+        "nPairs": 20641,
+        "pairsPerRequired": 0.37191,
+        "underpowered": true,
+        "T3q": 0.033824,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.025944,
+          "median": 0.025999,
+          "sd": 0.006174,
+          "p2_5": 0.013906,
+          "p50": 0.025999,
+          "p97_5": 0.037651,
+          "observed": 0.033824,
+          "pTwoSided": 0.175824
+        },
+        "net": 0.00788,
+        "sd": 0.006174,
+        "pTwoSided": 0.175824,
+        "nQ1": 6539,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 895,
+            "nullMean": 917.49,
+            "ratio": 0.975487,
+            "pTwoSided": 0.375624,
+            "note": ""
+          },
+          "3": {
+            "observed": 262,
+            "nullMean": 247.473,
+            "ratio": 1.058701,
+            "pTwoSided": 0.305694,
+            "note": ""
+          },
+          "4": {
+            "observed": 76,
+            "nullMean": 68.566,
+            "ratio": 1.108421,
+            "pTwoSided": 0.337662,
+            "note": ""
+          },
+          "5": {
+            "observed": 20,
+            "nullMean": 19.363,
+            "ratio": 1.032898,
+            "pTwoSided": 0.953047,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "19",
+        "venue": "下関",
+        "nSeries": 1835,
+        "nPairs": 19069,
+        "pairsPerRequired": 0.343586,
+        "underpowered": true,
+        "T3q": 0.017955,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.018327,
+          "median": 0.018303,
+          "sd": 0.006402,
+          "p2_5": 0.004901,
+          "p50": 0.018303,
+          "p97_5": 0.030661,
+          "observed": 0.017955,
+          "pTwoSided": 0.959041
+        },
+        "net": -0.000372,
+        "sd": 0.006402,
+        "pTwoSided": 0.959041,
+        "nQ1": 5063,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 671,
+            "nullMean": 672.578,
+            "ratio": 0.997654,
+            "pTwoSided": 0.941059,
+            "note": ""
+          },
+          "3": {
+            "observed": 139,
+            "nullMean": 152.543,
+            "ratio": 0.911218,
+            "pTwoSided": 0.265734,
+            "note": ""
+          },
+          "4": {
+            "observed": 62,
+            "nullMean": 34.715,
+            "ratio": 1.785971,
+            "pTwoSided": 0.001998,
+            "note": ""
+          },
+          "5": {
+            "observed": 8,
+            "nullMean": 8.195,
+            "ratio": 0.976205,
+            "pTwoSided": 1.0,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "20",
+        "venue": "若松",
+        "nSeries": 1937,
+        "nPairs": 19992,
+        "pairsPerRequired": 0.360216,
+        "underpowered": true,
+        "T3q": 0.018124,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.012169,
+          "median": 0.012076,
+          "sd": 0.006454,
+          "p2_5": -0.000432,
+          "p50": 0.012076,
+          "p97_5": 0.025015,
+          "observed": 0.018124,
+          "pTwoSided": 0.325674
+        },
+        "net": 0.005954,
+        "sd": 0.006454,
+        "pTwoSided": 0.325674,
+        "nQ1": 4739,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 597,
+            "nullMean": 589.694,
+            "ratio": 1.012389,
+            "pTwoSided": 0.721279,
+            "note": ""
+          },
+          "3": {
+            "observed": 151,
+            "nullMean": 114.026,
+            "ratio": 1.324259,
+            "pTwoSided": 0.001998,
+            "note": ""
+          },
+          "4": {
+            "observed": 36,
+            "nullMean": 22.275,
+            "ratio": 1.616162,
+            "pTwoSided": 0.007992,
+            "note": ""
+          },
+          "5": {
+            "observed": 12,
+            "nullMean": 4.644,
+            "ratio": 2.583979,
+            "pTwoSided": 0.005994,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "21",
+        "venue": "芦屋",
+        "nSeries": 1946,
+        "nPairs": 20230,
+        "pairsPerRequired": 0.364505,
+        "underpowered": true,
+        "T3q": 0.017796,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.016272,
+          "median": 0.016299,
+          "sd": 0.006495,
+          "p2_5": 0.004054,
+          "p50": 0.016299,
+          "p97_5": 0.028813,
+          "observed": 0.017796,
+          "pTwoSided": 0.829171
+        },
+        "net": 0.001524,
+        "sd": 0.006495,
+        "pTwoSided": 0.829171,
+        "nQ1": 5993,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 878,
+            "nullMean": 823.965,
+            "ratio": 1.065579,
+            "pTwoSided": 0.021978,
+            "note": ""
+          },
+          "3": {
+            "observed": 203,
+            "nullMean": 202.787,
+            "ratio": 1.00105,
+            "pTwoSided": 1.0,
+            "note": ""
+          },
+          "4": {
+            "observed": 54,
+            "nullMean": 50.273,
+            "ratio": 1.074135,
+            "pTwoSided": 0.647353,
+            "note": ""
+          },
+          "5": {
+            "observed": 16,
+            "nullMean": 12.692,
+            "ratio": 1.260637,
+            "pTwoSided": 0.385614,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "22",
+        "venue": "福岡",
+        "nSeries": 1904,
+        "nPairs": 19838,
+        "pairsPerRequired": 0.357441,
+        "underpowered": true,
+        "T3q": 0.030538,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.019645,
+          "median": 0.019337,
+          "sd": 0.0065,
+          "p2_5": 0.005573,
+          "p50": 0.019337,
+          "p97_5": 0.032524,
+          "observed": 0.030538,
+          "pTwoSided": 0.097902
+        },
+        "net": 0.010893,
+        "sd": 0.0065,
+        "pTwoSided": 0.097902,
+        "nQ1": 4923,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 607,
+            "nullMean": 632.725,
+            "ratio": 0.959343,
+            "pTwoSided": 0.215784,
+            "note": ""
+          },
+          "3": {
+            "observed": 150,
+            "nullMean": 141.485,
+            "ratio": 1.060183,
+            "pTwoSided": 0.425574,
+            "note": ""
+          },
+          "4": {
+            "observed": 26,
+            "nullMean": 33.752,
+            "ratio": 0.770325,
+            "pTwoSided": 0.213786,
+            "note": ""
+          },
+          "5": {
+            "observed": 11,
+            "nullMean": 8.276,
+            "ratio": 1.329145,
+            "pTwoSided": 0.387612,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "23",
+        "venue": "唐津",
+        "nSeries": 1917,
+        "nPairs": 19780,
+        "pairsPerRequired": 0.356396,
+        "underpowered": true,
+        "T3q": 0.024394,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.015959,
+          "median": 0.016077,
+          "sd": 0.006356,
+          "p2_5": 0.003395,
+          "p50": 0.016077,
+          "p97_5": 0.028381,
+          "observed": 0.024394,
+          "pTwoSided": 0.185814
+        },
+        "net": 0.008435,
+        "sd": 0.006356,
+        "pTwoSided": 0.185814,
+        "nQ1": 5024,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 680,
+            "nullMean": 650.593,
+            "ratio": 1.0452,
+            "pTwoSided": 0.137862,
+            "note": ""
+          },
+          "3": {
+            "observed": 167,
+            "nullMean": 138.643,
+            "ratio": 1.204533,
+            "pTwoSided": 0.007992,
+            "note": ""
+          },
+          "4": {
+            "observed": 37,
+            "nullMean": 30.413,
+            "ratio": 1.216585,
+            "pTwoSided": 0.243756,
+            "note": ""
+          },
+          "5": {
+            "observed": 7,
+            "nullMean": 6.565,
+            "ratio": 1.06626,
+            "pTwoSided": 0.953047,
+            "note": ""
+          }
+        }
+      },
+      {
+        "jcd": "24",
+        "venue": "大村",
+        "nSeries": 1966,
+        "nPairs": 20415,
+        "pairsPerRequired": 0.367838,
+        "underpowered": true,
+        "T3q": 0.039318,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.015441,
+          "median": 0.015561,
+          "sd": 0.006194,
+          "p2_5": 0.003694,
+          "p50": 0.015561,
+          "p97_5": 0.027421,
+          "observed": 0.039318,
+          "pTwoSided": 0.001998
+        },
+        "net": 0.023877,
+        "sd": 0.006194,
+        "pTwoSided": 0.001998,
+        "nQ1": 6467,
+        "lowestBandStreaks": {
+          "2": {
+            "observed": 916,
+            "nullMean": 911.202,
+            "ratio": 1.005266,
+            "pTwoSided": 0.853147,
+            "note": ""
+          },
+          "3": {
+            "observed": 288,
+            "nullMean": 237.452,
+            "ratio": 1.212877,
+            "pTwoSided": 0.001998,
+            "note": ""
+          },
+          "4": {
+            "observed": 66,
+            "nullMean": 62.622,
+            "ratio": 1.053943,
+            "pTwoSided": 0.673327,
+            "note": ""
+          },
+          "5": {
+            "observed": 22,
+            "nullMean": 16.694,
+            "ratio": 1.317839,
+            "pTwoSided": 0.245754,
+            "note": ""
+          }
+        }
+      }
+    ],
+    "betweenVenueVariance": {
+      "reps": 1000,
+      "mean": 4.1e-05,
+      "median": 4e-05,
+      "sd": 1.2e-05,
+      "p2_5": 2e-05,
+      "p50": 4e-05,
+      "p97_5": 6.7e-05,
+      "observed": 5.2e-05,
+      "pTwoSided": 0.345654,
+      "definition": "24場の net の分散（ddof=1）。帰無は各置換回の24場の T3q から各場の帰無平均を引いた値の分散"
+    },
+    "lowestBandNote": "最安帯 q=1 の最大連長（段階10のLと同一）を場別に。n は場の q=1 レース数",
+    "file": "venueBreakdown.csv"
+  },
+  "stage13": {
+    "items": {
+      "keys": [
+        "風速",
+        "風向コード",
+        "波高",
+        "気温",
+        "水温",
+        "天候コード"
+      ],
+      "note": "results の race レベルに実在する実測条件のキーは6つ（風速・風向コード・波高・気温・水温・天候コード）。指示の「7項目」の7つ目に当たるキーは無く、補わない。風向コードは 角度(sin・cos) と 水面成分 の2通りで表す"
+    },
+    "missing": {
+      "definition": "風速・波高＝0以上の整数でない、風向コード＝1〜17の整数でない、天候コード＝1〜6の整数でない、気温・水温＝有限の数でない を欠測",
+      "base": "段階9と同じ突合済みレース（開催日・場・R）",
+      "monthExclusion": "項目ごとに月別欠損率が10%を超える月を除外",
+      "monthly": {
+        "風速": [
+          {
+            "month": "202507",
+            "matched": 2729,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202508",
+            "matched": 4940,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202509",
+            "matched": 4113,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202510",
+            "matched": 4015,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202511",
+            "matched": 3830,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202512",
+            "matched": 4657,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202601",
+            "matched": 5001,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202602",
+            "matched": 4057,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202603",
+            "matched": 4529,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202604",
+            "matched": 4200,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202605",
+            "matched": 4682,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202606",
+            "matched": 4490,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202607",
+            "matched": 4803,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202608",
+            "matched": 4790,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202609",
+            "matched": 141,
+            "missing": 0,
+            "missingRate": 0.0
+          }
+        ],
+        "風向コード": [
+          {
+            "month": "202507",
+            "matched": 2729,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202508",
+            "matched": 4940,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202509",
+            "matched": 4113,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202510",
+            "matched": 4015,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202511",
+            "matched": 3830,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202512",
+            "matched": 4657,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202601",
+            "matched": 5001,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202602",
+            "matched": 4057,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202603",
+            "matched": 4529,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202604",
+            "matched": 4200,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202605",
+            "matched": 4682,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202606",
+            "matched": 4490,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202607",
+            "matched": 4803,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202608",
+            "matched": 4790,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202609",
+            "matched": 141,
+            "missing": 0,
+            "missingRate": 0.0
+          }
+        ],
+        "波高": [
+          {
+            "month": "202507",
+            "matched": 2729,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202508",
+            "matched": 4940,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202509",
+            "matched": 4113,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202510",
+            "matched": 4015,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202511",
+            "matched": 3830,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202512",
+            "matched": 4657,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202601",
+            "matched": 5001,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202602",
+            "matched": 4057,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202603",
+            "matched": 4529,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202604",
+            "matched": 4200,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202605",
+            "matched": 4682,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202606",
+            "matched": 4490,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202607",
+            "matched": 4803,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202608",
+            "matched": 4790,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202609",
+            "matched": 141,
+            "missing": 0,
+            "missingRate": 0.0
+          }
+        ],
+        "気温": [
+          {
+            "month": "202507",
+            "matched": 2729,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202508",
+            "matched": 4940,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202509",
+            "matched": 4113,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202510",
+            "matched": 4015,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202511",
+            "matched": 3830,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202512",
+            "matched": 4657,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202601",
+            "matched": 5001,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202602",
+            "matched": 4057,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202603",
+            "matched": 4529,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202604",
+            "matched": 4200,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202605",
+            "matched": 4682,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202606",
+            "matched": 4490,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202607",
+            "matched": 4803,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202608",
+            "matched": 4790,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202609",
+            "matched": 141,
+            "missing": 0,
+            "missingRate": 0.0
+          }
+        ],
+        "水温": [
+          {
+            "month": "202507",
+            "matched": 2729,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202508",
+            "matched": 4940,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202509",
+            "matched": 4113,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202510",
+            "matched": 4015,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202511",
+            "matched": 3830,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202512",
+            "matched": 4657,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202601",
+            "matched": 5001,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202602",
+            "matched": 4057,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202603",
+            "matched": 4529,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202604",
+            "matched": 4200,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202605",
+            "matched": 4682,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202606",
+            "matched": 4490,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202607",
+            "matched": 4803,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202608",
+            "matched": 4790,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202609",
+            "matched": 141,
+            "missing": 0,
+            "missingRate": 0.0
+          }
+        ],
+        "天候コード": [
+          {
+            "month": "202507",
+            "matched": 2729,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202508",
+            "matched": 4940,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202509",
+            "matched": 4113,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202510",
+            "matched": 4015,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202511",
+            "matched": 3830,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202512",
+            "matched": 4657,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202601",
+            "matched": 5001,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202602",
+            "matched": 4057,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202603",
+            "matched": 4529,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202604",
+            "matched": 4200,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202605",
+            "matched": 4682,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202606",
+            "matched": 4490,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202607",
+            "matched": 4803,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202608",
+            "matched": 4790,
+            "missing": 0,
+            "missingRate": 0.0
+          },
+          {
+            "month": "202609",
+            "matched": 141,
+            "missing": 0,
+            "missingRate": 0.0
+          }
+        ]
+      },
+      "excludedMonths": {
+        "風速": [],
+        "風向コード": [],
+        "波高": [],
+        "気温": [],
+        "水温": [],
+        "天候コード": []
+      }
+    },
+    "schemaChange": {
+      "before20260101": {
+        "resultsRaces": 24937,
+        "matched": 24284,
+        "items": {
+          "風速": {
+            "keyPresentInResults": 24937,
+            "missing": 0,
+            "fractionalValues": 0
+          },
+          "風向コード": {
+            "keyPresentInResults": 24937,
+            "missing": 0,
+            "fractionalValues": 0
+          },
+          "波高": {
+            "keyPresentInResults": 24937,
+            "missing": 0,
+            "fractionalValues": 0
+          },
+          "気温": {
+            "keyPresentInResults": 24937,
+            "missing": 0,
+            "fractionalValues": 473
+          },
+          "水温": {
+            "keyPresentInResults": 24937,
+            "missing": 0,
+            "fractionalValues": 481
+          },
+          "天候コード": {
+            "keyPresentInResults": 24937,
+            "missing": 0,
+            "fractionalValues": 0
+          }
+        }
+      },
+      "from20260101": {
+        "resultsRaces": 39532,
+        "matched": 36693,
+        "items": {
+          "風速": {
+            "keyPresentInResults": 39532,
+            "missing": 0,
+            "fractionalValues": 0
+          },
+          "風向コード": {
+            "keyPresentInResults": 39532,
+            "missing": 0,
+            "fractionalValues": 0
+          },
+          "波高": {
+            "keyPresentInResults": 39532,
+            "missing": 0,
+            "fractionalValues": 0
+          },
+          "気温": {
+            "keyPresentInResults": 39532,
+            "missing": 0,
+            "fractionalValues": 2615
+          },
+          "水温": {
+            "keyPresentInResults": 39532,
+            "missing": 0,
+            "fractionalValues": 2629
+          },
+          "天候コード": {
+            "keyPresentInResults": 39532,
+            "missing": 0,
+            "fractionalValues": 0
+          }
+        }
+      },
+      "note": "2026-01-01 前後で race レベルのキーの出現数・欠測数・小数値（整数でない値）の数を比較。keyPresentInResults は results 全体（〜20260913）のレース数"
+    },
+    "rows": {
+      "races": 60977,
+      "adjacentPairs": 54354,
+      "sameAsStage9": true
+    },
+    "mediation": {
+      "definition": "中心化(eq, (場,R)288セル)・ペア(同一系列R差1)・突合は段階9と同一。b² は eq をその項目だけに回帰した R²（OLS）。a はその回帰の当てはめ値を(場,R)セル平均で中心化した隣接Pearson（説明変数が1列の項目では項目そのものの a と一致）。上限 = a × b²。比較対象は段階8 S3-D1 の net",
+      "items": {
+        "風速": {
+          "definition": "風速(m)・連続量",
+          "a": 0.789698,
+          "aPairs": 54354,
+          "b2_R2": 0.001047,
+          "n": 60977,
+          "upper": 0.000827,
+          "coef": {
+            "intercept": {
+              "est": -0.098761,
+              "se": 0.010633
+            },
+            "speed": {
+              "est": 0.0259,
+              "se": 0.003239
+            }
+          }
+        },
+        "風向コード:角度": {
+          "definition": "風向角=(コード-1)×22.5 の sin・cos。17=無風は欠測（行ごと除く）",
+          "a": 0.810253,
+          "aPairs": 49453,
+          "b2_R2": 0.000181,
+          "n": 57275,
+          "upper": 0.000147,
+          "coef": {
+            "intercept": {
+              "est": -0.02434,
+              "se": 0.005877
+            },
+            "sin": {
+              "est": -0.020473,
+              "se": 0.007756
+            },
+            "cos": {
+              "est": 0.017594,
+              "se": 0.008964
+            }
+          }
+        },
+        "風向コード:水面成分": {
+          "definition": "facts.md の判定式・stadiumBearing.json。横風基準のダミー（追い風/向かい風/無風）＝段階9 b2",
+          "a": 0.566634,
+          "aPairs": 54354,
+          "b2_R2": 0.000107,
+          "n": 60977,
+          "upper": 6.1e-05,
+          "coef": {
+            "intercept": {
+              "est": -0.037913,
+              "se": 0.008071
+            },
+            "追い風": {
+              "est": 0.01762,
+              "se": 0.014755
+            },
+            "向かい風": {
+              "est": 0.033405,
+              "se": 0.014161
+            },
+            "無風": {
+              "est": -0.008123,
+              "se": 0.024359
+            }
+          }
+        },
+        "波高": {
+          "definition": "波高(cm)・連続量",
+          "a": 0.833113,
+          "aPairs": 54354,
+          "b2_R2": 0.000976,
+          "n": 60977,
+          "upper": 0.000813,
+          "coef": {
+            "intercept": {
+              "est": -0.081518,
+              "se": 0.009073
+            },
+            "波高": {
+              "est": 0.021878,
+              "se": 0.002835
+            }
+          }
+        },
+        "気温": {
+          "definition": "気温(℃)・連続量",
+          "a": 0.997733,
+          "aPairs": 54354,
+          "b2_R2": 7.7e-05,
+          "n": 60977,
+          "upper": 7.7e-05,
+          "coef": {
+            "intercept": {
+              "est": -0.055019,
+              "se": 0.014221
+            },
+            "気温": {
+              "est": 0.001382,
+              "se": 0.000639
+            }
+          }
+        },
+        "水温": {
+          "definition": "水温(℃)・連続量",
+          "a": 0.999579,
+          "aPairs": 54354,
+          "b2_R2": 0.000119,
+          "n": 60977,
+          "upper": 0.000119,
+          "coef": {
+            "intercept": {
+              "est": -0.065191,
+              "se": 0.015362
+            },
+            "水温": {
+              "est": 0.001902,
+              "se": 0.000707
+            }
+          }
+        },
+        "天候コード": {
+          "definition": "晴(1)基準のダミー（出現した水準 [1, 2, 3, 4]）",
+          "a": 0.806437,
+          "aPairs": 54354,
+          "b2_R2": 4.5e-05,
+          "n": 60977,
+          "upper": 3.6e-05,
+          "coef": {
+            "intercept": {
+              "est": -0.021006,
+              "se": 0.007015
+            },
+            "天候2": {
+              "est": -0.021542,
+              "se": 0.013175
+            },
+            "天候3": {
+              "est": -0.001929,
+              "se": 0.020484
+            },
+            "天候4": {
+              "est": -0.015503,
+              "se": 0.090727
+            }
+          }
+        }
+      },
+      "referenceResidual_S3D1net": 0.007496
+    },
+    "control": {
+      "method": "eq を W7 の説明変数に回帰（OLS）した残差で T3q を計算。統計量・ペア・帰無A_eq（系列内並べ替え1000回・default_rng(20260914)・段階6bと同じ置換）は段階6b・段階9と同一。帰無は並べ替え後の eq に同じ当てはめ・残差化をかけてから計算",
+      "W7model": {
+        "terms": [
+          "intercept",
+          "speed",
+          "追い風",
+          "向かい風",
+          "無風",
+          "speed×追い風",
+          "speed×向かい風",
+          "sin",
+          "cos",
+          "波高",
+          "気温",
+          "水温",
+          "天候2",
+          "天候3",
+          "天候4"
+        ],
+        "n": 60977,
+        "R2": 0.001758,
+        "coef": {
+          "intercept": {
+            "est": -0.177801,
+            "se": 0.022629
+          },
+          "speed": {
+            "est": 0.022929,
+            "se": 0.00652
+          },
+          "追い風": {
+            "est": 0.02793,
+            "se": 0.029903
+          },
+          "向かい風": {
+            "est": 0.068179,
+            "se": 0.029851
+          },
+          "無風": {
+            "est": 0.086281,
+            "se": 0.028551
+          },
+          "speed×追い風": {
+            "est": -0.001851,
+            "se": 0.008907
+          },
+          "speed×向かい風": {
+            "est": -0.011338,
+            "se": 0.008743
+          },
+          "sin": {
+            "est": -0.022685,
+            "se": 0.007798
+          },
+          "cos": {
+            "est": 0.017603,
+            "se": 0.009082
+          },
+          "波高": {
+            "est": 0.011045,
+            "se": 0.004387
+          },
+          "気温": {
+            "est": -0.002954,
+            "se": 0.00193
+          },
+          "水温": {
+            "est": 0.00525,
+            "se": 0.00211
+          },
+          "天候2": {
+            "est": -0.01324,
+            "se": 0.013328
+          },
+          "天候3": {
+            "est": 0.007746,
+            "se": 0.020987
+          },
+          "天候4": {
+            "est": -0.025531,
+            "se": 0.091893
+          }
+        },
+        "note": "風の部分は段階9 b3 と同じ列（横風基準）。sin・cos は無風(17)の行で0（無風ダミーが吸収するため角度としては欠測扱い）。天候は晴(1)基準のダミー"
+      },
+      "W0": {
+        "nPairs": 54354,
+        "T3q": 0.028841,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.02136,
+          "median": 0.021312,
+          "sd": 0.003758,
+          "p2_5": 0.013929,
+          "p50": 0.021312,
+          "p97_5": 0.028881,
+          "observed": 0.028841,
+          "pTwoSided": 0.053946
+        },
+        "net": 0.007481,
+        "pTwoSided": 0.053946,
+        "insideNull95": true,
+        "definition": "統制なし（段階9 W0 の再掲）"
+      },
+      "W1": {
+        "nPairs": 54354,
+        "T3q": 0.02773,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.0207,
+          "median": 0.020619,
+          "sd": 0.003766,
+          "p2_5": 0.013281,
+          "p50": 0.020619,
+          "p97_5": 0.028251,
+          "observed": 0.02773,
+          "pTwoSided": 0.065934
+        },
+        "net": 0.00703,
+        "pTwoSided": 0.065934,
+        "insideNull95": true,
+        "definition": "風だけ統制（段階9 W1 の再掲）"
+      },
+      "W7": {
+        "nPairs": 54354,
+        "T3q": 0.027312,
+        "nullA_eq": {
+          "reps": 1000,
+          "mean": 0.020301,
+          "median": 0.020219,
+          "sd": 0.003768,
+          "p2_5": 0.012825,
+          "p50": 0.020219,
+          "p97_5": 0.027762,
+          "observed": 0.027312,
+          "pTwoSided": 0.06993
+        },
+        "net": 0.007011,
+        "pTwoSided": 0.06993,
+        "insideNull95": true,
+        "definition": "実在する6項目すべてを統制（指示上の W7。7つ目の項目は results に無い）"
+      },
+      "insideNullDefinition": "帰無A_eq の 2.5〜97.5 パーセンタイルの内側に T3q がある（net 尺度では net が [p2_5−mean, p97_5−mean] の内側）"
+    },
+    "conditionCourse1": {
+      "file": "conditionCourse1.csv",
+      "sample": "段階9の突合済みレースのうち ①着外（段階11と同一）が判定できるもの",
+      "races": 60977,
+      "quartileBounds": {
+        "気温": [
+          13.0,
+          21.0,
+          29.0
+        ],
+        "水温": [
+          13.0,
+          21.0,
+          28.0
+        ]
+      },
+      "quartileRule": "ソート後 ceil(k*n/4) 番目の値を境界、同値は下位帯",
+      "nRule": "n が300未満のセルは率・区間・残差を出さず note に n不足（n は表示）",
+      "residual": "各レースの①着外(0/1)からその場の①着外率（同じ標本）を引いた残差の平均。区間は正規近似95%。単位は pt"
+    }
+  }
+}
