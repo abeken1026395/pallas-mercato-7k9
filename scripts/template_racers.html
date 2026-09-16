@@ -243,6 +243,8 @@ header .sub { font-size:11px; color:#8a94a3; margin-top:4px; }
 .ptab { display:flex; gap:4px; margin:2px 0 7px; flex-wrap:wrap; }
 .ptab-b { font-size:10px; line-height:1; padding:5px 8px; border-radius:11px; border:1px solid #2a3b4d; background:#0e1720; color:#8faabe; cursor:pointer; font-family:inherit; }
 .ptab-b.on { background:#8fb4d6; color:#0b1219; border-color:#8fb4d6; font-weight:700; }
+.ns-avg td { border-top:0; padding:0 0 4px; font-size:10px; color:#6f8aa3; }
+.ns-avg td:first-child { padding-left:20px; opacity:.85; }
 
 /* コース別直近10走（進入コース別の生データ・二層表示） */
 .cl10 { margin-top:8px; padding-top:7px; border-top:1px solid #1c2a3c; min-height:78px; }
@@ -1062,20 +1064,22 @@ function wakuStatsTable(boats){
   var ps=WS.meta.periods||[], i=ps.indexOf(PSEL.ws);
   if(i<0){ i=ps.indexOf("1y"); if(i<0) i=ps.length-1; PSEL.ws=ps[i]; }
   var head='<tr><th>枠・選手</th><th>走行</th><th>1着</th><th>2連対</th><th>3連対</th></tr>';
+  /* 各選手の直後に、その枠の全体平均を細い行で挟む。比較対象が隣にある形にする。
+     全体は母数が5万走規模なので分数は出さず、率だけを添える。 */
   var rows=boats.slice().sort(function(a,b){return parseInt(g(a,"枠"))-parseInt(g(b,"枠"));}).map(function(row){
     var lane=parseInt(g(row,"枠")), toban=g(row,"登録番号");
     var nm=g(row,"氏名").replace(/　+/g,"").slice(0,4);
     var arr=(WS.cells[toban]&&WS.cells[toban][String(lane)]);
     var c=(arr&&arr[i])||[0,0,0,0];
     var n=c[0];
-    return '<tr><td>'+laneChip(lane)+'<span class="ns-nm">'+esc(nm)+'</span></td>'
+    var tr='<tr><td>'+laneChip(lane)+'<span class="ns-nm">'+esc(nm)+'</span></td>'
       +'<td class="ns-n">'+n+'</td>'+rateCell(c[1],n)+rateCell(c[2],n)+rateCell(c[3],n)+'</tr>';
+    var b=(WS.base[i]&&WS.base[i][String(lane)])||[0,0,0,0], bn=b[0];
+    var avg='<tr class="ns-avg"><td>\u67a0'+lane+' \u5168\u4f53</td><td></td>'
+      +[1,2,3].map(function(k){ return '<td>'+(bn?Math.round(b[k]/bn*100)+"%":"\u2014")+'</td>'; }).join("")+'</tr>';
+    return tr+avg;
   }).join("");
-  var brow=[1,2,3,4,5,6].map(function(w){
-    var b=(WS.base[i]&&WS.base[i][String(w)])||[0,0,0,0], n=b[0];
-    return '<tr class="ns-base"><td>'+laneChip(w)+'<span class="ns-nm">全体</span></td>'
-      +'<td class="ns-n">'+n+'</td>'+rateCell(b[1],n)+rateCell(b[2],n)+rateCell(b[3],n)+'</tr>';
-  }).join("");
+  var brow="";
   return '<details class="ns" data-dk="waku"><summary>'
     +'<span class="ns-badge">枠別成績</span>'
     +'<span class="ns-sum">その枠に入ったとき、どれだけ来ていたか</span>'
@@ -1087,7 +1091,7 @@ function wakuStatsTable(boats){
     +'<dt>下段の分数</dt><dd>回数／走行数。上の％はこの分数から出している。走行数が少ないほど％は当てにならない。</dd>'
     +'<dt>「—」のセル</dt><dd>その期間にその枠で1走もしていない。0%ではない。</dd>'
     +'<dt>薄い字</dt><dd>走行数が20未満。1回の増減で大きく動く。</dd>'
-    +'<dt>下の6行（全体）</dt><dd>同じ期間の全選手平均。各選手の％をこれと引き算して読む。</dd>'
+    +'<dt>各行の下の「枠n 全体」</dt><dd>同じ期間・同じ枠の全選手平均。すぐ上の選手の％をこれと引き算して読む。母数が5万走規模なので分数は省いている。</dd>'
     +'<dt>期間の切り替え</dt><dd>短い期間ほど直近の調子が出るが、走行数が減る。2ヶ月だと1〜4走のことが多い。</dd>'
     +'<dt>出典</dt><dd>公式競走成績。補正はかけていない実数そのまま。</dd>'
     +'</dl></details></div></details>';
