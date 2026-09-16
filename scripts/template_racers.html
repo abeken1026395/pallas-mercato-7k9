@@ -240,6 +240,9 @@ header .sub { font-size:11px; color:#8a94a3; margin-top:4px; }
 .ns-help dl { margin:4px 0 2px; font-size:10px; line-height:1.6; }
 .ns-help dt { color:#9fb0c3; margin-top:6px; }
 .ns-help dd { color:#6f7d8c; margin:1px 0 0; }
+.ptab { display:flex; gap:4px; margin:2px 0 7px; flex-wrap:wrap; }
+.ptab-b { font-size:10px; line-height:1; padding:5px 8px; border-radius:11px; border:1px solid #2a3b4d; background:#0e1720; color:#8faabe; cursor:pointer; font-family:inherit; }
+.ptab-b.on { background:#8fb4d6; color:#0b1219; border-color:#8fb4d6; font-weight:700; }
 
 /* コース別直近10走（進入コース別の生データ・二層表示） */
 .cl10 { margin-top:8px; padding-top:7px; border-top:1px solid #1c2a3c; min-height:78px; }
@@ -463,6 +466,7 @@ loadText("../players/racerKimarite.csv").then(function(t){ parseKimarite(t); rer
 loadJSON("../highlights/highlights.json").then(function(j){ parseHL(j); rerender(); }).catch(function(){});
 loadJSON("../data/tideToday.json").then(function(j){ tide=j||null; rerender(); }).catch(function(){});
 loadJSON("../data/nigeSecond.json").then(function(j){ NS=j||null; rerender(); }).catch(function(){});
+loadJSON("../data/wakuStats.json").then(function(j){ WS=j||null; rerender(); }).catch(function(){});
 loadJSON("../data/gradeSchedule.json").then(function(j){ GRADE=j||null; rerender(); }).catch(function(){});
 /* 開催グレードと女子戦。区分は公式の月間スケジュールの class 由来。
    女子戦は区分では判別できない（女子のSG・G1は SG・G1 の区分になる）ため、
@@ -1022,43 +1026,138 @@ function renderRaces(app,crumb,v){
 }
 
 /* 決まり手構成バー */
-/* 1号艇が逃げたときの2着コース分布（選手別・直近730日・nigeSecond.json）。
-   出走表は進入未確定のため枠番＝コースとして引く。％は経験ベイズで全体平均に寄せた値、
-   下段は補正前の回数／該当レース数。母数20未満は薄字。1号艇の行は「自分が逃げたとき」。 */
-function nsShrink(c,x,n,k){
-  var sp=NS.shrink[String(c)]&&NS.shrink[String(c)][String(x)]; if(!sp) return null;
-  var p=sp[0], t=sp[1]; if(!n) return p;
+/* ── 期間タブ付きの成績表（枠別成績 / 逃げ時2着） ─────────────────────
+   どちらも 2ヶ月・3ヶ月・半年・1年・2年 の5期間を持つ。JSONは回数だけを保持し、
+   率はここで計算する。選んだ期間は PSEL に持ち、30秒ごとの再描画をまたいで保持する
+   （render() が innerHTML を作り直すため、変数に持たないと既定値に戻る）。
+   母数は必ず「回数/走行数」の分数で併記する。走っていない（n=0）セルだけは
+   率が定義できないので「—」と出す。0%とは書かない。                            */
+var WS=null;                 /* 枠別成績（wakuStats.json） */
+var PSEL={ws:"1y", ns:"1y"}; /* 選択中の期間。表ごとに独立 */
+var PLBL={"2m":"2ヶ月","3m":"3ヶ月","6m":"半年","1y":"1年","2y":"2年"};
+
+function periodTabs(kind, periods, sel){
+  return '<div class="ptab" role="tablist">'+periods.map(function(p){
+    return '<button type="button" class="ptab-b'+(p===sel?' on':'')+'" data-ptab="'+kind+'" data-p="'+p+'"'
+      +' aria-selected="'+(p===sel?'true':'false')+'">'+(PLBL[p]||p)+'</button>';
+  }).join("")+'</div>';
+}
+
+/* 率と分数のセル。n=0 は率を出さない（走っていないだけで0%ではない） */
+function rateCell(k, n, cls){
+  var pct = n ? Math.round(k/n*100)+"%" : "—";
+  return '<td class="'+(cls||"")+(n&&n<20?" ns-thin":"")+'"><span class="ns-p">'+pct
+    +'</span><span class="ns-k">'+k+"/"+n+'</span></td>';
+}
+
+function laneChip(lane){
+  var lc=LANE_COLOR[lane]||["#333","#fff"];
+  return '<span class="ns-lane" style="background:'+lc[0]+';color:'+lc[1]+';'
+    +((lane===1||lane===2)?'border:1px solid #445;':'')+'">'+lane+'</span>';
+}
+
+/* ── 枠別成績 ───────────────────────────────────────────── */
+function wakuStatsTable(boats){
+  if(!WS||!WS.cells||!WS.base||!WS.meta) return "";
+  var ps=WS.meta.periods||[], i=ps.indexOf(PSEL.ws);
+  if(i<0){ i=ps.indexOf("1y"); if(i<0) i=ps.length-1; PSEL.ws=ps[i]; }
+  var head='<tr><th>枠・選手</th><th>走行</th><th>1着</th><th>2連対</th><th>3連対</th></tr>';
+  var rows=boats.slice().sort(function(a,b){return parseInt(g(a,"枠"))-parseInt(g(b,"枠"));}).map(function(row){
+    var lane=parseInt(g(row,"枠")), toban=g(row,"登録番号");
+    var nm=g(row,"氏名").replace(/　+/g,"").slice(0,4);
+    var arr=(WS.cells[toban]&&WS.cells[toban][String(lane)]);
+    var c=(arr&&arr[i])||[0,0,0,0];
+    var n=c[0];
+    return '<tr><td>'+laneChip(lane)+'<span class="ns-nm">'+esc(nm)+'</span></td>'
+      +'<td class="ns-n">'+n+'</td>'+rateCell(c[1],n)+rateCell(c[2],n)+rateCell(c[3],n)+'</tr>';
+  }).join("");
+  var brow=[1,2,3,4,5,6].map(function(w){
+    var b=(WS.base[i]&&WS.base[i][String(w)])||[0,0,0,0], n=b[0];
+    return '<tr class="ns-base"><td>'+laneChip(w)+'<span class="ns-nm">全体</span></td>'
+      +'<td class="ns-n">'+n+'</td>'+rateCell(b[1],n)+rateCell(b[2],n)+rateCell(b[3],n)+'</tr>';
+  }).join("");
+  return '<details class="ns" data-dk="waku"><summary>'
+    +'<span class="ns-badge">枠別成績</span>'
+    +'<span class="ns-sum">その枠に入ったとき、どれだけ来ていたか</span>'
+    +'<span class="ns-caret"></span></summary>'
+    +'<div class="ns-body">'+periodTabs("ws", ps, PSEL.ws)
+    +'<table>'+head+rows+brow+'</table>'
+    +'<details class="ns-help" data-dk="waku-help"><summary>表の読み方</summary><dl>'
+    +'<dt>この表は何か</dt><dd>その選手がその枠で走ったとき、1着・2着以内・3着以内に入った割合。進入が変わった分も枠番のまま数えている。</dd>'
+    +'<dt>下段の分数</dt><dd>回数／走行数。上の％はこの分数から出している。走行数が少ないほど％は当てにならない。</dd>'
+    +'<dt>「—」のセル</dt><dd>その期間にその枠で1走もしていない。0%ではない。</dd>'
+    +'<dt>薄い字</dt><dd>走行数が20未満。1回の増減で大きく動く。</dd>'
+    +'<dt>下の6行（全体）</dt><dd>同じ期間の全選手平均。各選手の％をこれと引き算して読む。</dd>'
+    +'<dt>期間の切り替え</dt><dd>短い期間ほど直近の調子が出るが、走行数が減る。2ヶ月だと1〜4走のことが多い。</dd>'
+    +'<dt>出典</dt><dd>公式競走成績。補正はかけていない実数そのまま。</dd>'
+    +'</dl></details></div></details>';
+}
+
+/* ── 逃げ時2着 ──────────────────────────────────────────── */
+function nsShrink(pi,c,x,n,k){
+  var sp=NS.shrink[pi]&&NS.shrink[pi][String(c)]&&NS.shrink[pi][String(c)][String(x)];
+  if(!sp) return null;
+  var p=sp[0], t=sp[1]; if(!n) return null;
   var w=t/(t+p*(1-p)/n); return w*(k/n)+(1-w)*p;
 }
 function nigeSecondTable(boats){
-  if(!NS||!NS.cells||!NS.base) return "";
-  var tot=NS.meta&&NS.meta.races||0; if(!tot) return "";
+  if(!NS||!NS.cells||!NS.base||!NS.meta) return "";
+  var ps=NS.meta.periods||[], i=ps.indexOf(PSEL.ns);
+  if(i<0){ i=ps.indexOf("1y"); if(i<0) i=ps.length-1; PSEL.ns=ps[i]; }
+  var tot=(NS.meta.races&&NS.meta.races[i])||0;
   var head='<tr><th>枠・選手</th><th>該当</th>'+[2,3,4,5,6].map(function(x){return '<th>2着'+x+'</th>';}).join("")+'</tr>';
   var rows=boats.slice().sort(function(a,b){return parseInt(g(a,"枠"))-parseInt(g(b,"枠"));}).map(function(row){
-    var lane=parseInt(g(row,"枠")), toban=g(row,"登録番号"), lc=LANE_COLOR[lane]||["#333","#fff"];
-    var nm=g(row,"氏名").replace(/　+/g,"");
-    var cell=(NS.cells[toban]&&NS.cells[toban][String(lane)])||[0,0,0,0,0,0];
+    var lane=parseInt(g(row,"枠")), toban=g(row,"登録番号");
+    var nm=g(row,"氏名").replace(/　+/g,"").slice(0,4);
+    var arr=(NS.cells[toban]&&NS.cells[toban][String(lane)]);
+    var cell=(arr&&arr[i])||[0,0,0,0,0,0];
     var n=cell[0];
     var tds=[2,3,4,5,6].map(function(x){
-      var k=cell[x-1], s=nsShrink(lane,x,n,k);
-      var pct=(s===null)?"-":Math.round(s*100)+"%";
-      return '<td'+(x===lane?' class="ns-self"':'')+'><span class="ns-p">'+pct+'</span><span class="ns-k">'+(n?k+"/"+n:"-")+'</span></td>';
+      var k=cell[x-1], s=nsShrink(i,lane,x,n,k);
+      var pct=(s===null)?"—":Math.round(s*100)+"%";
+      return '<td class="'+(x===lane?"ns-self":"")+(n&&n<20?" ns-thin":"")+'">'
+        +'<span class="ns-p">'+pct+'</span><span class="ns-k">'+k+"/"+n+'</span></td>';
     }).join("");
-    return '<tr'+(n<20?' class="ns-thin"':'')+'><td><span class="ns-lane" style="background:'+lc[0]+';color:'+lc[1]+';'+((lane===1||lane===2)?'border:1px solid #445;':'')+'">'+lane+'</span><span class="ns-nm">'+esc(nm)+'</span></td><td class="ns-n">'+n+'</td>'+tds+'</tr>';
+    return '<tr><td>'+laneChip(lane)+'<span class="ns-nm">'+esc(nm)+'</span></td>'
+      +'<td class="ns-n">'+n+'</td>'+tds+'</tr>';
   }).join("");
+  var b=NS.base[i]||[0,0,0,0,0];
   var base='<tr class="ns-base"><td>全体</td><td class="ns-n">'+tot+'</td>'+[2,3,4,5,6].map(function(x){
-    var k=NS.base[x-2]; return '<td><span class="ns-p">'+Math.round(k/tot*100)+'%</span><span class="ns-k">'+k+'</span></td>';
+    var k=b[x-2]; return '<td><span class="ns-p">'+(tot?Math.round(k/tot*100)+"%":"—")+'</span><span class="ns-k">'+k+"/"+tot+'</span></td>';
   }).join("")+'</tr>';
-  var per=(NS.meta&&NS.meta.from&&NS.meta.to)?NS.meta.from.slice(0,4)+"/"+NS.meta.from.slice(4,6)+"〜"+NS.meta.to.slice(0,4)+"/"+NS.meta.to.slice(4,6):"";
-  return '<details class="ns"><summary>'
+  return '<details class="ns" data-dk="nige"><summary>'
     +'<span class="ns-badge">逃げ時２着</span>'
     +'<span class="ns-sum">1号艇が逃げたとき、2着はどのコースだったか</span>'
     +'<span class="ns-caret"></span></summary>'
-    +'<div class="ns-body"><div class="ns-per">'+esc(per)+'・'+Number(tot).toLocaleString("ja-JP")+'レース</div>'
+    +'<div class="ns-body">'+periodTabs("ns", ps, PSEL.ns)
     +'<table>'+head+rows+base+'</table>'
-    +'<details class="ns-help"><summary>表の読み方</summary><dl><dt>この表は何か</dt><dd>1号艇が逃げて決まったレースだけを集めて、そのとき2着がどのコースだったかを数えたもの。1着の話はしていない。</dd><dt>上段の％</dt><dd>母数が少ない選手ほど全体平均に近づける補正をかけた値。少ない回数のたまたまを、その選手の特徴として読ませないため。</dd><dt>下段の数字</dt><dd>補正をかける前の実数。左が回数、右がその選手の該当レース数。上段と食い違って見えるときは、右の数が小さい。</dd><dt>いちばん下の全体行</dt><dd>全レースでの2着コース分布。各選手の％をこれと引き算して読む。全体より高ければその選手のときは2着に来やすかった、低ければ来にくかった、というだけの話。</dd><dt>薄い字の行</dt><dd>該当レースが20回未満。数字は出しているが、1回の増減で大きく動くので目安にとどまる。</dd><dt>枠番で引いている</dt><dd>出走表の時点では進入が決まっていないため、枠番どおりに進入したものとして数字を引いている。前づけがあれば実際の進入とずれる。</dd><dt>出典</dt><dd>公式競走成績（Kファイル）。集計期間と対象レース数は表の上に記載。</dd></dl></details>'
-    +'</div></details>';
+    +'<details class="ns-help" data-dk="nige-help"><summary>表の読み方</summary><dl>'
+    +'<dt>この表は何か</dt><dd>1号艇が逃げて決まったレースだけを集めて、そのとき2着がどのコースだったかを数えたもの。1着の話はしていない。</dd>'
+    +'<dt>上段の％</dt><dd>走行数が少ない選手ほど全体平均に近づける補正をかけた値。少ない回数のたまたまを、その選手の特徴として読ませないため。</dd>'
+    +'<dt>下段の分数</dt><dd>回数／該当レース数。補正前の実数。上段と食い違って見えるときは、右の数が小さい。</dd>'
+    +'<dt>「—」のセル</dt><dd>その期間に該当レースが1つもない。0%ではない。</dd>'
+    +'<dt>いちばん下の全体行</dt><dd>同じ期間の全レースでの2着コース分布。各選手の％をこれと引き算して読む。</dd>'
+    +'<dt>期間の切り替え</dt><dd>短い期間を選ぶと該当レースが数走まで減り、％はほとんど全体平均のままになる。動かないこと自体が「この期間では材料がない」という意味。</dd>'
+    +'<dt>枠番で引いている</dt><dd>出走表の時点では進入が決まっていないため、枠番どおりに進入したものとして引いている。前づけがあれば実際の進入とずれる。</dd>'
+    +'<dt>出典</dt><dd>公式競走成績（Kファイル）。</dd>'
+    +'</dl></details></div></details>';
 }
+
+/* タブのクリック。render() で作り直されるため、毎回 bind し直す側で呼ぶ */
+function bindPeriodTabs(){
+  var app=document.getElementById("app"); if(!app) return;
+  var bs=app.querySelectorAll("[data-ptab]");
+  for(var i=0;i<bs.length;i++){
+    (function(el){
+      el.onclick=function(e){
+        e.preventDefault(); e.stopPropagation();
+        PSEL[el.getAttribute("data-ptab")]=el.getAttribute("data-p");
+        render();
+      };
+    })(bs[i]);
+  }
+}
+
 function kimariteBar(km){
   if(!km) return "";
   /* ％の母数は見出しの1着数（抜き・恵まれは「その他」の1行にまとめる） */
@@ -1343,6 +1442,7 @@ function renderRace(app,crumb,v){
   boats.sort(function(a,b){ return sortKey(a)-sortKey(b); });
 
   ensureCL10();
+  html+=wakuStatsTable(rc.boats);
   html+=nigeSecondTable(rc.boats);
   html+=boats.map(function(row){ return boatCard(row,v,hl,minST,maxST,maxMotor); }).join("");
 
@@ -1352,6 +1452,7 @@ function renderRace(app,crumb,v){
   app.innerHTML=html;
   document.getElementById("back0").onclick=function(e){e.preventDefault();view={page:"venues",sort:view.sort};render();};
   document.getElementById("back1").onclick=function(e){e.preventDefault();view={page:"races",key:view.key,sort:view.sort};render();};
+  bindPeriodTabs();
   Array.prototype.forEach.call(app.querySelectorAll(".sortbtn"),function(el){
     el.onclick=function(){ view.sort=el.getAttribute("data-s"); render(); };
   });
