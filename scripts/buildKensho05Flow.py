@@ -1779,6 +1779,13 @@ def main():
     print("再現チェック OK")
 
     os.makedirs(OUTDIR, exist_ok=True)
+    # 段階14 は buildKensho05WindowB.py が書く。ここで再生成すると消えるので引き継ぐ
+    sp = os.path.join(OUTDIR, "summary.json")
+    if os.path.exists(sp):
+        with open(sp, encoding="utf-8") as f:
+            prev = json.load(f)
+        if "stage14" in prev:
+            summary["stage14"] = prev["stage14"]
     with open(os.path.join(OUTDIR, "summary.json"), "w", encoding="utf-8",
               newline="\n") as f:
         json.dump(summary, f, ensure_ascii=False, indent=2)
