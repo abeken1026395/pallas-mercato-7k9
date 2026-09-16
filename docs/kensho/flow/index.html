@@ -5,75 +5,79 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>検証：流れ ｜ データ攻め</title>
 <link rel="canonical" href="https://abeken1026395.github.io/pallas-mercato-7k9/kensho/flow/">
-<meta name="description" content="前のレースが荒れたら、次も荒れるのか。2016年9月1日から2026年9月1日までの払戻534,330レースを隣どうし475,478組にして数えると、万舟の5連続は10年で41回、偶然でも41.2回でした。続いていたのは①が飛ぶほうです。">
+<meta name="description" content="前のレースが荒れたら、次も荒れるのか。2017年10月25日から2026年9月1日までの474,126レースを隣どうし421,699組にして数えると、万舟の4連続は203回、偶然なら222回でした。続いていたのは①が飛ぶほうです。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="検証：流れ">
-<meta property="og:description" content="前のレースが荒れたら、次も荒れるのか。払戻534,330レースを隣どうし475,478組にして数えました。万舟の5連続は10年で41回、偶然でも41.2回。続いていたのは①が飛ぶほうでした。">
+<meta property="og:description" content="前のレースが荒れたら、次も荒れるのか。474,126レースを隣どうし421,699組にして数えました。万舟の4連続は203回、偶然なら222回。続いていたのは①が飛ぶほうでした。">
 <meta property="og:image" content="https://abeken1026395.github.io/pallas-mercato-7k9/icon512.png">
 <!-- data-seme signature: kensho / flow -->
 <style>
 :root{
-  --bg:#0b1219; --fg:#e0e6ed; --dim:#8a94a3; --faint:#6f7a89;
-  --line:#1f2b3a; --panel:#0f1a26; --accent:#ffd166;
-  --ok:#7ee08a; --ng:#e07a7a;
+  --bg:#0b1219; --panel:#0f1a26; --line:#4a627f;
+  --fg:#e0e6ed; --dim:#8a94a3; --faint:#8a94a3;
+  --accent:#ffd166; --ok:#7ee08a; --ng:#e07a7a;
 }
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--fg);margin:0;padding-bottom:80px;
-  font-family:'Helvetica Neue',Arial,'Hiragino Kaku Gothic ProN',Meiryo,sans-serif;
-  -webkit-text-size-adjust:100%;font-variant-numeric:tabular-nums}
-.wrap{max-width:620px;margin:0 auto;padding:0 18px}
-.siteback{display:flex;align-items:center;gap:6px;min-height:44px;
-  font-size:13px;color:inherit;text-decoration:none;opacity:.7}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--fg)}
+body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;
+  -webkit-text-size-adjust:100%;font-feature-settings:"palt" 1}
+.wrap{max-width:620px;margin:0 auto;padding:0 18px 64px}
 
-/* ── ヘッダ ── */
-header{padding:4px 0 20px;border-bottom:1px solid var(--line)}
-header .eyebrow{font-size:11px;color:var(--accent);letter-spacing:.18em;margin:0 0 8px}
-header h1{font-size:23px;line-height:1.5;color:#fff;margin:0 0 10px;font-weight:700}
-header .sub{font-size:12px;color:var(--dim);line-height:1.9;margin:0}
+.siteback{display:inline-flex;align-items:center;min-height:44px;
+  color:#a9c6dd;text-decoration:none;font-size:12.5px;margin-right:16px}
+.siteback:hover{text-decoration:underline}
 
-/* ── 記事 ── */
-.article{padding:32px 0 8px;font-size:15.5px;line-height:2.1;letter-spacing:.01em}
-.article p{margin:0 0 1.7em}
-.article .lead{font-size:16.5px;color:#fff;line-height:1.95;margin-bottom:1.9em}
-.article b{color:#fff;font-weight:600}
+header{padding:26px 0 8px;border-bottom:1px solid var(--line)}
+header .eyebrow{font-size:11px;letter-spacing:.34em;color:var(--accent);margin:0 0 12px}
+header h1{font-size:28px;line-height:1.5;color:#fff;margin:0 0 10px;font-weight:700}
+header .sub{font-size:12px;line-height:1.9;color:var(--dim);margin:0 0 22px}
 
-/* ── 小見出し ── */
-.sec{margin:3em 0 1.6em;font-size:13px;color:var(--accent);font-weight:600;
-  letter-spacing:.09em;line-height:1.6;display:flex;align-items:center;gap:11px}
-.sec::before{content:"";width:20px;height:1px;background:var(--accent);flex:none;opacity:.6}
-.sec::after{content:"";flex:1;height:1px;background:var(--line)}
+.article{padding:32px 0 8px;font-size:16px;line-height:2.1}
+.article p{margin:0 0 1.9em}
+.article b{color:#fff;font-weight:700}
+.article .lead{font-size:18.5px;line-height:1.95;color:#fff;font-weight:700;margin-bottom:1.7em}
 
-/* ── パンチライン ── */
-.punch{margin:2.2em 0 1.1em;font-size:24px;line-height:1.65;font-weight:700;color:#fff;
-  letter-spacing:.005em}
+.sec{margin:3em 0 1.5em;font-size:18px;color:var(--accent);font-weight:700;
+  letter-spacing:.06em;line-height:1.6;display:flex;align-items:center;gap:11px}
+.sec::before{content:"";width:20px;height:1px;background:var(--accent);flex:none}
+.sec::after{content:"";height:1px;background:var(--line);flex:1}
+
+.punch{margin:2.2em 0 1.1em;font-size:30px;line-height:1.65;color:#fff;font-weight:700}
 .punch .big{color:var(--accent)}
 
-/* ── 折りたたみ ── */
-details{background:var(--panel);border:1px solid var(--line);border-radius:9px;margin:0 0 11px}
-details>summary{list-style:none;cursor:pointer;padding:13px 15px;font-size:13px;
-  color:#a9c6dd;display:flex;align-items:center;justify-content:space-between;min-height:46px}
-details>summary::-webkit-details-marker{display:none}
-details>summary::after{content:"";width:7px;height:7px;border-right:1.5px solid #7a8ea6;
-  border-bottom:1.5px solid #7a8ea6;transform:rotate(45deg);margin-left:12px;flex:none}
-details[open]>summary::after{transform:rotate(-135deg)}
-.dbody{padding:0 15px 15px;font-size:12.5px;color:var(--dim);line-height:2}
-.dbody p{margin:0 0 .9em}
-.dbody h4{font-size:12.5px;color:#cfe0f0;margin:16px 0 6px;font-weight:600}
-.dbody h4:first-child{margin-top:4px}
-.dbody b{color:#cfe0f0}
-
-/* ── 表 ── */
-table{width:100%;border-collapse:collapse;font-size:12.5px;margin:8px 0 6px}
-th,td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:right}
-th{color:var(--faint);font-weight:400;font-size:11px;white-space:nowrap}
-td:first-child,th:first-child{text-align:left}
-tr.hi td{color:#fff;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:1.5em 0 1.9em;
+  font-variant-numeric:tabular-nums}
+th,td{padding:11px 6px;text-align:right;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--faint);font-weight:600;font-size:12px;white-space:nowrap}
+tr.hi td{color:#fff;font-weight:700;background:#16283c}
 tr.mid td{color:var(--faint)}
-.article table{margin:8px 0 1.7em}
-.sub2{font-size:10.5px;color:var(--faint);font-weight:400}
 
-.stamp{font-size:11px;color:var(--faint);margin-top:26px;line-height:1.9;
-  border-top:1px solid var(--line);padding-top:22px}
+/* ── 数字ブロック ── */
+.figure{display:flex;gap:12px;margin:1.5em 0 1.9em}
+.figure>div{flex:1;background:var(--panel);border:1px solid var(--line);
+  border-radius:10px;padding:16px 10px 14px;text-align:center}
+.figure .n{font-size:44px;font-weight:700;line-height:1.15;color:var(--accent);
+  font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.figure .u{font-size:17px;font-weight:700;margin-left:2px}
+.figure .l{font-size:11px;color:var(--dim);margin-top:8px;line-height:1.7}
+.figure .ref .n{color:var(--faint)}
+
+/* ── 折りたたみ ── */
+details{margin:2.6em 0 1.6em;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+details>summary{display:flex;align-items:center;min-height:46px;padding:0 16px;
+  font-size:13px;color:#a9c6dd;cursor:pointer;list-style:none}
+details>summary::-webkit-details-marker{display:none}
+details>summary::after{content:"＋";margin-left:auto;color:var(--faint)}
+details[open]>summary::after{content:"−"}
+.dbody{padding:4px 16px 18px;font-size:12.5px;line-height:2;color:var(--dim)}
+.dbody h4{margin:1.6em 0 .5em;font-size:12.5px;color:#cfd8e3;font-weight:700}
+.dbody h4:first-child{margin-top:.4em}
+.dbody p{margin:0 0 1em}
+
+.stamp{margin:2.4em 0 1.4em;font-size:11px;line-height:1.9;color:var(--faint);
+  padding-top:16px;border-top:1px solid var(--line)}
+.stamp span{color:var(--dim);font-variant-numeric:tabular-nums}
 </style>
 </head>
 <body>
@@ -87,11 +91,10 @@ tr.mid td{color:var(--faint)}
   <h1>流れは<br>あるのか</h1>
   <p class="sub">
     前のレースが荒れたら、次も荒れるのか。<br>
-    10年分の払戻を、隣どうしで並べて数えた記録です。
+    約9年分の払戻を、隣どうしで並べて数えた記録です。
   </p>
 </header>
 
-<!-- ══════════ 記事 ══════════ -->
 <div class="article">
 
 <p class="lead">「今日は荒れてるな」</p>
@@ -100,23 +103,28 @@ tr.mid td{color:var(--faint)}
 
 <p>反対の言い方もあります。荒れた次は堅い。そろそろ戻る。</p>
 
-<p>荒れても、堅くても、あとから理由が付く。これでは当たったかどうかを確かめようがないので、数えることにしました。どちらが正しいにしても、前のレースが次のレースに何かを残しているという話ではあります。</p>
+<p>荒れても、堅くても、あとから理由が付く。これでは当たったかどうかを確かめようがないので、数えることにしました。</p>
 
-<p class="sec">3,653日、475,478組</p>
+<p class="sec">3,234日、421,699組</p>
 
-<p>2016年9月1日から2026年9月1日まで、公式の払戻を1日ずつ集めました。数えられたレースは534,330。前回の検証と同じ分母です。</p>
+<p>2017年10月25日から2026年9月1日まで、公式の払戻とレース結果を1日ずつ集めました。数えられたレースは474,126で、着順・決まり手・風・波まで揃っている範囲。</p>
 
-<p>レース番号の順に並べた同じ日・同じ場のレースを、1Rと2R、2Rと3Rと、隣どうしで組にしていくと、<b>475,478組</b>できました。</p>
+<p>レース番号の順に並べた同じ日・同じ場のレースを、1Rと2R、2Rと3Rと、隣どうしで組にしていくと、<b>421,699組</b>できました。1日あたり130組を、3,234日ぶん積んだことになります。</p>
 
-<p>払戻の金額では、全レースを5つの帯に分けています。境目は1,070円、1,910円、3,640円、8,540円。</p>
+<p>払戻の金額では、全レースを5つのグループに分けた。境目は1,060円、1,890円、3,610円、8,480円。</p>
 
 <p class="sec">安いレースの次は、安い</p>
 
-<p>ひとつ前が最も安い帯だったとき、次もいちばん安い帯だったのは<b>24.87%</b>でした。分母は93,897組です。</p>
+<p>ひとつ前が最も安いグループだったとき、次もいちばん安いグループだったのは<b>25.06%</b>。分母は83,295組です。</p>
 
-<p>何の関係もなければ20%になります。20組のうち4組が揃うはずのところ、5組揃っていた。</p>
+<div class="figure">
+  <div><p class="n">25.06<span class="u">%</span></p><p class="l">安いグループの次も<br>安いグループ・実際</p></div>
+  <div class="ref"><p class="n">20<span class="u">%</span></p><p class="l">安いグループの次も<br>安いグループ・偶然なら</p></div>
+</div>
 
-<p>真ん中も見ておきます。3番目の帯のあと、次も3番目だったのは20.37%（分母95,828組）。いちばん高い帯どうしも20.58%（分母95,822組）。どちらも20%とほとんど変わりません。揃っているのは、安い端だけでした。</p>
+<p>何の関係もなければ20%になるので、20組のうち4組が揃うはずのところ、5組揃っていたことになります。</p>
+
+<p>真ん中も見ておきます。3番目のグループのあと次も3番目だったのは20.37%（分母85,220組）、いちばん高いグループどうしは20.64%（分母85,110組）で、どちらも20%とほとんど変わらない。揃っていたのは、安い端だけ。</p>
 
 <p>端だけとはいえ、揃っていることに変わりはない。やはり流れはある、と思いました。</p>
 
@@ -124,11 +132,11 @@ tr.mid td{color:var(--faint)}
 
 <p class="sec">並びのほうを壊した</p>
 
-<p>選手が何を考えていたかは見えません。水面の状態も、うちは数字にしていない。見えるのは並びだけです。</p>
+<p>選手が何を考えていたかは見えません。水面の状態は測りましたが、それだけでは足りない。見えるのは並びだけ。</p>
 
 <p>だから、並びのほうを壊しました。</p>
 
-<p>その日その場の12レースを取り出し、結果だけをその中で入れ替えて、それを1,000通り作ると、その日に起きたことは全部そのままで順番だけが偶然になった日ができあがります。本物とこの1,000通りを比べれば、順番に意味があったのかどうかが出る。その日の風も、その日の番組も、選手の顔ぶれも、入れ替えでは動かないので、まとめて差し引かれます。</p>
+<p>その日その場の12レースを取り出し、結果だけをその中で入れ替えて、それを1,000通り作ると、その日に起きたことは全部そのままで順番だけが偶然になった日ができあがります。本物とこの1,000通りを比べれば、順番に意味があったのかどうかが出る。その日の風も、その日の番組も、選手の顔ぶれも入れ替えでは動かないので、まとめて差し引かれます。</p>
 
 <p>12レースしかない日の中で連続を数えると、何の関係がなくても数字は偏る。その偏りも1,000通りの側に同じだけ出るので、これも一緒に落ちます。</p>
 
@@ -139,127 +147,146 @@ tr.mid td{color:var(--faint)}
 <table>
 <thead><tr><th>何で説明がつくか</th><th>割合</th></tr></thead>
 <tbody>
-<tr><td>場の違い</td><td>23%</td></tr>
-<tr><td>1日の何レース目か</td><td>22%</td></tr>
-<tr><td>その日ぜんぶが安かった／高かった</td><td>37%</td></tr>
-<tr><td>残り</td><td>18%</td></tr>
+<tr><td>場の違い</td><td>22%</td></tr>
+<tr><td>1日の何レース目か</td><td>23%</td></tr>
+<tr><td>その日ぜんぶが安かった／高かった</td><td>35%</td></tr>
+<tr class="hi"><td>残り</td><td>20%</td></tr>
 </tbody>
 </table>
 
-<p>上の3つは、前のレースとは関係がありません。大村と戸田では安さが違う。朝の3レース目と夜の11レース目でも違う。その日が全体に安い日なら、隣どうしも自然に揃います。</p>
+<p>上の3つは、前のレースと関係がない。大村と戸田では安さが違い、朝の3レース目と夜の11レース目でも違い、その日が全体に安い日なら隣どうしも自然に揃う。</p>
 
-<p>残りは18%。20組に1組ぶんの余りが、5組に1組ぶんの端数まで縮みました。ここまで剥がすのに、集計を6回やり直しています。</p>
+<p>残りは20%。20組に1組ぶんの余りが、5組に1組ぶんの端数まで縮みました。ここまで剥がすのに、集計を7回やり直しています。</p>
 
 <p class="sec">現場は「起きた回数」を見ている</p>
 
 <p>一度、立ち止まります。</p>
 
-<p>万舟が2本続いたことは、10年で10,394回ありました。3,653日で割ると、1日に2回か3回。どこかの場で、毎日それが起きています。</p>
+<p>万舟が2本続いたことは、9年で9,123回ありました。3,234日で割ると、1日に2回か3回。どこかの場で、毎日それが起きています。</p>
 
-<p>だから「今日は荒れてるな」と言える場面は、毎日ある。現場で見ているのは、この起きた回数です。見間違いではありません。</p>
+<p>だから「今日は荒れてるな」と言える場面は毎日ある。現場で見ているのはこの起きた回数で、見間違いではありません。</p>
 
-<p>こちらが見ているのは別のもの。<b>偶然でも何回起きるはずだったか</b>、です。それが10,218回。差は175回、10年ぶんで175回。</p>
+<p>こちらが見ているのは別のもの。<b>偶然でも何回起きるはずだったか</b>、です。それが8,999回。差は124回、9年ぶんで124回。</p>
 
-<p>同じことを、違う範囲から見ています。現場が見ているのは12レースの中の数本、こちらが見ているのは475,478組を並べて均した姿。12本の中では続いて見え、475,478組で均すと消えます。どちらも間違っていません。</p>
+<p>現場が見ているのは12レースの中の数本で、こちらが見ているのは421,699組を並べて均した姿なので、同じことを言っていても答えが違ってきます。12本の中では続いて見え、421,699組で均すと消える。どちらも間違っていません。</p>
 
 <p>以降の数字は、実際に何回起きたかと、偶然なら何回だったかを並べて出します。</p>
 
-<p class="sec">5本続いた日は、何回あったか</p>
+<p class="sec">4本続いた日は、何回あったか</p>
 
-<p>万舟、つまり3連単の払戻が1万円以上だったレース。10年で17.27%がこれにあたります。5本続いた日は、10年で何回あったと思いますか。</p>
+<p>万舟、つまり3連単の払戻が1万円以上だったレース。9年で17.17%がこれにあたります。4本続いた日は、何回あったと思いますか。</p>
 
 <table>
-<thead><tr><th>続いた本数</th><th>万舟<br>実際</th><th>万舟<br>偶然なら</th><th>最安帯<br>実際</th><th>最安帯<br>偶然なら</th></tr></thead>
+<thead><tr><th>本数</th><th>万舟<br>実際</th><th>万舟<br>偶然なら</th><th>最安<br>実際</th><th>最安<br>偶然なら</th></tr></thead>
 <tbody>
-<tr><td>2本</td><td>10,394</td><td>10,218.7</td><td>13,635</td><td>13,420.8</td></tr>
-<tr><td>3本</td><td>1,685</td><td>1,606.5</td><td>3,129</td><td>2,819.8</td></tr>
-<tr><td>4本</td><td>237</td><td>257.7</td><td>762</td><td>630.9</td></tr>
-<tr><td>5本</td><td>41</td><td>41.2</td><td>204</td><td>148.9</td></tr>
+<tr><td>2本</td><td>9,123</td><td>8,999.0</td><td>12,171</td><td>11,926.8</td></tr>
+<tr><td>3本</td><td>1,482</td><td>1,406.7</td><td>2,805</td><td>2,500.5</td></tr>
+<tr class="hi"><td>4本</td><td>203</td><td>222.7</td><td>681</td><td>555.9</td></tr>
+<tr><td>5本</td><td>39</td><td>35.2</td><td>185</td><td>130.0</td></tr>
 </tbody>
 </table>
 
-<p>41回です。偶然にしたときも41.2回。0.2回ぶん、足りません。</p>
+<div class="figure">
+  <div><p class="n">203<span class="u">回</span></p><p class="l">万舟が4本続いた<br>実際</p></div>
+  <div class="ref"><p class="n">222<span class="u">回</span></p><p class="l">万舟が4本続いた<br>偶然なら</p></div>
+</div>
 
-<p>右の2列は逆を向いています。安い帯は3本で1.11倍、4本で1.21倍、5本で1.37倍と、長くなるほど離れていく。10年で55回ぶん多く、1年に直せば5回半です。</p>
+<p>203回です。偶然なら222回なので、<b>実際のほうが19回、足りません。</b></p>
+
+<p>2本から5本まで、万舟の側はどれも偶然と区別が付きませんでした。1を超えたり割ったりを行ったり来たりしていて、長くなるほど離れていくということがない。</p>
+
+<p>右の2列は違います。安いグループは3本で1.12倍、4本で1.23倍、5本で1.42倍と、長くなるほど離れていき、9年で55回ぶん多い。1年に直せば6回です。</p>
 
 <p>同じ日を、同じように並べ替えて、同じ数え方で数えました。荒れは続かず、堅いほうは続いた。</p>
 
 <p class="sec">「流れていた日」は指せない</p>
 
-<p>では、流れていた日を1日でも指させるのか。45,995の日について、一つずつ「この日の並びは偶然か」を測りました。</p>
+<p>では、流れていた日を1日でも指させるのか。40,840の日について、一つずつ「この日の並びは偶然か」を測りました。</p>
 
-<p>偶然とは言いにくい日は2,505。全体の5.45%です。何もなければ2,300日になるので、差は205日。10年で205日、1年で20日。</p>
+<p>偶然とは言いにくい日は2,236で、全体の5.48%。何もなければ2,042日なので、差は194日、1年に直せば22日という計算になります。</p>
 
-<p>その20日がどれなのかは、分かりません。順番を付けようとすると上位に同じ数字が並んでしまい、1位から50位までが同着になります。流れは、一部の日に固まってはいませんでした。45,995日ぜんぶに、薄く均等に乗っている。</p>
+<p>その22日がどれなのかは分かりません。順番を付けようとすると上位に同じ数字が並んでしまい、1位から50位までが同着になります。流れは一部の日に固まってはおらず、40,840日ぜんぶに薄く均等に乗っている。</p>
 
-<p>場ごとにも分けました。24場のばらつきは偶然の範囲に収まっていて、1場あたりの組数が必要な数の3割から4割しかないので、順位としても読めない。荒れやすい場は確かにあります。けれど流れやすい場は、この数え方では見つかりませんでした。</p>
+<p>場ごとにも分けました。24場のばらつきは偶然の範囲に収まっていて、順位としては読めない。荒れやすい場は確かにあります。けれど流れやすい場は、この数え方では見つかりませんでした。</p>
 
 <p class="sec">続いていたのは①だった</p>
 
 <p>前回、1番人気が入るかどうかはほとんど①が来るかどうかと同じだ、と書きました。そこから先は測っていない、とも書きました。今回はそこに入ります。</p>
 
-<p>着順が取れるのは2025年7月15日から。ここで分母が変わります。60,977レース、隣り合う組は54,354。</p>
-
-<p>①が3着までに入らなかったレースを、同じように数えました。4本続けて飛んだのは、409日で何回あったと思いますか。</p>
+<p>①が3着までに入らなかったレースは88,518で、これも同じように、続いた本数で数えます。4本続けて飛んだのは、何回あったと思いますか。</p>
 
 <table>
-<thead><tr><th>続いた本数</th><th>実際</th><th>偶然なら</th></tr></thead>
+<thead><tr><th>本数</th><th>実際</th><th>偶然なら</th><th>比</th></tr></thead>
 <tbody>
-<tr><td>2本</td><td>1,369</td><td>1,351.6</td></tr>
-<tr><td>3本</td><td>312</td><td>242.9</td></tr>
-<tr><td>4本</td><td>94</td><td>46.0</td></tr>
+<tr><td>2本</td><td>11,067</td><td>10,438.1</td><td>1.06</td></tr>
+<tr><td>3本</td><td>2,461</td><td>1,895.9</td><td>1.30</td></tr>
+<tr class="hi"><td>4本</td><td>640</td><td>355.2</td><td>1.80</td></tr>
+<tr class="hi"><td>5本</td><td>137</td><td>67.3</td><td>2.04</td></tr>
 </tbody>
 </table>
 
-<p>94回。偶然なら46回です。だいたい4日に1回、どこかの場で①が4本続けて飛んでいる。</p>
+<div class="figure">
+  <div><p class="n">640<span class="u">回</span></p><p class="l">①が4本続けて飛んだ<br>実際</p></div>
+  <div class="ref"><p class="n">355<span class="u">回</span></p><p class="l">①が4本続けて飛んだ<br>偶然なら</p></div>
+</div>
 
-<p>払戻では消えたものが、着順で出ました。しかも決まり手のほうは動きません。逃げが続いたかどうかは2本でも5本でも比が1.00前後で、隣どうしの決まり手が一致した割合も、54,354組のうち35.57%。偶然の35.14%とほとんど同じでした。</p>
+<p>640回。偶然なら355回なので、だいたい5日に1回、どこかの場で①が4本続けて飛んでいることになります。</p>
 
-<p>①が飛ぶことは続く。飛んだあと誰が来るかは、続かない。</p>
+<p>払戻では消えたものが、着順で出ました。<b>しかも長くなるほど比が上がる。</b> さっきの万舟が行ったり来たりしていたのと、形が違います。</p>
+
+<p>決まり手のほうも見ました。逃げが続いた回数は、2本で1.01倍、3本で0.99倍、4本で1.01倍、5本で1.04倍。<b>1をまたいで行ったり来たりしていて、方向が揃いません。</b> 隣どうしの決まり手が一致した割合も、421,699組のうち35.28%。偶然の34.86%とほとんど同じでした。</p>
+
+<p>続くのは、①が飛ぶことまで。飛んだあと誰が来るかは、続きません。</p>
 
 <p class="sec">風なら説明がつくはずだった</p>
 
-<p>残った18%が何なのかは、まだ分かっていません。優勝戦と準優の日を外しても消えず、1日の中の傾きを抜いても消えませんでした。</p>
+<p>残った20%が何なのかは、まだ分かっていません。優勝戦と準優の日を外しても消えず、1日の中の傾きを抜いても消えませんでした。</p>
 
 <p>風だと思いました。</p>
 
-<p>風は日の中で連続しています。隣り合うレースの風は、ほぼ同じ風。そして風は①を飛ばします。</p>
+<p>風は日の中で連続していて、隣り合うレースの風は、ほぼ同じ風。そして風は①を飛ばします。</p>
 
 <table>
-<thead><tr><th>風速</th><th>①が3着に<br>入らなかった割合</th><th>分母</th></tr></thead>
+<thead><tr><th>風速</th><th>①が3着に<br>入らなかった</th><th>分母</th></tr></thead>
 <tbody>
-<tr><td>0-1m</td><td>17.26%</td><td>12,218</td></tr>
-<tr><td>2-3m</td><td>19.00%</td><td>29,572</td></tr>
-<tr><td>4-5m</td><td>20.20%</td><td>14,043</td></tr>
-<tr><td>6m以上</td><td>23.45%</td><td>4,648</td></tr>
+<tr class="hi"><td>0-1m</td><td>16.36%</td><td>90,970</td></tr>
+<tr><td>2-3m</td><td>18.41%</td><td>211,219</td></tr>
+<tr><td>4-5m</td><td>20.42%</td><td>103,237</td></tr>
+<tr class="hi"><td>6m以上</td><td>22.05%</td><td>36,433</td></tr>
 </tbody>
 </table>
 
-<p>12レースに直すと、飛ぶ本数が2.07本から2.81本に増えます。場ごとの差を取り除いても形は変わらず、1号艇が本番でインに入ったレースだけに絞っても、全体が0.5ポイント下がるだけで傾きはそのままでした。</p>
+<p>12レースに直すと、飛ぶ本数が1.96本から2.65本に増える。場ごとの差を取り除いても形は変わらず、残差で見ても −1.94ポイントから +2.47ポイントまで、きれいに並びました。</p>
+
+<p>波も同じ。0-1cmの16.85%（167,584）から6cm以上の21.60%（25,327）まで、これも単調に上がります。</p>
 
 <p>連続していて、①を飛ばす。これで説明がつくはずでした。</p>
 
-<p>つきませんでした。風が払戻の帯を動かす力は、散らばりを1,000としたときの1と少しで、風が全部やったと仮定しても残りの7分の1にしか届きません。実際に取り除いてみても、残りはほとんど減らないまま。</p>
+<p>つきませんでした。</p>
 
-<p>風向のほうは、追い風19.63%（13,625）、横風19.20%（31,737）、向かい風19.10%（15,119）。ほとんど差がない。強さは効いて、向きは効いていません。</p>
+<p>風が払戻の高い安いを動かす力は、散らばりを1,000としたときの1と少しなので、風が全部やったと仮定しても、残りの9分の1にしか届かない。波も、風向も、気温も、水温も、天候も測りました。<b>6つ全部の上限を足して、ようやく残りの4分の1です。</b></p>
 
-<p>①が飛ぶところまでは、風が決めています。その先は決めていない。</p>
+<p>面白いのは水温でした。1日のあいだ、隣り合うレースの水温はほぼ完全に同じ値で、連続性ではこれ以上ない。それでいて、払戻への説明力は0.02%。<b>日の中で続いていることと、払戻を動かすことは、別のことでした。</b></p>
+
+<p>6項目を全部同時に取り除いても、残りは4%しか減らない。</p>
+
+<p>①が飛ぶところまでは、条件が決めています。その先は決めていない。</p>
 
 <p class="sec">断っておくこと</p>
 
-<p><b>残った18%の正体は、測れていませんでした。</b> 番組でも、日内の傾きでも、風でもない。何であるかは、この記事では言えません。</p>
+<p><b>残った20%の正体は、測れていませんでした。</b> 番組でも、日内の傾きでも、6つの条件でもなく、何であるかは、この記事では言えません。</p>
 
-<p><b>2つの分母が混ざっています。</b> 払戻の話は10年534,330レース、着順と風の話は409日60,977レース。同じ表には入れていませんが、後者については2025年7月より前が分からないまま。</p>
+<p><b>2017年10月より前は入っていません。</b> 着順と条件がその日から揃うので、そこを起点にしました。前回の検証は2016年9月からの10年なので、分母が違う。</p>
 
-<p><b>水面の中で何が起きているかは見ていません。</b> 波の高さも、潮も、うちは数字にしていないまま。風だけは測りましたが、それでは足りませんでした。</p>
+<p><b>水面の中で何が起きているかは、まだ足りません。</b> 潮も、うねりも、数字にしていないまま。風と波は測りましたが、それでは足りない。</p>
 
-<p><b>この数字は動きません。</b> 2026年9月1日で打ち切っていて、日々の結果では更新しない。</p>
+<p><b>この数字は動きません。</b> 2026年9月1日で打ち切っていて、日々の結果では更新しないまま。</p>
 
 <p class="sec">つまり</p>
 
-<p>前のレースが荒れたから次も荒れる、ということはありませんでした。万舟の5連続は10年で41回。偶然でも41回です。</p>
+<p>前のレースが荒れたから次も荒れる、ということはありませんでした。万舟の4連続は9年で203回、偶然なら222回。実際のほうが少ない。</p>
 
-<p>続いていたのは①のほうでした。4本続けて飛ぶのは4日に1回。偶然の2倍あって、風が強い日ほど飛ぶ。そこまでは並びに残ります。</p>
+<p>続いていたのは①のほうでした。4本続けて飛ぶのは5日に1回で、長くなるほど偶然から離れていき、風が強い日ほど、波が高い日ほど飛ぶ。そこまでは、並びに残ります。</p>
 
 <p>けれど、①が飛んだあとに誰が来るかは、毎回ゼロから決まっていました。だから配当は続きません。</p>
 
@@ -272,46 +299,48 @@ tr.mid td{color:var(--faint)}
 <div class="dbody">
 
 <h4>どこから取ったか</h4>
-<p>払戻は公式サイトの「払戻金一覧」を、2016年9月1日から2026年9月1日まで1日ずつ集めました。3,653日分で、欠けた日はありません。<br>
-分母の作り方は前回の検証と同じです。557,172行から、人気の順位が出ていないもの15,461行と、中止・3連単不成立・同着など7,381行を外した534,330行を使っています。</p>
-<p>着順・決まり手・風は公式のレース結果から取りました。2025年7月15日以降で、風速と風向が欠けている月はありません。</p>
+<p>払戻は公式サイトの「払戻金一覧」から、着順・決まり手・実測条件は公式のレース結果から取りました。両方が揃うのは2017年10月25日からで、2026年9月1日まで3,234日分。<br>
+分母の作り方は前回の検証と同じで、人気の順位が出ていないもの、中止・3連単不成立・同着を外しています。突合できたのは474,126レースです。</p>
 
 <h4>「隣り合う組」の作り方</h4>
-<p>同じ開催日・同じ場で、レース番号が1つ違うものだけを組にしました。場が違えば組にしません。日が違っても組にしません。<br>
-分母から外したレースがあると番号が飛ぶので、そこはつなげずに切っています。切れたのは12,857か所です。</p>
+<p>同じ開催日・同じ場で、レース番号が1つ違うものだけを組にしました。場が違えば組にせず、日が違っても組にしません。<br>
+分母から外したレースがあると番号が飛ぶので、そこはつなげずに切っています。切れたのは11,587か所です。</p>
 
 <h4>「偶然なら」の作り方</h4>
 <p>同じ日・同じ場のレースを一つのまとまりとして、その中だけで結果を入れ替えます。まとまりをまたぐ入れ替えはしません。<br>
-1,000通り作り、そこから出た数字の平均を「偶然なら」として使っています。乱数の種は固定してあるので、同じ手順なら同じ数字が出ます。</p>
-<p>この作り方だと、その日に何本荒れたかは変わりません。変わるのは順番だけです。だから「その日は荒れる日だった」という理由は、本物と偶然の両方に同じだけ入り、差し引かれます。</p>
+1,000通り作り、そこから出た数字の平均を「偶然なら」として使っていて、乱数の種は固定してあるので、同じ手順なら同じ数字が出ます。</p>
+<p>この作り方だと、その日に何本荒れたかは変わりません。変わるのは順番だけ。だから「その日は荒れる日だった」という理由は、本物と偶然の両方に同じだけ入り、差し引かれます。</p>
 
 <h4>連続の数え方</h4>
 <p>続いた本数は、いちばん長いところで1回だけ数えます。5本続いたときは「5本が1回」として数え、「2本が4回」とは数えません。</p>
 
-<h4>帯の分け方</h4>
-<p>払戻の金額で全体を5等分しました。境目は1,070円、1,910円、3,640円、8,540円です。万舟は1万円以上で、これは別の区切りとして扱っています。</p>
+<h4>グループの分け方</h4>
+<p>払戻の金額で全体を5等分しました。境目は1,060円、1,890円、3,610円、8,480円です。万舟は1万円以上で、これは別の区切りとして扱っています。</p>
 
 <h4>「①が3着に入らなかった」とは</h4>
 <p>1着から3着までの3艇の中に1号艇がいなかったレースのことです。3着までが全て確定しているレースだけを数えています。</p>
 
+<h4>測った条件</h4>
+<p>風速・風向・波高・気温・水温・天候の6つです。風向は角度と、水面に対する向き（追い風・横風・向かい風）の2通りで測りました。<br>
+天候は晴・曇・雨・雪で、ごくまれに表記の対応が付かないものが8件ありましたが、率は出していません。</p>
+
 <h4>「流れの強かった日」を出さなかった理由</h4>
 <p>日ごとの偶然らしさは、その日の中で1,000通り並べ替えて測っています。上位の日は同じ値で並んでしまい、50位までが同着になりました。<br>
-順位を付けるには桁を上げて計算し直すことになりますが、そこまでして特定できるのは1年に20日ぶんなので、やめています。</p>
+順位を付けるには桁を上げて計算し直すことになりますが、そこまでして特定できるのは1年に22日ぶんなので、やめています。</p>
 
 <h4>割合を出さなかったところ</h4>
 <p>分母が300に満たない区分では、割合を出していません。<br>
-場ごとの数字も、1場あたりの組数が必要な数に足りないので、順位としては読めません。</p>
+場ごとの数字も、1場あたりの組数が足りないので、順位としては読めません。</p>
 
 <h4>揃えていないもの</h4>
-<p>10年のあいだに選手も、モーターも、進入のルールも変わっています。季節も混ざったままです。<br>
+<p>9年のあいだに選手も、モーターも、進入のルールも変わっています。季節も混ざったまま。<br>
 番組の組み方は数字にしていないので、その日の並びがなぜそうなったかまでは追っていません。</p>
 
 </div>
 </details>
 
 <p class="stamp">
-  集計期間 <span>2016/9/1 〜 2026/9/1</span>　/　<span>3,653</span>日・<span>534,330</span>レース・<span>475,478</span>組<br>
-  着順・決まり手・風は <span>2025/7/15 〜 2026/9/1</span>　/　<span>60,977</span>レース<br>
+  集計期間 <span>2017/10/25 〜 2026/9/1</span>　/　<span>3,234</span>日・<span>474,126</span>レース・<span>421,699</span>組<br>
   出典：公式サイト 払戻金一覧・レース結果。この期間の数字は固定で、更新されません。
 </p>
 
