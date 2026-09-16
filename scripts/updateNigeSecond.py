@@ -22,7 +22,9 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE = os.path.join(ROOT, "data", "nigeSecond", "base.csv")
 OUT = os.path.join(ROOT, "docs", "data", "nigeSecond.json")
 RESULTS = os.path.join(ROOT, "results")
-WINDOW_DAYS = 730
+# (キー, 遡る日数)。最長が正本の保持期間になる
+PERIODS = [("2m", 61), ("3m", 92), ("6m", 183), ("1y", 365), ("2y", 730)]
+WINDOW_DAYS = max(d for _, d in PERIODS)
 COLS = ["hd", "jcd", "rno", "toban", "shinnyu", "chaku"]
 MIN_N_FOR_TAU = 8
 
@@ -93,7 +95,8 @@ def extract_from_results(path):
     return out
 
 
-def build_json(rows, meta_from, meta_to, days_added):
+def tally(rows):
+    """1期間ぶんの集計。(base, cells, races) を返す。"""
     # レース単位に組み直す
     races = {}
     for x in rows:
@@ -142,12 +145,40 @@ def build_json(rows, meta_from, meta_to, days_added):
                 tau2 = 0.000001
             shrink[str(c)][str(x)] = [round(p, 6), round(tau2, 6)]
 
+    return base, shrink, cells, n_races
+
+
+def build_json(rows, meta_from, meta_to, days_added):
+    """期間ごとに集計し、1本のJSONにまとめる。cells は
+    {登番: {進入コース: [[n,k2,k3,k4,k5,k6] x 期間数]}}。"""
+    latest = max(x["hd"] for x in rows)
+    out_base, out_shrink, out_races = [], [], []
+    per_cells = []
+    for _, days in PERIODS:
+        lo = (datetime.strptime(latest, "%Y%m%d") - timedelta(days=days - 1)).strftime("%Y%m%d")
+        b, sh, cs, nr = tally([x for x in rows if x["hd"] >= lo])
+        out_base.append(b)
+        out_shrink.append(sh)
+        out_races.append(nr)
+        per_cells.append(cs)
+
+    cells = {}
+    np = len(PERIODS)
+    for i, cs in enumerate(per_cells):
+        for toban, byc in cs.items():
+            for c, arr in byc.items():
+                slot = cells.setdefault(toban, {}).setdefault(c, [[0, 0, 0, 0, 0, 0] for _ in range(np)])
+                slot[i] = arr
+
     return {
-        "meta": {"from": meta_from, "to": meta_to, "races": n_races,
+        "meta": {"from": meta_from, "to": meta_to,
+                 "periods": [k for k, _ in PERIODS],
+                 "periodDays": {k: d for k, d in PERIODS},
+                 "races": out_races,
                  "cells": sum(len(v) for v in cells.values()),
                  "generated": jst_now(), "daysAdded": days_added},
-        "base": base,
-        "shrink": shrink,
+        "base": out_base,
+        "shrink": out_shrink,
         "cells": cells,
     }
 
@@ -155,11 +186,15 @@ def build_json(rows, meta_from, meta_to, days_added):
 def main():
     rows = read_base()
     max_hd = max((x["hd"] for x in rows), default="00000000")
+    # 最新日は「途中版の results」を取り込んでいる可能性があるため、その日を捨てて読み直す。
+    # hd <= max_hd を素通しにすると、当日の残りのレースが永久に追加されない。
+    if max_hd != "00000000":
+        rows = [x for x in rows if x["hd"] < max_hd]
     files = sorted(glob.glob(os.path.join(RESULTS, "*.json")))
     added_days = 0
     for p in files:
         hd = os.path.basename(p)[:8]
-        if not (hd.isdigit() and len(hd) == 8) or hd <= max_hd:
+        if not (hd.isdigit() and len(hd) == 8) or hd < max_hd:
             continue
         rows.extend(extract_from_results(p))
         added_days += 1
@@ -176,9 +211,9 @@ def main():
     with io.open(OUT, "w", encoding="utf-8", newline="\n") as f:
         f.write(s)
         f.write("\n")
-    print("DAYS_ADDED=%d RACES=%d CELLS=%d BYTES=%d FROM=%s TO=%s" % (
-        added_days, j["meta"]["races"], j["meta"]["cells"], len(s.encode("utf-8")) + 1,
-        j["meta"]["from"], j["meta"]["to"]))
+    print("DAYS_ADDED=%d RACES=%s CELLS=%d BYTES=%d FROM=%s TO=%s" % (
+        added_days, ",".join(str(x) for x in j["meta"]["races"]), j["meta"]["cells"],
+        len(s.encode("utf-8")) + 1, j["meta"]["from"], j["meta"]["to"]))
 
 
 if __name__ == "__main__":
