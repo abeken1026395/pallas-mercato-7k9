@@ -76,6 +76,9 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .nsfact .nshelp dl{margin:4px 0 2px;font-size:10px;line-height:1.6}
 .nsfact .nshelp dt{opacity:.95;margin-top:6px}
 .nsfact .nshelp dd{opacity:.7;margin:1px 0 0}
+.nstab{display:flex;gap:4px;margin:2px 0 6px;flex-wrap:wrap}
+.nstab-b{font-size:10px;line-height:1;padding:5px 8px;border-radius:11px;border:1px solid rgba(143,180,214,.35);background:transparent;color:var(--sub);cursor:pointer;font-family:inherit}
+.nstab-b.on{background:#8fb4d6;color:#0b1219;border-color:#8fb4d6;font-weight:700}
 .e30fact{font-size:11.5px;color:var(--sub);background:rgba(143,214,192,.09);border:1px solid rgba(143,214,192,.30);border-radius:9px;padding:6px 9px;margin:4px 0 2px;line-height:1.55}
 .e30fact .e30h{font-weight:800;color:#8fd6c0}
 .e30fact .e30grid{display:flex;flex-wrap:wrap;gap:4px 12px;margin:5px 0 3px}
@@ -889,6 +892,7 @@ function render(){
     el.innerHTML=renderVenues();
   }
   refreshDeadlineState();
+  if(typeof bindNsTabs==='function') bindNsTabs();
 }
 if(!window.__dlTimer){ window.__dlTimer=setInterval(refreshDeadlineState, 60000); }  // 1分毎に締切表示を更新（タイマー1本）
 syncOshiBar();
@@ -1179,40 +1183,68 @@ fetch('../data/e30PlayerStats.json?_='+Date.now())
 
 // 1号艇が逃げたときの2着コース分布（nigeSecond.json・直近730日・回数のみ）。
 // 進入が決まる前なので枠番＝コースとして引く。事実の提示のみ。判定には使わない。
+// 期間は 2ヶ月/3ヶ月/半年/1年/2年 の5本。選んだ期間は NSPER に持ち、再描画をまたいで保持する。
 var NSDATA=null;
+var NSPER='1y';
+var NSPLBL={"2m":"2ヶ月","3m":"3ヶ月","6m":"半年","1y":"1年","2y":"2年"};
 var NSLANE={1:['#ffffff','#111111'],2:['#15181c','#ffffff'],3:['#e63946','#ffffff'],4:['#1d6fd6','#ffffff'],5:['#f2c94c','#111111'],6:['#27ae60','#ffffff']};
-function nsShrinkH(c,x,n,k){
-  const sp=NSDATA.shrink[String(c)]&&NSDATA.shrink[String(c)][String(x)]; if(!sp) return null;
-  const p=sp[0], t=sp[1]; if(!n) return p;
+function nsShrinkH(pi,c,x,n,k){
+  const sp=NSDATA.shrink[pi]&&NSDATA.shrink[pi][String(c)]&&NSDATA.shrink[pi][String(c)][String(x)];
+  if(!sp) return null;
+  const p=sp[0], t=sp[1]; if(!n) return null;
   const w=t/(t+p*(1-p)/n); return w*(k/n)+(1-w)*p;
 }
 function nigeSecondFact(r){
-  if(!NSDATA||!NSDATA.cells||!NSDATA.base) return '';
-  const tot=(NSDATA.meta&&NSDATA.meta.races)||0; if(!tot) return '';
+  if(!NSDATA||!NSDATA.cells||!NSDATA.base||!NSDATA.meta) return '';
+  const ps=NSDATA.meta.periods||[];
+  let i=ps.indexOf(NSPER);
+  if(i<0){ i=ps.indexOf('1y'); if(i<0) i=ps.length-1; NSPER=ps[i]; }
+  const tot=(NSDATA.meta.races&&NSDATA.meta.races[i])||0; if(!tot) return '';
   const bs=(r['艇']||[]).slice().sort((a,b)=>(a['枠']-b['枠'])); if(!bs.length) return '';
+  const tabs=`<div class="nstab">`+ps.map(p=>
+    `<button type="button" class="nstab-b${p===NSPER?' on':''}" data-nsp="${p}">${NSPLBL[p]||p}</button>`).join('')+`</div>`;
   const head=`<tr><th>枠・選手</th><th>該当</th>`+[2,3,4,5,6].map(x=>`<th>2着${x}</th>`).join('')+`</tr>`;
   const rows=bs.map(b=>{
     const lane=+b['枠'], no=String(b['登録番号']), lc=NSLANE[lane]||['#333','#fff'];
     const nm=String(b['氏名']||'').replace(/\u3000+/g,'');
-    const cell=(NSDATA.cells[no]&&NSDATA.cells[no][String(lane)])||[0,0,0,0,0,0];
+    const arr=(NSDATA.cells[no]&&NSDATA.cells[no][String(lane)]);
+    const cell=(arr&&arr[i])||[0,0,0,0,0,0];
     const n=cell[0];
     const tds=[2,3,4,5,6].map(x=>{
-      const k=cell[x-1], s=nsShrinkH(lane,x,n,k);
-      const pct=(s===null)?'-':Math.round(s*100)+'%';
-      return `<td class="${x===lane?'nsself':''}"><span class="nsp">${pct}</span><span class="nsk">${n?k+'/'+n:'-'}</span></td>`;
+      const k=cell[x-1], s=nsShrinkH(i,lane,x,n,k);
+      const pct=(s===null)?'—':Math.round(s*100)+'%';
+      return `<td class="${x===lane?'nsself':''}"><span class="nsp">${pct}</span><span class="nsk">${k}/${n}</span></td>`;
     }).join('');
-    return `<tr class="${n<20?'nsthin':''}"><td><span class="nslane" style="background:${lc[0]};color:${lc[1]};${(lane===1||lane===2)?'border:1px solid #445;':''}">${lane}</span><span class="nsnm">${nm}</span></td><td class="nsn">${n}</td>${tds}</tr>`;
+    return `<tr class="${n&&n<20?'nsthin':''}"><td><span class="nslane" style="background:${lc[0]};color:${lc[1]};${(lane===1||lane===2)?'border:1px solid #445;':''}">${lane}</span><span class="nsnm">${nm}</span></td><td class="nsn">${n}</td>${tds}</tr>`;
   }).join('');
+  const bb=NSDATA.base[i]||[0,0,0,0,0];
   const base=`<tr class="nsbase"><td>全体</td><td class="nsn">${tot}</td>`+[2,3,4,5,6].map(x=>{
-    const k=NSDATA.base[x-2]; return `<td><span class="nsp">${Math.round(k/tot*100)}%</span><span class="nsk">${k}</span></td>`;
+    const k=bb[x-2]; return `<td><span class="nsp">${Math.round(k/tot*100)}%</span><span class="nsk">${k}/${tot}</span></td>`;
   }).join('')+`</tr>`;
   const m=NSDATA.meta||{};
   const per=(m.from&&m.to)?`${m.from.slice(0,4)}/${m.from.slice(4,6)}〜${m.to.slice(0,4)}/${m.to.slice(4,6)}`:'';
-  return `<details class="nsfact"><summary><span class="nsh">逃げ時２着</span>`
+  return `<details class="nsfact" data-dk="nigefact"><summary><span class="nsh">逃げ時２着</span>`
     +`<span>1号艇が逃げたとき、2着はどのコースだったか</span>`
     +`<span class="nscar"></span></summary>`
-    +`<div class="nsb"><div class="nsper">${per}・${tot.toLocaleString('ja-JP')}レース</div>`
-    +`<table>${head}${rows}${base}</table><details class="nshelp"><summary>表の読み方</summary><dl><dt>この表は何か</dt><dd>1号艇が逃げて決まったレースだけを集めて、そのとき2着がどのコースだったかを数えたもの。1着の話はしていない。</dd><dt>上段の％</dt><dd>母数が少ない選手ほど全体平均に近づける補正をかけた値。少ない回数のたまたまを、その選手の特徴として読ませないため。</dd><dt>下段の数字</dt><dd>補正をかける前の実数。左が回数、右がその選手の該当レース数。</dd><dt>いちばん下の全体行</dt><dd>全レースでの2着コース分布。各選手の％をこれと引き算して読む。</dd><dt>薄い字の行</dt><dd>該当レースが20回未満。1回の増減で大きく動くので目安にとどまる。</dd><dt>枠番で引いている</dt><dd>進入が決まる前の時点のため、枠番どおりに進入したものとして引いている。前づけがあれば実際の進入とずれる。</dd><dt>出典</dt><dd>公式競走成績（Kファイル）。判定には使っていません。</dd></dl></details></div></details>`;
+    +`<div class="nsb">${tabs}<div class="nsper">${per}のうち直近${NSPLBL[NSPER]||NSPER}・${tot}レース</div>`
+    +`<table>${head}${rows}${base}</table>`
+    +`<details class="nshelp" data-dk="nigefact-help"><summary>表の読み方</summary><dl>`
+    +`<dt>この表は何か</dt><dd>1号艇が逃げて決まったレースだけを集めて、そのとき2着がどのコースだったかを数えたもの。1着の話はしていない。</dd>`
+    +`<dt>上段の％</dt><dd>該当レースが少ない選手ほど全体平均に近づける補正をかけた値。少ない回数のたまたまを、その選手の特徴として読ませないため。</dd>`
+    +`<dt>下段の分数</dt><dd>回数／該当レース数。補正前の実数。</dd>`
+    +`<dt>「—」のセル</dt><dd>その期間に該当レースが1つもない。0%ではない。</dd>`
+    +`<dt>いちばん下の全体行</dt><dd>同じ期間の全レースでの2着コース分布。各選手の％をこれと引き算して読む。</dd>`
+    +`<dt>期間の切り替え</dt><dd>短い期間を選ぶと該当レースが数走まで減り、％はほとんど全体平均のままになる。動かないこと自体が「この期間では材料がない」という意味。</dd>`
+    +`<dt>枠番で引いている</dt><dd>進入が決まる前の時点のため、枠番どおりに進入したものとして引いている。前づけがあれば実際の進入とずれる。</dd>`
+    +`<dt>出典</dt><dd>公式競走成績（Kファイル）。判定には使っていません。</dd>`
+    +`</dl></details></div></details>`;
+}
+// 期間タブのクリック。render() で作り直されるので毎回張り直す
+function bindNsTabs(){
+  document.querySelectorAll('[data-nsp]').forEach(el=>{
+    el.onclick=(e)=>{ e.preventDefault(); e.stopPropagation(); NSPER=el.getAttribute('data-nsp');
+      if(typeof render==='function') render(); };
+  });
 }
 fetch('../data/nigeSecond.json?_='+Date.now())
 .then(r=>r.ok?r.json():null)
