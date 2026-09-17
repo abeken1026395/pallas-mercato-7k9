@@ -562,7 +562,7 @@ URL変更時に直すファイル（L2の生き残り分）：
 |---|---|---|
 |`kishaThinkingModelV2.md`|**何を書くか**|観戦記・見どころの文面を作る・直す|
 |`mitateJissoTable.md`|見立ての出し分け|同上。**大原則「数字は貼らない」は撤回済み**|
-|`dokusyaThinkingModel.md`（v2・15,478B）|**どう読ませるか**|`/kensho/` の読み物本文|
+|`dokusyaThinkingModel.md`（v4・21,395B）|**どう読ませるか**|`/kensho/` の読み物本文。**★コア8 とぼけ・★コア9 感情曲線を含む**|
 |`columnCraftLessons.md`|コラム執筆の実務|同上。とくに「構図を思いついた時点がいちばん危ない」|
 |`kenshoCraftLessons.md`|検証05で確立した執筆7フェーズ・文の数値基準・とぼけ・感情曲線|/kensho/ の検証記事を書くとき。**`dokusyaThinkingModel.md` と併せて必ず読む**|
 |`webCraftModel.md`|**どう届けるか**|表示・図・パフォーマンス設計|
