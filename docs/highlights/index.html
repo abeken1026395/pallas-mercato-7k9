@@ -1186,6 +1186,7 @@ fetch('../data/e30PlayerStats.json?_='+Date.now())
 // 期間は 2ヶ月/3ヶ月/半年/1年/2年 の5本。選んだ期間は NSPER に持ち、再描画をまたいで保持する。
 var NSDATA=null;
 var NSPER='1y';
+var NSOPEN={};   /* カードごとの開閉。render() が innerHTML を作り直すため変数に持つ */
 var NSPLBL={"2m":"2ヶ月","3m":"3ヶ月","6m":"半年","1y":"1年","2y":"2年"};
 var NSLANE={1:['#ffffff','#111111'],2:['#15181c','#ffffff'],3:['#e63946','#ffffff'],4:['#1d6fd6','#ffffff'],5:['#f2c94c','#111111'],6:['#27ae60','#ffffff']};
 function nsShrinkH(pi,c,x,n,k){
@@ -1223,12 +1224,14 @@ function nigeSecondFact(r){
   }).join('')+`</tr>`;
   const m=NSDATA.meta||{};
   const per=(m.from&&m.to)?`${m.from.slice(0,4)}/${m.from.slice(4,6)}〜${m.to.slice(0,4)}/${m.to.slice(4,6)}`:'';
-  return `<details class="nsfact" data-dk="nigefact"><summary><span class="nsh">逃げ時２着</span>`
+  const rid=(r['場コード']||'')+'-'+String(r['レース']||'').replace('R','');
+  const op=NSOPEN[rid]?' open':'';
+  return `<details class="nsfact" data-dk="nigefact-${rid}"${op}><summary><span class="nsh">逃げ時２着</span>`
     +`<span>1号艇が逃げたとき、2着はどのコースだったか</span>`
     +`<span class="nscar"></span></summary>`
     +`<div class="nsb">${tabs}<div class="nsper">${per}のうち直近${NSPLBL[NSPER]||NSPER}・${tot}レース</div>`
     +`<table>${head}${rows}${base}</table>`
-    +`<details class="nshelp" data-dk="nigefact-help"><summary>表の読み方</summary><dl>`
+    +`<details class="nshelp" data-dk="nigefact-help-${rid}"><summary>表の読み方</summary><dl>`
     +`<dt>この表は何か</dt><dd>1号艇が逃げて決まったレースだけを集めて、そのとき2着がどのコースだったかを数えたもの。1着の話はしていない。</dd>`
     +`<dt>上段の％</dt><dd>該当レースが少ない選手ほど全体平均に近づける補正をかけた値。少ない回数のたまたまを、その選手の特徴として読ませないため。</dd>`
     +`<dt>下段の分数</dt><dd>回数／該当レース数。補正前の実数。</dd>`
@@ -1239,8 +1242,14 @@ function nigeSecondFact(r){
     +`<dt>出典</dt><dd>公式競走成績（Kファイル）。判定には使っていません。</dd>`
     +`</dl></details></div></details>`;
 }
-// 期間タブのクリック。render() で作り直されるので毎回張り直す
+// 期間タブのクリックと開閉の記録。render() で作り直されるので毎回張り直す。
+// タブを押すと render() が全カードを描き直すため、開いていたカードを NSOPEN から復元する。
 function bindNsTabs(){
+  document.querySelectorAll('details.nsfact').forEach(d=>{
+    const k=(d.getAttribute('data-dk')||'').replace(/^nigefact-/,'');
+    if(!k) return;
+    d.ontoggle=()=>{ if(d.open) NSOPEN[k]=1; else delete NSOPEN[k]; };
+  });
   document.querySelectorAll('[data-nsp]').forEach(el=>{
     el.onclick=(e)=>{ e.preventDefault(); e.stopPropagation(); NSPER=el.getAttribute('data-nsp');
       if(typeof render==='function') render(); };
