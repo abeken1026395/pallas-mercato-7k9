@@ -3765,7 +3765,249 @@
       "09 津",
       "10 三国",
       "11 びわこ"
-    ]
+    ],
+    "multipleComparison": {
+      "definition": "stage7 の winWithinRaceNull.p（レース内シャッフル1000回の両側p。下限 1/1001）に判定列を足す。既存の値・順位は変えない。生の判定は p≤0.05、Bonferroni は p≤0.05/検定数、Benjamini-Hochberg は FDR 0.05（p を昇順に並べ、p(k)≤k/検定数×0.05 を満たす最大の k までを有意）",
+      "byVenue": {
+        "tests": 24,
+        "bonferroniThreshold": 0.0020833333333333333,
+        "bhMaxRank": 23,
+        "bhThresholdAtMaxRank": 0.04791666666666667,
+        "notTested": [],
+        "rows": {
+          "01 桐生": {
+            "p": 0.000999,
+            "significantRaw05": true,
+            "significantBonferroni": true,
+            "significantBH05": true
+          },
+          "02 戸田": {
+            "p": 0.000999,
+            "significantRaw05": true,
+            "significantBonferroni": true,
+            "significantBH05": true
+          },
+          "03 江戸川": {
+            "p": 0.000999,
+            "significantRaw05": true,
+            "significantBonferroni": true,
+            "significantBH05": true
+          },
+          "04 平和島": {
+            "p": 0.001998,
+            "significantRaw05": true,
+            "significantBonferroni": true,
+            "significantBH05": true
+          },
+          "05 多摩川": {
+            "p": 0.004995,
+            "significantRaw05": true,
+            "significantBonferroni": false,
+            "significantBH05": true
+          },
+          "06 浜名湖": {
+            "p": 0.000999,
+            "significantRaw05": true,
+            "significantBonferroni": true,
+            "significantBH05": true
+          },
+          "07 蒲郡": {
+            "p": 0.000999,
+            "significantRaw05": true,
+            "significantBonferroni": true,
+            "significantBH05": true
+          },
+          "08 常滑": {
+            "p": 0.000999,
+            "significantRaw05": true,
+            "significantBonferroni": true,
+            "significantBH05": true
+          },
+          "09 津": {
+            "p": 0.000999,
+            "significantRaw05": true,
+            "significantBonferroni": true,
+            "significantBH05": true
+          },
+          "10 三国": {
+            "p": 0.000999,
+            "significantRaw05": true,
+            "significantBonferroni": true,
+            "significantBH05": true
+          },
+          "11 びわこ": {
+            "p": 0.000999,
+            "significantRaw05": true,
+            "significantBonferroni": true,
+            "significantBH05": true
+          },
+          "12 住之江": {
+            "p": 0.000999,
+            "significantRaw05": true,
+            "significantBonferroni": true,
+            "significantBH05": true
+          },
+          "13 尼崎": {
+            "p": 0.000999,
+            "significantRaw05": true,
+            "significantBonferroni": true,
+            "significantBH05": true
+          },
+          "14 鳴門": {
+            "p": 0.000999,
+            "significantRaw05": true,
+            "significantBonferroni": true,
+            "significantBH05": true
+          },
+          "15 丸亀": {
+            "p": 0.000999,
+            "significantRaw05": true,
+            "significantBonferroni": true,
+            "significantBH05": true
+          },
+          "16 児島": {
+            "p": 0.000999,
+            "significantRaw05": true,
+            "significantBonferroni": true,
+            "significantBH05": true
+          },
+          "17 宮島": {
+            "p": 0.000999,
+            "significantRaw05": true,
+            "significantBonferroni": true,
+            "significantBH05": true
+          },
+          "18 徳山": {
+            "p": 0.000999,
+            "significantRaw05": true,
+            "significantBonferroni": true,
+            "significantBH05": true
+          },
+          "19 下関": {
+            "p": 0.000999,
+            "significantRaw05": true,
+            "significantBonferroni": true,
+            "significantBH05": true
+          },
+          "20 若松": {
+            "p": 0.000999,
+            "significantRaw05": true,
+            "significantBonferroni": true,
+            "significantBH05": true
+          },
+          "21 芦屋": {
+            "p": 0.282717,
+            "significantRaw05": false,
+            "significantBonferroni": false,
+            "significantBH05": false
+          },
+          "22 福岡": {
+            "p": 0.000999,
+            "significantRaw05": true,
+            "significantBonferroni": true,
+            "significantBH05": true
+          },
+          "23 唐津": {
+            "p": 0.000999,
+            "significantRaw05": true,
+            "significantBonferroni": true,
+            "significantBH05": true
+          },
+          "24 大村": {
+            "p": 0.000999,
+            "significantRaw05": true,
+            "significantBonferroni": true,
+            "significantBH05": true
+          }
+        },
+        "judgementChanged": [
+          {
+            "key": "05 多摩川",
+            "p": 0.004995,
+            "raw": true,
+            "bonferroni": false,
+            "bh": true
+          }
+        ]
+      },
+      "byYear": {
+        "tests": 11,
+        "bonferroniThreshold": 0.004545454545454546,
+        "bhMaxRank": 11,
+        "bhThresholdAtMaxRank": 0.05,
+        "notTested": [],
+        "rows": {
+          "2016": {
+            "p": 0.002997,
+            "significantRaw05": true,
+            "significantBonferroni": true,
+            "significantBH05": true
+          },
+          "2017": {
+            "p": 0.000999,
+            "significantRaw05": true,
+            "significantBonferroni": true,
+            "significantBH05": true
+          },
+          "2018": {
+            "p": 0.000999,
+            "significantRaw05": true,
+            "significantBonferroni": true,
+            "significantBH05": true
+          },
+          "2019": {
+            "p": 0.000999,
+            "significantRaw05": true,
+            "significantBonferroni": true,
+            "significantBH05": true
+          },
+          "2020": {
+            "p": 0.000999,
+            "significantRaw05": true,
+            "significantBonferroni": true,
+            "significantBH05": true
+          },
+          "2021": {
+            "p": 0.000999,
+            "significantRaw05": true,
+            "significantBonferroni": true,
+            "significantBH05": true
+          },
+          "2022": {
+            "p": 0.000999,
+            "significantRaw05": true,
+            "significantBonferroni": true,
+            "significantBH05": true
+          },
+          "2023": {
+            "p": 0.000999,
+            "significantRaw05": true,
+            "significantBonferroni": true,
+            "significantBH05": true
+          },
+          "2024": {
+            "p": 0.000999,
+            "significantRaw05": true,
+            "significantBonferroni": true,
+            "significantBH05": true
+          },
+          "2025": {
+            "p": 0.000999,
+            "significantRaw05": true,
+            "significantBonferroni": true,
+            "significantBH05": true
+          },
+          "2026": {
+            "p": 0.000999,
+            "significantRaw05": true,
+            "significantBonferroni": true,
+            "significantBH05": true
+          }
+        },
+        "judgementChanged": []
+      },
+      "pResolutionNote": "シャッフル1000回の p は 1/1001 刻みで、下限 0.000999。下限に並んだものどうしには順位の意味がない（stage8）"
+    }
   },
   "stage8": {
     "pAtShuffleFloor": {
@@ -3898,5 +4140,605 @@
       "モーター・ボートの当たり（今回の統制に入れていない）",
       "2016年（11〜12月のみ）と2026年（〜8月11日）は部分年で、出走数帯や年別の値が他の年と同じ条件ではない"
     ]
+  },
+  "stage9": {
+    "script": "scripts/buildKensho06NearFar.py",
+    "python": "3.14.6",
+    "numpy": "2.4.6",
+    "runStartedJST": "2026-09-17 21:14 JST",
+    "input": "作業ディレクトリの analysis.npz と null.npz（stage0〜8 の中間物をそのまま使用。再解凍・再計算なし）",
+    "tierDefinition": "stage6 と同じ（1 完全地元 / 2 近接＝同じ地区の他支部 / 3 遠隔＝別地区。地区は stage6.districtTable）",
+    "stage9_1": {
+      "definition": "近接・遠隔それぞれの延べ走を分母にした構成比。軸ごとの違いの大きさは全変動距離（構成比の差の絶対値の和の半分。0〜1）",
+      "nNear": 472808,
+      "nFar": 2041206,
+      "startsQuartileCuts": [
+        134.0,
+        195.5,
+        239.0
+      ],
+      "axisDistanceNearVsFar": {
+        "場": 0.169378,
+        "級別": 0.046324,
+        "出走数帯": 0.026597,
+        "年齢帯": 0.022972,
+        "進入コース": 0.014555
+      },
+      "largestLevelDiffs": [
+        {
+          "axis": "場",
+          "level": "15 丸亀",
+          "nNear": 5714,
+          "shareNear": 0.012085,
+          "nFar": 104482,
+          "shareFar": 0.051186,
+          "diffNearMinusFar": -0.039101
+        },
+        {
+          "axis": "場",
+          "level": "01 桐生",
+          "nNear": 35342,
+          "shareNear": 0.074749,
+          "nFar": 73278,
+          "shareFar": 0.035899,
+          "diffNearMinusFar": 0.03885
+        },
+        {
+          "axis": "級別",
+          "level": "B2",
+          "nNear": 40710,
+          "shareNear": 0.086103,
+          "nFar": 98335,
+          "shareFar": 0.048175,
+          "diffNearMinusFar": 0.037928
+        },
+        {
+          "axis": "場",
+          "level": "14 鳴門",
+          "nNear": 8907,
+          "shareNear": 0.018839,
+          "nFar": 98826,
+          "shareFar": 0.048415,
+          "diffNearMinusFar": -0.029577
+        },
+        {
+          "axis": "場",
+          "level": "24 大村",
+          "nNear": 32844,
+          "shareNear": 0.069466,
+          "nFar": 82087,
+          "shareFar": 0.040215,
+          "diffNearMinusFar": 0.029251
+        },
+        {
+          "axis": "場",
+          "level": "23 唐津",
+          "nNear": 31147,
+          "shareNear": 0.065877,
+          "nFar": 79060,
+          "shareFar": 0.038732,
+          "diffNearMinusFar": 0.027145
+        },
+        {
+          "axis": "出走数帯",
+          "level": "Q4（239超）",
+          "nNear": 163565,
+          "shareNear": 0.345944,
+          "nFar": 760433,
+          "shareFar": 0.372541,
+          "diffNearMinusFar": -0.026597
+        },
+        {
+          "axis": "級別",
+          "level": "A2",
+          "nNear": 106661,
+          "shareNear": 0.225591,
+          "nFar": 514564,
+          "shareFar": 0.252088,
+          "diffNearMinusFar": -0.026498
+        },
+        {
+          "axis": "場",
+          "level": "02 戸田",
+          "nNear": 29328,
+          "shareNear": 0.062029,
+          "nFar": 74589,
+          "shareFar": 0.036542,
+          "diffNearMinusFar": 0.025488
+        },
+        {
+          "axis": "年齢帯",
+          "level": "30〜39",
+          "nNear": 156728,
+          "shareNear": 0.331483,
+          "nFar": 719065,
+          "shareFar": 0.352275,
+          "diffNearMinusFar": -0.020791
+        }
+      ],
+      "file": "analysis/kensho06/nearFarStrata.csv"
+    },
+    "stage9_2": {
+      "definition": "同一レース内で「完全地元／近接／遠隔」の3値ラベルだけを並べ替える（1000回・seed 20260917・splitmix64、stage2 と同じ乱数）。進入コース・着・級別は動かさない。p は帰無平均からの絶対偏差で数えた両側 (1+#)/(1+1000)",
+      "controls": "レース内シャッフルは場・日・番組（同じレースの相手）を自動的に揃えるが、級別は統制しない（同じレースの中に級別の違う選手がいて、ラベルと一緒に級別は動かないため）",
+      "reps": 1000,
+      "n": {
+        "home": 709667,
+        "near": 472808,
+        "far": 2041206
+      },
+      "stats": {
+        "nearMinusFar": {
+          "win": {
+            "observed": -0.007395,
+            "nullMean": -1.5e-05,
+            "null95": [
+              -0.001153,
+              0.001178
+            ],
+            "excess": -0.00738,
+            "p": 0.000999
+          },
+          "top3": {
+            "observed": -0.017143,
+            "nullMean": -2.3e-05,
+            "null95": [
+              -0.001666,
+              0.001533
+            ],
+            "excess": -0.01712,
+            "p": 0.000999
+          },
+          "meanFinish": {
+            "observed": 0.069393,
+            "nullMean": 0.00018,
+            "null95": [
+              -0.00522,
+              0.005335
+            ],
+            "excess": 0.069214,
+            "p": 0.000999
+          }
+        },
+        "homeMinusNear": {
+          "win": {
+            "observed": 0.024052,
+            "nullMean": 2.1e-05,
+            "null95": [
+              -0.001306,
+              0.001425
+            ],
+            "excess": 0.024031,
+            "p": 0.000999
+          },
+          "top3": {
+            "observed": 0.033867,
+            "nullMean": -1.4e-05,
+            "null95": [
+              -0.001733,
+              0.001932
+            ],
+            "excess": 0.033881,
+            "p": 0.000999
+          },
+          "meanFinish": {
+            "observed": -0.131757,
+            "nullMean": 0.000277,
+            "null95": [
+              -0.005624,
+              0.006365
+            ],
+            "excess": -0.132034,
+            "p": 0.000999
+          }
+        }
+      },
+      "conservation": {
+        "check": "レースごとの3値の個数（レース×ラベルの件数）が観測と完全一致した rep 数",
+        "repsMatched": 1000,
+        "reps": 1000,
+        "allRepsMatched": true
+      },
+      "sameRandomAsStage2": {
+        "check": "完全地元ラベルの1着・3着内・着の合計が、全repで stage2 の null.npz と一致するか",
+        "identical": true
+      },
+      "seconds": 316.9
+    },
+    "stage9_3": {
+      "definition": "stage3 と同じ線形確率モデル（1着・3着内）／線形モデル（平均着）。地元ダミーの代わりに完全地元ダミー・近接ダミー（基準＝遠隔）を入れ、場(24)・級別(4)・進入コース(1〜6＋不明)・年齢帯(4)・出走数帯(4)で統制して全行に当てた。近接−遠隔の統制前の差＝Σ(近接の平均−遠隔の平均)×係数＋近接ダミーの係数（closureError はその誤差）。係数の区間は出さない（理論分布を使わないため）。年ごとの符号は年別に同じモデルを当てて数えた",
+      "startsQuartileCuts": [
+        134.0,
+        195.5,
+        239.0
+      ],
+      "overall": {
+        "win": {
+          "coefHome": 0.013191,
+          "coefNear": 0.000968,
+          "rawHomeMinusFar": 0.016657,
+          "rawNearMinusFar": -0.007395,
+          "nearWorseThanFarAfterControl": false,
+          "nearWorseMeaning": "近接の係数が遠隔（基準0）より低い",
+          "coefNearShareOfRaw": -0.131,
+          "nearMinusFarDecomposition": {
+            "場の違い": 0.000291,
+            "級別の偏り": -0.003865,
+            "進入コースの偏り": -0.003914,
+            "年齢の偏り": -0.000283,
+            "出走数の偏り": -0.000592
+          },
+          "closureError": 3.344763702117781e-16,
+          "yearsCoefNearSameSignAsOverall": 7,
+          "years": 11
+        },
+        "top3": {
+          "coefHome": 0.022156,
+          "coefNear": -4e-06,
+          "rawHomeMinusFar": 0.016724,
+          "rawNearMinusFar": -0.017143,
+          "nearWorseThanFarAfterControl": true,
+          "nearWorseMeaning": "近接の係数が遠隔（基準0）より低い",
+          "coefNearShareOfRaw": 0.0,
+          "nearMinusFarDecomposition": {
+            "場の違い": 0.000541,
+            "級別の偏り": -0.009953,
+            "進入コースの偏り": -0.005584,
+            "年齢の偏り": -0.000656,
+            "出走数の偏り": -0.001489
+          },
+          "closureError": 4.842216308909714e-16,
+          "yearsCoefNearSameSignAsOverall": 4,
+          "years": 11
+        },
+        "meanFinish": {
+          "coefHome": -0.083405,
+          "coefNear": -0.000124,
+          "rawHomeMinusFar": -0.062364,
+          "rawNearMinusFar": 0.069393,
+          "nearWorseThanFarAfterControl": false,
+          "nearWorseMeaning": "近接の係数が遠隔（基準0）より大きい（平均着が悪い）",
+          "coefNearShareOfRaw": -0.002,
+          "nearMinusFarDecomposition": {
+            "場の違い": -0.00203,
+            "級別の偏り": 0.040794,
+            "進入コースの偏り": 0.022531,
+            "年齢の偏り": 0.002482,
+            "出走数の偏り": 0.005741
+          },
+          "closureError": 1.6991616447192825e-15,
+          "yearsCoefNearSameSignAsOverall": 7,
+          "years": 11
+        }
+      },
+      "byYear": {
+        "win": {
+          "2016": {
+            "coefHome": 0.016356,
+            "coefNear": 0.002593,
+            "rawNearMinusFar": -0.010321
+          },
+          "2017": {
+            "coefHome": 0.018577,
+            "coefNear": 0.000834,
+            "rawNearMinusFar": -0.006625
+          },
+          "2018": {
+            "coefHome": 0.017752,
+            "coefNear": -0.001114,
+            "rawNearMinusFar": -0.010779
+          },
+          "2019": {
+            "coefHome": 0.013937,
+            "coefNear": 0.000343,
+            "rawNearMinusFar": -0.008311
+          },
+          "2020": {
+            "coefHome": 0.015279,
+            "coefNear": -0.000951,
+            "rawNearMinusFar": -0.010675
+          },
+          "2021": {
+            "coefHome": 0.013402,
+            "coefNear": 0.004828,
+            "rawNearMinusFar": -0.003193
+          },
+          "2022": {
+            "coefHome": 0.010338,
+            "coefNear": 0.004487,
+            "rawNearMinusFar": -0.002893
+          },
+          "2023": {
+            "coefHome": 0.011702,
+            "coefNear": 0.001534,
+            "rawNearMinusFar": -0.008869
+          },
+          "2024": {
+            "coefHome": 0.010432,
+            "coefNear": -0.000263,
+            "rawNearMinusFar": -0.010561
+          },
+          "2025": {
+            "coefHome": 0.011801,
+            "coefNear": 0.000852,
+            "rawNearMinusFar": -0.004885
+          },
+          "2026": {
+            "coefHome": 0.010146,
+            "coefNear": -0.001174,
+            "rawNearMinusFar": -0.009483
+          }
+        },
+        "top3": {
+          "2016": {
+            "coefHome": 0.028518,
+            "coefNear": 0.004054,
+            "rawNearMinusFar": -0.026339
+          },
+          "2017": {
+            "coefHome": 0.029691,
+            "coefNear": -0.003392,
+            "rawNearMinusFar": -0.018934
+          },
+          "2018": {
+            "coefHome": 0.024599,
+            "coefNear": -0.003194,
+            "rawNearMinusFar": -0.024504
+          },
+          "2019": {
+            "coefHome": 0.023215,
+            "coefNear": 0.003278,
+            "rawNearMinusFar": -0.016444
+          },
+          "2020": {
+            "coefHome": 0.025832,
+            "coefNear": 0.003634,
+            "rawNearMinusFar": -0.015254
+          },
+          "2021": {
+            "coefHome": 0.022435,
+            "coefNear": 0.004121,
+            "rawNearMinusFar": -0.009178
+          },
+          "2022": {
+            "coefHome": 0.022464,
+            "coefNear": 0.002648,
+            "rawNearMinusFar": -0.010794
+          },
+          "2023": {
+            "coefHome": 0.02044,
+            "coefNear": 0.001004,
+            "rawNearMinusFar": -0.019643
+          },
+          "2024": {
+            "coefHome": 0.019485,
+            "coefNear": -0.003992,
+            "rawNearMinusFar": -0.026653
+          },
+          "2025": {
+            "coefHome": 0.020152,
+            "coefNear": 0.001253,
+            "rawNearMinusFar": -0.01314
+          },
+          "2026": {
+            "coefHome": 0.016408,
+            "coefNear": -0.004307,
+            "rawNearMinusFar": -0.021295
+          }
+        },
+        "meanFinish": {
+          "2016": {
+            "coefHome": -0.118616,
+            "coefNear": -0.03254,
+            "rawNearMinusFar": 0.090177
+          },
+          "2017": {
+            "coefHome": -0.119195,
+            "coefNear": 0.008513,
+            "rawNearMinusFar": 0.073278
+          },
+          "2018": {
+            "coefHome": -0.099383,
+            "coefNear": 0.006746,
+            "rawNearMinusFar": 0.095059
+          },
+          "2019": {
+            "coefHome": -0.086001,
+            "coefNear": -0.002491,
+            "rawNearMinusFar": 0.076402
+          },
+          "2020": {
+            "coefHome": -0.096179,
+            "coefNear": -0.011459,
+            "rawNearMinusFar": 0.063697
+          },
+          "2021": {
+            "coefHome": -0.080884,
+            "coefNear": -0.014971,
+            "rawNearMinusFar": 0.037657
+          },
+          "2022": {
+            "coefHome": -0.082616,
+            "coefNear": -0.010627,
+            "rawNearMinusFar": 0.042649
+          },
+          "2023": {
+            "coefHome": -0.078148,
+            "coefNear": -0.005764,
+            "rawNearMinusFar": 0.077322
+          },
+          "2024": {
+            "coefHome": -0.070559,
+            "coefNear": 0.014375,
+            "rawNearMinusFar": 0.105445
+          },
+          "2025": {
+            "coefHome": -0.073633,
+            "coefNear": -0.003026,
+            "rawNearMinusFar": 0.057426
+          },
+          "2026": {
+            "coefHome": -0.057829,
+            "coefNear": 0.015883,
+            "rawNearMinusFar": 0.085606
+          }
+        }
+      }
+    },
+    "stage9_4": {
+      "definition": "stage4 と同じ単位（選手×支部の連続区間。支部が変わったら別単位）。近接・遠隔の両方に20走以上ある単位だけを対象。差＝近接での値−遠隔での値（平均着は小さいほど良い）。コース統制版は、各走から期待値（全行の進入コース別の1着率・3着内率・平均着）を引いた残差の平均の差",
+      "units": 2118,
+      "racers": 2102,
+      "eligibleUnits": 1995,
+      "excludedUnits": 123,
+      "eligibleRacers": 1985,
+      "excludedRacers": 117,
+      "excludedUnitReasons": {
+        "近接だけ20走未満": 89,
+        "両方20走未満": 32,
+        "遠隔だけ20走未満": 2
+      },
+      "raw": {
+        "winDiff": {
+          "median": -0.002739,
+          "q1": -0.021226,
+          "q3": 0.015536,
+          "positive": 878,
+          "negative": 1074,
+          "zero": 43
+        },
+        "top3Diff": {
+          "median": -0.005602,
+          "q1": -0.038291,
+          "q3": 0.025783,
+          "positive": 892,
+          "negative": 1093,
+          "zero": 10
+        },
+        "meanFinishDiff": {
+          "median": 0.023831,
+          "q1": -0.090489,
+          "q3": 0.142721,
+          "positive": 1099,
+          "negative": 896,
+          "zero": 0
+        }
+      },
+      "courseAdjusted": {
+        "winDiffCourseAdj": {
+          "median": -0.000153,
+          "q1": -0.016165,
+          "q3": 0.017197,
+          "positive": 992,
+          "negative": 1001,
+          "zero": 2
+        },
+        "top3DiffCourseAdj": {
+          "median": -0.002343,
+          "q1": -0.031646,
+          "q3": 0.027132,
+          "positive": 958,
+          "negative": 1037,
+          "zero": 0
+        },
+        "meanFinishDiffCourseAdj": {
+          "median": 0.007702,
+          "q1": -0.090695,
+          "q3": 0.110775,
+          "positive": 1037,
+          "negative": 958,
+          "zero": 0
+        }
+      },
+      "note": "単位ごとの差は n=20 からで、単位ごとの率は n<300。集計（中央値・四分位・符号の人数）だけを結果として使う",
+      "file": "analysis/kensho06/nearFarWithinRacer.csv"
+    },
+    "stage9_5": {
+      "definition": "α=0.05（両側）・検出力0.8。1着率で遠隔 p0（その層の実測）に対し近接が p0+0.01 のとき、近接比率 h（その層の実測）のもとで2標本の比率の差を検出するのに要る延べ走数（近接＋遠隔）。stage5 と同じ式で差だけ 0.01。地区の層は開催場の地区で切った（近接は選手の地区＝開催場の地区、遠隔はそれ以外の地区の選手）。充足率1.0未満の層は順位も大小関係も書かない",
+      "alpha": 0.05,
+      "power": 0.8,
+      "delta": 0.01,
+      "layers": [
+        {
+          "layer": "全体",
+          "nNear": 472808,
+          "nFar": 2041206,
+          "nTotal": 2514014,
+          "nearShare": 0.188069,
+          "p0FarWin": 0.164393,
+          "requiredN": 71887,
+          "sufficiency": 34.9718,
+          "note": ""
+        },
+        {
+          "layer": "関東",
+          "nNear": 125474,
+          "nFar": 362930,
+          "nTotal": 488404,
+          "nearShare": 0.256906,
+          "p0FarWin": 0.170636,
+          "requiredN": 59264,
+          "sufficiency": 8.2413,
+          "note": ""
+        },
+        {
+          "layer": "東海",
+          "nNear": 77445,
+          "nFar": 355729,
+          "nTotal": 433174,
+          "nearShare": 0.178785,
+          "p0FarWin": 0.159984,
+          "requiredN": 73177,
+          "sufficiency": 5.9196,
+          "note": ""
+        },
+        {
+          "layer": "近畿",
+          "nNear": 80531,
+          "nFar": 353220,
+          "nTotal": 433751,
+          "nearShare": 0.185662,
+          "p0FarWin": 0.160164,
+          "requiredN": 71134,
+          "sufficiency": 6.0977,
+          "note": ""
+        },
+        {
+          "layer": "四国",
+          "nNear": 14621,
+          "nFar": 203308,
+          "nTotal": 217929,
+          "nearShare": 0.067091,
+          "p0FarWin": 0.162364,
+          "requiredN": 173270,
+          "sufficiency": 1.2577,
+          "note": ""
+        },
+        {
+          "layer": "中国",
+          "nNear": 71889,
+          "nFar": 368380,
+          "nTotal": 440269,
+          "nearShare": 0.163284,
+          "p0FarWin": 0.164759,
+          "requiredN": 80447,
+          "sufficiency": 5.4728,
+          "note": ""
+        },
+        {
+          "layer": "九州",
+          "nNear": 102848,
+          "nFar": 397639,
+          "nTotal": 500487,
+          "nearShare": 0.205496,
+          "p0FarWin": 0.167094,
+          "requiredN": 68115,
+          "sufficiency": 7.3477,
+          "note": ""
+        }
+      ],
+      "underpoweredLayers": []
+    },
+    "runFinishedJST": "2026-09-17 21:19 JST"
   }
 }
