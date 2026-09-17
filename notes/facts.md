@@ -564,6 +564,7 @@ URL変更時に直すファイル（L2の生き残り分）：
 |`mitateJissoTable.md`|見立ての出し分け|同上。**大原則「数字は貼らない」は撤回済み**|
 |`dokusyaThinkingModel.md`（v2・15,478B）|**どう読ませるか**|`/kensho/` の読み物本文|
 |`columnCraftLessons.md`|コラム執筆の実務|同上。とくに「構図を思いついた時点がいちばん危ない」|
+|`kenshoCraftLessons.md`|検証05で確立した執筆7フェーズ・文の数値基準・とぼけ・感情曲線|/kensho/ の検証記事を書くとき。**`dokusyaThinkingModel.md` と併せて必ず読む**|
 |`webCraftModel.md`|**どう届けるか**|表示・図・パフォーマンス設計|
 |`funeThinkingModel.md`|**どう賭けるか**|**けん本人向けの買い目・展示前予想（非公開・リポジトリに入れない）**|
 |`mitateVerifyDesign.md`|検証ループの設計|`predictions/`・照合WF・荒れ指数を触る|
