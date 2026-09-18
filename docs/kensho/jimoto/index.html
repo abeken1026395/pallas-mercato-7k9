@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>検証：地元 ｜ データ攻め</title>
+<link rel="canonical" href="https://abeken1026395.github.io/pallas-mercato-7k9/kensho/jimoto/">
+<meta name="description" content="地元の選手は強いのか。2016年11月1日から2026年8月11日までの538,270レース・延べ3,223,681走を数えると、1着率は地元18.1%、地元以外16.3%。枠とメンバーを揃えても1.30ポイント残り、近接（同じ地区の別支部）の差は消えました。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="検証：地元">
+<meta property="og:description" content="地元の選手は強いのか。538,270レース・延べ3,223,681走を数えました。1着率は地元18.1%、地元以外16.3%。枠とメンバーを揃えても1.30ポイント残り、隣の県から来た選手の差は消えました。">
+<meta property="og:image" content="https://abeken1026395.github.io/pallas-mercato-7k9/icon512.png">
+<!-- data-seme signature: kensho / jimoto -->
+<style>
+:root{
+  --bg:#0b1219; --panel:#0f1a26; --line:#4a627f;
+  --fg:#e0e6ed; --dim:#8a94a3; --faint:#8a94a3;
+  --accent:#ffd166; --ok:#7ee08a; --ng:#e07a7a;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--fg)}
+body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;
+  -webkit-text-size-adjust:100%;font-feature-settings:"palt" 1}
+.wrap{max-width:620px;margin:0 auto;padding:0 18px 64px}
+
+.siteback{display:inline-flex;align-items:center;min-height:44px;
+  color:#a9c6dd;text-decoration:none;font-size:12.5px;margin-right:16px}
+.siteback:hover{text-decoration:underline}
+
+header{padding:26px 0 8px;border-bottom:1px solid var(--line)}
+header .eyebrow{font-size:11px;letter-spacing:.34em;color:var(--accent);margin:0 0 12px}
+header h1{font-size:28px;line-height:1.5;color:#fff;margin:0 0 10px;font-weight:700}
+header .sub{font-size:12px;line-height:1.9;color:var(--dim);margin:0 0 22px}
+
+.article{padding:32px 0 8px;font-size:16px;line-height:2.1}
+.article p{margin:0 0 1.9em}
+.article b{color:#fff;font-weight:700}
+.article .lead{font-size:18.5px;line-height:1.95;color:#fff;font-weight:700;margin-bottom:1.7em}
+
+.sec{margin:3em 0 1.5em;font-size:18px;color:var(--accent);font-weight:700;
+  letter-spacing:.06em;line-height:1.6;display:flex;align-items:center;gap:11px}
+.sec::before{content:"";width:20px;height:1px;background:var(--accent);flex:none}
+.sec::after{content:"";height:1px;background:var(--line);flex:1}
+
+.punch{margin:2.2em 0 1.1em;font-size:30px;line-height:1.65;color:#fff;font-weight:700}
+.punch .big{color:var(--accent)}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:1.5em 0 1.9em;
+  font-variant-numeric:tabular-nums}
+th,td{padding:11px 6px;text-align:right;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--faint);font-weight:600;font-size:12px;white-space:nowrap}
+tr.hi td{color:#fff;font-weight:700;background:#16283c}
+tr.mid td{color:var(--faint)}
+
+/* ── 数字ブロック ── */
+.figure{display:flex;gap:12px;margin:1.5em 0 1.9em}
+.figure>div{flex:1;background:var(--panel);border:1px solid var(--line);
+  border-radius:10px;padding:16px 10px 14px;text-align:center}
+.figure .n{font-size:44px;font-weight:700;line-height:1.15;color:var(--accent);
+  font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.figure .u{font-size:17px;font-weight:700;margin-left:2px}
+.figure .l{font-size:11px;color:var(--dim);margin-top:8px;line-height:1.7}
+.figure .ref .n{color:var(--faint)}
+
+/* ── 折りたたみ ── */
+details{margin:2.6em 0 1.6em;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+details>summary{display:flex;align-items:center;min-height:46px;padding:0 16px;
+  font-size:13px;color:#a9c6dd;cursor:pointer;list-style:none}
+details>summary::-webkit-details-marker{display:none}
+details>summary::after{content:"＋";margin-left:auto;color:var(--faint)}
+details[open]>summary::after{content:"−"}
+.dbody{padding:4px 16px 18px;font-size:12.5px;line-height:2;color:var(--dim)}
+.dbody h4{margin:1.6em 0 .5em;font-size:12.5px;color:#cfd8e3;font-weight:700}
+.dbody h4:first-child{margin-top:.4em}
+.dbody p{margin:0 0 1em}
+
+.stamp{margin:2.4em 0 1.4em;font-size:11px;line-height:1.9;color:var(--faint);
+  padding-top:16px;border-top:1px solid var(--line)}
+.stamp span{color:var(--dim);font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<a class="siteback" href="../../">← データ攻め トップ</a>
+<a class="siteback" href="../">← 検証の一覧</a>
+
+<header>
+  <p class="eyebrow">検 証</p>
+  <h1>地元は<br>強いのか</h1>
+  <p class="sub">
+    地元の選手が1号艇に座っているのは、強いからなのか。<br>
+    約10年分の番組表と成績を突き合わせて数えた記録です。
+  </p>
+</header>
+
+<div class="article">
+
+<h2 class="sec">1号艇に座っている</h2>
+
+<p>大村の1号艇に、長崎の選手が座っている。津の1号艇には、三重の選手。節の初日の番組表を眺めていると、そういう並びをよく見かけます。</p>
+
+<p class="lead">地元だからね。</p>
+
+<p>たいていの説明は、そこで終わります。</p>
+
+<h2 class="sec">数えました</h2>
+
+<p>2016年11月1日から2026年8月11日まで、3,571日ぶんの成績を数えました。538,270レース、延べ3,223,681走。選手の支部は、その日の番組表に印字されたものを使い、移籍した選手については、移籍の前と後を別に数えています。</p>
+
+<p>支部と開催場の所在地が一致する走は709,667走で、全体の22.0%。5走に1走よりやや多い、という程度の割合です。</p>
+
+<h2 class="sec">やはり強い</h2>
+
+<p>1着率を出すと、こうなりました。</p>
+
+<table>
+<thead><tr><th></th><th>延べ走</th><th>1着率</th><th>3着内率</th><th>平均着</th></tr></thead>
+<tbody>
+<tr class="hi"><td>地元</td><td>709,667</td><td>18.1%</td><td>51.6%</td><td>3.44</td></tr>
+<tr><td>地元以外</td><td>2,514,014</td><td>16.3%</td><td>49.7%</td><td>3.52</td></tr>
+</tbody>
+</table>
+
+<p>1着率で1.80ポイント、3着内率で1.99ポイント、平均着で0.08の差。分母がこれだけあるので、区間はほとんど重なりません。</p>
+
+<p>俗説は当たっていた。ここで終われば、短い記事になります。</p>
+
+<h2 class="sec">枠をもらっているだけではないか</h2>
+
+<p>ただ、冒頭の並びを思い出すと、順番が怪しくなります。地元の選手が1号艇に座っているのは、強いからでしょうか。それとも、座らせてもらったから強く見えるだけでしょうか。</p>
+
+<p>数えました。地元の選手が1コースに入ったのは126,414回。同じレースの中で地元かどうかのラベルだけを1,000回入れ替えて作った帰無の平均が118,488回なので、7,926回ぶん多い。</p>
+
+<div class="figure">
+  <div><p class="n">126,414<span class="u">回</span></p><p class="l">地元が1コースに<br>入った・実際</p></div>
+  <div class="ref"><p class="n">118,488<span class="u">回</span></p><p class="l">地元が1コースに<br>入った・偶然なら</p></div>
+</div>
+
+<p>あっせんと番組の組み方は、地元の選手を内側に置いています。疑いは、当たっていました。</p>
+
+<h2 class="sec">引いても残る</h2>
+
+<p>そこで、この差の中身を分けました。</p>
+
+<table>
+<thead><tr><th></th><th>1着率への寄与</th></tr></thead>
+<tbody>
+<tr><td>進入コースの偏り</td><td>+0.61pt</td></tr>
+<tr><td>年齢の偏り</td><td>+0.10pt</td></tr>
+<tr><td>場の違い</td><td>−0.01pt</td></tr>
+<tr><td>出走数の偏り</td><td>−0.03pt</td></tr>
+<tr><td>級別の偏り</td><td>−0.17pt</td></tr>
+<tr class="hi"><td>残り</td><td>+1.30pt</td></tr>
+</tbody>
+</table>
+
+<p>いちばん大きいのは、やはり進入コース。けれども、それを引いても残りは消えませんでした。</p>
+
+<p>同じ選手の中で比べても消えません。地元と地元以外の両方に20走以上ある2,024単位を取り、選手ごとに差を出すと、中央値は1.48ポイント。進入コースを揃えると0.84ポイントまで落ちますが、1,270単位が正、753単位が負で、正のほうが多いままでした。</p>
+
+<p>冒頭の並びで見えているのは「地元が内枠で来る」という場面、こちらが見ているのは、内枠を揃えた後に残る分。見ている範囲が違うだけで、どちらも間違っていません。</p>
+
+<h2 class="sec">では、近さか</h2>
+
+<p>残った分が水面の慣れなら、近い場も少しは慣れているはずでしょう。徳島の選手が丸亀を走り、福岡の選手が唐津を走る。同じ地区の、隣の県。地元ほどではないにしても、遠くから来た選手よりは走れるのではないか。</p>
+
+<p>そう思って、3つに分けました。</p>
+
+<table>
+<thead><tr><th></th><th>延べ走</th><th>1着率</th></tr></thead>
+<tbody>
+<tr><td>地元</td><td>709,667</td><td>18.1%</td></tr>
+<tr class="hi"><td>近接（同じ地区の別支部）</td><td>472,808</td><td>15.7%</td></tr>
+<tr><td>遠隔（別の地区）</td><td>2,041,206</td><td>16.4%</td></tr>
+</tbody>
+</table>
+
+<p>地元でも遠隔でもない真ん中が、3つのうちで、いちばん低い。隣の県から来た選手のほうが、遠くの県から来た選手より弱いことになります。</p>
+
+<p>地図をしばらく眺めました。</p>
+
+<h2 class="sec">級別を見た</h2>
+
+<p>近い場の走と遠い場の走で、級別の構成を比べます。</p>
+
+<p>近接472,808走のうちB2は8.61%、遠隔2,041,206走のうちB2は4.82%。倍近く多い。A級は同じ分母で、近接が45.98%、遠隔が50.61%。4.63ポイント少ない。近い場に多く呼ばれているのは、下の級の選手。</p>
+
+<p>なぜそうなるのかは分かりません。あっせんの決め方はデータに入っていないので、ここは確かめようがない。</p>
+
+<h2 class="sec">消えました</h2>
+
+<p>級別と進入コースを揃えて、もう一度当てます。何ポイント残ったと思いますか。</p>
+
+<table>
+<thead><tr><th></th><th>統制前</th><th>統制後</th></tr></thead>
+<tbody>
+<tr><td>地元 − 遠隔</td><td>+1.67pt</td><td>+1.32pt</td></tr>
+<tr class="hi"><td>近接 − 遠隔</td><td>−0.74pt</td><td>+0.10pt</td></tr>
+</tbody>
+</table>
+
+<p>近接の差は、消えた。3着内率で残ったのは −0.0004ポイントで、これは差が無いと書くのが正直なところ。</p>
+
+<p>同じ選手の中でも確かめました。近い場と遠い場の両方に20走以上ある1,995単位で、進入コースを揃えて比べると、正が992、負が1,001、中央値は −0.02ポイント。ほぼ半々になる。</p>
+
+<p>消えた0.74ポイントの内訳は、級別と進入コースがそれぞれ0.39ポイント。ちょうど半分ずつでした。できすぎに見えたので年ごとにも当て直しましたが、統制後の符号が揃ったのは11年のうち7年。もともと向きが定まっていない、ということです。</p>
+
+<p>ひとつ、揃えすぎの心配があります。級別は過去の成績の結果でもあるので、近い場ばかり走って成績を落とした分まで、一緒に消してしまったかもしれない。ただ、同じ選手の中では級別はほとんど動きません。その土俵でも半々だったので、揃えすぎが理由ではない。</p>
+
+<p>いっぽう地元の係数は、3つの指標とも残りました。</p>
+
+<h2 class="sec">地元の弱い版ではなかった</h2>
+
+<p>慣れが距離に応じて効いているなら、近接は、地元と遠隔の間に来るはずでした。実際には、統制すると、遠隔と同じ高さに並ぶ。</p>
+
+<p>近い場を走る選手は、地元の選手を薄めた存在ではない。地元でないという一点において、別の地区から来た選手とまったく同じでした。</p>
+
+<h2 class="sec">効かない場もある</h2>
+
+<p>場ごとにも出しました。地元が最も効くのは津で、シャッフルとの差は4.98ポイント。以下、びわこ、鳴門、尼崎と続く。</p>
+
+<p>逆に、平和島は −0.66ポイント、多摩川は −0.68ポイントで、この2場では地元のほうがわずかに悪い。ただし24場ぶんをまとめて検定しているため、補正の取り方で判定が変わります。平和島はどちらの補正でも残り、多摩川は片方で残って片方で落ちた。</p>
+
+<p>この2場を含む東京支部の3場は、384,499走のうち108,632走が地元。江戸川が124,193走で29.4%、平和島が127,424走で28.9%、多摩川が132,882走で26.6%と、どの場も全体の平均を上回ります。地元の選手が多い場ほど、地元であることが特別でなくなる、という形にも見えます。見えるだけで、確かめてはいません。</p>
+
+<h2 class="sec">数えられなかったもの</h2>
+
+<p>番組表にあって成績に無い走が40,404走あります。9場が同じ日にまとめて欠けていたり、節の終わりのほうのレースだけ無かったり。開催が取りやめになった分と読めますが、確かめてはいません。これを全部地元と置いても、全部地元以外と置いても、最初の差は1.73ポイントまでしか動きません。</p>
+
+<p>出身地はデータにない。支部と出身地が違う選手は、この集計では地元になったり、ならなかったりします。</p>
+
+<p>なぜ地元が強いのかも、分かっていない。水面の慣れか、移動の負担か、応援か、あるいは別の何かか。集計をいくつ重ねても、そこには届きませんでした。</p>
+
+<h2 class="sec">締め</h2>
+
+<p>地元は強い。枠とメンバーを揃えても、1.30ポイント残ります。</p>
+
+<p>ただし、その強さは近さではありませんでした。地元の一歩外に出た時点で、効果は0です。</p>
+
+<p>大村の1号艇の長崎の選手は、確かに少し強い。同じレースにいる佐賀の選手は、東京の選手と変わらない。</p>
+
+</div>
+
+<details>
+<summary>この検証の数え方</summary>
+<div class="dbody">
+<ul>
+<li>期間：2016年11月1日〜2026年8月11日。Kファイル（競走成績）の在庫の最古日から、Bファイル（番組表）の在庫の最新日まで</li>
+<li>レース数：538,270。延べ走数：3,223,681</li>
+<li>除いたもの：1着のない不成立レース72、欠場5,939走</li>
+<li>着順：失格・転覆などは6着として扱い、欠場は分母から除いています</li>
+<li>地元の定義：選手の支部が、開催場の所在地支部と一致すること。出身地は使っていません</li>
+<li>支部：その日の番組表に印字された値。移籍した選手は前後で別単位として数えました</li>
+<li>比較の基準：同じレースの中で地元・近接・遠隔のラベルだけを1,000回入れ替えて作った分布と比べています。理論上の確率分布は使っていません</li>
+<li>統制：場・級別・進入コース・年齢帯・出走数帯</li>
+<li>区間：率はWilson、平均着は平均±1.96標準誤差</li>
+<li>地区：公式サイトが24場を6地区に分けている区分を、開催場の所在地支部を通じて支部に読み替えたものです。支部を地区に分ける公式の表は見つかりませんでした</li>
+</ul>
+</div>
+</details>
+
+<p class="stamp">
+  集計期間 <span>2016/11/1 〜 2026/8/11</span>　/　<span>3,571</span>日・<span>538,270</span>レース・<span>3,223,681</span>走<br>
+  出典：公式サイト 番組表（Bファイル）・競走成績（Kファイル）。この期間の数字は固定で、更新されません。
+</p>
+
+<a class="siteback" href="../../">← データ攻め トップ</a>
+<a class="siteback" href="../">← 検証の一覧</a>
+
+</div>
+
+<script src="../../assets/guard.js" defer></script>
+</body>
+</html>
