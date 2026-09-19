@@ -8,7 +8,7 @@ build_highlights.py
   python build_highlights.py [racers_csv] [motors_csv] [out_json]
   省略時: docs/racers/racers_today.csv  docs/motor/motors_all.csv  docs/highlights/highlights.json
 """
-import csv, json, sys, os, datetime
+import csv, json, re, sys, os, datetime
 from collections import defaultdict
 
 import birthdayMark   # 誕生日マークの判定（scripts/birthdayMark.py）
@@ -813,7 +813,7 @@ def main():
         #   全型共通：1文に事実1つ。数字同士の食い違いは「ただ、」で見せる。
         #   書かないもの：風（効かないと確定済み）・全艇に共通する級別・「決まれば〜」の条件文。
         _in_num = (f"1コースの1着率{round(_in1_rate)}%（{(_inrate.get(in1['登録番号']) or {}).get('inN')}走）"
-                   if _in1_rate is not None else f"{ba}での勝率{il:.2f}")
+                   if _in1_rate is not None else (f"{ba}での勝率{il:.2f}" if il > 0 else "1コースの1着率を出せるだけの走数がない"))
         _day = bo[0].get('開催日', '')
 
         def _sei(b):
@@ -881,13 +881,16 @@ def main():
         _n1, _k1 = _top3(in1)
         _in1Down = (_in1_rate or 0) >= 55 and _n1 >= 3 and _k1 * 2 < _n1
 
+        # 見立て（表層）に①の1コース1着率が出ているレースでは、展開で同じ数字を繰り返さない
+        _inDup = _in1_rate is not None and f"{round(_in1_rate)}%（" in headline
+
         def _in1Line(name):
-            s = f"{name}は、{_in_num}。"
+            s = '' if _inDup else f"{name}は、{_in_num}。"
             if _n1 >= 3:
-                s += f"{'ただ、' if _in1Down else ''}今節は{_n1}走して、3着以内は{_k1}回。"
+                s += f"{'ただ、' if _in1Down else ''}{'' if s else name + 'の'}今節は{_n1}走して、3着以内は{_k1}回。"
             t = _tj(in1)
             if t:
-                s += f"{t}。"
+                s += f"{t}。" if s else f"{name}の{t}。"
             return s
 
         tenkai = []
@@ -900,29 +903,34 @@ def main():
             _ris = sorted([(g, b) for b in bo[1:] for g in [_rising(b)] if g], key=lambda x: (-x[0], int(x[1]['枠'])))[:2]
             _locs = sorted([f(b['当地勝率']) for b in bo], reverse=True)
             for _g, b in _ris:
-                cs = '、'.join(f"{c}着" if isinstance(c, int) else str(c) for c in _chakus(b))
-                s = f"{_full(b)}は今節{len(_chakus(b))}走。{cs}の順。"
+                _ca = _chakus(b)
+                cs = '、'.join(f"{c}着" if isinstance(c, int) else str(c) for c in _ca[-5:])
+                s = f"{_full(b)}は今節{len(_ca)}走。{'直近5走は' if len(_ca) > 5 else ''}{cs}の順。"
                 lc = f(b['当地勝率'])
                 if lc > 0 and len(_locs) > 1 and lc >= _locs[1]:
                     s += f"{ba}での勝率は{lc:.2f}で、6艇中{_locs.index(lc) + 1}位。"
                 tenkai.append(s)
+                _tkReq = True
             _cpx = _collapse.get(bo[0]['場コード']) or {}
             _ksum = _cpx.get('kimariteSum') or {}
             _pats = _cpx.get('patterns') or []
             if _ksum and _pats and 1 <= (_pats[0].get('boat') or 0) <= len(bo):
                 _tp = _pats[0]
-                _mk = round(_ksum.get('まくり', 0) + _ksum.get('まくり差し', 0))
-                tenkai.append(f"{ba}で①が3着に残れなかったレースのうち、{_mk}%はまくりかまくり差しで決まった。"
-                              f"最も多いのは{K[_tp['boat'] - 1]}の{_tp['kimarite']}（{round(_tp['pct'])}%）。")
-                _tkReq = True
                 _tb = bo[_tp['boat'] - 1]
                 _ty = yarare.get(_tb['登録番号']) or {}
                 _tw = _ty.get('1着数')
                 _tnum = _ty.get('まくり数') if _tp['kimarite'] == 'まくり' else _ty.get('差し数') if _tp['kimarite'] == '差し' else None
-                if _tw and _tw >= 10 and _tnum is not None:
-                    tenkai.append(f"{'ただ、' if _tnum * 5 < _tw else ''}{_short(_tb)}の1着{_tw}本のうち、{_tp['kimarite']}は{_tnum}本。")
+                if _tw and _tw >= 10 and _tnum is not None and _tb is not in1 and _tnum * 5 >= _tw:
+                    tenkai.append(f"{_full(_tb) if not any(b is _tb for _g, b in _ris) else _short(_tb)}は、{ba}で①が3着を外したときに最も多い形"
+                                  f"（{K[_tp['boat'] - 1]}の{_tp['kimarite']}・{round(_tp['pct'])}%）の艇番。1着{_tw}本のうち、{_tp['kimarite']}は{_tnum}本。")
+                    _tkReq = True
+            if len([x for x in tenkai if x]) <= 1:
+                _b4 = bo[head_w - 1] if (head_w and 2 <= head_w <= len(bo)) else bo[3]
+                tenkai.append(f"{_full(_b4)}（{_b4['級別']}）の全国勝率は{f(_b4['全国勝率']):.2f}、①{_sei(in1)}（{in1['級別']}）は{f(in1['全国勝率']):.2f}。")
+                _tkReq = True
+                _look.append((_short(_b4), 'スタート'))
             _rv = _ris[0][1] if _ris else (bo[_pats[0]['boat'] - 1] if (_pats and 1 <= (_pats[0].get('boat') or 0) <= len(bo)) else None)
-            if _rv is not None and _rv is not in1:
+            if _rv is not None and _rv is not in1 and any(_sei(_rv) in x for x in tenkai):
                 _look.append((_short(_rv), '行き足'))
         elif _rfocus == 'motorFirst':
             _ms = sorted([(v, b) for v, b in _mv if v is not None], key=lambda x: (-x[0], int(x[1]['枠'])))
@@ -971,6 +979,18 @@ def main():
             _l = [s4, s1] if (_n4a + _l4a) > (_n1a + _l1a) else [s1, s4]
             tenkai.extend([x for x in _l if x])
             _look.append((_short(_b4), 'スタート'))
+        # 見立て（表層）に出ている数字だけでできた文は、展開で繰り返さない
+        _hn = set(re.findall(r'\d+\.\d\d|\d+%', headline))
+
+        def _dedupe(x):
+            out = []
+            for sen in [t for t in x.split('。') if t]:
+                ns = re.findall(r'\d+\.\d\d|\d+%', sen)
+                if ns and all(v in _hn for v in ns):
+                    continue
+                out.append(sen + '。')
+            return ''.join(out)
+        tenkai = [y for y in (_dedupe(x) for x in tenkai) if y]
         if _look:
             # 同じ見どころの艇はまとめる（「⑥数原と⑤上條の行き足」）
             _lk = []
