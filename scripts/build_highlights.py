@@ -948,7 +948,7 @@ def main():
                 if t:
                     s += f"{t}。"
                 if s:
-                    tenkai.append(f"{_short(b)}は、{s}")
+                    tenkai.append(f"{_short(b)}の{s}" if s.startswith('今節の展示') else f"{_short(b)}は、{s}")
                 _look.append((_short(b), '行き足'))
         else:
             _b4 = bo[3]
@@ -966,7 +966,7 @@ def main():
             t4 = _tj(_b4)
             if t4:
                 s4 += f"{t4}。"
-            s4 = f"{_short(_b4)}は、{s4}" if s4 else ''
+            s4 = (f"{_short(_b4)}の{s4}" if s4.startswith('今節の展示') else f"{_short(_b4)}は、{s4}") if s4 else ''
             s1 = _in1Line(_short(in1))
             _l = [s4, s1] if (_n4a + _l4a) > (_n1a + _l1a) else [s1, s4]
             tenkai.extend([x for x in _l if x])
