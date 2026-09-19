@@ -8,7 +8,7 @@ build_highlights.py
   python build_highlights.py [racers_csv] [motors_csv] [out_json]
   省略時: docs/racers/racers_today.csv  docs/motor/motors_all.csv  docs/highlights/highlights.json
 """
-import csv, json, re, sys, os, datetime
+import csv, json, sys, os, datetime
 from collections import defaultdict
 
 import birthdayMark   # 誕生日マークの判定（scripts/birthdayMark.py）
@@ -519,6 +519,45 @@ def main():
         if sa >= 30 and sa >= mk + 8: return 'sashi'
         return None
 
+    # 天候（表示だけ：締切時刻に最も近い時刻の風をweather.jsonから引く。結論は書かない）
+    wjson = {}
+    try:
+        with open(WEATHER, encoding='utf-8') as wf:
+            wjson = json.load(wf).get('stadiums', {})
+    except Exception:
+        wjson = {}
+
+    def wind_line(jcd, hhmm):
+        """締切HH:MMに最も近い時刻の風の事実を1行返す。取れなければ空文字。"""
+        st = wjson.get(str(jcd).zfill(2))
+        if not st or not hhmm or ':' not in hhmm:
+            return ''
+        try:
+            target = int(hhmm.split(':')[0]) * 60 + int(hhmm.split(':')[1])
+        except Exception:
+            return ''
+        best = None; bd = 1e9
+        for h in st.get('hourly', []):
+            t = h.get('time', '')
+            if 'T' not in t:
+                continue
+            hm = t.split('T')[1][:5]
+            try:
+                cur = int(hm.split(':')[0]) * 60 + int(hm.split(':')[1])
+            except Exception:
+                continue
+            dd = abs(cur - target)
+            if dd < bd:
+                bd = dd; best = h
+        if not best:
+            return ''
+        wind = best.get('wind'); d = best.get('dir', ''); wx = best.get('wx', '')
+        if wind is None:
+            return ''
+        # 事実の描写のみ。有利不利の結論にも、穏やか・波立ちやすい等の解釈にも踏み込まない。
+        wxs = f"{wx}、" if wx and wx not in ('晴',) else ''
+        return f"当日は{wxs}{d}の風{wind:.0f}m。"
+
     races = defaultdict(list)
     for r in rac:
         races[(r['場名'], r['レース'])].append(r)
@@ -765,202 +804,39 @@ def main():
         else:
             headline = _lay("軸を絞りにくい一戦"); hid = 'M7'
 
-        # --- 展開の筋（着眼点の3型ごとに骨組みを変える・2026-09-19 改稿）---
-        #   型を削るPRは、必ず代わりの文を置くこと。型ごとの必須の文は下の _tkReq で自己検査する。
-        #   collapseFirst：①の今節 → 今節の着が上向きの艇 → 場で①が崩れるときの決まり手 → 展示で見る点
-        #   motorFirst   ：6艇のモーター2連率を並べる → ①の今節 → 上位機の決まり手と今節 → 展示で見る点
-        #   gapFirst     ：①と④の全国・当地勝率を並べる → 差の大きい側から実数 → 展示で見る点
-        #   全型共通：1文に事実1つ。数字同士の食い違いは「ただ、」で見せる。
-        #   書かないもの：風（効かないと確定済み）・全艇に共通する級別・「決まれば〜」の条件文。
-        _in_num = (f"1コースの1着率{round(_in1_rate)}%（{(_inrate.get(in1['登録番号']) or {}).get('inN')}走）"
-                   if _in1_rate is not None else (f"{ba}での勝率{il:.2f}" if il > 0 else "1コースの1着率を出せるだけの走数がない"))
-        _day = bo[0].get('開催日', '')
-
-        def _sei(b):
-            return (b['氏名'].split('\u3000')[0] or nm(b['氏名']))
-
-        def _full(b):
-            return f"{K[int(b['枠'])-1]}{nm(b['氏名'])}"
-
-        def _short(b):
-            return f"{K[int(b['枠'])-1]}{_sei(b)}"
-
-        def _chakus(b):
-            return [t['着'] for t in setsu_trail(b)]
-
-        def _top3(b):
-            cs = _chakus(b)
-            return len(cs), sum(1 for c in cs if isinstance(c, int) and c <= 3)
-
-        def _rising(b):
-            # 直近2走の平均着が、それより前の平均着より1以上良く、直近2走に2着以内がある
-            cs = _chakus(b)
-            if len(cs) < 3 or not all(isinstance(c, int) for c in cs[-2:]):
-                return None
-            prev = [c for c in cs[:-2] if isinstance(c, int)]
-            if not prev:
-                return None
-            gain = sum(prev) / len(prev) - sum(cs[-2:]) / 2
-            return gain if (gain >= 1.0 and min(cs[-2:]) <= 2) else None
-
-        def _tj(b):
-            dv, nn = tenji_dev(b, _day)
-            if dv is None or abs(dv) < 0.03:
-                return None
-            return f"今節の展示は、6艇平均より{abs(dv):.2f}秒{'速い' if dv < 0 else '遅い'}（{nn}本）"
-
-        def _mtr2(b):
-            v = f(b.get('モーター2連率'))
-            r = motor_runs(b.get('モーター2連率'), b.get('モーター3連率'))
-            return v if (use_m and v > 0 and (r is None or r >= MOTOR_MIN_RUNS)) else None
-
-        def _kimaTxt(b):
-            y = yarare.get(b['登録番号']) or {}
-            w1 = y.get('1着数')
-            if not w1 or w1 < 10:
-                return ''
-            return f"1着{w1}本のうち、まくり{y.get('まくり数') or 0}本、差し{y.get('差し数') or 0}本。"
-
-        def _setsuTxt(b):
-            n, k = _top3(b)
-            return f"今節は{n}走して、3着以内は{k}回。" if n >= 3 else ''
-
-        # 型の決定：第1層＝場、第2層＝機力差30pt以上で motorFirst に上書き（PR #273・動かさない）
-        _mts = [b.get('_mtr', 0) for b in bo if b.get('_mtr', 0) > 0]
-        _mgap = (max(_mts) - min(_mts)) if len(_mts) >= 4 else 0
-        _rfocus = VENUE_FOCUS.get(ba, 'gapFirst')
-        if _mgap >= 30 and _rfocus != 'motorFirst':
-            _rfocus = 'motorFirst'
-        _mv = [(_mtr2(b), b) for b in bo]
-        _mvv = [v for v, _b in _mv if v is not None]
-        if _rfocus == 'motorFirst' and (len(_mvv) < 4 or not mavg2):
-            _rfocus = 'gapFirst'   # モーターの数字が揃わない場は、比べる型に落とす
-
-        _dv1, _nn1 = tenji_dev(in1, _day)
-        _in1TenjiSlow = _dv1 is not None and _dv1 >= 0.03
-        _n1, _k1 = _top3(in1)
-        _in1Down = (_in1_rate or 0) >= 55 and _n1 >= 3 and _k1 * 2 < _n1
-
-        # 見立て（表層）に①の1コース1着率が出ているレースでは、展開で同じ数字を繰り返さない
-        _inDup = _in1_rate is not None and f"{round(_in1_rate)}%（" in headline
-
-        def _in1Line(name):
-            s = '' if _inDup else f"{name}は、{_in_num}。"
-            if _n1 >= 3:
-                s += f"{'ただ、' if _in1Down else ''}{'' if s else name + 'の'}今節は{_n1}走して、3着以内は{_k1}回。"
-            t = _tj(in1)
-            if t:
-                s += f"{t}。" if s else f"{name}の{t}。"
-            return s
-
+        # --- 展開の筋（記者文型：場特性→①〜したい〜だが→主役決まり手×場特性→死角）---
         tenkai = []
-        _tkReq = False
-        _look = []   # 展示で見る点（艇, 何を見るか）
-        if _in1TenjiSlow or _in1Down:
-            _look.append((f"①{_sei(in1)}", '直線'))
-        if _rfocus == 'collapseFirst':
-            tenkai.append(_in1Line(_full(in1)))
-            _ris = sorted([(g, b) for b in bo[1:] for g in [_rising(b)] if g], key=lambda x: (-x[0], int(x[1]['枠'])))[:2]
-            _locs = sorted([f(b['当地勝率']) for b in bo], reverse=True)
-            for _g, b in _ris:
-                _ca = _chakus(b)
-                cs = '、'.join(f"{c}着" if isinstance(c, int) else str(c) for c in _ca[-5:])
-                s = f"{_full(b)}は今節{len(_ca)}走。{'直近5走は' if len(_ca) > 5 else ''}{cs}の順。"
-                lc = f(b['当地勝率'])
-                if lc > 0 and len(_locs) > 1 and lc >= _locs[1]:
-                    s += f"{ba}での勝率は{lc:.2f}で、6艇中{_locs.index(lc) + 1}位。"
-                tenkai.append(s)
-                _tkReq = True
-            _cpx = _collapse.get(bo[0]['場コード']) or {}
-            _ksum = _cpx.get('kimariteSum') or {}
-            _pats = _cpx.get('patterns') or []
-            if _ksum and _pats and 1 <= (_pats[0].get('boat') or 0) <= len(bo):
-                _tp = _pats[0]
-                _tb = bo[_tp['boat'] - 1]
-                _ty = yarare.get(_tb['登録番号']) or {}
-                _tw = _ty.get('1着数')
-                _tnum = _ty.get('まくり数') if _tp['kimarite'] == 'まくり' else _ty.get('差し数') if _tp['kimarite'] == '差し' else None
-                if _tw and _tw >= 10 and _tnum is not None and _tb is not in1 and _tnum * 5 >= _tw:
-                    tenkai.append(f"{_full(_tb) if not any(b is _tb for _g, b in _ris) else _short(_tb)}は、{ba}で①が3着を外したときに最も多い形"
-                                  f"（{K[_tp['boat'] - 1]}の{_tp['kimarite']}・{round(_tp['pct'])}%）の艇番。1着{_tw}本のうち、{_tp['kimarite']}は{_tnum}本。")
-                    _tkReq = True
-            if len([x for x in tenkai if x]) <= 1:
-                _b4 = bo[head_w - 1] if (head_w and 2 <= head_w <= len(bo)) else bo[3]
-                tenkai.append(f"{_full(_b4)}（{_b4['級別']}）の全国勝率は{f(_b4['全国勝率']):.2f}、①{_sei(in1)}（{in1['級別']}）は{f(in1['全国勝率']):.2f}。")
-                _tkReq = True
-                _look.append((_short(_b4), 'スタート'))
-            _rv = _ris[0][1] if _ris else (bo[_pats[0]['boat'] - 1] if (_pats and 1 <= (_pats[0].get('boat') or 0) <= len(bo)) else None)
-            if _rv is not None and _rv is not in1 and any(_sei(_rv) in x for x in tenkai):
-                _look.append((_short(_rv), '行き足'))
-        elif _rfocus == 'motorFirst':
-            _ms = sorted([(v, b) for v, b in _mv if v is not None], key=lambda x: (-x[0], int(x[1]['枠'])))
-            _top = _ms[:2]
-            s = "モーター2連率は、" + "、".join(f"{_full(b)}{round(v)}%" for v, b in _top) + "が上位。"
-            _v1 = _mtr2(in1)
-            _in1Named = any(b is in1 for _v, b in _top)
-            if not _in1Named and _v1 is not None:
-                _cmp = 'と同じ' if round(_v1) == round(mavg2) else ('を上回る' if _v1 > mavg2 else 'を下回る')
-                s += f"{_full(in1)}は{round(_v1)}%で、6艇平均の{round(mavg2)}%{_cmp}。"
-                _in1Named = True
-            _low = [(v, b) for v, b in _ms[2:] if v < mavg2 - 10 and b is not in1]
-            if _low:
-                s += "、".join(f"{_full(b)}は{round(v)}%" for v, b in sorted(_low, key=lambda x: x[0])[:2]) + "。"
-            tenkai.append(s)
-            _tkReq = True
-            tenkai.append(_in1Line(_short(in1) if _in1Named else _full(in1)))
-            for _v, b in _top:
-                if b is in1:
-                    continue
-                s = _kimaTxt(b) + _setsuTxt(b)
-                t = _tj(b)
-                if t:
-                    s += f"{t}。"
-                if s:
-                    tenkai.append(f"{_short(b)}の{s}" if s.startswith('今節の展示') else f"{_short(b)}は、{s}")
-                _look.append((_short(b), '行き足'))
-        else:
-            _b4 = bo[3]
-            _n1a, _n4a = f(in1['全国勝率']), f(_b4['全国勝率'])
-            _l1a, _l4a = f(in1['当地勝率']), f(_b4['当地勝率'])
-            s = (f"{_full(in1)}（{in1['級別']}）と{_full(_b4)}（{_b4['級別']}）を比べる。"
-                 f"全国勝率は①{_n1a:.2f}、④{_n4a:.2f}。")
-            if _l1a > 0 and _l4a > 0:
-                s += f"{ba}での勝率は①{_l1a:.2f}、④{_l4a:.2f}。"
-            tenkai.append(s)
-            _tkReq = True
-            s4 = _kimaTxt(_b4) + _setsuTxt(_b4)
-            if int(_b4['F数']) >= 1:
-                s4 += f"F{int(_b4['F数'])}本を持っている。"
-            t4 = _tj(_b4)
-            if t4:
-                s4 += f"{t4}。"
-            s4 = (f"{_short(_b4)}の{s4}" if s4.startswith('今節の展示') else f"{_short(_b4)}は、{s4}") if s4 else ''
-            s1 = _in1Line(_short(in1))
-            _l = [s4, s1] if (_n4a + _l4a) > (_n1a + _l1a) else [s1, s4]
-            tenkai.extend([x for x in _l if x])
-            _look.append((_short(_b4), 'スタート'))
-        # 見立て（表層）に出ている数字だけでできた文は、展開で繰り返さない
-        _hn = set(re.findall(r'\d+\.\d\d|\d+%', headline))
+        # 〔場〕1行目に場特性（実装テーブルA①）
+        # 〔場特性〕2026-08-19 廃止。1場12レースが完全な同一文になり、今日の判断が変わらないため。
+        #   水面の傾向は /stadium/（24場特性）に常設。ここでは書かない。
+        # 〔天候〕締切時刻の風の事実を1行（表示だけ・結論は書かない）
+        wl_line = wind_line(bo[0]['場コード'], bo[0].get('締切時刻', ''))
+        if wl_line:
+            tenkai.append(wl_line)
 
-        def _dedupe(x):
-            out = []
-            for sen in [t for t in x.split('。') if t]:
-                ns = re.findall(r'\d+\.\d\d|\d+%', sen)
-                if ns and all(v in _hn for v in ns):
-                    continue
-                out.append(sen + '。')
-            return ''.join(out)
-        tenkai = [y for y in (_dedupe(x) for x in tenkai) if y]
-        if _look:
-            # 同じ見どころの艇はまとめる（「⑥数原と⑤上條の行き足」）
-            _lk = []
-            for _nm, _asp in _look[:3]:
-                if _lk and _lk[-1][1] == _asp:
-                    _lk[-1][0].append(_nm)
-                else:
-                    _lk.append(([_nm], _asp))
-            tenkai.append("展示では、" + "と".join(f"{'と'.join(a)}の{b}" for a, b in _lk) + "を見たい。")
-        tenkai_audit.append((_rfocus, _tkReq))
+        # 〔軸〕①を記者表現で（主語を必ず書く／実数を先、評価を後／短く切る）。
+        #   2026-08-19 改稿：主語の欠けた条件節（「先マイを許さなければ」等）を全廃した。
+        m1 = '機力は6艇中上位' if hi(mt[0]) else '機力は6艇中下位' if lo(mt[0]) else ('機力は6艇平均並み' if use_m and mt[0] > 0 else '')
+        in_f = int(in1['F数']) >= 1
+        _in_no = f"①{nm(in1['氏名'])}"
+        _in_num = (f"1コース1着率{round(_in1_rate)}%（{(_inrate.get(in1['登録番号']) or {}).get('inN')}走）"
+                   if _in1_rate is not None else f"当地{il:.2f}")
+        if in_strong:
+            if diff >= 0.30:
+                tenkai.append(f"{_in_no}は{in1['級別']}で{_in_num}。{('で'+m1)[1:] if m1 else '当地は全国を上回る'}。")
+            else:
+                tenkai.append(f"{_in_no}は{in1['級別']}で{_in_num}。②③が壁を作れば、①は主導権を譲りにくい。")
+        elif in_weak:
+            why = []
+            if not inA: why.append('格')
+            if il > 0 and il < ina: why.append('当地')
+            if in_lo: why.append('機力')
+            fnote = f"F{int(in1['F数'])}。" if in_f else ''
+            _upA = [K[int(b['枠'])-1] for b in bo[1:] if b['級別'] in ('A1', 'A2')]
+            _upS = ('・'.join(_upA) + 'がA級。') if _upA else ''
+            tenkai.append(f"{_in_no}は{in1['級別']}で{_in_num}。{_upS}{fnote}①に先マイを許さなければ、主導権は外へ。")
+        else:
+            tenkai.append(f"{_in_no}は{in1['級別']}で{_in_num}。①のスタートが決まれば逃げ。①が遅れれば、外に隙。")
 
         # 〔主役〕見出しの主役艇を先頭に、次点はST順（見出しと展開のズレを防ぐ）
         th_sorted = sorted(threats, key=lambda t: (t['st'] if t['st'] > 0 else 9, t['w']))
@@ -975,10 +851,74 @@ def main():
         LVRANK2 = {'A1': 4, 'A2': 3, 'B1': 2, 'B2': 1}
         boat_meta = {int(b['枠']): {'lvr': LVRANK2.get(b['級別'], 0), 'lv': b['級別'],
                                     'loc': f(b['当地勝率']), 'nm': nm(b['氏名'])} for b in bo}
+        head_w0 = th2[0]['w'] if th2 else None
+        for idx, t in enumerate(th2):
+            kt = kim_type(toban_by_w.get(t['w'], ''))
+            if t['w'] >= 4:
+                base_kim = 'まくり差し' if kt == 'sashi' else 'まくり'
+            else:
+                base_kim = '差し・まくり差し'
+            _tb = bo[t['w'] - 1]
+            _ty2 = yarare.get(_tb['登録番号'], {}) or {}
+            _tw = _ty2.get('1着数')
+            # 〔着眼点の2層決定〕第1層＝場のデフォルト、第2層＝そのレースの状態で上書き。
+            #   上書きは例外扱い。閾値30ptは3日分の実測から決めた（2026-08-22 確定）。
+            #   25ptでは荒れ場（collapseFirst）の上書きが27%に達し、戸田は12レース中9レースが
+            #   機力の話になって、その場らしい着眼点が半分つぶれていた。30ptで約18%に下がる。
+            #   もともと機力を主材料にする場（motorFirst）は上書きしても変わらないため対象外。
+            _mts = [b.get('_mtr', 0) for b in bo if b.get('_mtr', 0) > 0]
+            _mgap = (max(_mts) - min(_mts)) if len(_mts) >= 4 else 0
+            _focus = VENUE_FOCUS.get(ba, 'gapFirst')
+            if _mgap >= 30 and _focus != 'motorFirst':
+                _focus = 'motorFirst'
+            _tm = _tb.get('_mtr', 0) if use_m else 0
+            _num_key = 'まくり数' if t['w'] >= 4 else '差し数'
+            _num_lbl = 'まくり' if t['w'] >= 4 else '差し'
+            _nv = _ty2.get(_num_key)
+            _f_kim = f"1着{_tw}本のうち{_nv}本が{_num_lbl}" if (_tw and _tw >= 10 and _nv is not None) else None
+            _f_mtr = f"モーター2連率{round(_tm)}%（6艇平均{round(mavg2)}%）" if (_tm > 0 and mavg2) else None
+            _f_loc = f"当地{f(_tb['当地勝率']):.2f}"
+            _order = {'motorFirst':    [_f_mtr, _f_kim, _f_loc],
+                      'collapseFirst': [_f_kim, _f_mtr, _f_loc],
+                      'gapFirst':      [_f_loc, _f_kim, _f_mtr]}[_focus]
+            _facts = next(x for x in _order if x)
+            _st = f"、平均ST{_tb['平均ST']}" if t['st'] > 0 else ""
+            _bno = f"{K[t['w']-1]}{t['nm']}"
+            # 「対抗は」「も侮れない」は使わない。選んだ根拠（見立ての主役艇／平均ST順）の実数を事実文で置く。
+            if idx == 0:
+                tenkai.append(f"{_bno}は{_tb['級別']}で{_facts}{_st}。{K[t['w']-1]}のスタートが決まれば{base_kim}。")
+                # 実力上位でも今節機が下位なら、機力を材料に切り替えて一言
+                if t.get('mlo') and t.get('n2', 0) >= 35 and use_m:
+                    tenkai.append(f"ただ{K[t['w']-1]}は全国2連率{round(t['n2'])}%に対し、今節機は{round(_tm)}%。")
+            else:
+                pred2 = 'まくり差し' if t['w'] >= 4 else '差し'
+                tenkai.append(f"{_bno}は{_tb['級別']}で{_facts}{_st}。{K[t['w']-1]}は{pred2}から連に。")
+
+        # 修正1：主役より格上・当地上位の艇がいれば、主役でない理由を一言添える
+        mentioned_w = {t['w'] for t in th2}
+        if head_w0 is not None:
+            main_meta = boat_meta.get(head_w0, {})
+            # 明確な格上のみ：級が1段以上上、または同格で当地が1.0以上上（僅差では言わない）
+            # ※展開で既に言及した艇（二番手含む）は除外＝同一艇の二重言及バグ修正
+            supers = [w for w, mm in boat_meta.items() if w not in mentioned_w and w != 1 and (
+                mm['lvr'] > main_meta.get('lvr', 0) or
+                (mm['lvr'] == main_meta.get('lvr', 0) and mm['loc'] > main_meta.get('loc', 0) + 1.0))]
+            # 主役より級が下または同格なら「地力最上位」とは言わない
+            supers = [w for w in supers if boat_meta[w]['lvr'] >= main_meta.get('lvr', 0)]
+            if supers:
+                sw = sorted(supers, key=lambda w: (-boat_meta[w]['lvr'], -boat_meta[w]['loc']))[0]
+                sm = boat_meta[sw]
+                # A級のみ「地力最上位/上位」と表現。非A級は控えめに
+                if sm['lv'] in ('A1', 'A2'):
+                    if sw <= 3:
+                        tenkai.append(f"{K[sw-1]}{sm['nm']}は{sm['lv']}で地力最上位だが、内寄りで一撃の形を作りにくく、スタートの決まった主役に主導権を譲る形。")
+                    else:
+                        tenkai.append(f"{K[sw-1]}{sm['nm']}は{sm['lv']}で地力上位だが、進入位置で分があるのは主役側。")
+
         # 〔混戦の痩せ対策〕は 2026-09-11 に廃止（「相手は横一線」「展示の気配次第」等の実数の無い文を置かない）。
 
         # 〔死角〕必ず1つ（実装テーブルA④：F・級・機力から。同文を避け条件で散らす）
-        skw = None; sid = None
+        saten = None; skw = None; sid = None
         # f_out：カド勢(w>=4)のF持ち。A級を優先、カドF単独(5のみ/6のみ)は死角として弱く除外
         _fout_all = [t for t in threats if t['w'] >= 4 and int(bo[t['w']-1]['F数']) >= 1]
         # A級F艇を最内優先、次に非A級F艇を最内優先
@@ -999,14 +939,18 @@ def main():
         o4kt = kim_type(toban_by_w.get(o4top['w'], '')) if o4top else None
         if f_out:
             t = f_out[0]
+            saten = f"{K[t['w']-1]}{nm(bo[t['w']-1]['氏名'])}はF{bo[t['w']-1]['F数']}本。{K[t['w']-1]}のスタートが遅れれば、①が残る展開も。"
             skw = t['w']; sid = 'D1'
         elif f_in:
             fw = int(f_in[0]['枠'])
+            saten = f"{K[fw-1]}{nm(bo[fw-1]['氏名'])}はF{bo[fw-1]['F数']}本。{K[fw-1]}のスタートが遅れれば、①が残る展開も。"
             skw = fw; sid = 'D2'
         elif in_strong:
+            saten = f"①{nm(in1['氏名'])}が先マイを決めれば、そのまま押し切る形。"
             skw = 1; sid = 'D3'
         elif any(t['mhi'] for t in threats if t['w'] < 4):
             mb = next(t for t in threats if t['w'] < 4 and t['mhi'])
+            saten = f"{K[mb['w']-1]}{nm(bo[mb['w']-1]['氏名'])}はモーター2連率{round(bo[mb['w']-1]['_mtr'])}%（6艇平均{round(mavg2)}%）。{K[mb['w']-1]}は差し・まくり差しから連に。"
             skw = mb['w']; sid = 'D4'
         elif in_weak:
             # ①不安時の死角を、弱点理由×外主役の決まり手で分岐（同文回避）
@@ -1017,27 +961,37 @@ def main():
             if o4top and o4kt == 'makuri' and ba in NARROW:
                 # 死角艇は実際にまくる外脅威(o4top)に付け替え＝旧⑥ハードコード(絡み30%)は過剰。
                 # 実測：D5該当レースで6号艇3着内30.1%に対しo4top(多くは4号)は48.3%。文言も弱化。
+                saten = f"{K[o4top['w']-1]}{nm(bo[o4top['w']-1]['氏名'])}のまくりが決まれば、内の隊形は乱れる。"
                 skw = o4top['w']; sid = 'D5'
             elif o4top and o4kt == 'makuri':
+                saten = f"{K[o4top['w']-1]}{nm(bo[o4top['w']-1]['氏名'])}のまくりが決まれば、内の粘りごと連れ去る形。"
                 skw = o4top['w']; sid = 'D6'
             elif o4top and o4kt == 'sashi':
+                saten = f"{K[o4top['w']-1]}{nm(bo[o4top['w']-1]['氏名'])}の差しが甘くなれば、①{nm(in1['氏名'])}の粘り込みも。"
                 skw = 1; sid = 'D7'
             elif in_lo:
+                saten = f"①{nm(in1['氏名'])}のモーター2連率は{round(mt[0])}%（6艇平均{round(mavg2)}%）。"
                 skw = 1; sid = 'D8'
             elif '格' in wl and '当地' not in wl:
+                saten = f"①{nm(in1['氏名'])}は当地{il:.2f}で全国{ina:.2f}を上回る。"
                 skw = 1; sid = 'D9'
             elif '当地' in wl:
+                saten = f"①{nm(in1['氏名'])}は当地{il:.2f}。"
                 skw = 1; sid = 'D10'
             else:
+                saten = f"①{nm(in1['氏名'])}のスタートが五分なら、外の攻めは届きにくい。①が残る展開も。"
                 skw = 1; sid = 'D11'
         elif any(t['w'] >= 4 for t in threats):
             # 外の仕掛けを担う筆頭＝threatsのw>=4で最内の艇（実測：D12死角艇は内ほど絡む
             # 4号57.8%>5号42.9%>6号29.3%。最外選択は6号偏重で弱いため最内優先に変更）
             out_thr = sorted([t for t in threats if t['w'] >= 4], key=lambda x: x['w'])
+            saten = f"{K[out_thr[0]['w']-1]}{nm(bo[out_thr[0]['w']-1]['氏名'])}が仕掛ければ、隊形は乱れる。"
             skw = out_thr[0]['w']; sid = 'D12'
         else:
             # 内が壁を作る＝主役の①が残る想定。死角艇は①
+            saten = "②③が壁を作れば、隊形は内で収まる。"
             skw = 1; sid = 'D13'
+        tenkai.append(saten)
 
         # ①が崩れる時の「崩れ方」場別分布（当場・過去1年の実数。①着外レースの内訳）。※波及IDの分岐でも参照。
         #   確率/買い目/予想ではない。母数不足(patterns=null)の場は top=null。追加のみ・スコア非関与。
@@ -1094,12 +1048,12 @@ def main():
             _sas = _ks.get('差し', 0)
             _cn = (collapse or {}).get('n')
             _ctop = (collapse or {}).get('top') or {}
-            if downFactors['count'] == 0 and not _in1TenjiSlow:
+            if downFactors['count'] == 0:
                 suji = f"①{n1}に下振れの材料は出ていない。{ba}で①が3着以内を外したのは{_cp_rate}。"; fid = 'S10'
-            elif collapse and _rfocus != 'collapseFirst' and _mak >= 72 and _ctop.get('boat'):
+            elif collapse and _mak >= 72 and _ctop.get('boat'):
                 suji = (f"{ba}で①が着外に沈んだ{_cn}レースのうち、{_mak}%がまくり決着。差しは{_sas}%。"
                         f"{_cn}レースの中で最も多いのは{_ctop['boat']}号艇の{_ctop.get('kimarite', '')}（{_ctop.get('pct')}%）。"); fid = 'S8'
-            elif collapse and _rfocus != 'collapseFirst' and _sas >= 22:
+            elif collapse and _sas >= 22:
                 # 差しパターンは full patterns(上位5)から拾う（表示用top3にはまくりしか無い場があるため）。
                 _sp = next((p for p in ((_cp or {}).get('patterns') or []) if p.get('kimarite') == '差し'), None)
                 _spt = f"で、差しのうち最も多いのは{_sp['boat']}号艇の{_sp['pct']}%" if _sp else ""
@@ -1112,25 +1066,46 @@ def main():
         else:
             suji = f"②{n2b}が差し込めば、①{n1}は2着に残る形。{ba}で①が3着以内を外したのは{_cp_rate}。"; fid = 'S7'
 
-        # --- 締めのID（検証ログ用）。締めの文は展開の筋の中で書く ---
+        # --- 今節の展示（前日まで）。6艇平均との差が 0.03 秒以上ついた艇だけ、締めの前に1行置く。
+        #     閾値0.03は実測で決めた（2026-08-23・8/21の862艇で検証）。
+        #     3着内率は -0.05〜-0.03 の帯が63.7%、-0.03〜+0.03 が49.7%、+0.03〜+0.05 が39.6%で、
+        #     0.03 の時点で24ポイント差がついている。0.05 にすると効いている帯を捨てることになる。
+        #     ①に限った①着外率も 速い側15.6% / 中間28.4% で差が保たれる。
+        #     対象は①と対抗の2艇。本数は必ず併記する。6艇分は深層に出す。
+        _tj_cand = [(1, in1)]
+        if head_w and 1 <= head_w <= 6:
+            _tj_cand.append((head_w, bo[head_w - 1]))
+        _tj_hit = []
+        for _w, _b in _tj_cand:
+            _dv, _nn = tenji_dev(_b, bo[0].get('開催日', ''))
+            if _dv is not None and abs(_dv) >= 0.03:
+                _tj_hit.append(f"{K[_w-1]}{nm(_b['氏名'])}は今節の展示が6艇平均より"
+                               f"{abs(_dv):.2f}秒{'速い' if _dv < 0 else '遅い'}（{_nn}本）")
+        if _tj_hit:
+            tenkai.append('。'.join(_tj_hit) + '。')
+
+        # --- 締めの1行：展示で何を見るかを艇番で名指しする（定型の言い回しをやめた）---
+        _shw = (f"{K[head_w-1]}{boat_meta[head_w]['nm']}" if head_w and head_w in boat_meta
+                else (f"{K[threats[0]['w']-1]}{threats[0]['nm']}" if threats else '外'))
         if verdict == '堅め':
             if diff >= 0.30 and in_strong:
-                cid = 'C1'
+                shime = f"展示では、①{nm(in1['氏名'])}の直線と{_shw}の行き足を見たい。"; cid = 'C1'
             elif in_strong:
-                cid = 'C2'
+                shime = f"展示では、{_shw}のスタートと行き足を見たい。"; cid = 'C2'
             else:
                 # 数字は①寄りだが文面は主役を絞れていない：矛盾しない締めに落とす
-                cid = 'C6'
+                shime = f"展示では、①{nm(in1['氏名'])}の直線を見たい。"; cid = 'C6'
         elif verdict == '波乱':
             if in_weak:
-                cid = 'C3'
+                shime = f"展示では、{_shw}のスタートと①{nm(in1['氏名'])}の直線を見たい。"; cid = 'C3'
             else:
-                cid = 'C7'
+                shime = f"展示では、{_shw}の行き足を見たい。"; cid = 'C7'
         else:
             if hero == 4:
-                cid = 'C4'
+                shime = f"展示では、進入と{_shw}の行き足を見たい。"; cid = 'C4'
             else:
-                cid = 'C5'
+                shime = f"展示では、{_shw}のスタートを見たい。"; cid = 'C5'
+        tenkai.append(shime)
         # 見立て・展開・波及の各文は句点で終える（定型によって句点が欠けていたのを揃える）。
         headline = headline if headline.endswith('。') else headline + '。'
         tenkai = [s if s.endswith('。') else s + '。' for s in tenkai if s]
@@ -1238,7 +1213,6 @@ def main():
         return out_entry, pred_entry
 
     # 呼び出し：場×レース単位に例外を握って「取れた分だけ」蓄積。失敗はログ。
-    tenkai_audit = []   # (型, 必須の文が出たか)。_one の中で追記する
     failed = []
     for (ba, rc), bo in races.items():
         try:
@@ -1251,12 +1225,6 @@ def main():
         _out, _pred = _res
         out_races.append(_out)
         pred_list.append(_pred)
-    for _ft in ('collapseFirst', 'motorFirst', 'gapFirst'):
-        _xs = [ok for fo, ok in tenkai_audit if fo == _ft]
-        if _xs:
-            _rt = 100.0 * sum(_xs) / len(_xs)
-            print("TYPECHECK {}: 必須の文 {}/{}レース（{:.1f}%）{}".format(
-                _ft, sum(_xs), len(_xs), _rt, '' if _rt >= 95 else ' WARNING: 95%未満'))
     if failed:
         vs = sorted(set(ba for ba, _rc, _e in failed))
         print("部分成功: {}レースをスキップ（例外を握って継続）／該当場: {}".format(len(failed), '・'.join(vs)))
