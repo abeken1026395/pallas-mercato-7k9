@@ -519,45 +519,6 @@ def main():
         if sa >= 30 and sa >= mk + 8: return 'sashi'
         return None
 
-    # 天候（表示だけ：締切時刻に最も近い時刻の風をweather.jsonから引く。結論は書かない）
-    wjson = {}
-    try:
-        with open(WEATHER, encoding='utf-8') as wf:
-            wjson = json.load(wf).get('stadiums', {})
-    except Exception:
-        wjson = {}
-
-    def wind_line(jcd, hhmm):
-        """締切HH:MMに最も近い時刻の風の事実を1行返す。取れなければ空文字。"""
-        st = wjson.get(str(jcd).zfill(2))
-        if not st or not hhmm or ':' not in hhmm:
-            return ''
-        try:
-            target = int(hhmm.split(':')[0]) * 60 + int(hhmm.split(':')[1])
-        except Exception:
-            return ''
-        best = None; bd = 1e9
-        for h in st.get('hourly', []):
-            t = h.get('time', '')
-            if 'T' not in t:
-                continue
-            hm = t.split('T')[1][:5]
-            try:
-                cur = int(hm.split(':')[0]) * 60 + int(hm.split(':')[1])
-            except Exception:
-                continue
-            dd = abs(cur - target)
-            if dd < bd:
-                bd = dd; best = h
-        if not best:
-            return ''
-        wind = best.get('wind'); d = best.get('dir', ''); wx = best.get('wx', '')
-        if wind is None:
-            return ''
-        # 事実の描写のみ。有利不利の結論にも、穏やか・波立ちやすい等の解釈にも踏み込まない。
-        wxs = f"{wx}、" if wx and wx not in ('晴',) else ''
-        return f"当日は{wxs}{d}の風{wind:.0f}m。"
-
     races = defaultdict(list)
     for r in rac:
         races[(r['場名'], r['レース'])].append(r)
@@ -708,7 +669,6 @@ def main():
         # M14（①自身に崩れる材料が薄く、外に脅威）の構文分散。言い換えでなく主語・語順を変える。
         #   A=①主語／B=相手主語／C=①の1着率を出す(inWinRate有時)／D=①の機力を出す(機力上位帯時)。
         #   場内で直前2つと同じ型を避け、決定的に選ぶ（無ければA/B交互）。情報量も増える(C/D)。
-        _m14_hi = (use_m and bo[0]['_mtr'] > 0 and hi(mt[0]))
         _m14_mv = round(bo[0]['_mtr']) if (use_m and bo[0]['_mtr'] > 0) else None
         # ★見立ての基幹（2026-08-19 改稿）。構文ローテを廃止し、①の実数を必ず1つ置く。
         #   単独の数字を出さないため、全選手の中央値との差を同じ文に入れる（比較対象を同じ視野に）。
@@ -1217,7 +1177,7 @@ def main():
 
         boats = []
         for b in bo:
-            w = int(b['枠']); loc = f(b['当地勝率']); nat = f(b['全国勝率']); st = f(b['平均ST']); mv = b['_mtr']
+            w = int(b['枠']); loc = f(b['当地勝率']); nat = f(b['全国勝率']); st = f(b['平均ST'])
             _mno = (b.get('モーターNo') or '').strip() or None
             _m2 = f(b.get('モーター2連率'))
             _runs = motor_runs(b.get('モーター2連率'), b.get('モーター3連率'))
@@ -1245,6 +1205,7 @@ def main():
                 'まくり率': y.get('まくり率'), '差し率': y.get('差し率'),  # 追加:B案の事実併記用(null許容)
                 '1着数': y.get('1着数'), 'まくり数': y.get('まくり数'), '差し数': y.get('差し数'),  # 追加:母数/分母(null許容)
                 'inWinRate': (_inrate.get(b['登録番号']) or {}).get('rate'),  # 追加:①1着率(null許容)
+                'inN': (_inrate.get(b['登録番号']) or {}).get('inN'),  # 1コース1着率の分母。深層の走数はこれを使う
                 # 今節の展示タイム偏差（6艇平均との差・本数）。深層の一覧で6艇ぶん出す。
                 # 生の秒数は出さない。2本未満は偏差を出さず本数だけ返る。
                 '今節展示': (lambda _d, _n: {'偏差': _d, '本数': _n})(*tenji_dev(b, bo[0].get('開催日', ''))),
