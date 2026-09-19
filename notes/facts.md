@@ -570,6 +570,7 @@ URL変更時に直すファイル（L2の生き残り分）：
 |`mitateVerifyDesign.md`|検証ループの設計|`predictions/`・照合WF・荒れ指数を触る|
 |`mbraceDataMethod.md`|Kファイル取得（ローカル専用）|Kファイル収集・ローカルタスクを触る|
 |`kyoteiNicheResearch.md`|空白領域調査|新テーマの位置づけ確認。**外部調査は仮説扱い**|
+|`kenshoNeta/kenshoNetaLedger.md`|検証シリーズのネタ台帳|次の検証テーマを選ぶ。俗説20件の出典と測定可否・次点案・学術研究・当面やらないもの。**外部調査は仮説扱い**|
 |`archiveMemo20260813.md`|アーカイブ部|サイトが止まった／URLを変える／勝負駆け・コース別10走・モーター整備を実装する|
 
 `dokusyaThinkingModelV1archive.md` は旧版。参照しない。
