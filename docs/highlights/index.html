@@ -912,7 +912,7 @@ function downFactorHtml(r){
   const cp  = r['collapse']||{};
   const cmp = (it)=>{
     if(/1着率/.test(it) && base && base['中央値']!=null){
-      const nn = in1['イン数']!=null ? `・${in1['イン数']}走` : '';
+      const nn = in1['inN']!=null ? `・${in1['inN']}走` : '';
       return `<span class="df-cmp">全体の真ん中は${Math.round(base['中央値'])}%${nn}</span>`;
     }
     if(/モーター2連率/.test(it) && r['モーター場平均']!=null){
@@ -991,7 +991,7 @@ function inRateHtml(r){
   if(!base || base['中央値']==null) return '';
   const in1 = r && r['艇'] && r['艇'][0];
   if(!in1 || in1['inWinRate']==null) return '';
-  const nn = in1['イン数']!=null ? `${in1['イン数']}走` : '—';
+  const nn = in1['inN']!=null ? `${in1['inN']}走` : '—';
   return fold(`1コース1着率 ${Math.round(in1['inWinRate'])}%`, `（${nn}・過去1年）`,
       `<div class="inrate-fact">`
     + `<table class="ir-t"><tbody>`
