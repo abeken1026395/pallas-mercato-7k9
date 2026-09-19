@@ -31,6 +31,19 @@ function nextOshi(list,toban,name){
   if(hasOshi(list,toban)) return list.filter(function(o){ return o && String(o.toban)!==String(toban); });
   return [{toban:String(toban),name:name||""}].concat(list);  /* 出走表と同じ先頭追加 */
 }
+/* ===== 選手メモ（この端末のみ。キー br_memo ／ 形式 {toban:本文} ／ toban は文字列）
+   外部には送信しない。端末間の移行は書き出し・読み込み（文字列のコピー）で行う。 ===== */
+const MEMO_MAX = 500;
+function loadMemo(){ var o=lsGet("br_memo",{}); return (o&&typeof o==="object"&&!Array.isArray(o))?o:{}; }
+function hasMemo(m,toban){ var t=m[String(toban)]; return typeof t==="string" && t.trim()!==""; }
+function parseMemoImport(txt){
+  var j; try{ j=JSON.parse(String(txt).trim()); }catch(e){ return null; }
+  var src=(j&&j.v===1&&j.memo&&typeof j.memo==="object"&&!Array.isArray(j.memo))?j.memo:null;
+  if(!src) return null;
+  var out={};
+  Object.keys(src).forEach(function(k){ var v=src[k]; if(/^\d{4}$/.test(k)&&typeof v==="string"&&v.trim()!=="") out[k]=v.slice(0,MEMO_MAX); });
+  return out;
+}
 // 級別バッジ色（旧版踏襲: A1=赤系で目立たせる）
 const RANK_BADGE = { "A1":"#e5484d", "A2":"#4593e5", "B1":"#7d8da0", "B2":"#5a6878" };
 const RANK_LINE  = { "A1":"#e5484d", "A2":"#4593e5", "B1":"#7d8da0", "B2":"#3a4550" };
@@ -331,6 +344,30 @@ function App() {
   const [oshi, setOshi] = useState(loadOshi);
   const [oshiOnly, setOshiOnly] = useState(false);
   const toggleOshi = (toban, name) => { const nx = nextOshi(oshi, toban, name); setOshi(nx); lsSet("br_oshi", nx); };
+  const [memo, setMemo] = useState(loadMemo);
+  const [memoIO, setMemoIO] = useState("");
+  const [memoMsg, setMemoMsg] = useState("");
+  const saveMemo = (toban, text) => setMemo(prev => {
+    const nx = Object.assign({}, prev); const k = String(toban); const t = String(text).slice(0, MEMO_MAX);
+    if (t.trim()) nx[k] = t; else delete nx[k];
+    lsSet("br_memo", nx); return nx;
+  });
+  const memoCount = Object.keys(memo).filter(k => hasMemo(memo, k)).length;
+  const exportMemo = () => {
+    const txt = JSON.stringify({ v: 1, memo: memo });
+    setMemoIO(txt);
+    const ng = () => setMemoMsg("下の欄の文字列を全部選んでコピーしてください。");
+    try { navigator.clipboard.writeText(txt).then(() => setMemoMsg("コピーしました。移したい端末でこのページを開き、欄に貼り付けて「読み込む」を押してください。"), ng); } catch (e) { ng(); }
+  };
+  const importMemo = () => {
+    const got = parseMemoImport(memoIO);
+    if (!got) { setMemoMsg("読み込めませんでした。書き出した文字列を、欠けないように全部貼り付けてください。"); return; }
+    const n = Object.keys(got).length;
+    const dup = Object.keys(got).filter(k => hasMemo(memo, k)).length;
+    if (dup && !window.confirm("この端末にメモがある選手が" + dup + "名います。貼り付けた内容で上書きしますか。")) return;
+    setMemo(prev => { const nx = Object.assign({}, prev, got); lsSet("br_memo", nx); return nx; });
+    setMemoIO(""); setMemoMsg(n + "名分のメモを読み込みました。");
+  };
   // 一覧・検索・ソートに要る core を最初に取る。ここが揃うまで一覧は描けない。
   useEffect(()=>{
     fetch(CORE_URL).then(r=>r.ok?r.json():Promise.reject()).then(j=>{
@@ -563,6 +600,18 @@ function App() {
       </div>
 
       <div style={{fontSize:11,color:"#6b7f95",lineHeight:1.7,marginBottom:12,padding:"9px 11px",background:"#131e2a",border:"1px solid #1e2d3d",borderRadius:8}}>☆を押すと推しフォロー。フォローした選手は出走表の「⭐ 推しの本日」に出ます。フォローはこの端末にのみ保存され、外部には送信されません。</div>
+      <details style={{fontSize:12,color:"#8faabe",lineHeight:1.7,marginBottom:12,padding:"9px 11px",background:"#131e2a",border:"1px solid #1e2d3d",borderRadius:8}}>
+        <summary style={{cursor:"pointer",minHeight:24}}>📝 メモ {memoCount}名（書き出し・読み込み）</summary>
+        <div style={{marginTop:8}}>
+          <div style={{fontSize:11,color:"#6b7f95",marginBottom:8}}>メモは選手の詳細を開いて書けます。この端末のこのブラウザにだけ保存され、外部には送信されません。ブラウザのデータを消すと消えます。機種変更のときは、書き出した文字列を新しい端末で読み込んでください。</div>
+          <div style={{display:"flex",gap:8,marginBottom:8}}>
+            <button type="button" onClick={exportMemo} disabled={!memoCount} style={{padding:"8px 14px",fontSize:13,fontWeight:700,borderRadius:8,cursor:memoCount?"pointer":"default",border:"1px solid #2a3d52",background:"#162232",color:memoCount?"#e0e6ed":"#56607a"}}>書き出す</button>
+            <button type="button" onClick={importMemo} disabled={!memoIO.trim()} style={{padding:"8px 14px",fontSize:13,fontWeight:700,borderRadius:8,cursor:memoIO.trim()?"pointer":"default",border:"1px solid #2a3d52",background:"#162232",color:memoIO.trim()?"#e0e6ed":"#56607a"}}>読み込む</button>
+          </div>
+          <textarea value={memoIO} onChange={e=>{setMemoIO(e.target.value);setMemoMsg("");}} rows={3} aria-label="メモの書き出し・読み込み用の文字列" placeholder="書き出した文字列を貼り付け" style={{width:"100%",boxSizing:"border-box",padding:"8px 10px",background:"#0f1923",color:"#e0e6ed",border:"1px solid #1e2d3d",borderRadius:8,fontSize:16,fontFamily:"inherit",resize:"vertical"}}/>
+          {memoMsg && <div role="status" style={{fontSize:12,color:"#c5d2e0",marginTop:6}}>{memoMsg}</div>}
+        </div>
+      </details>
       {tab==="branch" && <BranchPanel bsort={bsort} setBsort={setBsort} kim={kim} players={players} hasDetail={!!detail} detailErr={detailErr} cstat={cstat} csMeta={csMeta}/>}
       <div style={{display:"flex",flexDirection:"column",gap:9}}>
         {tab!=="branch" && filtered.slice(0,300).map((p,idx)=>{
@@ -585,6 +634,7 @@ function App() {
                   <div style={{display:"flex",alignItems:"baseline",gap:8,flexWrap:"wrap"}}>
                     <span style={{fontSize:19,fontWeight:800,color:"#e8edf2"}}>{p.name}{p.female&&<span style={{color:"#ff7eb6",marginLeft:3,fontSize:15}}>♥</span>}</span>
                     <span style={{fontSize:13,color:"#6b7f95"}}>{p.branch}</span>
+                    {hasMemo(memo,p.no)&&<span role="img" aria-label="メモあり" title="メモあり" style={{fontSize:13,lineHeight:1}}>📝</span>}
                   </div>
                   {p.kana&&<div style={{fontSize:10,color:"#8aa0b4",marginTop:1}}>{p.kana}</div>}
                 </div>
@@ -606,6 +656,11 @@ function App() {
               {/* 展開：詳細 */}
               {isOpen && (
                 <div style={{padding:"0 16px 16px",borderTop:"1px solid #1a2535"}}>
+                  {/* 自分用メモ。detail の到着を待たずに書ける。カードの開閉を誘発しないよう伝播を止める */}
+                  <div onClick={e=>e.stopPropagation()} style={{margin:"12px 0"}}>
+                    <label htmlFor={"memo-"+p.no} style={{display:"block",fontSize:11,color:"#6b7f95",marginBottom:4}}>📝 自分用メモ（この端末にだけ保存・{MEMO_MAX}字まで）</label>
+                    <textarea id={"memo-"+p.no} value={memo[String(p.no)]||""} onChange={e=>saveMemo(p.no,e.target.value)} maxLength={MEMO_MAX} rows={3} style={{width:"100%",boxSizing:"border-box",padding:"8px 10px",background:"#162232",color:"#e0e6ed",border:"1px solid #2a3d52",borderRadius:8,fontSize:16,lineHeight:1.6,fontFamily:"inherit",resize:"vertical"}}/>
+                  </div>
                   {/* 基本情報・成績・コース別1着率は detail 側の項目。届くまでは
                       「-」や undefined を並べず、1行だけ状態を出す。 */}
                   {!detail ? (
