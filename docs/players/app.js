@@ -63,6 +63,33 @@ function nextOshi(list, toban, name) {
     name: name || ""
   }].concat(list); /* 出走表と同じ先頭追加 */
 }
+/* ===== 選手メモ（この端末のみ。キー br_memo ／ 形式 {toban:本文} ／ toban は文字列）
+   外部には送信しない。端末間の移行は書き出し・読み込み（文字列のコピー）で行う。 ===== */
+const MEMO_MAX = 500;
+function loadMemo() {
+  var o = lsGet("br_memo", {});
+  return o && typeof o === "object" && !Array.isArray(o) ? o : {};
+}
+function hasMemo(m, toban) {
+  var t = m[String(toban)];
+  return typeof t === "string" && t.trim() !== "";
+}
+function parseMemoImport(txt) {
+  var j;
+  try {
+    j = JSON.parse(String(txt).trim());
+  } catch (e) {
+    return null;
+  }
+  var src = j && j.v === 1 && j.memo && typeof j.memo === "object" && !Array.isArray(j.memo) ? j.memo : null;
+  if (!src) return null;
+  var out = {};
+  Object.keys(src).forEach(function (k) {
+    var v = src[k];
+    if (/^\d{4}$/.test(k) && typeof v === "string" && v.trim() !== "") out[k] = v.slice(0, MEMO_MAX);
+  });
+  return out;
+}
 // 級別バッジ色（旧版踏襲: A1=赤系で目立たせる）
 const RANK_BADGE = {
   "A1": "#e5484d",
@@ -787,6 +814,48 @@ function App() {
     setOshi(nx);
     lsSet("br_oshi", nx);
   };
+  const [memo, setMemo] = useState(loadMemo);
+  const [memoIO, setMemoIO] = useState("");
+  const [memoMsg, setMemoMsg] = useState("");
+  const saveMemo = (toban, text) => setMemo(prev => {
+    const nx = Object.assign({}, prev);
+    const k = String(toban);
+    const t = String(text).slice(0, MEMO_MAX);
+    if (t.trim()) nx[k] = t;else delete nx[k];
+    lsSet("br_memo", nx);
+    return nx;
+  });
+  const memoCount = Object.keys(memo).filter(k => hasMemo(memo, k)).length;
+  const exportMemo = () => {
+    const txt = JSON.stringify({
+      v: 1,
+      memo: memo
+    });
+    setMemoIO(txt);
+    const ng = () => setMemoMsg("下の欄の文字列を全部選んでコピーしてください。");
+    try {
+      navigator.clipboard.writeText(txt).then(() => setMemoMsg("コピーしました。移したい端末でこのページを開き、欄に貼り付けて「読み込む」を押してください。"), ng);
+    } catch (e) {
+      ng();
+    }
+  };
+  const importMemo = () => {
+    const got = parseMemoImport(memoIO);
+    if (!got) {
+      setMemoMsg("読み込めませんでした。書き出した文字列を、欠けないように全部貼り付けてください。");
+      return;
+    }
+    const n = Object.keys(got).length;
+    const dup = Object.keys(got).filter(k => hasMemo(memo, k)).length;
+    if (dup && !window.confirm("この端末にメモがある選手が" + dup + "名います。貼り付けた内容で上書きしますか。")) return;
+    setMemo(prev => {
+      const nx = Object.assign({}, prev, got);
+      lsSet("br_memo", nx);
+      return nx;
+    });
+    setMemoIO("");
+    setMemoMsg(n + "名分のメモを読み込みました。");
+  };
   // 一覧・検索・ソートに要る core を最初に取る。ここが揃うまで一覧は描けない。
   useEffect(() => {
     fetch(CORE_URL).then(r => r.ok ? r.json() : Promise.reject()).then(j => {
@@ -1298,7 +1367,95 @@ function App() {
       border: "1px solid #1e2d3d",
       borderRadius: 8
     }
-  }, "\u2606\u3092\u62BC\u3059\u3068\u63A8\u3057\u30D5\u30A9\u30ED\u30FC\u3002\u30D5\u30A9\u30ED\u30FC\u3057\u305F\u9078\u624B\u306F\u51FA\u8D70\u8868\u306E\u300C\u2B50 \u63A8\u3057\u306E\u672C\u65E5\u300D\u306B\u51FA\u307E\u3059\u3002\u30D5\u30A9\u30ED\u30FC\u306F\u3053\u306E\u7AEF\u672B\u306B\u306E\u307F\u4FDD\u5B58\u3055\u308C\u3001\u5916\u90E8\u306B\u306F\u9001\u4FE1\u3055\u308C\u307E\u305B\u3093\u3002"), tab === "branch" && /*#__PURE__*/React.createElement(BranchPanel, {
+  }, "\u2606\u3092\u62BC\u3059\u3068\u63A8\u3057\u30D5\u30A9\u30ED\u30FC\u3002\u30D5\u30A9\u30ED\u30FC\u3057\u305F\u9078\u624B\u306F\u51FA\u8D70\u8868\u306E\u300C\u2B50 \u63A8\u3057\u306E\u672C\u65E5\u300D\u306B\u51FA\u307E\u3059\u3002\u30D5\u30A9\u30ED\u30FC\u306F\u3053\u306E\u7AEF\u672B\u306B\u306E\u307F\u4FDD\u5B58\u3055\u308C\u3001\u5916\u90E8\u306B\u306F\u9001\u4FE1\u3055\u308C\u307E\u305B\u3093\u3002"), /*#__PURE__*/React.createElement("details", {
+    style: {
+      fontSize: 12,
+      color: "#8faabe",
+      lineHeight: 1.7,
+      marginBottom: 12,
+      padding: "9px 11px",
+      background: "#131e2a",
+      border: "1px solid #1e2d3d",
+      borderRadius: 8
+    }
+  }, /*#__PURE__*/React.createElement("summary", {
+    style: {
+      cursor: "pointer",
+      minHeight: 24
+    }
+  }, "\uD83D\uDCDD \u30E1\u30E2 ", memoCount, "\u540D\uFF08\u66F8\u304D\u51FA\u3057\u30FB\u8AAD\u307F\u8FBC\u307F\uFF09"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 8
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "#6b7f95",
+      marginBottom: 8
+    }
+  }, "\u30E1\u30E2\u306F\u9078\u624B\u306E\u8A73\u7D30\u3092\u958B\u3044\u3066\u66F8\u3051\u307E\u3059\u3002\u3053\u306E\u7AEF\u672B\u306E\u3053\u306E\u30D6\u30E9\u30A6\u30B6\u306B\u3060\u3051\u4FDD\u5B58\u3055\u308C\u3001\u5916\u90E8\u306B\u306F\u9001\u4FE1\u3055\u308C\u307E\u305B\u3093\u3002\u30D6\u30E9\u30A6\u30B6\u306E\u30C7\u30FC\u30BF\u3092\u6D88\u3059\u3068\u6D88\u3048\u307E\u3059\u3002\u6A5F\u7A2E\u5909\u66F4\u306E\u3068\u304D\u306F\u3001\u66F8\u304D\u51FA\u3057\u305F\u6587\u5B57\u5217\u3092\u65B0\u3057\u3044\u7AEF\u672B\u3067\u8AAD\u307F\u8FBC\u3093\u3067\u304F\u3060\u3055\u3044\u3002"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      marginBottom: 8
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: exportMemo,
+    disabled: !memoCount,
+    style: {
+      padding: "8px 14px",
+      fontSize: 13,
+      fontWeight: 700,
+      borderRadius: 8,
+      cursor: memoCount ? "pointer" : "default",
+      border: "1px solid #2a3d52",
+      background: "#162232",
+      color: memoCount ? "#e0e6ed" : "#56607a"
+    }
+  }, "\u66F8\u304D\u51FA\u3059"), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: importMemo,
+    disabled: !memoIO.trim(),
+    style: {
+      padding: "8px 14px",
+      fontSize: 13,
+      fontWeight: 700,
+      borderRadius: 8,
+      cursor: memoIO.trim() ? "pointer" : "default",
+      border: "1px solid #2a3d52",
+      background: "#162232",
+      color: memoIO.trim() ? "#e0e6ed" : "#56607a"
+    }
+  }, "\u8AAD\u307F\u8FBC\u3080")), /*#__PURE__*/React.createElement("textarea", {
+    value: memoIO,
+    onChange: e => {
+      setMemoIO(e.target.value);
+      setMemoMsg("");
+    },
+    rows: 3,
+    "aria-label": "\u30E1\u30E2\u306E\u66F8\u304D\u51FA\u3057\u30FB\u8AAD\u307F\u8FBC\u307F\u7528\u306E\u6587\u5B57\u5217",
+    placeholder: "\u66F8\u304D\u51FA\u3057\u305F\u6587\u5B57\u5217\u3092\u8CBC\u308A\u4ED8\u3051",
+    style: {
+      width: "100%",
+      boxSizing: "border-box",
+      padding: "8px 10px",
+      background: "#0f1923",
+      color: "#e0e6ed",
+      border: "1px solid #1e2d3d",
+      borderRadius: 8,
+      fontSize: 16,
+      fontFamily: "inherit",
+      resize: "vertical"
+    }
+  }), memoMsg && /*#__PURE__*/React.createElement("div", {
+    role: "status",
+    style: {
+      fontSize: 12,
+      color: "#c5d2e0",
+      marginTop: 6
+    }
+  }, memoMsg))), tab === "branch" && /*#__PURE__*/React.createElement(BranchPanel, {
     bsort: bsort,
     setBsort: setBsort,
     kim: kim,
@@ -1439,7 +1596,15 @@ function App() {
         fontSize: 13,
         color: "#6b7f95"
       }
-    }, p.branch)), p.kana && /*#__PURE__*/React.createElement("div", {
+    }, p.branch), hasMemo(memo, p.no) && /*#__PURE__*/React.createElement("span", {
+      role: "img",
+      "aria-label": "\u30E1\u30E2\u3042\u308A",
+      title: "\u30E1\u30E2\u3042\u308A",
+      style: {
+        fontSize: 13,
+        lineHeight: 1
+      }
+    }, "\uD83D\uDCDD")), p.kana && /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 10,
         color: "#8aa0b4",
@@ -1498,7 +1663,39 @@ function App() {
         padding: "0 16px 16px",
         borderTop: "1px solid #1a2535"
       }
-    }, !detail ? /*#__PURE__*/React.createElement("div", {
+    }, /*#__PURE__*/React.createElement("div", {
+      onClick: e => e.stopPropagation(),
+      style: {
+        margin: "12px 0"
+      }
+    }, /*#__PURE__*/React.createElement("label", {
+      htmlFor: "memo-" + p.no,
+      style: {
+        display: "block",
+        fontSize: 11,
+        color: "#6b7f95",
+        marginBottom: 4
+      }
+    }, "\uD83D\uDCDD \u81EA\u5206\u7528\u30E1\u30E2\uFF08\u3053\u306E\u7AEF\u672B\u306B\u3060\u3051\u4FDD\u5B58\u30FB", MEMO_MAX, "\u5B57\u307E\u3067\uFF09"), /*#__PURE__*/React.createElement("textarea", {
+      id: "memo-" + p.no,
+      value: memo[String(p.no)] || "",
+      onChange: e => saveMemo(p.no, e.target.value),
+      maxLength: MEMO_MAX,
+      rows: 3,
+      style: {
+        width: "100%",
+        boxSizing: "border-box",
+        padding: "8px 10px",
+        background: "#162232",
+        color: "#e0e6ed",
+        border: "1px solid #2a3d52",
+        borderRadius: 8,
+        fontSize: 16,
+        lineHeight: 1.6,
+        fontFamily: "inherit",
+        resize: "vertical"
+      }
+    })), !detail ? /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 11,
         color: "#6b7f95",
