@@ -1,0 +1,1311 @@
+{
+  "meta": {
+    "periodFrom": "2025-07-22",
+    "periodTo": "2026-07-21",
+    "method": "Bファイルのレース時点のモーター2連率で、上位2艇とその他の3着以内率を進入コース別に比べた",
+    "source": {
+      "bfiles": "b250722.lzh から b260721.lzh（365ファイル・332568行）",
+      "kdata": "kdata/entriesFull.csv（328176行）"
+    },
+    "generated": "2026-09-20T01:27:24+09:00",
+    "rowsUsed": 305104,
+    "rowsExcluded": 4268,
+    "racesExcludedNewMotor": 3134,
+    "validation": {
+      "12": {
+        "n": 14328,
+        "r": 1.0,
+        "exactRate": 100.0,
+        "tobanRate": 100.0
+      },
+      "13": {
+        "n": 11808,
+        "r": 1.0,
+        "exactRate": 100.0,
+        "tobanRate": 100.0
+      },
+      "22": {
+        "n": 14319,
+        "r": 1.0,
+        "exactRate": 100.0,
+        "tobanRate": 100.0,
+        "excludedRows": 9,
+        "excludedReason": "bRecoverThree.csv の値の欠け（100.00 が 00.00）。Bファイル原文を正とした"
+      }
+    }
+  },
+  "venues": {
+    "01": {
+      "name": "桐生",
+      "n": 13312,
+      "excluded": 176,
+      "racesUsed": 2248,
+      "effectPt": 6.6,
+      "effectPtFirstHalf": 6.9,
+      "effectPtSecondHalf": 6.4,
+      "byCourse": {
+        "1": {
+          "topN": 768,
+          "topTop3Rate": 80.6,
+          "restN": 1462,
+          "restTop3Rate": 77.0,
+          "diffPt": 3.6
+        },
+        "2": {
+          "topN": 764,
+          "topTop3Rate": 59.4,
+          "restN": 1469,
+          "restTop3Rate": 52.4,
+          "diffPt": 7.0
+        },
+        "3": {
+          "topN": 742,
+          "topTop3Rate": 60.1,
+          "restN": 1478,
+          "restTop3Rate": 53.0,
+          "diffPt": 7.1
+        },
+        "4": {
+          "topN": 717,
+          "topTop3Rate": 53.6,
+          "restN": 1505,
+          "restTop3Rate": 45.0,
+          "diffPt": 8.5
+        },
+        "5": {
+          "topN": 684,
+          "topTop3Rate": 48.8,
+          "restN": 1530,
+          "restTop3Rate": 40.9,
+          "diffPt": 7.9
+        },
+        "6": {
+          "topN": 759,
+          "topTop3Rate": 27.5,
+          "restN": 1434,
+          "restTop3Rate": 22.0,
+          "diffPt": 5.6
+        }
+      }
+    },
+    "02": {
+      "name": "戸田",
+      "n": 12429,
+      "excluded": 177,
+      "racesUsed": 2101,
+      "effectPt": 3.5,
+      "effectPtFirstHalf": 5.2,
+      "effectPtSecondHalf": 1.8,
+      "byCourse": {
+        "1": {
+          "topN": 715,
+          "topTop3Rate": 75.0,
+          "restN": 1361,
+          "restTop3Rate": 72.5,
+          "diffPt": 2.4
+        },
+        "2": {
+          "topN": 703,
+          "topTop3Rate": 60.5,
+          "restN": 1371,
+          "restTop3Rate": 56.4,
+          "diffPt": 4.1
+        },
+        "3": {
+          "topN": 686,
+          "topTop3Rate": 59.9,
+          "restN": 1387,
+          "restTop3Rate": 53.1,
+          "diffPt": 6.8
+        },
+        "4": {
+          "topN": 723,
+          "topTop3Rate": 53.5,
+          "restN": 1357,
+          "restTop3Rate": 49.6,
+          "diffPt": 3.9
+        },
+        "5": {
+          "topN": 678,
+          "topTop3Rate": 43.8,
+          "restN": 1394,
+          "restTop3Rate": 41.7,
+          "diffPt": 2.1
+        },
+        "6": {
+          "topN": 654,
+          "topTop3Rate": 25.2,
+          "restN": 1400,
+          "restTop3Rate": 23.6,
+          "diffPt": 1.7
+        }
+      }
+    },
+    "03": {
+      "name": "江戸川",
+      "n": 11659,
+      "excluded": 263,
+      "racesUsed": 1987,
+      "effectPt": 5.5,
+      "effectPtFirstHalf": 6.7,
+      "effectPtSecondHalf": 4.1,
+      "byCourse": {
+        "1": {
+          "topN": 676,
+          "topTop3Rate": 82.0,
+          "restN": 1270,
+          "restTop3Rate": 76.9,
+          "diffPt": 5.1
+        },
+        "2": {
+          "topN": 670,
+          "topTop3Rate": 65.1,
+          "restN": 1283,
+          "restTop3Rate": 57.6,
+          "diffPt": 7.5
+        },
+        "3": {
+          "topN": 603,
+          "topTop3Rate": 57.7,
+          "restN": 1335,
+          "restTop3Rate": 55.3,
+          "diffPt": 2.4
+        },
+        "4": {
+          "topN": 637,
+          "topTop3Rate": 50.5,
+          "restN": 1325,
+          "restTop3Rate": 42.2,
+          "diffPt": 8.4
+        },
+        "5": {
+          "topN": 629,
+          "topTop3Rate": 42.1,
+          "restN": 1318,
+          "restTop3Rate": 38.2,
+          "diffPt": 4.0
+        },
+        "6": {
+          "topN": 669,
+          "topTop3Rate": 30.8,
+          "restN": 1244,
+          "restTop3Rate": 25.0,
+          "diffPt": 5.8
+        }
+      }
+    },
+    "04": {
+      "name": "平和島",
+      "n": 10841,
+      "excluded": 163,
+      "racesUsed": 1834,
+      "effectPt": 6.1,
+      "effectPtFirstHalf": 6.6,
+      "effectPtSecondHalf": 5.6,
+      "byCourse": {
+        "1": {
+          "topN": 631,
+          "topTop3Rate": 80.2,
+          "restN": 1172,
+          "restTop3Rate": 75.6,
+          "diffPt": 4.6
+        },
+        "2": {
+          "topN": 606,
+          "topTop3Rate": 63.2,
+          "restN": 1211,
+          "restTop3Rate": 57.1,
+          "diffPt": 6.1
+        },
+        "3": {
+          "topN": 611,
+          "topTop3Rate": 58.4,
+          "restN": 1194,
+          "restTop3Rate": 52.2,
+          "diffPt": 6.3
+        },
+        "4": {
+          "topN": 619,
+          "topTop3Rate": 53.2,
+          "restN": 1195,
+          "restTop3Rate": 47.9,
+          "diffPt": 5.3
+        },
+        "5": {
+          "topN": 619,
+          "topTop3Rate": 43.3,
+          "restN": 1191,
+          "restTop3Rate": 34.3,
+          "diffPt": 9.0
+        },
+        "6": {
+          "topN": 533,
+          "topTop3Rate": 30.2,
+          "restN": 1259,
+          "restTop3Rate": 25.0,
+          "diffPt": 5.2
+        }
+      }
+    },
+    "05": {
+      "name": "多摩川",
+      "n": 12741,
+      "excluded": 153,
+      "racesUsed": 2149,
+      "effectPt": 5.2,
+      "effectPtFirstHalf": 8.0,
+      "effectPtSecondHalf": 1.9,
+      "byCourse": {
+        "1": {
+          "topN": 735,
+          "topTop3Rate": 84.4,
+          "restN": 1399,
+          "restTop3Rate": 78.8,
+          "diffPt": 5.6
+        },
+        "2": {
+          "topN": 711,
+          "topTop3Rate": 60.9,
+          "restN": 1420,
+          "restTop3Rate": 55.6,
+          "diffPt": 5.3
+        },
+        "3": {
+          "topN": 708,
+          "topTop3Rate": 58.2,
+          "restN": 1422,
+          "restTop3Rate": 52.7,
+          "diffPt": 5.5
+        },
+        "4": {
+          "topN": 726,
+          "topTop3Rate": 52.2,
+          "restN": 1397,
+          "restTop3Rate": 45.7,
+          "diffPt": 6.5
+        },
+        "5": {
+          "topN": 668,
+          "topTop3Rate": 41.6,
+          "restN": 1456,
+          "restTop3Rate": 36.8,
+          "diffPt": 4.8
+        },
+        "6": {
+          "topN": 698,
+          "topTop3Rate": 26.8,
+          "restN": 1401,
+          "restTop3Rate": 23.1,
+          "diffPt": 3.7
+        }
+      }
+    },
+    "06": {
+      "name": "浜名湖",
+      "n": 13918,
+      "excluded": 170,
+      "racesUsed": 2348,
+      "effectPt": 5.9,
+      "effectPtFirstHalf": 5.6,
+      "effectPtSecondHalf": 6.1,
+      "byCourse": {
+        "1": {
+          "topN": 794,
+          "topTop3Rate": 83.8,
+          "restN": 1531,
+          "restTop3Rate": 79.3,
+          "diffPt": 4.5
+        },
+        "2": {
+          "topN": 805,
+          "topTop3Rate": 58.6,
+          "restN": 1519,
+          "restTop3Rate": 56.8,
+          "diffPt": 1.8
+        },
+        "3": {
+          "topN": 784,
+          "topTop3Rate": 63.6,
+          "restN": 1531,
+          "restTop3Rate": 53.0,
+          "diffPt": 10.7
+        },
+        "4": {
+          "topN": 778,
+          "topTop3Rate": 51.2,
+          "restN": 1551,
+          "restTop3Rate": 43.2,
+          "diffPt": 8.0
+        },
+        "5": {
+          "topN": 780,
+          "topTop3Rate": 44.6,
+          "restN": 1549,
+          "restTop3Rate": 39.7,
+          "diffPt": 4.9
+        },
+        "6": {
+          "topN": 711,
+          "topTop3Rate": 25.2,
+          "restN": 1585,
+          "restTop3Rate": 19.6,
+          "diffPt": 5.6
+        }
+      }
+    },
+    "07": {
+      "name": "蒲郡",
+      "n": 13210,
+      "excluded": 206,
+      "racesUsed": 2236,
+      "effectPt": 5.1,
+      "effectPtFirstHalf": 5.3,
+      "effectPtSecondHalf": 4.9,
+      "byCourse": {
+        "1": {
+          "topN": 756,
+          "topTop3Rate": 85.2,
+          "restN": 1462,
+          "restTop3Rate": 82.7,
+          "diffPt": 2.5
+        },
+        "2": {
+          "topN": 721,
+          "topTop3Rate": 62.7,
+          "restN": 1492,
+          "restTop3Rate": 55.8,
+          "diffPt": 6.9
+        },
+        "3": {
+          "topN": 720,
+          "topTop3Rate": 57.9,
+          "restN": 1483,
+          "restTop3Rate": 53.9,
+          "diffPt": 4.0
+        },
+        "4": {
+          "topN": 757,
+          "topTop3Rate": 53.9,
+          "restN": 1450,
+          "restTop3Rate": 47.9,
+          "diffPt": 6.0
+        },
+        "5": {
+          "topN": 750,
+          "topTop3Rate": 41.7,
+          "restN": 1444,
+          "restTop3Rate": 36.1,
+          "diffPt": 5.7
+        },
+        "6": {
+          "topN": 698,
+          "topTop3Rate": 22.6,
+          "restN": 1477,
+          "restTop3Rate": 17.3,
+          "diffPt": 5.3
+        }
+      }
+    },
+    "08": {
+      "name": "常滑",
+      "n": 14005,
+      "excluded": 143,
+      "racesUsed": 2358,
+      "effectPt": 5.7,
+      "effectPtFirstHalf": 6.3,
+      "effectPtSecondHalf": 5.2,
+      "byCourse": {
+        "1": {
+          "topN": 771,
+          "topTop3Rate": 86.0,
+          "restN": 1562,
+          "restTop3Rate": 80.2,
+          "diffPt": 5.8
+        },
+        "2": {
+          "topN": 742,
+          "topTop3Rate": 60.0,
+          "restN": 1602,
+          "restTop3Rate": 54.6,
+          "diffPt": 5.4
+        },
+        "3": {
+          "topN": 800,
+          "topTop3Rate": 58.4,
+          "restN": 1539,
+          "restTop3Rate": 51.1,
+          "diffPt": 7.2
+        },
+        "4": {
+          "topN": 793,
+          "topTop3Rate": 54.1,
+          "restN": 1544,
+          "restTop3Rate": 46.8,
+          "diffPt": 7.3
+        },
+        "5": {
+          "topN": 773,
+          "topTop3Rate": 42.2,
+          "restN": 1563,
+          "restTop3Rate": 38.0,
+          "diffPt": 4.2
+        },
+        "6": {
+          "topN": 799,
+          "topTop3Rate": 25.0,
+          "restN": 1517,
+          "restTop3Rate": 20.6,
+          "diffPt": 4.4
+        }
+      }
+    },
+    "09": {
+      "name": "津",
+      "n": 12647,
+      "excluded": 163,
+      "racesUsed": 2135,
+      "effectPt": 4.6,
+      "effectPtFirstHalf": 7.3,
+      "effectPtSecondHalf": 1.3,
+      "byCourse": {
+        "1": {
+          "topN": 722,
+          "topTop3Rate": 85.3,
+          "restN": 1397,
+          "restTop3Rate": 81.2,
+          "diffPt": 4.1
+        },
+        "2": {
+          "topN": 686,
+          "topTop3Rate": 61.7,
+          "restN": 1425,
+          "restTop3Rate": 57.7,
+          "diffPt": 4.0
+        },
+        "3": {
+          "topN": 685,
+          "topTop3Rate": 55.6,
+          "restN": 1428,
+          "restTop3Rate": 52.1,
+          "diffPt": 3.5
+        },
+        "4": {
+          "topN": 695,
+          "topTop3Rate": 51.7,
+          "restN": 1415,
+          "restTop3Rate": 47.1,
+          "diffPt": 4.6
+        },
+        "5": {
+          "topN": 706,
+          "topTop3Rate": 41.1,
+          "restN": 1400,
+          "restTop3Rate": 35.9,
+          "diffPt": 5.1
+        },
+        "6": {
+          "topN": 724,
+          "topTop3Rate": 26.2,
+          "restN": 1364,
+          "restTop3Rate": 20.2,
+          "diffPt": 6.1
+        }
+      }
+    },
+    "10": {
+      "name": "三国",
+      "n": 12477,
+      "excluded": 153,
+      "racesUsed": 2105,
+      "effectPt": 3.0,
+      "effectPtFirstHalf": 1.1,
+      "effectPtSecondHalf": 5.0,
+      "byCourse": {
+        "1": {
+          "topN": 717,
+          "topTop3Rate": 82.6,
+          "restN": 1361,
+          "restTop3Rate": 78.5,
+          "diffPt": 4.1
+        },
+        "2": {
+          "topN": 671,
+          "topTop3Rate": 61.7,
+          "restN": 1419,
+          "restTop3Rate": 56.6,
+          "diffPt": 5.1
+        },
+        "3": {
+          "topN": 697,
+          "topTop3Rate": 54.2,
+          "restN": 1388,
+          "restTop3Rate": 57.1,
+          "diffPt": -2.9
+        },
+        "4": {
+          "topN": 732,
+          "topTop3Rate": 49.7,
+          "restN": 1349,
+          "restTop3Rate": 47.2,
+          "diffPt": 2.5
+        },
+        "5": {
+          "topN": 680,
+          "topTop3Rate": 40.7,
+          "restN": 1398,
+          "restTop3Rate": 36.1,
+          "diffPt": 4.7
+        },
+        "6": {
+          "topN": 656,
+          "topTop3Rate": 26.7,
+          "restN": 1409,
+          "restTop3Rate": 22.1,
+          "diffPt": 4.5
+        }
+      }
+    },
+    "11": {
+      "name": "びわこ",
+      "n": 12911,
+      "excluded": 169,
+      "racesUsed": 2180,
+      "effectPt": 3.3,
+      "effectPtFirstHalf": 5.7,
+      "effectPtSecondHalf": 0.5,
+      "byCourse": {
+        "1": {
+          "topN": 719,
+          "topTop3Rate": 82.9,
+          "restN": 1431,
+          "restTop3Rate": 80.5,
+          "diffPt": 2.4
+        },
+        "2": {
+          "topN": 723,
+          "topTop3Rate": 59.1,
+          "restN": 1441,
+          "restTop3Rate": 56.4,
+          "diffPt": 2.6
+        },
+        "3": {
+          "topN": 699,
+          "topTop3Rate": 59.7,
+          "restN": 1452,
+          "restTop3Rate": 54.6,
+          "diffPt": 5.0
+        },
+        "4": {
+          "topN": 706,
+          "topTop3Rate": 50.3,
+          "restN": 1458,
+          "restTop3Rate": 45.1,
+          "diffPt": 5.2
+        },
+        "5": {
+          "topN": 731,
+          "topTop3Rate": 39.5,
+          "restN": 1418,
+          "restTop3Rate": 36.9,
+          "diffPt": 2.7
+        },
+        "6": {
+          "topN": 722,
+          "topTop3Rate": 25.3,
+          "restN": 1411,
+          "restTop3Rate": 23.8,
+          "diffPt": 1.5
+        }
+      }
+    },
+    "12": {
+      "name": "住之江",
+      "n": 13395,
+      "excluded": 195,
+      "racesUsed": 2265,
+      "effectPt": 3.7,
+      "effectPtFirstHalf": 2.0,
+      "effectPtSecondHalf": 6.0,
+      "byCourse": {
+        "1": {
+          "topN": 784,
+          "topTop3Rate": 84.3,
+          "restN": 1457,
+          "restTop3Rate": 83.3,
+          "diffPt": 1.1
+        },
+        "2": {
+          "topN": 761,
+          "topTop3Rate": 59.8,
+          "restN": 1479,
+          "restTop3Rate": 57.3,
+          "diffPt": 2.5
+        },
+        "3": {
+          "topN": 761,
+          "topTop3Rate": 58.0,
+          "restN": 1475,
+          "restTop3Rate": 54.7,
+          "diffPt": 3.2
+        },
+        "4": {
+          "topN": 723,
+          "topTop3Rate": 50.2,
+          "restN": 1516,
+          "restTop3Rate": 45.4,
+          "diffPt": 4.8
+        },
+        "5": {
+          "topN": 740,
+          "topTop3Rate": 40.7,
+          "restN": 1490,
+          "restTop3Rate": 33.5,
+          "diffPt": 7.2
+        },
+        "6": {
+          "topN": 698,
+          "topTop3Rate": 25.6,
+          "restN": 1511,
+          "restTop3Rate": 22.2,
+          "diffPt": 3.4
+        }
+      }
+    },
+    "13": {
+      "name": "尼崎",
+      "n": 10668,
+      "excluded": 162,
+      "racesUsed": 1805,
+      "effectPt": 4.9,
+      "effectPtFirstHalf": 7.1,
+      "effectPtSecondHalf": 3.7,
+      "byCourse": {
+        "1": {
+          "topN": 613,
+          "topTop3Rate": 86.3,
+          "restN": 1179,
+          "restTop3Rate": 84.2,
+          "diffPt": 2.1
+        },
+        "2": {
+          "topN": 604,
+          "topTop3Rate": 57.9,
+          "restN": 1174,
+          "restTop3Rate": 53.7,
+          "diffPt": 4.2
+        },
+        "3": {
+          "topN": 598,
+          "topTop3Rate": 57.4,
+          "restN": 1179,
+          "restTop3Rate": 52.1,
+          "diffPt": 5.3
+        },
+        "4": {
+          "topN": 587,
+          "topTop3Rate": 53.0,
+          "restN": 1197,
+          "restTop3Rate": 48.7,
+          "diffPt": 4.3
+        },
+        "5": {
+          "topN": 605,
+          "topTop3Rate": 44.6,
+          "restN": 1171,
+          "restTop3Rate": 35.9,
+          "diffPt": 8.8
+        },
+        "6": {
+          "topN": 556,
+          "topTop3Rate": 24.3,
+          "restN": 1205,
+          "restTop3Rate": 19.3,
+          "diffPt": 4.9
+        }
+      }
+    },
+    "14": {
+      "name": "鳴門",
+      "n": 11930,
+      "excluded": 202,
+      "racesUsed": 2022,
+      "effectPt": 5.2,
+      "effectPtFirstHalf": 4.8,
+      "effectPtSecondHalf": 5.7,
+      "byCourse": {
+        "1": {
+          "topN": 680,
+          "topTop3Rate": 81.5,
+          "restN": 1313,
+          "restTop3Rate": 73.9,
+          "diffPt": 7.6
+        },
+        "2": {
+          "topN": 668,
+          "topTop3Rate": 60.8,
+          "restN": 1318,
+          "restTop3Rate": 56.2,
+          "diffPt": 4.6
+        },
+        "3": {
+          "topN": 677,
+          "topTop3Rate": 57.6,
+          "restN": 1317,
+          "restTop3Rate": 53.9,
+          "diffPt": 3.7
+        },
+        "4": {
+          "topN": 658,
+          "topTop3Rate": 55.2,
+          "restN": 1342,
+          "restTop3Rate": 49.1,
+          "diffPt": 6.1
+        },
+        "5": {
+          "topN": 664,
+          "topTop3Rate": 39.6,
+          "restN": 1328,
+          "restTop3Rate": 38.0,
+          "diffPt": 1.7
+        },
+        "6": {
+          "topN": 625,
+          "topTop3Rate": 30.9,
+          "restN": 1340,
+          "restTop3Rate": 23.5,
+          "diffPt": 7.4
+        }
+      }
+    },
+    "15": {
+      "name": "丸亀",
+      "n": 13183,
+      "excluded": 197,
+      "racesUsed": 2230,
+      "effectPt": 5.3,
+      "effectPtFirstHalf": 6.1,
+      "effectPtSecondHalf": 4.4,
+      "byCourse": {
+        "1": {
+          "topN": 767,
+          "topTop3Rate": 86.3,
+          "restN": 1431,
+          "restTop3Rate": 80.3,
+          "diffPt": 6.0
+        },
+        "2": {
+          "topN": 698,
+          "topTop3Rate": 62.2,
+          "restN": 1506,
+          "restTop3Rate": 56.3,
+          "diffPt": 5.9
+        },
+        "3": {
+          "topN": 743,
+          "topTop3Rate": 58.3,
+          "restN": 1462,
+          "restTop3Rate": 50.1,
+          "diffPt": 8.1
+        },
+        "4": {
+          "topN": 785,
+          "topTop3Rate": 52.0,
+          "restN": 1422,
+          "restTop3Rate": 47.7,
+          "diffPt": 4.2
+        },
+        "5": {
+          "topN": 703,
+          "topTop3Rate": 40.7,
+          "restN": 1495,
+          "restTop3Rate": 34.0,
+          "diffPt": 6.7
+        },
+        "6": {
+          "topN": 690,
+          "topTop3Rate": 25.7,
+          "restN": 1481,
+          "restTop3Rate": 24.8,
+          "diffPt": 0.9
+        }
+      }
+    },
+    "16": {
+      "name": "児島",
+      "n": 12345,
+      "excluded": 135,
+      "racesUsed": 2080,
+      "effectPt": 3.9,
+      "effectPtFirstHalf": 5.8,
+      "effectPtSecondHalf": 2.9,
+      "byCourse": {
+        "1": {
+          "topN": 724,
+          "topTop3Rate": 86.5,
+          "restN": 1339,
+          "restTop3Rate": 81.3,
+          "diffPt": 5.2
+        },
+        "2": {
+          "topN": 669,
+          "topTop3Rate": 58.6,
+          "restN": 1387,
+          "restTop3Rate": 53.4,
+          "diffPt": 5.2
+        },
+        "3": {
+          "topN": 692,
+          "topTop3Rate": 56.9,
+          "restN": 1370,
+          "restTop3Rate": 50.4,
+          "diffPt": 6.6
+        },
+        "4": {
+          "topN": 695,
+          "topTop3Rate": 48.1,
+          "restN": 1367,
+          "restTop3Rate": 49.2,
+          "diffPt": -1.2
+        },
+        "5": {
+          "topN": 695,
+          "topTop3Rate": 40.7,
+          "restN": 1365,
+          "restTop3Rate": 37.5,
+          "diffPt": 3.2
+        },
+        "6": {
+          "topN": 645,
+          "topTop3Rate": 27.9,
+          "restN": 1397,
+          "restTop3Rate": 23.3,
+          "diffPt": 4.6
+        }
+      }
+    },
+    "17": {
+      "name": "宮島",
+      "n": 13424,
+      "excluded": 226,
+      "racesUsed": 2275,
+      "effectPt": 4.8,
+      "effectPtFirstHalf": 2.6,
+      "effectPtSecondHalf": 6.8,
+      "byCourse": {
+        "1": {
+          "topN": 788,
+          "topTop3Rate": 86.0,
+          "restN": 1458,
+          "restTop3Rate": 80.7,
+          "diffPt": 5.4
+        },
+        "2": {
+          "topN": 750,
+          "topTop3Rate": 62.5,
+          "restN": 1493,
+          "restTop3Rate": 56.4,
+          "diffPt": 6.1
+        },
+        "3": {
+          "topN": 759,
+          "topTop3Rate": 61.7,
+          "restN": 1485,
+          "restTop3Rate": 55.9,
+          "diffPt": 5.8
+        },
+        "4": {
+          "topN": 743,
+          "topTop3Rate": 49.8,
+          "restN": 1502,
+          "restTop3Rate": 45.1,
+          "diffPt": 4.7
+        },
+        "5": {
+          "topN": 718,
+          "topTop3Rate": 42.6,
+          "restN": 1514,
+          "restTop3Rate": 36.2,
+          "diffPt": 6.4
+        },
+        "6": {
+          "topN": 723,
+          "topTop3Rate": 21.0,
+          "restN": 1491,
+          "restTop3Rate": 20.5,
+          "diffPt": 0.5
+        }
+      }
+    },
+    "18": {
+      "name": "徳山",
+      "n": 13649,
+      "excluded": 151,
+      "racesUsed": 2300,
+      "effectPt": 5.8,
+      "effectPtFirstHalf": 6.2,
+      "effectPtSecondHalf": 5.4,
+      "byCourse": {
+        "1": {
+          "topN": 788,
+          "topTop3Rate": 89.2,
+          "restN": 1497,
+          "restTop3Rate": 85.4,
+          "diffPt": 3.8
+        },
+        "2": {
+          "topN": 763,
+          "topTop3Rate": 62.8,
+          "restN": 1521,
+          "restTop3Rate": 57.8,
+          "diffPt": 5.0
+        },
+        "3": {
+          "topN": 778,
+          "topTop3Rate": 59.9,
+          "restN": 1500,
+          "restTop3Rate": 52.2,
+          "diffPt": 7.7
+        },
+        "4": {
+          "topN": 754,
+          "topTop3Rate": 53.3,
+          "restN": 1517,
+          "restTop3Rate": 45.1,
+          "diffPt": 8.2
+        },
+        "5": {
+          "topN": 740,
+          "topTop3Rate": 38.4,
+          "restN": 1533,
+          "restTop3Rate": 33.7,
+          "diffPt": 4.7
+        },
+        "6": {
+          "topN": 732,
+          "topTop3Rate": 22.7,
+          "restN": 1526,
+          "restTop3Rate": 17.0,
+          "diffPt": 5.6
+        }
+      }
+    },
+    "19": {
+      "name": "下関",
+      "n": 11892,
+      "excluded": 138,
+      "racesUsed": 2005,
+      "effectPt": 6.0,
+      "effectPtFirstHalf": 6.6,
+      "effectPtSecondHalf": 5.1,
+      "byCourse": {
+        "1": {
+          "topN": 669,
+          "topTop3Rate": 88.3,
+          "restN": 1323,
+          "restTop3Rate": 85.9,
+          "diffPt": 2.5
+        },
+        "2": {
+          "topN": 653,
+          "topTop3Rate": 61.4,
+          "restN": 1338,
+          "restTop3Rate": 54.7,
+          "diffPt": 6.7
+        },
+        "3": {
+          "topN": 677,
+          "topTop3Rate": 64.4,
+          "restN": 1301,
+          "restTop3Rate": 54.7,
+          "diffPt": 9.8
+        },
+        "4": {
+          "topN": 675,
+          "topTop3Rate": 48.9,
+          "restN": 1315,
+          "restTop3Rate": 44.8,
+          "diffPt": 4.1
+        },
+        "5": {
+          "topN": 662,
+          "topTop3Rate": 38.8,
+          "restN": 1332,
+          "restTop3Rate": 32.7,
+          "diffPt": 6.2
+        },
+        "6": {
+          "topN": 617,
+          "topTop3Rate": 25.0,
+          "restN": 1330,
+          "restTop3Rate": 18.3,
+          "diffPt": 6.7
+        }
+      }
+    },
+    "20": {
+      "name": "若松",
+      "n": 12585,
+      "excluded": 153,
+      "racesUsed": 2123,
+      "effectPt": 6.2,
+      "effectPtFirstHalf": 9.2,
+      "effectPtSecondHalf": 3.4,
+      "byCourse": {
+        "1": {
+          "topN": 714,
+          "topTop3Rate": 87.4,
+          "restN": 1390,
+          "restTop3Rate": 83.3,
+          "diffPt": 4.1
+        },
+        "2": {
+          "topN": 694,
+          "topTop3Rate": 65.6,
+          "restN": 1407,
+          "restTop3Rate": 55.3,
+          "diffPt": 10.3
+        },
+        "3": {
+          "topN": 718,
+          "topTop3Rate": 58.6,
+          "restN": 1389,
+          "restTop3Rate": 53.9,
+          "diffPt": 4.7
+        },
+        "4": {
+          "topN": 710,
+          "topTop3Rate": 49.9,
+          "restN": 1387,
+          "restTop3Rate": 45.1,
+          "diffPt": 4.7
+        },
+        "5": {
+          "topN": 701,
+          "topTop3Rate": 39.5,
+          "restN": 1398,
+          "restTop3Rate": 32.5,
+          "diffPt": 7.0
+        },
+        "6": {
+          "topN": 660,
+          "topTop3Rate": 27.0,
+          "restN": 1417,
+          "restTop3Rate": 20.7,
+          "diffPt": 6.2
+        }
+      }
+    },
+    "21": {
+      "name": "芦屋",
+      "n": 13335,
+      "excluded": 231,
+      "racesUsed": 2261,
+      "effectPt": 5.9,
+      "effectPtFirstHalf": 5.5,
+      "effectPtSecondHalf": 6.4,
+      "byCourse": {
+        "1": {
+          "topN": 739,
+          "topTop3Rate": 86.3,
+          "restN": 1495,
+          "restTop3Rate": 84.1,
+          "diffPt": 2.2
+        },
+        "2": {
+          "topN": 717,
+          "topTop3Rate": 59.6,
+          "restN": 1510,
+          "restTop3Rate": 51.9,
+          "diffPt": 7.7
+        },
+        "3": {
+          "topN": 727,
+          "topTop3Rate": 61.3,
+          "restN": 1494,
+          "restTop3Rate": 50.5,
+          "diffPt": 10.9
+        },
+        "4": {
+          "topN": 771,
+          "topTop3Rate": 51.0,
+          "restN": 1455,
+          "restTop3Rate": 47.1,
+          "diffPt": 3.8
+        },
+        "5": {
+          "topN": 740,
+          "topTop3Rate": 46.2,
+          "restN": 1485,
+          "restTop3Rate": 38.2,
+          "diffPt": 8.0
+        },
+        "6": {
+          "topN": 753,
+          "topTop3Rate": 23.9,
+          "restN": 1449,
+          "restTop3Rate": 21.0,
+          "diffPt": 2.9
+        }
+      }
+    },
+    "22": {
+      "name": "福岡",
+      "n": 13264,
+      "excluded": 188,
+      "racesUsed": 2242,
+      "effectPt": 3.4,
+      "effectPtFirstHalf": 2.9,
+      "effectPtSecondHalf": 4.2,
+      "byCourse": {
+        "1": {
+          "topN": 759,
+          "topTop3Rate": 84.7,
+          "restN": 1461,
+          "restTop3Rate": 82.9,
+          "diffPt": 1.8
+        },
+        "2": {
+          "topN": 738,
+          "topTop3Rate": 64.5,
+          "restN": 1477,
+          "restTop3Rate": 60.1,
+          "diffPt": 4.4
+        },
+        "3": {
+          "topN": 700,
+          "topTop3Rate": 60.3,
+          "restN": 1514,
+          "restTop3Rate": 56.9,
+          "diffPt": 3.4
+        },
+        "4": {
+          "topN": 719,
+          "topTop3Rate": 48.7,
+          "restN": 1492,
+          "restTop3Rate": 46.4,
+          "diffPt": 2.2
+        },
+        "5": {
+          "topN": 737,
+          "topTop3Rate": 40.8,
+          "restN": 1477,
+          "restTop3Rate": 35.4,
+          "diffPt": 5.4
+        },
+        "6": {
+          "topN": 763,
+          "topTop3Rate": 18.2,
+          "restN": 1427,
+          "restTop3Rate": 15.1,
+          "diffPt": 3.2
+        }
+      }
+    },
+    "23": {
+      "name": "唐津",
+      "n": 11724,
+      "excluded": 162,
+      "racesUsed": 1981,
+      "effectPt": 3.0,
+      "effectPtFirstHalf": 4.3,
+      "effectPtSecondHalf": 2.3,
+      "byCourse": {
+        "1": {
+          "topN": 666,
+          "topTop3Rate": 84.7,
+          "restN": 1292,
+          "restTop3Rate": 83.1,
+          "diffPt": 1.6
+        },
+        "2": {
+          "topN": 663,
+          "topTop3Rate": 64.6,
+          "restN": 1301,
+          "restTop3Rate": 59.3,
+          "diffPt": 5.3
+        },
+        "3": {
+          "topN": 673,
+          "topTop3Rate": 59.0,
+          "restN": 1289,
+          "restTop3Rate": 55.4,
+          "diffPt": 3.6
+        },
+        "4": {
+          "topN": 644,
+          "topTop3Rate": 49.1,
+          "restN": 1311,
+          "restTop3Rate": 46.3,
+          "diffPt": 2.8
+        },
+        "5": {
+          "topN": 621,
+          "topTop3Rate": 38.8,
+          "restN": 1326,
+          "restTop3Rate": 36.3,
+          "diffPt": 2.5
+        },
+        "6": {
+          "topN": 636,
+          "topTop3Rate": 19.7,
+          "restN": 1302,
+          "restTop3Rate": 17.2,
+          "diffPt": 2.4
+        }
+      }
+    },
+    "24": {
+      "name": "大村",
+      "n": 13560,
+      "excluded": 192,
+      "racesUsed": 2292,
+      "effectPt": 6.1,
+      "effectPtFirstHalf": 3.0,
+      "effectPtSecondHalf": 10.0,
+      "byCourse": {
+        "1": {
+          "topN": 773,
+          "topTop3Rate": 90.4,
+          "restN": 1499,
+          "restTop3Rate": 85.4,
+          "diffPt": 5.0
+        },
+        "2": {
+          "topN": 753,
+          "topTop3Rate": 60.8,
+          "restN": 1512,
+          "restTop3Rate": 56.5,
+          "diffPt": 4.3
+        },
+        "3": {
+          "topN": 723,
+          "topTop3Rate": 60.9,
+          "restN": 1538,
+          "restTop3Rate": 55.4,
+          "diffPt": 5.5
+        },
+        "4": {
+          "topN": 743,
+          "topTop3Rate": 51.7,
+          "restN": 1510,
+          "restTop3Rate": 40.3,
+          "diffPt": 11.4
+        },
+        "5": {
+          "topN": 756,
+          "topTop3Rate": 39.9,
+          "restN": 1505,
+          "restTop3Rate": 34.2,
+          "diffPt": 5.7
+        },
+        "6": {
+          "topN": 767,
+          "topTop3Rate": 24.5,
+          "restN": 1481,
+          "restTop3Rate": 19.8,
+          "diffPt": 4.7
+        }
+      }
+    }
+  }
+}
