@@ -196,6 +196,13 @@ fetch('../data/kansenki/glossary.json?_='+Date.now())
     document.getElementById('total').innerHTML=`収録語数　<b>${ITEMS.length}</b>語`;
     buildKindTabs();
     buildRowTabs();
+    const qp=new URLSearchParams(location.search).get('q');
+    if(qp){
+      let q0=qp;
+      try{ q0=decodeURIComponent(qp); }catch(e){}
+      q0=q0.trim();
+      if(q0){ state.q=q0; document.getElementById('q').value=q0; }
+    }
     render();
   })
   .catch(()=>{
