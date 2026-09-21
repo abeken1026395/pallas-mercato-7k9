@@ -473,7 +473,7 @@ function App() {
       if(j && j.cells && Array.isArray(j.base)) setWst(j); else setWst(false);
     }).catch(()=>{ setWst(false); });
   },[open]);
-  // ■ スタート節の「枠別に見る」。wakuST に居ない選手は折りたたみごと出さない
+  // ■ スタート節の「枠別平均ST」。wakuST に居ない選手は折りたたみごと出さない
   const WST_PER = [["2m","2ヶ月"],["3m","3ヶ月"],["6m","半年"],["1y","1年"],["2y","2年"]];
   const wakuStBox = (no)=>{
     if(!wst) return null;
@@ -486,7 +486,7 @@ function App() {
     return (
       <details onClick={e=>e.stopPropagation()} style={{marginTop:6}}>
         <summary onClick={e=>e.stopPropagation()} style={{fontSize:12,color:"#8faabe",cursor:"pointer",minHeight:44,display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,listStyle:"none",background:"#0b1219",border:"1px solid #1a2535",borderRadius:8,padding:"0 12px"}}>
-          <span>枠別に見る</span>
+          <span>枠別平均ST</span>
           <span style={{color:"#6b7f95",fontSize:12}}>▸</span>
         </summary>
         <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:8}}>
