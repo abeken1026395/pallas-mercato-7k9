@@ -1241,7 +1241,7 @@ def main():
     kaisai = rac[0]['開催日'] if rac else ''
 
     # ---- モーター新替の検出・記録 ----
-    # 節初日に場の全行がモーター2連率 0 かつボート2連率 0 なら、実績のない新品と見なす。
+    # 節初日に場の全行がモーター2連率 0 なら、実績のない新品と見なす（ボートは別に入れ替わるので条件にしない）。
     # 個別の 0% は「未走」と「走ったが連対なし」を区別できないので、場単位の全滞のみ採用する。
     motor_replace = {}
     try:
@@ -1257,8 +1257,6 @@ def main():
         if not _rs or _rs[0].get('日目') != '初日':
             continue
         if any(f(_x.get('モーター2連率')) != 0 for _x in _rs):
-            continue
-        if any(f(_x.get('ボート2連率')) != 0 for _x in _rs):
             continue
         _hd = _rs[0].get('開催日', '')
         if not _hd or (motor_replace.get(_ba) or {}).get('新替日') == _hd:
