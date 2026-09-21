@@ -650,9 +650,16 @@ def main():
         _in1_rate = (_inrate.get(bo[0]['登録番号']) or {}).get('rate')
         if _in1_rate is not None and _in1_rate < 15:
             _df_items.append("①の1着率 {}%".format(_in1_rate))
-        _in1_mtr = bo[0]['_mtr'] if (use_m and bo[0]['_mtr'] > 0) else None
+        # ①の機力は、艇の「機」表示と同じ出走表の値で判定する（走数が10走未満と読める値は判定しない）
+        _m1c = f(bo[0].get('モーター2連率'))
+        _m1r = motor_runs(bo[0].get('モーター2連率'), bo[0].get('モーター3連率'))
+        _in1_mtr = _m1c if (use_m and _m1c > 0 and (_m1r is None or _m1r >= MOTOR_MIN_RUNS)) else None
         if _in1_mtr is not None and _in1_mtr < 25:
             _df_items.append("①のモーター2連率 {}%".format(round(_in1_mtr, 1)))
+        # ①の今節の展示が6艇平均より0.03秒以上遅い（閾値は PR #274 の実測で決めた展示の1行と同じ）
+        _dv1, _nn1 = tenji_dev(bo[0], bo[0].get('開催日', ''))
+        if _dv1 is not None and _dv1 >= 0.03:
+            _df_items.append("①の今節の展示 6艇平均より{:.2f}秒遅い（{}本）".format(_dv1, _nn1))
         if bo[0]['場コード'] in _DOWN_VENUES:
             _df_items.append("当場は①着外率20%以上（{}）".format(ba))
         downFactors = {'count': len(_df_items), 'items': _df_items}
