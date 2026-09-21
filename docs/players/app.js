@@ -1063,7 +1063,7 @@ function App() {
       setWst(false);
     });
   }, [open]);
-  // ■ スタート節の「枠別に見る」。wakuST に居ない選手は折りたたみごと出さない
+  // ■ スタート節の「枠別平均ST」。wakuST に居ない選手は折りたたみごと出さない
   const WST_PER = [["2m", "2ヶ月"], ["3m", "3ヶ月"], ["6m", "半年"], ["1y", "1年"], ["2y", "2年"]];
   const wakuStBox = no => {
     if (!wst) return null;
@@ -1107,7 +1107,7 @@ function App() {
         borderRadius: 8,
         padding: "0 12px"
       }
-    }, /*#__PURE__*/React.createElement("span", null, "\u67A0\u5225\u306B\u898B\u308B"), /*#__PURE__*/React.createElement("span", {
+    }, /*#__PURE__*/React.createElement("span", null, "\u67A0\u5225\u5E73\u5747ST"), /*#__PURE__*/React.createElement("span", {
       style: {
         color: "#6b7f95",
         fontSize: 12
