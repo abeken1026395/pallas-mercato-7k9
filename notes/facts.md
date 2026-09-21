@@ -564,16 +564,17 @@ URL変更時に直すファイル（L2の生き残り分）：
 |`mitateJissoTable.md`|見立ての出し分け|**正本はリポジトリの `notes/mitateJissoTable.md`（2026-09-19 移設）。Drive 版は凍結・参照しない**|
 |`dokusyaThinkingModel.md`（v4・21,395B）|**どう読ませるか**|`/kensho/` の読み物本文。**★コア8 とぼけ・★コア9 感情曲線を含む**|
 |`columnCraftLessons.md`|コラム執筆の実務|同上。とくに「構図を思いついた時点がいちばん危ない」|
-|`kenshoCraftLessons.md`|検証05で確立した執筆7フェーズ・文の数値基準・とぼけ・感情曲線|/kensho/ の検証記事を書くとき。**`dokusyaThinkingModel.md` と併せて必ず読む**|
+|`kensho/kenshoKata.md`|**検証の唯一の正本**（ネタ選びから予約公開まで。検証07で確立）|/kensho/ に触るとき。**全文を読み、章末の鍵13個を章の順に読了行へ書く。Codeへの支給物の先頭にも書き、ローカルCodeが本文と照合する**。旧 `kenshoCraftLessons.md` は統合済みで `kensho/archiveKenshoCraftLessons20260921.md` に改名・凍結|
 |`webCraftModel.md`|**どう届けるか**|表示・図・パフォーマンス設計|
 |`funeThinkingModel.md`|**どう賭けるか**|**けん本人向けの買い目・展示前予想（非公開・リポジトリに入れない）**|
 |`mitateVerifyDesign.md`|検証ループの設計|`predictions/`・照合WF・荒れ指数を触る|
 |`mbraceDataMethod.md`|Kファイル取得（ローカル専用）|Kファイル収集・ローカルタスクを触る|
 |`kyoteiNicheResearch.md`|空白領域調査|新テーマの位置づけ確認。**外部調査は仮説扱い**|
-|`kenshoNeta/kenshoNetaLedger.md`|検証シリーズのネタ台帳|次の検証テーマを選ぶ。俗説20件の出典と測定可否・次点案・学術研究・当面やらないもの。**外部調査は仮説扱い**|
+|`kensho/kenshoNetaLedger.md`|検証シリーズのネタ台帳|次の検証テーマを選ぶ。俗説20件の出典と測定可否・次点案・学術研究・当面やらないもの。**外部調査は仮説扱い**|
 |`archiveMemo20260813.md`|アーカイブ部|サイトが止まった／URLを変える／勝負駆け・コース別10走・モーター整備を実装する|
 
 `dokusyaThinkingModelV1archive.md` は旧版。参照しない。
+検証まわりは `データ攻め\kensho\`（フォルダID `11LYJq60hI4-pUHfYrPcwJxC5C30m4kYQ`）。
 **プロジェクト常駐は保証されない。**無ければDriveから読む。**けんに添付を頼まない。**
 
 ---
