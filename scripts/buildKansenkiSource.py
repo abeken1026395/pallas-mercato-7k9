@@ -79,7 +79,8 @@ SERIES_NOTE = [
     ("クイーンズクライマックス", "女子の年間王者決定戦"),
     ("オールスター", "ファン投票によるSG"),
     ("グランプリ", "賞金上位によるSG年間王者決定戦"),
-    ("ダービー", "全国ボートレース地区対抗ではないSG王座戦"),
+    # 「ダービー」の素朴な部分一致は一般戦（例: 絶好調者三国ダービー）をSGと誤付与するため正式名で照合する。
+    ("ボートレースダービー", "SGの全日本選手権"),
 ]
 
 MAN_TH = 10000    # 万舟（三連単配当>10000, payoutsページと統一）
@@ -427,37 +428,141 @@ def build_focus_racer(row, jcd, kimarite_map, profile, motor2avg):
     }
 
 
-def pick_focus_tobans(jcd, venue_rows, score_rank, results_venue, csv_hd8, results_date8):
-    """focusRacers対象登番を機械抽出（3〜5名）。得点率上位3＋地元勢最上位＋前日万舟1着艇。
-    重複は詰める。素材が薄い場合は少数でよい。"""
+MOTOR_USAGE_JSON = os.path.join(ROOT, "docs", "data", "motorUsage.json")
+
+# focusRacers の上限と、機力ズレの抽出基準（2026-09-22 裁定・基準A）。
+# 母集団はその場の当日出走者（登番で重複を除く）。順位は降順で1位が最上。
+FOCUS_MAX = 6
+GAP_MOTOR_TOP = 0.10   # 機力（通算2連率）上位10%
+GAP_WIN_LOW = 0.25     # 全国勝率 下位25%
+GAP_MIN_RUNS = 30      # motorUsage の走数が分かっていて30未満の機は外す（新替直後の揺れ）
+
+
+def load_motor_usage():
+    """motorUsage.json の motors（キー '場コード_機番'）。無ければ空dict。"""
+    d = load_json(MOTOR_USAGE_JSON) or {}
+    m = d.get("motors")
+    return m if isinstance(m, dict) else {}
+
+
+def _entrants(venue_rows):
+    """当日出走者を登番で1人1行にまとめる（出走表は1レース1行のため同一選手が複数行ある）。"""
+    out = {}
+    for r in venue_rows:
+        tb = str(r.get("登録番号", "")).strip()
+        if tb and tb not in out:
+            out[tb] = r
+    return out
+
+
+def gap_candidates(jcd, venue_rows, motor_usage):
+    """機力ズレ（基準A）。戻り: {'hiMotor': [...], 'loMotor': [...]}、各要素は
+    (toban, gap dict)。hiMotor＝機力上位10%かつ全国勝率下位25%、loMotor＝その逆。
+    順位の母数(n)は機力・勝率がともに取れる当日出走者の数。"""
+    ent = _entrants(venue_rows)
+    L = []
+    for tb, r in ent.items():
+        mv = to_float(r.get("モーター2連率"))
+        wv = to_float(r.get("全国勝率"))
+        # 通算2連率0.0は新替直後で未走の機を含む（kansenkiRules §2.4）。順位の母集団に入れない。
+        if mv is None or wv is None or mv <= 0:
+            continue
+        mno = to_int(r.get("モーターNo"))
+        mu = motor_usage.get("{}_{}".format(jcd, mno)) if mno is not None else None
+        runs = to_int(mu.get("走")) if isinstance(mu, dict) else None
+        L.append((tb, mv, wv, runs))
+    n = len(L)
+    res = {"hiMotor": [], "loMotor": []}
+    if n == 0:
+        return res
+    by_m = sorted(L, key=lambda x: (-x[1], x[0]))
+    by_w = sorted(L, key=lambda x: (-x[2], x[0]))
+    mr = {x[0]: i + 1 for i, x in enumerate(by_m)}
+    wr = {x[0]: i + 1 for i, x in enumerate(by_w)}
+    for tb, mv, wv, runs in by_m:
+        if runs is not None and runs < GAP_MIN_RUNS:
+            continue
+        gap = {"motorRank": mr[tb], "winRank": wr[tb], "n": n, "motorRuns": runs,
+               "basis": "当日出走者{}人の中の順位（通算2連率・全国勝率）".format(n)}
+        if mr[tb] <= n * GAP_MOTOR_TOP and wr[tb] > n * (1 - GAP_WIN_LOW):
+            res["hiMotor"].append((tb, gap))
+        elif mr[tb] > n * (1 - GAP_MOTOR_TOP) and wr[tb] <= n * GAP_WIN_LOW:
+            res["loMotor"].append((tb, gap))
+    return res
+
+
+def pick_focus_tobans(jcd, venue_rows, score_rank, results_venue, day_num, motor_usage):
+    """focusRacers対象を機械抽出（最大 FOCUS_MAX 名）。選んだ理由を why に残す。
+    優先順: 得点率上位3（scoreRankがあれば）→ 地元勢最上位 → 全国勝率最上位 →
+    機力ズレ（上位機×低勝率・下位機×高勝率 各1名）→ 今節2連対数最多 → 前日万舟の1着艇。
+    同一選手に複数の理由が付けば why に並べる（重複して枠を使わない）。
+    戻り: [(toban, [why...], gap or None), ...]"""
     order = []
+    why = {}
+    gaps = {}
+    ent = _entrants(venue_rows)
 
-    def add(tb):
-        tb = str(tb).strip()
-        if tb and tb not in order:
+    def add(tb, label, gap=None):
+        tb = str(tb or "").strip()
+        if not tb or tb not in ent:
+            return
+        if tb not in why:
+            if len(order) >= FOCUS_MAX:
+                return
             order.append(tb)
+            why[tb] = []
+        if label not in why[tb]:
+            why[tb].append(label)
+        if gap is not None:
+            gaps[tb] = gap
 
-    # 1) 得点率上位3（scoreRankがあれば）
+    # 1) 得点率上位3（scoreRankがあれば。現状は shadow mode で常に null）
     if score_rank and score_rank.get("top"):
         for e in score_rank["top"][:3]:
-            add(e.get("toban"))
+            add(e.get("toban"), "得点率上位")
+
+    rows = list(ent.values())
 
     # 2) 地元勢最上位（全国勝率の高い順）
-    locals_ = [r for r in venue_rows if (r.get("支部") or "").strip() == VENUE_KEN.get(jcd)]
+    locals_ = [r for r in rows if (r.get("支部") or "").strip() == VENUE_KEN.get(jcd)]
     locals_.sort(key=lambda r: (to_float(r.get("全国勝率")) or -1), reverse=True)
     if locals_:
-        add(locals_[0].get("登録番号"))
+        add(locals_[0].get("登録番号"), "地元勢最上位")
 
-    # 3) 前日万舟の1着艇選手 — §4.3 CSV突合ガード:
-    #    当日CSVの開催日が結果日と一致する夜間帯のみ成立。不一致ならスキップ（null）。
-    if csv_hd8 == results_date8 and results_venue:
-        for res in results_venue:
+    # 3) 全国勝率最上位（当日出走者の中で）
+    top = sorted(rows, key=lambda r: (to_float(r.get("全国勝率")) or -1), reverse=True)
+    if top:
+        add(top[0].get("登録番号"), "全国勝率最上位")
+
+    # 4) 機力ズレ（基準A）各方向1名。機力順位の上から。
+    g = gap_candidates(jcd, venue_rows, motor_usage)
+    if g["hiMotor"]:
+        add(g["hiMotor"][0][0], "上位機×低勝率", g["hiMotor"][0][1])
+    if g["loMotor"]:
+        add(g["loMotor"][0][0], "下位機×高勝率", g["loMotor"][0][1])
+
+    # 5) 今節2連対数最多（2走以上。同数は全国勝率の高い順で1名）
+    cand = []
+    for r in rows:
+        ms = motor_setsu_record(r)
+        if ms["runs"] >= 2 and ms["niren"] > 0:
+            cand.append((ms["niren"], to_float(r.get("全国勝率")) or -1, r.get("登録番号")))
+    if cand:
+        cand.sort(reverse=True)
+        add(cand[0][2], "今節2連対最多")
+
+    # 6) 前日万舟の1着艇。results は常に掲載日の前日（main で導出）なので、
+    #    同じ節の前日かどうかは day_num>1 で判定する（初日は前節の結果なので使わない）。
+    #    旧実装の「csv_hd8 == results_date8」は構造上成立せず、この枠は一度も働いていなかった。
+    if day_num and day_num > 1 and results_venue:
+        for res in sorted(results_venue, key=lambda r: (rno_to_int(r.get("レース")) or 99)):
             pay = to_int(res.get("三連単配当"))
             if pay is not None and pay > MAN_TH:
                 for boat in (res.get("艇") or []):
                     if to_int(boat.get("着")) == 1:
-                        add(boat.get("登番"))
-    return order[:5]
+                        add(boat.get("登番"), "前日万舟の1着")
+
+    return [(tb, why[tb], gaps.get(tb)) for tb in order]
 
 
 def build_results_block(results_venue):
@@ -854,7 +959,7 @@ def build_today_program(venue_rows, csv_hd8, motor2avg):
 # メイン
 # ---------------------------------------------------------------------------
 def build_venue(jcd, venue_rows, results_map, vstats, kimarite_map, profile,
-                e30map, csv_hd8, results_date8):
+                e30map, csv_hd8, results_date8, motor_usage):
     row0 = venue_rows[0]
     hd8 = (row0.get("開催日") or "").strip()
     series = (row0.get("節名") or "").strip() or None
@@ -880,14 +985,19 @@ def build_venue(jcd, venue_rows, results_map, vstats, kimarite_map, profile,
                       len(score_raw.get("top", []))))
 
     motor2avg = motor_avg(venue_rows)
-    focus_tobans = pick_focus_tobans(jcd, venue_rows, score_rank,
-                                      results_venue, csv_hd8, results_date8)
-    row_by_toban = {str(r.get("登録番号", "")).strip(): r for r in venue_rows}
+    focus_picks = pick_focus_tobans(jcd, venue_rows, score_rank,
+                                    results_venue, day_num, motor_usage)
+    row_by_toban = {}
+    for r in venue_rows:
+        row_by_toban.setdefault(str(r.get("登録番号", "")).strip(), r)
     focus = []
-    for tb in focus_tobans:
+    for tb, why, gap in focus_picks:
         r = row_by_toban.get(tb)
         if r:
-            focus.append(build_focus_racer(r, jcd, kimarite_map, profile, motor2avg))
+            fr = build_focus_racer(r, jcd, kimarite_map, profile, motor2avg)
+            fr["why"] = why    # 選んだ理由（機械付与のラベル。記事の柱の候補）
+            fr["gap"] = gap    # 機力ズレの順位と母数。該当しなければ null
+            focus.append(fr)
 
     prev_date8 = (parse_date8(hd8) - datetime.timedelta(days=1)).strftime("%Y%m%d") \
         if hd8 else results_date8
@@ -943,6 +1053,7 @@ def main():
     kimarite_map = load_kimarite()
     profile = load_profile()
     e30map = load_e30()
+    motor_usage = load_motor_usage()
 
     venues = []
     for jcd in sorted(by_jcd.keys()):
@@ -950,7 +1061,7 @@ def main():
         if not venue_rows:
             continue
         venues.append(build_venue(jcd, venue_rows, results_map, vstats, kimarite_map,
-                                   profile, e30map, csv_hd8, results_date8))
+                                   profile, e30map, csv_hd8, results_date8, motor_usage))
 
     doc = {"date": date_dash, "venues": venues}
 
