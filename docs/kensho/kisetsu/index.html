@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>検証：冬はイン ｜ データ攻め</title>
+<link rel="canonical" href="https://abeken1026395.github.io/pallas-mercato-7k9/kensho/kisetsu/">
+<meta name="description" content="冬はインが強いのか。2016年11月1日から2026年8月31日までの541,558レースを数えると、同じ条件に揃えて冬の1コース1着率は夏より1.2ポイント高い。1着のタイムは冬のほうが2.52秒速いのに、インの取り分はひとつの場に1週間通って1本分です。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="検証：冬はイン">
+<meta property="og:description" content="冬はインが強いのか。541,558レースを数えました。冬は舟が2.5秒速くなる。それでも1号艇の取り分は1.2ポイントでした。">
+<meta property="og:image" content="https://abeken1026395.github.io/pallas-mercato-7k9/icon512.png">
+<!-- data-seme signature: kensho / kisetsu -->
+<style>
+:root{
+  --bg:#0b1219; --panel:#0f1a26; --line:#4a627f;
+  --fg:#e0e6ed; --dim:#8a94a3; --faint:#8a94a3;
+  --accent:#ffd166; --ok:#7ee08a; --ng:#e07a7a;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--fg)}
+body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;
+  -webkit-text-size-adjust:100%;font-feature-settings:"palt" 1}
+.wrap{max-width:620px;margin:0 auto;padding:0 18px 64px}
+
+.siteback{display:inline-flex;align-items:center;min-height:44px;
+  color:#a9c6dd;text-decoration:none;font-size:12.5px;margin-right:16px}
+.siteback:hover{text-decoration:underline}
+
+header{padding:26px 0 8px;border-bottom:1px solid var(--line)}
+header .eyebrow{font-size:11px;letter-spacing:.34em;color:var(--accent);margin:0 0 12px}
+header h1{font-size:28px;line-height:1.5;color:#fff;margin:0 0 10px;font-weight:700}
+header .sub{font-size:12px;line-height:1.9;color:var(--dim);margin:0 0 22px}
+
+.article{padding:32px 0 8px;font-size:16px;line-height:2.1}
+.article p{margin:0 0 1.9em}
+.article b{color:#fff;font-weight:700}
+.article .lead{font-size:18.5px;line-height:1.95;color:#fff;font-weight:700;margin-bottom:1.7em}
+.article a{color:#a9c6dd;text-decoration:underline;text-decoration-color:var(--line);
+  text-underline-offset:4px;text-decoration-thickness:1px}
+.article a:hover{color:#fff;text-decoration-color:#a9c6dd}
+
+.sec{margin:3em 0 1.5em;font-size:18px;color:var(--accent);font-weight:700;
+  letter-spacing:.06em;line-height:1.6;display:flex;align-items:center;gap:11px}
+.sec::before{content:"";width:20px;height:1px;background:var(--accent);flex:none}
+.sec::after{content:"";height:1px;background:var(--line);flex:1}
+
+.punch{margin:2.2em 0 1.1em;font-size:30px;line-height:1.65;color:#fff;font-weight:700}
+.punch .big{color:var(--accent)}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:1.5em 0 1.9em;
+  font-variant-numeric:tabular-nums}
+th,td{padding:11px 6px;text-align:right;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--faint);font-weight:600;font-size:12px;white-space:nowrap}
+tr.hi td{color:#fff;font-weight:700;background:#16283c}
+tr.mid td{color:var(--faint)}
+
+/* ── 数字ブロック ── */
+.figure{display:flex;gap:12px;margin:1.5em 0 1.9em}
+.figure>div{flex:1;background:var(--panel);border:1px solid var(--line);
+  border-radius:10px;padding:16px 10px 14px;text-align:center}
+.figure .n{font-size:44px;font-weight:700;line-height:1.15;color:var(--accent);
+  font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.figure .u{font-size:17px;font-weight:700;margin-left:2px}
+.figure .l{font-size:11px;color:var(--dim);margin-top:8px;line-height:1.7}
+.figure .ref .n{color:var(--faint)}
+
+/* ── 折りたたみ ── */
+details{margin:2.6em 0 1.6em;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+details>summary{display:flex;align-items:center;min-height:46px;padding:0 16px;
+  font-size:13px;color:#a9c6dd;cursor:pointer;list-style:none}
+details>summary::-webkit-details-marker{display:none}
+details>summary::after{content:"＋";margin-left:auto;color:var(--faint)}
+details[open]>summary::after{content:"−"}
+.dbody{padding:4px 16px 18px;font-size:12.5px;line-height:2;color:var(--dim)}
+.dbody h4{margin:1.6em 0 .5em;font-size:12.5px;color:#cfd8e3;font-weight:700}
+.dbody h4:first-child{margin-top:.4em}
+.dbody p{margin:0 0 1em}
+
+.stamp{margin:2.4em 0 1.4em;font-size:11px;line-height:1.9;color:var(--faint);
+  padding-top:16px;border-top:1px solid var(--line)}
+.stamp span{color:var(--dim);font-variant-numeric:tabular-nums}
+/* ── 図 ── */
+.chart{margin:1.6em 0 2em;padding:14px 10px 10px;background:var(--panel);
+  border:1px solid var(--line);border-radius:10px}
+.chart svg{display:block;width:100%;height:auto;font-family:inherit}
+.chart figcaption{margin-top:8px;font-size:11.5px;line-height:1.8;color:var(--dim)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<a class="siteback" href="../../">← データ攻め トップ</a>
+<a class="siteback" href="../">← 検証の一覧</a>
+
+<header>
+  <p class="eyebrow">検 証</p>
+  <h1>冬は<br>インか</h1>
+  <p class="sub">
+    「冬はイン、夏はまくり」。公式サイトの入門ページにも書いてある話は、本当なのか。<br>
+    約10年分の成績を、冬と夏で並べて数えた記録です。
+  </p>
+</header>
+
+<div class="article">
+
+<h2 class="sec">水温が一桁の日</h2>
+
+<p>12月の直前情報を開くと、右の端に水温が出ています。8℃、7℃。数字が一桁になると、1号艇の欄を見る目つきが少し変わる人がいる。</p>
+
+<p class="lead">「冬はイン、夏はまくり」</p>
+
+<p>寒いとモーターがよく回るので、先に回った1号艇がそのまま逃げる。夏は外から攻めた舟が届く。ボートレースの公式サイトの入門ページにも、そういう趣旨のことが書いてあります。公式が書いているのだから、わざわざ疑う人はあまりいません。</p>
+
+<p>こういう話を、わざわざ疑うのがこの連載です。</p>
+
+<h2 class="sec">冬と夏だけを残す</h2>
+
+<p>2016年11月1日から2026年8月31日まで、3,591日分の競走成績を1レースずつ数えました。全部で541,558レース。冬は12月から2月、夏は7月と8月として、春と秋は比べる相手から外しています。</p>
+
+<p>数えたのは、枠番ではなく、実際に1コースへ入った舟のほう。<a href="../../glossary/?q=%E5%89%8D%E3%81%A5%E3%81%91">前づけ</a>で1号艇が2コースに押し出されたレースなら、代わりに1コースへ入った舟が主役になる。</p>
+
+<h2 class="sec">冬のほうが高い</h2>
+
+<p>1コースの1着率は、冬の141,772レースで54.72%、夏の96,065レースで53.71%でした。</p>
+
+<p>冬のほうが1.01ポイント高い。俗説は当たっています。</p>
+
+<figure class="chart" role="img" aria-label="月ごとの1コースの1着率。いちばん高いのは3月、いちばん低いのは7月">
+<svg viewBox="0 0 360 214" width="100%" xmlns="http://www.w3.org/2000/svg">
+<line x1="38" y1="176.0" x2="344" y2="176.0" stroke="#4a627f" stroke-width="0.6"/>
+<text x="32" y="179.5" font-size="10" fill="#8a94a3" text-anchor="end">53%</text>
+<line x1="38" y1="126.0" x2="344" y2="126.0" stroke="#4a627f" stroke-width="0.6"/>
+<text x="32" y="129.5" font-size="10" fill="#8a94a3" text-anchor="end">54%</text>
+<line x1="38" y1="76.0" x2="344" y2="76.0" stroke="#4a627f" stroke-width="0.6"/>
+<text x="32" y="79.5" font-size="10" fill="#8a94a3" text-anchor="end">55%</text>
+<line x1="38" y1="26.0" x2="344" y2="26.0" stroke="#4a627f" stroke-width="0.6"/>
+<text x="32" y="29.5" font-size="10" fill="#8a94a3" text-anchor="end">56%</text>
+<polyline points="38.0,97.5 65.8,86.5 93.6,46.5 121.5,76.0 149.3,60.0 177.1,91.0 204.9,145.5 232.7,136.5 260.5,120.5 288.4,103.5 316.2,51.0 344.0,86.5" fill="none" stroke="#8a94a3" stroke-width="1.2"/>
+<circle cx="38.0" cy="97.5" r="5" fill="#7cc4ff"/>
+<text x="38.0" y="196" font-size="10" fill="#8a94a3" text-anchor="middle">1</text>
+<circle cx="65.8" cy="86.5" r="5" fill="#7cc4ff"/>
+<text x="65.8" y="196" font-size="10" fill="#8a94a3" text-anchor="middle">2</text>
+<circle cx="93.6" cy="46.5" r="3.5" fill="#8a94a3"/>
+<text x="93.6" y="196" font-size="10" fill="#8a94a3" text-anchor="middle">3</text>
+<circle cx="121.5" cy="76.0" r="3.5" fill="#8a94a3"/>
+<text x="121.5" y="196" font-size="10" fill="#8a94a3" text-anchor="middle">4</text>
+<circle cx="149.3" cy="60.0" r="3.5" fill="#8a94a3"/>
+<text x="149.3" y="196" font-size="10" fill="#8a94a3" text-anchor="middle">5</text>
+<circle cx="177.1" cy="91.0" r="3.5" fill="#8a94a3"/>
+<text x="177.1" y="196" font-size="10" fill="#8a94a3" text-anchor="middle">6</text>
+<circle cx="204.9" cy="145.5" r="5" fill="#ff9f6b"/>
+<text x="204.9" y="196" font-size="10" fill="#8a94a3" text-anchor="middle">7</text>
+<circle cx="232.7" cy="136.5" r="5" fill="#ff9f6b"/>
+<text x="232.7" y="196" font-size="10" fill="#8a94a3" text-anchor="middle">8</text>
+<circle cx="260.5" cy="120.5" r="3.5" fill="#8a94a3"/>
+<text x="260.5" y="196" font-size="10" fill="#8a94a3" text-anchor="middle">9</text>
+<circle cx="288.4" cy="103.5" r="3.5" fill="#8a94a3"/>
+<text x="288.4" y="196" font-size="10" fill="#8a94a3" text-anchor="middle">10</text>
+<circle cx="316.2" cy="51.0" r="3.5" fill="#8a94a3"/>
+<text x="316.2" y="196" font-size="10" fill="#8a94a3" text-anchor="middle">11</text>
+<circle cx="344.0" cy="86.5" r="5" fill="#7cc4ff"/>
+<text x="344.0" y="196" font-size="10" fill="#8a94a3" text-anchor="middle">12</text>
+<text x="93.6" y="36.5" font-size="10.5" fill="#e0e6ed" text-anchor="middle">3月 55.59%</text>
+<text x="204.9" y="163.5" font-size="10.5" fill="#e0e6ed" text-anchor="middle">7月 53.61%</text>
+<text x="38.0" y="115.5" font-size="10.5" fill="#7cc4ff" text-anchor="middle">冬</text>
+<text x="344.0" y="104.5" font-size="10.5" fill="#7cc4ff" text-anchor="middle">冬</text>
+<text x="246.7" y="140.5" font-size="10.5" fill="#ff9f6b" text-anchor="middle">夏</text>
+<text x="190" y="211" font-size="10" fill="#8a94a3" text-anchor="middle">月</text>
+</svg>
+<figcaption>月ごとの1コースの1着率。2016年11月から2026年8月の10年を月で合算した、揃える前の数字（各月38,038から50,404レース）。青が冬、橙が夏。</figcaption>
+</figure>
+
+<p>月ごとに並べてみると、形が少し違って見えます。いちばん低いのは7月と8月で、夏の谷ははっきりしている。一方で冬の3か月は真ん中あたりにいて、いちばん高いのは3月と11月でした。図の形だけで言えば、「冬はイン」より「夏はインが苦手」のほうが近い。</p>
+
+<p>公式サイトに書いてあることが当たっていた、で済むなら、この記事はここで終わる。終わらないのは、冬という季節に、もうひとつ別の顔があるからです。</p>
+
+<h2 class="sec">疑ったら広がった</h2>
+
+<p>冬は、番組が違います。年末年始には大きな開催が続き、強い選手が1号艇に座る日が増える。だとすれば、冬が1号艇を強くしているのではなく、冬の1号艇にもともと強い選手が座っているだけかもしれません。</p>
+
+<p>そこで、比べる相手を揃えました。同じ場の、同じ年のレースで、レースの区分も揃え、1コースの選手の強さと外の5艇の強さまで合わせる。強さの物差しは、その選手の直前12か月の1着率。番組のぶんを抜いたら、差はどこまで縮むのか。</p>
+
+<p>取り直した差は、1.2ポイント。</p>
+
+<p>縮むはずだった差が、少し伸びている。意地悪く疑ったつもりが、俗説の後押しをしただけで終わりました。</p>
+
+<p>念のため、揃えた組の中で冬と夏のラベルだけを1,000回入れ替えて同じ計算をしてみましたが、偶然でこの差に届いた回は一度もありませんでした。</p>
+
+<p>そのかわり、揃えると落ちるレースも出ます。冬と夏の両方がそろわない組は比べようがないので、冬は141,772レースのうち131,153レース、夏は96,065レースのうち94,481レースが残りました。落ちたのは、同じ場、同じ年、同じ強さの組み合わせが、冬か夏の片方にしか現れなかったレースです。</p>
+
+<h2 class="sec">毎年、同じ向き</h2>
+
+<p>たまたま強い冬が何年か混じっていただけ、ということもあり得る。そこで冬と夏を年ごとに分け、12月は翌年の冬に入れて、同じように揃え直しました。</p>
+
+<figure class="chart" role="img" aria-label="年ごとの冬夏差。10年のうち9年で冬が上、2022年だけ夏が上">
+<svg viewBox="0 0 360 246" width="100%" xmlns="http://www.w3.org/2000/svg">
+<line x1="70.0" y1="14" x2="70.0" y2="222" stroke="#4a627f" stroke-width="0.6"/>
+<text x="70.0" y="238" font-size="10" fill="#8a94a3" text-anchor="middle">−1</text>
+<line x1="127.8" y1="14" x2="127.8" y2="222" stroke="#e0e6ed" stroke-width="1"/>
+<text x="127.8" y="238" font-size="10" fill="#8a94a3" text-anchor="middle">0</text>
+<line x1="185.6" y1="14" x2="185.6" y2="222" stroke="#4a627f" stroke-width="0.6"/>
+<text x="185.6" y="238" font-size="10" fill="#8a94a3" text-anchor="middle">+1</text>
+<line x1="243.3" y1="14" x2="243.3" y2="222" stroke="#4a627f" stroke-width="0.6"/>
+<text x="243.3" y="238" font-size="10" fill="#8a94a3" text-anchor="middle">+2</text>
+<line x1="301.1" y1="14" x2="301.1" y2="222" stroke="#4a627f" stroke-width="0.6"/>
+<text x="301.1" y="238" font-size="10" fill="#8a94a3" text-anchor="middle">+3</text>
+<text x="12" y="28" font-size="11" fill="#e0e6ed">2017</text>
+<line x1="127.8" y1="24" x2="185.6" y2="24" stroke="#7cc4ff" stroke-width="2"/>
+<circle cx="185.6" cy="24" r="4.5" fill="#7cc4ff"/>
+<text x="193.6" y="28" font-size="10.5" fill="#e0e6ed" text-anchor="start">+1.0</text>
+<text x="12" y="48" font-size="11" fill="#e0e6ed">2018</text>
+<line x1="127.8" y1="44" x2="254.9" y2="44" stroke="#7cc4ff" stroke-width="2"/>
+<circle cx="254.9" cy="44" r="4.5" fill="#7cc4ff"/>
+<text x="262.9" y="48" font-size="10.5" fill="#e0e6ed" text-anchor="start">+2.2</text>
+<text x="12" y="68" font-size="11" fill="#e0e6ed">2019</text>
+<line x1="127.8" y1="64" x2="179.8" y2="64" stroke="#7cc4ff" stroke-width="2"/>
+<circle cx="179.8" cy="64" r="4.5" fill="#7cc4ff"/>
+<text x="187.8" y="68" font-size="10.5" fill="#e0e6ed" text-anchor="start">+0.9</text>
+<text x="12" y="88" font-size="11" fill="#e0e6ed">2020</text>
+<line x1="127.8" y1="84" x2="145.1" y2="84" stroke="#7cc4ff" stroke-width="2"/>
+<circle cx="145.1" cy="84" r="4.5" fill="#7cc4ff"/>
+<text x="153.1" y="88" font-size="10.5" fill="#e0e6ed" text-anchor="start">+0.3</text>
+<text x="12" y="108" font-size="11" fill="#e0e6ed">2021</text>
+<line x1="127.8" y1="104" x2="243.3" y2="104" stroke="#7cc4ff" stroke-width="2"/>
+<circle cx="243.3" cy="104" r="4.5" fill="#7cc4ff"/>
+<text x="251.3" y="108" font-size="10.5" fill="#e0e6ed" text-anchor="start">+2.0</text>
+<text x="12" y="128" font-size="11" fill="#e0e6ed">2022</text>
+<line x1="127.8" y1="124" x2="87.3" y2="124" stroke="#ff9f6b" stroke-width="2"/>
+<circle cx="87.3" cy="124" r="4.5" fill="#ff9f6b"/>
+<text x="79.3" y="128" font-size="10.5" fill="#e0e6ed" text-anchor="end">−0.7</text>
+<text x="12" y="148" font-size="11" fill="#e0e6ed">2023</text>
+<line x1="127.8" y1="144" x2="301.1" y2="144" stroke="#7cc4ff" stroke-width="2"/>
+<circle cx="301.1" cy="144" r="4.5" fill="#7cc4ff"/>
+<text x="309.1" y="148" font-size="10.5" fill="#e0e6ed" text-anchor="start">+3.0</text>
+<text x="12" y="168" font-size="11" fill="#e0e6ed">2024</text>
+<line x1="127.8" y1="164" x2="150.9" y2="164" stroke="#7cc4ff" stroke-width="2"/>
+<circle cx="150.9" cy="164" r="4.5" fill="#7cc4ff"/>
+<text x="158.9" y="168" font-size="10.5" fill="#e0e6ed" text-anchor="start">+0.4</text>
+<text x="12" y="188" font-size="11" fill="#e0e6ed">2025</text>
+<line x1="127.8" y1="184" x2="231.8" y2="184" stroke="#7cc4ff" stroke-width="2"/>
+<circle cx="231.8" cy="184" r="4.5" fill="#7cc4ff"/>
+<text x="239.8" y="188" font-size="10.5" fill="#e0e6ed" text-anchor="start">+1.8</text>
+<text x="12" y="208" font-size="11" fill="#e0e6ed">2026</text>
+<line x1="127.8" y1="204" x2="214.4" y2="204" stroke="#7cc4ff" stroke-width="2"/>
+<circle cx="214.4" cy="204" r="4.5" fill="#7cc4ff"/>
+<text x="222.4" y="208" font-size="10.5" fill="#e0e6ed" text-anchor="start">+1.5</text>
+</svg>
+<figcaption>季節の年ごとの冬夏差（ポイント）。条件を揃えたあとの冬から夏を引いた差。右が冬の勝ち（青）、左が夏の勝ち（橙）。12月は翌年の冬に入れています。</figcaption>
+</figure>
+
+<p>10年のうち9年で、冬が上。2022年だけが夏に負けていて、理由を探して数え直しましたが、2022年は何度数えても2022年のままでした。</p>
+
+<p>選手を固定しても、向きは変わりません。同じ選手が同じ場の1コースに、冬と夏それぞれ10回以上入った1,134組を並べると、冬のほうが1.69ポイント高い。場を問わず冬と夏に30回以上ずつ入った1,328人で見ても、1.55ポイント高い。同じ人間が、冬のほうが少しだけよく勝っています。</p>
+
+<h2 class="sec">誰の1号艇か</h2>
+
+<p>冬の上乗せは、誰の1号艇にも同じように乗るのか。1コースに入った選手を直前12か月の1着率で段に分けて、段ごとに冬と夏を比べ直しました。</p>
+
+<table>
+<thead><tr><th>1コースの選手</th><th>冬の1着率</th><th>冬から夏を引いた差</th></tr></thead>
+<tbody>
+<tr><td>15%未満（84,335レース）</td><td>37.87%</td><td>+1.3</td></tr>
+<tr><td>15%以上25%未満（81,411レース）</td><td>60.06%</td><td>+1.5</td></tr>
+<tr><td>25%以上35%未満（55,157レース）</td><td>71.14%</td><td>数が足りない</td></tr>
+<tr><td>35%以上（4,623レース）</td><td>74.07%</td><td>数が足りない</td></tr>
+</tbody>
+</table>
+
+<p>弱いほうの2段では、冬の上乗せは1.3ポイントと1.5ポイントで、どちらも偶然では届かない大きさでした。強いほうの2段は、この数では1ポイントほどの差を見分けられず、大きいとも小さいとも言えません。いちばん強い段は10年で4,623レースしかなく、条件を揃えるほど比べる相手がいなくなる。強すぎるのも、数える側には困りものです。</p>
+
+<p>それより目を引くのは、表を縦に読んだときの並びのほう。同じ冬でも、1号艇に座っているのが15%未満の選手なら37.87%、25%以上35%未満の選手なら71.14%。季節が動かすのは1ポイント台で、座っている人は30ポイント以上動かしています。</p>
+
+<figure class="chart" role="img" aria-label="季節で動く幅は1ポイント台、座る選手で動く幅は33ポイント">
+<svg viewBox="0 0 360 128" width="100%" xmlns="http://www.w3.org/2000/svg">
+<text x="10" y="34" font-size="11" fill="#e0e6ed">季節で動く幅</text>
+<text x="10" y="48" font-size="9.5" fill="#8a94a3">冬と夏の差</text>
+<rect x="118" y="26" width="9.1" height="18" fill="#7cc4ff"/>
+<text x="133.1" y="39" font-size="11" fill="#e0e6ed">1.3から1.5</text>
+<text x="10" y="84" font-size="11" fill="#e0e6ed">選手で動く幅</text>
+<text x="10" y="98" font-size="9.5" fill="#8a94a3">同じ冬の段どうし</text>
+<rect x="118" y="76" width="201.5" height="18" fill="#ffd166"/>
+<text x="313.5" y="89" font-size="11" fill="#0b1219" text-anchor="end">33.27</text>
+<line x1="118" y1="16" x2="118" y2="104" stroke="#e0e6ed" stroke-width="1"/>
+<text x="115" y="120" font-size="9.5" fill="#8a94a3">0</text>
+<text x="330" y="120" font-size="9.5" fill="#8a94a3" text-anchor="end">ポイント</text>
+</svg>
+<figcaption>同じ物差しで並べた2つの幅。季節の幅は、上の表で数が足りた2段の冬夏差。選手の幅は、同じ表の冬の1着率で、いちばん上の段と3段目の差。</figcaption>
+</figure>
+
+<h2 class="sec">1週間に1本</h2>
+
+<p>では、この差はどのくらいの大きさなのか。</p>
+
+<p>ひとつの場では1日に12レースあります。冬に1週間通えば84レースで、その間に1号艇が勝つ回数は、夏の1週間より1回多い計算になります。</p>
+
+<figure class="chart" role="img" aria-label="84レースのうち1本だけが色付き">
+<svg viewBox="0 0 360 206" width="100%" xmlns="http://www.w3.org/2000/svg">
+<text x="10" y="27" font-size="10" fill="#8a94a3">1日目</text>
+<text x="10" y="51" font-size="10" fill="#8a94a3">2日目</text>
+<text x="10" y="75" font-size="10" fill="#8a94a3">3日目</text>
+<text x="10" y="99" font-size="10" fill="#8a94a3">4日目</text>
+<text x="10" y="123" font-size="10" fill="#8a94a3">5日目</text>
+<text x="10" y="147" font-size="10" fill="#8a94a3">6日目</text>
+<text x="10" y="171" font-size="10" fill="#8a94a3">7日目</text>
+<defs><pattern id="k07cell" x="60" y="14" width="24" height="24" patternUnits="userSpaceOnUse"><rect x="0.5" y="0.5" width="17" height="17" rx="3" fill="none" stroke="#4a627f" stroke-width="1"/></pattern></defs>
+<rect x="60" y="14" width="282" height="162" fill="url(#k07cell)"/>
+<rect x="252.5" y="110.5" width="17" height="17" rx="3" fill="#ffd166"/>
+<text x="60" y="198" font-size="10" fill="#8a94a3">1Rから12R</text>
+<text x="348" y="198" font-size="10.5" fill="#ffd166" text-anchor="end">夏より多い1本</text>
+</svg>
+<figcaption>ひとつの場で冬の1週間に行われる84レース。そのうち、夏の1週間より1号艇が多く勝つのは、およそ1本（冬夏差1.2ポイントから換算）。どのレースがその1本かは分かりません。</figcaption>
+</figure>
+
+<p>84レースのうち、1本。</p>
+
+<p>これを確かめるために10年分を数えたことは、あまり考えないようにしています。</p>
+
+<p>1コースの1着率は、もともと冬でも夏でも半分を超えています。そこに1ポイントあまり足されても、1号艇に印を足すかどうかの判断は、ほとんど動かない。</p>
+
+<h2 class="sec">寒いとモーターが出る</h2>
+
+<p>それでも、冬の話にはもうひとつ、よく聞く続きがあります。</p>
+
+<p class="lead">「寒いとモーターが出る」</p>
+
+<p>出ているなら、どこに跡が残るのか。まず、1コースのスタートタイミングを場ごとに冬と夏で並べました。差は0.0006秒。ストップウォッチを押す指のほうが、よほど揺れる差です。スタートの速さは、季節で変わっていない。</p>
+
+<h2 class="sec">冬の舟は速い</h2>
+
+<p>次に、1着の舟がゴールするまでの時間を、同じ場どうしで比べました。1周600メートルを3周する1,800メートルのレースで、冬のほうが2.52秒短い。</p>
+
+<figure class="chart" role="img" aria-label="冬の舟が2.52秒先にゴールするイメージ">
+<svg viewBox="0 0 360 150" width="100%" xmlns="http://www.w3.org/2000/svg">
+<line x1="322" y1="10" x2="322" y2="118" stroke="#e0e6ed" stroke-width="2" stroke-dasharray="4 3"/>
+<text x="322" y="132" font-size="10" fill="#8a94a3" text-anchor="middle">ゴール</text>
+<line x1="20" y1="54" x2="322" y2="54" stroke="#4a627f" stroke-width="0.6"/>
+<text x="20" y="42" font-size="11" fill="#7cc4ff">冬</text>
+<path d="M278 32 L310 32 L322 40 L278 48 Z" fill="#7cc4ff"/>
+<path d="M242 40 L272 40" stroke="#7cc4ff" stroke-width="1" opacity="0.6"/>
+<line x1="20" y1="104" x2="322" y2="104" stroke="#4a627f" stroke-width="0.6"/>
+<text x="20" y="92" font-size="11" fill="#ff9f6b">夏</text>
+<path d="M186 82 L218 82 L230 90 L186 98 Z" fill="#ff9f6b"/>
+<path d="M150 90 L180 90" stroke="#ff9f6b" stroke-width="1" opacity="0.6"/>
+<line x1="230" y1="110" x2="322" y2="110" stroke="#ffd166" stroke-width="1.2"/>
+<line x1="230" y1="105" x2="230" y2="115" stroke="#ffd166" stroke-width="1.2"/>
+<text x="276" y="146" font-size="11" fill="#ffd166" text-anchor="middle">2.52秒</text>
+</svg>
+<figcaption>冬の1着の舟がゴールしたとき、夏の1着の舟はまだ2.52秒手前にいる、というイメージ。1,800メートルのレースで、同じ場どうしを比べた差。距離の縮尺は正確ではありません。</figcaption>
+</figure>
+
+<p>冬の水面を見ていて、舟が速いと感じるのは、気のせいではありません。寒いとモーターが出るという話は、時計の上でもきちんと起きていました。</p>
+
+<p>ただ、こうなると勘定が合わない。2.5秒も速くなる冬に、1号艇の取り分はほとんど増えていない。1号艇だけが速くなっていたのなら、この程度では済まないはずです。</p>
+
+<h2 class="sec">速さと順番は別の数字</h2>
+
+<p>冬の現場で目に入るのは、舟全体が速くなったことのほう。こちらが数えていたのは、その速くなった6艇の中で、1コースの舟が先頭に立つ回数でした。全員が同じだけ速くなれば、並び順は変わらない。</p>
+
+<p>冬は速い、は本当で、冬はインが勝つ、もおおむね本当です。ただ、前者の大きさを、後者の大きさだと受け取ってしまうと、印が1つ多くなる。</p>
+
+<h2 class="sec">夏に増えるもの</h2>
+
+<p>残るのは「夏はまくり」のほうです。夏になって増える<a href="../../glossary/?q=%E6%B1%BA%E3%81%BE%E3%82%8A%E6%89%8B">決まり手</a>は、本当にまくりなのでしょうか。</p>
+
+<p>決まり手の割合を同じ組で揃えて、冬から夏を引きました。</p>
+
+<figure class="chart" role="img" aria-label="決まり手の冬夏差。逃げは冬に多く、まくり差しがいちばん夏に多い">
+<svg viewBox="0 0 360 196" width="100%" xmlns="http://www.w3.org/2000/svg">
+<text x="208" y="14" font-size="10" fill="#ff9f6b" text-anchor="end">夏に多い</text>
+<text x="220" y="14" font-size="10" fill="#7cc4ff">冬に多い</text>
+<line x1="214" y1="22" x2="214" y2="184" stroke="#e0e6ed" stroke-width="1"/>
+<text x="10" y="43" font-size="11" fill="#e0e6ed">逃げ</text>
+<rect x="214.0" y="30" width="101.5" height="16" fill="#7cc4ff"/>
+<text x="320.5" y="42" font-size="10.5" fill="#e0e6ed" text-anchor="start">+1.45</text>
+<text x="10" y="69" font-size="11" fill="#e0e6ed">差し</text>
+<rect x="214.0" y="56" width="36.4" height="16" fill="#7cc4ff"/>
+<text x="255.4" y="68" font-size="10.5" fill="#e0e6ed" text-anchor="start">+0.52</text>
+<text x="10" y="95" font-size="11" fill="#e0e6ed">まくり</text>
+<rect x="180.4" y="82" width="33.6" height="16" fill="#ff9f6b"/>
+<text x="175.4" y="94" font-size="10.5" fill="#e0e6ed" text-anchor="end">−0.48</text>
+<text x="10" y="121" font-size="11" fill="#e0e6ed">まくり差し</text>
+<rect x="146.1" y="108" width="67.9" height="16" fill="#ff9f6b"/>
+<text x="141.1" y="120" font-size="10.5" fill="#e0e6ed" text-anchor="end">−0.97</text>
+<text x="10" y="147" font-size="11" fill="#e0e6ed">抜き</text>
+<rect x="181.1" y="134" width="32.9" height="16" fill="#ff9f6b"/>
+<text x="176.1" y="146" font-size="10.5" fill="#e0e6ed" text-anchor="end">−0.47</text>
+<text x="10" y="173" font-size="11" fill="#e0e6ed">恵まれ</text>
+<rect x="211.2" y="160" width="2.8" height="16" fill="#ff9f6b"/>
+<text x="206.2" y="172" font-size="10.5" fill="#e0e6ed" text-anchor="end">−0.04</text>
+</svg>
+<figcaption>決まり手の割合の冬夏差（ポイント）。全レースを分母にした割合を、条件を揃えて冬から夏を引いたもの。夏にいちばん増えるのは、まくり差し。</figcaption>
+</figure>
+
+<p>夏にいちばん増えているのは、まくりではなく<a href="../../glossary/?q=%E3%81%BE%E3%81%8F%E3%82%8A%E5%B7%AE%E3%81%97">まくり差し</a>でした。まくりの増え方は、その半分しかない。差しにいたっては、冬のほうが多い。</p>
+
+<p>「夏はまくり」は、向きは合っていて、名前だけが少しずれていたことになります。</p>
+
+<h2 class="sec">寒ければ寒いほど、ではない</h2>
+
+<p>季節ではなく、気温そのもので見たらどうなるのか。気温と水温が手元に残っているのは、2025年7月15日からの14か月だけです。</p>
+
+<p>場と1コースの選手の強さで揃えて、気温5℃ごとに1コースの1着率を出しました。</p>
+
+<table>
+<thead><tr><th>気温</th><th>レース</th><th>1コースの1着率</th></tr></thead>
+<tbody>
+<tr><td>5℃未満</td><td>1,721</td><td>55.51%</td></tr>
+<tr><td>5℃以上10℃未満</td><td>7,171</td><td>55.96%</td></tr>
+<tr><td>10℃以上15℃未満</td><td>10,069</td><td>56.18%</td></tr>
+<tr><td>15℃以上20℃未満</td><td>9,167</td><td>55.21%</td></tr>
+<tr><td>20℃以上25℃未満</td><td>10,021</td><td>54.93%</td></tr>
+<tr><td>25℃以上30℃未満</td><td>11,620</td><td>54.94%</td></tr>
+<tr><td>30℃以上</td><td>12,745</td><td>53.63%</td></tr>
+</tbody>
+</table>
+
+<p>暑いほうへ行くと下がる向きは、季節の数字と合っています。</p>
+
+<p>ところが、いちばん寒い5℃未満は10℃台より低い。はじめの月別の図で、いちばん高かったのが真冬ではなく3月だったのと、同じ形です。</p>
+
+<p>寒ければ寒いほどインが強い、という形にはなっていません。もっとも、この14か月に入っている冬はひと冬だけで、統計というより日記に近いのですが。</p>
+
+<h2 class="sec">風に罪を着せる</h2>
+
+<p>最後に、風のせいにできないか試しました。風速ごとに、冬と夏のレースの散らばり方を並べると、こうなる。</p>
+
+<table>
+<thead><tr><th>風速</th><th>冬</th><th>夏</th></tr></thead>
+<tbody>
+<tr><td>1m以下</td><td>29.0%</td><td>20.6%</td></tr>
+<tr><td>2m以上3m以下</td><td>40.0%</td><td>49.5%</td></tr>
+<tr><td>4m以上5m以下</td><td>21.1%</td><td>23.7%</td></tr>
+<tr><td>6m以上</td><td>9.9%</td><td>6.2%</td></tr>
+</tbody>
+</table>
+
+<p>6m以上の強い風は、たしかに冬のほうが多い。ところが1m以下のほぼ無風も冬に多く、冬は荒れる日も凪ぐ日も多い季節だったわけです。どちらの季節でも、6mを超えると1コースの1着率は46%から47%台まで落ちる。風の強さの内訳を夏と同じに揃えて冬の1着率を計算し直しても、54.7%のまま動きませんでした。風に罪を着せる計画は、ここでおしまい。</p>
+
+<h2 class="sec">ここから先は言えない</h2>
+
+<p>開催の格は揃えていません。<a href="../../glossary/?q=SG">SG</a>やG1といったグレードが、成績のファイルに載っていないからです。選手ごとの強さは揃えたものの、開催の格そのものが効いている可能性は残る。</p>
+
+<p>では、「冬は重量級が有利」という続きはどうか。これには答えていません。体重が手元にあるのは2026年1月からで、冬をひとつしか含まないからです。湿度は、そもそも持っていない。</p>
+
+<p>2着以下の舟のタイムも数えていません。冬に速くなったのが6艇全体だという読みは、1着のタイムと1着率の差から組み立てたもの。</p>
+
+<h2 class="sec">並び順は変わらない</h2>
+
+<p>「冬はイン」は、当たっていました。10年のうち9年、同じ選手どうしで比べても、冬の1号艇は夏より勝つ。</p>
+
+<p>ただ、冬に速くなるのは1号艇だけではありません。舟は2.5秒速くなり、1号艇の取り分は1.2ポイント。ひとつの場に1週間通って、1本ぶん。</p>
+
+<p>水温が一桁の日に変わっているのは、舟の速さのほうです。並び順は、ほとんど変わっていません。</p>
+
+</div>
+
+<details>
+<summary>この検証の数え方</summary>
+<div class="dbody">
+<ul>
+<li>期間：2016年11月1日から2026年8月31日。競走成績（Kファイル）の3,591日分</li>
+<li>レース数：541,558。1着のない不成立レース72を除いています</li>
+<li>季節：冬は12月・1月・2月、夏は7月・8月。12月は翌年の冬として数えています。冬141,772レース、夏96,065レース</li>
+<li>1コース：スタート展示ではなく、実際の進入で決めています</li>
+<li>強さ：その選手の直前12か月の1着率。30走に満たない選手は別の組にしています</li>
+<li>揃えた条件：場・季節の年・レース区分（予選と一般、準優勝戦、優勝戦、その他）・1コースの選手の強さ（5段）・外の5艇の平均の強さ（5段）。冬と夏の両方がある7,031組</li>
+<li>比較の基準：組の中で冬と夏のラベルだけを1,000回入れ替えて作った分布と比べています。理論上の確率分布は使っていません。この方法で見分けられる最小の差は0.58ポイントです</li>
+<li>重み：組ごとに、冬と夏の件数から決めた重み（冬の件数と夏の件数の積を、その和で割ったもの）</li>
+<li>同じ選手での比較：同じ選手・同じ場で冬と夏とも10回以上1コースに入った1,134組と、場を問わず冬と夏とも30回以上入った1,328人</li>
+<li>決まり手：全レースを分母にした割合を、上の組で揃えて冬から夏を引いています</li>
+<li>スタートタイミングと1着のタイム：場ごとに冬と夏の平均の差を取り、件数で重みを付けてまとめています。フライングと出遅れのスタートは除いています</li>
+<li>風：レースごとに記録された風速。風速4段の割合は、冬141,772レース・夏96,065レースが分母です</li>
+<li>気温と水温：当サイトの結果データに残る2025年7月15日から2026年9月18日の431日・65,308レース。場と1コースの選手の強さで揃えた値です。300レースに満たない区分は率を出していません</li>
+<li>揃えた比較に残ったレース：冬131,153、夏94,481。冬と夏の片方にしか現れない組み合わせは比べられないため外しています</li>
+<li>月ごとの図：揃える前の1コース1着率を、10年分の同じ月で合算したもの（各月38,038から50,404レース）</li>
+<li>図：すべてこの検証の集計から描いたもので、外部の画像は使っていません。1着のタイムの図は差の大きさを示すイメージで、距離の縮尺は正確ではありません</li>
+<li>選手の強さ別：直前12か月の1着率で4段に分けています。30走に満たない選手が1コースだった108レースは表から外しました。強いほうの2段は、この方法で見分けられる最小の差（25%以上35%未満で1.14ポイント、35%以上で3.85ポイント）に実際の差が届かないため、差を書いていません。表のレース数は、冬と夏の両方がある組に入ったものの合計です</li>
+<li>揃えていないもの：開催のグレード、湿度、体重。2着以下の舟のタイム</li>
+</ul>
+</div>
+</details>
+<p class="stamp">
+  集計期間 <span>2016/11/1 から 2026/8/31</span>　/　<span>3,591</span>日・<span>541,558</span>レース<br>
+  出典：公式サイト 競走成績（Kファイル）・当サイトの結果データ（気温・水温）。この期間の数字は固定で、更新されません。
+</p>
+
+<a class="siteback" href="../../">← データ攻め トップ</a>
+<a class="siteback" href="../">← 検証の一覧</a>
+
+</div>
+
+<script src="../../assets/guard.js" defer></script>
+</body>
+</html>
