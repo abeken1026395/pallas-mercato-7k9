@@ -1,0 +1,418 @@
+{
+ "summary": {
+  "stage": 1,
+  "seed": 20260920,
+  "nperm": 1000,
+  "races": 541558,
+  "strataUsed": 7031,
+  "rawC1WinPct": {
+   "winter": 54.72,
+   "nWinter": 141772,
+   "summer": 53.712,
+   "nSummer": 96065
+  },
+  "main": {
+   "controlledDiffPt": 1.245,
+   "pTwoSided": 0.000999,
+   "nullSdPt": 0.206,
+   "mdePt": 0.576,
+   "partitionInvariant": true
+  },
+  "byYear": {
+   "2017": {
+    "diffPt": 0.954,
+    "nWinter": 6906,
+    "nSummer": 9344
+   },
+   "2018": {
+    "diffPt": 2.158,
+    "nWinter": 13555,
+    "nSummer": 9151
+   },
+   "2019": {
+    "diffPt": 0.905,
+    "nWinter": 13876,
+    "nSummer": 9376
+   },
+   "2020": {
+    "diffPt": 0.328,
+    "nWinter": 13809,
+    "nSummer": 9277
+   },
+   "2021": {
+    "diffPt": 2.04,
+    "nWinter": 13504,
+    "nSummer": 8729
+   },
+   "2022": {
+    "diffPt": -0.679,
+    "nWinter": 14088,
+    "nSummer": 9528
+   },
+   "2023": {
+    "diffPt": 2.977,
+    "nWinter": 13831,
+    "nSummer": 9746
+   },
+   "2024": {
+    "diffPt": 0.422,
+    "nWinter": 13991,
+    "nSummer": 9567
+   },
+   "2025": {
+    "diffPt": 1.813,
+    "nWinter": 13990,
+    "nSummer": 10041
+   },
+   "2026": {
+    "diffPt": 1.494,
+    "nWinter": 13603,
+    "nSummer": 9722
+   }
+  },
+  "yearsSameSign": 9,
+  "withinRacer": {
+   "pairs": 1134,
+   "minEachSeason": 10,
+   "winterHigher": 584,
+   "summerHigher": 529,
+   "tie": 21,
+   "weightedDiffPt": 1.694
+  },
+  "withinRacerAllVenues": {
+   "racers": 1328,
+   "minEachSeason": 30,
+   "winterHigher": 765,
+   "summerHigher": 560,
+   "weightedDiffPt": 1.548
+  },
+  "kimarite": {
+   "nige": {
+    "rawWinterPct": 51.98,
+    "rawSummerPct": 50.801,
+    "controlledDiffPt": 1.453
+   },
+   "sashi": {
+    "rawWinterPct": 13.62,
+    "rawSummerPct": 12.971,
+    "controlledDiffPt": 0.516
+   },
+   "makuri": {
+    "rawWinterPct": 15.111,
+    "rawSummerPct": 15.535,
+    "controlledDiffPt": -0.484
+   },
+   "makurizashi": {
+    "rawWinterPct": 11.371,
+    "rawSummerPct": 12.351,
+    "controlledDiffPt": -0.971
+   },
+   "nuki": {
+    "rawWinterPct": 7.079,
+    "rawSummerPct": 7.462,
+    "controlledDiffPt": -0.474
+   },
+   "megumare": {
+    "rawWinterPct": 0.839,
+    "rawSummerPct": 0.88,
+    "controlledDiffPt": -0.04
+   }
+  },
+  "wind": {
+   "byBin": {
+    "W_0to1": {
+     "n": 41111,
+     "c1WinPct": 58.22
+    },
+    "W_2to3": {
+     "n": 56678,
+     "c1WinPct": 55.93
+    },
+    "W_4to5": {
+     "n": 29890,
+     "c1WinPct": 51.06
+    },
+    "W_ge6": {
+     "n": 14093,
+     "c1WinPct": 47.43
+    },
+    "S_0to1": {
+     "n": 19833,
+     "c1WinPct": 57.42
+    },
+    "S_2to3": {
+     "n": 47521,
+     "c1WinPct": 54.39
+    },
+    "S_4to5": {
+     "n": 22773,
+     "c1WinPct": 50.96
+    },
+    "S_ge6": {
+     "n": 5938,
+     "c1WinPct": 46.41
+    }
+   },
+   "ge6Share": {
+    "W": {
+     "n": 141772,
+     "ge6Pct": 9.941
+    },
+    "S": {
+     "n": 96065,
+     "ge6Pct": 6.181
+    }
+   }
+  },
+  "things": {
+   "winRaceTimeSecWinterMinusSummer": -2.5171,
+   "c1StWinterMinusSummer": 0.0006
+  },
+  "temps14m": {
+   "cells": {
+    "air|0to5": {
+     "n": 1721,
+     "c1WinPct": 56.48
+    },
+    "air|10to15": {
+     "n": 10069,
+     "c1WinPct": 56.31
+    },
+    "air|15to20": {
+     "n": 9167,
+     "c1WinPct": 55.93
+    },
+    "air|20to25": {
+     "n": 10021,
+     "c1WinPct": 55.25
+    },
+    "air|25to30": {
+     "n": 11620,
+     "c1WinPct": 54.92
+    },
+    "air|5to10": {
+     "n": 7171,
+     "c1WinPct": 55.52
+    },
+    "air|ge30": {
+     "n": 12745,
+     "c1WinPct": 53.21
+    },
+    "both|0to5|0to5": {
+     "n": 297,
+     "c1WinPct": null
+    },
+    "both|0to5|10to15": {
+     "n": 472,
+     "c1WinPct": 56.57
+    },
+    "both|0to5|15to20": {
+     "n": 9,
+     "c1WinPct": null
+    },
+    "both|0to5|5to10": {
+     "n": 943,
+     "c1WinPct": 55.36
+    },
+    "both|10to15|0to5": {
+     "n": 3,
+     "c1WinPct": null
+    },
+    "both|10to15|10to15": {
+     "n": 6565,
+     "c1WinPct": 56.47
+    },
+    "both|10to15|15to20": {
+     "n": 1729,
+     "c1WinPct": 57.14
+    },
+    "both|10to15|20to25": {
+     "n": 178,
+     "c1WinPct": null
+    },
+    "both|10to15|5to10": {
+     "n": 1594,
+     "c1WinPct": 54.71
+    },
+    "both|15to20|10to15": {
+     "n": 2159,
+     "c1WinPct": 56.0
+    },
+    "both|15to20|15to20": {
+     "n": 5155,
+     "c1WinPct": 55.64
+    },
+    "both|15to20|20to25": {
+     "n": 1583,
+     "c1WinPct": 55.4
+    },
+    "both|15to20|25to30": {
+     "n": 88,
+     "c1WinPct": null
+    },
+    "both|15to20|5to10": {
+     "n": 182,
+     "c1WinPct": null
+    },
+    "both|20to25|10to15": {
+     "n": 223,
+     "c1WinPct": null
+    },
+    "both|20to25|15to20": {
+     "n": 2136,
+     "c1WinPct": 53.7
+    },
+    "both|20to25|20to25": {
+     "n": 5630,
+     "c1WinPct": 55.51
+    },
+    "both|20to25|25to30": {
+     "n": 2008,
+     "c1WinPct": 56.82
+    },
+    "both|20to25|ge30": {
+     "n": 24,
+     "c1WinPct": null
+    },
+    "both|25to30|10to15": {
+     "n": 4,
+     "c1WinPct": null
+    },
+    "both|25to30|15to20": {
+     "n": 201,
+     "c1WinPct": null
+    },
+    "both|25to30|20to25": {
+     "n": 2246,
+     "c1WinPct": 54.63
+    },
+    "both|25to30|25to30": {
+     "n": 7452,
+     "c1WinPct": 53.95
+    },
+    "both|25to30|ge30": {
+     "n": 1717,
+     "c1WinPct": 59.99
+    },
+    "both|5to10|0to5": {
+     "n": 164,
+     "c1WinPct": null
+    },
+    "both|5to10|10to15": {
+     "n": 3434,
+     "c1WinPct": 55.15
+    },
+    "both|5to10|15to20": {
+     "n": 235,
+     "c1WinPct": null
+    },
+    "both|5to10|5to10": {
+     "n": 3338,
+     "c1WinPct": 56.44
+    },
+    "both|ge30|20to25": {
+     "n": 165,
+     "c1WinPct": null
+    },
+    "both|ge30|25to30": {
+     "n": 6024,
+     "c1WinPct": 52.29
+    },
+    "both|ge30|ge30": {
+     "n": 6556,
+     "c1WinPct": 54.16
+    },
+    "water|0to5": {
+     "n": 464,
+     "c1WinPct": 54.53
+    },
+    "water|10to15": {
+     "n": 12857,
+     "c1WinPct": 55.93
+    },
+    "water|15to20": {
+     "n": 9465,
+     "c1WinPct": 55.36
+    },
+    "water|20to25": {
+     "n": 9802,
+     "c1WinPct": 55.21
+    },
+    "water|25to30": {
+     "n": 15572,
+     "c1WinPct": 53.7
+    },
+    "water|5to10": {
+     "n": 6057,
+     "c1WinPct": 56.13
+    },
+    "water|ge30": {
+     "n": 8297,
+     "c1WinPct": 55.36
+    }
+   },
+   "airStandardized": {
+    "0to5": {
+     "n": 1721,
+     "stdC1WinPct": 55.51
+    },
+    "10to15": {
+     "n": 10069,
+     "stdC1WinPct": 56.18
+    },
+    "15to20": {
+     "n": 9167,
+     "stdC1WinPct": 55.21
+    },
+    "20to25": {
+     "n": 10021,
+     "stdC1WinPct": 54.93
+    },
+    "25to30": {
+     "n": 11620,
+     "stdC1WinPct": 54.94
+    },
+    "5to10": {
+     "n": 7171,
+     "stdC1WinPct": 55.96
+    },
+    "ge30": {
+     "n": 12745,
+     "stdC1WinPct": 53.63
+    }
+   }
+  },
+  "strengthBins": {
+   "15to25|12to15": 46216,
+   "15to25|15to18": 48573,
+   "15to25|ge18": 52106,
+   "15to25|lt12": 43865,
+   "15to25|na": 205,
+   "25to35|12to15": 19725,
+   "25to35|15to18": 23672,
+   "25to35|ge18": 66266,
+   "25to35|lt12": 21865,
+   "25to35|na": 151,
+   "ge35|12to15": 1479,
+   "ge35|15to18": 1933,
+   "ge35|ge18": 9807,
+   "ge35|lt12": 1500,
+   "ge35|na": 83,
+   "lt15|12to15": 47901,
+   "lt15|15to18": 54729,
+   "lt15|ge18": 38639,
+   "lt15|lt12": 51655,
+   "lt15|na": 222,
+   "new|12to15": 404,
+   "new|15to18": 345,
+   "new|ge18": 568,
+   "new|lt12": 497,
+   "new|na": 9152
+  },
+  "notes": [
+   "grade not in Kfiles; controlled by prior 12-month win rate instead",
+   "season: winter=Dec,Jan,Feb / summer=Jul,Aug; December counted in next season-year",
+   "cells under 300 are not reported as rates"
+  ]
+ }
+}
