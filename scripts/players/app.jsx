@@ -339,6 +339,8 @@ function App() {
   const [soMeta, setSoMeta] = useState(null);
   const [cstat, setCstat] = useState(null);
   const [sched, setSched] = useState(null);
+  const [wst, setWst] = useState(null);
+  const [wstPer, setWstPer] = useState(3);
   const [scMeta, setScMeta] = useState(null);
   const [csMeta, setCsMeta] = useState(null);
   const [oshi, setOshi] = useState(loadOshi);
@@ -464,6 +466,74 @@ function App() {
       if(j && j.racers){ setSched(j.racers); setScMeta({取得:j.取得時刻, 上限:j.掲載上限, 出典:j.出典, 場:j.場||{}, 注記:j.注記}); }
     }).catch(()=>{ setSched(false); });
   },[open]);
+  // 枠別の平均ST（base.csv 由来）も詳細を開いた時だけ遅延読込
+  useEffect(()=>{
+    if(!open || wst!==null) return;
+    fetch("../data/wakuST.json").then(r=>r.ok?r.json():Promise.reject()).then(j=>{
+      if(j && j.cells && Array.isArray(j.base)) setWst(j); else setWst(false);
+    }).catch(()=>{ setWst(false); });
+  },[open]);
+  // ■ スタート節の「枠別に見る」。wakuST に居ない選手は折りたたみごと出さない
+  const WST_PER = [["2m","2ヶ月"],["3m","3ヶ月"],["6m","半年"],["1y","1年"],["2y","2年"]];
+  const wakuStBox = (no)=>{
+    if(!wst) return null;
+    const cell = wst.cells[String(no)];
+    if(!cell) return null;
+    const pi = wstPer;
+    const avg = (a)=> (a && a[0]>0) ? (a[1]/a[0]/1000).toFixed(2) : null;
+    const td = {padding:"6px 0",color:"#e0e6ed",fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap"};
+    const th = {padding:"4px 0",borderBottom:"1px solid #1a2535",color:"#6b7f95",fontSize:10,fontWeight:400,textAlign:"right"};
+    return (
+      <details onClick={e=>e.stopPropagation()} style={{marginTop:6}}>
+        <summary onClick={e=>e.stopPropagation()} style={{fontSize:12,color:"#8faabe",cursor:"pointer",minHeight:44,display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,listStyle:"none",background:"#0b1219",border:"1px solid #1a2535",borderRadius:8,padding:"0 12px"}}>
+          <span>枠別に見る</span>
+          <span style={{color:"#6b7f95",fontSize:12}}>▸</span>
+        </summary>
+        <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:8}}>
+          {WST_PER.map(([k,l],i)=>(
+            <button key={k} type="button" onClick={e=>{e.stopPropagation();e.preventDefault();setWstPer(i);}} style={{fontSize:11,fontWeight:700,cursor:"pointer",borderRadius:6,padding:"4px 10px",minHeight:30,border:"1px solid "+(pi===i?"#ffd166":"#2a3d52"),color:pi===i?"#ffd166":"#8faabe",background:pi===i?"#ffd16618":"#101a26"}}>{l}</button>
+          ))}
+        </div>
+        <table style={{width:"100%",borderCollapse:"collapse",fontSize:12,marginTop:4}}>
+          <thead>
+            <tr>
+              <th style={{...th,textAlign:"left",width:"3.6em"}}></th>
+              <th style={th}>平均ST</th>
+              <th style={th}>ST走数</th>
+              <th style={th}>F回数</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[1,2,3,4,5,6].map(w=>{
+              const a = cell[String(w)] ? cell[String(w)][pi] : [0,0,0];
+              const my = avg(a);
+              const all = avg(wst.base[pi] && wst.base[pi][String(w)]);
+              const few = a[0] < 20;
+              return (
+                <React.Fragment key={w}>
+                  <tr style={{opacity:few?0.55:1}}>
+                    <td style={{...td,color:"#8faabe"}}>{w}枠</td>
+                    <td style={{...td,textAlign:"right",fontWeight:700}}>{a[0]>0?my:"—"}</td>
+                    <td style={{...td,textAlign:"right"}}>{a[0]}走</td>
+                    <td style={{...td,textAlign:"right"}}>{a[2]}回</td>
+                  </tr>
+                  <tr>
+                    <td colSpan={4} style={{padding:"0 0 5px",borderBottom:"1px solid #1a2535",color:"#6b7f95",fontSize:10,fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap"}}>
+                      {"枠"+w+" 全体 "+(all===null?"—":all)}
+                    </td>
+                  </tr>
+                </React.Fragment>
+              );
+            })}
+          </tbody>
+        </table>
+        <div style={{fontSize:10,color:"#6b7f95",marginTop:8,lineHeight:1.6}}>
+          その枠で走ったときの本番STの平均。フライングの走は平均から外し回数だけ数える。
+          欠場とSTが数値でない走は除外。走数20未満は薄字。出典：公式競走成績
+        </div>
+      </details>
+    );
+  };
   // URLに ?toban=登番 があれば、その選手を検索欄にプリセットして開く（モーター等からのリンク用）
   useEffect(()=>{
     const t=new URLSearchParams(location.search).get("toban");
@@ -833,6 +903,7 @@ function App() {
                         <div style={{fontSize:11,color:"#6b7f95",background:"#0b1219",borderRadius:8,padding:"10px 12px",lineHeight:1.7}}>
                           この選手は集計期間の走数が{slMeta&&slMeta.ガード?slMeta.ガード:20}走に届きません。
                         </div>
+                        {wakuStBox(p.no)}
                       </div>
                     );
                     const base = (slMeta&&slMeta.基準) || null;
@@ -968,6 +1039,7 @@ function App() {
                           </div>
                         </details>
                         )}
+                        {wakuStBox(p.no)}
                       </div>
                     );
                   })()}
