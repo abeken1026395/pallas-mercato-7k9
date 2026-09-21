@@ -10,6 +10,12 @@
 
 期間は 2ヶ月/3ヶ月/半年/1年/2年 の5本。いずれも最新日から遡る。
 着コードの表記ゆれ（Kファイル由来は "01"、results 由来は "1"）は読み込み時に正規化する。
+
+k1 列（枠1の行だけ・欠場は空欄）は、枠1で出たレースの決着を1文字で持つ。
+  e=逃げ（1コースに入り逃げで1着） s=差され m=まくられ z=まくり差され
+  x=1コース以外に進入 o=その他（抜き・恵まれ・同着・決まり手不明など）
+wakuStats.json の k1 に e/s/m/z/x の回数を期間別に出す。o は表示側で n から引いて出す。
+過去分の k1 は scripts/backfillWakuK1.py（ローカル・Kファイル）で一度だけ埋めた。
 """
 import csv
 import glob
@@ -24,7 +30,22 @@ BASE = os.path.join(ROOT, "data", "wakuStats", "base.csv")
 OUT = os.path.join(ROOT, "docs", "data", "wakuStats.json")
 OUT_ST = os.path.join(ROOT, "docs", "data", "wakuST.json")
 RESULTS = os.path.join(ROOT, "results")
-COLS = ["hd", "toban", "waku", "chaku", "st"]
+COLS = ["hd", "toban", "waku", "chaku", "st", "k1"]
+K1_KEYS = ["e", "s", "m", "z", "x"]
+K1_KIM = {"差し": "s", "まくり": "m", "まくり差し": "z"}
+
+
+def k1_code(shinnyu, chaku, kim):
+    """枠1で出たレースの決着を1文字にする。chaku は正規化済み。"""
+    sh = str(shinnyu if shinnyu is not None else "").strip().lstrip("0")
+    if sh == "":
+        return "o"
+    if sh != "1":
+        return "x"
+    kim = str(kim or "").strip()
+    if chaku == "1" and kim == "逃げ":
+        return "e"
+    return K1_KIM.get(kim, "o")
 # (キー, 遡る日数)。最長が正本の保持期間になる
 PERIODS = [("2m", 61), ("3m", 92), ("6m", 183), ("1y", 365), ("2y", 730)]
 WINDOW_DAYS = max(d for _, d in PERIODS)
@@ -70,6 +91,7 @@ def read_base():
                 "waku": str(x.get("waku")).strip(),
                 "chaku": norm_chaku(x.get("chaku")),
                 "st": str(x.get("st") or "").strip(),
+                "k1": str(x.get("k1") or "").strip(),
             })
         return rows
 
@@ -96,10 +118,13 @@ def extract_from_results(path):
             if not waku or not toban:
                 continue
             ch = norm_chaku(b.get("着") if b.get("着") is not None else "")
+            w = str(int(waku))
             out.append({
-                "hd": hd, "toban": str(toban), "waku": str(int(waku)),
+                "hd": hd, "toban": str(toban), "waku": w,
                 "chaku": ch,
                 "st": "" if is_absent(ch) else st_ms(b.get("ST")),
+                "k1": k1_code(b.get("コース"), ch, r.get("決まり手"))
+                      if (w == "1" and not is_absent(ch)) else "",
             })
     return out
 
@@ -121,11 +146,26 @@ def build_json(rows, latest):
     # base[期間][枠] = [n,c1,c2,c3]（枠番別の全体平均。読者が比較に使う基準行。
     # 全艇合計にすると必ず 1/6・2/6・3/6 になり比較対象にならないため枠番別に持つ）
     totals = [{str(w): [0, 0, 0, 0] for w in range(1, 7)} for _ in PERIODS]
+    # k1[toban] = [[e,s,m,z,x] x 5期間]。枠1の決着内訳。o は n から引いて表示側で出す
+    k1cells = {}
+    k1base = [[0] * len(K1_KEYS) for _ in PERIODS]
+    k1blank = 0
     for x in rows:
         hd = x["hd"]
         ch = x["chaku"]
         if is_absent(ch):
             continue
+        if x["waku"] == "1":
+            code = x.get("k1", "")
+            if code == "":
+                k1blank += 1
+            elif code in K1_KEYS:
+                j = K1_KEYS.index(code)
+                ka = k1cells.setdefault(x["toban"], [[0] * len(K1_KEYS) for _ in PERIODS])
+                for i, (_, lo) in enumerate(los):
+                    if hd >= lo:
+                        ka[i][j] += 1
+                        k1base[i][j] += 1
         one = 1 if ch == "1" else 0
         two = 1 if ch in ("1", "2") else 0
         three = 1 if ch in ("1", "2", "3") else 0
@@ -150,10 +190,12 @@ def build_json(rows, latest):
             "periodDays": {k: d for k, d in PERIODS},
             "runs": len(rows),
             "cells": sum(len(v) for v in cells.values()),
+            "k1Blank": k1blank,
             "generated": jst_now(),
         },
         "base": totals,
         "cells": cells,
+        "k1": {"keys": K1_KEYS, "base": k1base, "cells": k1cells},
     }
 
 
@@ -227,6 +269,7 @@ def main():
     print("DAYS_ADDED=%d RUNS=%d CELLS=%d BYTES=%d FROM=%s TO=%s" % (
         added, j["meta"]["runs"], j["meta"]["cells"], nbytes,
         j["meta"]["from"], j["meta"]["to"]))
+    print("K1_CELLS=%d K1_BLANK=%d" % (len(j["k1"]["cells"]), j["meta"]["k1Blank"]))
     print("ST_CELLS=%d ST_BYTES=%d" % (sum(len(v) for v in jst["cells"].values()), nbytes_st))
 
 
