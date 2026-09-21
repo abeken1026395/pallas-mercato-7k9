@@ -427,10 +427,15 @@ function App(){
     let best = null;  // 今節より前の開催日で最新の節
     for(const s of arr){ const shd=String(s["開催日"]||""); if(hd && shd>=hd) continue; if(!best || shd>String(best["開催日"]||"")) best=s; }
     if(!best) return null;
+    // 新替より前に締まった節は、今とは別のモーター。1位を出さない。
+    const rp = replMap ? replMap[String(jcd||"").padStart(2,"0")] : null;
+    const rd = rp ? String(rp["新替日"]||"") : "";
+    if(/^\d{8}$/.test(rd) && String(best["開催日"]||"") < rd) return null;
     const motors = best.motors||{};
     let topNo=null, topRate=-1;
     for(const no in motors){ const v=Number(motors[no]); if(isFinite(v) && v>topRate){ topRate=v; topNo=no; } }
-    if(topNo===null) return null;
+    // 全機0（初おろし節は公式値が0のまま締まる）では1位を決められない。
+    if(topNo===null || !(topRate>0)) return null;
     return {no:topNo, rate:topRate, 節名:String(best["節名"]||""), 開催日:String(best["開催日"]||"")};
   };
 

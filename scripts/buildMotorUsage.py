@@ -18,6 +18,8 @@
 #   公式の「モーター2連対率」が新替からの累計であることを使い、場ごとに
 #   「その日以降で数え直した2連率が公式値に最も近くなる開催日」を新替日として逆算する。
 #   逆算できなかった場のモーターは出力しない（推測で埋めない）。
+#   ただし docs/data/motorReplace.json に新替日の記録があり、逆算できないか逆算より新しい場は、
+#   記録の日を窓にする（初おろし節の間は公式値が全機0で逆算できないため。venues.windowSource="motorReplace"）。
 #
 # 安全ゲート（重要）:
 #   このスクリプトは scripts/dailyMotorUsage.ps1 から毎日06:00に無人で回され、
@@ -59,6 +61,7 @@ BSDTAR = os.environ.get(
 KFILES_DIR = os.environ.get("KFILES_DIR", os.path.join("data", "kfiles"))
 TEACHER = os.environ.get("MOTORS_ALL_CSV", os.path.join("docs", "motor", "motors_all.csv"))
 OUT = os.path.join("docs", "data", "motorUsage.json")
+REPLACE = os.path.join("docs", "data", "motorReplace.json")  # モーター新替日の記録（build_highlights.py が自動追記・手入力可）
 
 # 出力JSONの形式印。app.jsx はこの値が無いJSONの走行数を表示しない（旧形式の止血）。
 SCHEMA = "venueWindow-1"
@@ -224,6 +227,21 @@ def load_teacher(path=TEACHER):
     return out
 
 
+def load_replace(path=REPLACE):
+    """motorReplace.json → {jcd: 新替日(YYYYMMDD)}。読めなければ空。"""
+    try:
+        with open(path, encoding="utf-8") as f:
+            raw = json.load(f) or {}
+    except Exception:
+        return {}
+    out = {}
+    for k, v in raw.items():
+        d = str((v or {}).get("新替日") or "")
+        if len(d) == 8 and d.isdigit():
+            out[str(k).zfill(2)] = d
+    return out
+
+
 def setsu_groups(days):
     """開催日の昇順リストを節に割る。連続する日のかたまりを1節とみなす。
     1日でも空けば別の節として扱うので、Kアーカイブに欠損日があると過分割される。"""
@@ -330,17 +348,30 @@ def aggregate(records, teacher):
     venues = {}
     # 教師の開催日。公式値の基準日を割り出すのと venues に持たせるのに使う。
     tdates = teacher_dates()
+    repl = load_replace()
     for jcd in sorted(by_venue):
         by_day = by_venue[jcd]
         mend = measure_end(by_day, tdates.get(jcd, ""))
         got = solve_venue(by_day, teacher.get(jcd, {}), mend)
         name = VENUES.get(jcd, jcd)
-        if got is None:
+        # 新替日の記録が逆算より新しい（または逆算できない）場は、記録を窓にする。
+        # 逆算が記録より古い日を返すのは、新替前のモーターの数字に合わせてしまったとき。
+        rs = repl.get(jcd, "")
+        use_rec = bool(rs) and rs <= max(by_day) and (got is None or got[0] < rs)
+        if got is None and not use_rec:
             print("  [skip] {} {} … 新替日を推定できず（走行数を出さない・誤差測定は{}まで）".format(
                 jcd, name, mend or "全期間"))
             continue
-        start, err, matched = got
-        venues[jcd] = {"coverageFrom": start, "fitError": round(err, 3), "matched": matched}
+        if use_rec:
+            start = rs
+            venues[jcd] = {"coverageFrom": start, "fitError": None, "matched": 0, "windowSource": "motorReplace"}
+            print("  [ok] {} {} … motorReplace.json の新替日 {} を窓に使う（逆算 {}）".format(
+                jcd, name, start, got[0] if got else "不可"))
+        else:
+            start, err, matched = got
+            venues[jcd] = {"coverageFrom": start, "fitError": round(err, 3), "matched": matched}
+            print("  [ok] {} {} … 新替日(推定) {} / 平均誤差 {:.2f}pt / 照合{}機 / 誤差測定は{}まで".format(
+                jcd, name, start, err, matched, mend or "全期間"))
         for hd, day in by_day.items():
             if hd < start:
                 continue
@@ -356,11 +387,10 @@ def aggregate(records, teacher):
                     d["窓内初出日"] = hd
                 if hd > d["最新日"]:
                     d["最新日"] = hd
-        print("  [ok] {} {} … 新替日(推定) {} / 平均誤差 {:.2f}pt / 照合{}機 / 誤差測定は{}まで".format(
-            jcd, name, start, err, matched, mend or "全期間"))
 
     for jcd in venues:
-        if jcd in tdates:
+        # 記録を窓にした場は公式値が全機0（初おろし節）なので、公式の基準日を持たせない（画面に0%を並べない）。
+        if jcd in tdates and "windowSource" not in venues[jcd]:
             venues[jcd]["officialAsOf"] = tdates[jcd]
     for key, d in motors.items():
         w = d["走"]
@@ -486,7 +516,7 @@ def main():
         "source": "mbrace競走成績(K)由来・自前集計",
         "note": ("走行数はモーター新替(推定)以降の実測カウント。新替日は公式非公開のため、"
                  "公式のモーター2連対率（新替からの累計）と突き合わせて場ごとに逆算した推定値。"
-                 "推定できなかった場は出力しない。欠損期間は補完しない。"
+                 "推定できなかった場は出力しない（motorReplace.json に新替日の記録がある場は、その日を窓にする。venues.windowSource）。欠損期間は補完しない。"
                  "公式2連率は各場の直近の節が終わった時点の値（venues.officialAsOf）で、"
                  "自前の集計はKアーカイブの最新開催日まで数えるため両者の基準日は異なる。"),
         "coverageFrom": min(dates) if dates else "",
