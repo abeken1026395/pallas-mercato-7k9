@@ -805,6 +805,8 @@ function App() {
   const [soMeta, setSoMeta] = useState(null);
   const [cstat, setCstat] = useState(null);
   const [sched, setSched] = useState(null);
+  const [wst, setWst] = useState(null);
+  const [wstPer, setWstPer] = useState(3);
   const [scMeta, setScMeta] = useState(null);
   const [csMeta, setCsMeta] = useState(null);
   const [oshi, setOshi] = useState(loadOshi);
@@ -1052,6 +1054,161 @@ function App() {
       setSched(false);
     });
   }, [open]);
+  // 枠別の平均ST（base.csv 由来）も詳細を開いた時だけ遅延読込
+  useEffect(() => {
+    if (!open || wst !== null) return;
+    fetch("../data/wakuST.json").then(r => r.ok ? r.json() : Promise.reject()).then(j => {
+      if (j && j.cells && Array.isArray(j.base)) setWst(j);else setWst(false);
+    }).catch(() => {
+      setWst(false);
+    });
+  }, [open]);
+  // ■ スタート節の「枠別に見る」。wakuST に居ない選手は折りたたみごと出さない
+  const WST_PER = [["2m", "2ヶ月"], ["3m", "3ヶ月"], ["6m", "半年"], ["1y", "1年"], ["2y", "2年"]];
+  const wakuStBox = no => {
+    if (!wst) return null;
+    const cell = wst.cells[String(no)];
+    if (!cell) return null;
+    const pi = wstPer;
+    const avg = a => a && a[0] > 0 ? (a[1] / a[0] / 1000).toFixed(2) : null;
+    const td = {
+      padding: "6px 0",
+      color: "#e0e6ed",
+      fontVariantNumeric: "tabular-nums",
+      whiteSpace: "nowrap"
+    };
+    const th = {
+      padding: "4px 0",
+      borderBottom: "1px solid #1a2535",
+      color: "#6b7f95",
+      fontSize: 10,
+      fontWeight: 400,
+      textAlign: "right"
+    };
+    return /*#__PURE__*/React.createElement("details", {
+      onClick: e => e.stopPropagation(),
+      style: {
+        marginTop: 6
+      }
+    }, /*#__PURE__*/React.createElement("summary", {
+      onClick: e => e.stopPropagation(),
+      style: {
+        fontSize: 12,
+        color: "#8faabe",
+        cursor: "pointer",
+        minHeight: 44,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: 8,
+        listStyle: "none",
+        background: "#0b1219",
+        border: "1px solid #1a2535",
+        borderRadius: 8,
+        padding: "0 12px"
+      }
+    }, /*#__PURE__*/React.createElement("span", null, "\u67A0\u5225\u306B\u898B\u308B"), /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: "#6b7f95",
+        fontSize: 12
+      }
+    }, "\u25B8")), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        gap: 6,
+        flexWrap: "wrap",
+        marginTop: 8
+      }
+    }, WST_PER.map(([k, l], i) => /*#__PURE__*/React.createElement("button", {
+      key: k,
+      type: "button",
+      onClick: e => {
+        e.stopPropagation();
+        e.preventDefault();
+        setWstPer(i);
+      },
+      style: {
+        fontSize: 11,
+        fontWeight: 700,
+        cursor: "pointer",
+        borderRadius: 6,
+        padding: "4px 10px",
+        minHeight: 30,
+        border: "1px solid " + (pi === i ? "#ffd166" : "#2a3d52"),
+        color: pi === i ? "#ffd166" : "#8faabe",
+        background: pi === i ? "#ffd16618" : "#101a26"
+      }
+    }, l))), /*#__PURE__*/React.createElement("table", {
+      style: {
+        width: "100%",
+        borderCollapse: "collapse",
+        fontSize: 12,
+        marginTop: 4
+      }
+    }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", {
+      style: {
+        ...th,
+        textAlign: "left",
+        width: "3.6em"
+      }
+    }), /*#__PURE__*/React.createElement("th", {
+      style: th
+    }, "\u5E73\u5747ST"), /*#__PURE__*/React.createElement("th", {
+      style: th
+    }, "ST\u8D70\u6570"), /*#__PURE__*/React.createElement("th", {
+      style: th
+    }, "F\u56DE\u6570"))), /*#__PURE__*/React.createElement("tbody", null, [1, 2, 3, 4, 5, 6].map(w => {
+      const a = cell[String(w)] ? cell[String(w)][pi] : [0, 0, 0];
+      const my = avg(a);
+      const all = avg(wst.base[pi] && wst.base[pi][String(w)]);
+      const few = a[0] < 20;
+      return /*#__PURE__*/React.createElement(React.Fragment, {
+        key: w
+      }, /*#__PURE__*/React.createElement("tr", {
+        style: {
+          opacity: few ? 0.55 : 1
+        }
+      }, /*#__PURE__*/React.createElement("td", {
+        style: {
+          ...td,
+          color: "#8faabe"
+        }
+      }, w, "\u67A0"), /*#__PURE__*/React.createElement("td", {
+        style: {
+          ...td,
+          textAlign: "right",
+          fontWeight: 700
+        }
+      }, a[0] > 0 ? my : "—"), /*#__PURE__*/React.createElement("td", {
+        style: {
+          ...td,
+          textAlign: "right"
+        }
+      }, a[0], "\u8D70"), /*#__PURE__*/React.createElement("td", {
+        style: {
+          ...td,
+          textAlign: "right"
+        }
+      }, a[2], "\u56DE")), /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
+        colSpan: 4,
+        style: {
+          padding: "0 0 5px",
+          borderBottom: "1px solid #1a2535",
+          color: "#6b7f95",
+          fontSize: 10,
+          fontVariantNumeric: "tabular-nums",
+          whiteSpace: "nowrap"
+        }
+      }, "枠" + w + " 全体 " + (all === null ? "—" : all))));
+    }))), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 10,
+        color: "#6b7f95",
+        marginTop: 8,
+        lineHeight: 1.6
+      }
+    }, "\u305D\u306E\u67A0\u3067\u8D70\u3063\u305F\u3068\u304D\u306E\u672C\u756AST\u306E\u5E73\u5747\u3002\u30D5\u30E9\u30A4\u30F3\u30B0\u306E\u8D70\u306F\u5E73\u5747\u304B\u3089\u5916\u3057\u56DE\u6570\u3060\u3051\u6570\u3048\u308B\u3002 \u6B20\u5834\u3068ST\u304C\u6570\u5024\u3067\u306A\u3044\u8D70\u306F\u9664\u5916\u3002\u8D70\u657020\u672A\u6E80\u306F\u8584\u5B57\u3002\u51FA\u5178\uFF1A\u516C\u5F0F\u7AF6\u8D70\u6210\u7E3E"));
+  };
   // URLに ?toban=登番 があれば、その選手を検索欄にプリセットして開く（モーター等からのリンク用）
   useEffect(() => {
     const t = new URLSearchParams(location.search).get("toban");
@@ -2143,7 +2300,7 @@ function App() {
           padding: "10px 12px",
           lineHeight: 1.7
         }
-      }, "\u3053\u306E\u9078\u624B\u306F\u96C6\u8A08\u671F\u9593\u306E\u8D70\u6570\u304C", slMeta && slMeta.ガード ? slMeta.ガード : 20, "\u8D70\u306B\u5C4A\u304D\u307E\u305B\u3093\u3002"));
+      }, "\u3053\u306E\u9078\u624B\u306F\u96C6\u8A08\u671F\u9593\u306E\u8D70\u6570\u304C", slMeta && slMeta.ガード ? slMeta.ガード : 20, "\u8D70\u306B\u5C4A\u304D\u307E\u305B\u3093\u3002"), wakuStBox(p.no));
       const base = slMeta && slMeta.基準 || null;
       const pct = (a, b) => b ? Math.round(a / b * 1000) / 10 : null;
       const my = pct(sl.late, sl.n);
@@ -2403,7 +2560,7 @@ function App() {
           marginTop: 6,
           lineHeight: 1.6
         }
-      }, "\u300C\u30B9\u30BF\u30FC\u30C8\u9806\u300D\u306F\u3001\u305D\u306E\u30EC\u30FC\u30B9\u3092\u4E00\u7DD2\u306B\u8D70\u3063\u305F\u8247\u3092\u672C\u756AST\u306E\u901F\u3044\u9806\u306B\u4E26\u3079\u305F\u3068\u304D\u306E \u9806\u4F4D\u3092\u5E73\u5747\u3057\u305F\u5024\u30021\u306B\u8FD1\u3044\u307B\u3069\u3001\u305D\u306E\u30B3\u30FC\u30B9\u3067\u5148\u306B\u30B9\u30BF\u30FC\u30C8\u3092\u5207\u3063\u3066\u3044\u308B\u3002 \u30B3\u30FC\u30B9\u306B\u3088\u3063\u3066\u51FA\u3084\u3059\u3044\u9806\u4F4D\u304C\u9055\u3046\u306E\u3067\u3001\u5168\u9078\u624B\u3092\u5408\u7B97\u3057\u305F\u300C\u5168\u4F53\u300D\u3068\u898B\u6BD4\u3079\u3066\u8AAD\u3080\u3002 \u8A00\u8449\u306F\u5168\u4F53\u3068\u306E\u5DEE\u304C", sayTh, "\u4EE5\u4E0A\u3042\u308B\u3068\u304D\u3060\u3051\u6DFB\u3048\u308B\u3002\u540C\u3058ST\u304C\u8907\u6570\u8247\u3044\u305F\u5834\u5408\u306F \u9806\u4F4D\u3092\u5272\u3063\u3066\u5E73\u5747\u3067\u6570\u3048\u308B\u3002\u30D5\u30E9\u30A4\u30F3\u30B0\u3068\u6B20\u5834\u306F\u305D\u306E1\u8D70\u3060\u3051\u3092\u9664\u304D\u3001 \u540C\u3058\u30EC\u30FC\u30B9\u306E\u4ED6\u8247\u306F\u6B8B\u3057\u3066\u3044\u308B\u3002", "　" + guard + "走に満たないコースは順位を出さない。", soMeta && soMeta.期間 && soMeta.期間.all ? "　対象期間 " + soMeta.期間.all.from + "-" + soMeta.期間.all.to + "。" : "")));
+      }, "\u300C\u30B9\u30BF\u30FC\u30C8\u9806\u300D\u306F\u3001\u305D\u306E\u30EC\u30FC\u30B9\u3092\u4E00\u7DD2\u306B\u8D70\u3063\u305F\u8247\u3092\u672C\u756AST\u306E\u901F\u3044\u9806\u306B\u4E26\u3079\u305F\u3068\u304D\u306E \u9806\u4F4D\u3092\u5E73\u5747\u3057\u305F\u5024\u30021\u306B\u8FD1\u3044\u307B\u3069\u3001\u305D\u306E\u30B3\u30FC\u30B9\u3067\u5148\u306B\u30B9\u30BF\u30FC\u30C8\u3092\u5207\u3063\u3066\u3044\u308B\u3002 \u30B3\u30FC\u30B9\u306B\u3088\u3063\u3066\u51FA\u3084\u3059\u3044\u9806\u4F4D\u304C\u9055\u3046\u306E\u3067\u3001\u5168\u9078\u624B\u3092\u5408\u7B97\u3057\u305F\u300C\u5168\u4F53\u300D\u3068\u898B\u6BD4\u3079\u3066\u8AAD\u3080\u3002 \u8A00\u8449\u306F\u5168\u4F53\u3068\u306E\u5DEE\u304C", sayTh, "\u4EE5\u4E0A\u3042\u308B\u3068\u304D\u3060\u3051\u6DFB\u3048\u308B\u3002\u540C\u3058ST\u304C\u8907\u6570\u8247\u3044\u305F\u5834\u5408\u306F \u9806\u4F4D\u3092\u5272\u3063\u3066\u5E73\u5747\u3067\u6570\u3048\u308B\u3002\u30D5\u30E9\u30A4\u30F3\u30B0\u3068\u6B20\u5834\u306F\u305D\u306E1\u8D70\u3060\u3051\u3092\u9664\u304D\u3001 \u540C\u3058\u30EC\u30FC\u30B9\u306E\u4ED6\u8247\u306F\u6B8B\u3057\u3066\u3044\u308B\u3002", "　" + guard + "走に満たないコースは順位を出さない。", soMeta && soMeta.期間 && soMeta.期間.all ? "　対象期間 " + soMeta.期間.all.from + "-" + soMeta.期間.all.to + "。" : "")), wakuStBox(p.no));
     })(), detail && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 11,
