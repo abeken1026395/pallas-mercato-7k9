@@ -1,0 +1,148 @@
+{
+ "summary": {
+  "stage": 2,
+  "seed": 20260920,
+  "nperm": 1000,
+  "races": 541558,
+  "overall": {
+   "strata": 7031,
+   "nWinter": 131153,
+   "nSummer": 94481,
+   "rawWinterPct": 54.65,
+   "rawSummerPct": 53.53,
+   "controlledDiffPt": 1.245,
+   "pTwoSided": 0.000999,
+   "nullSdPt": 0.206,
+   "mdePt": 0.576,
+   "fillRatio": 2.16
+  },
+  "byC1Strength": {
+   "new": {
+    "strata": 23,
+    "nWinter": 84,
+    "nSummer": 24,
+    "rawWinterPct": 38.1,
+    "rawSummerPct": 20.83,
+    "controlledDiffPt": 27.66,
+    "pTwoSided": 0.01998,
+    "nullSdPt": 11.39,
+    "mdePt": 31.892,
+    "fillRatio": 0.87
+   },
+   "lt15": {
+    "strata": 1582,
+    "nWinter": 49396,
+    "nSummer": 34939,
+    "rawWinterPct": 37.87,
+    "rawSummerPct": 36.23,
+    "controlledDiffPt": 1.27,
+    "pTwoSided": 0.000999,
+    "nullSdPt": 0.346,
+    "mdePt": 0.968,
+    "fillRatio": 1.31
+   },
+   "15to25": {
+    "strata": 2277,
+    "nWinter": 47319,
+    "nSummer": 34092,
+    "rawWinterPct": 60.06,
+    "rawSummerPct": 58.35,
+    "controlledDiffPt": 1.505,
+    "pTwoSided": 0.001998,
+    "nullSdPt": 0.362,
+    "mdePt": 1.014,
+    "fillRatio": 1.48
+   },
+   "25to35": {
+    "strata": 2319,
+    "nWinter": 31716,
+    "nSummer": 23441,
+    "rawWinterPct": 71.14,
+    "rawSummerPct": 70.74,
+    "controlledDiffPt": 0.661,
+    "pTwoSided": 0.110889,
+    "nullSdPt": 0.408,
+    "mdePt": 1.142,
+    "fillRatio": 0.58
+   },
+   "ge35": {
+    "strata": 830,
+    "nWinter": 2638,
+    "nSummer": 1985,
+    "rawWinterPct": 74.07,
+    "rawSummerPct": 72.7,
+    "controlledDiffPt": 2.709,
+    "pTwoSided": 0.052947,
+    "nullSdPt": 1.375,
+    "mdePt": 3.849,
+    "fillRatio": 0.7
+   }
+  },
+  "byOuterStrength": {
+   "na": {
+    "strata": 0,
+    "nWinter": 0,
+    "nSummer": 0,
+    "rawWinterPct": null,
+    "rawSummerPct": null,
+    "controlledDiffPt": null,
+    "pTwoSided": null,
+    "nullSdPt": null,
+    "mdePt": null
+   },
+   "lt12": {
+    "strata": 1243,
+    "nWinter": 30554,
+    "nSummer": 21380,
+    "rawWinterPct": 60.28,
+    "rawSummerPct": 60.08,
+    "controlledDiffPt": 1.215,
+    "pTwoSided": 0.007992,
+    "nullSdPt": 0.439,
+    "mdePt": 1.229,
+    "fillRatio": 0.99
+   },
+   "12to15": {
+    "strata": 1439,
+    "nWinter": 29248,
+    "nSummer": 20670,
+    "rawWinterPct": 52.91,
+    "rawSummerPct": 51.88,
+    "controlledDiffPt": 1.649,
+    "pTwoSided": 0.001998,
+    "nullSdPt": 0.452,
+    "mdePt": 1.265,
+    "fillRatio": 1.3
+   },
+   "15to18": {
+    "strata": 1744,
+    "nWinter": 31616,
+    "nSummer": 23145,
+    "rawWinterPct": 49.49,
+    "rawSummerPct": 48.81,
+    "controlledDiffPt": 1.004,
+    "pTwoSided": 0.016983,
+    "nullSdPt": 0.42,
+    "mdePt": 1.175,
+    "fillRatio": 0.85
+   },
+   "ge18": {
+    "strata": 2605,
+    "nWinter": 39735,
+    "nSummer": 29286,
+    "rawWinterPct": 55.72,
+    "rawSummerPct": 53.66,
+    "controlledDiffPt": 1.167,
+    "pTwoSided": 0.002997,
+    "nullSdPt": 0.362,
+    "mdePt": 1.015,
+    "fillRatio": 1.15
+   }
+  },
+  "notes": [
+   "c1 strength = prior 12-month win rate of the course-1 racer; new = under 30 starts",
+   "outer strength = mean prior 12-month win rate of the other boats with 30+ starts",
+   "fillRatio = |diff| / (2.8 x null sd); under 1.0 means underpowered"
+  ]
+ }
+}
