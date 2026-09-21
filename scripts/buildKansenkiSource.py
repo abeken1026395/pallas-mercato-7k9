@@ -565,6 +565,236 @@ def pick_focus_tobans(jcd, venue_rows, score_rank, results_venue, day_num, motor
     return [(tb, why[tb], gaps.get(tb)) for tb in order]
 
 
+# ---------------------------------------------------------------------------
+# 角度（2026-09-22 裁定A）
+# 前日の各レースから「どれだけ珍しい出来事か」を機械で拾い、重要度つきで素材に入れる。
+# 重要度 = -log10(その場の直近365日の実測率) x 3、上限10。率の分母はその場の1年のレース数。
+# 手本：StatsMonkey（稀少・閾値・期待とのズレの3型で角度を探し、重要度順に並べる）。
+# 執筆側は最上位（pillar）を柱の候補、2位以下を補足として使う。事実は素材の値だけ。
+# ---------------------------------------------------------------------------
+PREDICTIONS_DIR = os.path.join(ROOT, "predictions")
+ANGLE_WINDOW_DAYS = 365
+ANGLE_MIN_RACES = 200          # 場の1年のレース数がこれ未満なら率を作らない（角度を出さない）
+PAY_STEPS = (10000, 30000, 50000, 100000)
+TAN_STEPS = (1000, 2000, 5000)
+RARE_KIMARITE = 0.05           # その場で5%未満の決まり手
+DAY_TAIL = 0.05                # その日の①勝ち数の偏り（二項の片側確率）
+
+
+def _angle_priority(p):
+    import math
+    if p is None or p <= 0:
+        return None
+    return round(min(10.0, -math.log10(p) * 3), 1)
+
+
+def _winner(res):
+    for b in (res.get("艇") or []):
+        if to_int(b.get("着")) == 1:
+            return b
+    return None
+
+
+def _tansho(res):
+    t = ((res.get("払戻") or {}).get("単勝") or [{}])
+    return to_int(t[0].get("配当")) if t else None
+
+
+def load_angle_baseline(results_date8):
+    """results/ の直近365日（results_date8 を含まない）から、場ごとの率の分子と分母を数える。
+    あわせて predictions/ の荒れ指数を十分位に割り、帯ごとの①着外率を出す（全場共通）。"""
+    try:
+        end = parse_date8(results_date8)
+    except Exception:
+        return {}, None
+    base = {}
+    hx = []
+    for back in range(1, ANGLE_WINDOW_DAYS + 1):
+        d8 = (end - datetime.timedelta(days=back)).strftime("%Y%m%d")
+        data, _ = load_results(d8)
+        if not data:
+            continue
+        pred = load_json(os.path.join(PREDICTIONS_DIR, d8 + ".json")) or {}
+        pidx = {}
+        for x in (pred.get("予測") or []):
+            pidx[(str(x.get("場コード")).zfill(2), rno_to_int(x.get("レース")))] = x.get("波乱指数")
+        for jcd, rows in results_by_jcd(data).items():
+            b = base.setdefault(jcd, {})
+            for res in rows:
+                w = _winner(res)
+                pay = to_int(res.get("三連単配当"))
+                if not w or pay is None:
+                    continue
+                b["n"] = b.get("n", 0) + 1
+                k = "c{}".format(to_int(w.get("コース")))
+                b[k] = b.get(k, 0) + 1
+                g = "g{}".format((w.get("級別") or "").strip())
+                b[g] = b.get(g, 0) + 1
+                km = res.get("決まり手")
+                if km:
+                    b["k" + km] = b.get("k" + km, 0) + 1
+                for t in PAY_STEPS:
+                    if pay > t:
+                        b["p{}".format(t)] = b.get("p{}".format(t), 0) + 1
+                tan = _tansho(res)
+                for t in TAN_STEPS:
+                    if tan is not None and tan >= t:
+                        b["t{}".format(t)] = b.get("t{}".format(t), 0) + 1
+                ix = pidx.get((jcd, rno_to_int(res.get("レース"))))
+                one = [x for x in (res.get("艇") or []) if to_int(x.get("枠")) == 1]
+                if ix is not None and one:
+                    f1 = to_int(one[0].get("着"))
+                    hx.append((ix, (f1 is None) or (f1 > 3)))
+    calib = None
+    if len(hx) >= 1000:
+        hx.sort(key=lambda x: x[0])
+        m = len(hx)
+        bands = []
+        for q in range(10):
+            s = hx[q * m // 10:(q + 1) * m // 10]
+            bands.append({"lo": s[0][0], "hi": s[-1][0], "n": len(s),
+                          "out": sum(1 for x in s if x[1])})
+        calib = {"bands": bands, "n": m}
+    return base, calib
+
+
+def _rate(b, key):
+    n = b.get("n", 0)
+    return (b.get(key, 0) / n) if n else None
+
+
+def build_angles(jcd, results_venue, base, calib, pred_idx, prev_pillar_type):
+    """前日の結果から角度を作る。レース単位にまとめ、重要度順に並べる。"""
+    b = base.get(jcd) or {}
+    n = b.get("n", 0)
+    if n < ANGLE_MIN_RACES or not results_venue:
+        return None
+    basis = "{}の直近365日{}レースでの実測率".format(VENUES.get(jcd, jcd), n)
+    races = []
+    in_w = 0
+    nr = 0
+    wins = {}
+    for res in sorted(results_venue, key=lambda r: (rno_to_int(r.get("レース")) or 99)):
+        w = _winner(res)
+        pay = to_int(res.get("三連単配当"))
+        if not w or pay is None:
+            continue
+        nr += 1
+        course = to_int(w.get("コース"))
+        if course == 1:
+            in_w += 1
+        tb = str(w.get("登番"))
+        wins[tb] = wins.get(tb, 0) + 1
+        tags = []
+        if pay > PAY_STEPS[0]:
+            t = max(x for x in PAY_STEPS if pay > x)
+            r = _rate(b, "p{}".format(t))
+            tags.append({"type": "万舟", "value": pay, "threshold": t, "rate": round(r * 100, 1), "priority": _angle_priority(r)})
+        if course is not None and course >= 5:
+            r = _rate(b, "c{}".format(course))
+            tags.append({"type": "外コースの1着", "value": course, "rate": round(r * 100, 1), "priority": _angle_priority(r)})
+        if (w.get("級別") or "").strip() == "B2":
+            r = _rate(b, "gB2")
+            tags.append({"type": "B2の1着", "value": "B2", "rate": round(r * 100, 1), "priority": _angle_priority(r)})
+        km = res.get("決まり手")
+        if km:
+            r = _rate(b, "k" + km)
+            if r is not None and r < RARE_KIMARITE:
+                tags.append({"type": "珍しい決まり手", "value": km, "rate": round(r * 100, 1), "priority": _angle_priority(r)})
+        tan = _tansho(res)
+        if tan is not None and tan >= TAN_STEPS[0]:
+            t = max(x for x in TAN_STEPS if tan >= x)
+            r = _rate(b, "t{}".format(t))
+            tags.append({"type": "単勝高配当の1着", "value": tan, "threshold": t, "rate": round(r * 100, 1), "priority": _angle_priority(r)})
+        ix = pred_idx.get(rno_to_int(res.get("レース")))
+        one = [x for x in (res.get("艇") or []) if to_int(x.get("枠")) == 1]
+        if calib and ix is not None and one:
+            f1 = to_int(one[0].get("着"))
+            if f1 is None or f1 > 3:
+                band = None
+                for i, bd in enumerate(calib["bands"]):
+                    if ix <= bd["hi"] or i == len(calib["bands"]) - 1:
+                        band = bd
+                        break
+                r = band["out"] / band["n"] if band and band["n"] else None
+                if r is not None and r < 0.12:
+                    tags.append({"type": "堅い見立てで①が着外", "value": f1, "rate": round(r * 100, 1),
+                                 "bandN": band["n"], "priority": _angle_priority(r)})
+        tags = [t for t in tags if t.get("priority") is not None]
+        if not tags:
+            continue
+        tags.sort(key=lambda t: -t["priority"])
+        races.append({"rno": rno_to_int(res.get("レース")), "winner": w.get("氏名"),
+                      "winnerToban": str(w.get("登番")), "course": course,
+                      "priority": round(tags[0]["priority"] + 0.5 * (len(tags) - 1), 1),
+                      "tags": tags})
+    day = []
+    if nr >= 10:
+        from math import comb
+        p1 = _rate(b, "c1")
+        if p1:
+            lo = sum(comb(nr, i) * p1 ** i * (1 - p1) ** (nr - i) for i in range(0, in_w + 1))
+            hi = sum(comb(nr, i) * p1 ** i * (1 - p1) ** (nr - i) for i in range(in_w, nr + 1))
+            if lo < DAY_TAIL:
+                day.append({"type": "1コースが勝てない日", "value": in_w, "of": nr, "rate1": round(p1 * 100, 1), "priority": _angle_priority(lo)})
+            if hi < DAY_TAIL:
+                day.append({"type": "1コースが勝ち続けた日", "value": in_w, "of": nr, "rate1": round(p1 * 100, 1), "priority": _angle_priority(hi)})
+    doubles = [{"toban": tb, "wins": c} for tb, c in wins.items() if c >= 2]
+    cand = [("race", r["rno"], r["tags"][0]["type"], r["priority"]) for r in races]
+    cand += [("day", None, d["type"], d["priority"]) for d in day]
+    cand.sort(key=lambda x: -x[3])
+    pillar = None
+    note = None
+    if cand:
+        pillar = cand[0]
+        if prev_pillar_type and pillar[2] == prev_pillar_type:
+            alt = [c for c in cand if c[2] != prev_pillar_type]
+            if alt:
+                pillar = alt[0]
+                note = "前日の柱と同じ型（{}）のため次点を柱の候補にした".format(prev_pillar_type)
+    races.sort(key=lambda r: -r["priority"])
+    return {
+        "basis": basis,
+        "priorityRule": "重要度 = -log10(実測率) x 3（上限10）。レースは最上位の型に、同レースの他の型1つにつき0.5を足す",
+        "pillar": ({"scope": pillar[0], "rno": pillar[1], "type": pillar[2], "priority": pillar[3], "note": note}
+                   if pillar else None),
+        "races": races,
+        "day": day,
+        "doubleWinners": doubles,
+    }
+
+
+def build_setsu_streaks(venue_rows):
+    """節の中の連勝（出走表の各日成績から）。3連勝以上が続いている選手と、前日に途切れた選手。
+    重要度は付けない（率の母集団を作っていないため）。事実の並びだけを素材に入れる。"""
+    out = []
+    for tb, r in _entrants(venue_rows).items():
+        trail, _ = finish_trail_and_st(r)
+        fins = [e.get("finish") for e in trail if e.get("finish") is not None]
+        if len(fins) < 3:
+            continue
+        k = 0
+        for f in reversed(fins):
+            if f == 1:
+                k += 1
+            else:
+                break
+        if k >= 3:
+            out.append({"toban": tb, "name": (r.get("氏名") or "").strip(), "type": "連勝中", "streak": k, "runs": len(fins)})
+            continue
+        if fins[-1] != 1:
+            j = 0
+            for f in reversed(fins[:-1]):
+                if f == 1:
+                    j += 1
+                else:
+                    break
+            if j >= 3:
+                out.append({"toban": tb, "name": (r.get("氏名") or "").strip(), "type": "連勝が止まった",
+                            "streak": j, "lastFinish": fins[-1], "runs": len(fins)})
+    return out
+
+
 def build_results_block(results_venue):
     out = []
     for res in sorted(results_venue, key=lambda r: (rno_to_int(r.get("レース")) or 99)):
@@ -959,7 +1189,7 @@ def build_today_program(venue_rows, csv_hd8, motor2avg):
 # メイン
 # ---------------------------------------------------------------------------
 def build_venue(jcd, venue_rows, results_map, vstats, kimarite_map, profile,
-                e30map, csv_hd8, results_date8, motor_usage):
+                e30map, csv_hd8, results_date8, motor_usage, angle_ctx):
     row0 = venue_rows[0]
     hd8 = (row0.get("開催日") or "").strip()
     series = (row0.get("節名") or "").strip() or None
@@ -1002,6 +1232,14 @@ def build_venue(jcd, venue_rows, results_map, vstats, kimarite_map, profile,
     prev_date8 = (parse_date8(hd8) - datetime.timedelta(days=1)).strftime("%Y%m%d") \
         if hd8 else results_date8
 
+    # 角度：前日が同じ節（dayNum>1）のときだけ前日結果から作る。初日は前節の結果なので作らない。
+    angles = None
+    if day_num and day_num > 1:
+        base, calib, pred_all, prev_src = angle_ctx
+        angles = build_angles(jcd, results_venue, base, calib, pred_all.get(jcd, {}),
+                              prev_src.get(jcd))
+    setsu_streaks = build_setsu_streaks(venue_rows)
+
     return {
         "jcd": jcd,
         "venue": VENUES.get(jcd, row0.get("場名")),
@@ -1016,6 +1254,8 @@ def build_venue(jcd, venue_rows, results_map, vstats, kimarite_map, profile,
         "reference": build_reference(jcd, vstat, results_date8, as_of_day, hd8, e30map),
         "scoreRank": score_rank,
         "focusRacers": focus,
+        "angles": angles,
+        "setsuStreaks": setsu_streaks,
         "localRacers": build_local_racers(jcd, venue_rows),
         "styleHistory": load_style_history(jcd, hd8),
         "prevArticle": load_prev_article(jcd, prev_date8),
@@ -1054,6 +1294,19 @@ def main():
     profile = load_profile()
     e30map = load_e30()
     motor_usage = load_motor_usage()
+    # 角度の基準（直近365日の results と predictions）。前日の荒れ指数と前日素材の柱の型も読む。
+    angle_base, angle_calib = load_angle_baseline(results_date8)
+    pred_prev = load_json(os.path.join(PREDICTIONS_DIR, results_date8 + ".json")) or {}
+    pred_all = {}
+    for x in (pred_prev.get("予測") or []):
+        pred_all.setdefault(str(x.get("場コード")).zfill(2), {})[rno_to_int(x.get("レース"))] = x.get("波乱指数")
+    prev_src_doc = load_json(os.path.join(OUT_DIR, results_date8 + ".json")) or {}
+    prev_src = {}
+    for v in (prev_src_doc.get("venues") or []):
+        pl = (v.get("angles") or {}).get("pillar") if isinstance(v.get("angles"), dict) else None
+        if pl:
+            prev_src[v.get("jcd")] = pl.get("type")
+    angle_ctx = (angle_base, angle_calib, pred_all, prev_src)
 
     venues = []
     for jcd in sorted(by_jcd.keys()):
@@ -1061,7 +1314,8 @@ def main():
         if not venue_rows:
             continue
         venues.append(build_venue(jcd, venue_rows, results_map, vstats, kimarite_map,
-                                   profile, e30map, csv_hd8, results_date8, motor_usage))
+                                   profile, e30map, csv_hd8, results_date8, motor_usage,
+                                   angle_ctx))
 
     doc = {"date": date_dash, "venues": venues}
 
