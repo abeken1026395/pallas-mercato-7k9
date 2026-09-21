@@ -288,6 +288,20 @@ header .sub { font-size:11px; color:#8a94a3; margin-top:4px; }
 
 .empty { text-align:center; color:#8a94a3; font-size:13px; padding:40px 0; }
 .legend-note { font-size:10px; color:#6f7d8c; margin-top:14px; line-height:1.6; }
+/* 観戦記（場ごとのレース一覧の下。記事の実体は見どころと同じ docs/data/kansenki/articles） */
+.ksk { margin:14px 0 0; border:1px solid #24344a; border-left:3px solid #ffd166; border-radius:8px; background:#0f1a26; overflow:hidden; }
+.ksk > summary { list-style:none; cursor:pointer; padding:10px 12px; min-height:44px; }
+.ksk > summary::-webkit-details-marker { display:none; }
+.ksk-tag { display:block; font-size:11px; font-weight:bold; color:#ffd166; }
+.ksk-title { display:block; font-size:15px; font-weight:bold; color:#fff; margin:4px 0 3px; line-height:1.45; }
+.ksk-lead { display:block; font-size:13px; color:#a9b4c0; line-height:1.7; }
+.ksk-caret { display:block; margin-top:6px; font-size:12px; font-weight:bold; color:#ffd166; }
+.ksk[open] .ksk-caret::after { content:"閉じる ▲"; } .ksk:not([open]) .ksk-caret::after { content:"観戦記を読む ▼"; }
+.ksk[open] .ksk-lead { display:none; }
+.ksk-full { padding:0 12px 12px; border-top:1px solid #1f2b3a; }
+.ksk-full p { font-size:15px; line-height:1.9; margin:10px 0 0; color:#e0e6ed; }
+.ksk-link { color:#7cc4ff; text-decoration:none; border-bottom:1px dotted #7cc4ff; }
+.ksk-note { font-size:10px; color:#6f7d8c; margin-top:10px; line-height:1.6; }
 
 /* マイ・パネル（記憶と回収ループ） */
 .my { border-radius:12px; margin:6px 0 4px; overflow:hidden; border:1px solid #1f2b3a; background:#101a26; }
@@ -1026,6 +1040,46 @@ function wireMyPanel(app){
   });
 }
 
+/* ── 観戦記（場ごとのレース一覧の下に1本）──────────────────────────
+   記事は見どころと同じ ../data/kansenki/articles/<開催日>-<場コード>.json。
+   30秒ごとの再描画で取り直さないよう KSK に持つ（null＝その日の記事なし＝何も出さない）。
+   開閉は details の data-dk で再描画をまたいで保持される。                        */
+var KSK={}, KSKP={};
+function kskLoad(v){
+  var k=v.key;
+  if(Object.prototype.hasOwnProperty.call(KSK,k) || KSKP[k]) return;
+  if(!/^\d{8}$/.test(String(v.hd||""))){ KSK[k]=null; return; }
+  KSKP[k]=true;
+  fetch("../data/kansenki/articles/"+v.hd+"-"+v.jcd+".json?_="+Date.now())
+    .then(function(r){ return r.ok?r.json():null; })
+    .catch(function(){ return null; })
+    .then(function(a){
+      KSK[k]=(a && a.body)?a:null; delete KSKP[k];
+      if(KSK[k] && document.getElementById("ksk-slot-"+k)) render();
+    });
+}
+function kskHtml(v){
+  var a=KSK[v.key]; if(!a) return "";
+  var body=String(a.body||"");
+  var wp=String(a.watchPoint||"").trim();
+  var lead=wp?("きょうの観察点　"+esc(wp)):esc(body.replace(/\s+/g,"").split("。")[0]+"。");
+  var paras=body.split(/\n+/).filter(function(x){ return x.trim(); }).map(function(x){
+    var h=esc(x.trim());
+    (a.racersMentioned||[]).forEach(function(rm){
+      var nm=esc(rm.name||""), tb=esc(String(rm.toban||""));
+      if(nm && tb) h=h.split(nm).join('<a class="ksk-link" href="../players/?toban='+tb+'">'+nm+'</a>');
+    });
+    return "<p>"+h+"</p>";
+  }).join("");
+  return '<details class="ksk" data-dk="ksk-'+esc(v.key)+'"><summary>'
+    +'<span class="ksk-tag">📝 観戦記</span>'
+    +'<span class="ksk-title">'+esc(a.title||"")+'</span>'
+    +'<span class="ksk-lead">'+lead+'</span>'
+    +'<span class="ksk-caret"></span></summary>'
+    +'<div class="ksk-full">'+paras
+    +'<div class="ksk-note">前日までの確定データだけで書いています。予想・買い目は扱いません。</div></div></details>';
+}
+
 function renderRaces(app,crumb,v){
   crumb.innerHTML='<a href="#" id="back">場一覧</a> ＞ '+esc(v.name);
   var rs=Object.keys(v.races).map(Number).sort(function(a,b){return a-b;});
@@ -1045,7 +1099,8 @@ function renderRaces(app,crumb,v){
   var legend=anyDot
     ?'<div class="legend-note">右上のドット＝荒れ指数（<span class="lv-高">高</span>/<span class="lv-中">中</span>/<span class="lv-低">低</span>）</div>'
     :'<div class="legend-note">荒れ指数は当日分の生成後（毎朝）に各Rへ表示されます。</div>';
-  app.innerHTML='<div class="rgrid">'+grid+'</div>'+legend;
+  app.innerHTML='<div class="rgrid">'+grid+'</div>'+legend+'<div id="ksk-slot-'+esc(v.key)+'">'+kskHtml(v)+'</div>';
+  kskLoad(v);
   document.getElementById("back").onclick=function(e){e.preventDefault();view={page:"venues",sort:view.sort};render();};
   Array.prototype.forEach.call(app.querySelectorAll(".rbtn"),function(el){
     el.onclick=function(){ view={page:"race",key:view.key,rno:parseInt(el.getAttribute("data-r")),sort:view.sort}; render(); window.scrollTo(0,0); };
