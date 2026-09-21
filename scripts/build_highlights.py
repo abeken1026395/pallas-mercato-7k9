@@ -16,6 +16,7 @@ import birthdayMark   # 誕生日マークの判定（scripts/birthdayMark.py）
 RACERS = sys.argv[1] if len(sys.argv) > 1 else "docs/racers/racers_today.csv"
 MOTORS = sys.argv[2] if len(sys.argv) > 2 else "docs/motor/motors_all.csv"
 MOTOR_REPLACE = "docs/data/motorReplace.json"   # モーター新替の記録（手入力可・自動追記）
+GRADE_SCHEDULE = "docs/data/gradeSchedule.json"  # 節の開始日（モーター新替日の記録に使う）
 MOTOR_MIN_RUNS = 10                       # これ未満の走破数は機力を評価しない
 OUT    = sys.argv[3] if len(sys.argv) > 3 else "docs/highlights/highlights.json"
 KIM    = sys.argv[4] if len(sys.argv) > 4 else "docs/players/racerKimarite.csv"
@@ -1241,7 +1242,10 @@ def main():
     kaisai = rac[0]['開催日'] if rac else ''
 
     # ---- モーター新替の検出・記録 ----
-    # 節初日に場の全行がモーター2連率 0 なら、実績のない新品と見なす（ボートは別に入れ替わるので条件にしない）。
+    # 場の全行がモーター2連率 0 なら、実績のない新品と見なす（ボートは別に入れ替わるので条件にしない）。
+    # 公式のモーター2連率は初おろしの節の間ずっと 0 のままなので、初日に限らず節中のどの日でも拾える。
+    # 新替日は節の開始日（docs/data/gradeSchedule.json の 開始日・公式の月間スケジュール由来）で記録する。
+    # 開始日が引けない日は記録しない（推測で埋めない）。空欄の値は 0 と数えない（取得失敗を新替と誤認しない）。
     # 個別の 0% は「未走」と「走ったが連対なし」を区別できないので、場単位の全滞のみ採用する。
     motor_replace = {}
     try:
@@ -1249,21 +1253,33 @@ def main():
             motor_replace = json.load(_rf) or {}
     except Exception:
         motor_replace = {}
+    _grade_days = {}
+    try:
+        with open(GRADE_SCHEDULE, encoding='utf-8') as _gf:
+            _grade_days = (json.load(_gf) or {}).get('days') or {}
+    except Exception:
+        _grade_days = {}
     _by_venue = defaultdict(list)
     for _r in rac:
         _by_venue[_r['場コード']].append(_r)
     _repl_changed = False
     for _ba, _rs in _by_venue.items():
-        if not _rs or _rs[0].get('日目') != '初日':
+        if not _rs:
             continue
-        if any(f(_x.get('モーター2連率')) != 0 for _x in _rs):
+        _vals = [str(_x.get('モーター2連率') or '').strip() for _x in _rs]
+        _vals = [_v for _v in _vals if _v]
+        if len(_vals) < 6 or any(f(_v) != 0 for _v in _vals):
             continue
         _hd = _rs[0].get('開催日', '')
-        if not _hd or (motor_replace.get(_ba) or {}).get('新替日') == _hd:
+        _start = str(((_grade_days.get(_hd) or {}).get(_ba) or {}).get('開始日') or '')
+        if not _hd or len(_start) != 8 or not _start.isdigit() or _start > _hd:
+            print('motorReplace skip: {} {} 開始日が引けない'.format(_ba, _hd))
             continue
-        motor_replace[_ba] = {'新替日': _hd, '節名': _rs[0].get('節名', ''), '記録': 'auto'}
+        if (motor_replace.get(_ba) or {}).get('新替日') == _start:
+            continue
+        motor_replace[_ba] = {'新替日': _start, '節名': _rs[0].get('節名', ''), '記録': 'auto'}
         _repl_changed = True
-        print('motorReplace detected: {} {}'.format(_ba, _hd))
+        print('motorReplace detected: {} {}'.format(_ba, _start))
     if _repl_changed:
         os.makedirs(os.path.dirname(MOTOR_REPLACE) or '.', exist_ok=True)
         with open(MOTOR_REPLACE, 'w', encoding='utf-8') as _wf:
