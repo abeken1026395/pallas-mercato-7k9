@@ -249,6 +249,10 @@ header .sub { font-size:11px; color:#8a94a3; margin-top:4px; }
 .ptab-b.on { background:#8fb4d6; color:#0b1219; border-color:#8fb4d6; font-weight:700; }
 .ns-avg td { border-top:0; padding:0 0 4px; font-size:10px; color:#6f8aa3; }
 .ns-avg td:first-child { padding-left:20px; opacity:.85; }
+.k1-slot { min-height:34px; margin-top:8px; }
+.k1-slot .k1 { margin:0; }
+.k1 td:first-child { font-size:11px; }
+.k1-b { font-size:10px; color:#6f8aa3; }
 
 /* コース別直近10走（進入コース別の生データ・二層表示） */
 .cl10 { margin-top:8px; padding-top:7px; border-top:1px solid #1c2a3c; min-height:78px; }
@@ -1248,6 +1252,45 @@ function courseLast10Block(toban,lane){
     +'</div></details></div>';
 }
 
+/* 1号艇の決着内訳（wakuStats.json の k1）。枠1で出たレースを決着で分ける。
+   分母は枠別成績の枠1と同じ走数で、期間も枠別成績の切り替え（PSEL.ws）と連動する。
+   合計が必ず走行数に一致するよう「その他」は走行数から引いて出す。
+   k1 に空欄が残っているとき（meta.k1Blank>0）は内訳が閉じないので出さない。
+   1号艇のカードには、データの有無にかかわらず同じ高さを予約する（CLS）。 */
+var K1_ROWS=[["e","逃げ（1着）"],["s","差され"],["m","まくられ"],["z","まくり差され"],["x","1コース以外に進入"]];
+function k1Block(toban,lane){
+  if(lane!==1) return "";
+  var none='<div class="k1-slot"></div>';
+  if(!WS||!WS.k1||!WS.k1.cells||!WS.k1.base||!WS.meta||WS.meta.k1Blank!==0) return none;
+  var ps=WS.meta.periods||[], i=ps.indexOf(PSEL.ws);
+  if(i<0){ i=ps.indexOf("1y"); if(i<0) i=ps.length-1; }
+  var arr=WS.cells[toban]&&WS.cells[toban]["1"];
+  var n=(arr&&arr[i])?arr[i][0]:0;
+  if(!n) return none;
+  var kc=(WS.k1.cells[toban]&&WS.k1.cells[toban][i])||[0,0,0,0,0];
+  var kb=WS.k1.base[i]||[0,0,0,0,0];
+  var bn=(WS.base[i]&&WS.base[i]["1"])?WS.base[i]["1"][0]:0;
+  var sum=function(a){ var s=0; for(var j=0;j<a.length;j++) s+=a[j]; return s; };
+  var bp=function(k){ return bn?Math.round(k/bn*100)+"%":"\u2014"; };
+  var rows=K1_ROWS.map(function(r,j){
+    return '<tr><td>'+r[1]+'</td>'+rateCell(kc[j],n)+'<td class="k1-b">'+bp(kb[j])+'</td></tr>';
+  }).join("")
+    +'<tr><td>その他</td>'+rateCell(n-sum(kc),n)+'<td class="k1-b">'+bp(bn-sum(kb))+'</td></tr>';
+  return '<div class="k1-slot"><details class="ns k1" data-dk="k1-'+esc(toban)+'"><summary>'
+    +'<span class="ns-sum">1号艇で出たときの決着（'+(PLBL[ps[i]]||ps[i])+'・'+n+'走）</span>'
+    +'<span class="ns-caret"></span></summary>'
+    +'<div class="ns-body"><table><tr><th>決着</th><th>この選手</th><th>枠1 全体</th></tr>'+rows+'</table>'
+    +'<details class="ns-help" data-dk="k1-help-'+esc(toban)+'"><summary>表の読み方</summary><dl>'
+    +'<dt>この表は何か</dt><dd>その選手が1号艇で出たレースを、どう決着したかで分けた。行を足すと走行数になる。</dd>'
+    +'<dt>差され・まくられ・まくり差され</dt><dd>1コースに入り、その決まり手で他の艇に1着を取られた回。</dd>'
+    +'<dt>1コース以外に進入</dt><dd>前づけなどで1コースに入れなかった回。決まり手では分けていない。</dd>'
+    +'<dt>その他</dt><dd>1コースに入り、抜き・恵まれで決着した回（1着も含む）や同着など。</dd>'
+    +'<dt>下段の分数と薄い字</dt><dd>回数／走行数。走行数が20未満は薄い字。1回の増減で大きく動く。</dd>'
+    +'<dt>期間</dt><dd>上の「枠別成績」で選んだ期間と連動する。走行数も枠別成績の枠1と同じ。</dd>'
+    +'<dt>出典</dt><dd>公式競走成績（2026年9月14日まではKファイル、以降は結果データ）。補正はかけていない実数そのまま。</dd>'
+    +'</dl></details></div></details></div>';
+}
+
 /* 今節モーター2連率（今節成績カラムの着から算出）。モーターは節を通じ艇に固定＝
    選手の今節結果＝そのモーターの今節結果。生データのみ・評価語なし。 */
 function kinsetuMotor(row){
@@ -1476,7 +1519,7 @@ function renderRace(app,crumb,v){
   html+=boats.map(function(row){ return boatCard(row,v,hl,minST,maxST,maxMotor); }).join("");
 
   html+=yomiBox(v,view.rno);
-  html+='<div class="legend-note">出典: BOATRACE公式出走表（勝率・モーター・今節成績）｜決まり手・被され率は直近183日集計｜機力評価・展開・荒れ指数は当ポータル生成｜風はOpen-Meteo。<br>本ページは水面傾向・展開の可視化に留め、勝敗の断定・買い目・確率は提示しません。</div>';
+  html+='<div class="legend-note">出典: BOATRACE公式出走表（勝率・モーター・今節成績）｜決まり手構成は直近183日集計｜1号艇の決着は枠別成績と同じ期間｜機力評価・展開・荒れ指数は当ポータル生成｜風はOpen-Meteo。<br>本ページは水面傾向・展開の可視化に留め、勝敗の断定・買い目・確率は提示しません。</div>';
 
   app.innerHTML=html;
   document.getElementById("back0").onclick=function(e){e.preventDefault();view={page:"venues",sort:view.sort};render();};
@@ -1536,8 +1579,6 @@ function boatCard(row,v,hl,minST,maxST,maxMotor){
   if(localAdv||hot) tags.push('<span class="tag tag-local">当地得意</span>');
   if(machEval==="high") tags.push('<span class="tag tag-mach-high">機力◎</span>');
   else if(machEval==="low") tags.push('<span class="tag tag-mach-low">機力△</span>');
-  if(km&&km.sasare>=35) tags.push('<span class="tag" style="border-color:#4a2f3a;color:#c98">被され'+Math.round(km.sasare)+'%</span>');
-  if(km&&km.makurare>=35) tags.push('<span class="tag" style="border-color:#4a2f3a;color:#c98">被まくり'+Math.round(km.makurare)+'%</span>');
   var tagsHtml=tags.length?'<div class="tags">'+tags.join("")+'</div>':'';
 
   var nameHtml=toban
@@ -1564,6 +1605,7 @@ function boatCard(row,v,hl,minST,maxST,maxMotor){
     +kinMotorLine(row)
     +kimariteBar(km)
     +courseLast10Block(toban,lane)
+    +k1Block(toban,lane)
     +e30Block(toban,v.jcd)
     +shuTable(row)
     +'</div></div>';
