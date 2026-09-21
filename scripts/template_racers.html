@@ -72,6 +72,10 @@ header .sub { font-size:11px; color:#8a94a3; margin-top:4px; }
 .cd-open { background:#12301f; color:#69db7c; border:1px solid #1e5c38; }
 .cd-soon { background:#3a2a12; color:#ffd166; border:1px solid #6a4d18; }
 .cd-closed { background:#241820; color:#b98; border:1px solid #4a2f3a; }
+/* 中止（chushiToday.json）。色は増やさず、本文色の枠付き文字で出す */
+.cd-chushi { background:transparent; color:#e6edf3; border:1px solid #8a94a3; }
+.rbtn.chushi .dl { color:#e6edf3; font-weight:bold; }
+.chushi-tag { display:inline-block; margin-left:6px; font-size:11px; font-weight:bold; padding:0 6px; border-radius:8px; border:1px solid #8a94a3; color:#e6edf3; }
 
 /* サマリーチップ */
 .chips { display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }
@@ -470,6 +474,16 @@ loadJSON("../data/tideToday.json").then(function(j){ tide=j||null; rerender(); }
 loadJSON("../data/nigeSecond.json").then(function(j){ NS=j||null; rerender(); }).catch(function(){});
 loadJSON("../data/wakuStats.json").then(function(j){ WS=j||null; rerender(); }).catch(function(){});
 loadJSON("../data/gradeSchedule.json").then(function(j){ GRADE=j||null; rerender(); }).catch(function(){});
+/* 中止（chushiToday.json・公式の本日のレース一覧由来）。場コード→{から: 中止が始まるR, 表記}。
+   中止後の公式出走表は締切予定時刻に実在しない値を出すため、中止のレースでは締切を出さない。
+   JSONの開催日とその場の開催日が一致するときだけ使う。取れなければ何も出さない。 */
+var CHUSHI=null;
+loadJSON("../data/chushiToday.json?_="+Date.now()).then(function(j){ CHUSHI=j||null; rerender(); }).catch(function(){});
+function chushiOf(v){
+  if(!CHUSHI||String(CHUSHI["開催日"]||"")!==String(v.hd)) return null;
+  return (CHUSHI["中止"]||{})[v.jcd]||null;
+}
+function isChushi(v,rno){ var c=chushiOf(v); return !!(c && parseInt(rno)>=c["から"]); }
 /* 開催グレードと女子戦。区分は公式の月間スケジュールの class 由来。
    女子戦は区分では判別できない（女子のSG・G1は SG・G1 の区分になる）ため、
    その日の出走選手が全員女子かどうかで別に判定した値を使う。 */
@@ -671,6 +685,7 @@ function yomiPanel(){
 /* レース詳細の記録UI。○×・色での正誤表現はしない（煽らない）。*/
 function yomiBox(v,rno){
   var rc=v.races[rno]; if(!rc) return "";
+  if(isChushi(v,rno)) return "";
   var closed=isClosed(v.hd,rc.deadline);
   var e=yomiFind(v.jcd,v.hd,rno);
   var mine=e?e.y:null;
@@ -918,12 +933,16 @@ function renderVenues(app,crumb,keys){
     html+='<div class="date-head">'+esc(lab+" "+mm+"/"+dd+"("+dow+")")+'</div>';
     html+=list.map(function(v){
       var rs=Object.keys(v.races).map(Number).sort(function(a,b){return a-b;});
-      var first=v.races[rs[0]],last=v.races[rs[rs.length-1]];
+      var ch=chushiOf(v);
+      var live=rs.filter(function(r){ return !isChushi(v,r); });  /* 締切の範囲は中止でないレースだけで出す */
+      var first=v.races[live[0]],last=v.races[live[live.length-1]];
       var fix=HL_META.fix.indexOf(v.name)>=0?'<span class="chip chip-fix" style="margin-left:6px">進入固定</span>':'';
       var gb=gradeBadges(gradeInfo(v.jcd,v.hd));
+      var span=live.length?esc(first.deadline)+'〜'+esc(last.deadline):'';
+      var chTag=ch?'<span class="chushi-tag">'+esc(ch["表記"])+'</span>':'';
       return '<div class="venue-card'+gb.cls+'" data-k="'+esc(v.key)+'">'
         +'<div class="venue-name">'+(isPin(v.jcd)?'<span class="pin-mk">📍</span>':'')+esc(v.name)+'</div>'
-        +'<div class="venue-meta">'+gb.html+esc(v.setsu)+fix+'<br>'+rs.length+'R｜'+esc(first.deadline)+'〜'+esc(last.deadline)+'</div>'
+        +'<div class="venue-meta">'+gb.html+esc(v.setsu)+fix+'<br>'+rs.length+'R'+(span?'｜'+span:'')+chTag+'</div>'
         +'<div class="venue-day">'+esc(v.day)+'</div></div>';
     }).join("");
   });
@@ -1008,7 +1027,9 @@ function renderRaces(app,crumb,v){
   var rs=Object.keys(v.races).map(Number).sort(function(a,b){return a-b;});
   var anyDot=false;
   var grid=rs.map(function(r){
-    var rc=v.races[r], cl=isClosed(v.hd,rc.deadline)?" closed":"";
+    var rc=v.races[r];
+    if(isChushi(v,r)) return '<div class="rbtn closed chushi" data-r="'+r+'"><div class="rno">'+r+'R</div><div class="dl">中止</div></div>';
+    var cl=isClosed(v.hd,rc.deadline)?" closed":"";
     var ar=findArare(v.jcd,r,v.hd);
     var dot=ar?'<span class="dot dot-'+esc(ar.level)+'"></span>':'';
     if(ar) anyDot=true;
@@ -1351,6 +1372,9 @@ function renderRace(app,crumb,v){
   /* 見どころ結合は開催日一致時のみ（stale/翌日データの誤結合を防止） */
   var hlKey=v.jcd+"_"+view.rno+"R";
   var hl=(HL[hlKey]&&HL_META.hd===v.hd)?HL[hlKey]:null;
+  /* 中止のレースは見立て・荒れ・締切時刻の風を出さない（締切は実在しない値のため） */
+  var chR=isChushi(v,view.rno);
+  if(chR) hl=null;
 
   /* ヘッダ＋締切カウントダウン */
   function fmtMins(m){ if(m<60) return m+"分"; return Math.floor(m/60)+"時間"+(m%60)+"分"; }
@@ -1361,6 +1385,7 @@ function renderRace(app,crumb,v){
   else if(mins<=15){ cdCls="cd-soon"; cdTxt="締切まで"+fmtMins(mins); }
   else { cdCls="cd-open"; cdTxt="締切まで"+fmtMins(mins); }
   var cdHtml=cdTxt?'<span class="cd '+cdCls+'">'+esc(cdTxt)+'</span>':'';
+  if(chR) cdHtml='<span class="cd cd-chushi">中止</span>';
 
   /* 気になる（記憶）＋公式リンク（出走表・結果） */
   var wOn=isWatched(v.jcd,v.hd,view.rno);
@@ -1369,17 +1394,17 @@ function renderRace(app,crumb,v){
   if(/^\d{8}$/.test(v.hd)){
     var base="https://www.boatrace.jp/owpc/pc/race/", q="?rno="+view.rno+"&jcd="+v.jcd+"&hd="+v.hd;
     var closed=isClosed(v.hd,rc.deadline);
-    off='<a class="offlink '+(closed?"offlink-result":"offlink-pend")+'" href="'+base+'raceresult'+q+'" target="_blank" rel="noopener">🏁 '+(closed?"レース結果（公式）":"結果（締切後に確定）")+' ↗</a>'
+    off=(chR?'':'<a class="offlink '+(closed?"offlink-result":"offlink-pend")+'" href="'+base+'raceresult'+q+'" target="_blank" rel="noopener">🏁 '+(closed?"レース結果（公式）":"結果（締切後に確定）")+' ↗</a>')
       +'<a class="offlink offlink-card" href="'+base+'racelist'+q+'" target="_blank" rel="noopener">公式出走表 ↗</a>';
   }
   var uranai='<a class="offlink offlink-card" href="../uranai/?jcd='+v.jcd+'&hd='+v.hd+'&rno='+view.rno+'R&from=racers">🔮 この6艇を占う</a>';
   var links='<div class="race-links">'+wbtn+off+uranai+'</div>';
   var html='<div class="race-head"><div class="line1"><span class="rt">'+esc(v.name)+' '+view.rno+'R</span><span class="kikaku">'+esc(rc.kikaku)+'</span></div>'
-    +'<div class="dl">'+cdHtml+'<span>締切 '+esc(rc.deadline||"-")+'</span><span>'+esc(v.setsu)+' '+esc(v.day)+'</span></div>'
+    +'<div class="dl">'+cdHtml+(chR?'':'<span>締切 '+esc(rc.deadline||"-")+'</span>')+'<span>'+esc(v.setsu)+' '+esc(v.day)+'</span></div>'
     +links+'</div>';
 
   /* サマリーチップ */
-  var ar=findArare(v.jcd,view.rno,v.hd), wd=findWind(v.jcd,v.hd,rc.deadline);
+  var ar=chR?null:findArare(v.jcd,view.rno,v.hd), wd=chR?null:findWind(v.jcd,v.hd,rc.deadline);
   var chips=[];
   if(ar) chips.push('<span class="chip chip-arare-'+esc(ar.level)+'">荒れ <b>'+esc(ar.level)+'</b> '+esc(ar.score)+'/'+esc((arare&&arare.max_score)||"-")+'</span>');
   if(hl&&hl.in1!=null) chips.push('<span class="chip">イン1着率 <b>'+esc(hl.in1)+'%</b></span>');
