@@ -233,6 +233,7 @@ header .sub { font-size:11px; color:#8a94a3; margin-top:4px; }
 .tj-ba { font-size:10.5px; color:#9fb0c3; margin-top:3px; font-variant-numeric:tabular-nums; }
 .tj-few { font-size:13px; color:#8a94a3; margin-top:8px; line-height:1.5; }
 .tj-n { font-size:10.5px; color:#8a94a3; margin:6px 0 8px; text-align:right; }
+.tj-note { font-size:10px; color:#8a94a3; margin-top:6px; line-height:1.6; }
 .ns { margin:10px 0 12px; border:1px solid #24344a; border-radius:8px; background:#0f1a26; overflow:hidden; }
 .ns > summary { list-style:none; cursor:pointer; padding:7px 10px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
 .ns > summary::-webkit-details-marker { display:none; }
@@ -1324,6 +1325,7 @@ function tenjiBlock(toban){
     +periodTabs("tj",["t1","t2","t3"],PSEL.tj)
     +'<div class="tj-d">良い＝2位に0.03秒差の単独トップ／悪い＝平均より0.03秒遅い</div>'
     +'<div class="tj-3">'+boxes+'</div>'
+    +'<div class="tj-note">0.03秒の目安：展示タイムが0.01秒遅くなるごとに、2着以内の割合は1から2ptずつ下がる。1レースの最速と最遅の差は中央値0.12秒</div>'
     +'<div class="tj-n">'+since+'　'+tot.toLocaleString()+'走</div></details>';
 }
 function cl10Ymd(d){ var s=String(d||""); return /^\d{8}$/.test(s)?(s.slice(0,4)+"."+s.slice(4,6)+"."+s.slice(6,8)):"-"; }
