@@ -16,38 +16,80 @@
 <!-- data-seme signature: kensho / taiju -->
 <style>
 :root{
-  --bg:#0b1219; --fg:#e0e6ed; --dim:#8a94a3; --faint:#6f7a89;
-  --line:#1f2b3a; --panel:#0f1a26; --accent:#ffd166;
-  --ok:#7ee08a; --ng:#e07a7a; --blue:#7ab5ea; --deep:#2f4a6b;
-  --track:#080e14;
+  --bg:#0b1219; --panel:#0f1a26; --line:#4a627f;
+  --fg:#e0e6ed; --dim:#8a94a3; --faint:#8a94a3;
+  --accent:#ffd166; --ok:#7ee08a; --ng:#e07a7a;
+  --blue:#7ab5ea; --deep:#2f4a6b; --track:#080e14;
 }
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--fg);margin:0;padding-bottom:80px;
-  font-family:'Helvetica Neue',Arial,'Hiragino Kaku Gothic ProN',Meiryo,sans-serif;
-  -webkit-text-size-adjust:100%;font-variant-numeric:tabular-nums}
-.wrap{max-width:620px;margin:0 auto;padding:0 18px}
-.siteback{display:flex;align-items:center;gap:6px;min-height:44px;
-  font-size:13px;color:inherit;text-decoration:none;opacity:.7}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--fg)}
+body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;
+  -webkit-text-size-adjust:100%;font-feature-settings:"palt" 1}
+.wrap{max-width:620px;margin:0 auto;padding:0 18px 64px}
 
-/* ── ヘッダ ── */
-header{padding:4px 0 20px;border-bottom:1px solid var(--line)}
-header .eyebrow{font-size:11px;color:var(--accent);letter-spacing:.18em;margin:0 0 8px}
-header h1{font-size:23px;line-height:1.5;color:#fff;margin:0 0 10px;font-weight:700}
-header .sub{font-size:12px;color:var(--dim);line-height:1.9;margin:0}
+.siteback{display:inline-flex;align-items:center;min-height:44px;
+  color:#a9c6dd;text-decoration:none;font-size:12.5px;margin-right:16px}
+.siteback:hover{text-decoration:underline}
 
-/* ── 記事 ── */
-.article{padding:32px 0 8px;font-size:15.5px;line-height:2.1;letter-spacing:.01em}
-.article p{margin:0 0 1.7em}
-.article p.tight{margin-bottom:.9em}
-.article .lead{font-size:16.5px;color:#fff;line-height:1.95;margin-bottom:1.9em}
-.article b{color:#fff;font-weight:600}
+header{padding:26px 0 8px;border-bottom:1px solid var(--line)}
+header .eyebrow{font-size:11px;letter-spacing:.34em;color:var(--accent);margin:0 0 12px}
+header h1{font-size:28px;line-height:1.5;color:#fff;margin:0 0 10px;font-weight:700}
+header .sub{font-size:12px;line-height:1.9;color:var(--dim);margin:0 0 22px}
 
-/* ── 小見出し ── */
-.sec{margin:3em 0 1.6em;font-size:13px;color:var(--accent);font-weight:600;
-  letter-spacing:.09em;line-height:1.6;display:flex;align-items:center;gap:11px}
-.sec::before{content:"";width:20px;height:1px;background:var(--accent);flex:none;opacity:.6}
-.sec::after{content:"";flex:1;height:1px;background:var(--line)}
+.article{padding:32px 0 8px;font-size:16px;line-height:2.1}
+.article p{margin:0 0 1.9em}
+.article b{color:#fff;font-weight:700}
+.article .lead{font-size:18.5px;line-height:1.95;color:#fff;font-weight:700;margin-bottom:1.7em}
+.article a{color:#a9c6dd;text-decoration:underline;text-decoration-color:var(--line);
+  text-underline-offset:4px;text-decoration-thickness:1px}
+.article a:hover{color:#fff;text-decoration-color:#a9c6dd}
 
+.sec{margin:3em 0 1.5em;font-size:18px;color:var(--accent);font-weight:700;
+  letter-spacing:.06em;line-height:1.6;display:flex;align-items:center;gap:11px}
+.sec::before{content:"";width:20px;height:1px;background:var(--accent);flex:none}
+.sec::after{content:"";height:1px;background:var(--line);flex:1}
+
+.punch{margin:2.2em 0 1.1em;font-size:30px;line-height:1.65;color:#fff;font-weight:700}
+.punch .big{color:var(--accent)}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:1.5em 0 1.9em;
+  font-variant-numeric:tabular-nums}
+th,td{padding:11px 6px;text-align:right;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--faint);font-weight:600;font-size:12px;white-space:nowrap}
+tr.hi td{color:#fff;font-weight:700;background:#16283c}
+tr.mid td{color:var(--faint)}
+
+/* ── 数字ブロック ── */
+.figure{display:flex;gap:12px;margin:1.5em 0 1.9em}
+.figure>div{flex:1;background:var(--panel);border:1px solid var(--line);
+  border-radius:10px;padding:16px 10px 14px;text-align:center}
+.figure .n{font-size:44px;font-weight:700;line-height:1.15;color:var(--accent);
+  font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.figure .u{font-size:17px;font-weight:700;margin-left:2px}
+.figure .l{font-size:11px;color:var(--dim);margin-top:8px;line-height:1.7}
+.figure .ref .n{color:var(--faint)}
+
+/* ── 折りたたみ ── */
+details{margin:2.6em 0 1.6em;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+details>summary{display:flex;align-items:center;min-height:46px;padding:0 16px;
+  font-size:13px;color:#a9c6dd;cursor:pointer;list-style:none}
+details>summary::-webkit-details-marker{display:none}
+details>summary::after{content:"＋";margin-left:auto;color:var(--faint)}
+details[open]>summary::after{content:"−"}
+.dbody{padding:4px 16px 18px;font-size:12.5px;line-height:2;color:var(--dim)}
+.dbody h4{margin:1.6em 0 .5em;font-size:12.5px;color:#cfd8e3;font-weight:700}
+.dbody h4:first-child{margin-top:.4em}
+.dbody p{margin:0 0 1em}
+
+.stamp{margin:2.4em 0 1.4em;font-size:11px;line-height:1.9;color:var(--faint);
+  padding-top:16px;border-top:1px solid var(--line)}
+.stamp span{color:var(--dim);font-variant-numeric:tabular-nums}
+/* ── 図 ── */
+.chart{margin:1.6em 0 2em;padding:14px 10px 10px;background:var(--panel);
+  border:1px solid var(--line);border-radius:10px}
+.chart svg{display:block;width:100%;height:auto;font-family:inherit}
+.chart figcaption{margin-top:8px;font-size:11.5px;line-height:1.8;color:var(--dim)}
 /* ── 図：節内カーブ ── */
 .curvefig{margin:0 0 1.3em;padding:22px 14px 16px;background:var(--panel);
   border:1px solid var(--line);border-radius:10px}
@@ -117,13 +159,6 @@ header .sub{font-size:12px;color:var(--dim);line-height:1.9;margin:0}
   letter-spacing:-.02em}
 .wfig .cap{font-size:11px;color:var(--faint);margin-top:14px;line-height:1.7}
 
-/* ── パンチライン ── */
-.punch{margin:2.2em 0 1.1em;font-size:24px;line-height:1.65;font-weight:700;color:#fff;
-  letter-spacing:.005em}
-.punch .big{color:var(--accent)}
-
-.tail{color:var(--dim);font-size:13.5px;line-height:2}
-
 /* ── 成立条件 ── */
 .cond{margin:-1.15em 0 1.7em;padding:9px 0 9px 12px;border-left:2px solid var(--line);
   font-size:11.5px;color:var(--faint);line-height:1.85}
@@ -132,32 +167,13 @@ header .sub{font-size:12px;color:var(--dim);line-height:1.9;margin:0}
 .cond .st.ok{color:var(--ok)}
 .cond .st.ng{color:var(--ng)}
 
-/* ── 折りたたみ ── */
-details{background:var(--panel);border:1px solid var(--line);border-radius:9px;margin:0 0 11px}
-details>summary{list-style:none;cursor:pointer;padding:13px 15px;font-size:13px;
-  color:#a9c6dd;display:flex;align-items:center;justify-content:space-between;min-height:46px}
-details>summary::-webkit-details-marker{display:none}
-details>summary::after{content:"";width:7px;height:7px;border-right:1.5px solid #7a8ea6;
-  border-bottom:1.5px solid #7a8ea6;transform:rotate(45deg);margin-left:12px;flex:none}
-details[open]>summary::after{transform:rotate(-135deg)}
-.dbody{padding:0 15px 15px;font-size:12.5px;color:var(--dim);line-height:2}
-.dbody p{margin:0 0 .9em}
-.dbody h4{font-size:12.5px;color:#cfe0f0;margin:16px 0 6px;font-weight:600}
-.dbody h4:first-child{margin-top:4px}
-.dbody b{color:#cfe0f0}
-
-/* ── 表 ── */
-table{width:100%;border-collapse:collapse;font-size:12.5px;margin:8px 0 6px}
-th,td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:right}
-th{color:var(--faint);font-weight:400;font-size:11px;white-space:nowrap}
-td:first-child,th:first-child{text-align:left}
-tr.hi td{color:#fff;font-weight:700}
-
 /* ── 検証データ ── */
 .verify{margin-top:40px;padding-top:24px;border-top:1px solid var(--line)}
 .verify > h2{font-size:14px;color:var(--accent);margin:0 0 6px;letter-spacing:.05em}
 .verify > .vsub{font-size:11.5px;color:var(--dim);line-height:1.9;margin:0 0 18px}
-.stamp{font-size:11px;color:var(--faint);margin-top:26px;line-height:1.9}
+.dbody table{margin:8px 0 6px;font-size:12px}
+.dbody th,.dbody td{padding:8px 5px}
+.verify details{margin:0 0 11px}
 </style>
 </head>
 <body>
@@ -180,18 +196,15 @@ tr.hi td{color:#fff;font-weight:700}
 
 <p class="lead">「絞ってきましたね」</p>
 
-<p>節の中日、実況がそう言う。仕上げてきた、と紙にも書かれる。<br>
-体重を落とすことは、本気の証だと思われています。</p>
+<p>節の中日に、実況がそう言うことがあります。仕上げてきた、と予想紙に書かれることもある。体重を落とすのは本気の証だ、という前提で聞いている人は多いはずです。</p>
 
-<p>では、いつ絞っているのか。<br>
-それを探しました。</p>
+<p>では、その選手はいつ絞っているのか。</p>
 
-<p><b data-v="n_days">224</b>日分の直前情報を見ました。<br>
-<b data-v="n_races">34,469</b>レース、のべ<b data-v="n_rides">192,972</b>の出走です。</p>
+<p>2026年1月1日から、<span data-v="n_days">265</span>日分の直前情報を集めました。レース前に公表される体重と結果を突き合わせると、<span data-v="n_races">40,845</span>レース、のべ<span data-v="n_rides_all">245,008</span>の出走になります。</p>
 
-<p class="sec">節の中を見る</p>
+<h2 class="sec">落ちるのは2日目まで</h2>
 
-<p>初日の体重を基準にして、日ごとの差を並べます。</p>
+<p>同じ選手が同じ場で4日以上続けて走ったまとまりを1節として、初日の体重を基準に、日ごとの差を並べました。</p>
 
 <div class="curvefig">
   <div class="row">
@@ -222,12 +235,9 @@ tr.hi td{color:#fff;font-weight:700}
   <p class="cap">初日の体重を0としたときの差（キロ）</p>
 </div>
 
-<p>落ちています。0.2キロ弱。<br>
-やはり絞っているのか、と思ったのですが、形が違います。</p>
+<p>体重は落ちています。2日目で<span data-v="c2">−0.17</span>キロ、3日目で<span data-v="c3">−0.19</span>キロ。やはり絞っているのか、と一度は思いました。</p>
 
-<p>落ちるのは2日目まで。そこから止まります。<br>
-最終日に向けて絞り込んでいく形にはなっていません。<br>
-理由までは、この数字からは分かりません。</p>
+<p>ところが、形が違う。落ちるのは2日目までで、そこから先は横ばいか、少し戻る。最終日に向けて絞り込んでいく形にはなっていません。なぜ2日目で止まるのかは、この数字からは分からない。</p>
 
 <div class="cond">
   この段落は「最終日側の落ち幅が、3日目より深くならない」とき成立します。<br>
@@ -235,16 +245,11 @@ tr.hi td{color:#fff;font-weight:700}
   <span class="st ok" data-v="st_curve">✓ 成立</span>
 </div>
 
-<p class="sec">軽い日は、走るのか</p>
+<h2 class="sec">軽い日は、走るのか</h2>
 
-<p>同じ選手の、同じ節の中だけで比べました。<br>
-相手の強さも、その節の調子も、腕の差も、これで揃います。</p>
+<p>同じ選手の、同じ節の中だけで比べました。相手の強さも、その節の調子も、腕の差も、これで揃う。</p>
 
-<p>軽い日のほうが、着はわずかに悪くなっていました。</p>
-
-<p>その差を着順点に直すと<b data-v="eff_pt">0.03</b>点。<br>
-1着と2着の差は2点ですから、その<b data-v="eff_ratio">61</b>分の1です。<br>
-差はほとんどゼロで、向きが逆だったことだけが残ります。</p>
+<p>軽い日のほうが、着はわずかに悪くなっていた。その差を着順点に直すと<span data-v="eff_pt">0.03</span>点で、1着と2着の差の2点に比べると、<span data-v="eff_ratio">69</span>分の1です。差はほとんどゼロで、向きが逆だったことだけが残りました。</p>
 
 <div class="cond">
   この段落は「同じ節の中で比べた係数が、負にならない」とき成立します。<br>
@@ -252,12 +257,7 @@ tr.hi td{color:#fff;font-weight:700}
   <span class="st ok" data-v="st_coef">✓ 成立</span>
 </div>
 
-<p>気持ちが入っているなら、スタートに出るはずです。<br>
-そこも見ました。体重1キロあたり<b data-v="coef_st">0.003</b>秒。<br>
-節の中で動く体重の幅に直すと、<b data-v="eff_st">0.0008</b>秒。</p>
-
-<p>スタートタイムは100分の1秒まで公表されます。<br>
-この数字は、その桁に届きません。</p>
+<p>気持ちが入っているなら、スタートに出るのではないか。そこも見ると、体重1キロあたり<span data-v="coef_st">0.003</span>秒で、節の中で動く体重の幅に直すと<span data-v="eff_st">0.0008</span>秒でした。スタートタイミングは100分の1秒の桁で記録されていて、この差はその桁に届かない。</p>
 
 <div class="cond">
   この段落は「体重の幅に直したスタートの差が、0.005秒未満」のとき成立します。<br>
@@ -265,12 +265,13 @@ tr.hi td{color:#fff;font-weight:700}
   <span class="st ok" data-v="st_st">✓ 成立</span>
 </div>
 
-<p class="sec">幅を、物に置き換える</p>
+<p>比べた出走から外れたものもある。突き合わせた<span data-v="n_rides_all">245,008</span>の出走のうち、比べたのは<span data-v="n_rides">229,875</span>で、残りの<span data-v="n_drop">15,133</span>は、4日に満たない節の出走と、失格や欠場で着順がつかなかった出走です。</p>
 
-<p>なぜこうなるのか。理由は、幅のほうにありました。</p>
+<h2 class="sec">錘の一枚より軽い</h2>
 
-<p>最低体重を下回った選手は、不足分の錘を積んで走ります。<br>
-その錘は、0.5キロ刻みです。</p>
+<p>なぜ、こうなるのか。理由は、動く幅のほうにありました。</p>
+
+<p>最低体重を下回った選手は、足りない分の錘を積んで走ります。その錘は、0.5キロ刻み。</p>
 
 <div class="scalefig">
   <div class="row">
@@ -286,7 +287,7 @@ tr.hi td{color:#fff;font-weight:700}
   <p class="cap">単位はキロ</p>
 </div>
 
-<p class="punch">節の中で動く体重は、<br>錘の<span class="big">最小の一枚</span>より軽い。</p>
+<p>節の中で動く体重は<span data-v="sd_w">0.27</span>キロで、錘の最小の一枚より軽い。一枚も足せない幅のなかで、着順やスタートが動くことは期待しにくい。</p>
 
 <div class="cond">
   この一行は「体重の幅が 0.5キロ未満」のとき成立します。<br>
@@ -294,19 +295,11 @@ tr.hi td{color:#fff;font-weight:700}
   <span class="st ok" data-v="st_sd">✓ 成立</span>
 </div>
 
-<p><span data-v="sd_w">0.28</span>キロと言われても、大きいのか小さいのか分かりません。<br>
-手に持てる物に置き換えると、こうなります。<br>
-一枚も足せない幅です。</p>
+<h2 class="sec">節と節のあいだ</h2>
 
-<p class="sec">節と節のあいだは、どうか</p>
+<p>動かないのが節の中なら、絞るのは節に入る前のはずです。同じ選手の、続けて出た2つの節を比べました。</p>
 
-<p>節の中で動かないなら、絞るのは節に入る前のはずです。<br>
-同じ選手の、続けて出た2つの節を比べました。</p>
-
-<p>差は<b data-v="gap_med">0.21</b>キロ。<br>
-0.5キロを超えたのは、<b data-v="gap_over">5</b>回に1回です。</p>
-
-<p>あいだが空くほど、少しだけ動きます。</p>
+<p>差の中央値は<span data-v="gap_med">0.20</span>キロで、0.5キロを超えたのは<span data-v="gap_over">5</span>回に1回。あいだが空くほど、少しだけ動く。</p>
 
 <div class="gapfig">
   <div class="row">
@@ -327,30 +320,21 @@ tr.hi td{color:#fff;font-weight:700}
   <p class="cap">続けて出た2つの節の、体重の差（中央値・キロ）</p>
 </div>
 
-<p>動くのは、レースをしていない日のほうでした。<br>
-それでも0.3キロに届きません。</p>
+<p>動くのはレースをしていない日のほうで、それでも0.3キロに届かない。節の中でも、節と節のあいだでも、絞っている場面は見つかりませんでした。</p>
 
-<p>節の中でも、節と節のあいだでも、絞っていない。<br>
-では、いつなのか。</p>
+<h2 class="sec">軽いほうが有利なら</h2>
 
-<p class="sec">体重そのものを、並べてみる</p>
+<p>体重には、もうひとつ、よく聞く話があります。</p>
 
-<p>選手ごとの体重を出しました。10走以上ある<b data-v="n_racers">1,633</b>人ぶんです。</p>
+<p class="lead">「体重は軽いほうが有利」</p>
 
-<p>男子の中央値は<b data-v="med_m">52.35</b>キロ。<br>
-最低体重は52.0キロですから、<b data-v="gap_m">0.35</b>キロしか上にありません。</p>
-
-<p>刻みごとに人数を数えると、こうなります。</p>
+<p>有利なら、選手はできるだけ軽くしているはずです。10走以上ある<span data-v="n_racers">1,634</span>人について、選手ごとの体重の中央値を出しました。男子の中央値は<span data-v="med_m">52.30</span>キロで、最低体重の52.0キロより<span data-v="gap_m">0.30</span>キロしか上にない。</p>
 
 <div class="histfig" data-t="hist"></div>
 
-<p><b data-v="peak_w">52.0</b>キロちょうどが<b data-v="peak_n">369</b>人。<br>
-2番目に多い値の、<b data-v="peak_ratio">5</b>倍以上です。</p>
+<p><span data-v="peak_w">52.0</span>キロちょうどが<span data-v="peak_n">371</span>人で、2番目に多い値の<span data-v="peak_ratio">5</span>倍以上。身長も骨格も違う<span data-v="n_m">1,355</span>人の体重が、ひとつの数字にこれだけ集まるのは、体格の偶然ではないでしょう。</p>
 
-<p>身長も骨格も違う<b data-v="n_m">1,354</b>人の体重が、<br>
-ひとつの数字にこれだけ集まることはありません。</p>
-
-<p class="punch">体格がそこに<br>集まっているのではなく、<br><span class="big">そこに合わせています。</span></p>
+<p class="punch">体格がそこに集まっているのではなく、<br><span class="big">そこに合わせている。</span></p>
 
 <div class="cond">
   この一行は「いちばん多い体重が、最低体重の52.0キロと一致する」とき成立します。<br>
@@ -358,12 +342,11 @@ tr.hi td{color:#fff;font-weight:700}
   <span class="st ok" data-v="st_peak">✓ 成立</span>
 </div>
 
-<p><b data-v="near_m">43</b>%が、最低体重から0.4キロ以内にいます。</p>
+<h2 class="sec">絞れない側</h2>
 
-<p class="sec">絞れない側の話</p>
+<p>男子の<span data-v="near_m">43.5</span>%が、最低体重から0.4キロ以内にいます。では、軽いほうが有利なのか。それは、この数字では確かめられません。ほとんどの選手がもう下限のすぐ上まで来ていて、軽い人と重い人を比べようにも、重い側がほとんどいないからです。</p>
 
-<p>最低体重は男子52キロ、女子47キロ。<br>
-下回った選手は錘を積みます。</p>
+<p>最低体重は、男子52キロ、女子47キロ。下回った選手は、その分の錘を積んで走る。</p>
 
 <div class="wfig">
   <div class="row">
@@ -379,34 +362,19 @@ tr.hi td{color:#fff;font-weight:700}
   <p class="cap">錘を積んで出走した割合</p>
 </div>
 
-<p>女子の4割が錘を積んで走っています。<br>
-体重の中央値は<b data-v="med_f">47.0</b>キロ。最低体重ちょうどです。</p>
+<p>女子は<span data-v="w_f">40.2%</span>が錘を積んで走っていて、体重の中央値は<span data-v="med_f">47.0</span>キロ、最低体重ちょうど。絞るという話の裏側には、これ以上落とせない人がいます。落としても錘が増えるだけで、舟は軽くなりません。</p>
 
-<p>絞るという話の裏側に、これ以上は落とせない人がいます。<br>
-落とせば錘が増えるだけで、軽くはなりません。</p>
+<h2 class="sec">節の格までは揃っていない</h2>
 
-<p class="sec">いつ絞っているのか</p>
+<p>同じ節の中で比べても、節そのものの格や相手の強さは、揃えきれていない。体重が手元にあるのは2026年1月からで、それより前の節は数えていない。</p>
 
-<p>答えは、どこにもありませんでした。</p>
+<p><span data-v="n_days">265</span>日分の体重を並べて分かったのは、選手の体重がほとんど動かないということで、動いたのは、こちらの見込みのほうでした。</p>
 
-<p>節の中でもなく、節と節のあいだでもない。<br>
-探した範囲に、絞っている場面が出てきません。</p>
+<h2 class="sec">いつ絞っているのか</h2>
 
-<p>理由は、体重の分布のほうにあります。<br>
-すでに下限に張り付いている選手に、絞る余地は残っていません。</p>
+<p>探した範囲では、節の中でも、節と節のあいだでも、絞っている場面は出てこなかった。</p>
 
-<p>「絞ってきましたね」は、嘘ではありません。<br>
-ただ、それが終わったのは、その節が始まる前です。<br>
-たいていは、ずっと前です。</p>
-
-<p>節の中で見えているのは、絞った跡ではなく、<br>
-そこを保っている状態のほうでした。</p>
-
-<p>保つほうが、落とすより難しいのかもしれません。<br>
-そこまでは、数字では分かりません。</p>
-
-<p class="tail">節のレベルまでは揃えきれていないので、断定はしません。<br>
-ただ、体重がほとんど動かないことは、何度数えても変わりません。</p>
+<p>「絞ってきましたね」は、嘘ではありません。ただ、絞り終わったのは、その節が始まるより前で、たいていは、ずっと前。節の中で見えているのは、絞った跡ではなく、そこを保っている姿のほうでした。</p>
 
 </div>
 <!-- ══════════ /記事 ══════════ -->
@@ -474,6 +442,12 @@ tr.hi td{color:#fff;font-weight:700}
 （出典：ボートレース公式 用語辞典「体重」）</p>
 <p>最低体重は令和2年11月1日以降を初日とする競走から、男子51.0キロ→52.0キロに引き上げられました。
 女子は47.0キロのままです。<br>（出典：ボートレース公式 お知らせ）</p>
+
+<h4>比べた出走から外れたもの</h4>
+<p>突き合わせた <b data-v="n_rides_all">245,008</b> の出走のうち、4日に満たない節の出走と、失格や欠場などで着順がつかなかった出走の <b data-v="n_drop">15,133</b> は、節の中の比較に入れていません。</p>
+
+<h4>図</h4>
+<p>すべてこの検証の集計から描いたもので、外部の画像は使っていません。図の数字は毎日の集計で差し替わります。</p>
 
 <h4>揃えきれていないもの</h4>
 <p>節そのもののレベル（相手の強さ）は揃えきれていません。断定はしていません。</p>
