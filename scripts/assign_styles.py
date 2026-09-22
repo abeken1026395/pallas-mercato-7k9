@@ -390,6 +390,8 @@ def assign(src):
             allowed = [t for t in CANDIDATES if t not in forbidden]
             if not allowed:  # 万一全滅なら規約の例外（killerに明記させる）
                 allowed = CANDIDATES[:]
+            if not (v.get("results") or []):  # 中止明け：前日結果が無いので番狂わせ型の材料が無い（2026-09-22）
+                allowed = [t for t in allowed if t != "番狂わせ型"] or allowed
         plan.append({"i": i, "v": v, "allowed": allowed, "score": sc, "day1": day1})
     # 2パス目: 分散を加味した貪欲割当（スコア降順に確定、使用回数ペナルティ）
     # 確定順は「最高スコアと次点の差が大きい＝迷いが少ない場」から

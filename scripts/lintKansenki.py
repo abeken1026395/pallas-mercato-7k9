@@ -56,6 +56,7 @@ TITLE_HEAD = 4               # 見出しの書き出しの重複判定に使う�
 TITLE_LOOKBACK = 7           # 同じ場の直近何日と比べるか
 DAY_WORD = re.compile(r"^(初日|[0-9０-９]+日目|最終日|準優)")
 FOCUS_MIN = 3                # 注目選手（focusRacers）から最低何人を書くか（素材がそれ未満なら全員）
+NORACE_WRITE_FROM = "20260922"  # この日以降、中止明け（前日と日目が同じ場）は網羅の除外にしない
 
 
 def load(path):
@@ -355,6 +356,17 @@ def prev_day_race_count(ymd, jcd):
     return n
 
 
+def postponed(ymd, jcd, day_num):
+    """前日の素材でこの場の dayNum が今日と同じなら、前日は中止・順延（2026-09-22）。"""
+    p = os.path.join(SRC_DIR, prev_day8(ymd) + ".json")
+    if not day_num or not os.path.exists(p):
+        return False
+    for pv in load(p).get("venues", []) or []:
+        if pv.get("jcd") == jcd:
+            return pv.get("dayNum") == day_num
+    return False
+
+
 def check_coverage(ymd):
     """網羅性チェック: source/YYYYMMDD.json の全venueに記事があるか。
     源泉(source)は cron で場が増えて再生成されうる（不完全CSV時点の暫定sourceが後で
@@ -384,7 +396,8 @@ def check_coverage(ymd):
             present.append(jcd)
             continue
         day1 = (v.get("dayNum") == 1) or (v.get("dayLabel") == "初日")
-        if (not day1) and prev_day_race_count(ymd, jcd) == 0:
+        if (not day1) and prev_day_race_count(ymd, jcd) == 0 and not (
+                ymd >= NORACE_WRITE_FROM and postponed(ymd, jcd, v.get("dayNum"))):
             excused.append("%s-%s(%s) 前日%sが非開催＝前日成績なしで執筆不能"
                            % (ymd, jcd, name, prev_day8(ymd)))
             continue
