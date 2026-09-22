@@ -363,6 +363,14 @@ def main():
         """今節の展示タイム偏差。(平均偏差, 本数) を返す。取れなければ (None, 0)。
            マイナスほど6艇平均より速い。本数は必ず読者に併記する。"""
         n = sum(1 for c in _DAYCOLS if (r.get(c) or '').strip())
+        # 2026-09-22b: 日中に作り直すと当日の成績も埋まり、1日多く遡って前節の展示が混ざっていた。
+        #   日目が読めるときは「前日までの日数」＝日目−1 を上限にする。読めない場（空欄・最終日）は従来どおり。
+        import unicodedata as _ud
+        _dm = _ud.normalize('NFKC', r.get('日目') or '').strip()
+        if _dm == '初日':
+            n = 0
+        elif _dm.endswith('日目') and _dm[:-2].isdigit():
+            n = min(n, int(_dm[:-2]) - 1)
         if n <= 0:
             return None, 0
         h = _tenji.get((r['場コード'], str(r['登録番号'])), [])
