@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>検証：勝負駆け ｜ データ攻め</title>
 <link rel="canonical" href="https://abeken1026395.github.io/pallas-mercato-7k9/kensho/shobugake/">
-<meta name="description" content="予選最終日、ボーダー付近の選手の走りは変わるのか。2025/7/15〜2026/8/6の33,027件で、最終走の着順、チルトを跳ね上げた割合、枠ごとの準優進出率を数え、勝負駆けの定説を確かめた記録です。">
+<meta name="description" content="予選最終日、ボーダー付近の選手の走りは変わるのか。2016年11月から2026年8月までの7,523節・325,535人日で、予選最終日の着順とスタート、枠ごとの準優進出率を数え、勝負駆けの定説を確かめた記録です。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="検証：勝負駆け">
-<meta property="og:description" content="予選最終日、ボーダー付近の選手の走りは変わるのか。2025/7/15〜2026/8/6の33,027件で、最終走の着順、チルトを跳ね上げた割合、枠ごとの準優進出率を数え、勝負駆けの定説を確かめた記録です。">
+<meta property="og:description" content="予選最終日、ボーダー付近の選手の走りは変わるのか。2016年11月から2026年8月までの7,523節・325,535人日で、予選最終日の着順とスタート、枠ごとの準優進出率を数え、勝負駆けの定説を確かめた記録です。">
 <meta property="og:image" content="https://abeken1026395.github.io/pallas-mercato-7k9/icon512.png">
 <meta property="og:url" content="https://abeken1026395.github.io/pallas-mercato-7k9/kensho/shobugake/">
 <meta property="og:site_name" content="データ攻め">
@@ -16,103 +16,88 @@
 <!-- data-seme signature: kensho / shobugake -->
 <style>
 :root{
-  --bg:#0b1219; --fg:#e0e6ed; --dim:#8a94a3; --faint:#6f7a89;
-  --line:#1f2b3a; --panel:#0f1a26; --accent:#ffd166;
-  --ok:#7ee08a; --ng:#e07a7a; --blue:#5b9bd5; --deep:#2f4a6b;
+  --bg:#0b1219; --panel:#0f1a26; --line:#4a627f;
+  --fg:#e0e6ed; --dim:#8a94a3; --faint:#8a94a3;
+  --accent:#ffd166; --ok:#7ee08a; --ng:#e07a7a;
 }
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--fg);margin:0;padding-bottom:80px;
-  font-family:'Helvetica Neue',Arial,'Hiragino Kaku Gothic ProN',Meiryo,sans-serif;
-  -webkit-text-size-adjust:100%;font-variant-numeric:tabular-nums}
-.wrap{max-width:620px;margin:0 auto;padding:0 18px}
-.siteback{display:flex;align-items:center;gap:6px;min-height:44px;
-  font-size:13px;color:inherit;text-decoration:none;opacity:.7}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--fg)}
+body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;
+  -webkit-text-size-adjust:100%;font-feature-settings:"palt" 1}
+.wrap{max-width:620px;margin:0 auto;padding:0 18px 64px}
 
-/* ── ヘッダ ── */
-header{padding:4px 0 20px;border-bottom:1px solid var(--line)}
-header .eyebrow{font-size:11px;color:var(--accent);letter-spacing:.18em;margin:0 0 8px}
-header h1{font-size:23px;line-height:1.5;color:#fff;margin:0 0 10px;font-weight:700}
-header .sub{font-size:12px;color:var(--dim);line-height:1.9;margin:0}
+.siteback{display:inline-flex;align-items:center;min-height:44px;
+  color:#a9c6dd;text-decoration:none;font-size:12.5px;margin-right:16px}
+.siteback:hover{text-decoration:underline}
 
-/* ── 記事 ── */
-.article{padding:32px 0 8px;font-size:15.5px;line-height:2.1;letter-spacing:.01em}
-.article p{margin:0 0 1.7em}
-.article p.tight{margin-bottom:.9em}
-.article .lead{font-size:16.5px;color:#fff;line-height:1.95;margin-bottom:1.9em}
-.article b{color:#fff;font-weight:600}
+header{padding:26px 0 8px;border-bottom:1px solid var(--line)}
+header .eyebrow{font-size:11px;letter-spacing:.34em;color:var(--accent);margin:0 0 12px}
+header h1{font-size:28px;line-height:1.5;color:#fff;margin:0 0 10px;font-weight:700}
+header .sub{font-size:12px;line-height:1.9;color:var(--dim);margin:0 0 22px}
 
-/* ── 図：チルト（同じであることを形で見せる） ── */
-.samefig{margin:0 0 1.3em;padding:22px 8px 16px;background:var(--panel);
-  border:1px solid var(--line);border-radius:10px}
-.samefig .cols{display:flex;align-items:flex-end;justify-content:center;gap:6px;height:120px}
-.samefig .col{flex:1;max-width:96px;display:flex;flex-direction:column;
-  align-items:center;justify-content:flex-end;height:100%}
-.samefig .num{font-size:27px;font-weight:700;color:#cfe0f0;line-height:1;margin-bottom:9px;
-  letter-spacing:-.02em}
-.samefig .bar{width:100%;background:var(--deep);border-radius:3px 3px 0 0}
-.samefig .lbs{display:flex;justify-content:center;gap:6px;margin-top:9px}
-.samefig .lb{flex:1;max-width:96px;text-align:center;font-size:11px;color:var(--dim);
-  line-height:1.5}
-.samefig .cap{text-align:center;font-size:11px;color:var(--faint);margin-top:14px}
+.article{padding:32px 0 8px;font-size:16px;line-height:2.1}
+.article p{margin:0 0 1.9em}
+.article b{color:#fff;font-weight:700}
+.article .lead{font-size:18.5px;line-height:1.95;color:#fff;font-weight:700;margin-bottom:1.7em}
+.article a{color:#a9c6dd;text-decoration:underline;text-decoration-color:var(--line);
+  text-underline-offset:4px;text-decoration-thickness:1px}
+.article a:hover{color:#fff;text-decoration-color:#a9c6dd}
 
-/* ── 図：枠の対比 ── */
-.gapfig{margin:0 0 1.3em;padding:20px 18px 16px;background:var(--panel);
-  border:1px solid var(--line);border-radius:10px}
-.gapfig .row{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-.gapfig .row:last-of-type{margin-bottom:0}
-.gapfig .wk{width:34px;font-size:12px;color:var(--dim);flex:none}
-.gapfig .track{flex:1;height:26px;background:#080e14;border-radius:4px;overflow:hidden}
-.gapfig .fill{display:block;height:100%;border-radius:4px}
-.gapfig .f1{background:linear-gradient(90deg,#4d8fd6,#7ab5ea)}
-.gapfig .f6{background:linear-gradient(90deg,#6b7f96,#93a8c0)}
-.gapfig .pc{width:58px;text-align:right;font-size:21px;font-weight:700;color:#fff;flex:none;
-  letter-spacing:-.02em}
-.gapfig .cap{font-size:11px;color:var(--faint);margin-top:14px;line-height:1.7}
+.sec{margin:3em 0 1.5em;font-size:18px;color:var(--accent);font-weight:700;
+  letter-spacing:.06em;line-height:1.6;display:flex;align-items:center;gap:11px}
+.sec::before{content:"";width:20px;height:1px;background:var(--accent);flex:none}
+.sec::after{content:"";height:1px;background:var(--line);flex:1}
 
-/* ── パンチライン ── */
-.punch{margin:2.2em 0 1.1em;font-size:24px;line-height:1.65;font-weight:700;color:#fff;
-  letter-spacing:.005em}
+.punch{margin:2.2em 0 1.1em;font-size:30px;line-height:1.65;color:#fff;font-weight:700}
 .punch .big{color:var(--accent)}
 
-.tail{color:var(--dim);font-size:13.5px;line-height:2}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:1.5em 0 1.9em;
+  font-variant-numeric:tabular-nums}
+th,td{padding:11px 6px;text-align:right;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--faint);font-weight:600;font-size:12px;white-space:nowrap}
+tr.hi td{color:#fff;font-weight:700;background:#16283c}
+tr.mid td{color:var(--faint)}
 
-/* ── 成立条件 ── */
-.cond{margin:-1.15em 0 1.7em;padding:9px 0 9px 12px;border-left:2px solid var(--line);
-  font-size:11.5px;color:var(--faint);line-height:1.85}
-.cond b{color:var(--dim);font-weight:600}
-.cond .st{font-weight:700;white-space:nowrap}
-.cond .st.ok{color:var(--ok)}
-.cond .st.ng{color:var(--ng)}
+/* ── 数字ブロック ── */
+.figure{display:flex;gap:12px;margin:1.5em 0 1.9em}
+.figure>div{flex:1;background:var(--panel);border:1px solid var(--line);
+  border-radius:10px;padding:16px 10px 14px;text-align:center}
+.figure .n{font-size:44px;font-weight:700;line-height:1.15;color:var(--accent);
+  font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.figure .u{font-size:17px;font-weight:700;margin-left:2px}
+.figure .l{font-size:11px;color:var(--dim);margin-top:8px;line-height:1.7}
+.figure .ref .n{color:var(--faint)}
 
 /* ── 折りたたみ ── */
-details{background:var(--panel);border:1px solid var(--line);border-radius:9px;margin:0 0 11px}
-details>summary{list-style:none;cursor:pointer;padding:13px 15px;font-size:13px;
-  color:#a9c6dd;display:flex;align-items:center;justify-content:space-between;min-height:46px}
+details{margin:2.6em 0 1.6em;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+details>summary{display:flex;align-items:center;min-height:46px;padding:0 16px;
+  font-size:13px;color:#a9c6dd;cursor:pointer;list-style:none}
 details>summary::-webkit-details-marker{display:none}
-details>summary::after{content:"";width:7px;height:7px;border-right:1.5px solid #55697f;
-  border-bottom:1.5px solid #55697f;transform:rotate(45deg);margin-left:12px;flex:none}
-details[open]>summary::after{transform:rotate(-135deg)}
-.dbody{padding:0 15px 15px;font-size:12.5px;color:var(--dim);line-height:2}
-.dbody p{margin:0 0 .9em}
-.dbody h4{font-size:12.5px;color:#cfe0f0;margin:16px 0 6px;font-weight:600}
-.dbody h4:first-child{margin-top:4px}
-.dbody b{color:#cfe0f0}
+details>summary::after{content:"＋";margin-left:auto;color:var(--faint)}
+details[open]>summary::after{content:"−"}
+.dbody{padding:4px 16px 18px;font-size:12.5px;line-height:2;color:var(--dim)}
+.dbody h4{margin:1.6em 0 .5em;font-size:12.5px;color:#cfd8e3;font-weight:700}
+.dbody h4:first-child{margin-top:.4em}
+.dbody p{margin:0 0 1em}
 
-/* ── 表 ── */
-table{width:100%;border-collapse:collapse;font-size:12.5px;margin:8px 0 6px}
-th,td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:right}
-th{color:var(--faint);font-weight:400;font-size:11px;white-space:nowrap}
-td:first-child,th:first-child{text-align:left}
-tr.hi td{color:#fff;font-weight:700}
-.tbar{display:inline-block;height:6px;background:var(--deep);border-radius:3px;
-  vertical-align:middle;margin-right:7px}
-tr.hi .tbar{background:var(--blue)}
-
+.stamp{margin:2.4em 0 1.4em;font-size:11px;line-height:1.9;color:var(--faint);
+  padding-top:16px;border-top:1px solid var(--line)}
+.stamp span{color:var(--dim);font-variant-numeric:tabular-nums}
+/* ── 図 ── */
+.chart{margin:1.6em 0 2em;padding:14px 10px 10px;background:var(--panel);
+  border:1px solid var(--line);border-radius:10px}
+.chart svg{display:block;width:100%;height:auto;font-family:inherit}
+.chart figcaption{margin-top:8px;font-size:11.5px;line-height:1.8;color:var(--dim)}
 /* ── 検証データ ── */
 .verify{margin-top:40px;padding-top:24px;border-top:1px solid var(--line)}
 .verify > h2{font-size:14px;color:var(--accent);margin:0 0 6px;letter-spacing:.05em}
 .verify > .vsub{font-size:11.5px;color:var(--dim);line-height:1.9;margin:0 0 18px}
-.stamp{font-size:11px;color:var(--faint);margin-top:26px;line-height:1.9}
+.tbar{display:inline-block;height:6px;background:#2f4a6b;border-radius:3px;vertical-align:middle;margin-right:7px}
+.dbody ul{margin:0;padding-left:1.2em}
+.dbody table{margin:8px 0 6px;font-size:12px}
+.dbody th,.dbody td{padding:8px 5px}
+.verify details{margin:0 0 11px}
 </style>
 </head>
 <body>
@@ -126,185 +111,176 @@ tr.hi .tbar{background:var(--blue)}
   <h1>勝負駆けは<br>効くのか</h1>
   <p class="sub">
     予選最終日、ボーダー付近の選手の走りは変わるのか。<br>
-    2025/7/15〜2026/8/6の<span data-v="n_rows">33,027</span>件で調べた記録です。
+    約10年分・7,523節の予選最終日を数えた記録です。
   </p>
 </header>
 
 <!-- ══════════ 記事 ══════════ -->
 <div class="article">
 
-<p class="lead">予選最終日。実況が「ここは勝負駆けですね」と言う。</p>
+<p class="lead">「ここは勝負駆けですね」</p>
 
-<p>あと1走で準優が決まる。気合いも入るだろう。<br>
-── 2025/7/15〜2026/8/6の<b data-v="n_rows">33,027</b>件を見ました。</p>
+<p><a href="../../glossary/?q=%E4%BA%88%E9%81%B8">予選</a>の最終日、ボーダーのあたりにいる選手がピットを出ると、実況がそう言います。あと1走で<a href="../../glossary/?q=%E6%BA%96%E5%84%AA">準優</a>に乗れるかどうかが決まる。気合いも入るだろう、と聞いている側も思う。</p>
 
-<p>まず成績。ボーダー付近の選手は、最終走で着を上げていました。<br>
-やはりそうか、と思ったのですが、これは見間違いです。<br>
-不調な選手は次に上がり、好調な選手は下がる。<br>
-それだけのことが「崖っぷちで奮起した」ように見えていました。</p>
+<p><a href="../../glossary/?q=%E5%8B%9D%E8%B2%A0%E9%A7%86%E3%81%91">勝負駆け</a>は、効くのでしょうか。</p>
 
-<p>条件を揃え直すと、結果は逆。<br>
-ボーダーより上にいる選手のほうが、良い着を取っていました。</p>
+<h2 class="sec">10年、7,523節</h2>
 
-<div class="cond">
-  この段落は「統制後の係数が正のまま」のとき成立します。数字は2025/7/15〜2026/8/6の分析時点の値で、毎日の再計算はしていません。<br>
-  分析時点の係数 <b data-v="coef">+0.453</b>（t=<b data-v="tval">20.4</b>）──
-  <span class="st ok" data-v="st_coef">✓ 成立</span>
-</div>
+<p>2016年11月1日から2026年8月31日まで、3,591日分の競走成績を1レースずつ並べ、同じ場で続いた開催日を<a href="../../glossary/?q=%E7%AF%80">節</a>にまとめ直しました。準優のある節は7,523。予選最終日に走った選手を1人1日として数えると、325,535人日になる。</p>
 
-<p class="tight">気持ちは見えません。そこで、物を見ることにしました。</p>
+<p>公式が<a href="../../glossary/?q=%E5%BE%97%E7%82%B9%E7%8E%87">得点率</a>を出しているのは大きな開催だけなので、得点率は<a href="../../glossary/?q=%E7%9D%80%E9%A0%86%E7%82%B9">着順点</a>から自分で計算しました。その得点率で準優の顔ぶれを当てると、延べ136,914人のうち127,704人が合っていて、93.3%。予選最終日の朝、誰がボーダーのどちら側にいたかも、同じ計算で決めた。</p>
 
-<p>チルト。レース直前に選手が自分で決める角度です。<br>
-跳ね上げれば伸びは出るが、安定を失う。<br>
-勝負に出たかどうかが、機体に残ります。</p>
+<h2 class="sec">崖っぷちは、よく走っていた</h2>
 
-<div class="samefig">
-  <div class="cols">
-    <div class="col"><span class="num" data-v="tilt_edge">4.2%</span>
-      <div class="bar" data-b="tilt_edge" style="height:70px"></div></div>
-    <div class="col"><span class="num" data-v="tilt_safe">4.6%</span>
-      <div class="bar" data-b="tilt_safe" style="height:76px"></div></div>
-    <div class="col"><span class="num" data-v="tilt_out">4.2%</span>
-      <div class="bar" data-b="tilt_out" style="height:70px"></div></div>
-  </div>
-  <div class="lbs">
-    <div class="lb">崖っぷち</div>
-    <div class="lb">安全圏</div>
-    <div class="lb">もう<br>届かない</div>
-  </div>
-  <p class="cap">チルトを跳ね上げた割合</p>
-</div>
+<p>ボーダーとの差が0.5点以内の選手を「崖っぷち」と呼ぶことにして、数える前に、比べ方を決めておきました。予選最終日の着順点を、同じ枠、同じくらいの強さの選手の平均と比べ、崖っぷちとそれ以外で差を取る。強さの物差しは、その選手の直前12か月の平均着順点。</p>
 
-<p>誰も、特別なことはしていませんでした。</p>
+<p>崖っぷちの選手は、それ以外より0.13点よい着を取っていました。ラベルを1,000回入れ替えても、偶然でこの差に届いた回はない。</p>
 
-<div class="cond">
-  この一行は「3つの最大差が 1.0pt 以内」のとき成立します。数字は分析時点の値です。<br>
-  分析時点の最大差 <b data-v="tilt_diff">0.3</b>pt ──
-  <span class="st ok" data-v="st_tilt">✓ 成立</span>
-</div>
+<p>やはり効くのか、と思いました。</p>
 
-<p class="tight">では何が決めているのか。</p>
+<h2 class="sec">並べたら、坂だった</h2>
 
-<p>同じボーダー±0.5点。同じ崖っぷち。<br>
-違うのは、その日引いた枠だけ。</p>
+<p>ところが、帯ごとに並べると、形が違います。</p>
 
-<div class="gapfig">
-  <div class="row">
-    <span class="wk">1枠</span>
-    <span class="track"><span class="fill f1" data-b="w1" style="width:77.5%"></span></span>
-    <span class="pc" data-v="w1">77.5%</span>
-  </div>
-  <div class="row">
-    <span class="wk">6枠</span>
-    <span class="track"><span class="fill f6" data-b="w6" style="width:33.4%"></span></span>
-    <span class="pc" data-v="w6">33.4%</span>
-  </div>
-  <p class="cap">同じ条件で、準優に乗れた割合</p>
-</div>
+<table>
+<thead><tr><th>予選最終日の朝</th><th>人日</th><th>着順点の差</th><th>準優に乗れた割合</th></tr></thead>
+<tbody>
+<tr><td>もう届かない（−2点より下）</td><td>80,535</td><td>−0.48</td><td>1.8%</td></tr>
+<tr><td>圏外（−2から−0.5）</td><td>77,985</td><td>−0.17</td><td>14.4%</td></tr>
+<tr class="hi"><td>崖っぷち（±0.5）</td><td>67,576</td><td>+0.07</td><td>52.0%</td></tr>
+<tr><td>やや圏内（+0.5から+2）</td><td>64,140</td><td>+0.25</td><td>86.0%</td></tr>
+<tr><td>安全圏（+2点より上）</td><td>35,299</td><td>+0.61</td><td>95.4%</td></tr>
+</tbody>
+</table>
 
-<p>1コースが強いことは、誰でも知っています。<br>
-知られていないのは、崖っぷちでも同じだということです。</p>
+<p>浮いているのは崖っぷちだけではなく、ボーダーの上にいる選手ほど、よい着を取っている。予選で上位にいる選手は、その節のモーターや調子がよかった選手でもあるので、最終日もそのまま走る。崖っぷちは坂の真ん中にいて、「それ以外」には坂の下の選手のほうが多く入っていた。先に決めた比べ方は、勝負駆けではなく、この坂を拾っていました。</p>
 
-<p class="punch">気合いは、<span class="big" data-v="wdiff">44</span>ポイントを埋めません。</p>
+<p>比べ方を先に決めておいて、その比べ方に足をすくわれたことになります。</p>
 
-<div class="cond">
-  この一行は「1枠と6枠の差が 35pt 以上」のとき成立します。数字は分析時点の値です。<br>
-  分析時点の差 <b data-v="wdiff2">44.1</b>pt ──
-  <span class="st ok" data-v="st_waku">✓ 成立</span>
-</div>
+<h2 class="sec">坂の上の段差</h2>
 
-<p class="tail">節のレベルまでは揃えきれていないので、断定はしません。<br>
-ただ、チルトの差がゼロだったことは動きません。</p>
+<p>では、坂をならしたうえで、ボーダーのところにだけ段差があるのか。ボーダーからの差を0.25点刻みに並べ、崖っぷちの外側の形から、崖っぷちのところに来るはずの値を出して、実際と比べました。</p>
+
+<figure class="chart" role="img" aria-label="ボーダーとの差ごとの、予選最終日の着順点の差。ボーダーの上にいるほど高く、崖っぷちのところにだけ目立つ段差はない">
+<svg viewBox="0 0 360 190" width="100%" xmlns="http://www.w3.org/2000/svg"><rect x="165.0" y="16" width="50.0" height="136" fill="#ffd166" opacity="0.12"/><line x1="40" y1="150.0" x2="340" y2="150.0" stroke="#4a627f" stroke-width="0.6"/><text x="34" y="153.5" font-size="9.5" fill="#8a94a3" text-anchor="end">-0.8</text><line x1="40" y1="117.5" x2="340" y2="117.5" stroke="#4a627f" stroke-width="0.6"/><text x="34" y="121.0" font-size="9.5" fill="#8a94a3" text-anchor="end">-0.4</text><line x1="40" y1="85.0" x2="340" y2="85.0" stroke="#e0e6ed" stroke-width="1"/><text x="34" y="88.5" font-size="9.5" fill="#8a94a3" text-anchor="end">0</text><line x1="40" y1="52.5" x2="340" y2="52.5" stroke="#4a627f" stroke-width="0.6"/><text x="34" y="56.0" font-size="9.5" fill="#8a94a3" text-anchor="end">+0.4</text><line x1="40" y1="20.0" x2="340" y2="20.0" stroke="#4a627f" stroke-width="0.6"/><text x="34" y="23.5" font-size="9.5" fill="#8a94a3" text-anchor="end">+0.8</text><circle cx="46.2" cy="118.8" r="3" fill="#8a94a3"/><circle cx="58.8" cy="112.3" r="3" fill="#8a94a3"/><circle cx="71.2" cy="114.7" r="3" fill="#8a94a3"/><circle cx="83.8" cy="105.5" r="3" fill="#8a94a3"/><circle cx="96.2" cy="104.0" r="3" fill="#8a94a3"/><circle cx="108.8" cy="105.6" r="3" fill="#8a94a3"/><circle cx="121.2" cy="98.8" r="3" fill="#8a94a3"/><circle cx="133.8" cy="100.8" r="3" fill="#8a94a3"/><circle cx="146.2" cy="95.7" r="3" fill="#8a94a3"/><circle cx="158.8" cy="90.8" r="3" fill="#8a94a3"/><circle cx="171.2" cy="85.4" r="4" fill="#ffd166"/><circle cx="183.8" cy="82.4" r="4" fill="#ffd166"/><circle cx="196.2" cy="76.3" r="4" fill="#ffd166"/><circle cx="208.8" cy="73.3" r="4" fill="#ffd166"/><circle cx="221.2" cy="72.1" r="3" fill="#8a94a3"/><circle cx="233.8" cy="66.7" r="3" fill="#8a94a3"/><circle cx="246.2" cy="67.4" r="3" fill="#8a94a3"/><circle cx="258.8" cy="65.2" r="3" fill="#8a94a3"/><circle cx="271.2" cy="59.3" r="3" fill="#8a94a3"/><circle cx="283.8" cy="54.4" r="3" fill="#8a94a3"/><circle cx="296.2" cy="55.1" r="3" fill="#8a94a3"/><circle cx="308.8" cy="49.5" r="3" fill="#8a94a3"/><circle cx="321.2" cy="39.2" r="3" fill="#8a94a3"/><circle cx="333.8" cy="30.6" r="3" fill="#8a94a3"/><circle cx="346.2" cy="39.8" r="3" fill="#8a94a3"/><text x="40.0" y="168" font-size="10" fill="#e0e6ed" text-anchor="middle">-3</text><text x="90.0" y="168" font-size="10" fill="#e0e6ed" text-anchor="middle">-2</text><text x="140.0" y="168" font-size="10" fill="#e0e6ed" text-anchor="middle">-1</text><text x="190.0" y="168" font-size="10" fill="#e0e6ed" text-anchor="middle">0</text><text x="240.0" y="168" font-size="10" fill="#e0e6ed" text-anchor="middle">+1</text><text x="290.0" y="168" font-size="10" fill="#e0e6ed" text-anchor="middle">+2</text><text x="340.0" y="168" font-size="10" fill="#e0e6ed" text-anchor="middle">+3</text><text x="190.0" y="12" font-size="10" fill="#ffd166" text-anchor="middle">崖っぷち</text><text x="190" y="184" font-size="10" fill="#8a94a3" text-anchor="middle">予選最終日の朝のボーダーとの差（点）</text></svg>
+<figcaption>予選最終日の着順点を、同じ枠・同じくらいの強さの選手の平均と比べた差（点）。0.25点刻みの平均で、黄色が崖っぷち（ボーダーから±0.5点）。縦軸は−0.8から始まっています。</figcaption>
+</figure>
+
+<p>段差は+0.04点。1着と2着の差の2点に比べると、およそ50分の1です。節を単位に1,000回組み直すと、見分けられる最小の差は0.03点で、それはわずかに超えている。</p>
+
+<h2 class="sec">ほかの場所にも段差</h2>
+
+<p>ただ、ボーダーでない場所に同じ幅の窓を置いて同じ計算をすると、10か所のうち5か所で、これと同じくらいの段差が出ました。坂の曲がり方を式が拾いきれていない分と、見分けがつきません。年ごとでは、11年のうち10年で上向きでしたが、1年ずつでは、どの年も偶然の幅に収まる。</p>
+
+<figure class="chart" role="img" aria-label="勝負駆けの上乗せと、枠ひとつぶんの差を同じ物差しで並べたもの。上乗せは枠ひとつぶんの約20分の1">
+<svg viewBox="0 0 360 118" width="100%" xmlns="http://www.w3.org/2000/svg"><text x="10" y="31" font-size="11" fill="#e0e6ed" text-anchor="start">勝負駆けの段差</text><text x="10" y="44" font-size="9.5" fill="#8a94a3" text-anchor="start">ボーダーでの上乗せ</text><rect x="118" y="22" width="8.6" height="18" fill="#ffd166"/><text x="132.6" y="35" font-size="10.5" fill="#e0e6ed" text-anchor="start">0.04</text><text x="10" y="75" font-size="11" fill="#e0e6ed" text-anchor="start">枠ひとつぶん</text><text x="10" y="88" font-size="9.5" fill="#8a94a3" text-anchor="start">隣の枠との差の平均</text><rect x="118" y="66" width="172.6" height="18" fill="#8a94a3"/><text x="296.6" y="79" font-size="10.5" fill="#e0e6ed" text-anchor="start">0.86</text><line x1="118" y1="14" x2="118" y2="96" stroke="#e0e6ed" stroke-width="1"/><text x="118" y="110" font-size="9.5" fill="#8a94a3" text-anchor="middle">0</text><text x="318" y="110" font-size="9.5" fill="#8a94a3" text-anchor="end">1点</text></svg>
+<figcaption>予選最終日の着順点で測った2つの大きさ（点・0から）。上は崖っぷちでの段差、下は枠がひとつ内に入ったときの差の平均です。</figcaption>
+</figure>
+
+<p>効いているとしても、枠ひとつぶんの20分の1。枠がひとつ内に入ると、予選最終日の着順点は平均で0.86点上がるので、勝負駆けの上乗せは、その端数にも届きません。</p>
+
+<h2 class="sec">メイチなら、時計に出る</h2>
+
+<p>勝負駆けには、もうひとつ、よく聞く言い方があります。</p>
+
+<p class="lead">「メイチの勝負駆け」</p>
+
+<p>目一杯に攻めるなら、スタートに跡が残るはずで、同じコース、同じくらいの強さの選手と比べると、崖っぷちのスタートは実際に0.0023秒早かった。もっとも、スタートも坂の上にあって、坂をならすと段差は0.0007秒で、偶然と見分けがつかない。フライングの割合も、崖っぷちは0.41%で、圏外の0.46%とやや圏内の0.37%のあいだにいました。</p>
+
+<p>スタートの記録は0.01秒刻みなので、0.0007秒はその目盛りの14分の1で、時計には、ほとんど何も残っていません。</p>
+
+<h2 class="sec">現場は、坂の途中を見ている</h2>
+
+<p>最終日の崖っぷちがよく走って見えるのは、見間違いではありません。崖っぷちにいる選手は、圏外の選手よりその節の調子がよく、実際に平均より少しよい着を取っている。</p>
+
+<p>現場で見えているのは、坂の途中にいる選手の走りです。こちらが数えたのは、坂からはみ出した分でした。坂の上の走りを気合いと呼べば、勝負駆けは効いて見える。坂からはみ出した分だけを数えると、ほとんど残らない。</p>
+
+<h2 class="sec">決めていたのは枠</h2>
+
+<p>では、同じ崖っぷちで、進めるかどうかを分けていたものは何か。予選最終日の出走が1走だけだった崖っぷちの選手を、その日の枠で分けました。</p>
+
+<figure class="chart" role="img" aria-label="崖っぷちで予選最終日に1走だけした選手の、枠ごとの準優進出率。1枠74.0%から6枠28.9%まで下がる">
+<svg viewBox="0 0 360 194" width="100%" xmlns="http://www.w3.org/2000/svg"><text x="12" y="29" font-size="11" fill="#e0e6ed" text-anchor="start">1枠</text><text x="64" y="29" font-size="9" fill="#8a94a3" text-anchor="end">4,379</text><rect x="70" y="16" width="170.2" height="17" fill="#8a94a3"/><text x="246.2" y="29" font-size="10.5" fill="#e0e6ed" text-anchor="start">74.0%</text><text x="12" y="55" font-size="11" fill="#e0e6ed" text-anchor="start">2枠</text><text x="64" y="55" font-size="9" fill="#8a94a3" text-anchor="end">3,785</text><rect x="70" y="42" width="119.8" height="17" fill="#8a94a3"/><text x="195.8" y="55" font-size="10.5" fill="#e0e6ed" text-anchor="start">52.1%</text><text x="12" y="81" font-size="11" fill="#e0e6ed" text-anchor="start">3枠</text><text x="64" y="81" font-size="9" fill="#8a94a3" text-anchor="end">3,556</text><rect x="70" y="68" width="110.4" height="17" fill="#8a94a3"/><text x="186.4" y="81" font-size="10.5" fill="#e0e6ed" text-anchor="start">48.0%</text><text x="12" y="107" font-size="11" fill="#e0e6ed" text-anchor="start">4枠</text><text x="64" y="107" font-size="9" fill="#8a94a3" text-anchor="end">3,246</text><rect x="70" y="94" width="100.0" height="17" fill="#8a94a3"/><text x="176.1" y="107" font-size="10.5" fill="#e0e6ed" text-anchor="start">43.5%</text><text x="12" y="133" font-size="11" fill="#e0e6ed" text-anchor="start">5枠</text><text x="64" y="133" font-size="9" fill="#8a94a3" text-anchor="end">3,425</text><rect x="70" y="120" width="80.7" height="17" fill="#8a94a3"/><text x="156.7" y="133" font-size="10.5" fill="#e0e6ed" text-anchor="start">35.1%</text><text x="12" y="159" font-size="11" fill="#e0e6ed" text-anchor="start">6枠</text><text x="64" y="159" font-size="9" fill="#8a94a3" text-anchor="end">4,739</text><rect x="70" y="146" width="66.5" height="17" fill="#8a94a3"/><text x="142.5" y="159" font-size="10.5" fill="#e0e6ed" text-anchor="start">28.9%</text><line x1="70" y1="10" x2="70" y2="172" stroke="#e0e6ed" stroke-width="1"/><text x="70" y="186" font-size="9.5" fill="#8a94a3" text-anchor="middle">0</text><text x="300" y="186" font-size="9.5" fill="#8a94a3" text-anchor="end">100%</text></svg>
+<figcaption>崖っぷちで、予選最終日の出走が1走だけだった選手の、その日の枠ごとの準優進出率（0から）。枠名の横の数字は人数です。</figcaption>
+</figure>
+
+<p>1枠なら74.0%が準優に乗り、6枠なら28.9%。同じ崖っぷちでも、引いた枠で45.1ポイント違います。あいだの枠も、2枠52.1%、3枠48.0%、4枠43.5%、5枠35.1%と、外に行くほど段を下りるように下がっていく。予選最終日の枠は番組で決まるもので、選手が選べるものではありません。6枠を引いた崖っぷちで準優に乗れるのは、3人に1人に届かない。</p>
+
+<h2 class="sec">ここから先は数えていない</h2>
+
+<p>反則による減点は、手元の競走成績から取れないので入れていません。開催の格も載っていませんが、同じ節の全員に同じだけ乗る加点なので、節の中の順位は変わらない。チルトの角度は2026年1月からしか手元になく、10年の比較には使えなかった。</p>
+
+<p>外した選手もいる。予選最終日の前にフライングや妨害で順位から外れた6,378人日、準優のある節で予選最終日に走らなかった21,073人日は、比べていません。</p>
+
+<h2 class="sec">気合いは、枠を埋めない</h2>
+
+<p>「ここは勝負駆けですね」は、嘘ではありません。崖っぷちの選手は、平均より少しよく走っている。ただ、それはその節の調子のぶんで、勝負駆けのぶんは、枠ひとつの20分の1ほどしか見つからなかった。</p>
+
+<p class="punch">気合いは、<span class="big">45</span>ポイントを埋めません。</p>
 
 </div>
 <!-- ══════════ /記事 ══════════ -->
 
 <details>
-<summary>ボーダーからの距離と、準優に乗れた割合 <small>表ごとに対象の条件が異なる（元の集計条件は未記録）</small></summary>
+<summary>ボーダーからの距離と、準優に乗れた割合</summary>
 <div class="dbody">
-<p>「ボーダーまであと何点か」で分けて、実際に準優へ進めた割合を数えたものです。</p>
+<p>予選最終日の朝の得点率で、ボーダーまであと何点だったかで分け、実際に準優へ進めた割合を数えたものです（2016年11月1日から2026年8月31日・人日）。</p>
 <table>
-<thead><tr><th>ボーダーとの差</th><th>件数</th><th>進出率</th></tr></thead>
-<tbody data-t="gap"></tbody>
+<thead><tr><th>ボーダーとの差</th><th>人日</th><th>進出率</th></tr></thead>
+<tbody><tr><td>−2.0未満</td><td>80,535</td><td>1.8%</td></tr><tr><td>−2.0から−1.0</td><td>49,301</td><td>9.5%</td></tr><tr><td>−1.0から−0.5</td><td>28,684</td><td>23.0%</td></tr><tr class="hi"><td>−0.5から0.0</td><td>28,239</td><td>40.6%</td></tr><tr class="hi"><td>0.0から+0.5</td><td>35,251</td><td>59.2%</td></tr><tr><td>+0.5から+1.0</td><td>24,428</td><td>77.7%</td></tr><tr><td>+1.0から+2.0</td><td>39,959</td><td>89.7%</td></tr><tr><td>+2.0超</td><td>39,138</td><td>94.0%</td></tr></tbody>
 </table>
-<p>−2.0点より下からの逆転は、2025/7/15〜2026/8/6の期間で数えるほどしかありませんでした。</p>
-</div>
-</details>
-
-<details>
-<summary>同じ崖っぷちでも、枠でこう変わる <small>表ごとに対象の条件が異なる（元の集計条件は未記録）</small></summary>
-<div class="dbody">
-<p>ボーダーとの差が ±0.5点 の選手だけを取り出し、その日の枠で分けたものです。</p>
-<table>
-<thead><tr><th>枠</th><th>件数</th><th>進出率</th></tr></thead>
-<tbody data-t="waku"></tbody>
-</table>
-</div>
-</details>
-
-<details>
-<summary>チルトを跳ね上げた割合（全5帯） <small>表ごとに対象の条件が異なる（元の集計条件は未記録）</small></summary>
-<div class="dbody">
-<p>チルトはレース直前に選手が自分で決める角度です。0より上に跳ね上げた割合を数えました。</p>
-<table>
-<thead><tr><th>ボーダーとの位置</th><th>件数</th><th>上げた割合</th></tr></thead>
-<tbody data-t="tilt"></tbody>
-</table>
-<p>全体でチルトを上げるのは約4%です。どの帯もその範囲に収まっています。</p>
 </div>
 </details>
 
 <details>
 <summary>この得点率について</summary>
 <div class="dbody">
-<h4>この得点率は推定です。公式の実数ではありません。</h4>
-<p>公式が得点率を出しているのはG2以上の開催だけで、G3・一般では公開されていません。
-ここでは公式と同じ計算式で出しています。</p>
-
+<h4>この得点率は計算したものです。公式の実数ではありません。</h4>
+<p>公式が得点率を出しているのはG2以上の開催だけで、G3・一般では公開されていません。ここでは公式と同じ計算式で出しています。</p>
 <h4>計算のしかた</h4>
-<p>1着10点 / 2着8点 / 3着6点 / 4着4点 / 5着2点 / 6着1点。<br>
-この合計から減点を引き、出走回数で割ります。<br>
-（出典：ボートレース公式 用語辞典）</p>
-
+<p>1着10点 / 2着8点 / 3着6点 / 4着4点 / 5着2点 / 6着1点。特選・選抜・ドリームなどの名前が付いたレースは1点を足しています。この合計を出走回数で割ります。<br>（出典：ボートレース公式 用語辞典）</p>
 <h4>実際とずれることがあります</h4>
-<p>公式には「減点」があります。待機行動違反などの反則で引かれる点で、
-着順には現れないため、ここでは再現できません。<br>
-過去の実測では、選手のうち <b data-v="minus_rate">5.3</b>% にこの減点が入っていました。</p>
-
+<p>公式には、待機行動違反などの反則で引かれる「減点」があります。着順には現れず、手元の競走成績からは取れないので、ここでは再現していません。</p>
 <h4>どれくらい合っているか</h4>
-<p>過去 <b data-v="setsu">755</b>節 の準優勝戦メンバーと照合しました。<br>
-準優に乗った延べ <b data-v="label_total">13,632</b>（実際の選手は <b data-v="label_uniq">1,413</b>名）のうち、
-<b data-v="label_hit">12,603</b> を言い当てました（<b data-v="acc">92.5</b>%）。</p>
-<p>※ この数字は記事を書いた2026年8月の検証時点のものです。その後の毎日の答え合わせは、下の「再現率の推移」に足され続けています。</p>
-
+<p>10年の準優のある 7,523節で、準優に乗った延べ 136,914人のうち 127,704人を言い当てました（93.3%）。</p>
 <h4>準優に乗れる人数は決まっていません</h4>
-<p>12名・18名・24名の3通りがあります。過去755節では18名が92%でした。</p>
-
-<h4>フライングをすると、得点率そのものが付きません</h4>
-<p>Fと妨害失格は「賞典除外」となり、順位から外れます。
-どれだけ着順が良くても、その節の準優には乗れません。<br>
-なお転覆は減点されるとは限りません（選手の責任かどうかで変わります）。</p>
+<p>多くは18名で、10年の7,523節のうち6,591節（87.6%）。ほかに24名が552節、12名が358節ありました。</p>
+<h4>フライングをすると、順位そのものが付きません</h4>
+<p>フライングと妨害失格は「賞典除外」となり、順位から外れます。どれだけ着順が良くても、その節の準優には乗れません。</p>
 </div>
 </details>
+
+<details>
+<summary>この検証の数え方</summary>
+<div class="dbody">
+<ul>
+<li>期間：2016年11月1日から2026年8月31日。公式の競走成績（Kファイル）の3,591日分</li>
+<li>節：同じ場で続いた開催日をひとまとまりにし、優勝戦の日で区切っています。間が3日以上あいたら別の節です。準優のある節は7,523、準優のない節は7,892でした</li>
+<li>予選最終日の朝：準優の前日を予選最終日とし、その前日までの得点率で順位を付けています。ボーダーは、準優の定員の順位とその次の順位の得点率の中間です</li>
+<li>帯：ボーダーとの差が−2点より下を「もう届かない」、−2から−0.5を「圏外」、±0.5を「崖っぷち」、+0.5から+2を「やや圏内」、+2より上を「安全圏」としています</li>
+<li>着順点の差：予選最終日のレースごとに、同じ枠・同じ強さの段・同じ年の平均を引き、1日の中で平均しています。強さは、その選手の直前12か月の平均着順点を5段に分けたものです（30走に満たない選手は別の組）。着が付かなかったレースは入れていません</li>
+<li>先に決めた比べ方：崖っぷちとそれ以外の差を、強さの段と年の組の中で帯のラベルだけを1,000回入れ替えた分布と比べています（乱数の種は20260922）。理論上の確率分布は使っていません</li>
+<li>段差：ボーダーとの差が±0.5点の外側（±3点まで）の人日に2次式を当て、崖っぷちのところの予測と実際の差を取っています。偶然の幅は、節を単位に1,000回組み直したもので、見分けられる最小の差（偶然の揺れの2.8倍）は0.03点でした。ボーダー以外の10か所に同じ幅の窓を置いた比較も同じ方法です</li>
+<li>スタート：同じ進入コース・同じ強さの段・同じ年の平均からの差で、フライングと出遅れは除いています</li>
+<li>枠と進出：崖っぷちで予選最終日の出走が1走だけだった選手に限っています。2走以上した44,446人日は、枠が1つに決まらないので入れていません</li>
+<li>比べなかった選手：予選最終日の前にフライングや妨害で順位から外れた6,378人日、予選最終日に走らなかった21,073人日、その前に1走もしていない343人日</li>
+<li>揃えていないもの：開催の格、反則による減点、チルト（2026年1月からしか手元にない）、モーターの良し悪し</li>
+<li>図：すべてこの検証の集計から描いたもので、外部の画像は使っていません</li>
+</ul>
+</div>
+</details>
+<p class="stamp">
+  記事の集計期間 <span>2016/11/1 から 2026/8/31</span>　/　<span>3,591</span>日・準優のある<span>7,523</span>節<br>
+  出典：公式サイト 競走成績（Kファイル）・番組表（Bファイル・級別）。記事の数字は固定で、更新されません。
+</p>
 
 <!-- ══════════ 検証データ ══════════ -->
 <div class="verify">
   <h2>検証データ</h2>
   <p class="vsub">
-    読み物ではありません。毎日確かめているのは「昨日の準優」と「再現率の推移」の2つです。<br>
-    「成立条件の一覧」は2025/7/15〜2026/8/6の分析時点の値で、毎日の再計算はしていません。
+    読み物ではありません。毎日、前日までの結果で「昨日の準優」と「再現率の推移」の2つを数え直しています。<br>
+    記事の本文の数字は2016年11月から2026年8月の固定の集計で、この欄では動きません。
   </p>
-
-<details>
-<summary>成立条件の一覧</summary>
-<div class="dbody">
-<p>記事の中の断定的な一行が、分析時点（2025/7/15〜2026/8/6）で成り立っていたかの一覧です。毎日の再計算はしていません。</p>
-<table>
-<thead><tr><th>文</th><th>条件</th><th>分析時点</th><th></th></tr></thead>
-<tbody data-t="cond"></tbody>
-</table>
-</div>
-</details>
 
 <details>
 <summary>昨日の準優 ── 答え合わせ</summary>
@@ -330,7 +306,7 @@ tr.hi .tbar{background:var(--blue)}
 </details>
 
   <p class="stamp">
-    集計期間 <span data-v="period">2025/7/15 〜 2026/8/6</span>　/　最終更新 <span data-v="updated">—</span><br>
+    最終更新 <span data-v="updated">—</span><br>
     このページは毎日、前日までの結果で自動更新されます。
   </p>
 </div>
@@ -340,30 +316,6 @@ tr.hi .tbar{background:var(--blue)}
 
 </div>
 
-<script>
-var V = window.KENSHO || null;
-if (V) {
-  Object.keys(V.v || {}).forEach(function(k){
-    Array.prototype.forEach.call(document.querySelectorAll('[data-v="'+k+'"]'), function(el){
-      el.textContent = V.v[k];
-    });
-  });
-  Object.keys(V.b || {}).forEach(function(k){
-    Array.prototype.forEach.call(document.querySelectorAll('[data-b="'+k+'"]'), function(el){
-      if (el.classList.contains('bar')) el.style.height = V.b[k];
-      else el.style.width = V.b[k];
-    });
-  });
-  Object.keys(V.t || {}).forEach(function(k){
-    var tb = document.querySelector('[data-t="'+k+'"]');
-    if (tb) tb.innerHTML = V.t[k];
-  });
-  ['st_coef','st_tilt','st_waku'].forEach(function(k){
-    var el = document.querySelector('[data-v="'+k+'"]');
-    if (el) el.className = 'st ' + (el.textContent.indexOf('✓') === 0 ? 'ok' : 'ng');
-  });
-}
-</script>
 <script src="../../assets/guard.js" defer></script>
 </body>
 </html>
