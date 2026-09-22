@@ -272,6 +272,8 @@ def render(c, a):
     v["n_races"] = comma(c["n_races"])
     v["n_rides"] = comma(a["n_setsu_rides"])
     v["n_setsu"] = comma(a["n_setsu"])
+    v["n_rides_all"] = comma(c["n_rides"])
+    v["n_drop"] = comma(c["n_rides"] - a["n_setsu_rides"])
     for i in range(1, 6):
         v["c%d" % (i + 1)] = fmt_kg(a["curve"].get(("M", i), (0.0, 0))[0])
     v["coef_pt"] = "%+.3f" % a["coef_pt"]
@@ -292,7 +294,7 @@ def render(c, a):
     v["peak_w"] = "%.1f" % a["peak_w"]
     v["peak_n"] = comma(a["peak_n"])
     v["peak_ratio"] = comma(int(a["peak_n"] // a["second_n"])) if a["second_n"] else "—"
-    v["near_m"] = "%.0f" % near_m
+    v["near_m"] = "%.1f" % near_m
     tm = c["adj_tot"]["M"] or 1
     tf = c["adj_tot"]["F"] or 1
     v["w_m"] = "%.1f%%" % (c["adj_hit"]["M"] / tm * 100)
