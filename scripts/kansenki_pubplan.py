@@ -11,6 +11,8 @@
      第2部(きょうの注目)の材料(todayProgram)がある場。
   ※ 前夜便は souce が育つ途中で走る。当日結果が未取得(results空)の非初日場は
     「まだ書けない」＝後続の回収便に持ち越す（早すぎる第1部欠落記事を作らない）。
+  ※ 例外（2026-09-22）：前日の素材と日目が同じ場は、前日が中止・順延だった場（results は
+    構造上空）。第1部なしで書ける。取得漏れと区別するため、results の件数ではなく日目で判定する。
 
 未執筆場だけを toWrite に出す（既存記事は決して上書きしない）。
 
@@ -27,6 +29,7 @@ import os
 import io
 import csv
 import json
+import datetime
 
 CSV_DEFAULT = "docs/racers/racers_today.csv"
 SOURCE_DIR_DEFAULT = "docs/data/kansenki/source"
@@ -70,8 +73,9 @@ def load(path):
         return json.load(f)
 
 
-def writable(v):
-    """この場を今すぐ書けるか、書けない場合の理由。"""
+def writable(v, prev_day_num=None):
+    """この場を今すぐ書けるか、書けない場合の理由。
+    prev_day_num は前日の素材でのこの場の dayNum（無ければ None）。"""
     if not v.get("todayProgram"):
         return False, "第2部材料なし(todayProgram無)"
     results = v.get("results") or []
@@ -80,6 +84,8 @@ def writable(v):
         return True, ""
     if day1:
         return True, ""  # 初日は前日結果が構造上0＝第1部なしで書く
+    if prev_day_num is not None and v.get("dayNum") and prev_day_num == v.get("dayNum"):
+        return True, ""  # 中止明け：前日と日目が同じ＝前日は開催なし（順延）。第1部なしで書く
     return False, "前日結果未確定(results空・非初日)＝回収便に持ち越し"
 
 
@@ -90,6 +96,15 @@ def plan_for(pubdate, source_dir, articles_dir):
                 "done": [], "counts": {"venues": 0, "toWrite": 0, "skip": 0, "done": 0},
                 "note": "source無し"}
     src = load(src_path)
+    prev_days = {}
+    try:
+        pd8 = (datetime.datetime.strptime(pubdate, "%Y%m%d") - datetime.timedelta(days=1)).strftime("%Y%m%d")
+        pp = os.path.join(source_dir, "%s.json" % pd8)
+        if os.path.exists(pp):
+            for pv in load(pp).get("venues", []) or []:
+                prev_days[pv.get("jcd")] = pv.get("dayNum")
+    except Exception:
+        prev_days = {}
     to_write, skip, done = [], [], []
     for v in src.get("venues", []):
         jcd = v.get("jcd")
@@ -98,7 +113,7 @@ def plan_for(pubdate, source_dir, articles_dir):
         if os.path.exists(art):
             done.append(jcd)
             continue
-        ok, reason = writable(v)
+        ok, reason = writable(v, prev_days.get(jcd))
         if ok:
             to_write.append(jcd)
         else:
