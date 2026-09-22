@@ -141,6 +141,20 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .ir-t,.tj-t,.tl-t{width:100%;border-collapse:collapse;margin:5px 0 2px;font-variant-numeric:tabular-nums}
 .ir-t th,.ir-t td,.tj-t th,.tj-t td,.tl-t th,.tl-t td{padding:3px 0;border-bottom:1px solid #1b2a3a;font-weight:400;text-align:left;color:#c9d9e8}
 .ir-t td.n,.tj-t td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;padding-left:8px}
+.tjs-fact{font-size:11px;color:#8aa0b4;line-height:1.5}
+.tjs-d{font-size:10px;color:#7d94a8;margin:0 0 5px}
+.tjs-t{width:100%;border-collapse:collapse;table-layout:fixed;font-variant-numeric:tabular-nums}
+.tjs-t th{font-size:9.5px;color:#7d94a8;font-weight:400;padding:2px 0 4px;text-align:right}
+.tjs-t th:first-child{text-align:left;width:34%}
+.tjs-t td{padding:4px 0;text-align:right;border-top:1px solid #1b2a3a;vertical-align:top;color:#c9d9e8}
+.tjs-t td:first-child{text-align:left}
+.tjs-t td.tjs-few{text-align:center;font-size:10px;color:#7d94a8;vertical-align:middle}
+.tjs-nm{font-size:11px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tjs-s{font-size:9px;color:#7d94a8;display:block}
+.tjs-p{font-size:13px;font-weight:700;display:block}
+.tjs-p.dim{font-weight:400;color:#7d94a8}
+.tjs-k{font-size:9px;color:#7d94a8;display:block}
+.tjs-note{font-size:10px;color:#7d94a8;margin-top:6px;line-height:1.6}
 .ir-t tr:last-child th,.ir-t tr:last-child td,.tj-t tr:last-child th,.tj-t tr:last-child td,.tl-t tr:last-child th,.tl-t tr:last-child td{border-bottom:none}
 .tl-t th{white-space:nowrap;padding-right:8px;vertical-align:top}
 .tl-t td.tr-run{font-size:10.5px;line-height:1.7}
@@ -616,6 +630,7 @@ function renderCard(r, ctx){
       ${inRateHtml(r)}
       ${trailHtml(r)}
       ${tenjiHtml(r)}
+      ${tenjiStatsHtml(r)}
       ${downFactorHtml(r)}
       ${collapseHtml(r)}
       ${uranaiCard(r)}
@@ -908,6 +923,7 @@ function render(){
   }
   refreshDeadlineState();
   if(typeof bindNsTabs==='function') bindNsTabs();
+  if(typeof bindTjsTabs==='function') bindTjsTabs();
 }
 if(!window.__dlTimer){ window.__dlTimer=setInterval(refreshDeadlineState, 60000); }  // 1分毎に締切表示を更新（タイマー1本）
 syncOshiBar();
@@ -1040,6 +1056,61 @@ function tenjiHtml(r){
     + `<div class="tj-note">マイナスが6艇平均より速い側です。水面と気象で基準が動くため、秒数そのものは出していません。2本に満たない選手は差を出していません。</div>`
     + `</div>`);
 }
+
+// 展示タイム別の成績（深層）。出走表の選手カードと同じ docs/data/tenjiStats.json を読み、6艇を1つの表に並べる。
+// 選手ごとに 良い/普通/悪い の走数・1着/2着以内/3着以内の回数・同じ進入コースの全選手平均で期待される回数を持つ。
+// 30走に満たない区分は率を出さない。3区分とも30走未満の選手は1行で省略と書く。1艇も出せないレースは非表示。
+// 着順区分は TJSK、開閉は TJSOPEN に持ち、render() の作り直しをまたいで保持する。
+var TJS=null, TJS_MIN=30, TJSK='t1', TJSOPEN={};
+const TJSLBL={t1:'1着',t2:'2着以内',t3:'3着以内'};
+function tenjiStatsHtml(r){
+  if(!TJS||!TJS.r) return '';
+  const bs=(r&&r['艇']||[]).slice().sort((a,b)=>(a['枠']-b['枠'])); if(!bs.length) return '';
+  const t={t1:0,t2:1,t3:2}[TJSK]; if(t==null){ TJSK='t1'; return tenjiStatsHtml(r); }
+  const ks=['g','n','b'];
+  let any=false;
+  const rows=bs.map(b=>{
+    const no=String(b['登録番号']), p=TJS.r[no];
+    const nm=String(b['氏名']||'').replace(/\u3000+/g,'');
+    const s=p?String(p.s||''):'', since=/^\d{6}$/.test(s)?(s.slice(0,4)+'年'+parseInt(s.slice(4),10)+'月から'):'';
+    const head=`<td><span class="tjs-nm">${WNUM[(+b['枠'])-1]}${nm}</span>${since?`<span class="tjs-s">${since}</span>`:''}</td>`;
+    if(!p||ks.every(k=>!p[k]||p[k][0]<TJS_MIN)) return `<tr>${head}<td class="tjs-few" colspan="3">走数が少ないため省略</td></tr>`;
+    any=true;
+    const tds=ks.map(k=>{
+      const v=p[k]||[0,0,0,0,0,0,0], n=v[0];
+      if(n<TJS_MIN) return `<td><span class="tjs-p dim">—</span><span class="tjs-k">${n}走</span></td>`;
+      return `<td><span class="tjs-p">${Math.round(v[t+1]/n*100)}%</span><span class="tjs-k">${n.toLocaleString()}走</span><span class="tjs-k">平均${Math.round(v[t+4]/n*100)}%</span></td>`;
+    }).join('');
+    return `<tr>${head}${tds}</tr>`;
+  }).join('');
+  if(!any) return '';
+  const rid=(r['場コード']||'')+'-'+String(r['レース']||'').replace('R','');
+  const op=TJSOPEN[rid]?' open':'';
+  const tabs=`<div class="nstab">`+['t1','t2','t3'].map(k=>
+    `<button type="button" class="nstab-b${k===TJSK?' on':''}" data-tjk="${k}">${TJSLBL[k]}</button>`).join('')+`</div>`;
+  return `<details class="dfold tjs" data-dk="tjs-${rid}"${op}><summary><span class="df-t">展示タイム別の成績</span>`
+    + `<span class="df-s">（${bs.length}艇・${TJSLBL[TJSK]}）</span></summary><div class="dfbody"><div class="tjs-fact">`
+    + tabs
+    + `<div class="tjs-d">良い＝2位に0.03秒差の単独トップ／悪い＝平均より0.03秒遅い。下段の平均は、同じ進入コースの全選手平均</div>`
+    + `<table class="tjs-t"><thead><tr><th>選手</th><th>良い</th><th>普通</th><th>悪い</th></tr></thead><tbody>${rows}</tbody></table>`
+    + `<div class="tjs-note">0.03秒の目安：展示タイムが0.01秒遅くなるごとに、2着以内の割合は1から2ptずつ下がる。1レースの最速と最遅の差は中央値0.12秒。「—」は30走に満たない区分</div>`
+    + `</div></div></details>`;
+}
+function bindTjsTabs(){
+  document.querySelectorAll('details.tjs').forEach(d=>{
+    const k=(d.getAttribute('data-dk')||'').replace(/^tjs-/,'');
+    if(!k) return;
+    d.ontoggle=()=>{ if(d.open) TJSOPEN[k]=1; else delete TJSOPEN[k]; };
+  });
+  document.querySelectorAll('[data-tjk]').forEach(el=>{
+    el.onclick=(e)=>{ e.preventDefault(); e.stopPropagation(); TJSK=el.getAttribute('data-tjk');
+      if(typeof render==='function') render(); };
+  });
+}
+fetch('../data/tenjiStats.json?_='+Date.now())
+.then(r=>r.ok?r.json():null)
+.then(j=>{ if(j&&j.r){ TJS=j; if(typeof render==='function') render(); } })
+.catch(()=>{});
 
 // ①が崩れるときの「崩れ方」（誰がどの手で崩すか）を当場・過去1年の実数で提示する。
 // build_highlights が各レースに付ける collapse{top,patterns[],n,inOutRate,kimariteSum} を読むだけ。
