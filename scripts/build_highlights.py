@@ -366,7 +366,11 @@ def main():
         if n <= 0:
             return None, 0
         h = _tenji.get((r['場コード'], str(r['登録番号'])), [])
-        h = sorted([x for x in h if x[0] < hd], reverse=True)[:n]
+        # 2026-09-22: 本数で打ち切ると1日2走の選手が半分しか拾われなかった（本日807艇中777艇で本数＝走った日数）。
+        #   前日までの日付のうち新しい順にn日分を選び、その日付の展示を全部拾う。前節を跨がない点は従来どおり。
+        h = [x for x in h if x[0] < hd]
+        _days = set(sorted({x[0] for x in h}, reverse=True)[:n])
+        h = sorted([x for x in h if x[0] in _days], reverse=True)
         if len(h) < 1:                # 0本（初日）は出せない。1本以上あれば偏差を出す。
             # 偏差は「同じレースの6艇平均との差」なので、その日の水面・気象条件は定義上キャンセルされている。
             # 1本でも事実として正しい。本数を必ず併記して読者が判断できるようにする。
