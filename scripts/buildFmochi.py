@@ -139,7 +139,7 @@ def render(c, a):
         ("同じ選手の中でも遅くなる", "F0→F1で遅くなった選手が半数を超える",
          "%.1f%%（%s人）" % (iv[1]["slow"], comma(iv[1]["n"])),
          ("ok" if iv[1]["slow"] > 50 else "ng") if iv[1]["n"] >= N_INDIV else "na"),
-        ("速い選手が切っている", "Fありの選手のF0時STが、Fなしの選手より速い",
+        ("Fを切る人は、切る前から速く踏んでいる", "Fありの選手のF0時STが、Fなしの選手より速い",
          "%.4f / %.4f" % (ex["st_ever"], ex["st_never"]),
          "ok" if ex["st_ever"] < ex["st_never"] else "ng"),
         ("1着率もF0のほうが高い", "F0の1着率がF1を上回る",

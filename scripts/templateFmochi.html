@@ -16,78 +16,95 @@
 <!-- data-seme signature: kensho / fmochi -->
 <style>
 :root{
-  --bg:#0b1219; --fg:#e0e6ed; --dim:#8a94a3; --faint:#6f7a89;
-  --line:#1f2b3a; --panel:#0f1a26; --accent:#ffd166;
-  --ok:#7ee08a; --ng:#e07a7a;
+  --bg:#0b1219; --panel:#0f1a26; --line:#4a627f;
+  --fg:#e0e6ed; --dim:#8a94a3; --faint:#8a94a3;
+  --accent:#ffd166; --ok:#7ee08a; --ng:#e07a7a;
 }
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--fg);margin:0;padding-bottom:80px;
-  font-family:'Helvetica Neue',Arial,'Hiragino Kaku Gothic ProN',Meiryo,sans-serif;
-  -webkit-text-size-adjust:100%;font-variant-numeric:tabular-nums}
-.wrap{max-width:620px;margin:0 auto;padding:0 18px}
-.siteback{display:flex;align-items:center;gap:6px;min-height:44px;
-  font-size:13px;color:inherit;text-decoration:none;opacity:.7}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--fg)}
+body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;
+  -webkit-text-size-adjust:100%;font-feature-settings:"palt" 1}
+.wrap{max-width:620px;margin:0 auto;padding:0 18px 64px}
 
-/* ── ヘッダ ── */
-header{padding:4px 0 20px;border-bottom:1px solid var(--line)}
-header .eyebrow{font-size:11px;color:var(--accent);letter-spacing:.18em;margin:0 0 8px}
-header h1{font-size:23px;line-height:1.5;color:#fff;margin:0 0 10px;font-weight:700}
-header .sub{font-size:12px;color:var(--dim);line-height:1.9;margin:0}
+.siteback{display:inline-flex;align-items:center;min-height:44px;
+  color:#a9c6dd;text-decoration:none;font-size:12.5px;margin-right:16px}
+.siteback:hover{text-decoration:underline}
 
-/* ── 記事 ── */
-.article{padding:32px 0 8px;font-size:15.5px;line-height:2.1;letter-spacing:.01em}
-.article p{margin:0 0 1.7em}
-.article .lead{font-size:16.5px;color:#fff;line-height:1.95;margin-bottom:1.9em}
-.article b{color:#fff;font-weight:600}
+header{padding:26px 0 8px;border-bottom:1px solid var(--line)}
+header .eyebrow{font-size:11px;letter-spacing:.34em;color:var(--accent);margin:0 0 12px}
+header h1{font-size:28px;line-height:1.5;color:#fff;margin:0 0 10px;font-weight:700}
+header .sub{font-size:12px;line-height:1.9;color:var(--dim);margin:0 0 22px}
 
-/* ── 小見出し ── */
-.sec{margin:3em 0 1.6em;font-size:13px;color:var(--accent);font-weight:600;
-  letter-spacing:.09em;line-height:1.6;display:flex;align-items:center;gap:11px}
-.sec::before{content:"";width:20px;height:1px;background:var(--accent);flex:none;opacity:.6}
-.sec::after{content:"";flex:1;height:1px;background:var(--line)}
+.article{padding:32px 0 8px;font-size:16px;line-height:2.1}
+.article p{margin:0 0 1.9em}
+.article b{color:#fff;font-weight:700}
+.article .lead{font-size:18.5px;line-height:1.95;color:#fff;font-weight:700;margin-bottom:1.7em}
+.article a{color:#a9c6dd;text-decoration:underline;text-decoration-color:var(--line);
+  text-underline-offset:4px;text-decoration-thickness:1px}
+.article a:hover{color:#fff;text-decoration-color:#a9c6dd}
 
-/* ── パンチライン ── */
-.punch{margin:2.2em 0 1.1em;font-size:24px;line-height:1.65;font-weight:700;color:#fff;
-  letter-spacing:.005em}
+.sec{margin:3em 0 1.5em;font-size:18px;color:var(--accent);font-weight:700;
+  letter-spacing:.06em;line-height:1.6;display:flex;align-items:center;gap:11px}
+.sec::before{content:"";width:20px;height:1px;background:var(--accent);flex:none}
+.sec::after{content:"";height:1px;background:var(--line);flex:1}
+
+.punch{margin:2.2em 0 1.1em;font-size:30px;line-height:1.65;color:#fff;font-weight:700}
 .punch .big{color:var(--accent)}
 
-/* ── 成立条件 ── */
-.cond{margin:-1.15em 0 1.7em;padding:9px 0 9px 12px;border-left:2px solid var(--line);
-  font-size:11.5px;color:var(--faint);line-height:1.85}
-.cond b{color:var(--dim);font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:1.5em 0 1.9em;
+  font-variant-numeric:tabular-nums}
+th,td{padding:11px 6px;text-align:right;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--faint);font-weight:600;font-size:12px;white-space:nowrap}
+tr.hi td{color:#fff;font-weight:700;background:#16283c}
+tr.mid td{color:var(--faint)}
+
+/* ── 数字ブロック ── */
+.figure{display:flex;gap:12px;margin:1.5em 0 1.9em}
+.figure>div{flex:1;background:var(--panel);border:1px solid var(--line);
+  border-radius:10px;padding:16px 10px 14px;text-align:center}
+.figure .n{font-size:44px;font-weight:700;line-height:1.15;color:var(--accent);
+  font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.figure .u{font-size:17px;font-weight:700;margin-left:2px}
+.figure .l{font-size:11px;color:var(--dim);margin-top:8px;line-height:1.7}
+.figure .ref .n{color:var(--faint)}
+
+/* ── 折りたたみ ── */
+details{margin:2.6em 0 1.6em;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+details>summary{display:flex;align-items:center;min-height:46px;padding:0 16px;
+  font-size:13px;color:#a9c6dd;cursor:pointer;list-style:none}
+details>summary::-webkit-details-marker{display:none}
+details>summary::after{content:"＋";margin-left:auto;color:var(--faint)}
+details[open]>summary::after{content:"−"}
+.dbody{padding:4px 16px 18px;font-size:12.5px;line-height:2;color:var(--dim)}
+.dbody h4{margin:1.6em 0 .5em;font-size:12.5px;color:#cfd8e3;font-weight:700}
+.dbody h4:first-child{margin-top:.4em}
+.dbody p{margin:0 0 1em}
+
+.stamp{margin:2.4em 0 1.4em;font-size:11px;line-height:1.9;color:var(--faint);
+  padding-top:16px;border-top:1px solid var(--line)}
+.stamp span{color:var(--dim);font-variant-numeric:tabular-nums}
+/* ── 図 ── */
+.chart{margin:1.6em 0 2em;padding:14px 10px 10px;background:var(--panel);
+  border:1px solid var(--line);border-radius:10px}
+.chart svg{display:block;width:100%;height:auto;font-family:inherit}
+.chart figcaption{margin-top:8px;font-size:11.5px;line-height:1.8;color:var(--dim)}
+/* ── 成立条件（毎日の判定） ── */
+.cond{margin:-1.2em 0 1.9em;padding:9px 0 9px 12px;border-left:2px solid var(--line);
+  font-size:12px;color:var(--dim);line-height:1.85}
+.cond b{color:#cfd8e3;font-weight:600}
 .cond .st{font-weight:700;white-space:nowrap}
 .cond .st.ok{color:var(--ok)}
 .cond .st.ng{color:var(--ng)}
-.cond .st.na{color:var(--faint)}
-
-/* ── 折りたたみ ── */
-details{background:var(--panel);border:1px solid var(--line);border-radius:9px;margin:0 0 11px}
-details>summary{list-style:none;cursor:pointer;padding:13px 15px;font-size:13px;
-  color:#a9c6dd;display:flex;align-items:center;justify-content:space-between;min-height:46px}
-details>summary::-webkit-details-marker{display:none}
-details>summary::after{content:"";width:7px;height:7px;border-right:1.5px solid #7a8ea6;
-  border-bottom:1.5px solid #7a8ea6;transform:rotate(45deg);margin-left:12px;flex:none}
-details[open]>summary::after{transform:rotate(-135deg)}
-.dbody{padding:0 15px 15px;font-size:12.5px;color:var(--dim);line-height:2}
-.dbody p{margin:0 0 .9em}
-.dbody h4{font-size:12.5px;color:#cfe0f0;margin:16px 0 6px;font-weight:600}
-.dbody h4:first-child{margin-top:4px}
-.dbody b{color:#cfe0f0}
-
-/* ── 表 ── */
-table{width:100%;border-collapse:collapse;font-size:12.5px;margin:8px 0 6px}
-th,td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:right}
-th{color:var(--faint);font-weight:400;font-size:11px;white-space:nowrap}
-td:first-child,th:first-child{text-align:left}
-tr.hi td{color:#fff;font-weight:700}
-.article table{margin:8px 0 1.7em}
-.sub2{font-size:10.5px;color:var(--faint);font-weight:400}
-
+.cond .st.na{color:var(--dim)}
+.dbody ul{margin:0;padding-left:1.2em}
+.dbody table{margin:8px 0 6px;font-size:12px}
+.dbody th,.dbody td{padding:8px 5px}
 /* ── 検証データ ── */
 .verify{margin-top:40px;padding-top:24px;border-top:1px solid var(--line)}
 .verify > h2{font-size:14px;color:var(--accent);margin:0 0 6px;letter-spacing:.05em}
-.verify > .vsub{font-size:11.5px;color:var(--dim);line-height:1.9;margin:0 0 18px}
-.stamp{font-size:11px;color:var(--faint);margin-top:26px;line-height:1.9}
+.verify > .vsub{font-size:12px;color:var(--dim);line-height:1.9;margin:0 0 18px}
+.verify details{margin:0 0 11px}
 </style>
 </head>
 <body>
@@ -105,58 +122,40 @@ tr.hi td{color:#fff;font-weight:700}
   </p>
 </header>
 
-<!-- ══════════ 記事 ══════════ -->
 <div class="article">
 
 <p class="lead">「①はF2ですからね。ここは行けないでしょう」</p>
 
-<p class="sec">よく聞く言い方</p>
+<p>レース前の解説で、よく聞く一言です。行けない、行かない、慎重にならざるを得ない。言い方はいくつかあっても、どれも本人に確かめた話ではありません。</p>
 
-<p>レース前によく聞く一言です。言い方はいくつかあります。<br>
-行けない。行かない。行きたくない。慎重にならざるを得ない。<br>
-どれも、本人に聞いてはいません。</p>
+<p><a href="../../glossary/?q=F">F</a>はフライング、合図より早くスタートラインを越えることです。切れば、その期のどこかで<a href="../../glossary/?q=%E3%83%95%E3%83%A9%E3%82%A4%E3%83%B3%E3%82%B0%E4%BC%91%E3%81%BF">フライング休み</a>に入り、2本目を切ると休みはさらに長くなる。だから攻められない、という理屈になります。</p>
 
-<p>Fはフライング。スタートラインを早く越えることです。<br>
-切れば、その期の残りをフライング休みで過ごすことになります。<br>
-2本目を切れば休みはさらに長くなる。だから攻められない、という理屈です。</p>
+<p>理屈は通っています。通っているので、数えました。</p>
 
-<p>理屈としては通っています。通っているので、数えました。</p>
+<h2 class="sec">3,587日、541,018回</h2>
 
-<p class="sec">3,587日、541,018回</p>
+<p>2016年11月1日から2026年8月27日まで、3,587日分の競走成績を1レースずつ見ていきました。1コースに入った舟を数えると、541,018回。同じ期間に、全部のコースで切られたFは12,753件。</p>
 
-<p>2016年11月1日から2026年8月27日まで。<br>
-1コースに入った枠を数えると<b>541,018</b>回ありました。<br>
-この間にFは<b>12,753</b>件。</p>
+<p>F本数の数え方は、<a href="../../glossary/?q=%E5%87%BA%E8%B5%B0%E8%A1%A8">出走表</a>と同じにしました。各期の初日、5月1日と11月1日に0へ戻し、そこからの累積を数える。出走表で見ている「F1」「F2」と、同じものを数えていることになります。</p>
 
-<p>F本数の数え方は、出走表と同じにしました。<br>
-各期の初日、5月1日と11月1日に0へ戻し、そこからの累積を数えます。<br>
-読者が出走表で見ている「F1」「F2」の表記と、同じものを見ていることになります。</p>
+<h2 class="sec">やはりそうか、と思った</h2>
 
-<p class="sec">やはりそうか、と思った</p>
+<p>F本数と<a href="../../glossary/?q=%E7%B4%9A%E5%88%A5">級別</a>で分けて、1コースのスタートタイミングを並べました。</p>
 
-<p>F0・F1・F2に分け、級別も分けて並べました。1コースのスタートタイミングです。</p>
+<figure class="chart" role="img" aria-label="F本数と級別ごとの1コースの平均スタートタイミング。A級もB級もF本数が増えるほど遅い">
+<svg viewBox="0 0 360 214" width="100%" xmlns="http://www.w3.org/2000/svg"><line x1="52" y1="186.0" x2="330" y2="186.0" stroke="#4a627f" stroke-width="0.6"/><text x="46" y="189.5" font-size="10" fill="#8a94a3" text-anchor="end">0.14</text><line x1="52" y1="146.0" x2="330" y2="146.0" stroke="#4a627f" stroke-width="0.6"/><text x="46" y="149.5" font-size="10" fill="#8a94a3" text-anchor="end">0.16</text><line x1="52" y1="106.0" x2="330" y2="106.0" stroke="#4a627f" stroke-width="0.6"/><text x="46" y="109.5" font-size="10" fill="#8a94a3" text-anchor="end">0.18</text><line x1="52" y1="66.0" x2="330" y2="66.0" stroke="#4a627f" stroke-width="0.6"/><text x="46" y="69.5" font-size="10" fill="#8a94a3" text-anchor="end">0.20</text><line x1="52" y1="26.0" x2="330" y2="26.0" stroke="#4a627f" stroke-width="0.6"/><text x="46" y="29.5" font-size="10" fill="#8a94a3" text-anchor="end">0.22</text><polyline points="95,173.6 190,152.8 285,99.0" fill="none" stroke="#7cc4ff" stroke-width="1.6"/><circle cx="95" cy="173.6" r="4.5" fill="#7cc4ff"/><text x="95" y="188.6" font-size="10" fill="#e0e6ed" text-anchor="middle">0.1462</text><circle cx="190" cy="152.8" r="4.5" fill="#7cc4ff"/><text x="190" y="167.8" font-size="10" fill="#e0e6ed" text-anchor="middle">0.1566</text><circle cx="285" cy="99.0" r="4.5" fill="#7cc4ff"/><text x="285" y="114.0" font-size="10" fill="#e0e6ed" text-anchor="middle">0.1835</text><text x="338" y="103.0" font-size="11" fill="#7cc4ff" text-anchor="start">A級</text><polyline points="95,135.6 190,108.6 285,45.0" fill="none" stroke="#ff9f6b" stroke-width="1.6"/><circle cx="95" cy="135.6" r="4.5" fill="#ff9f6b"/><text x="95" y="126.6" font-size="10" fill="#e0e6ed" text-anchor="middle">0.1652</text><circle cx="190" cy="108.6" r="4.5" fill="#ff9f6b"/><text x="190" y="99.6" font-size="10" fill="#e0e6ed" text-anchor="middle">0.1787</text><circle cx="285" cy="45.0" r="4.5" fill="#ff9f6b"/><text x="285" y="36.0" font-size="10" fill="#e0e6ed" text-anchor="middle">0.2105</text><text x="338" y="49.0" font-size="11" fill="#ff9f6b" text-anchor="start">B級</text><text x="95" y="206" font-size="11" fill="#e0e6ed" text-anchor="middle">F0</text><text x="190" y="206" font-size="11" fill="#e0e6ed" text-anchor="middle">F1</text><text x="285" y="206" font-size="11" fill="#e0e6ed" text-anchor="middle">F2</text><text x="12" y="14" font-size="10" fill="#8a94a3" text-anchor="start">平均ST（秒）　上ほど遅い</text></svg>
+<figcaption>1コースに入ったときの平均スタートタイミング（秒）。数字が大きいほど遅く踏んでいます。青がA級、橙がB級。縦軸は0.14秒から始まっています。</figcaption>
+</figure>
 
-<table>
-<thead><tr><th></th><th>平均ST</th><th>1着率</th><th>枠数</th></tr></thead>
-<tbody>
-<tr><td>F0 A級</td><td>0.1462</td><td>66.3%</td><td>279,223</td></tr>
-<tr><td>F1 A級</td><td>0.1566</td><td>62.5%</td><td>49,580</td></tr>
-<tr class="hi"><td>F2 A級</td><td>0.1835</td><td>50.7%</td><td>1,671</td></tr>
-<tr><td>F0 B級</td><td>0.1652</td><td>39.6%</td><td>185,451</td></tr>
-<tr><td>F1 B級</td><td>0.1787</td><td>35.4%</td><td>24,748</td></tr>
-<tr class="hi"><td>F2 B級</td><td>0.2105</td><td>21.0%</td><td>345</td></tr>
-</tbody>
-</table>
+<p>並びはきれいで、A級のF2は0.1835秒と、B級のF0の0.1652秒より遅い。1着率も、A級のF0の66.3%から、F2では50.7%まで下がっていた。</p>
 
-<p>きれいに並びました。A級のF2は、B級のF0より遅い。<br>
-同じA級とは思えない数字です。</p>
+<p>これで話は終わった、と思いました。</p>
 
-<p>これで話は終わったと思いました。</p>
+<h2 class="sec">別人を比べていた</h2>
 
-<p>ところが、これは見間違いです。<br>
-この表が比べているのは「F2の選手」と「F0の選手」で、<b>別人です</b>。<br>
-F2に乗っている1,671回を走ったのは、F2まで切ってしまう選手たちです。<br>
-もともとどういうスタートを踏む人たちなのかが、この表からは分かりません。</p>
+<p>ところが、これは見間違いです。</p>
+
+<p>この図が比べているのは「F2の選手」と「F0の選手」で、別人どうし。A級のF2で1コースに入った1,671回を走ったのは、F2まで切ってしまう選手たちで、その人たちがもともとどんなスタートを踏むのかは、図からは分からない。</p>
 
 <p>54万回を数えて、別人は別人だと確かめたことになります。</p>
 
@@ -166,32 +165,27 @@ F2に乗っている1,671回を走ったのは、F2まで切ってしまう選�
   <span class="st ok" data-v="st_group">✓ 成立</span>
 </div>
 
-<p class="sec">時計しか持っていない</p>
+<h2 class="sec">時計しか持っていない</h2>
 
-<p>なぜ遅いのかを知るには、本人の胸の内が要ります。<br>
-それはデータに入っていません。うちが持っているのは、時計です。</p>
+<p>なぜ遅いのかを知るには、本人の胸の内が要ります。それは、データには入っていない。持っているのは、時計だけ。</p>
 
-<p>そこで、比べる相手を変えました。<br>
-<b>同じ選手の、F0だったときと、F1・F2になったあと</b>を引き算します。<br>
-この形なら、その人がもともと速いか遅いかは差し引かれて消えます。</p>
+<p>そこで、比べる相手を変えました。同じ選手の、F0だったときと、F1やF2になったあとを引き算する。この形なら、その人がもともと速いか遅いかは、差し引かれて消えます。</p>
 
-<p class="sec">同じ人の中で、こうなった</p>
+<h2 class="sec">同じ人の中で、こうなった</h2>
 
 <table>
-<thead><tr><th></th><th>STの変化</th><th>遅くなった人</th><th>対象</th></tr></thead>
+<thead><tr><th>比べた変化</th><th>STの変化</th><th>遅くなった人</th><th>対象</th></tr></thead>
 <tbody>
 <tr><td>F0 → F1</td><td>+0.0158秒</td><td>82.6%</td><td>1,746人</td></tr>
 <tr class="hi"><td>F0 → F2</td><td>+0.0430秒</td><td>88.3%</td><td>274人</td></tr>
 </tbody>
 </table>
 
-<p>F2まで進んだ選手の10人のうち9人が、遅くなっています。</p>
+<p>F2まで進んだ選手の、10人に9人近くが遅くなっている。</p>
 
-<p>この差がどれくらいかは、さきほどの表がそのまま物差しになります。<br>
-1コースのF0だけで見たとき、A級とB級の平均STの差は0.0190秒でした。<br>
-級がひとつ違うと、それだけ変わります。</p>
+<p>たまたま遅い日が重なっただけ、ということはないのでしょうか。選手ごとに、1コースに入った日を単位にして、F0の日とF1の日のラベルだけを1,000回入れ替え、同じ計算をやり直しました。偶然なら、遅くなる人の割合は平均で49%、いちばん多い回でも53%で、実際の割合に届いた回は一度もありません。</p>
 
-<p>同じ選手がF2になったときの遅れは、その2倍以上です。</p>
+<p>この比べ方から外れた人もいる。F1で1コースに入った1,839人のうち、比べたのは1,746人で、F2は442人のうち274人。F0で10回、F1やF2で3回、1コースに入っていない選手は、1回か2回の走りで平均が決まってしまうので外しました。スタートが数字にならなかった3,595回、つまりフライングの3,548回と出遅れの47回も、平均には入れていません。外した走りのほとんどはF0の側にあり、F0を遅く見せる、差を縮める向きに効く。</p>
 
 <div class="cond">
   この段落は、うちが毎日集めている結果でも「同じ選手の中で遅くなる側が半数を超える」とき成立します。<br>
@@ -199,34 +193,35 @@ F2に乗っている1,671回を走ったのは、F2まで切ってしまう選�
   <span class="st ok" data-v="st_indiv">✓ 成立</span>
 </div>
 
-<p class="sec">歳を取っただけでは</p>
+<h2 class="sec">級ひとつぶんの2倍</h2>
 
-<p>ここで、当然の疑いが出ます。<br>
-この疑いは、書いている側が先に思いつきました。</p>
+<p>この遅れは、どれくらいの大きさなのか。物差しは、さきほどの図にあります。F0だけで見ると、A級とB級の平均STの差は0.0190秒で、級がひとつ違うと、それだけ変わる。</p>
 
-<p>同じ選手を比べたといっても、F0だったのは何年も前かもしれません。<br>
-年を取れば、誰でもスタートは遅くなります。<br>
-それを「Fのせいだ」と読んでいるだけではないのか。</p>
+<figure class="chart" role="img" aria-label="級がひとつ違うときのSTの差と、同じ選手がF1、F2になったときの遅れ。F2の遅れは級ひとつぶんの2倍を超える">
+<svg viewBox="0 0 360 160" width="100%" xmlns="http://www.w3.org/2000/svg"><text x="10" y="31" font-size="11" fill="#e0e6ed" text-anchor="start">級ひとつぶん</text><text x="10" y="44" font-size="9.5" fill="#8a94a3" text-anchor="start">F0のA級とB級の差</text><rect x="124" y="22" width="79.8" height="18" fill="none" stroke="#8a94a3" stroke-width="1.2"/><text x="208.8" y="35" font-size="10.5" fill="#e0e6ed" text-anchor="start">0.0190</text><text x="10" y="71" font-size="11" fill="#e0e6ed" text-anchor="start">F0からF1</text><text x="10" y="84" font-size="9.5" fill="#8a94a3" text-anchor="start">同じ選手の遅れ</text><rect x="124" y="62" width="66.4" height="18" fill="#8a94a3" stroke="#8a94a3" stroke-width="1.2"/><text x="195.4" y="75" font-size="10.5" fill="#e0e6ed" text-anchor="start">0.0158</text><text x="10" y="111" font-size="11" fill="#e0e6ed" text-anchor="start">F0からF2</text><text x="10" y="124" font-size="9.5" fill="#8a94a3" text-anchor="start">同じ選手の遅れ</text><rect x="124" y="102" width="180.6" height="18" fill="#ffd166" stroke="#ffd166" stroke-width="1.2"/><text x="309.6" y="115" font-size="10.5" fill="#e0e6ed" text-anchor="start">0.0430</text><line x1="124" y1="14" x2="124" y2="138" stroke="#e0e6ed" stroke-width="1"/><text x="124" y="152" font-size="9.5" fill="#8a94a3" text-anchor="middle">0</text><text x="334" y="152" font-size="9.5" fill="#8a94a3" text-anchor="end">0.05秒</text></svg>
+<figcaption>同じ物差し（秒・0から）で並べた3つの差。いちばん上は人をまたいだ比較で、下の2本は同じ選手の中での比較です。</figcaption>
+</figure>
 
-<p>そこで、比べるF0の範囲を狭めました。<br>
-<b>Fを切る直前の2期</b>、つまり半年から1年のあいだの走りだけを基準にします。<br>
-時間が近ければ、加齢の入り込む余地は小さくなります。</p>
+<p>F2になった同じ選手の遅れは、その2倍を超えます。A級のF0の平均に足せば、B級のF0の平均を追い越してしまう大きさです。</p>
 
-<table>
-<thead><tr><th></th><th>全期間のF0</th><th>直前2期のF0</th><th>差</th></tr></thead>
-<tbody>
-<tr><td>F0 → F1</td><td>82.6%<br><span class="sub2">1,746人</span></td>
-<td>69.7%<br><span class="sub2">1,188人</span></td><td>−12.9</td></tr>
-<tr class="hi"><td>F0 → F2</td><td>88.3%<br><span class="sub2">274人</span></td>
-<td>87.8%<br><span class="sub2">181人</span></td><td>−0.5</td></tr>
-</tbody>
-</table>
+<p>出走表や結果に載るSTは、0.01秒刻みで記録されています。その目盛りで数えると、級ひとつぶんは2目盛りに届かず、F2の遅れは4目盛りと少し。A級のF0の平均はおよそコンマ15なので、そこに足すとコンマ19になる勘定です。</p>
 
-<p>落ちたのはF1だけです。<br>
-<b>古いF0を混ぜていたぶんは、年齢の効果だったということです。</b></p>
+<h2 class="sec">歳を取っただけでは</h2>
 
-<p>F2は、ほとんど動きません。<br>
-<b>F2の遅れは、時間を詰めても残ります。</b></p>
+<p>ここで、当然の疑いが出ます。</p>
+
+<p>F0だったのが何年も前なら、年を取ったぶんだけ遅くなっていても不思議はない。それを「Fのせい」と読んでいるだけではないのか。</p>
+
+<p>そこで、比べるF0を、Fを切る直前の2期、つまり半年から1年のあいだの走りに絞りました。遅くなった人の割合は、F1で82.6%から69.7%に落ち、F2は87.8%で、ほとんど動かない。F2の遅れだけは、時間を詰めても残る。はじめは、そう読みました。</p>
+
+<p>引っかかったのは、F2の人数でした。比べられたのは181人で、この人数では、割合が5.6ポイントより小さく動いても、偶然と区別がつかない。ラベルを入れ替えた1,000回のうち、569回は実際より大きく動いている。F2が動かなかったことは、何の証拠にもなっていません。この記事の前の版は、その証拠にならないものを太字にしていました。</p>
+
+<figure class="chart" role="img" aria-label="基準のF0を直前2期に絞ったときの、同じ選手のSTの変化。F1もF2も少しだけ縮む">
+<svg viewBox="0 0 360 204" width="100%" xmlns="http://www.w3.org/2000/svg"><line x1="60" y1="176.0" x2="310" y2="176.0" stroke="#4a627f" stroke-width="0.6"/><text x="54" y="179.5" font-size="10" fill="#8a94a3" text-anchor="end">0</text><line x1="60" y1="146.0" x2="310" y2="146.0" stroke="#4a627f" stroke-width="0.6"/><text x="54" y="149.5" font-size="10" fill="#8a94a3" text-anchor="end">0.01</text><line x1="60" y1="116.0" x2="310" y2="116.0" stroke="#4a627f" stroke-width="0.6"/><text x="54" y="119.5" font-size="10" fill="#8a94a3" text-anchor="end">0.02</text><line x1="60" y1="86.0" x2="310" y2="86.0" stroke="#4a627f" stroke-width="0.6"/><text x="54" y="89.5" font-size="10" fill="#8a94a3" text-anchor="end">0.03</text><line x1="60" y1="56.0" x2="310" y2="56.0" stroke="#4a627f" stroke-width="0.6"/><text x="54" y="59.5" font-size="10" fill="#8a94a3" text-anchor="end">0.04</text><line x1="60" y1="26.0" x2="310" y2="26.0" stroke="#4a627f" stroke-width="0.6"/><text x="54" y="29.5" font-size="10" fill="#8a94a3" text-anchor="end">0.05</text><line x1="120" y1="132.2" x2="250" y2="138.2" stroke="#8a94a3" stroke-width="2"/><circle cx="120" cy="132.2" r="4" fill="#8a94a3"/><text x="112" y="135.7" font-size="10" fill="#e0e6ed" text-anchor="end">0.0146</text><circle cx="250" cy="138.2" r="4" fill="#8a94a3"/><text x="258" y="141.7" font-size="10" fill="#e0e6ed" text-anchor="start">0.0126</text><text x="302" y="141.7" font-size="10.5" fill="#8a94a3" text-anchor="start">F0からF1</text><line x1="120" y1="45.2" x2="250" y2="52.4" stroke="#ffd166" stroke-width="2"/><circle cx="120" cy="45.2" r="4" fill="#ffd166"/><text x="112" y="48.7" font-size="10" fill="#e0e6ed" text-anchor="end">0.0436</text><circle cx="250" cy="52.4" r="4" fill="#ffd166"/><text x="258" y="55.9" font-size="10" fill="#e0e6ed" text-anchor="start">0.0412</text><text x="302" y="55.9" font-size="10.5" fill="#ffd166" text-anchor="start">F0からF2</text><text x="120" y="196" font-size="10" fill="#e0e6ed" text-anchor="middle">全期間のF0と</text><text x="250" y="196" font-size="10" fill="#e0e6ed" text-anchor="middle">直前2期のF0と</text><text x="12" y="14" font-size="10" fill="#8a94a3" text-anchor="start">STの変化（秒）</text></svg>
+<figcaption>同じ選手のSTの変化（秒）を、基準のF0の取り方で並べたもの。両方の比べ方に入る選手どうし（F1は1,188人、F2は181人）。縦軸は0から始まっています。</figcaption>
+</figure>
+
+<p>秒で並べ直すと、同じ選手どうしで、F1は0.0020秒、F2は0.0024秒縮んでいた。F2のほうはこの人数では見分けのつかない幅ですが、年齢のぶんが混ざっていたのは、F1に限った話ではなさそうです。それを抜いたあとも、F2の遅れは0.0412秒あり、偶然で届く幅の5倍を超えています。</p>
 
 <div class="cond">
   F2は、うちが毎日集めている結果だけでは判定していません。<br>
@@ -235,98 +230,108 @@ F2に乗っている1,671回を走ったのは、F2まで切ってしまう選�
   <span class="st ok" data-v="st_f2">— 判定なし</span>
 </div>
 
-<p class="sec">速い人が、切っている</p>
+<h2 class="sec">級で割っても、年で割っても</h2>
 
-<p>もうひとつ、逆向きの数字が出ました。</p>
+<p>向きは、級で割っても年で割っても同じ。A級でもB級でも、2016年から2025年のどの組でも、同じ選手はF1になると遅くなっています。</p>
 
-<p>10年間で一度もFを切らなかった選手は<b>78</b>人。<br>
-この78人の1コースの平均STは<b>0.1897</b>。</p>
+<figure class="chart" role="img" aria-label="級別に分けた、同じ選手のSTの変化。A級もB級も、F1でもF2でも遅くなっている">
+<svg viewBox="0 0 360 168" width="100%" xmlns="http://www.w3.org/2000/svg"><text x="10" y="31" font-size="11" fill="#e0e6ed" text-anchor="start">F0からF1</text><text x="118" y="31" font-size="9.5" fill="#7cc4ff" text-anchor="end">A級 690人</text><rect x="124" y="18" width="43.1" height="18" fill="#7cc4ff"/><text x="172.1" y="31" font-size="10.5" fill="#e0e6ed" text-anchor="start">0.0132</text><text x="118" y="61" font-size="9.5" fill="#ff9f6b" text-anchor="end">B級 1,056人</text><rect x="124" y="48" width="57.2" height="18" fill="#ff9f6b"/><text x="186.2" y="61" font-size="10.5" fill="#e0e6ed" text-anchor="start">0.0175</text><text x="10" y="101" font-size="11" fill="#e0e6ed" text-anchor="start">F0からF2</text><text x="118" y="101" font-size="9.5" fill="#7cc4ff" text-anchor="end">A級 217人</text><rect x="124" y="88" width="134.6" height="18" fill="#7cc4ff"/><text x="263.6" y="101" font-size="10.5" fill="#e0e6ed" text-anchor="start">0.0412</text><text x="118" y="131" font-size="9.5" fill="#ff9f6b" text-anchor="end">B級 57人</text><rect x="124" y="118" width="162.4" height="18" fill="#ff9f6b"/><text x="291.4" y="131" font-size="10.5" fill="#e0e6ed" text-anchor="start">0.0497</text><line x1="124" y1="12" x2="124" y2="146" stroke="#e0e6ed" stroke-width="1"/><text x="124" y="160" font-size="9.5" fill="#8a94a3" text-anchor="middle">0</text><text x="320" y="160" font-size="9.5" fill="#8a94a3" text-anchor="end">0.06秒</text></svg>
+<figcaption>初めてその本数で1コースに入った日の級別で分けた、同じ選手のSTの変化（秒・0から）。青がA級、橙がB級。F1でB級のほうが大きく見える差は、基準を直前2期に絞ると見分けがつかなくなります。F2のA級とB級の差は、人数が足りず大小を言えません。</figcaption>
+</figure>
 
-<p>一方、期間中にFを切ったことがある選手が、<b>まだF0だったとき</b>のSTは<b>0.1595</b>でした。</p>
+<figure class="chart" role="img" aria-label="初めてF1で1コースに入った年ごとの、同じ選手のSTの変化。2016年から2025年のどの組も遅くなっている">
+<svg viewBox="0 0 360 245" width="100%" xmlns="http://www.w3.org/2000/svg"><line x1="110.0" y1="12" x2="110.0" y2="221" stroke="#e0e6ed" stroke-width="1"/><text x="110.0" y="235" font-size="9.5" fill="#8a94a3" text-anchor="middle">0</text><line x1="176.7" y1="12" x2="176.7" y2="221" stroke="#4a627f" stroke-width="0.6"/><text x="176.7" y="235" font-size="9.5" fill="#8a94a3" text-anchor="middle">0.01</text><line x1="243.3" y1="12" x2="243.3" y2="221" stroke="#4a627f" stroke-width="0.6"/><text x="243.3" y="235" font-size="9.5" fill="#8a94a3" text-anchor="middle">0.02</text><line x1="310.0" y1="12" x2="310.0" y2="221" stroke="#4a627f" stroke-width="0.6"/><text x="310.0" y="235" font-size="9.5" fill="#8a94a3" text-anchor="middle">0.03</text><text x="10" y="28" font-size="11" fill="#e0e6ed" text-anchor="start">2016</text><text x="46" y="28" font-size="9.5" fill="#8a94a3" text-anchor="start">129人</text><line x1="110" y1="24" x2="221.3" y2="24" stroke="#8a94a3" stroke-width="2"/><circle cx="221.3" cy="24" r="4" fill="#8a94a3"/><text x="229.3" y="28" font-size="10" fill="#e0e6ed" text-anchor="start">0.0167</text><text x="10" y="47" font-size="11" fill="#e0e6ed" text-anchor="start">2017</text><text x="46" y="47" font-size="9.5" fill="#8a94a3" text-anchor="start">707人</text><line x1="110" y1="43" x2="209.3" y2="43" stroke="#8a94a3" stroke-width="2"/><circle cx="209.3" cy="43" r="4" fill="#8a94a3"/><text x="217.3" y="47" font-size="10" fill="#e0e6ed" text-anchor="start">0.0149</text><text x="10" y="66" font-size="11" fill="#e0e6ed" text-anchor="start">2018</text><text x="46" y="66" font-size="9.5" fill="#8a94a3" text-anchor="start">310人</text><line x1="110" y1="62" x2="215.3" y2="62" stroke="#8a94a3" stroke-width="2"/><circle cx="215.3" cy="62" r="4" fill="#8a94a3"/><text x="223.3" y="66" font-size="10" fill="#e0e6ed" text-anchor="start">0.0158</text><text x="10" y="85" font-size="11" fill="#e0e6ed" text-anchor="start">2019</text><text x="46" y="85" font-size="9.5" fill="#8a94a3" text-anchor="start">166人</text><line x1="110" y1="81" x2="196.0" y2="81" stroke="#8a94a3" stroke-width="2"/><circle cx="196.0" cy="81" r="4" fill="#8a94a3"/><text x="204.0" y="85" font-size="10" fill="#e0e6ed" text-anchor="start">0.0129</text><text x="10" y="104" font-size="11" fill="#e0e6ed" text-anchor="start">2020</text><text x="46" y="104" font-size="9.5" fill="#8a94a3" text-anchor="start">108人</text><line x1="110" y1="100" x2="232.0" y2="100" stroke="#8a94a3" stroke-width="2"/><circle cx="232.0" cy="100" r="4" fill="#8a94a3"/><text x="240.0" y="104" font-size="10" fill="#e0e6ed" text-anchor="start">0.0183</text><text x="10" y="123" font-size="11" fill="#e0e6ed" text-anchor="start">2021</text><text x="46" y="123" font-size="9.5" fill="#8a94a3" text-anchor="start">81人</text><line x1="110" y1="119" x2="203.3" y2="119" stroke="#8a94a3" stroke-width="2"/><circle cx="203.3" cy="119" r="4" fill="#8a94a3"/><text x="211.3" y="123" font-size="10" fill="#e0e6ed" text-anchor="start">0.0140</text><text x="10" y="142" font-size="11" fill="#e0e6ed" text-anchor="start">2022</text><text x="46" y="142" font-size="9.5" fill="#8a94a3" text-anchor="start">63人</text><line x1="110" y1="138" x2="232.0" y2="138" stroke="#8a94a3" stroke-width="2"/><circle cx="232.0" cy="138" r="4" fill="#8a94a3"/><text x="240.0" y="142" font-size="10" fill="#e0e6ed" text-anchor="start">0.0183</text><text x="10" y="161" font-size="11" fill="#e0e6ed" text-anchor="start">2023</text><text x="46" y="161" font-size="9.5" fill="#8a94a3" text-anchor="start">64人</text><line x1="110" y1="157" x2="223.3" y2="157" stroke="#8a94a3" stroke-width="2"/><circle cx="223.3" cy="157" r="4" fill="#8a94a3"/><text x="231.3" y="161" font-size="10" fill="#e0e6ed" text-anchor="start">0.0170</text><text x="10" y="180" font-size="11" fill="#e0e6ed" text-anchor="start">2024</text><text x="46" y="180" font-size="9.5" fill="#8a94a3" text-anchor="start">51人</text><line x1="110" y1="176" x2="239.3" y2="176" stroke="#8a94a3" stroke-width="2"/><circle cx="239.3" cy="176" r="4" fill="#8a94a3"/><text x="247.3" y="180" font-size="10" fill="#e0e6ed" text-anchor="start">0.0194</text><text x="10" y="199" font-size="11" fill="#e0e6ed" text-anchor="start">2025</text><text x="46" y="199" font-size="9.5" fill="#8a94a3" text-anchor="start">48人</text><line x1="110" y1="195" x2="279.3" y2="195" stroke="#8a94a3" stroke-width="2"/><circle cx="279.3" cy="195" r="4" fill="#8a94a3"/><text x="287.3" y="199" font-size="10" fill="#e0e6ed" text-anchor="start">0.0254</text><text x="10" y="218" font-size="11" fill="#e0e6ed" text-anchor="start">2026</text><text x="46" y="218" font-size="9.5" fill="#8a94a3" text-anchor="start">19人</text><text x="116" y="218" font-size="10" fill="#8a94a3" text-anchor="start">数が足りない</text></svg>
+<figcaption>初めてF1で1コースに入った年で選手を分けた、F0からF1へのSTの変化（秒・0から）。右ほど遅くなっています。2026年の組は、偶然と見分けられる大きさに届かないため値を出していません。</figcaption>
+</figure>
 
-<p class="punch">切らない人より、<br>切る人のほうが<span class="big">速い</span>。</p>
+<h2 class="sec">表の上ではF0</h2>
 
-<p>順序が逆なのです。<br>
-遅いからFになるのではなく、速く踏んでいる人が越えてしまい、そのあと遅くなる。<br>
-この記事で言えるのは、そこまでです。</p>
+<p>F持ちの話には、もうひとつ、よく聞く続きがあります。</p>
+
+<p class="lead">「隠れF持ちは初日に負ける」</p>
+
+<p>期が替わると、出走表のF表記は0に戻ります。けれどもフライング休みを、まだ消化していないことがある。表の上ではF0なのに、中身はF持ちという選手のことです。</p>
+
+<p>これは、この記事の数え方の穴そのものでした。期の初日に0へ戻す数え方では、隠れFはF0の側に入る。では、F0のうち、どれくらいが隠れFだったのか。</p>
+
+<p>前の期にFを切った選手のF0を「隠れF」として数えると、2017年5月からのF0の441,344回のうち、154,565回がそうでした。35.0%、3回に1回です。</p>
+
+<table>
+<thead><tr><th>比べたもの</th><th>変化（秒）</th><th>人数</th></tr></thead>
+<tbody>
+<tr><td>隠れF − きれいなF0</td><td>+0.0055</td><td>1,716</td></tr>
+<tr><td>きれいなF0 → F1</td><td>+0.0177</td><td>1,661</td></tr>
+<tr class="hi"><td>きれいなF0 → F2</td><td>+0.0453</td><td>269</td></tr>
+</tbody>
+</table>
+
+<p>同じ選手で比べると、隠れFのときのスタートは、きれいなF0のときより0.0055秒遅い。偶然で届く幅の5倍あまりで、F1になったときの遅れの、およそ3分の1にあたります。人をまたいで平均すると0.1540秒と0.1537秒でほぼ同じになり、ここでも別人どうしの平均が差を隠していました。</p>
+
+<p>隠れFを基準から外して数え直すと、F0からF1への遅れはおよそ1割、F2は5%ほど広がりました。穴は、思っていたとおり差を縮める向きに開いていたことになる。数え方の穴を白状するつもりで数えたら、穴の中にも俗説が入っていました。</p>
+
+<p>「初日に負ける」のほうは、節の何日目かを区別していないので、ここでは確かめていません。</p>
+
+<h2 class="sec">切らない78人</h2>
+
+<p>もうひとつ、逆向きに見える数字が残っている。10年間で一度もFを切らず、F0で1コースに10回以上入った選手は78人いて、先に断っておくと、この78人には偏りがあります。最初に1コースに入ったとき、78人のうち69人がB級で、1コースに入った回数は中央値で73回と、切った側の237回の3分の1に届かない。そもそも1コースにあまり来ない人たち。</p>
+
+<p>その78人の1コースの平均STは0.1897秒で、期間中にFを切ったことがある1,854人の、F0だったときの0.1595秒より遅い。Fを切る人は、切る前から速く踏んでいたことになります。</p>
+
+<p>ただ、それが速く踏む人ほど越えてしまうからなのか、1コースに来ない人は切る機会も少ないだけなのかは、この78人では分けられません。</p>
 
 <div class="cond">
-  この一行は、うちが毎日集めている結果でも「Fを切った選手のF0時STが、切っていない選手より速い」とき成立します。<br>
+  この段落は、うちが毎日集めている結果でも「Fを切ったことがある選手が、切る前から、切っていない選手より速く踏んでいる」とき成立します。<br>
   現在 切った側 <b data-v="ex_ever">0.1470</b> / 切っていない側 <b data-v="ex_never">0.1566</b> ──
   <span class="st ok" data-v="st_exp">✓ 成立</span>
 </div>
 
-<p class="sec">断っておくこと</p>
+<h2 class="sec">ここから先は言えない</h2>
 
-<p><b>数え方の穴があります。</b><br>
-期の初日にF本数を0へ戻す都合上、前の期に切ったFは「F0」に混ざります。<br>
-ただしこれは、本来F1・F2であるはずの走りをF0側に紛れ込ませる方向なので、差を小さく見せます。<br>
-結論を甘くする側の誤差です。</p>
+<p>フライングの罰則は、2022年5月、2023年度、2025年と、3回改められました。4つの区間に分けて数え直すと、F0とF1の平均STの差は0.0095秒から0.0134秒の範囲に収まり、向きは変わっていません。</p>
 
-<p><b>制度が3回変わっています。</b><br>
-フライングの罰則は2022年5月、2023年度、2025年に改められました。<br>
-4つの区間に分けて数え直しても、F1のST差は+0.0095秒から+0.0134秒の範囲に収まりました。<br>
-制度が変わっても向きは変わっていません。</p>
+<p>全員が遅くなるわけでもない。F2の状態で1コースに3回以上入り、その中に0.06秒より速いSTを含む選手が、50人いる。</p>
 
-<p><b>全員ではありません。</b><br>
-F2を抱えたまま攻めている選手は実在します。<br>
-F2の状態で1コースに3回以上入り、その中に0.06秒より速いSTを含む選手が<b>50</b>人います。<br>
-88.3%の裏側には、11.7%がいます。</p>
+<p>時期が違えば、同じ選手の中で比べてもモーターも場も相手も変わるのに、そのぶんは揃えていません。</p>
 
-<p><b>理由は書けません。</b><br>
-遅くなった、という事実までがデータの届く範囲です。<br>
-その人が何を考えて踏んだかは、時計には映りません。<br>
-映るのは、遅くなったことだけです。</p>
+<p>理由も書けません。遅くなった、という事実までがデータの届く範囲で、その人が何を考えて踏んだかは、時計には映らない。</p>
 
-<p class="sec">　</p>
+<h2 class="sec">同じ選手が、遅くなる</h2>
 
-<p>「F2だから行けない」は、間違ってはいませんでした。</p>
+<p>「F2だから行けない」は、間違ってはいませんでした。隠れFのぶんまで数えれば、遅れは少し大きくなる。</p>
 
-<p>ただ、F2の選手が遅いのではありません。</p>
+<p>ただ、F2の選手が、遅いわけではない。</p>
 
 <p class="punch">F2は遅いのではない。<br><span class="big">同じ選手</span>が、遅くなる。</p>
 
 </div>
 
-<!-- ══════════ 数え方 ══════════ -->
 <details>
 <summary>この検証の数え方</summary>
 <div class="dbody">
-<h4>記事の数字はどこから取ったか</h4>
-<p>公式の成績原簿（Kファイル）を、2016年11月1日から2026年8月27日まで、3,587日分そろえて集計しました。
-欠けた日はありません。級別は同じ期間の番組表（Bファイル）から取っています。<br>
-この期間の数字は固定です。日々の更新では動きません。</p>
-
-<h4>下の「検証データ」はどこから取ったか</h4>
-<p>このサイトが毎日ためているレース結果だけを使っています。<b data-v="period">—</b>の分です。<br>
-記事の数字とは<b>期間もデータ源も別</b>で、同じ向きが出続けているかを見るための欄です。
-数字そのものは記事と一致しません。</p>
-
-<h4>F本数の数え方</h4>
-<p>各期の初日（5月1日・11月1日）に0へ戻し、そこからの累積です。出走表のF表記と同じ定義にしています。<br>
-期の頭には、前の期に切ったFが「F0」に混ざります。これは差を小さく見せる向きの誤差です。<br>
-F3以上はF2にまとめています（1コースではほとんど出現しません）。</p>
-
-<h4>なぜ「同じ選手の中」で比べるのか</h4>
-<p>F2まで切る選手と、一度も切らない選手は、もともと別の人たちです。<br>
-人をまたいで比べると、「Fを持つと遅くなる」のか「もともとそういう選手だった」のか区別がつきません。<br>
-同じ人のF0時と比べると、その区別がつきます。</p>
-
-<h4>「直前2期」とは</h4>
-<p>Fを切った日が属する期と、そのひとつ前の期です。期は5月1日と11月1日で切り替わるので、
-半年から1年のあいだの走りだけが基準になります。<br>
-同じ選手の中で比べても、10年前のF0と比べれば加齢が混ざります。それを外すための絞り込みです。</p>
-
-<h4>スタートタイミングについて</h4>
-<p>スタートラインを通過した時刻で、数字が小さいほど早く踏んでいます。<br>
-本番のスタートだけを使っています（スタート展示は含みません）。<br>
-フライングした走りのSTは、平均から外しています。</p>
-
-<h4>揃えきれていないもの</h4>
-<p>同じ選手の中で比べても、時期が違えばモーターも場も相手も変わります。<br>
-その分は揃えきれていません。断定はしていません。</p>
+<ul>
+<li>期間：2016年11月1日から2026年8月27日。公式の競走成績（Kファイル）の3,587日分で、欠けた日はありません。級別は同じ期間の番組表（Bファイル）から、その日の級別を引いています</li>
+<li>1コース：スタート展示ではなく、実際の進入で決めています。欠場を除いて541,018回</li>
+<li>F本数：各期の初日（5月1日・11月1日）に0へ戻し、そこからの累積です。出走表のF表記と同じ定義です。F3以上は1コースで2回しかなく、F2にまとめています</li>
+<li>スタートタイミング：本番のスタートだけで、スタート展示は含みません。数字にならなかった3,595回（フライング3,548回・出遅れ47回）は平均から外しています。1着率の分母は、着が1着から6着だった534,282回です（失格などの6,736回を除く）</li>
+<li>同じ選手での比較：F0で10回以上、比べる側（F1またはF2）で3回以上1コースに入った選手だけです。F1で1コースに入った1,839人のうち1,746人、F2は442人のうち274人</li>
+<li>直前2期：Fを切った日が属する期と、そのひとつ前の期。半年から1年のあいだの走りだけを基準にします</li>
+<li>偶然との比較：選手ごとに、1コースに入った日を単位に「F0の日」と「比べる側の日」のラベルだけを1,000回入れ替えています。理論上の確率分布は使っていません。乱数の種は20260922で、選手ごとに登番から種を作っています。見分けられる最小の差（偶然の揺れの2.8倍）は、全期間のF1で0.0013秒、F2で0.0055秒、直前2期のF1で0.0019秒、F2で0.0075秒です</li>
+<li>全期間と直前2期の違い：両方の比べ方に入る同じ選手（F1は1,188人、F2は181人）で、2つの値を選手ごとに入れ替えて1,000回数え直しています。遅くなった人の割合で見分けられる最小の差は、F1で4.1 ポイント、F2で5.6 ポイントでした</li>
+<li>級別に割った比較：初めてその本数で1コースに入った日の級別で分けています。A級とB級の差は、選手の間で級のラベルだけを1,000回入れ替えて比べました</li>
+<li>年ごとの比較：初めてF1で1コースに入った年で選手を分けています。2026年の19人は、見分けられる最小の差（0.0251秒）に実際の差が届かないため、値を出していません</li>
+<li>隠れF：前の期にFを1本以上切った選手の、次の期のF0の走りです。フライング休みをいつ消化したかはデータに無いため、その期のあいだはずっと隠れFとして数えています（消化したあとの走りも含む）。最初の期（2016年11月から2017年4月）は前の期が無いので、判定からも基準からも外しました。この期だけを外して隠れFを基準に残した場合、同じ選手の遅れはF1で0.0160秒、F2で0.0431秒で、隠れFも外すと本文の表の値になります</li>
+<li>切っていない選手：期間中に一度もFを切らず、F0で1コースに10回以上入った78人です。切った1,854人との差は、選手を単位にラベルを1,000回入れ替えた比較で、見分けられる最小の差（0.0073秒）を超えています</li>
+<li>罰則の区切り：2022年5月1日、2023年4月1日、2025年5月1日で4つに分けています。区間ごとの差は、同じ選手ではなく、区間の中のF0とF1の平均の差です</li>
+<li>揃えていないもの：同じ選手の中でも、時期が違えばモーター・場・相手が変わります。開催の格も揃えていません</li>
+<li>図：すべてこの検証の集計から描いたもので、外部の画像は使っていません</li>
+<li>下の検証データ：このサイトが毎日ためているレース結果だけを使っています（<b data-v="period">—</b>の分）。記事の数字とは期間もデータ源も別で、同じ向きが出続けているかを見るための欄です。数字そのものは記事と一致しません</li>
+</ul>
 </div>
 </details>
+<p class="stamp">
+  集計期間 <span>2016/11/1 から 2026/8/27</span>　/　<span>3,587</span>日・<span>541,018</span>回<br>
+  出典：公式サイト 競走成績（Kファイル）・番組表（Bファイル）。記事の数字は固定で、更新されません。
+</p>
 
 <!-- ══════════ 検証データ ══════════ -->
 <div class="verify">
