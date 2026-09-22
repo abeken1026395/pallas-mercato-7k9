@@ -333,7 +333,23 @@ def killer_hints(v, prot_toban=None):
         "e30": {"applies": e30.get("applies"), "since": e30.get("since")},
         "machine": protagonist_machine(v, prot_toban),
         "protagonistWins": _trail_wins(focus),
+        # 2026-09-22 規則改訂：柱の第一候補（角度の最上位）と上位3レース、節の連勝、注目選手の理由。
+        # 値は素材（buildKansenkiSource.py の angles / setsuStreaks / focusRacers）をそのまま渡す。
+        "angles": _angle_hints(v),
+        "setsuStreaks": v.get("setsuStreaks") or [],
+        "focus": [{"toban": str(f.get("toban") or ""), "name": (f.get("name") or "").replace("　", ""),
+                   "why": f.get("why") or [], "gap": f.get("gap")}
+                  for f in (v.get("focusRacers") or [])],
     }
+
+
+def _angle_hints(v):
+    """素材の angles から、柱の候補（pillar）と重要度上位3レースだけを渡す。無ければ None。"""
+    a = v.get("angles")
+    if not isinstance(a, dict):
+        return None
+    return {"pillar": a.get("pillar"), "basis": a.get("basis"),
+            "topRaces": (a.get("races") or [])[:3], "day": a.get("day") or []}
 
 
 def assign(src):

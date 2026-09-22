@@ -494,7 +494,8 @@ def gap_candidates(jcd, venue_rows, motor_usage):
 def pick_focus_tobans(jcd, venue_rows, score_rank, results_venue, day_num, motor_usage):
     """focusRacers対象を機械抽出（最大 FOCUS_MAX 名）。選んだ理由を why に残す。
     優先順: 得点率上位3（scoreRankがあれば）→ 地元勢最上位 → 全国勝率最上位 →
-    機力ズレ（上位機×低勝率・下位機×高勝率 各1名）→ 今節2連対数最多 → 前日万舟の1着艇。
+    機力ズレ（上位機×低勝率・下位機×高勝率 各1名）→ 今節2連対数最多。
+    前日万舟の1着艇は選ばない（runbook 手順3「万舟レースの1着選手名は書かない」と両立しないため。2026-09-22）。
     同一選手に複数の理由が付けば why に並べる（重複して枠を使わない）。
     戻り: [(toban, [why...], gap or None), ...]"""
     order = []
@@ -550,17 +551,6 @@ def pick_focus_tobans(jcd, venue_rows, score_rank, results_venue, day_num, motor
     if cand:
         cand.sort(reverse=True)
         add(cand[0][2], "今節2連対最多")
-
-    # 6) 前日万舟の1着艇。results は常に掲載日の前日（main で導出）なので、
-    #    同じ節の前日かどうかは day_num>1 で判定する（初日は前節の結果なので使わない）。
-    #    旧実装の「csv_hd8 == results_date8」は構造上成立せず、この枠は一度も働いていなかった。
-    if day_num and day_num > 1 and results_venue:
-        for res in sorted(results_venue, key=lambda r: (rno_to_int(r.get("レース")) or 99)):
-            pay = to_int(res.get("三連単配当"))
-            if pay is not None and pay > MAN_TH:
-                for boat in (res.get("艇") or []):
-                    if to_int(boat.get("着")) == 1:
-                        add(boat.get("登番"), "前日万舟の1着")
 
     return [(tb, why[tb], gaps.get(tb)) for tb in order]
 
