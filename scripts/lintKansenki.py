@@ -33,7 +33,8 @@ SRC_DIR = "docs/data/kansenki/source"
 RESULTS_DIR = "results"
 
 # --- 検査2: 他競技・他ギャンブル語彙（競艇語=舟券/万舟/節/水面）---
-OTHER_SPORT = ["馬券", "万馬券", "車券", "レコード勝ち", "レコード", "単勝", "枠連", "馬連", "馬単"]
+OTHER_SPORT = ["馬券", "万馬券", "車券", "レコード勝ち", "レコード", "枠連", "馬連", "馬単"]
+# 「単勝」は競艇にもある券種で、角度（単勝高配当の1着）の値として素材に入るため許容する（2026-09-22）。
 # ゴールは競艇でも使い得るため除外（誤検知回避）。
 
 # --- 検査3: 禁止表現 ---
@@ -47,6 +48,14 @@ AORI = ["激アツ", "大チャンス", "狙い目", "妙味"]
 # --- 検査6: 答え合わせの自己評価語（watchPoint導入日以降の記事のみ）---
 JIKO_HYOKA = ["的中", "読み通り", "予想通り"]
 WATCHPOINT_FROM = "20260812"  # この日付以降の記事に watchPoint 必須
+
+# --- 検査7: 見出し・終止・注目選手・万舟の勝者名（2026-09-22 規則改訂。この日付以降の記事のみ）---
+RULES2_FROM = "20260923"
+TITLE_MAX = 20
+TITLE_HEAD = 4               # 見出しの書き出しの重複判定に使う先頭の字数
+TITLE_LOOKBACK = 7           # 同じ場の直近何日と比べるか
+DAY_WORD = re.compile(r"^(初日|[0-9０-９]+日目|最終日|準優)")
+FOCUS_MIN = 3                # 注目選手（focusRacers）から最低何人を書くか（素材がそれ未満なら全員）
 
 
 def load(path):
@@ -198,6 +207,16 @@ def check_structure(art, venue):
         for b in r.get("boats", []) or []:
             if b.get("toban"):
                 src_tobans.add(str(b["toban"]))
+    ang = venue.get("angles") or {}
+    for r in ang.get("races", []) or []:
+        if r.get("winnerToban"):
+            src_tobans.add(str(r["winnerToban"]))
+    for d in ang.get("doubleWinners", []) or []:
+        if d.get("toban"):
+            src_tobans.add(str(d["toban"]))
+    for x in venue.get("setsuStreaks", []) or []:
+        if x.get("toban"):
+            src_tobans.add(str(x["toban"]))
     for rm in art.get("racersMentioned", []) or []:
         tb = str(rm.get("toban", ""))
         if tb and tb not in src_tobans:
@@ -232,6 +251,63 @@ def check_watchpoint(art, venue, ymd):
     return fails
 
 
+def _sentences(body):
+    return [x for x in re.split(r"(?<=。)", (body or "").replace("\n", "")) if x.strip()]
+
+
+def check_rules2(art, venue, ymd, jcd):
+    """2026-09-22 改訂分。見出し・同じ終止の3連続・注目選手の人数・万舟の勝者名。"""
+    fails = []
+    if ymd < RULES2_FROM:
+        return fails
+    title = (art.get("title") or "").strip()
+    vname = venue.get("venue") or ""
+    if len(title) > TITLE_MAX:
+        fails.append(("見出し長", "%d字 > %d字" % (len(title), TITLE_MAX)))
+    if vname and title.startswith(vname):
+        fails.append(("見出し頭", "場名で始まる: %s" % title))
+    if DAY_WORD.match(title):
+        fails.append(("見出し頭", "日目で始まる: %s" % title))
+    head = title[:TITLE_HEAD]
+    if len(head) == TITLE_HEAD:
+        others = []
+        for p in glob.glob(os.path.join(ART_DIR, "%s-*.json" % ymd)):
+            if os.path.basename(p) != "%s-%s.json" % (ymd, jcd):
+                others.append(p)
+        d = datetime.datetime.strptime(ymd, "%Y%m%d")
+        for k in range(1, TITLE_LOOKBACK + 1):
+            pd = (d - datetime.timedelta(days=k)).strftime("%Y%m%d")
+            p = os.path.join(ART_DIR, "%s-%s.json" % (pd, jcd))
+            if os.path.exists(p):
+                others.append(p)
+        for p in others:
+            try:
+                t = (load(p).get("title") or "").strip()
+            except Exception:
+                continue
+            if t[:TITLE_HEAD] == head:
+                fails.append(("見出し被り", "%s と先頭%d字が同じ（%s）" % (os.path.basename(p), TITLE_HEAD, head)))
+    ends = [x.rstrip("。」）")[-2:] for x in _sentences(art.get("body", ""))]
+    run = 1
+    for i in range(1, len(ends)):
+        run = run + 1 if ends[i] == ends[i - 1] else 1
+        if run == 3:
+            fails.append(("終止3連続", "「%s。」が3文続く" % ends[i]))
+    focus = [str(f.get("toban")) for f in (venue.get("focusRacers") or []) if f.get("toban")]
+    need = min(FOCUS_MIN, len(focus))
+    got = {str(rm.get("toban")) for rm in (art.get("racersMentioned") or [])} & set(focus)
+    if len(got) < need:
+        fails.append(("注目選手不足", "focusRacers から %d人 < %d人" % (len(got), need)))
+    body = art.get("body", "")
+    mentioned = {str(rm.get("toban")) for rm in (art.get("racersMentioned") or [])}
+    for r in (venue.get("angles") or {}).get("races", []) or []:
+        if any(t.get("type") == "万舟" for t in (r.get("tags") or [])):
+            nm = re.sub(r"[\s　]", "", r.get("winner") or "")
+            if (nm and nm in body.replace("　", "")) or str(r.get("winnerToban")) in mentioned:
+                fails.append(("万舟の勝者名", "%sR の1着 %s" % (r.get("rno"), nm)))
+    return fails
+
+
 def lint_article(art_path):
     fn = os.path.basename(art_path)
     m = re.match(r"(\d{8})-(\d{2})\.json$", fn)
@@ -253,6 +329,7 @@ def lint_article(art_path):
     fails += check_banned(body)
     fails += check_structure(art, venue)
     fails += check_watchpoint(art, venue, ymd)
+    fails += check_rules2(art, venue, ymd, jcd)
     return (fn, fails)
 
 
