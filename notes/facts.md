@@ -95,6 +95,7 @@
 |`docs/results/data/*.json`|`results/*.json`|`buildResultsSite.py`（**直近30日のみ**）|
 |`docs/kensho/shobugake/index.html`|`scripts/templateKensho.html`|`buildKensho.py`（updateKensho.yml・JST 11:20）|
 |`docs/kensho/taiju/index.html`|`scripts/templateTaiju.html`|`buildTaiju.py`（同WF）|
+|`docs/kensho/fmochi/index.html`|`scripts/templateFmochi.html`|`buildFmochi.py`（同WF。本文の数字はテンプレートに凍結、動くのは検証データ欄だけ）|
 |`docs/data/venueMeta.json`|—|`scrape_racers.py`（毎日）|
 |`docs/data/collapsePattern.json`|—|`buildCollapsePattern.py`（**WFなし・手動のみ**）|
 |`docs/data/racerInRate.json`|—|`buildRacerInRate.py`（**WFなし・手動のみ**）|
