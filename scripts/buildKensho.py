@@ -10,9 +10,9 @@ docs/kensho/shobugake/index.html を生成する。
   ・再現率の推移（月別）
   ・最終更新日
 
-【固定値（386日の分析結果。再計算しない）】
-  ・記事本文中の数値、進出率テーブル、枠番別、チルト、回帰係数
-  → FIXED に定数として持つ。分析をやり直したときだけ手で更新する。
+【固定値】
+  記事本文の数字は 2016/11/1〜2026/8/31 の10年集計（ローカルのKファイル）で、テンプレートに直書き。
+  このスクリプトは本文の数字を差し込まない。
 
 【累積ファイル】
   data/kenshoVerify.json（gitignore）に節ごとの答え合わせ結果を貯める。
@@ -46,29 +46,6 @@ VN = {1:"桐生",2:"戸田",3:"江戸川",4:"平和島",5:"多摩川",6:"浜名�
       9:"津",10:"三国",11:"びわこ",12:"住之江",13:"尼崎",14:"鳴門",15:"丸亀",16:"児島",
       17:"宮島",18:"徳山",19:"下関",20:"若松",21:"芦屋",22:"福岡",23:"唐津",24:"大村"}
 
-# ── 386日の分析結果（2025/7/15〜2026/8/6）。再計算しない ──
-FIXED = {
-    "n_rows": "33,027",
-    "coef": "+0.453", "tval": "20.4",
-    "tilt_edge": "4.2%", "tilt_safe": "4.6%", "tilt_out": "4.2%", "tilt_diff": "0.3",
-    "w1": "77.5%", "w6": "33.4%", "wdiff": "44", "wdiff2": "44.1",
-    "minus_rate": "5.3", "setsu": "755",
-    "label_total": "13,632", "label_uniq": "1,413", "label_hit": "12,603", "acc": "92.5",
-    "period": "2025/7/15 〜 2026/8/6",
-}
-FIXED_BARS = {"tilt_edge": "70px", "tilt_safe": "76px", "tilt_out": "70px",
-              "w1": "77.5%", "w6": "33.4%"}
-GAP_ROWS = [("−2.0 未満",8016,0.1),("−2.0 〜 −1.0",5167,3.5),("−1.0 〜 −0.5",3159,17.0),
-            ("−0.5 〜 0.0",2965,37.1),("0.0 〜 +0.5",3736,63.6),("+0.5 〜 +1.0",2494,84.8),
-            ("+1.0 〜 +2.0",4289,94.7),("+2.0 超",3201,98.8)]
-WAKU_ROWS = [(1,1165,77.5),(2,1274,57.1),(3,1259,57.8),(4,1155,51.4),(5,1111,42.7),(6,1209,33.4)]
-TILT_ROWS = [("崖っぷち",7254,4.22),("圏外",8457,4.41),("もう届かない",8164,4.24),
-             ("やや圏内",4907,4.14),("安全圏",4692,4.56)]
-
-# 成立条件の閾値
-COND = [("結果は逆", "係数が正", lambda: 0.453 > 0, "+0.453"),
-        ("誰も、特別なことは…", "最大差 1.0pt 以内", lambda: 0.3 <= 1.0, "0.3pt"),
-        ("気合いは、44ポイントを…", "1枠−6枠 35pt 以上", lambda: 44.1 >= 35, "44.1pt")]
 
 
 def prev(d):
@@ -243,31 +220,10 @@ def render(records):
     if not acc:
         acc = '<tr><td colspan="5" style="text-align:left">まだ記録がありません。</td></tr>'
 
-    def bar(p, mx=100.0):
-        return '<span class="tbar" style="width:%.0fpx"></span>' % (p / mx * 46)
+    v = {"updated": datetime.datetime.now().strftime("%Y/%m/%d")}
 
-    gap = "".join('<tr%s><td>%s</td><td>%s</td><td>%s%.1f%%</td></tr>'
-                  % (' class="hi"' if k in ("−0.5 〜 0.0", "0.0 〜 +0.5") else "",
-                     k, format(n, ","), bar(p), p) for k, n, p in GAP_ROWS)
-    waku = "".join('<tr%s><td>%d枠</td><td>%s</td><td>%s%.1f%%</td></tr>'
-                   % (' class="hi"' if w in (1, 6) else "", w, format(n, ","), bar(p), p)
-                   for w, n, p in WAKU_ROWS)
-    tilt = "".join('<tr%s><td>%s</td><td>%s</td><td>%s%.2f%%</td></tr>'
-                   % (' class="hi"' if k in ("崖っぷち", "安全圏", "もう届かない") else "",
-                      k, format(n, ","), bar(p, 6.0), p) for k, n, p in TILT_ROWS)
-    cond = "".join('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>'
-                   % (a, b, cur, "✓ 成立" if f() else "✗ 不成立") for a, b, f, cur in COND)
-
-    v = dict(FIXED)
-    for name, _b, f, _c in COND:
-        pass
-    v["st_coef"] = "✓ 成立" if COND[0][2]() else "✗ 不成立"
-    v["st_tilt"] = "✓ 成立" if COND[1][2]() else "✗ 不成立"
-    v["st_waku"] = "✓ 成立" if COND[2][2]() else "✗ 不成立"
-    v["updated"] = datetime.datetime.now().strftime("%Y/%m/%d")
-
-    t = {"gap": gap, "waku": waku, "tilt": tilt, "cond": cond, "daily": daily, "acc": acc}
-    return v, FIXED_BARS, t
+    t = {"daily": daily, "acc": acc}
+    return v, {}, t
 
 
 def inject(html, v, b, t):
@@ -285,9 +241,6 @@ def inject(html, v, b, t):
         html = re.sub(r'(<tbody data-t="%s">)(</tbody>)' % re.escape(k),
                       lambda m: m.group(1) + val + m.group(2), html)
     html = html.replace('<div data-t="daily_detail"></div>', "")
-    for k in ("st_coef", "st_tilt", "st_waku"):
-        ok = v[k].startswith("✓")
-        html = html.replace('class="st ok" data-v="%s"' % k, 'class="st %s"' % ("ok" if ok else "ng"))
     # 動的スクリプトのブロックを丸ごと外す（guard.js 参照は残る）
     a = html.find("<script>\nvar V = window.KENSHO")
     b2 = html.find('<script src="../../assets/guard.js"')
