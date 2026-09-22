@@ -5,7 +5,8 @@
 正本 : data/tenjiStats/state.json   回数の累積（選手 x 区分 x 進入コース）と全体セル
 入力 : --kfiles DIR [--until YYYYMMDD]  Kファイル（kYYMMDD.lzh）から正本を作り直す（ローカル専用）
        引数なし       preview/YYYYMMDD.json と results/YYYYMMDD.json から、
-                      正本の to より新しく、前日（JST）以前の日だけ足す
+                      正本の to より新しく、2日前（JST）以前の日だけ足す
+                      （results は翌日に取り直されることがあるため、途中版を取り込まないよう1日待つ）
 出力 : docs/data/tenjiStats.json    直近365日に走った選手のみ。回数と同コース期待値（率は表示側で計算）
 
 区分 : g = 単独トップで2位と0.03秒以上の差 / b = そのレースの平均より0.03秒以上遅い / n = それ以外
@@ -192,16 +193,21 @@ def json_races(pv_path, rs_path):
 
 
 def update_from_json(st):
-    today = datetime.now(timezone(timedelta(hours=9))).strftime("%Y%m%d")
+    now = datetime.now(timezone(timedelta(hours=9)))
+    cutoff = (now - timedelta(days=1)).strftime("%Y%m%d")
+    giveup = (now - timedelta(days=8)).strftime("%Y%m%d")
     to = st["meta"]["to"]
     days = 0
     nr = 0
     for rs_path in sorted(glob.glob(os.path.join(RESULTS, "*.json"))):
         hd = os.path.basename(rs_path)[:8]
-        if not (hd.isdigit() and len(hd) == 8) or hd <= to or hd >= today:
+        if not (hd.isdigit() and len(hd) == 8) or hd <= to or hd >= cutoff:
             continue
         pv_path = os.path.join(PREVIEW, hd + ".json")
         if not os.path.exists(pv_path):
+            if hd < giveup:
+                print("SKIP %s: preview がない（7日待っても来なかった）" % hd)
+                continue
             break
         for boats in json_races(pv_path, rs_path):
             nr += add_race(st, hd, boats)
