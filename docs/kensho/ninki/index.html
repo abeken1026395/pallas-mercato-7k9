@@ -16,67 +16,79 @@
 <!-- data-seme signature: kensho / ninki -->
 <style>
 :root{
-  --bg:#0b1219; --fg:#e0e6ed; --dim:#8a94a3; --faint:#6f7a89;
-  --line:#1f2b3a; --panel:#0f1a26; --accent:#ffd166;
-  --ok:#7ee08a; --ng:#e07a7a;
+  --bg:#0b1219; --panel:#0f1a26; --line:#4a627f;
+  --fg:#e0e6ed; --dim:#8a94a3; --faint:#8a94a3;
+  --accent:#ffd166; --ok:#7ee08a; --ng:#e07a7a;
 }
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--fg);margin:0;padding-bottom:80px;
-  font-family:'Helvetica Neue',Arial,'Hiragino Kaku Gothic ProN',Meiryo,sans-serif;
-  -webkit-text-size-adjust:100%;font-variant-numeric:tabular-nums}
-.wrap{max-width:620px;margin:0 auto;padding:0 18px}
-.siteback{display:flex;align-items:center;gap:6px;min-height:44px;
-  font-size:13px;color:inherit;text-decoration:none;opacity:.7}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--fg)}
+body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;
+  -webkit-text-size-adjust:100%;font-feature-settings:"palt" 1}
+.wrap{max-width:620px;margin:0 auto;padding:0 18px 64px}
 
-/* ── ヘッダ ── */
-header{padding:4px 0 20px;border-bottom:1px solid var(--line)}
-header .eyebrow{font-size:11px;color:var(--accent);letter-spacing:.18em;margin:0 0 8px}
-header h1{font-size:23px;line-height:1.5;color:#fff;margin:0 0 10px;font-weight:700}
-header .sub{font-size:12px;color:var(--dim);line-height:1.9;margin:0}
+.siteback{display:inline-flex;align-items:center;min-height:44px;
+  color:#a9c6dd;text-decoration:none;font-size:12.5px;margin-right:16px}
+.siteback:hover{text-decoration:underline}
 
-/* ── 記事 ── */
-.article{padding:32px 0 8px;font-size:15.5px;line-height:2.1;letter-spacing:.01em}
-.article p{margin:0 0 1.7em}
-.article .lead{font-size:16.5px;color:#fff;line-height:1.95;margin-bottom:1.9em}
-.article b{color:#fff;font-weight:600}
+header{padding:26px 0 8px;border-bottom:1px solid var(--line)}
+header .eyebrow{font-size:11px;letter-spacing:.34em;color:var(--accent);margin:0 0 12px}
+header h1{font-size:28px;line-height:1.5;color:#fff;margin:0 0 10px;font-weight:700}
+header .sub{font-size:12px;line-height:1.9;color:var(--dim);margin:0 0 22px}
 
-/* ── 小見出し ── */
-.sec{margin:3em 0 1.6em;font-size:13px;color:var(--accent);font-weight:600;
-  letter-spacing:.09em;line-height:1.6;display:flex;align-items:center;gap:11px}
-.sec::before{content:"";width:20px;height:1px;background:var(--accent);flex:none;opacity:.6}
-.sec::after{content:"";flex:1;height:1px;background:var(--line)}
+.article{padding:32px 0 8px;font-size:16px;line-height:2.1}
+.article p{margin:0 0 1.9em}
+.article b{color:#fff;font-weight:700}
+.article .lead{font-size:18.5px;line-height:1.95;color:#fff;font-weight:700;margin-bottom:1.7em}
+.article a{color:#a9c6dd;text-decoration:underline;text-decoration-color:var(--line);
+  text-underline-offset:4px;text-decoration-thickness:1px}
+.article a:hover{color:#fff;text-decoration-color:#a9c6dd}
 
-/* ── パンチライン ── */
-.punch{margin:2.2em 0 1.1em;font-size:24px;line-height:1.65;font-weight:700;color:#fff;
-  letter-spacing:.005em}
+.sec{margin:3em 0 1.5em;font-size:18px;color:var(--accent);font-weight:700;
+  letter-spacing:.06em;line-height:1.6;display:flex;align-items:center;gap:11px}
+.sec::before{content:"";width:20px;height:1px;background:var(--accent);flex:none}
+.sec::after{content:"";height:1px;background:var(--line);flex:1}
+
+.punch{margin:2.2em 0 1.1em;font-size:30px;line-height:1.65;color:#fff;font-weight:700}
 .punch .big{color:var(--accent)}
 
-/* ── 折りたたみ ── */
-details{background:var(--panel);border:1px solid var(--line);border-radius:9px;margin:0 0 11px}
-details>summary{list-style:none;cursor:pointer;padding:13px 15px;font-size:13px;
-  color:#a9c6dd;display:flex;align-items:center;justify-content:space-between;min-height:46px}
-details>summary::-webkit-details-marker{display:none}
-details>summary::after{content:"";width:7px;height:7px;border-right:1.5px solid #7a8ea6;
-  border-bottom:1.5px solid #7a8ea6;transform:rotate(45deg);margin-left:12px;flex:none}
-details[open]>summary::after{transform:rotate(-135deg)}
-.dbody{padding:0 15px 15px;font-size:12.5px;color:var(--dim);line-height:2}
-.dbody p{margin:0 0 .9em}
-.dbody h4{font-size:12.5px;color:#cfe0f0;margin:16px 0 6px;font-weight:600}
-.dbody h4:first-child{margin-top:4px}
-.dbody b{color:#cfe0f0}
-
-/* ── 表 ── */
-table{width:100%;border-collapse:collapse;font-size:12.5px;margin:8px 0 6px}
-th,td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:right}
-th{color:var(--faint);font-weight:400;font-size:11px;white-space:nowrap}
-td:first-child,th:first-child{text-align:left}
-tr.hi td{color:#fff;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:1.5em 0 1.9em;
+  font-variant-numeric:tabular-nums}
+th,td{padding:11px 6px;text-align:right;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--faint);font-weight:600;font-size:12px;white-space:nowrap}
+tr.hi td{color:#fff;font-weight:700;background:#16283c}
 tr.mid td{color:var(--faint)}
-.article table{margin:8px 0 1.7em}
-.sub2{font-size:10.5px;color:var(--faint);font-weight:400}
 
-.stamp{font-size:11px;color:var(--faint);margin-top:26px;line-height:1.9;
-  border-top:1px solid var(--line);padding-top:22px}
+/* ── 数字ブロック ── */
+.figure{display:flex;gap:12px;margin:1.5em 0 1.9em}
+.figure>div{flex:1;background:var(--panel);border:1px solid var(--line);
+  border-radius:10px;padding:16px 10px 14px;text-align:center}
+.figure .n{font-size:44px;font-weight:700;line-height:1.15;color:var(--accent);
+  font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.figure .u{font-size:17px;font-weight:700;margin-left:2px}
+.figure .l{font-size:11px;color:var(--dim);margin-top:8px;line-height:1.7}
+.figure .ref .n{color:var(--faint)}
+
+/* ── 折りたたみ ── */
+details{margin:2.6em 0 1.6em;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+details>summary{display:flex;align-items:center;min-height:46px;padding:0 16px;
+  font-size:13px;color:#a9c6dd;cursor:pointer;list-style:none}
+details>summary::-webkit-details-marker{display:none}
+details>summary::after{content:"＋";margin-left:auto;color:var(--faint)}
+details[open]>summary::after{content:"−"}
+.dbody{padding:4px 16px 18px;font-size:12.5px;line-height:2;color:var(--dim)}
+.dbody h4{margin:1.6em 0 .5em;font-size:12.5px;color:#cfd8e3;font-weight:700}
+.dbody h4:first-child{margin-top:.4em}
+.dbody p{margin:0 0 1em}
+
+.stamp{margin:2.4em 0 1.4em;font-size:11px;line-height:1.9;color:var(--faint);
+  padding-top:16px;border-top:1px solid var(--line)}
+.stamp span{color:var(--dim);font-variant-numeric:tabular-nums}
+/* ── 図 ── */
+.chart{margin:1.6em 0 2em;padding:14px 10px 10px;background:var(--panel);
+  border:1px solid var(--line);border-radius:10px}
+.chart svg{display:block;width:100%;height:auto;font-family:inherit}
+.chart figcaption{margin-top:8px;font-size:11.5px;line-height:1.8;color:var(--dim)}
 </style>
 </head>
 <body>
@@ -94,292 +106,158 @@ tr.mid td{color:var(--faint)}
   </p>
 </header>
 
-<!-- ══════════ 記事 ══════════ -->
 <div class="article">
+
+<h2 class="sec">堅い場、荒れる場</h2>
+
+<p>場の名前が出るとき、たいてい一緒に付いてくる言葉があります。</p>
 
 <p class="lead">「ここは堅い場ですから」</p>
 
-<p class="sec">よく聞く言い方</p>
+<p>大村なら堅い、戸田なら荒れる、平和島はインが飛ぶ。そう言われているのを何度も聞いてきましたが、自分で数えたことは一度もなく、聞くたびに頷いていました。</p>
 
-<p>場の名前が出るとき、たいてい一緒に付いてくる言葉があります。<br>
-堅い。荒れる。インが飛ぶ。<br>
-どれも、そう言われているのを聞いただけで、数えたことはありませんでした。<br>
-聞くたびに頷いていました。</p>
+<p>堅いとは、何のことなのか。数えられる形にするなら、<a href="../../glossary/?q=3%E9%80%A3%E5%8D%98">3連単</a>の1番人気がそのまま入ったレースがどれだけあったか、になります。人気は買う側が付けたものなので、結果と突き合わせれば記録に残る。</p>
 
-<p>数えられる形にするなら、こうなります。<br>
-<b>3連単の1番人気が、そのまま入ったレースはどれだけあったか。</b><br>
-人気は買う側が付けたものなので、結果と突き合わせれば記録に残ります。</p>
+<h2 class="sec">12レースで1本と少し</h2>
 
-<p class="sec">3,653日、534,330レース</p>
+<p>2016年9月1日から2026年9月1日まで、公式の払戻を1日ずつ集めました。3,653日、欠けた日はありません。数えられたのは534,330レースで、1番人気がそのまま入ったのは55,562回。</p>
 
-<p>2016年9月1日から2026年9月1日までの公式の払戻を、1日ずつ集めました。<br>
-欠けた日はありません。<br>
-数えられたレースは<b>534,330</b>で、1番人気がそのまま入ったのは<b>55,562</b>回。</p>
+<p>10.40%。1日12レースの場なら、1本と少しです。</p>
 
-<p><b>10.40%</b>。12レースのうち1.25本です。</p>
+<figure class="chart" role="img" aria-label="1日12レースのうち、1番人気がそのまま入るのは1本と少し">
+<svg viewBox="0 0 360 50" width="100%" xmlns="http://www.w3.org/2000/svg"><rect x="12" y="18" width="24" height="24" rx="3" fill="#ffd166"/><rect x="40.5" y="18" width="6.0" height="24" fill="#ffd166"/><rect x="12.0" y="18" width="24" height="24" rx="3" fill="none" stroke="#4a627f" stroke-width="1"/><rect x="40.5" y="18" width="24" height="24" rx="3" fill="none" stroke="#4a627f" stroke-width="1"/><rect x="69.0" y="18" width="24" height="24" rx="3" fill="none" stroke="#4a627f" stroke-width="1"/><rect x="97.5" y="18" width="24" height="24" rx="3" fill="none" stroke="#4a627f" stroke-width="1"/><rect x="126.0" y="18" width="24" height="24" rx="3" fill="none" stroke="#4a627f" stroke-width="1"/><rect x="154.5" y="18" width="24" height="24" rx="3" fill="none" stroke="#4a627f" stroke-width="1"/><rect x="183.0" y="18" width="24" height="24" rx="3" fill="none" stroke="#4a627f" stroke-width="1"/><rect x="211.5" y="18" width="24" height="24" rx="3" fill="none" stroke="#4a627f" stroke-width="1"/><rect x="240.0" y="18" width="24" height="24" rx="3" fill="none" stroke="#4a627f" stroke-width="1"/><rect x="268.5" y="18" width="24" height="24" rx="3" fill="none" stroke="#4a627f" stroke-width="1"/><rect x="297.0" y="18" width="24" height="24" rx="3" fill="none" stroke="#4a627f" stroke-width="1"/><rect x="325.5" y="18" width="24" height="24" rx="3" fill="none" stroke="#4a627f" stroke-width="1"/></svg>
+<figcaption>1日12レースの場で、1番人気がそのまま入る本数の平均（10年の534,330レースで10.40%）。塗った部分が1.25本ぶん。どのレースで入るかは日によって違います。</figcaption>
+</figure>
 
-<p>3連単は120通りあるので、当てずっぽうに1つ選べば0.83%になります。<br>
-買う側は、当てずっぽうより12倍うまく当てている。<br>
-その12倍で、10レースに1本強です。</p>
+<p>3連単は120通りあるので、当てずっぽうに1つ選べば0.83%にしかならない。買う側は当てずっぽうより12倍うまく当てていて、その12倍で、ようやく10レースに1本強になる。</p>
 
-<p class="sec">言われている通りだった</p>
+<h2 class="sec">言われている通りだった</h2>
 
-<p>24場それぞれで数え直しました。分母は各場20,290〜23,476レースです。</p>
+<p>24場それぞれで数え直しました。分母は、各場20,290から23,476レース。</p>
 
-<table>
-<thead><tr><th></th><th>1番人気</th><th>12Rあたり</th><th>平均配当</th></tr></thead>
-<tbody>
-<tr class="hi"><td>大村</td><td>12.72%</td><td>1.53本</td><td>644円</td></tr>
-<tr class="hi"><td>徳山</td><td>12.38%</td><td>1.49本</td><td>648円</td></tr>
-<tr class="mid"><td>芦屋</td><td>11.42%</td><td>1.37本</td><td>643円</td></tr>
-<tr class="mid"><td>津</td><td>11.37%</td><td>1.36本</td><td>685円</td></tr>
-<tr class="mid"><td>尼崎</td><td>11.34%</td><td>1.36本</td><td>706円</td></tr>
-<tr class="mid"><td>下関</td><td>11.29%</td><td>1.35本</td><td>695円</td></tr>
-<tr class="mid"><td>福岡</td><td>11.24%</td><td>1.35本</td><td>715円</td></tr>
-<tr class="mid"><td>住之江</td><td>10.89%</td><td>1.31本</td><td>715円</td></tr>
-<tr class="mid"><td>蒲郡</td><td>10.76%</td><td>1.29本</td><td>743円</td></tr>
-<tr class="mid"><td>唐津</td><td>10.70%</td><td>1.28本</td><td>701円</td></tr>
-<tr class="mid"><td>常滑</td><td>10.62%</td><td>1.27本</td><td>729円</td></tr>
-<tr class="mid"><td>宮島</td><td>10.61%</td><td>1.27本</td><td>720円</td></tr>
-<tr class="mid"><td>児島</td><td>10.51%</td><td>1.26本</td><td>725円</td></tr>
-<tr class="mid"><td>丸亀</td><td>10.41%</td><td>1.25本</td><td>716円</td></tr>
-<tr class="mid"><td>若松</td><td>10.31%</td><td>1.24本</td><td>699円</td></tr>
-<tr class="mid"><td>びわこ</td><td>10.29%</td><td>1.24本</td><td>754円</td></tr>
-<tr class="mid"><td>三国</td><td>10.20%</td><td>1.22本</td><td>685円</td></tr>
-<tr class="mid"><td>桐生</td><td>9.92%</td><td>1.19本</td><td>800円</td></tr>
-<tr class="mid"><td>浜名湖</td><td>9.75%</td><td>1.17本</td><td>784円</td></tr>
-<tr class="mid"><td>多摩川</td><td>9.72%</td><td>1.17本</td><td>802円</td></tr>
-<tr class="hi"><td>鳴門</td><td>8.86%</td><td>1.06本</td><td>802円</td></tr>
-<tr class="hi"><td>江戸川</td><td>8.11%</td><td>0.97本</td><td>955円</td></tr>
-<tr class="hi"><td>平和島</td><td>7.88%</td><td>0.95本</td><td>937円</td></tr>
-<tr class="hi"><td>戸田</td><td>7.78%</td><td>0.93本</td><td>963円</td></tr>
-</tbody>
-</table>
+<figure class="chart" role="img" aria-label="24場の1番人気の的中率。大村が最高で戸田が最低、真ん中の18場は1.7ポイントの幅に並ぶ">
+<svg viewBox="0 0 360 317" width="100%" xmlns="http://www.w3.org/2000/svg"><line x1="62.0" y1="14" x2="62.0" y2="310.8" stroke="#4a627f" stroke-width="0.6"/><text x="62.0" y="11" font-size="10" fill="#8a94a3" text-anchor="middle">7%</text><line x1="101.4" y1="14" x2="101.4" y2="310.8" stroke="#4a627f" stroke-width="0.6"/><text x="101.4" y="11" font-size="10" fill="#8a94a3" text-anchor="middle">8%</text><line x1="140.8" y1="14" x2="140.8" y2="310.8" stroke="#4a627f" stroke-width="0.6"/><text x="140.8" y="11" font-size="10" fill="#8a94a3" text-anchor="middle">9%</text><line x1="180.2" y1="14" x2="180.2" y2="310.8" stroke="#4a627f" stroke-width="0.6"/><text x="180.2" y="11" font-size="10" fill="#8a94a3" text-anchor="middle">10%</text><line x1="219.5" y1="14" x2="219.5" y2="310.8" stroke="#4a627f" stroke-width="0.6"/><text x="219.5" y="11" font-size="10" fill="#8a94a3" text-anchor="middle">11%</text><line x1="258.9" y1="14" x2="258.9" y2="310.8" stroke="#4a627f" stroke-width="0.6"/><text x="258.9" y="11" font-size="10" fill="#8a94a3" text-anchor="middle">12%</text><line x1="298.3" y1="14" x2="298.3" y2="310.8" stroke="#4a627f" stroke-width="0.6"/><text x="298.3" y="11" font-size="10" fill="#8a94a3" text-anchor="middle">13%</text><text x="56" y="27.5" font-size="10" fill="#e0e6ed" text-anchor="end">大村</text><circle cx="287.3" cy="24.0" r="4" fill="#7cc4ff"/><text x="295.3" y="27.5" font-size="10" fill="#8a94a3">12.72</text><text x="56" y="39.7" font-size="10" fill="#e0e6ed" text-anchor="end">徳山</text><circle cx="274.0" cy="36.2" r="4" fill="#7cc4ff"/><text x="282.0" y="39.7" font-size="10" fill="#8a94a3">12.38</text><text x="56" y="51.9" font-size="10" fill="#8a94a3" text-anchor="end">芦屋</text><circle cx="236.1" cy="48.4" r="3" fill="#8a94a3"/><text x="244.1" y="51.9" font-size="10" fill="#8a94a3">11.42</text><text x="56" y="64.1" font-size="10" fill="#8a94a3" text-anchor="end">津</text><circle cx="234.1" cy="60.6" r="3" fill="#8a94a3"/><text x="242.1" y="64.1" font-size="10" fill="#8a94a3">11.37</text><text x="56" y="76.3" font-size="10" fill="#8a94a3" text-anchor="end">尼崎</text><circle cx="232.9" cy="72.8" r="3" fill="#8a94a3"/><text x="240.9" y="76.3" font-size="10" fill="#8a94a3">11.34</text><text x="56" y="88.5" font-size="10" fill="#8a94a3" text-anchor="end">下関</text><circle cx="231.0" cy="85.0" r="3" fill="#8a94a3"/><text x="239.0" y="88.5" font-size="10" fill="#8a94a3">11.29</text><text x="56" y="100.7" font-size="10" fill="#8a94a3" text-anchor="end">福岡</text><circle cx="229.1" cy="97.2" r="3" fill="#8a94a3"/><text x="237.1" y="100.7" font-size="10" fill="#8a94a3">11.24</text><text x="56" y="112.9" font-size="10" fill="#8a94a3" text-anchor="end">住之江</text><circle cx="215.3" cy="109.4" r="3" fill="#8a94a3"/><text x="223.3" y="112.9" font-size="10" fill="#8a94a3">10.89</text><text x="56" y="125.1" font-size="10" fill="#8a94a3" text-anchor="end">蒲郡</text><circle cx="209.9" cy="121.6" r="3" fill="#8a94a3"/><text x="217.9" y="125.1" font-size="10" fill="#8a94a3">10.76</text><text x="56" y="137.3" font-size="10" fill="#8a94a3" text-anchor="end">唐津</text><circle cx="207.9" cy="133.8" r="3" fill="#8a94a3"/><text x="215.9" y="137.3" font-size="10" fill="#8a94a3">10.70</text><text x="56" y="149.5" font-size="10" fill="#8a94a3" text-anchor="end">常滑</text><circle cx="204.7" cy="146.0" r="3" fill="#8a94a3"/><text x="212.7" y="149.5" font-size="10" fill="#8a94a3">10.62</text><text x="56" y="161.7" font-size="10" fill="#8a94a3" text-anchor="end">宮島</text><circle cx="204.2" cy="158.2" r="3" fill="#8a94a3"/><text x="212.2" y="161.7" font-size="10" fill="#8a94a3">10.61</text><text x="56" y="173.9" font-size="10" fill="#8a94a3" text-anchor="end">児島</text><circle cx="200.4" cy="170.4" r="3" fill="#8a94a3"/><text x="208.4" y="173.9" font-size="10" fill="#8a94a3">10.51</text><text x="56" y="186.1" font-size="10" fill="#8a94a3" text-anchor="end">丸亀</text><circle cx="196.4" cy="182.6" r="3" fill="#8a94a3"/><text x="204.4" y="186.1" font-size="10" fill="#8a94a3">10.41</text><text x="56" y="198.3" font-size="10" fill="#8a94a3" text-anchor="end">若松</text><circle cx="192.3" cy="194.8" r="3" fill="#8a94a3"/><text x="200.3" y="198.3" font-size="10" fill="#8a94a3">10.31</text><text x="56" y="210.5" font-size="10" fill="#8a94a3" text-anchor="end">びわこ</text><circle cx="191.7" cy="207.0" r="3" fill="#8a94a3"/><text x="199.7" y="210.5" font-size="10" fill="#8a94a3">10.29</text><text x="56" y="222.7" font-size="10" fill="#8a94a3" text-anchor="end">三国</text><circle cx="188.0" cy="219.2" r="3" fill="#8a94a3"/><text x="196.0" y="222.7" font-size="10" fill="#8a94a3">10.20</text><text x="56" y="234.9" font-size="10" fill="#8a94a3" text-anchor="end">桐生</text><circle cx="176.9" cy="231.4" r="3" fill="#8a94a3"/><text x="184.9" y="234.9" font-size="10" fill="#8a94a3">9.92</text><text x="56" y="247.1" font-size="10" fill="#8a94a3" text-anchor="end">浜名湖</text><circle cx="170.1" cy="243.6" r="3" fill="#8a94a3"/><text x="178.1" y="247.1" font-size="10" fill="#8a94a3">9.75</text><text x="56" y="259.3" font-size="10" fill="#8a94a3" text-anchor="end">多摩川</text><circle cx="169.1" cy="255.8" r="3" fill="#8a94a3"/><text x="177.1" y="259.3" font-size="10" fill="#8a94a3">9.72</text><text x="56" y="271.5" font-size="10" fill="#e0e6ed" text-anchor="end">鳴門</text><circle cx="135.3" cy="268.0" r="4" fill="#ff9f6b"/><text x="143.3" y="271.5" font-size="10" fill="#8a94a3">8.86</text><text x="56" y="283.7" font-size="10" fill="#e0e6ed" text-anchor="end">江戸川</text><circle cx="105.6" cy="280.2" r="4" fill="#ff9f6b"/><text x="113.6" y="283.7" font-size="10" fill="#8a94a3">8.11</text><text x="56" y="295.9" font-size="10" fill="#e0e6ed" text-anchor="end">平和島</text><circle cx="96.8" cy="292.4" r="4" fill="#ff9f6b"/><text x="104.8" y="295.9" font-size="10" fill="#8a94a3">7.88</text><text x="56" y="308.1" font-size="10" fill="#e0e6ed" text-anchor="end">戸田</text><circle cx="92.6" cy="304.6" r="4" fill="#ff9f6b"/><text x="100.6" y="308.1" font-size="10" fill="#8a94a3">7.78</text></svg>
+<figcaption>24場の1番人気の的中率（%）。各場20,290から23,476レース。青は上の2場、橙は下の4場で、灰色が真ん中の18場。横軸は7%から始まっています。</figcaption>
+</figure>
 
-<p>大村が一番上に来て、戸田が一番下に来ました。<br>
-言われている通りです。10年数えて、言われている通りでした。</p>
+<p>並べると、いちばん上に大村が、いちばん下に戸田が来る。10年数えて、言われている通り。これで終わりのつもりでした。</p>
 
-<p>これで終わりのつもりでした。</p>
+<h2 class="sec">真ん中を見ていなかった</h2>
 
-<p class="sec">真ん中を見ていなかった</p>
+<p>見ていたのは、上と下だけでした。図の真ん中に目を移すと、話が変わります。</p>
 
-<p>見ていたのは、上と下だけです。表の真ん中を見ると、話が変わります。</p>
+<p>芦屋の11.42%から多摩川の9.72%まで、18場が1.7ポイントの幅に詰まっている。12レースに直すと0.2本なので、この18場のあいだで1本ぶんの差がつくには、59レースかかる。朝から最終レースまで通って、5日。</p>
 
-<p>薄い字にした<b>18場</b>は、芦屋の11.42%から多摩川の9.72%までの間にいます。<br>
-幅は<b>1.7ポイント</b>。12レースあたりに直すと<b>0.2本</b>です。</p>
+<p>1場あたり2万レース以上を数えても、2つの場の差が0.8ポイントより小さいと、偶然の揺れと見分けがつきません。18場の中で隣り合う場の差は、どれもその内側。</p>
 
-<p>この18場のあいだで1本ぶんの差がつくには、59レース要ります。<br>
-朝から最終レースまで通って、<b>5日</b>かかる差です。</p>
+<h2 class="sec">5年で入れ替わる</h2>
 
-<p class="sec">順位が入れ替わる</p>
+<p>10年を2021年9月1日で前半と後半に割り、同じ場を、それぞれ約1万1千レースで数え直しました。</p>
 
-<p>10年を、前半5年と後半5年に割ってみました。<br>
-それぞれ約1万1千レースずつ、同じ場で数え直しています。</p>
+<figure class="chart" role="img" aria-label="前半5年と後半5年の順位。上下の6場はほとんど動かず、真ん中の場は入れ替わる。児島は7位から19位">
+<svg viewBox="0 0 360 321" width="100%" xmlns="http://www.w3.org/2000/svg"><text x="108" y="14" font-size="10.5" fill="#8a94a3" text-anchor="middle">前半5年</text><text x="252" y="14" font-size="10.5" fill="#8a94a3" text-anchor="middle">後半5年</text><line x1="108" y1="261.8" x2="252" y2="213.0" stroke="#8a94a3" stroke-width="0.8"/><line x1="108" y1="237.4" x2="252" y2="139.8" stroke="#8a94a3" stroke-width="0.8"/><line x1="108" y1="115.4" x2="252" y2="152.0" stroke="#8a94a3" stroke-width="0.8"/><line x1="108" y1="225.2" x2="252" y2="164.2" stroke="#8a94a3" stroke-width="0.8"/><line x1="108" y1="139.8" x2="252" y2="188.6" stroke="#8a94a3" stroke-width="0.8"/><line x1="108" y1="78.8" x2="252" y2="78.8" stroke="#8a94a3" stroke-width="0.8"/><line x1="108" y1="200.8" x2="252" y2="261.8" stroke="#8a94a3" stroke-width="0.8"/><line x1="108" y1="152.0" x2="252" y2="176.4" stroke="#8a94a3" stroke-width="0.8"/><line x1="108" y1="127.6" x2="252" y2="66.6" stroke="#8a94a3" stroke-width="0.8"/><line x1="108" y1="54.4" x2="252" y2="127.6" stroke="#8a94a3" stroke-width="0.8"/><line x1="108" y1="91.0" x2="252" y2="54.4" stroke="#8a94a3" stroke-width="0.8"/><line x1="108" y1="66.6" x2="252" y2="91.0" stroke="#8a94a3" stroke-width="0.8"/><line x1="108" y1="249.6" x2="252" y2="237.4" stroke="#8a94a3" stroke-width="0.8"/><line x1="108" y1="176.4" x2="252" y2="115.4" stroke="#8a94a3" stroke-width="0.8"/><line x1="108" y1="164.2" x2="252" y2="225.2" stroke="#8a94a3" stroke-width="0.8"/><line x1="108" y1="213.0" x2="252" y2="200.8" stroke="#8a94a3" stroke-width="0.8"/><line x1="108" y1="188.6" x2="252" y2="103.2" stroke="#8a94a3" stroke-width="0.8"/><line x1="108" y1="286.2" x2="252" y2="286.2" stroke="#ff9f6b" stroke-width="2"/><line x1="108" y1="42.2" x2="252" y2="30.0" stroke="#7cc4ff" stroke-width="2"/><line x1="108" y1="274.0" x2="252" y2="274.0" stroke="#ff9f6b" stroke-width="2"/><line x1="108" y1="30.0" x2="252" y2="42.2" stroke="#7cc4ff" stroke-width="2"/><line x1="108" y1="298.4" x2="252" y2="310.6" stroke="#ff9f6b" stroke-width="2"/><line x1="108" y1="310.6" x2="252" y2="298.4" stroke="#ff9f6b" stroke-width="2"/><line x1="108" y1="103.2" x2="252" y2="249.6" stroke="#ffd166" stroke-width="2"/><circle cx="108" cy="286.2" r="2.5" fill="#ff9f6b"/><circle cx="252" cy="286.2" r="2.5" fill="#ff9f6b"/><text x="101" y="289.7" font-size="10" fill="#e0e6ed" text-anchor="end">22 江戸川</text><text x="259" y="289.7" font-size="10" fill="#e0e6ed">江戸川 22</text><circle cx="108" cy="261.8" r="2.5" fill="#8a94a3"/><circle cx="252" cy="213.0" r="2.5" fill="#8a94a3"/><text x="101" y="265.3" font-size="10" fill="#8a94a3" text-anchor="end">20 多摩川</text><text x="259" y="216.5" font-size="10" fill="#8a94a3">多摩川 16</text><circle cx="108" cy="237.4" r="2.5" fill="#8a94a3"/><circle cx="252" cy="139.8" r="2.5" fill="#8a94a3"/><text x="101" y="240.9" font-size="10" fill="#8a94a3" text-anchor="end">18 びわこ</text><text x="259" y="143.3" font-size="10" fill="#8a94a3">びわこ 10</text><circle cx="108" cy="115.4" r="2.5" fill="#8a94a3"/><circle cx="252" cy="152.0" r="2.5" fill="#8a94a3"/><text x="101" y="118.9" font-size="10" fill="#8a94a3" text-anchor="end">8 住之江</text><text x="259" y="155.5" font-size="10" fill="#8a94a3">住之江 11</text><circle cx="108" cy="225.2" r="2.5" fill="#8a94a3"/><circle cx="252" cy="164.2" r="2.5" fill="#8a94a3"/><text x="101" y="228.7" font-size="10" fill="#8a94a3" text-anchor="end">17 丸亀</text><text x="259" y="167.7" font-size="10" fill="#8a94a3">丸亀 12</text><circle cx="108" cy="103.2" r="2.5" fill="#ffd166"/><circle cx="252" cy="249.6" r="2.5" fill="#ffd166"/><text x="101" y="106.7" font-size="10" fill="#e0e6ed" text-anchor="end">7 児島</text><text x="259" y="253.1" font-size="10" fill="#e0e6ed">児島 19</text><circle cx="108" cy="139.8" r="2.5" fill="#8a94a3"/><circle cx="252" cy="188.6" r="2.5" fill="#8a94a3"/><text x="101" y="143.3" font-size="10" fill="#8a94a3" text-anchor="end">10 宮島</text><text x="259" y="192.1" font-size="10" fill="#8a94a3">宮島 14</text><circle cx="108" cy="42.2" r="2.5" fill="#7cc4ff"/><circle cx="252" cy="30.0" r="2.5" fill="#7cc4ff"/><text x="101" y="45.7" font-size="10" fill="#e0e6ed" text-anchor="end">2 徳山</text><text x="259" y="33.5" font-size="10" fill="#e0e6ed">徳山 1</text><circle cx="108" cy="78.8" r="2.5" fill="#8a94a3"/><circle cx="252" cy="78.8" r="2.5" fill="#8a94a3"/><text x="101" y="82.3" font-size="10" fill="#8a94a3" text-anchor="end">5 下関</text><text x="259" y="82.3" font-size="10" fill="#8a94a3">下関 5</text><circle cx="108" cy="200.8" r="2.5" fill="#8a94a3"/><circle cx="252" cy="261.8" r="2.5" fill="#8a94a3"/><text x="101" y="204.3" font-size="10" fill="#8a94a3" text-anchor="end">15 桐生</text><text x="259" y="265.3" font-size="10" fill="#8a94a3">桐生 20</text><circle cx="108" cy="152.0" r="2.5" fill="#8a94a3"/><circle cx="252" cy="176.4" r="2.5" fill="#8a94a3"/><text x="101" y="155.5" font-size="10" fill="#8a94a3" text-anchor="end">11 常滑</text><text x="259" y="179.9" font-size="10" fill="#8a94a3">常滑 13</text><circle cx="108" cy="127.6" r="2.5" fill="#8a94a3"/><circle cx="252" cy="66.6" r="2.5" fill="#8a94a3"/><text x="101" y="131.1" font-size="10" fill="#8a94a3" text-anchor="end">9 福岡</text><text x="259" y="70.1" font-size="10" fill="#8a94a3">福岡 4</text><circle cx="108" cy="274.0" r="2.5" fill="#ff9f6b"/><circle cx="252" cy="274.0" r="2.5" fill="#ff9f6b"/><text x="101" y="277.5" font-size="10" fill="#e0e6ed" text-anchor="end">21 鳴門</text><text x="259" y="277.5" font-size="10" fill="#e0e6ed">鳴門 21</text><circle cx="108" cy="30.0" r="2.5" fill="#7cc4ff"/><circle cx="252" cy="42.2" r="2.5" fill="#7cc4ff"/><text x="101" y="33.5" font-size="10" fill="#e0e6ed" text-anchor="end">1 大村</text><text x="259" y="45.7" font-size="10" fill="#e0e6ed">大村 2</text><circle cx="108" cy="54.4" r="2.5" fill="#8a94a3"/><circle cx="252" cy="127.6" r="2.5" fill="#8a94a3"/><text x="101" y="57.9" font-size="10" fill="#8a94a3" text-anchor="end">3 津</text><text x="259" y="131.1" font-size="10" fill="#8a94a3">津 9</text><circle cx="108" cy="91.0" r="2.5" fill="#8a94a3"/><circle cx="252" cy="54.4" r="2.5" fill="#8a94a3"/><text x="101" y="94.5" font-size="10" fill="#8a94a3" text-anchor="end">6 尼崎</text><text x="259" y="57.9" font-size="10" fill="#8a94a3">尼崎 3</text><circle cx="108" cy="66.6" r="2.5" fill="#8a94a3"/><circle cx="252" cy="91.0" r="2.5" fill="#8a94a3"/><text x="101" y="70.1" font-size="10" fill="#8a94a3" text-anchor="end">4 芦屋</text><text x="259" y="94.5" font-size="10" fill="#8a94a3">芦屋 6</text><circle cx="108" cy="298.4" r="2.5" fill="#ff9f6b"/><circle cx="252" cy="310.6" r="2.5" fill="#ff9f6b"/><text x="101" y="301.9" font-size="10" fill="#e0e6ed" text-anchor="end">23 平和島</text><text x="259" y="314.1" font-size="10" fill="#e0e6ed">平和島 24</text><circle cx="108" cy="249.6" r="2.5" fill="#8a94a3"/><circle cx="252" cy="237.4" r="2.5" fill="#8a94a3"/><text x="101" y="253.1" font-size="10" fill="#8a94a3" text-anchor="end">19 浜名湖</text><text x="259" y="240.9" font-size="10" fill="#8a94a3">浜名湖 18</text><circle cx="108" cy="176.4" r="2.5" fill="#8a94a3"/><circle cx="252" cy="115.4" r="2.5" fill="#8a94a3"/><text x="101" y="179.9" font-size="10" fill="#8a94a3" text-anchor="end">13 蒲郡</text><text x="259" y="118.9" font-size="10" fill="#8a94a3">蒲郡 8</text><circle cx="108" cy="310.6" r="2.5" fill="#ff9f6b"/><circle cx="252" cy="298.4" r="2.5" fill="#ff9f6b"/><text x="101" y="314.1" font-size="10" fill="#e0e6ed" text-anchor="end">24 戸田</text><text x="259" y="301.9" font-size="10" fill="#e0e6ed">戸田 23</text><circle cx="108" cy="164.2" r="2.5" fill="#8a94a3"/><circle cx="252" cy="225.2" r="2.5" fill="#8a94a3"/><text x="101" y="167.7" font-size="10" fill="#8a94a3" text-anchor="end">12 三国</text><text x="259" y="228.7" font-size="10" fill="#8a94a3">三国 17</text><circle cx="108" cy="213.0" r="2.5" fill="#8a94a3"/><circle cx="252" cy="200.8" r="2.5" fill="#8a94a3"/><text x="101" y="216.5" font-size="10" fill="#8a94a3" text-anchor="end">16 若松</text><text x="259" y="204.3" font-size="10" fill="#8a94a3">若松 15</text><circle cx="108" cy="188.6" r="2.5" fill="#8a94a3"/><circle cx="252" cy="103.2" r="2.5" fill="#8a94a3"/><text x="101" y="192.1" font-size="10" fill="#8a94a3" text-anchor="end">14 唐津</text><text x="259" y="106.7" font-size="10" fill="#8a94a3">唐津 7</text></svg>
+<figcaption>1番人気の的中率の順位を、2016年9月から2021年8月と、2021年9月から2026年9月で並べ直したもの。各場約1万1千レースずつ。青と橙は上下の6場、黄は児島。</figcaption>
+</figure>
 
-<table>
-<thead><tr><th></th><th>前半5年</th><th>後半5年</th><th>順位</th></tr></thead>
-<tbody>
-<tr class="hi"><td>大村</td><td>13.03%</td><td>12.42%</td><td>1位 → 2位</td></tr>
-<tr class="hi"><td>徳山</td><td>11.97%</td><td>12.81%</td><td>2位 → 1位</td></tr>
-<tr class="mid"><td>びわこ</td><td>9.68%</td><td>10.91%</td><td>18位 → 10位</td></tr>
-<tr class="mid"><td>唐津</td><td>10.18%</td><td>11.23%</td><td>14位 → 7位</td></tr>
-<tr class="mid"><td>児島</td><td>11.00%</td><td>10.01%</td><td>7位 → 19位</td></tr>
-<tr class="hi"><td>鳴門</td><td>8.96%</td><td>8.76%</td><td>21位 → 21位</td></tr>
-<tr class="hi"><td>江戸川</td><td>8.16%</td><td>8.06%</td><td>22位 → 22位</td></tr>
-<tr class="hi"><td>平和島</td><td>7.90%</td><td>7.87%</td><td>23位 → 24位</td></tr>
-<tr class="hi"><td>戸田</td><td>7.61%</td><td>7.94%</td><td>24位 → 23位</td></tr>
-</tbody>
-</table>
+<p>児島は、前半で7番目に堅い場でした。後半は19番目。同じ水面です。</p>
 
-<p>児島は前半で7番目に堅い場でした。後半は19番目です。<br>
-同じ水面です。</p>
+<p>真ん中の18場のうち、順位が5つ以上動いた場は9つ。上と下の6場は、どれも1つ以内しか動いていない。</p>
 
-<p>真ん中の18場では、<b>9場が5つ以上動きました</b>。最大は児島の12です。<br>
-一方、白く残した上下の6場は、<b>どれも1つ以内しか動いていません</b>。</p>
+<h2 class="sec">偶然にしては動きすぎる</h2>
 
-<p>「堅い場」「荒れる場」と呼べるのは、10年の前半と後半で位置が変わらなかった、
-この6場だけでした。</p>
+<p>約1万1千レースずつなら、偶然でも順位は少しは動くはず。では、どこまでが偶然なのか。</p>
 
-<p class="sec">場より、何レース目か</p>
+<p>各場の開催日を、前半と後半のどちらに入れるかだけ入れ替えて、同じ数え方を1,000回やり直しました。偶然なら、5つ以上動く場は平均で3つ。1,000回のうち、9つ以上になったのは7回しかありません。</p>
 
-<p>場をやめて、レース番号で切り直しました。1日の何本目か、というだけの切り方です。</p>
+<p>真ん中の場の堅さは、10年のあいだに本当に変わっていたことになる。びわこは前半の9.68%から後半の10.91%へ上がり、児島は11.00%から10.01%へ下がりました。</p>
+
+<p>反対に、上と下の6場がそろって1つ以内に収まる形は、入れ替えた1,000回でも半分ほど出ています。離れた場所にいるので入れ替わりにくいだけで、動かなかったこと自体は、堅さの証拠になりません。真ん中にも、前後半とも5位のまま動かなかった下関がいます。</p>
+
+<p>「堅い場」「荒れる場」と呼んでよいのは、10年のどちらの側でも端にいた6場まで、ということです。</p>
+
+<h2 class="sec">場より、何レース目か</h2>
+
+<p>場で分けるのをやめて、レース番号で切り直したらどうなるのか。1日の何本目か、というだけの切り方です。</p>
+
+<figure class="chart" role="img" aria-label="レース番号ごとの1番人気の的中率。3Rが最も低く11Rが最も高い">
+<svg viewBox="0 0 360 174" width="100%" xmlns="http://www.w3.org/2000/svg"><line x1="40" y1="131.1" x2="344" y2="131.1" stroke="#4a627f" stroke-width="0.6"/><text x="34" y="134.6" font-size="10" fill="#8a94a3" text-anchor="end">9%</text><line x1="40" y1="93.4" x2="344" y2="93.4" stroke="#4a627f" stroke-width="0.6"/><text x="34" y="96.9" font-size="10" fill="#8a94a3" text-anchor="end">10%</text><line x1="40" y1="55.7" x2="344" y2="55.7" stroke="#4a627f" stroke-width="0.6"/><text x="34" y="59.2" font-size="10" fill="#8a94a3" text-anchor="end">11%</text><line x1="40" y1="18.0" x2="344" y2="18.0" stroke="#4a627f" stroke-width="0.6"/><text x="34" y="21.5" font-size="10" fill="#8a94a3" text-anchor="end">12%</text><polyline points="40.0,71.6 67.6,126.2 95.3,138.7 122.9,121.3 150.5,75.7 178.2,87.0 205.8,68.2 233.5,58.0 261.1,83.6 288.7,48.9 316.4,28.9 344.0,30.4" fill="none" stroke="#8a94a3" stroke-width="1.2"/><circle cx="40.0" cy="71.6" r="3.5" fill="#8a94a3"/><text x="40.0" y="166" font-size="10" fill="#8a94a3" text-anchor="middle">1R</text><circle cx="67.6" cy="126.2" r="3.5" fill="#8a94a3"/><text x="67.6" y="166" font-size="10" fill="#8a94a3" text-anchor="middle">2R</text><circle cx="95.3" cy="138.7" r="5" fill="#ff9f6b"/><text x="95.3" y="166" font-size="10" fill="#8a94a3" text-anchor="middle">3R</text><circle cx="122.9" cy="121.3" r="3.5" fill="#8a94a3"/><text x="122.9" y="166" font-size="10" fill="#8a94a3" text-anchor="middle">4R</text><circle cx="150.5" cy="75.7" r="3.5" fill="#8a94a3"/><text x="150.5" y="166" font-size="10" fill="#8a94a3" text-anchor="middle">5R</text><circle cx="178.2" cy="87.0" r="3.5" fill="#8a94a3"/><text x="178.2" y="166" font-size="10" fill="#8a94a3" text-anchor="middle">6R</text><circle cx="205.8" cy="68.2" r="3.5" fill="#8a94a3"/><text x="205.8" y="166" font-size="10" fill="#8a94a3" text-anchor="middle">7R</text><circle cx="233.5" cy="58.0" r="3.5" fill="#8a94a3"/><text x="233.5" y="166" font-size="10" fill="#8a94a3" text-anchor="middle">8R</text><circle cx="261.1" cy="83.6" r="3.5" fill="#8a94a3"/><text x="261.1" y="166" font-size="10" fill="#8a94a3" text-anchor="middle">9R</text><circle cx="288.7" cy="48.9" r="3.5" fill="#8a94a3"/><text x="288.7" y="166" font-size="10" fill="#8a94a3" text-anchor="middle">10R</text><circle cx="316.4" cy="28.9" r="5" fill="#7cc4ff"/><text x="316.4" y="166" font-size="10" fill="#8a94a3" text-anchor="middle">11R</text><circle cx="344.0" cy="30.4" r="3.5" fill="#8a94a3"/><text x="344.0" y="166" font-size="10" fill="#8a94a3" text-anchor="middle">12R</text><text x="95.3" y="155.7" font-size="10" fill="#e0e6ed" text-anchor="middle">8.80</text><text x="316.4" y="19.9" font-size="10" fill="#e0e6ed" text-anchor="middle">11.71</text></svg>
+<figcaption>レース番号ごとの1番人気の的中率（%）。橙が最も低い3R、青が最も高い11R。縦軸は8.5%から始まっています。</figcaption>
+</figure>
+
+<p>3Rが8.80%で、11Rが11.71%。開きは2.91ポイントで、真ん中の18場の幅よりも、同じ日の3レース目と11レース目のほうが離れている。朝の2Rから4Rが谷になり、10Rから12Rが山になる形でした。場所を調べているつもりで、出てきたのは時間の話です。</p>
+
+<h2 class="sec">ずっと1号艇の話だった</h2>
+
+<p>1番人気が入ったとき、1着はどの艇だったのか。当たり前に見えて、数えていなかったことです。</p>
 
 <table>
-<thead><tr><th></th><th>1番人気</th><th>12Rあたり</th><th>分母</th></tr></thead>
-<tbody>
-<tr><td>1R</td><td>10.58%</td><td>1.27本</td><td>44,965</td></tr>
-<tr><td>2R</td><td>9.13%</td><td>1.10本</td><td>44,906</td></tr>
-<tr class="hi"><td>3R</td><td>8.80%</td><td>1.06本</td><td>44,854</td></tr>
-<tr><td>4R</td><td>9.26%</td><td>1.11本</td><td>44,828</td></tr>
-<tr><td>5R</td><td>10.47%</td><td>1.26本</td><td>44,694</td></tr>
-<tr><td>6R</td><td>10.17%</td><td>1.22本</td><td>44,662</td></tr>
-<tr><td>7R</td><td>10.67%</td><td>1.28本</td><td>44,466</td></tr>
-<tr><td>8R</td><td>10.94%</td><td>1.31本</td><td>44,289</td></tr>
-<tr><td>9R</td><td>10.26%</td><td>1.23本</td><td>44,162</td></tr>
-<tr><td>10R</td><td>11.18%</td><td>1.34本</td><td>44,156</td></tr>
-<tr class="hi"><td>11R</td><td>11.71%</td><td>1.41本</td><td>44,234</td></tr>
-<tr><td>12R</td><td>11.67%</td><td>1.40本</td><td>44,114</td></tr>
-</tbody>
+<thead><tr><th>1着の艇</th><th>1番人気が入ったとき</th><th>全レース</th></tr></thead>
+<tbody><tr class="hi"><td>1号艇</td><td>88.55%</td><td>54.60%</td></tr><tr><td>2号艇</td><td>6.00%</td><td>14.25%</td></tr><tr><td>3号艇</td><td>2.98%</td><td>12.35%</td></tr><tr><td>4号艇</td><td>1.66%</td><td>10.02%</td></tr><tr><td>5号艇</td><td>0.45%</td><td>5.63%</td></tr><tr><td>6号艇</td><td>0.36%</td><td>3.16%</td></tr></tbody>
 </table>
 
-<p>3Rが<b>8.80%</b>で、11Rが<b>11.71%</b>。開きは<b>2.91ポイント</b>です。</p>
+<p>1番人気が入ったレースの9割近くは、1号艇が1着でした。全レースでの1号艇の1着は54.60%なので、34ポイント上に寄っている。「1番人気が来るかどうか」は、ほとんど「1号艇が来るかどうか」と同じことで、3連単の話をしているつもりが、ずっと1号艇の話をしていたわけです。</p>
 
-<p>10年かけて24場を並べて出てきた真ん中の幅が1.7ポイントでしたから、<br>
-<b>同じ日の3レース目と11レース目のほうが、24場の大半より開いています</b>。</p>
+<h2 class="sec">上位3つで半分なのか</h2>
 
-<p>朝の2Rから4Rが谷になり、10Rから12Rが山になる。<br>
-どの場で数えても、この形は同じでした。</p>
+<p>人気の話には、もうひとつ、よく聞く続きがあります。</p>
 
-<p>場所を調べているつもりでいて、出てきたのは時間の話でした。</p>
+<p class="lead">「上位3つの人気で、半分は決まる」</p>
 
-<p class="sec">1番人気は、ほぼインから</p>
+<p>本当に半分なのでしょうか。1番人気の10.40%に、2番人気の8.39%と3番人気の6.70%を足すと、25.5%。4回に3回は、4番人気より下が入っています。</p>
 
-<p>もうひとつ、当たり前に見えて数えていなかったことがあります。<br>
-1番人気が入ったとき、1着はどの艇だったか。</p>
+<p>半分を超えるのは、上から10通りを全部足したときで、53.6%。残りの半分は、11番人気から120番人気までの110通りに散っていました。</p>
+
+<h2 class="sec">値段には書いてあった</h2>
+
+<p>では、場ごとの堅さは、どこにも書かれていなかったのか。1番人気が入ったときの払戻を、場ごとに並べます。</p>
 
 <table>
-<thead><tr><th></th><th>1番人気が入ったとき</th><th>全レース</th></tr></thead>
-<tbody>
-<tr class="hi"><td>1号艇</td><td>88.55%</td><td>54.60%</td></tr>
-<tr><td>2号艇</td><td>6.00%</td><td>14.25%</td></tr>
-<tr><td>3号艇</td><td>2.98%</td><td>12.35%</td></tr>
-<tr><td>4号艇</td><td>1.66%</td><td>10.02%</td></tr>
-<tr><td>5号艇</td><td>0.45%</td><td>5.63%</td></tr>
-<tr><td>6号艇</td><td>0.36%</td><td>3.16%</td></tr>
-</tbody>
+<thead><tr><th>場</th><th>1番人気の的中率</th><th>入ったときの平均配当</th></tr></thead>
+<tbody><tr><td>大村</td><td>12.72%</td><td>644円</td></tr><tr><td>徳山</td><td>12.38%</td><td>648円</td></tr><tr class="mid"><td>芦屋</td><td>11.42%</td><td>643円</td></tr><tr class="mid"><td>津</td><td>11.37%</td><td>685円</td></tr><tr class="mid"><td>尼崎</td><td>11.34%</td><td>706円</td></tr><tr class="mid"><td>下関</td><td>11.29%</td><td>695円</td></tr><tr class="mid"><td>福岡</td><td>11.24%</td><td>715円</td></tr><tr class="mid"><td>住之江</td><td>10.89%</td><td>715円</td></tr><tr class="mid"><td>蒲郡</td><td>10.76%</td><td>743円</td></tr><tr class="mid"><td>唐津</td><td>10.70%</td><td>701円</td></tr><tr class="mid"><td>常滑</td><td>10.62%</td><td>729円</td></tr><tr class="mid"><td>宮島</td><td>10.61%</td><td>720円</td></tr><tr class="mid"><td>児島</td><td>10.51%</td><td>725円</td></tr><tr class="mid"><td>丸亀</td><td>10.41%</td><td>716円</td></tr><tr class="mid"><td>若松</td><td>10.31%</td><td>699円</td></tr><tr class="mid"><td>びわこ</td><td>10.29%</td><td>754円</td></tr><tr class="mid"><td>三国</td><td>10.20%</td><td>685円</td></tr><tr class="mid"><td>桐生</td><td>9.92%</td><td>800円</td></tr><tr class="mid"><td>浜名湖</td><td>9.75%</td><td>784円</td></tr><tr class="mid"><td>多摩川</td><td>9.72%</td><td>802円</td></tr><tr><td>鳴門</td><td>8.86%</td><td>802円</td></tr><tr><td>江戸川</td><td>8.11%</td><td>955円</td></tr><tr><td>平和島</td><td>7.88%</td><td>937円</td></tr><tr><td>戸田</td><td>7.78%</td><td>963円</td></tr></tbody>
 </table>
 
-<p>1番人気が入ったレースの<b>9割近く</b>は、1号艇が1着です。<br>
-全レースで1号艇が1着なのは54.60%ですから、34ポイント上に寄っています。</p>
+<p>大村が644円で、戸田が963円。的中率の順位と配当の順位には、およそ−0.85の順位相関があり、当たりやすい場ほど安く、当たりにくい場ほど高い側に並びます。場ごとの堅さを買う側が知っていて、そのぶん<a href="../../glossary/?q=%E3%82%AA%E3%83%83%E3%82%BA">オッズ</a>が動いている。</p>
 
-<p>「1番人気が来るかどうか」は、ほとんど<b>「①が来るかどうか」</b>と同じことでした。<br>
-場ごとの堅さの正体も、たぶんそこにあります。ただし、そこから先は測っていません。</p>
+<p>どの場が堅いかは、10年数える前から値段に書いてありました。先に値段を見ておけば、3,653日を数える手間は要りませんでした。</p>
 
-<p>3連単の話をしているつもりで、ずっと1号艇の話をしていたわけです。</p>
+<h2 class="sec">数えなかったレース</h2>
 
-<p class="sec">堅い場は、堅いぶんだけ安い</p>
+<p>この数字から消えているのは、どのレースなのか。払戻の記録は557,172行。そのうち22,842行は数えていません。いちばん多いのは、<a href="../../glossary/?q=%E8%BF%94%E9%82%84">返還</a>があって人気の順位が出なかった15,461で、全体の2.8%。残りの7,381は、レース中止、3連単の不成立、同着などです。同着で組が2つ確定したレースは、どちらがどの順位かを分けられないので、10年の209レースを外しました。</p>
 
-<p>最初の表のいちばん右です。1番人気が入ったときに払い戻された金額です。</p>
+<h2 class="sec">ここから先は言えない</h2>
 
-<p>大村が<b>644円</b>で、戸田が<b>963円</b>。<br>
-的中率の順位と配当の順位を突き合わせると、順位相関は<b>−0.86</b>。<br>
-当たりやすい場ほど安く、当たりにくい場ほど高い側に、ほぼ揃って並びます。</p>
+<p>水面の広さも、風も、番組の組み方も、この記事では数字にしていません。なぜ3Rが谷になるのか、なぜ大村と戸田が離れるのか。どちらも、言えないままです。上下の6場と真ん中の18場を分けた線もこちらが引いたもので、線を動かせば場数は変わる。24場の数字は、すべて図と表に出してあります。</p>
 
-<p>買う側が場ごとの堅さを知っていて、そのぶんオッズが動いている、ということです。<br>
-どの場が堅いかは、10年数える前から値段に書いてありました。</p>
+<h2 class="sec">端の6場だけが動かない</h2>
 
-<p>先に値段を見ておけば、3,653日を数える手間は要りませんでした。</p>
+<p>「堅い場」と「荒れる場」は、ありました。ただ、10年のどちらの側でも端にいたのは24場のうち6場で、残りの18場の堅さは、5年で入れ替わるほど動いている。同じ日の3レース目と11レース目の差は、その入れ替わりより大きい。</p>
 
-<p class="sec">2番人気から下はどうか</p>
+<p>動かなかった6場の堅さは、10年前から払戻に書いてありました。</p>
 
-<table>
-<thead><tr><th></th><th>入った割合</th><th>件数</th></tr></thead>
-<tbody>
-<tr class="hi"><td>1番人気</td><td>10.40%</td><td>55,562</td></tr>
-<tr><td>2番人気</td><td>8.39%</td><td>44,822</td></tr>
-<tr><td>3番人気</td><td>6.70%</td><td>35,804</td></tr>
-<tr><td>4番人気</td><td>5.78%</td><td>30,903</td></tr>
-<tr><td>5番人気</td><td>4.94%</td><td>26,403</td></tr>
-<tr><td>6番人気</td><td>4.35%</td><td>23,224</td></tr>
-<tr><td>7番人気</td><td>3.81%</td><td>20,356</td></tr>
-<tr><td>8番人気</td><td>3.38%</td><td>18,057</td></tr>
-<tr><td>9番人気</td><td>3.06%</td><td>16,350</td></tr>
-<tr><td>10番人気</td><td>2.77%</td><td>14,795</td></tr>
-</tbody>
-</table>
-
-<p>上位3つを足して<b>25.5%</b>。4回に3回は、4番人気より下が入っています。<br>
-120通りのうち上位10通りを全部足して<b>53.6%</b>。<br>
-残りの半分は、11番人気から120番人気までの110通りに散っています。</p>
-
-<p class="sec">断っておくこと</p>
-
-<p><b>数えなかったレースがあります。</b><br>
-払戻の記録は<b>557,172</b>行ありましたが、そのうち<b>22,842</b>行は数えていません。<br>
-いちばん多いのは、人気の順位が公表されていないレースで<b>15,461</b>。全体の2.8%です。<br>
-残りはレース中止・3連単不成立・同着で<b>7,381</b>。<br>
-引いた<b>534,330</b>が、この記事の分母です。</p>
-
-<p><b>同着は分けられません。</b><br>
-同着で確定した組が2つあるレースは、人気の順位も2つ並びます。<br>
-どちらがどの順位なのかを分ける方法がないので、外しました。10年で209レースです。</p>
-
-<p><b>18場という区切りは、こちらが引いたものです。</b><br>
-統計の検定で決めた線ではありません。線を動かせば場数は変わります。<br>
-表には24場すべての数字を出しているので、別の見方をしたい場合はそちらを見てください。</p>
-
-<p><b>理由は測っていません。</b><br>
-水面の広さも、風も、番組の組み方も、うちは数字にしていません。<br>
-なぜ3Rが谷になるのか、なぜ大村と戸田が離れるのかは、この記事では言えません。<br>
-言えるのは、そうなっている、というところまでです。</p>
-
-<p><b>この数字は動きません。</b><br>
-2026年9月1日で打ち切っています。日々の結果では更新しません。</p>
-
-<p class="sec">　</p>
-
-<p>「堅い場」と「荒れる場」は、ありました。<br>
-ただし、10年ずっとそうだったのは24場のうち6場です。</p>
-
-<p>残りの18場は順位が入れ替わり、その入れ替わりより、<br>
-同じ日の3レース目と11レース目の差のほうが大きい。</p>
-
-<p>そして、動かなかった6場の堅さは、10年前から払戻に書いてありました。</p>
-
-<p class="punch">堅い場はある。<br>ただし、<span class="big">値札</span>が付いている。</p>
+<p class="punch">堅い場はある。<br>ただし、値札が付いている。</p>
 
 </div>
 
-<!-- ══════════ 数え方 ══════════ -->
 <details>
 <summary>この検証の数え方</summary>
 <div class="dbody">
-<h4>どこから取ったか</h4>
-<p>公式サイトが公開している「払戻金一覧」を、2016年9月1日から2026年9月1日まで1日ずつ集めました。
-3,653日分で、欠けた日はありません。<br>
-このページには、その日に行われた全場・全レースの確定した組番・3連単の払戻金・人気の順位が並んでいます。</p>
-
-<h4>「1番人気」とは何か</h4>
-<p>締切時点の3連単オッズが最も安かった組のことです。順位は公式が発表しているものをそのまま使っています。<br>
-締切前のオッズから自分で計算する方法もありますが、締切直前まで動くので順位が変わります。
-公式の発表を使うほうが、定義が揺れません。</p>
-
-<h4>数えなかったもの</h4>
-<p>人気の順位が「返」と表示されているレースが15,461ありました。返還があった場合の表示です。
-組番と払戻金は出ていますが順位が出ないので、1番人気だったかを判定できません。分母から外しています。<br>
-レース中止（6,866）、3連単が不成立で組番が2艇どまりのもの（227）、同着（209）、
-組番が3艇そろわなかったその他（79）も外しました。合わせて7,381です。</p>
-
-<h4>「真ん中の18場」の決め方</h4>
-<p>24場を的中率の順に並べ、上下から離れている場を外した残りです。
-芦屋（11.42%）から多摩川（9.72%）までの18場が、1.7ポイントの中に入っています。<br>
-どこで線を引くかは書き手が決めたもので、統計的な検定はしていません。
-線の引き方を変えれば場数は変わります。</p>
-
-<h4>前半5年と後半5年の分け方</h4>
-<p>2021年9月1日で区切りました。10年のちょうど真ん中です。<br>
-どちらの側も1場あたり約1万1千レースあります。順位は、その期間だけで24場を並べ直したものです。<br>
-本文の表には9場だけを出しています。動いた場と動かなかった場の対比を見せるための抜粋で、
-24場すべての数字は下の元データから出せます。</p>
-
-<h4>平均配当の出し方</h4>
-<p>1番人気がそのまま入ったレースだけを集め、その払戻金を平均しています。<br>
-1番人気以外が入ったレースの配当は含みません。100円あたりの金額です。<br>
-順位相関は24場の的中率の順位と平均配当の順位で計算しました（スピアマン）。</p>
-
-<h4>揃えていないもの</h4>
-<p>10年のあいだに、選手の顔ぶれも、モーターも、進入のルールも変わっています。<br>
-季節も風も混ざったままです。レース番号ごとの差についても、
-番組の組み方を数字にしていないので、理由までは追っていません。</p>
-
-<h4>元データ</h4>
-<p>日別・場ごとの的中数と分母を <a href="../../data/ninkiTally.json" style="color:#a9c6dd">ninkiTally.json</a> に置いています。
-場別の表と、前半後半の表は、このファイルから再現できます。</p>
+<ul>
+<li>期間：2016年9月1日から2026年9月1日。公式サイトの「払戻金一覧」を1日ずつ集めた3,653日分で、欠けた日はありません</li>
+<li>1番人気：締切時点の3連単オッズが最も安かった組。順位は公式が発表しているものをそのまま使っています</li>
+<li>レース数：534,330。払戻の記録557,172行から、人気の順位が「返」と表示されたレース15,461（返還があった場合の表示）、レース中止6,866、3連単が不成立で組番が2艇どまりのもの227、同着209、組番が3艇そろわなかったその他79を外しています</li>
+<li>前半と後半：2021年9月1日で区切りました。どちらの側も1場あたり約1万1千レースで、順位はその期間だけで24場を並べ直したものです</li>
+<li>偶然との比較：場ごとに、開催日を前半と後半のどちらに入れるかだけを1,000回入れ替え、順位の動きを数え直しています（乱数の種は20260922で固定）。理論上の確率分布は使っていません。5つ以上動く場は、入れ替えた側で平均3.4場、実際は9場で、入れ替えた1,000回のうち9場以上になったのは7回でした</li>
+<li>見分けられる最小の差：2つの場の開催日を混ぜて同じ入れ替えをすると、偶然の揺れの2.8倍は約0.8ポイントでした。これより小さい差は、順位として読んでいません</li>
+<li>真ん中の18場：24場を的中率の順に並べ、10年のどちらの側でも上下の端にいた6場を外した残りです。線の引き方はこちらが決めたもので、動かせば場数は変わります</li>
+<li>平均配当：1番人気がそのまま入ったレースだけの払戻金の平均（100円あたり）。順位相関は、表の24場の的中率と平均配当の順位から計算しています（スピアマン）</li>
+<li>揃えていないもの：10年のあいだに、選手の顔ぶれも、モーターも、進入のルールも変わっています。季節も風も混ざったまま。レース番号ごとの差も、番組の組み方を数字にしていないので、理由までは追っていません</li>
+<li>図：すべてこの検証の集計から描いたもので、外部の画像は使っていません</li>
+<li>元データ：日別・場ごとの的中数と分母を <a href="../../data/ninkiTally.json">ninkiTally.json</a> に置いています。場別の図と表、前半と後半の図は、このファイルから再現できます</li>
+</ul>
 </div>
 </details>
-
 <p class="stamp">
-  集計期間 <span>2016/9/1 〜 2026/9/1</span>　/　<span>3,653</span>日・<span>534,330</span>レース<br>
+  集計期間 <span>2016/9/1 から 2026/9/1</span>　/　<span>3,653</span>日・<span>534,330</span>レース<br>
   出典：公式サイト 払戻金一覧。この期間の数字は固定で、更新されません。
 </p>
 
