@@ -57,6 +57,8 @@ TITLE_LOOKBACK = 7           # 同じ場の直近何日と比べるか
 DAY_WORD = re.compile(r"^(初日|[0-9０-９]+日目|最終日|準優)")
 FOCUS_MIN = 3                # 注目選手（focusRacers）から最低何人を書くか（素材がそれ未満なら全員）
 NORACE_WRITE_FROM = "20260922"  # この日以降、中止明け（前日と日目が同じ場）は網羅の除外にしない
+DUP_FROM = "20260922"        # この日以降、同日の他場と「数字と名前を除くと同じ形の文」を共有したら FAIL
+DUP_MIN = 12                 # 照合する文の最小字数（短い定型「決まり手は逃げ。」などは除く）
 
 
 def load(path):
@@ -309,6 +311,48 @@ def check_rules2(art, venue, ymd, jcd):
     return fails
 
 
+def _dup_norm(sent, names):
+    """数字と選手名・場名を記号に置き換えた、文の形。"""
+    x = sent
+    for n in sorted(names, key=len, reverse=True):
+        if n:
+            x = x.replace(n, "〈名〉")
+    return re.sub(r"[0-9０-９.．]+", "〈数〉", x)
+
+
+def _dup_shapes(art):
+    names = set()
+    for rm in art.get("racersMentioned", []) or []:
+        nm = rm.get("name") or ""
+        names.add(nm)
+        names.add(re.sub(r"[\s　]", "", nm))
+    names.add(art.get("venue") or "")
+    out = set()
+    for x in re.split(r"(?<=。)", (art.get("body") or "").replace("\n", "")):
+        x = x.strip()
+        if len(x) >= DUP_MIN:
+            out.add(_dup_norm(x, names))
+    return out
+
+
+def check_dup(art, ymd, jcd):
+    """同日の他場の記事と、数字と名前を除くと同じ形の文を共有していないか（2026-09-22）。"""
+    fails = []
+    if ymd < DUP_FROM:
+        return fails
+    mine = _dup_shapes(art)
+    for p in sorted(glob.glob(os.path.join(ART_DIR, "%s-*.json" % ymd))):
+        if os.path.basename(p) == "%s-%s.json" % (ymd, jcd):
+            continue
+        try:
+            other = load(p)
+        except Exception:
+            continue
+        for shp in sorted(mine & _dup_shapes(other)):
+            fails.append(("場間同型文", "%s と同じ形: %s" % (os.path.basename(p), shp[:40])))
+    return fails
+
+
 def lint_article(art_path):
     fn = os.path.basename(art_path)
     m = re.match(r"(\d{8})-(\d{2})\.json$", fn)
@@ -331,6 +375,7 @@ def lint_article(art_path):
     fails += check_structure(art, venue)
     fails += check_watchpoint(art, venue, ymd)
     fails += check_rules2(art, venue, ymd, jcd)
+    fails += check_dup(art, ymd, jcd)
     return (fn, fails)
 
 
