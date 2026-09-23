@@ -297,10 +297,16 @@ def check_rules2(art, venue, ymd, jcd):
         if run == 3:
             fails.append(("終止3連続", "「%s。」が3文続く" % ends[i]))
     focus = [str(f.get("toban")) for f in (venue.get("focusRacers") or []) if f.get("toban")]
-    need = min(FOCUS_MIN, len(focus))
-    got = {str(rm.get("toban")) for rm in (art.get("racersMentioned") or [])} & set(focus)
+    # 前日の万舟で1着だった選手は名前を書けない（runbook 手順3）。人数の勘定から外す（2026-09-23）。
+    manshu = set()
+    for r in (venue.get("angles") or {}).get("races", []) or []:
+        if any(t.get("type") == "万舟" for t in (r.get("tags") or [])) and r.get("winnerToban"):
+            manshu.add(str(r["winnerToban"]))
+    writable_focus = [t for t in focus if t not in manshu]
+    need = min(FOCUS_MIN, len(writable_focus))
+    got = {str(rm.get("toban")) for rm in (art.get("racersMentioned") or [])} & set(writable_focus)
     if len(got) < need:
-        fails.append(("注目選手不足", "focusRacers から %d人 < %d人" % (len(got), need)))
+        fails.append(("注目選手不足", "名前を書ける focusRacers から %d人 < %d人" % (len(got), need)))
     body = art.get("body", "")
     mentioned = {str(rm.get("toban")) for rm in (art.get("racersMentioned") or [])}
     for r in (venue.get("angles") or {}).get("races", []) or []:

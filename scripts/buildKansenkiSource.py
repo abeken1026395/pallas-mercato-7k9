@@ -491,6 +491,20 @@ def gap_candidates(jcd, venue_rows, motor_usage):
     return res
 
 
+def _manshu_winners(results_venue, day_num):
+    """前日の万舟で1着だった選手。名前を書けない（runbook 手順3）ので注目選手に選ばない（2026-09-23）。"""
+    out = set()
+    if not (day_num and day_num > 1 and results_venue):
+        return out
+    for res in results_venue:
+        pay = to_int(res.get("三連単配当"))
+        if pay is not None and pay > MAN_TH:
+            for boat in (res.get("艇") or []):
+                if to_int(boat.get("着")) == 1 and boat.get("登番"):
+                    out.add(str(boat.get("登番")).strip())
+    return out
+
+
 def pick_focus_tobans(jcd, venue_rows, score_rank, results_venue, day_num, motor_usage):
     """focusRacers対象を機械抽出（最大 FOCUS_MAX 名）。選んだ理由を why に残す。
     優先順: 得点率上位3（scoreRankがあれば）→ 地元勢最上位 → 全国勝率最上位 →
@@ -502,10 +516,11 @@ def pick_focus_tobans(jcd, venue_rows, score_rank, results_venue, day_num, motor
     why = {}
     gaps = {}
     ent = _entrants(venue_rows)
+    banned = _manshu_winners(results_venue, day_num)
 
     def add(tb, label, gap=None):
         tb = str(tb or "").strip()
-        if not tb or tb not in ent:
+        if not tb or tb not in ent or tb in banned:
             return
         if tb not in why:
             if len(order) >= FOCUS_MAX:
