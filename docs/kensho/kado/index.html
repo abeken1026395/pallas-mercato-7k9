@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>検証：4カドの実力者 ｜ データ攻め</title>
+<link rel="canonical" href="https://abeken1026395.github.io/pallas-mercato-7k9/kensho/kado/">
+<meta name="description" content="4カドに実力者がいると荒れるのか。2016年11月1日から2026年8月11日までの538,268レースを数えると、4コースにA1がいれば1コースの1着率は5.4ポイント下がる。ただ万舟は0.8ポイントしか増えず、増えた負けのぶんは、その実力者の勝ちに回っていました。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="検証：4カドの実力者">
+<meta property="og:description" content="4カドに実力者がいると荒れるのか。538,268レースを数えました。1号艇は負けやすくなる。それでも配当は、ほとんど動いていませんでした。">
+<meta property="og:image" content="https://abeken1026395.github.io/pallas-mercato-7k9/icon512.png">
+<!-- data-seme signature: kensho / kado -->
+<style>
+:root{
+  --bg:#0b1219; --panel:#0f1a26; --line:#4a627f;
+  --fg:#e0e6ed; --dim:#8a94a3; --faint:#8a94a3;
+  --accent:#ffd166; --ok:#7ee08a; --ng:#e07a7a;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--fg)}
+body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;
+  -webkit-text-size-adjust:100%;font-feature-settings:"palt" 1}
+.wrap{max-width:620px;margin:0 auto;padding:0 18px 64px}
+
+.siteback{display:inline-flex;align-items:center;min-height:44px;
+  color:#a9c6dd;text-decoration:none;font-size:12.5px;margin-right:16px}
+.siteback:hover{text-decoration:underline}
+
+header{padding:26px 0 8px;border-bottom:1px solid var(--line)}
+header .eyebrow{font-size:11px;letter-spacing:.34em;color:var(--accent);margin:0 0 12px}
+header h1{font-size:28px;line-height:1.5;color:#fff;margin:0 0 10px;font-weight:700}
+header .sub{font-size:12px;line-height:1.9;color:var(--dim);margin:0 0 22px}
+
+.article{padding:32px 0 8px;font-size:16px;line-height:2.1}
+.article p{margin:0 0 1.9em}
+.article b{color:#fff;font-weight:700}
+.article .lead{font-size:18.5px;line-height:1.95;color:#fff;font-weight:700;margin-bottom:1.7em}
+.article a{color:#a9c6dd;text-decoration:underline;text-decoration-color:var(--line);
+  text-underline-offset:4px;text-decoration-thickness:1px}
+.article a:hover{color:#fff;text-decoration-color:#a9c6dd}
+
+.sec{margin:3em 0 1.5em;font-size:18px;color:var(--accent);font-weight:700;
+  letter-spacing:.06em;line-height:1.6;display:flex;align-items:center;gap:11px}
+.sec::before{content:"";width:20px;height:1px;background:var(--accent);flex:none}
+.sec::after{content:"";height:1px;background:var(--line);flex:1}
+
+.punch{margin:2.2em 0 1.1em;font-size:30px;line-height:1.65;color:#fff;font-weight:700}
+.punch .big{color:var(--accent)}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:1.5em 0 1.9em;
+  font-variant-numeric:tabular-nums}
+th,td{padding:11px 6px;text-align:right;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--faint);font-weight:600;font-size:12px;white-space:nowrap}
+tr.hi td{color:#fff;font-weight:700;background:#16283c}
+tr.mid td{color:var(--faint)}
+
+/* ── 数字ブロック ── */
+.figure{display:flex;gap:12px;margin:1.5em 0 1.9em}
+.figure>div{flex:1;background:var(--panel);border:1px solid var(--line);
+  border-radius:10px;padding:16px 10px 14px;text-align:center}
+.figure .n{font-size:44px;font-weight:700;line-height:1.15;color:var(--accent);
+  font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.figure .u{font-size:17px;font-weight:700;margin-left:2px}
+.figure .l{font-size:11px;color:var(--dim);margin-top:8px;line-height:1.7}
+.figure .ref .n{color:var(--faint)}
+
+/* ── 折りたたみ ── */
+details{margin:2.6em 0 1.6em;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+details>summary{display:flex;align-items:center;min-height:46px;padding:0 16px;
+  font-size:13px;color:#a9c6dd;cursor:pointer;list-style:none}
+details>summary::-webkit-details-marker{display:none}
+details>summary::after{content:"＋";margin-left:auto;color:var(--faint)}
+details[open]>summary::after{content:"−"}
+.dbody{padding:4px 16px 18px;font-size:12.5px;line-height:2;color:var(--dim)}
+.dbody h4{margin:1.6em 0 .5em;font-size:12.5px;color:#cfd8e3;font-weight:700}
+.dbody h4:first-child{margin-top:.4em}
+.dbody p{margin:0 0 1em}
+
+.stamp{margin:2.4em 0 1.4em;font-size:11px;line-height:1.9;color:var(--faint);
+  padding-top:16px;border-top:1px solid var(--line)}
+.stamp span{color:var(--dim);font-variant-numeric:tabular-nums}
+/* ── 図 ── */
+.chart{margin:1.6em 0 2em;padding:14px 10px 10px;background:var(--panel);
+  border:1px solid var(--line);border-radius:10px}
+.chart svg{display:block;width:100%;height:auto;font-family:inherit}
+.chart figcaption{margin-top:8px;font-size:11.5px;line-height:1.8;color:var(--dim)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<a class="siteback" href="../../">← データ攻め トップ</a>
+<a class="siteback" href="../">← 検証の一覧</a>
+
+<header>
+  <p class="eyebrow">検 証</p>
+  <h1>4カドの<br>実力者</h1>
+  <p class="sub">
+    「4カドに実力者がいると荒れる」。出走表の読み方としてよく聞く話は、本当なのか。<br>
+    約10年分の成績を、4コースの選手の級別で分けて数えた記録です。
+  </p>
+</header>
+
+<div class="article">
+
+<h2 class="sec">4号艇にA1の文字</h2>
+
+<p>出走表の4号艇の欄にA1の文字があって、1号艇はB1。こういうレースの予想で、よく使われる言い方があります。</p>
+
+<p class="lead">「4カドに実力者がいると荒れる」</p>
+
+<p><a href="../../glossary/?q=%E3%82%AB%E3%83%89">カド</a>は、<a href="../../glossary/?q=%E3%83%80%E3%83%83%E3%82%B7%E3%83%A5%E5%8B%A2">ダッシュ勢</a>のいちばん内側。助走を長く取れるぶん、スタートで内の3艇より前に出やすいとされる位置です。そこに腕のある選手が入れば、<a href="../../glossary/?q=%E3%82%B9%E3%83%AD%E3%83%BC%E5%8B%A2">スロー勢</a>をまとめてまくり、1号艇が飛ぶ。予想サイトの解説でも、出走表の読み方として、繰り返し出てくる話です。</p>
+
+<p>本当にそうなるのか。10年分を数えました。</p>
+
+<h2 class="sec">カドは記録にない</h2>
+
+<p>2016年11月1日から2026年8月11日まで、3,571日分の競走成績で、538,268レース。枠番ではなく、実際に1コースと4コースへ入った舟を、進入の記録から拾っています。</p>
+
+<p>実力者は、その日の番組表でA1級だった選手。4コースにA1が入ったのは137,201レースで、全体のおよそ4分の1にあたる。</p>
+
+<p>4カドの話を確かめるのに、どの舟がカドだったかは記録にない。成績のファイルに、スローとダッシュの区別が載っていないからです。この記事で数えているのは、「4コースに入った舟」のほう。ここから先で1号艇、4号艇と書くときは、1コース、4コースに入った舟を指します。</p>
+
+<h2 class="sec">ほぼ同じだった</h2>
+
+<p>4コースにA1がいたレースで、1コースの1着率は54.82%。いなかった401,067レースでは54.66%でした。</p>
+
+<p>538,268レースを数えて、最初に出てきた答えは「だいたい同じ」。</p>
+
+<p>俗説は外れた、とここで書くこともできる。書かないのは、4号艇にA1が入る日には、ほかにも入っているものがあるからです。</p>
+
+<h2 class="sec">強い者どうしで帳尻が合う</h2>
+
+<p>理由は1号艇の側にありました。4コースにA1がいたレースでは、1コースにもA1が座っていた割合が48.6%。いなかったレースでは28.2%でした。強い選手が集まる開催では、1号艇も4号艇も強い。強い1号艇と強い4号艇が同じレースに入って、足し引きすると、ほぼ帳尻が合っていました。</p>
+
+<p>そこで、比べる相手を揃えました。同じ場、同じ年で、1コースの選手の級別も同じレースどうし。その中で、4コースがA1かどうかだけで分けて比べ直します。</p>
+
+<p>揃えた差は、5.4ポイント。4コースにA1がいると、1コースの1着率はそれだけ下がる。</p>
+
+<p>A1かどうかの札だけを組の中で1,000回入れ替えてみても、偶然でこの差に届いたことは一度もありませんでした。</p>
+
+<p>揃えたのは、場と年と級別まで。開催のグレードや、その日の調子、モーターは揃えていません。不成立などで比べられなかったレースは186あり、内訳は最後の数え方に書いてあります。</p>
+
+<h2 class="sec">10年、同じ向き</h2>
+
+<p>たまたま何年かが強く出ただけ、ということはないのか。年ごとに分けて、同じ計算をしました。</p>
+
+<figure class="chart" role="img" aria-label="年ごとに、4コースにA1がいると1コースの1着率がどれだけ下がるか。2017年から2026年はどの年も下がっている"><svg viewBox="0 0 360 200" width="100%" xmlns="http://www.w3.org/2000/svg">
+<line x1="42" y1="24" x2="344" y2="24" stroke="#4a627f" stroke-width="0.6"/>
+<text x="36.0" y="27.5" font-size="10" fill="#8a94a3" text-anchor="end">0</text>
+<line x1="42" y1="64" x2="344" y2="64" stroke="#4a627f" stroke-width="0.6"/>
+<text x="36.0" y="67.5" font-size="10" fill="#8a94a3" text-anchor="end">-2</text>
+<line x1="42" y1="104" x2="344" y2="104" stroke="#4a627f" stroke-width="0.6"/>
+<text x="36.0" y="107.5" font-size="10" fill="#8a94a3" text-anchor="end">-4</text>
+<line x1="42" y1="144" x2="344" y2="144" stroke="#4a627f" stroke-width="0.6"/>
+<text x="36.0" y="147.5" font-size="10" fill="#8a94a3" text-anchor="end">-6</text>
+<rect x="44.7" y="24" width="22" height="38.6" fill="#8a94a3"/>
+<text x="55.7" y="178.0" font-size="10" fill="#8a94a3" text-anchor="middle">16</text>
+<rect x="72.2" y="24" width="22" height="108.8" fill="#ff9f6b"/>
+<text x="83.2" y="178.0" font-size="10" fill="#8a94a3" text-anchor="middle">17</text>
+<rect x="99.6" y="24" width="22" height="85.8" fill="#ff9f6b"/>
+<text x="110.6" y="178.0" font-size="10" fill="#8a94a3" text-anchor="middle">18</text>
+<rect x="127.1" y="24" width="22" height="104.2" fill="#ff9f6b"/>
+<text x="138.1" y="178.0" font-size="10" fill="#8a94a3" text-anchor="middle">19</text>
+<rect x="154.5" y="24" width="22" height="105.2" fill="#ff9f6b"/>
+<text x="165.5" y="178.0" font-size="10" fill="#8a94a3" text-anchor="middle">20</text>
+<rect x="182.0" y="24" width="22" height="121.0" fill="#ff9f6b"/>
+<text x="193.0" y="178.0" font-size="10" fill="#8a94a3" text-anchor="middle">21</text>
+<rect x="209.5" y="24" width="22" height="110.2" fill="#ff9f6b"/>
+<text x="220.5" y="178.0" font-size="10" fill="#8a94a3" text-anchor="middle">22</text>
+<rect x="236.9" y="24" width="22" height="120.6" fill="#ff9f6b"/>
+<text x="247.9" y="178.0" font-size="10" fill="#8a94a3" text-anchor="middle">23</text>
+<rect x="264.4" y="24" width="22" height="127.0" fill="#ff9f6b"/>
+<text x="275.4" y="178.0" font-size="10" fill="#8a94a3" text-anchor="middle">24</text>
+<rect x="291.8" y="24" width="22" height="110.0" fill="#ff9f6b"/>
+<text x="302.8" y="178.0" font-size="10" fill="#8a94a3" text-anchor="middle">25</text>
+<rect x="319.3" y="24" width="22" height="109.4" fill="#ff9f6b"/>
+<text x="330.3" y="178.0" font-size="10" fill="#8a94a3" text-anchor="middle">26</text>
+<text x="190.0" y="194.0" font-size="10" fill="#8a94a3" text-anchor="middle">年（2016は11月と12月だけ、2026は8月11日まで）</text>
+<text x="44.0" y="14.0" font-size="10" fill="#8a94a3" text-anchor="start">1コースの1着率の差（ポイント）</text>
+</svg><figcaption>4コースにA1がいたレースと、いなかったレースの1コースの1着率の差。場と1コースの級別で揃えた値。橙は偶然では届かない大きさ、灰は見分けられる最小の差に届かなかった年。</figcaption></figure>
+
+<p>2017年から2026年までの10年は、どの年も4.3ポイントから6.4ポイント下がっている。2016年は、手元の記録が11月から始まっているため2か月しかなく、見分けられる差に届いていません。</p>
+
+<p>同じ選手で比べても、向きは変わりません。1コースに入った選手ごとに、4コースがA1だったときとそうでないときを比べると、差はむしろ広がり、1,968人をまとめて7.2ポイント下がる。同じ人間が、4コースにA1がいる日には勝ちにくくなっています。</p>
+
+<p>枠番で数え直しても、形は同じでした。出走表の4号艇がA1だった130,018レースで、1号艇の1着率の差は5.3ポイント。全員が枠番どおりに入った411,322レースに絞っても、差は変わりません。</p>
+
+<h2 class="sec">壁が弱いと崩れる</h2>
+
+<p>まくりに来る4号艇と1号艇のあいだで、3号艇は<a href="../../glossary/?q=%E5%A3%81">壁</a>になります。壁が強ければ、1号艇は守られるのか。3コースの選手の級別で分けて、比べ直しました。</p>
+
+<table>
+<thead><tr><th>3コースの選手</th><th>4コースのA1で下がる1コースの1着率</th></tr></thead>
+<tbody>
+<tr><td>A級（268,748レース）</td><td>3.6ポイント</td></tr>
+<tr><td>B級（269,159レース）</td><td>6.6ポイント</td></tr>
+</tbody>
+</table>
+
+<p>壁がA級なら3.6ポイント、B級なら6.6ポイントで、どちらも偶然では届かない大きさでした。壁が弱いほど、1号艇は崩れやすい。俗説の筋書きどおりの形。</p>
+
+<p>1号艇が強ければ平気なのか、というと、そうでもありません。1号艇がA1でも6.1ポイント、冒頭のようなB1なら5.2ポイント下がる。B2級の1号艇は10年で12,219レースしかなく、この数では差を見分けられませんでした。</p>
+
+<h2 class="sec">21レースに1回</h2>
+
+<p>では、どのくらいの大きさなのか。</p>
+
+<p>ひとつの場で1週間、84レース。4コースにA1が入るのは、そのうち21レースほどです。1号艇の負けは、そのあいだに1回増える計算になる。</p>
+
+<figure class="chart" role="img" aria-label="1週間84レースのうち、4コースにA1が入るレースと、1号艇の負けが増える1レース"><svg viewBox="0 0 360 190" width="100%" xmlns="http://www.w3.org/2000/svg">
+<defs><pattern id="sq" x="52" y="14" width="24" height="22" patternUnits="userSpaceOnUse"><rect x="1" y="1" width="20" height="18" rx="2" fill="#2a3a4d"/></pattern></defs>
+<rect x="52" y="14" width="288" height="154" fill="url(#sq)"/>
+<rect x="125" y="15" width="20" height="18" rx="2" fill="#ff9f6b"/>
+<rect x="173" y="15" width="20" height="18" rx="2" fill="#ff9f6b"/>
+<rect x="197" y="15" width="20" height="18" rx="2" fill="#ff9f6b"/>
+<rect x="53" y="37" width="20" height="18" rx="2" fill="#ff9f6b"/>
+<rect x="101" y="37" width="20" height="18" rx="2" fill="#ff9f6b"/>
+<rect x="125" y="37" width="20" height="18" rx="2" fill="#ff9f6b"/>
+<rect x="77" y="59" width="20" height="18" rx="2" fill="#ff9f6b"/>
+<rect x="101" y="59" width="20" height="18" rx="2" fill="#ff9f6b"/>
+<rect x="125" y="59" width="20" height="18" rx="2" fill="#ff9f6b"/>
+<rect x="125" y="81" width="20" height="18" rx="2" fill="#ff9f6b"/>
+<rect x="197" y="81" width="20" height="18" rx="2" fill="#ff9f6b"/>
+<rect x="245" y="81" width="20" height="18" rx="2" fill="#ffd166"/>
+<rect x="53" y="103" width="20" height="18" rx="2" fill="#ff9f6b"/>
+<rect x="221" y="103" width="20" height="18" rx="2" fill="#ff9f6b"/>
+<rect x="293" y="103" width="20" height="18" rx="2" fill="#ff9f6b"/>
+<rect x="197" y="125" width="20" height="18" rx="2" fill="#ff9f6b"/>
+<rect x="221" y="125" width="20" height="18" rx="2" fill="#ff9f6b"/>
+<rect x="317" y="125" width="20" height="18" rx="2" fill="#ff9f6b"/>
+<rect x="125" y="147" width="20" height="18" rx="2" fill="#ff9f6b"/>
+<rect x="221" y="147" width="20" height="18" rx="2" fill="#ff9f6b"/>
+<rect x="269" y="147" width="20" height="18" rx="2" fill="#ff9f6b"/>
+<text x="44.0" y="28.0" font-size="10" fill="#8a94a3" text-anchor="end">1日目</text>
+<text x="44.0" y="50.0" font-size="10" fill="#8a94a3" text-anchor="end">2日目</text>
+<text x="44.0" y="72.0" font-size="10" fill="#8a94a3" text-anchor="end">3日目</text>
+<text x="44.0" y="94.0" font-size="10" fill="#8a94a3" text-anchor="end">4日目</text>
+<text x="44.0" y="116.0" font-size="10" fill="#8a94a3" text-anchor="end">5日目</text>
+<text x="44.0" y="138.0" font-size="10" fill="#8a94a3" text-anchor="end">6日目</text>
+<text x="44.0" y="160.0" font-size="10" fill="#8a94a3" text-anchor="end">7日目</text>
+<text x="64.0" y="184.0" font-size="10" fill="#8a94a3" text-anchor="middle">1R</text>
+<text x="328.0" y="184.0" font-size="10" fill="#8a94a3" text-anchor="middle">12R</text>
+</svg><figcaption>ひとつの場の1週間。橙が4コースにA1が入るレース、黄がそのうち1号艇の負けが増える1回。並びは大きさのイメージで、どのレースかは決まっていません。縮尺は正確ではありません。</figcaption></figure>
+
+<p>この差を、同じ場に通って自分の目で見分けようとすると、開催日でざっと290日。</p>
+
+<p>それでも、印を1つ動かすかどうかで言えば、足りる大きさです。この連載では前の回で、それより小さい差なら印は動かさない、という線を2.0ポイントに引きました。今回の差は、その線を大きく超えます。</p>
+
+<h2 class="sec">荒れたのか</h2>
+
+<p>では、俗説の後半、「荒れる」のほうはどうか。1号艇が負けやすくなるのなら、配当も跳ねるはず。3連単が1万円を超えた<a href="../../glossary/?q=%E4%B8%87%E8%88%9F">万舟</a>の割合を、同じように揃えて比べました。</p>
+
+<p>差は0.8ポイント。</p>
+
+<p>目安の半分にも届かず、万舟は120レースあまりに1本増えるだけでした。1号艇の負けが増えたわりに、配当はほとんど動いていません。</p>
+
+<h2 class="sec">勝つのは実力者</h2>
+
+<p>勝った舟の側から見ると、理由が見えてきます。4コースの舟が1着になったレースだけを取り出しました。</p>
+
+<figure class="chart" role="img" aria-label="4コースの舟が勝ったとき、A1なら払戻は低く万舟も少ない"><svg viewBox="0 0 360 200" width="100%" xmlns="http://www.w3.org/2000/svg">
+<text x="86.0" y="18.0" font-size="10.5" fill="#e0e6ed" text-anchor="middle">3連単の払戻の真ん中の値</text>
+<line x1="16" y1="160" x2="156" y2="160" stroke="#4a627f" stroke-width="0.8"/>
+<rect x="34" y="107.0" width="40" height="53.0" fill="#ff9f6b"/>
+<text x="54.0" y="101.0" font-size="10.5" fill="#e0e6ed" text-anchor="middle">4,340円</text>
+<text x="54.0" y="176.0" font-size="10" fill="#8a94a3" text-anchor="middle">A1</text>
+<rect x="98" y="55.9" width="40" height="104.1" fill="#8a94a3"/>
+<text x="118.0" y="49.9" font-size="10.5" fill="#e0e6ed" text-anchor="middle">8,520円</text>
+<text x="118.0" y="176.0" font-size="10" fill="#8a94a3" text-anchor="middle">A1以外</text>
+<text x="266.0" y="18.0" font-size="10.5" fill="#e0e6ed" text-anchor="middle">万舟の割合</text>
+<line x1="196" y1="160" x2="336" y2="160" stroke="#4a627f" stroke-width="0.8"/>
+<rect x="214" y="108.0" width="40" height="52.0" fill="#ff9f6b"/>
+<text x="234.0" y="102.0" font-size="10.5" fill="#e0e6ed" text-anchor="middle">22.7%</text>
+<text x="234.0" y="176.0" font-size="10" fill="#8a94a3" text-anchor="middle">A1</text>
+<rect x="278" y="58.9" width="40" height="101.1" fill="#8a94a3"/>
+<text x="298.0" y="52.9" font-size="10.5" fill="#e0e6ed" text-anchor="middle">44.1%</text>
+<text x="298.0" y="176.0" font-size="10" fill="#8a94a3" text-anchor="middle">A1以外</text>
+<text x="180.0" y="194.0" font-size="10" fill="#8a94a3" text-anchor="middle">4コースの舟が1着のレース</text>
+</svg><figcaption>4コースの舟が1着になったレースを、その舟がA1だったかどうかで分けた、揃える前の数字。橙がA1、灰がA1以外。</figcaption></figure>
+
+<p>勝ったのが4コースのA1だった22,458レースでは、3連単の払戻の真ん中の値が4,340円で、万舟は22.7%。A1でない4コースの舟が勝った35,430レースでは8,520円で、44.1%でした。</p>
+
+<p>揃えて比べると、4コースの1着率は9.0ポイント上がります。1コースから減ったぶんより大きく、増えた1号艇の負けは、4コースの実力者の勝ちで埋まっている計算になる。払戻が低いのは、多くの人がその決着を買っていたからです。</p>
+
+<p>4号艇の実力者は、1号艇を倒す。ただ、荒らしはしない。</p>
+
+<h2 class="sec">4という数字は効いていたか</h2>
+
+<p>そもそも、「4カド」の4は効いているのか。同じ揃え方のまま、A1が入ったコースを2から6まで入れ替えて比べました。</p>
+
+<table>
+<thead><tr><th>A1が入ったコース</th><th>1コースの1着率の差</th><th>万舟の割合の差</th></tr></thead>
+<tbody>
+<tr><td>2コース</td><td>−6.2</td><td>+0.9</td></tr>
+<tr><td>3コース</td><td>−5.8</td><td>+0.9</td></tr>
+<tr><td>4コース</td><td>−5.4</td><td>+0.8</td></tr>
+<tr><td>5コース</td><td>−4.5</td><td>+2.3</td></tr>
+<tr><td>6コース</td><td>−3.4</td><td>+4.2</td></tr>
+</tbody>
+</table>
+
+<p>4コースを疑い、壁を調べ、10年を年ごとに並べて、いちばん効いていたのは2コースでした。</p>
+
+<p>内にいるほど1号艇は勝ちにくく、4コースは3番目。万舟が増えるのは逆に外側で、6コースのA1なら4.2ポイントに届く。</p>
+
+<p>現場の4カドの話は、4号艇がまくって1号艇が飛んだ1本から始まります。こちらは、どのコースにA1がいると1号艇の勝ちが減るのかを、全部のレースで数えました。</p>
+
+<h2 class="sec">まくりが決まる、の中身</h2>
+
+<p>4カドの話には、もうひとつの言い方があります。</p>
+
+<p class="lead">「4カドの実力者は、まくりが決まる」</p>
+
+<p>1号艇が負けた243,853レースで、誰が勝ったのかを数えました。4コースにA1がいると、勝ったのが4号艇だった割合は36.2%で、いないときの19.5%のおよそ2倍になる。</p>
+
+<p>ところが、決まり手の割合は、ほとんど変わっていません。1号艇が負けたレースのうち<a href="../../glossary/?q=%E3%81%BE%E3%81%8F%E3%82%8A">まくり</a>は、4コースにA1がいると33.5%、いないと33.3%。いつもより多くまくりが決まったのではなく、まくった舟がいつもより4号艇だった、ということになります。</p>
+
+<h2 class="sec">動くのは1号艇の印</h2>
+
+<p>俗説は、半分当たっていました。1号艇は5.4ポイント負けやすくなり、10年どの年でも向きは同じ。</p>
+
+<p>荒れるほうは、ほとんど起きていない。増えた負けのぶんを取っているのが、よく売れている実力者本人だからです。</p>
+
+<p>出走表の4号艇の欄にA1の文字を見つけても、配当の桁はほとんど動かない。動くのは、1号艇の印のほうです。</p>
+
+</div>
+
+<details>
+<summary>この検証の数え方</summary>
+<div class="dbody">
+<ul>
+<li>期間：2016年11月1日から2026年8月11日。競走成績（Kファイル）の3,571日分。8月11日で止めたのは、級別を取っている番組表の手元の在庫がそこまでだからです</li>
+<li>レース数：538,268。1着のない不成立72レースと、1コースか4コースの進入が記録にない2レースを除いています</li>
+<li>コース：枠番ではなく、実際の進入で決めています。カド（ダッシュ勢の最も内側）かどうかは記録にないため、4コースに入った舟を数えています</li>
+<li>実力者：レース当日の番組表（Bファイル）でA1級だった選手。級別は番組表から選手ごとの変更日を拾って当てています</li>
+<li>揃えた条件：場・年・1コースの選手の級別（4段）。組の中に比べる相手がいない112レースは、揃えた比較から外れています。本文の186レースは、不成立72・進入の記録なし2・この112の合計です</li>
+<li>比較の基準：組の中で「4コースがA1かどうか」のラベルだけを1,000回入れ替えて作った分布と比べています。理論上の確率分布は使っていません。この方法で見分けられる最小の差は0.43ポイントです</li>
+<li>重み：組ごとに、A1がいた件数といなかった件数の積を、その和で割ったもの</li>
+<li>年ごと：年ごとに場と1コースの級別で揃え、入れ替えは200回です</li>
+<li>1号艇の級別ごとの差（本文のA1で6.1、B1で5.2ポイント）：場・年で揃えた値です</li>
+<li>同じ選手での比較：1コースに入った選手と級別ごとに揃え、4コースがA1のときとそうでないときの両方がある4,063組（1,968人）</li>
+<li>万舟：3連単の払戻が10,000円以上。払戻の記録がないレースを除いています</li>
+<li>開催日290日：見分けられる最小の差が今回の差まで下がるのに要る、4コースにA1がいるレースの数（約870レース）を、1つの場の1開催日あたりに4コースへA1が入るレース数（約3.05）で割ったものです</li>
+<li>目安の2.0ポイント：検証07で決めた、印を動かすかどうかの線。検証06の1.8ポイントの差は印が動かない差だった、という判断から置いています</li>
+<li>枠番での数え直し：枠番の1号艇の1着と、枠番の4号艇がA1かどうかで、場・年・1号艇の級別を揃えて同じ方法で比べています。対象は不成立を除いた538,270レース。コースで数えた本編より2レース多いのは、進入の記録がないレースも枠番なら数えられるためです</li>
+<li>3コースの級別別：3コースの進入が記録にないレースは表に入っていません</li>
+<li>決まり手の割合と、1号艇が負けたときに勝ったコース：揃える前の割合です</li>
+<li>枠なり：6艇全員が枠番どおりのコースに入った411,322レース</li>
+<li>図：すべてこの検証の集計から描いたもので、外部の画像は使っていません。1週間の図は大きさのイメージで、縮尺は正確ではありません</li>
+<li>揃えていないもの：開催のグレード、モーター、その日の調子、隊形（スローかダッシュか）</li>
+</ul>
+</div>
+</details>
+<p class="stamp">
+  集計期間 <span>2016/11/1 から 2026/8/11</span>　/　<span>3,571</span>日・<span>538,268</span>レース<br>
+  出典：公式サイト 競走成績（Kファイル）・番組表（Bファイル）。この期間の数字は固定で、更新されません。
+</p>
+
+<a class="siteback" href="../../">← データ攻め トップ</a>
+<a class="siteback" href="../">← 検証の一覧</a>
+
+</div>
+
+<script src="../../assets/guard.js" defer></script>
+</body>
+</html>
