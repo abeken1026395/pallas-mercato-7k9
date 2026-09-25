@@ -87,7 +87,7 @@
 
 ### 2026-09-26 検証08から出た宿題
 
-- **Bファイルの日次取得が無い**。`C:\Users\USER\bfiles\fetchBfiles.py` は履歴の一括取得用で、取得範囲が `NEWEST = 2026-08-11` に固定されている（最後の実行 2026-08-15）。止まったのではなく、日次で足す仕組みが元から無い。`rankHistory.json` も同日まで。級別を使う検証は 2026-08-11 までしか数えられない。日次化するならローカルのタスク登録（けんの承認が要る）と `rankHistory.json` の作り直しを1本で設計する。読めなかったファイル30件（parseStat.json）も同時に
+- **Bファイルの日次取得が無い**（次のチャットのテーマ・けん承認済み）。不足分は 2026-09-26 に Kファイルの最新日 2026-09-24 まで取得し、級別の推移を作り直した（#527・`5f12edc`・欠け0日・44日分）。`C:\Users\USER\bfiles\fetchBfiles.py` は履歴の一括取得用で `NEWEST` が固定のため、今後も手で延ばさない限り止まる。やること：①毎日の取得をPCの定期実行に登録（6時台の Kファイル取得と同じ形）②取得後に `parseBfiles.py` → `tmp\buildRankHistory.py` → `docs/data/rankHistory.json` の PR まで ③読めないファイル30件（parseStat.json・unzip 失敗）の取り直し。不足分の取得に使ったラッパーは `codeShikyu\bfilesFetch20260926\fetchBToK.py`（Kファイルの最新日まで取る）
 - **PR #525（検証05・06・07の SNS 共有用メタタグ3行）**：#520 のマージ後にマージする（main の lintGuard FAIL が #520 で消えるまで lint が赤）。けんの承認待ち
 - **検証08で見送ったもの**：カド（スローかダッシュか）の判定（Kファイルに隊形が無い）、4コースのA1が勝つときのまくり率は42.4%でA1以外の45.9%より低い（本文には入れていない）
 - 片付け済み（2026-09-26）：kenshoKata を v1.1 に更新（8章にAI生成の挿絵の決まり・鍵13個を入れ替え）／プロジェクトの `dokusyaThinkingModel.md` を v4 に差し替え／作業コピー（`bfiles\tmp\kensho08stage`・`kensho08parts` の中身）を削除／ローカルCodeの許可4行は `.claude/settings.local.json` に記録済み
