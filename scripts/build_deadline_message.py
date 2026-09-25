@@ -11,12 +11,20 @@ docs/racers/racers_today.csv の「締切時刻」から、対象日の各場に
   （時間帯は場ごとに固定ではなく開催区分に依存するため）。
 - 曜日は対象日の暦から算出（外部の曜日指定は信用しない）。
 
-対象日: 既定は翌日(JST)。環境変数 DEADLINE_DATE=YYYYMMDD で上書き可。
+対象日: 既定は「次の開催日」(JST)。環境変数 DEADLINE_DATE=YYYYMMDD で上書き可。
+  - JST 12:00 以降の実行 → 翌日
+  - JST 12:00 より前の実行 → 当日
+  夜 23:45 の cron は GitHub 側の遅延で日付をまたいで起動する（2026-09 実測で JST 02:25〜04:43）。
+  起動時刻の「翌日」をそのまま取ると翌々日を対象にし、出走表が未公開のため
+  中身の無いメッセージしか作れなかった（2026-07-15 以降の公開がすべてこれ）。
+対象日の締切が1件も無いときは出力ファイルを書き換えず、::error:: を出して exit 1。
+  中身の無いメッセージを黙って公開し、緑で終わる形にしないため。
 出力: docs/data/deadlines_tomorrow.txt ＋ 標準出力 ＋ GITHUB_STEP_SUMMARY（あれば）。
 """
 
 import csv
 import os
+import sys
 import datetime
 
 JST = datetime.timezone(datetime.timedelta(hours=9))
@@ -43,7 +51,13 @@ def target_hd():
     v = os.environ.get("DEADLINE_DATE", "").strip()
     if v:
         return v
-    return (datetime.datetime.now(JST).date() + datetime.timedelta(days=1)).strftime("%Y%m%d")
+    return default_hd(datetime.datetime.now(JST))
+
+
+def default_hd(now):
+    """実行時刻(JST) → 対象日。正午より前は当日、正午以降は翌日（docstring 参照）。"""
+    base = now.date() if now.hour < 12 else now.date() + datetime.timedelta(days=1)
+    return base.strftime("%Y%m%d")
 
 
 def to_min(hhmm):
@@ -129,10 +143,17 @@ def write_outputs(msg):
 def main():
     hd = target_hd()
     venues = collect(hd)
+    print("対象日: {} / 締切のある場: {} 場".format(hd, len(venues)))
+    if not venues:
+        # 出力は前回のまま残す（中身の無いメッセージで上書きしない）。赤で落として気づかせる。
+        print("::error::対象日 {} の締切が racers_today.csv に1件も無い。"
+              "出力ファイルは更新していない".format(hd))
+        return 1
     msg = build_message(hd, venues)
     write_outputs(msg)
     print(msg)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
