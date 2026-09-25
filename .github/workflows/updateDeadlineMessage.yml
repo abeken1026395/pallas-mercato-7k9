@@ -22,6 +22,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # 実測: refresh racers 3分10〜21秒（2026-09-11 / 09-24 の3run）。ハングで最大360分走らせない。
+    timeout-minutes: 15
     env:
       # 未設定なら LINE 投稿ステップはスキップ（＝トークン登録まで無害）
       LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
@@ -52,10 +54,17 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/
+          # 公開するのは締切一覧だけ。refresh racers が書き換えた docs/racers/・venueMeta.json は
+          # このジョブの入力に使うだけで、公開は出走表データ自動更新（update_racers）の担当。
+          # 旧: git add docs/ で同じ生成物を同時刻の update_racers と取り合い、rebase が毎回衝突して
+          # 2026-09-11 以降 push が全滅していた。
+          git add docs/data/deadlines_tomorrow.txt
           # 変更なし＝push しない（正常）。
           git diff --staged --quiet && echo "no change（push 不要）" && exit 0
           git commit -m "締切一覧メッセージ自動生成 $(date +'%Y-%m-%d %H:%M')"
+          # コミットしなかった入力側の書き換え（docs/racers/ 等）が残ったままだと pull --rebase が拒否する。
+          # ランナー上の使い捨ての変更なので退避して捨てる（コミット済みの締切一覧には影響しない）。
+          git stash push --include-untracked -q || true
           # push に失敗したらリトライし、尽きたら落とす（旧: ループが sleep で終わり exit 0＝緑のまま未公開）。
           # 衝突で止まった rebase は解いてから再試行する（旧: unmerged のまま残り、2回目以降は必ず失敗していた）。
           PUSHED=0

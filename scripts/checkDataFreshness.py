@@ -23,6 +23,8 @@
 開催の有無を問わないので、非開催による誤検知が原理的に起きない。
 
 results/ と決まり手CSV は単一の対象で、更新頻度も一定なので日数しきい値で見る。
+締切一覧（docs/data/deadlines_tomorrow.txt）は本文の見出しの日付が基準日と一致し、
+中身があることを見る（前夜に当日分を作るため、朝の時点で当日になっているのが正常）。
 
 環境変数:
   WINDOW      … 払戻の突合窓（日）既定 10。基準日の前日から遡る
@@ -202,6 +204,36 @@ def check_kimarite(today):
     return [(p, last, "OK" if age <= TH_KIMARITE else "古い（%d日前）" % age)]
 
 
+DEADLINE_PATH = "docs/data/deadlines_tomorrow.txt"
+DEADLINE_EMPTY = "まだ取得できていません"  # 旧版が書いていた中身の無いメッセージの目印
+
+
+def check_deadlines(today):
+    """締切一覧（前夜 23:45 の cron で当日分を生成）の本文の日付が基準日と一致するか。
+
+    ファイルの更新日ではなく本文の見出し「🌅M/D(曜)総合レース部屋🌅」の日付で見る。
+    中身の無いメッセージ（出走表未取得）も異常として数える。
+    """
+    p = DEADLINE_PATH
+    if not os.path.exists(p):
+        return [(p, "-", "ファイルなし")]
+    try:
+        with open(p, encoding="utf-8") as f:
+            body = f.read()
+    except Exception as e:
+        return [(p, "-", "読めない(%r)" % (e,))]
+    m = re.search(r"(\d{1,2})/(\d{1,2})\(", body.splitlines()[0] if body else "")
+    if not m:
+        return [(p, "-", "見出しの日付が読めない")]
+    mo, dy = int(m.group(1)), int(m.group(2))
+    shown = "%d/%d" % (mo, dy)
+    if (mo, dy) != (today.month, today.day):
+        return [(p, shown, "本文の日付が基準日 %d/%d と違う" % (today.month, today.day))]
+    if DEADLINE_EMPTY in body:
+        return [(p, shown, "中身が無い（出走表未取得のメッセージ）")]
+    return [(p, shown, "OK")]
+
+
 def main():
     today = today_jst()
     print("基準日(JST): %s" % today.strftime("%Y-%m-%d"))
@@ -219,7 +251,8 @@ def main():
         print("  ※ ミラーから取得できなかった日 %d件: %s"
               % (len(unreachable), " ".join(x[0] for x in unreachable)))
 
-    groups = [("results/", check_results(today)), ("決まり手CSV", check_kimarite(today))]
+    groups = [("results/", check_results(today)), ("決まり手CSV", check_kimarite(today)),
+              ("締切一覧", check_deadlines(today))]
     for title, rows in groups:
         print("\n[%s]" % title)
         for name, last, st in rows:
