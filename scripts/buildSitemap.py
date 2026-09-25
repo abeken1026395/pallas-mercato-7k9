@@ -2,7 +2,8 @@
 """
 docs/sitemap.xml を生成する（siteReachPlan20260911 V3）。
 
-- 検索に開いている35本（2026-09-11 裁定の C案）の URL だけを列挙する。
+- 検索に開いているページ（2026-09-11 裁定の C案）の URL だけを列挙する。
+  検証記事は /kensho/ ハブのリンクから拾うので、公開した回は自動で載る。
   閉じたままのページ（racers・highlights など14本）は載せない。
 - lastmod は各ファイルの最終コミット日時（git log -1 --format=%cI -- <path>）。
   履歴が取れないファイルがあれば推測で埋めずに止まる（Actions では fetch-depth: 0 が要る）。
@@ -27,16 +28,28 @@ VENUES = [
     "shimonoseki", "wakamatsu", "ashiya", "fukuoka", "karatsu", "omura",
 ]
 
-# 開く35本（トップ／検証5本／用語辞典・24場・場の文化・実況アナ／万舟25本）
+NOINDEX = re.compile(r'<meta name="robots" content="noindex', re.I)
+KENSHO_LINK = re.compile(r'href="\./([a-z0-9]+)/"')
+
+
+def kensho_pages():
+    """/kensho/ ハブからリンクされている検証記事。公開のたびに手で足すと漏れる（kisetsu・jimoto の実例）。"""
+    with open(os.path.join(ROOT, "docs", "kensho", "index.html"), encoding="utf-8") as f:
+        slugs = list(dict.fromkeys(KENSHO_LINK.findall(f.read())))
+    if not slugs:
+        sys.exit("/kensho/ ハブから検証記事のリンクが1本も取れない")
+    return ["kensho/%s/" % s for s in slugs]
+
+
+# 開くページ（トップ／検証ハブと検証記事／用語辞典・24場・場の文化・実況アナ／万舟25本）
 OPEN = (
     [""]
-    + ["kensho/", "kensho/shobugake/", "kensho/taiju/", "kensho/fmochi/", "kensho/flow/", "kensho/ninki/"]
+    + ["kensho/"] + kensho_pages()
     + ["glossary/", "stadium/", "fan/", "announcers/"]
     + ["payouts/"]
     + ["%s-payouts/" % v for v in VENUES]
 )
-
-NOINDEX = re.compile(r'<meta name="robots" content="noindex', re.I)
+FIXED = 1 + 1 + 4 + 1 + len(VENUES)   # 検証記事以外の本数（31本）
 
 
 def lastmod(rel):
@@ -49,8 +62,8 @@ def lastmod(rel):
 
 
 def main():
-    if len(OPEN) != 36 or len(set(OPEN)) != 36:
-        sys.exit("開くページの数が36本ではない: %d" % len(OPEN))
+    if len(set(OPEN)) != len(OPEN) or len(OPEN) - len(kensho_pages()) != FIXED:
+        sys.exit("開くページの数が合わない: %d（検証記事以外は %d 本のはず）" % (len(OPEN), FIXED))
     rows = []
     for path in OPEN:
         rel = "docs/%sindex.html" % path

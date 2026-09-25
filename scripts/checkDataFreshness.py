@@ -180,7 +180,21 @@ def check_results(today):
     days = sorted(re.findall(r"(\d{8})\.json", " ".join(glob.glob("results/*.json"))))
     if not days:
         return [("results/", "-", "ファイルなし")]
-    hd = days[-1]
+    # updateResultsLive は当日0時台に「結果」が空のファイルを先に作る。取得が止まっても
+    # 空ファイルだけは毎日増えるので、ファイル名の最新日では止まりに気づけない。
+    # 結果が1件以上入っている最新日で測る。
+    hd = None
+    for day in reversed(days):
+        try:
+            with open("results/%s.json" % day, encoding="utf-8") as f:
+                doc = json.load(f)
+        except (OSError, ValueError):
+            continue
+        if isinstance(doc, dict) and doc.get("結果"):
+            hd = day
+            break
+    if hd is None:
+        return [("results/", "-", "結果の入ったファイルなし")]
     age = (today - d(hd)).days
     return [("results/", hd, "OK" if age <= TH_RESULTS else "古い（%d日前）" % age)]
 
