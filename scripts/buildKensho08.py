@@ -8,7 +8,7 @@
 #
 # rows    : Kファイルを1レースずつ流し、1レース1行のCSVを PARTS_DIR に年ごとに書く（リポジトリの外）
 # analyze : 年の順に読み、Bファイル由来の級別の履歴（rankHistory.json）で当日の級別を当て、
-#           analysis/kensho08/stage0.json・stage1.json・stage2.json を書く
+#           analysis/kensho08/stage0.json から stage3.json を書く（stage3 は場ごと）
 #
 # 期間：2016-11-01 から 2026-08-11（Bファイルの在庫の終わり）
 # 主な比較：4コースの舟がA1か否かで、1コースの1着率の重み付き差（A1あり − なし）
@@ -400,6 +400,33 @@ def run_analyze():
                                "manshu": round(100 * float((pay[qq] >= 10000).mean()), 4)}
     with open(os.path.join(OUTDIR, "stage2.json"), "w", encoding="utf-8") as f:
         json.dump(s2, f, ensure_ascii=False, indent=1)
+    # ---- stage3（場ごと） ----
+    # 場ごとに、年 x 1コースの級別で揃えた差を出す。場の差が偶然を超えるかは、
+    # 全場をまとめた差（精度で重み付け）に各場の置換分布を足した 1,000 組の「場の差の標準偏差」と比べる。
+    s3 = {"venues": {}}
+    ds, ws, nl, bases, mks = [], [], [], [], []
+    for v in range(1, 25):
+        q = j == v
+        r = perm_test("venue%02d" % v, y1[q], x[q], (yr * 10 + c[:, 0])[q])
+        rm = perm_test("venueM%02d" % v, (pay[q & pm] >= 10000).astype(np.int64), x[q & pm], (yr * 10 + c[:, 0])[q & pm])
+        base = float(y1[q & (x == 0)].mean())
+        qx = q & (x == 1)
+        mk = float(((wcm[qx] == 4) & (kim[qx] == 2)).mean())
+        s3["venues"]["%02d" % v] = {"c1Win": pub(r), "manshu": pub(rm), "n": int(q.sum()),
+                                    "c1WinBaseNoA1": round(100 * base, 4), "c4MakuriWinA1": round(100 * mk, 4)}
+        ds.append(r["diffPt"]); ws.append(1.0 / (r["nullSdPt"] ** 2)); nl.append(100 * r["_null"]); bases.append(base); mks.append(mk)
+    ds = np.array(ds); ws = np.array(ws); nl = np.array(nl)
+    pooled = float((ds * ws).sum() / ws.sum())
+    sim = (pooled + nl).std(axis=0)
+    sdo = float(ds.std())
+    s3["spread"] = {"pooledPt": round(pooled, 4), "sdObsPt": round(sdo, 4), "sdNullMeanPt": round(float(sim.mean()), 4),
+                    "sdNullMaxPt": round(float(sim.max()), 4), "nullAtLeastObs": int((sim >= sdo).sum()), "nDraws": NPERM,
+                    "negativeVenues": int((ds < 0).sum()),
+                    "beyondMde": int(sum(1 for v in s3["venues"].values() if abs(v["c1Win"]["diffPt"]) >= v["c1Win"]["mdePt"]))}
+    s3["corr"] = {"diffVsBaseNoA1": round(float(np.corrcoef(ds, bases)[0, 1]), 4),
+                  "diffVsC4MakuriWinA1": round(float(np.corrcoef(ds, mks)[0, 1]), 4)}
+    with open(os.path.join(OUTDIR, "stage3.json"), "w", encoding="utf-8") as f:
+        json.dump(s3, f, ensure_ascii=False, indent=1)
     print("analyze OK races=%d main=%.4f mde=%.4f" % (int(H14.sum()), s1["main"]["diffPt"], s1["main"]["mdePt"]))
 
 
