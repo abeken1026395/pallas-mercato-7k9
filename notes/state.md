@@ -131,7 +131,6 @@
 - **`docs/data/gradeSchedule.json` が `facts.md` 3章の正本／生成物の表に載っていない**。生成物（`fetchGradeSchedule.py` が `update_racers.yml` 内で作る）なのに台帳に無いため、直接編集される危険が残る。1行追記すれば済む
 
 - **`update_racers.yml` は push に失敗しても success になる**。`git pull --rebase` が他の run と衝突すると5回のリトライが全て失敗するが、`for` ループ末尾の `sleep 5` が終了コード0を返すためステップは緑になり、**コミットが静かに捨てられる**（2026-09-07 run 34088406499 で実測・`gradeSchedule.json` の生成が消えた）。同型の `git add`＋`pull --rebase`＋`push` を持つ全WFが同じ穴を持つ可能性がある。当座の回避は「dispatch 前に走行中のWFが0本になるのを待つ」。**この事象自体は確定事実なので `facts.md` 9章（既知の落とし穴）へ移し、ここには対処タスクだけ残す**
-- リモートブランチの仕分け。**総数35本**・保護6本・削除待ち23本・メモ未記載の残余あり。判定は**merge-base の3点比較**（`git diff --name-only` も `git branch --merged` も使えない）。**クラウドCodeはブランチ削除ができない**（403 のほか `git push origin --delete` も send-pack で切断される・2026-09-05に5回失敗）。削除はローカルCodeかGitHub画面。マージ済み未削除に `claude/coverage-fail-20260812-03-av4dub`（PR #345・6e37953e）と `claude/players-guard-banner-standard-pd6ttn`（PR #351・9d1cc73e）、2026-09-05の5本 `feat/racer-course-stats`（#347）・`feat/racer-course-display`（#348）・`feat/course-label-fix`（#349）・`feat/branch-course-rate`（#350）・`feat/sort-in-rate-results`（#352）、2026-09-07の3本 `claude/course-last10-preview-vz6x0o`（#357）・`claude/course-last10-build`（#364）・`claude/merge-pr-364-d8crpj`、2026-09-07 の `claude/racers-detail-keys-0jkzsh`（#372）、2026-09-07 のグレードバッジ4本（#369・#370 `claude/grade-schedule-parser-20260907`・#375 `claude/grade-schedule-female-20260907`・#376 `claude/racers-grade-badges-20260907`）が加わった。さらに 2026-09-07 のグレードバッジ続き2本（#378 見どころ・#379 `.gb-sg` コントラスト）が未削除で残っている
 - Stop hook の条件修正
 - 選手コメントの調査（公式に存在しない。所在・取得可否・著作権・カバー率）。2026-09-22 けん裁定で次のチャットのテーマにした（上の「展示タイム別の成績から出た宿題」）
 - `lintGuard.py` の検査軸変更（判定式リテラル依存をやめ、L2の7ページも canonical 照合へ）
@@ -179,6 +178,17 @@
 ---
 
 ## 裁定ログ
+
+### 2026-09-27 見張りタスク codeWatcher とブランチ整理（PR #535）
+
+- **codeWatcher**（けん裁定・案1）：けんのPCのタスク `boatrace-codeWatcher` が5分ごとに `codeShikyu\<作業フォルダ>\` を見て、`kick.txt` があり `report.md`・`done.txt` が無いフォルダを `claude -p` で無人実行する。`kick.txt` の1行目は latest.md の sha256（一致しないと動かない・同期待ち30分）、2行目以降はけん承認の一文。本体は `C:\Users\USER\codeWatcher\codeWatcher.ps1`、ログは `scripts\logs\codeWatcher_*.log`。更新したら `registerCodeWatcher.ps1` を再実行する
+- **統括の手順**：latest.md と付属物を置き終えてから、最後に kick.txt を置く。承認文は、けんがチャットで承認したときだけ書く。けんは1行を貼らなくてよい。PCのログは統括が接続フォルダ経由で直接読む
+- 対話型のローカルCodeは、Drive から渡したスクリプトの実行を承認文があっても3回拒否した。`claude -p` に許可ツールを明示すると通る。登録のため `C:\Users\USER\.claude\settings.json` に登録コマンド1つだけの許可を入れた（全セッションに効く・完全一致のみ）
+- 初回の実行（`branchSeiri20260927b`）でリモートブランチ159本を13本に整理。マージ済み139本を削除、未マージで中身が main に無い9本はタグ `archive/<名前>` に残して削除（9/9 がもとの SHA と一致）。残りは main・open PR の10本・当時作業中の2本
+- 注意：Windows のCodeは PowerShell ツールも使うが、許可ツールは Bash だけにしてある（初回に `Get-ChildItem` が1回拒否されたが完了には影響なし）。**Drive の codeShikyu に書き込める人はこのPCで作業を動かせる**ので、共有はけん本人だけに保つ
+- クラウドからのブランチ削除は API・git とも不可（403・切断）で変わらず
+
+**ルール**：kick.txt は最後に置く。同じ作業を見張りと対話型Codeの両方に渡さない。
 
 ### 2026-09-26 Bファイルの日次取得（PR #530）
 
