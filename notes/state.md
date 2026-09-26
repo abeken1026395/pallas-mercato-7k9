@@ -3,7 +3,7 @@
 このファイルは運用の記録であり、読者向けの公開ページではない。
 毎回のチャット終了時に更新する。事実・仕様は `notes/facts.md`、行動規範はプロジェクト指示（L1）にある。
 
-最終更新 2026-09-26 JST ／ 基準 main `1571e0c`
+最終更新 2026-09-26 JST ／ 基準 main `cd2ff82`
 
 ---
 
@@ -56,7 +56,7 @@
 ## 未マージPR・作業ブランチ
 
 - **PR #425（検証05の集計）は 2026-09-22 にマージ済み**（`55d2c3b50`・HEAD `28b0e0a0b`）。`analysis/kensho05/` に stage0〜14。**分母は 2017-10-25〜2026-09-01・474,126レース・系列40,840・隣接ペア421,699・切れ11,587・万舟率0.171727・五分位の境界 1,060/1,890/3,610/8,480・乱数seed 20260914**
-- **PR #520（検証08の公開・予約マージ待ち）**。HEAD `b1a1f9b8c41ced16507d5f4b92aea3cd438bfa81`。2026-09-27 07:00 JST に統括がマージする（HEAD固定・保険 09:00 JST。予約はけんのPCに紐づくため前夜はPCを開いたまま）。`scripts/lintGuard.py` に kisetsu の登録漏れの修正を含む。**マージまで main の lintGuard は FAIL（kisetsu 未分類）のまま**で、`docs/**/*.html` を触るPRは全部 lint が赤になる
+- **PR #520（検証08の公開・予約マージ待ち）**。HEAD `73a8b807369a168e79a36b27ee2d894131d1ada3`。2026-09-27 07:00 JST に統括がマージする（HEAD固定・保険 09:00 JST。予約はけんのPCに紐づくため前夜はPCを開いたまま）。`scripts/lintGuard.py` に kisetsu の登録漏れの修正を含む。**マージまで main の lintGuard は FAIL（kisetsu 未分類）のまま**で、`docs/**/*.html` を触るPRは全部 lint が赤になる
 - マージ済みで未削除のブランチは「別チャット送り」のリモートブランチ仕分けに記載。
 
 ---
@@ -68,6 +68,7 @@
 |**9月上旬**|`motorParts` 4日分の埋め戻し（20260812 / 0813 / 0814 / 0817・計4,307行）。材料は `preview/*.json` に全日存在。**復元→`backfillMotorPartsMotorNo.py`→`buildMotorMaintenance.py` 再ビルド**が必須工程。`anteiban` のみ復元不可。識別は `取得日時` が空の行。**ローカルCode限定**|
 |**2026-09-30 頃**|**決まり手CSVの鮮度警報が鳴る見込み**（`推定`：`racerKimarite.csv` 最終 2026-09-05＋しきい値25日）。ローカルタスク `boatrace-updateKimarite` が 09-16 の定時から成功しておらず、最後の起動（09-24 18:53）は終了コード `0xC000013A`（途中で打ち切り）。最終成功 2026-09-06（`health/status.json` 2026-09-25 22:00）。**ローカルCode限定**：ログを見て手動で1回回す。在庫読みへの切り替え（小さい残件の `scrapeKimarite.py` 32分→1分）で打ち切りの原因ごと消せる|
 |**2026-09-26 朝**|締切一覧（PR #517）の定時実行を確かめる。`updateDeadlineMessage.yml` の 09-25 夜の schedule run が緑、`docs/data/deadlines_tomorrow.txt` の見出しが 9/26 で中身あり、07:40 の `dataFreshnessAlarm` で「締切一覧」が OK。赤なら注記（`check-runs/<job>/annotations`）で対象日・場数・push 失敗のどれかを見る|
+|**2026-09-27 朝**|Bファイルの日次取得（PR #530）の初回本番を確かめる。`scripts/logs/dailyBfiles_20260927.log` が「完了: … を push」で終わり、main に `auto: daily B更新` のコミットがあり、`docs/data/rankHistory.json` の選手差分が18名以上（試運転時点で18名・期間の末尾が 2026-09-27）。「退避」ならブランチか作業ツリーの汚れ、ERROR ならログの直前の行を見る。PCが寝ていた場合は起動後に走る（StartWhenAvailable）|
 |**2026-10-31**|短縮秒の再検定（直近3ヶ月窓）。上の埋め戻しが前提|
 |**10月下旬**|`haranModel` の再測（walk-forward・**最低2ヶ月**）。上位10%の①着外率が40%を割ったら係数を再学習|
 
@@ -87,12 +88,14 @@
 
 ### 2026-09-26 検証08から出た宿題
 
-- **kenshoKata 8章に「AI生成の挿絵」の決まりを足す**。検証08で初めて使った（Gemini・隊形のイメージ図・注記なし・AI生成の旨は数え方の欄）。使ってよい範囲（模式図のみ・数字の図は不可）、プロンプトは座標で縛る、採否の6項目、注記の扱いを書く。けんの裁定で画像の下の注記は外した（8章の「イメージ図は縮尺が正確でないと注記」から外れている）
-- **Bファイルの在庫が b260811 で止まっている**（`C:\Users\USER\bfiles\202608`）。`rankHistory.json` も同日まで。読めなかったファイルが30件（parseStat.json）。級別を使う検証は 2026-08-11 までしか数えられない
-- **プロジェクト常駐の `dokusyaThinkingModel.md` が v2 のまま**。正本の v4（21,395B）はDriveだけ
-- **片付け**：`C:\Users\USER\bfiles\tmp\kensho08stage\`（支給物を置くための作業コピー4つ）、`C:\Users\USER\kensho08parts`（中間ファイル）
-- **ローカルCodeの権限**：`.claude/settings.local.json` に `git push -u origin analysis/*` と `gh pr create *` の4行を足した（けん裁定B）。自動モードでは広い `Bash` 許可は無効で、push と PR 作成は1コマンドずつ単独で打たないと止まる
+- **PR #525（検証05・06・07の SNS 共有用メタタグ3行）**：#520 のマージ後にマージする（main の lintGuard FAIL が #520 で消えるまで lint が赤）。けんの承認待ち
 - **検証08で見送ったもの**：カド（スローかダッシュか）の判定（Kファイルに隊形が無い）、4コースのA1が勝つときのまくり率は42.4%でA1以外の45.9%より低い（本文には入れていない）
+- 片付け済み（2026-09-26）：kenshoKata を v1.1 に更新（8章にAI生成の挿絵の決まり・鍵13個を入れ替え）／プロジェクトの `dokusyaThinkingModel.md` を v4 に差し替え／作業コピー（`bfiles\tmp\kensho08stage`・`kensho08parts` の中身）を削除／ローカルCodeの許可4行は `.claude/settings.local.json` に記録済み
+
+### 2026-09-26 Bファイルの日次取得から出た宿題
+
+- **新しいタスク `boatrace-dailyBfiles` が健全性チェック（`writeHealthStatusLocal.ps1`・`health/status.json`）の対象に入っていない**。止まっても気づけない。ほかのローカルタスクと同じ扱いで足す
+- **`docs/data/racerStats.json` の現役名簿が 2026-07-30 から更新されていない**（`実測` git log）。`rankHistory.json` はこの名簿の1,643名分しか作らないので、新人が級別の推移に入らない。名簿の更新元を決める
 
 ### 2026-09-26 定期チェックから出た宿題
 
@@ -128,7 +131,6 @@
 - **`docs/data/gradeSchedule.json` が `facts.md` 3章の正本／生成物の表に載っていない**。生成物（`fetchGradeSchedule.py` が `update_racers.yml` 内で作る）なのに台帳に無いため、直接編集される危険が残る。1行追記すれば済む
 
 - **`update_racers.yml` は push に失敗しても success になる**。`git pull --rebase` が他の run と衝突すると5回のリトライが全て失敗するが、`for` ループ末尾の `sleep 5` が終了コード0を返すためステップは緑になり、**コミットが静かに捨てられる**（2026-09-07 run 34088406499 で実測・`gradeSchedule.json` の生成が消えた）。同型の `git add`＋`pull --rebase`＋`push` を持つ全WFが同じ穴を持つ可能性がある。当座の回避は「dispatch 前に走行中のWFが0本になるのを待つ」。**この事象自体は確定事実なので `facts.md` 9章（既知の落とし穴）へ移し、ここには対処タスクだけ残す**
-- リモートブランチの仕分け。**総数35本**・保護6本・削除待ち23本・メモ未記載の残余あり。判定は**merge-base の3点比較**（`git diff --name-only` も `git branch --merged` も使えない）。**クラウドCodeはブランチ削除ができない**（403 のほか `git push origin --delete` も send-pack で切断される・2026-09-05に5回失敗）。削除はローカルCodeかGitHub画面。マージ済み未削除に `claude/coverage-fail-20260812-03-av4dub`（PR #345・6e37953e）と `claude/players-guard-banner-standard-pd6ttn`（PR #351・9d1cc73e）、2026-09-05の5本 `feat/racer-course-stats`（#347）・`feat/racer-course-display`（#348）・`feat/course-label-fix`（#349）・`feat/branch-course-rate`（#350）・`feat/sort-in-rate-results`（#352）、2026-09-07の3本 `claude/course-last10-preview-vz6x0o`（#357）・`claude/course-last10-build`（#364）・`claude/merge-pr-364-d8crpj`、2026-09-07 の `claude/racers-detail-keys-0jkzsh`（#372）、2026-09-07 のグレードバッジ4本（#369・#370 `claude/grade-schedule-parser-20260907`・#375 `claude/grade-schedule-female-20260907`・#376 `claude/racers-grade-badges-20260907`）が加わった。さらに 2026-09-07 のグレードバッジ続き2本（#378 見どころ・#379 `.gb-sg` コントラスト）が未削除で残っている
 - Stop hook の条件修正
 - 選手コメントの調査（公式に存在しない。所在・取得可否・著作権・カバー率）。2026-09-22 けん裁定で次のチャットのテーマにした（上の「展示タイム別の成績から出た宿題」）
 - `lintGuard.py` の検査軸変更（判定式リテラル依存をやめ、L2の7ページも canonical 照合へ）
@@ -176,6 +178,28 @@
 ---
 
 ## 裁定ログ
+
+### 2026-09-27 見張りタスク codeWatcher とブランチ整理（PR #535）
+
+- **codeWatcher**（けん裁定・案1）：けんのPCのタスク `boatrace-codeWatcher` が5分ごとに `codeShikyu\<作業フォルダ>\` を見て、`kick.txt` があり `report.md`・`done.txt` が無いフォルダを `claude -p` で無人実行する。`kick.txt` の1行目は latest.md の sha256（一致しないと動かない・同期待ち30分）、2行目以降はけん承認の一文。本体は `C:\Users\USER\codeWatcher\codeWatcher.ps1`、ログは `scripts\logs\codeWatcher_*.log`。更新したら `registerCodeWatcher.ps1` を再実行する
+- **統括の手順**：latest.md と付属物を置き終えてから、最後に kick.txt を置く。承認文は、けんがチャットで承認したときだけ書く。けんは1行を貼らなくてよい。PCのログは統括が接続フォルダ経由で直接読む
+- 対話型のローカルCodeは、Drive から渡したスクリプトの実行を承認文があっても3回拒否した。`claude -p` に許可ツールを明示すると通る。登録のため `C:\Users\USER\.claude\settings.json` に登録コマンド1つだけの許可を入れた（全セッションに効く・完全一致のみ）
+- 初回の実行（`branchSeiri20260927b`）でリモートブランチ159本を13本に整理。マージ済み139本を削除、未マージで中身が main に無い9本はタグ `archive/<名前>` に残して削除（9/9 がもとの SHA と一致）。残りは main・open PR の10本・当時作業中の2本
+- 注意：Windows のCodeは PowerShell ツールも使うが、許可ツールは Bash だけにしてある（初回に `Get-ChildItem` が1回拒否されたが完了には影響なし）。**Drive の codeShikyu に書き込める人はこのPCで作業を動かせる**ので、共有はけん本人だけに保つ
+- クラウドからのブランチ削除は API・git とも不可（403・切断）で変わらず
+
+**ルール**：kick.txt は最後に置く。同じ作業を見張りと対話型Codeの両方に渡さない。
+
+### 2026-09-26 Bファイルの日次取得（PR #530）
+
+- けん裁定（全推奨）：選手データが変わった日だけ main に直接 push（6:00 のKファイル取得と同じ形）／毎日6:40／ローカルCode担当
+- **読めなかった30件は取り直し不要だった**。原因は自前の解凍 `lh5.py` が LZH の見出し形式レベル2（29件・1998-06から2006-11）と無圧縮 `-lh0-`（1件・1997-10-13 のレース無しの日）に未対応だったこと。本家 lhafile ではバイト一致で読めた。`lh5.py` を修正（元は `bfiles\lh5Before20260926.py`）し、全11,005件を解析して failed 0・entries 5,972,663（`実測`）。現役1,643名のうち17名で改定後の初出走日が1日から2日早まった（すべて1999から2006年）
+- 期待値は、修正前の手順を再現した計算が既存の `bfiles\rankHistory.json`（1,602,950バイト）とバイト一致することを確かめてから出した。ローカルCodeの実測（sha256 2本）と一致
+- 新規：`bfiles\fetchBDaily.py`（`fetchBfiles.py` の URL と記録を流用。7日以内の404は記録しない）・`bfiles\buildRankHistoryDaily.py`（出力先を引数に）・`scripts/dailyBfiles.ps1`・`scripts/registerDailyBfiles.ps1`。#530 は統括が `6da5287` で2ファイルの sha256 と差分2行を照合
+- 試運転（-NoPush・09-26 18:11）：09-25・26・27 の3日分を取得、選手差分18名、期間の末尾 2026-09-13 → 2026-09-27
+- 事故：統括が確認のためPCの作業フォルダで `git status` を実行し、残った `.git/index.lock` で 05:30 の観戦記が失敗した。同時に作業フォルダが前夜のブランチ `analysis/rankHistory20260926` のままで、02:00・06:00・09:00 のタスクも退避していた。restoreMain20260926 で3本を手動で再実行して回復（観戦記13場・motorUsage push・補填なし）
+
+**ルール**：統括はPCの作業フォルダで git を一切実行しない（読むだけでもロックが残る）。ローカルの作業は必ず worktree で行い、`C:\Users\USER\boatrace` を main 以外のまま残さない。
 
 ### 2026-09-26 検証08「4カドに実力者がいると荒れるのか」（PR #519 #520）
 

@@ -376,7 +376,7 @@ html[data-vr] body::after{content:none;margin:0}
       <span class="mtr-leg-item"><span class="flag fF">F</span>今節フライング持ち</span>
       <span class="mtr-leg-item"><span class="flag fST">ST</span>平均STが鋭い（目安0.15以下）</span>
       <span class="mtr-leg-item"><span class="up">▲</span>当地勝率が全国勝率より高い（その場を得意）</span>
-      <span class="mtr-leg-item"><span class="badge b-mid">波乱</span>荒れ条件の件数（4以上赤／2-3金／0-1灰）</span>
+      <span class="mtr-leg-item"><span class="badge b-mid">波乱</span>①の着外しやすさ・6段階（4以上赤／2-3金／1灰）</span>
       <span class="mtr-leg-item"><span class="rchip-mk" style="font-size:12px">⚡</span>その場で波乱指数が最も高いレース</span>
     </div>
   </div>
@@ -396,7 +396,7 @@ html[data-vr] body::after{content:none;margin:0}
 </div>
 <div id="sortbar" style="display:flex;gap:8px;margin:8px 0;font-size:13px;">
   <span style="opacity:.6;align-self:center;">並び替え</span>
-  <span class="sortbtn on" data-s="cond" onclick="ss('cond')">条件順</span>
+  <span class="sortbtn on" data-s="cond" onclick="ss('cond')">波乱順</span>
   <span class="sortbtn" data-s="time" onclick="ss('time')">締切順</span>
 </div>
 <div id="oshibar"><span class="oshi-btn" id="oshiBtn" role="button" tabindex="0" aria-pressed="false" onclick="toggleOshiOnly()">⭐ 推しのみ</span><span style="opacity:.6">フォロー中の選手が出るレースだけを表示</span></div>
@@ -514,10 +514,22 @@ function boatRow(b, ba){
 
 function badge(r){
   if(VIEW==='firm') return `<span class="badge b-firm">イン堅め</span>`;
-  if(r['波乱']>=4) return `<span class="badge b-hot">波乱 ${r['波乱']}</span>`;
-  if(r['波乱']>=2) return `<span class="badge b-mid">波乱 ${r['波乱']}</span>`;
-  return `<span class="badge b-in">波乱 ${r['波乱']}</span>`;
+  const lv=haranLv(r);
+  if(lv>=4) return `<span class="badge b-hot">波乱 ${lv}</span>`;
+  if(lv>=2) return `<span class="badge b-mid">波乱 ${lv}</span>`;
+  return `<span class="badge b-in">波乱 ${lv}</span>`;
 }
+// 波乱バッジの数字＝波乱指数を6段階に区切ったもの（並び順と必ず一致する）。
+// 区切りは predictions/ の波乱指数と results の①着順の突き合わせ（2026-08-28〜09-26・4,530レース）で
+// 段階1〜6の①着外率が 9.5/17.8/23.8/30.8/33.6/52.6% と単調に上がることを確認した値。仮置き。
+// 波乱指数が無い日（生成前・読み込み失敗）は従来の条件数をそのまま出す。
+const HARAN_CUT=[0,0.4,0.7,1.0,1.3];
+function haranLv(r){
+  const v=hidx(r); if(v===null) return r['波乱'];
+  let lv=1; for(const c of HARAN_CUT){ if(v>=c) lv++; } return lv;
+}
+// 並べ替え・⚡用の連続値。波乱指数が無い日は条件数。
+function haranKey(r){ const v=hidx(r); return v===null?(r['波乱']||0):v; }
 
 function liveWx(code){
   const w=LIVEW[code]; if(!w) return '';
@@ -853,7 +865,7 @@ function renderVenues(){
   if(!venues.length) return '<div class="empty">本日のデータがありません。</div>';
   return venues.map(ba=>{
     const v=byVenue[ba];
-    const hot=v.list.filter(r=>r['波乱']>=4&&!isChushi(r)).length;  // 波乱の多いレース数（中止を除く）
+    const hot=v.list.filter(r=>haranLv(r)>=4&&!isChushi(r)).length;  // 波乱4以上のレース数（中止を除く）
     const open=OPEN_VENUE===ba;
     const ch=chushiOf(v.code);  // 中止（公式の表記をそのまま出す）
     const races=v.list.slice().sort((x,y)=>parseInt(x['レース'])-parseInt(y['レース']));
@@ -873,13 +885,15 @@ function renderVenues(){
     const kskCard=(KANSENKI&&KANSENKI[v.code])?renderKansenki(KANSENKI[v.code], v.code):'';  // 記事が無い場は静かに欠番
     let chipBar='';
     if(open){
-      const maxH=Math.max.apply(null, races.filter(r=>!isChushi(r)).map(r=>r['波乱']||0));
+      const live=races.filter(r=>!isChushi(r));
+      const maxH=Math.max.apply(null, live.map(haranKey));
+      const hotOk=live.some(r=>hidx(r)!==null) ? maxH>=HI_MIN : maxH>=2;  // 波乱注目タブに載る水準のときだけ⚡
       let hotDone=false;
       chipBar=`<div class="rchips" role="group" aria-label="${ba} レース頭出し">`+races.map(r=>{
         const n=parseInt(r['レース']);
         const uid=r['場コード']+'_'+r['レース'];
         if(isChushi(r)) return `<button class="rchip chushi" data-target="${uid}" aria-label="${n}R 中止">${n}</button>`;
-        const isHot=(!hotDone && maxH>=2 && (r['波乱']||0)===maxH);  // その場で最高波乱の1Rだけ⚡
+        const isHot=(!hotDone && hotOk && haranKey(r)===maxH);  // その場で波乱指数が最も高い1Rだけ⚡
         if(isHot) hotDone=true;
         return `<button class="rchip${isHot?' hot':''}" data-target="${uid}" data-dl="${dl2min(r['締切時刻'])}" aria-label="${n}Rへ移動">${n}${isHot?'<span class="rchip-mk" aria-hidden="true">⚡</span>':''}</button>`;
       }).join('')+`</div>`;
@@ -915,7 +929,7 @@ function render(){
   }else if(VIEW==='firm'){
     arr=arr.filter(r=>r['イン堅']&&!isChushi(r));
     if(SORT==='time') arr.sort((x,y)=>dl2min(x['締切時刻'])-dl2min(y['締切時刻']));
-    else arr.sort((x,y)=>x['波乱']-y['波乱']||y['イン1着率']-x['イン1着率']);
+    else arr.sort((x,y)=>haranKey(x)-haranKey(y)||y['イン1着率']-x['イン1着率']);
     if(!arr.length){el.innerHTML='<div class="empty">本日はイン堅め条件のレースがありません。</div>';return;}
     el.innerHTML=arr.map(r=>renderCard(r,'flat')).join('');
   }else{
@@ -1444,7 +1458,7 @@ fetch(SRC+'?_='+Date.now())
   }
   if(d.length===8) document.getElementById('date').textContent=`${d.slice(0,4)}年${+d.slice(4,6)}月${+d.slice(6,8)}日 ${doc['レース数']}レース${ISNEXT?'（明日・前夜プレビュー）':''}`;
   const conf=(doc['確定イン率場']||[]).join('・');
-  document.getElementById('note').innerHTML=`イン1着率は目安値（${conf}は公式実数、他は暫定）。機＝モーター2連率（その節の機力目安で、選手の調子とは別物）。<br>波乱＝外枠A級・当地巧者アウト・イン不安・機力ちぐはぐ等の条件数。買い目・確率・勝者予想は出していません。<br>波乱注目タブは①の級別・直近20走・場の実績などから並べています。この条件のレースは過去1年で34%が①着外（全レースでは19%）でした。<br><span style="opacity:.7">生成：${(doc['生成時刻']||'').replace('T',' ').slice(0,16)}</span>` + (OSHI.length?`<br><span class="oshi-note">⭐は推しフォロー中の選手。フォローはこの端末にのみ保存され、外部には送信されません。登録・解除は<a href="../racers/" style="color:#c8a24a">出走表</a>と<a href="../players/" style="color:#c8a24a">選手図鑑</a>から。</span>`:'');
+  document.getElementById('note').innerHTML=`イン1着率は目安値（${conf}は公式実数、他は暫定）。機＝モーター2連率（その節の機力目安で、選手の調子とは別物）。<br>波乱＝①が着外になりやすい度合いを1〜6の6段階で示したもの。①の級別・直近20走・外3艇の級別・場の実績など7項目から出しています。買い目・確率・勝者予想は出していません。<br>波乱注目タブは波乱の大きい順に並べています。この条件のレースは過去1年で34%が①着外（全レースでは19%）でした。<br><span style="opacity:.7">生成：${(doc['生成時刻']||'').replace('T',' ').slice(0,16)}</span>` + (OSHI.length?`<br><span class="oshi-note">⭐は推しフォロー中の選手。フォローはこの端末にのみ保存され、外部には送信されません。登録・解除は<a href="../racers/" style="color:#c8a24a">出走表</a>と<a href="../players/" style="color:#c8a24a">選手図鑑</a>から。</span>`:'');
   loadKansenki().then(()=>{kskAllRender();render();});
 })
 .catch(()=>{ISNEXT=false;NEXTMETA={};KANSENKI={};kskAllRender();const nn=document.getElementById('nextnote');if(nn)nn.style.display='none';document.getElementById('list').innerHTML='<div class="empty">'+(SRC==='highlights_next.json'?'明日の前夜プレビューはまだありません（各場のレース確定後、夜に順次追加されます）。':SRC!=='highlights.json'?'この日の見どころはまだありません（明日以降たまります）。':'見どころデータを読み込めませんでした。highlights.json を確認してください。')+'</div>';});
