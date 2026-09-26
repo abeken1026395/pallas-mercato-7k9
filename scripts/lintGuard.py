@@ -35,6 +35,8 @@ GUARD = [
     "docs/kensho/flow/index.html",
     "docs/kensho/fmochi/index.html",
     "docs/kensho/jimoto/index.html",
+    "docs/kensho/kado/index.html",
+    "docs/kensho/kisetsu/index.html",
     "docs/kensho/ninki/index.html",
     "docs/kensho/shobugake/index.html",
     "docs/kensho/taiju/index.html",
