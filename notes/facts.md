@@ -225,11 +225,11 @@ td の中身だけを取ると全件空になる。class を読むこと。
 - 気象：`fetch_weather.py` → `docs/data/weather.json`（24場×48時間・Open-Meteo・**予報値**）／`liveWeather.json` は boatrace.jp beforeinfo 由来の**実測**スナップショット。別物
 - mbrace：`http://www1.mbrace.or.jp/od2/K/YYYYMM/kYYMMDD.lzh`（Kファイル・1日1ファイル・全24場）／`/od2/B/{YYYYMM}/b{YYMMDD}.lzh`（Bファイル・1996-07-19〜）。**ActionsからはIPブロック。ローカル一択**
 - **Kファイルのローカル在庫は `C:\Users\USER\boatrace\data\kfiles\`。2016-11-01〜現在・欠日ゼロ**（2026-09-06実測 3,595件）。書式は2016年時点で現行と同一で、既存 `kdataParse.py` の正規表現が無改造で通る。決まり手・進入コース・着順・登番・ST を含む。**過去分の再取得は不要**
-- Bファイルの在庫は `C:\Users\USER\bfiles\`（1996-07-19〜・10,961件）。ただし**Bファイルは番組表であって成績ではない**。決まり手・着順・進入コース・レースタイムのいずれも持たない
+- Bファイルの在庫は `C:\Users\USER\bfiles\`（1996-07-19から・2026-09-26 時点 11,008件）。2026-09-27 からローカルタスク `boatrace-dailyBfiles` が毎日足す。翌日分は前日の夕方までに公開されている（`実測` 2026-09-26 18時台に 09-27 分を取得）。ただし**Bファイルは番組表であって成績ではない**。決まり手・着順・進入コース・レースタイムのいずれも持たない
 - 公式 beforeinfo は**当日・前日のみ**。2日以上前はサイレントリダイレクト＝**取り逃せば永久欠測**
 - ボートレース日和はJS動的描画で requests 不可。公式進入率は `/owpc/pc/data/racersearch/course?toban=登番` で取得可
 
-### ローカルタスク6本
+### ローカルタスク7本
 
 |タスク|時刻|内容|
 |---|---|---|
@@ -239,6 +239,7 @@ td の中身だけを取ると全件空になる。class を読むこと。
 |`boatrace-updateKimarite`|毎月2・16日 6:30|決まり手更新|
 |`boatrace-dailyRacerSchedule`|**2:00**|出場予定を全1,643名から取得→配布物を再生成→push。`--workers 4` で約70分。`--minutes 150` で打ち切り。ログは `scripts/logs/dailyRacerSchedule_YYYYMMDD.log`|
 |`boatrace-writeHealthStatus`|8:00 / 14:00 / 22:00|健全性チェックの自走|
+|`boatrace-dailyBfiles`|**6:40**|Bファイル（番組表）の差分取得（10日前から翌日まで）→ `parseBfiles.py` で全件解析 → 現役分を一時ファイルに書き、「生成」欄を除いて HEAD と比べ、選手データが変わった日だけ `docs/data/rankHistory.json` を main に push。`-NoPush` で試運転。ログは `scripts/logs/dailyBfiles_YYYYMMDD.log`。**健全性チェックの対象に未登録**（PR #530・2026-09-26）|
 
 **ps1はUTF-8 BOM必須**（BOM無しはPowerShell 5.1がcp932と誤読）。タスクは Interactive＋WakeToRun。
 

@@ -3,7 +3,7 @@
 このファイルは運用の記録であり、読者向けの公開ページではない。
 毎回のチャット終了時に更新する。事実・仕様は `notes/facts.md`、行動規範はプロジェクト指示（L1）にある。
 
-最終更新 2026-09-26 JST ／ 基準 main `1571e0c`
+最終更新 2026-09-26 JST ／ 基準 main `cd2ff82`
 
 ---
 
@@ -68,6 +68,7 @@
 |**9月上旬**|`motorParts` 4日分の埋め戻し（20260812 / 0813 / 0814 / 0817・計4,307行）。材料は `preview/*.json` に全日存在。**復元→`backfillMotorPartsMotorNo.py`→`buildMotorMaintenance.py` 再ビルド**が必須工程。`anteiban` のみ復元不可。識別は `取得日時` が空の行。**ローカルCode限定**|
 |**2026-09-30 頃**|**決まり手CSVの鮮度警報が鳴る見込み**（`推定`：`racerKimarite.csv` 最終 2026-09-05＋しきい値25日）。ローカルタスク `boatrace-updateKimarite` が 09-16 の定時から成功しておらず、最後の起動（09-24 18:53）は終了コード `0xC000013A`（途中で打ち切り）。最終成功 2026-09-06（`health/status.json` 2026-09-25 22:00）。**ローカルCode限定**：ログを見て手動で1回回す。在庫読みへの切り替え（小さい残件の `scrapeKimarite.py` 32分→1分）で打ち切りの原因ごと消せる|
 |**2026-09-26 朝**|締切一覧（PR #517）の定時実行を確かめる。`updateDeadlineMessage.yml` の 09-25 夜の schedule run が緑、`docs/data/deadlines_tomorrow.txt` の見出しが 9/26 で中身あり、07:40 の `dataFreshnessAlarm` で「締切一覧」が OK。赤なら注記（`check-runs/<job>/annotations`）で対象日・場数・push 失敗のどれかを見る|
+|**2026-09-27 朝**|Bファイルの日次取得（PR #530）の初回本番を確かめる。`scripts/logs/dailyBfiles_20260927.log` が「完了: … を push」で終わり、main に `auto: daily B更新` のコミットがあり、`docs/data/rankHistory.json` の選手差分が18名以上（試運転時点で18名・期間の末尾が 2026-09-27）。「退避」ならブランチか作業ツリーの汚れ、ERROR ならログの直前の行を見る。PCが寝ていた場合は起動後に走る（StartWhenAvailable）|
 |**2026-10-31**|短縮秒の再検定（直近3ヶ月窓）。上の埋め戻しが前提|
 |**10月下旬**|`haranModel` の再測（walk-forward・**最低2ヶ月**）。上位10%の①着外率が40%を割ったら係数を再学習|
 
@@ -87,10 +88,14 @@
 
 ### 2026-09-26 検証08から出た宿題
 
-- **Bファイルの日次取得が無い**（次のチャットのテーマ・けん承認済み）。不足分は 2026-09-26 に Kファイルの最新日 2026-09-24 まで取得し、級別の推移を作り直した（#527・`5f12edc`・欠け0日・44日分）。`C:\Users\USER\bfiles\fetchBfiles.py` は履歴の一括取得用で `NEWEST` が固定のため、今後も手で延ばさない限り止まる。やること：①毎日の取得をPCの定期実行に登録（6時台の Kファイル取得と同じ形）②取得後に `parseBfiles.py` → `tmp\buildRankHistory.py` → `docs/data/rankHistory.json` の PR まで ③読めないファイル30件（parseStat.json・unzip 失敗）の取り直し。不足分の取得に使ったラッパーは `codeShikyu\bfilesFetch20260926\fetchBToK.py`（Kファイルの最新日まで取る）
 - **PR #525（検証05・06・07の SNS 共有用メタタグ3行）**：#520 のマージ後にマージする（main の lintGuard FAIL が #520 で消えるまで lint が赤）。けんの承認待ち
 - **検証08で見送ったもの**：カド（スローかダッシュか）の判定（Kファイルに隊形が無い）、4コースのA1が勝つときのまくり率は42.4%でA1以外の45.9%より低い（本文には入れていない）
 - 片付け済み（2026-09-26）：kenshoKata を v1.1 に更新（8章にAI生成の挿絵の決まり・鍵13個を入れ替え）／プロジェクトの `dokusyaThinkingModel.md` を v4 に差し替え／作業コピー（`bfiles\tmp\kensho08stage`・`kensho08parts` の中身）を削除／ローカルCodeの許可4行は `.claude/settings.local.json` に記録済み
+
+### 2026-09-26 Bファイルの日次取得から出た宿題
+
+- **新しいタスク `boatrace-dailyBfiles` が健全性チェック（`writeHealthStatusLocal.ps1`・`health/status.json`）の対象に入っていない**。止まっても気づけない。ほかのローカルタスクと同じ扱いで足す
+- **`docs/data/racerStats.json` の現役名簿が 2026-07-30 から更新されていない**（`実測` git log）。`rankHistory.json` はこの名簿の1,643名分しか作らないので、新人が級別の推移に入らない。名簿の更新元を決める
 
 ### 2026-09-26 定期チェックから出た宿題
 
@@ -174,6 +179,17 @@
 ---
 
 ## 裁定ログ
+
+### 2026-09-26 Bファイルの日次取得（PR #530）
+
+- けん裁定（全推奨）：選手データが変わった日だけ main に直接 push（6:00 のKファイル取得と同じ形）／毎日6:40／ローカルCode担当
+- **読めなかった30件は取り直し不要だった**。原因は自前の解凍 `lh5.py` が LZH の見出し形式レベル2（29件・1998-06から2006-11）と無圧縮 `-lh0-`（1件・1997-10-13 のレース無しの日）に未対応だったこと。本家 lhafile ではバイト一致で読めた。`lh5.py` を修正（元は `bfiles\lh5Before20260926.py`）し、全11,005件を解析して failed 0・entries 5,972,663（`実測`）。現役1,643名のうち17名で改定後の初出走日が1日から2日早まった（すべて1999から2006年）
+- 期待値は、修正前の手順を再現した計算が既存の `bfiles\rankHistory.json`（1,602,950バイト）とバイト一致することを確かめてから出した。ローカルCodeの実測（sha256 2本）と一致
+- 新規：`bfiles\fetchBDaily.py`（`fetchBfiles.py` の URL と記録を流用。7日以内の404は記録しない）・`bfiles\buildRankHistoryDaily.py`（出力先を引数に）・`scripts/dailyBfiles.ps1`・`scripts/registerDailyBfiles.ps1`。#530 は統括が `6da5287` で2ファイルの sha256 と差分2行を照合
+- 試運転（-NoPush・09-26 18:11）：09-25・26・27 の3日分を取得、選手差分18名、期間の末尾 2026-09-13 → 2026-09-27
+- 事故：統括が確認のためPCの作業フォルダで `git status` を実行し、残った `.git/index.lock` で 05:30 の観戦記が失敗した。同時に作業フォルダが前夜のブランチ `analysis/rankHistory20260926` のままで、02:00・06:00・09:00 のタスクも退避していた。restoreMain20260926 で3本を手動で再実行して回復（観戦記13場・motorUsage push・補填なし）
+
+**ルール**：統括はPCの作業フォルダで git を一切実行しない（読むだけでもロックが残る）。ローカルの作業は必ず worktree で行い、`C:\Users\USER\boatrace` を main 以外のまま残さない。
 
 ### 2026-09-26 検証08「4カドに実力者がいると荒れるのか」（PR #519 #520）
 
