@@ -39,6 +39,8 @@
 |`boatrace.jp` / `mbrace` 取得・観戦記自走・`courseFinish` 再生成|不可|**可**|
 
 - **Cowork（デスクトップアプリ）は push できない。**リポジトリを触る作業はClaude Code側で回す
+- **統括チャットからローカルCodeを動かす経路は見張りタスク `boatrace-codeWatcher`**（2026-09-27〜・PR #535）。`codeShikyu\<作業フォルダ>\` に latest.md と付属物を置き、最後に `kick.txt`（1行目＝latest.md の sha256、2行目以降＝けん承認の一文）を置くと、5分以内に `claude -p` が許可ツールを絞って無人実行し、`report.md` と `done.txt` を置く。けんの貼り付けは不要。対話型のローカルCodeは Drive から渡したスクリプトの実行を承認文があっても拒否することがある（2026-09-27 に3回）
+- **統括チャットはけんのPCのフォルダを直接読める**（Claude デスクトップアプリ経由でPCと接続したチャットのみ・許可はチャットごと）。`C:\Users\USER\boatrace` は読み書き・Python・`git fetch` まで可。ただし実行環境はPC内の隔離された作業場所で、**GitHub の認証情報が無く push できない**。`G:` の Drive はマウントできないが、ファイル単位の取り込み（stage）はできる
 - **Google Driveの既存ファイルは編集できない**（読み取り・新規作成・コピーのみ）。だから進行状況は `notes/` に置く
 - クラウドCodeに `gh` CLI が無い環境がある。その場合は GitHub MCP でPR作成・マージ
 - クラウドCodeのクローンは **shallow** のことがある。作業ブランチは `git checkout -B <name> origin/main` で直接切る
@@ -229,7 +231,7 @@ td の中身だけを取ると全件空になる。class を読むこと。
 - 公式 beforeinfo は**当日・前日のみ**。2日以上前はサイレントリダイレクト＝**取り逃せば永久欠測**
 - ボートレース日和はJS動的描画で requests 不可。公式進入率は `/owpc/pc/data/racersearch/course?toban=登番` で取得可
 
-### ローカルタスク7本
+### ローカルタスク8本
 
 |タスク|時刻|内容|
 |---|---|---|
@@ -239,6 +241,7 @@ td の中身だけを取ると全件空になる。class を読むこと。
 |`boatrace-updateKimarite`|毎月2・16日 6:30|決まり手更新|
 |`boatrace-dailyRacerSchedule`|**2:00**|出場予定を全1,643名から取得→配布物を再生成→push。`--workers 4` で約70分。`--minutes 150` で打ち切り。ログは `scripts/logs/dailyRacerSchedule_YYYYMMDD.log`|
 |`boatrace-writeHealthStatus`|8:00 / 14:00 / 22:00|健全性チェックの自走|
+|`boatrace-codeWatcher`|5分ごと|`codeShikyu` の `kick.txt` を見て、ローカルCodeを無人実行。本体は `C:\Users\USER\codeWatcher\codeWatcher.ps1`（正本 `scripts/codeWatcher.ps1`・更新したら `registerCodeWatcher.ps1` を再実行）。ログは `scripts/logs/codeWatcher_YYYYMMDD.log`|
 |`boatrace-dailyBfiles`|**6:40**|Bファイル（番組表）の差分取得（10日前から翌日まで）→ `parseBfiles.py` で全件解析 → 現役分を一時ファイルに書き、「生成」欄を除いて HEAD と比べ、選手データが変わった日だけ `docs/data/rankHistory.json` を main に push。`-NoPush` で試運転。ログは `scripts/logs/dailyBfiles_YYYYMMDD.log`。**健全性チェックの対象に未登録**（PR #530・2026-09-26）|
 
 **ps1はUTF-8 BOM必須**（BOM無しはPowerShell 5.1がcp932と誤読）。タスクは Interactive＋WakeToRun。
