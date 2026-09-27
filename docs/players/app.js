@@ -1643,11 +1643,48 @@ function App() {
         borderLeft: "4px solid " + RANK_LINE[p.rank],
         boxShadow: "0 1px 3px rgba(0,0,0,.3)"
       }
-    }, /*#__PURE__*/React.createElement("div", {
+    }, pf && (pf.tagline || pf.nickname) && /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        gap: 5,
+        flexWrap: "wrap",
+        padding: "12px 16px 0"
+      }
+    }, pf.tagline && /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 10,
+        fontWeight: 800,
+        color: "#ffd166",
+        background: "#ffd16618",
+        border: "1px solid #ffd16640",
+        borderRadius: 5,
+        padding: "1px 7px",
+        letterSpacing: 0.5,
+        whiteSpace: "nowrap",
+        maxWidth: "100%",
+        overflow: "hidden",
+        textOverflow: "ellipsis"
+      }
+    }, pf.tagline), pf.nickname && /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 10,
+        fontWeight: 800,
+        color: "#5ec8e6",
+        background: "#5ec8e618",
+        border: "1px solid #5ec8e640",
+        borderRadius: 5,
+        padding: "1px 7px",
+        letterSpacing: 0.5,
+        whiteSpace: "nowrap",
+        maxWidth: "100%",
+        overflow: "hidden",
+        textOverflow: "ellipsis"
+      }
+    }, pf.nickname)), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         alignItems: "center",
-        padding: "14px 16px",
+        padding: pf && (pf.tagline || pf.nickname) ? "8px 16px 14px" : "14px 16px",
         gap: 12
       }
     }, tab !== "list" && /*#__PURE__*/React.createElement("span", {
@@ -1700,36 +1737,7 @@ function App() {
         minWidth: 0,
         flex: 1
       }
-    }, pf && (pf.tagline || pf.nickname) && /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        gap: 5,
-        flexWrap: "wrap",
-        marginBottom: 3
-      }
-    }, pf.tagline && /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: 10,
-        fontWeight: 800,
-        color: "#ffd166",
-        background: "#ffd16618",
-        border: "1px solid #ffd16640",
-        borderRadius: 5,
-        padding: "1px 7px",
-        letterSpacing: 0.5
-      }
-    }, pf.tagline), pf.nickname && /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: 10,
-        fontWeight: 800,
-        color: "#5ec8e6",
-        background: "#5ec8e618",
-        border: "1px solid #5ec8e640",
-        borderRadius: 5,
-        padding: "1px 7px",
-        letterSpacing: 0.5
-      }
-    }, pf.nickname)), /*#__PURE__*/React.createElement("div", {
+    }, /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         alignItems: "baseline",
