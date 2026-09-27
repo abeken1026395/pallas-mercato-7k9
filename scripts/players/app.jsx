@@ -732,10 +732,12 @@ function App() {
               {isOpen && (
                 <div style={{padding:"0 16px 16px",borderTop:"1px solid #1a2535"}}>
                   {/* 自分用メモ。detail の到着を待たずに書ける。カードの開閉を誘発しないよう伝播を止める */}
-                  <div onClick={e=>e.stopPropagation()} style={{margin:"12px 0"}}>
-                    <label htmlFor={"memo-"+p.no} style={{display:"block",fontSize:11,color:"#6b7f95",marginBottom:4}}>📝 自分用メモ（この端末にだけ保存・{MEMO_MAX}字まで）</label>
+                  {/* 使わない人も多いので畳んでおく。書いてある選手だけ最初から開く */}
+                  <details open={hasMemo(memo,p.no)} onClick={e=>e.stopPropagation()} style={{margin:"10px 0"}}>
+                    <summary style={{fontSize:11,color:"#6b7f95",cursor:"pointer",padding:"4px 0",userSelect:"none"}}>📝 自分用メモ{hasMemo(memo,p.no)?"（あり）":""}</summary>
+                    <label htmlFor={"memo-"+p.no} style={{display:"block",fontSize:10,color:"#6b7f95",margin:"4px 0"}}>この端末にだけ保存・{MEMO_MAX}字まで</label>
                     <textarea id={"memo-"+p.no} value={memo[String(p.no)]||""} onChange={e=>saveMemo(p.no,e.target.value)} maxLength={MEMO_MAX} rows={3} style={{width:"100%",boxSizing:"border-box",padding:"8px 10px",background:"#162232",color:"#e0e6ed",border:"1px solid #2a3d52",borderRadius:8,fontSize:16,lineHeight:1.6,fontFamily:"inherit",resize:"vertical"}}/>
-                  </div>
+                  </details>
                   {/* 基本情報・成績・コース別1着率は detail 側の項目。届くまでは
                       「-」や undefined を並べず、1行だけ状態を出す。 */}
                   {!detail ? (

@@ -1849,20 +1849,29 @@ function App() {
         padding: "0 16px 16px",
         borderTop: "1px solid #1a2535"
       }
-    }, /*#__PURE__*/React.createElement("div", {
+    }, /*#__PURE__*/React.createElement("details", {
+      open: hasMemo(memo, p.no),
       onClick: e => e.stopPropagation(),
       style: {
-        margin: "12px 0"
+        margin: "10px 0"
       }
-    }, /*#__PURE__*/React.createElement("label", {
+    }, /*#__PURE__*/React.createElement("summary", {
+      style: {
+        fontSize: 11,
+        color: "#6b7f95",
+        cursor: "pointer",
+        padding: "4px 0",
+        userSelect: "none"
+      }
+    }, "\uD83D\uDCDD \u81EA\u5206\u7528\u30E1\u30E2", hasMemo(memo, p.no) ? "（あり）" : ""), /*#__PURE__*/React.createElement("label", {
       htmlFor: "memo-" + p.no,
       style: {
         display: "block",
-        fontSize: 11,
+        fontSize: 10,
         color: "#6b7f95",
-        marginBottom: 4
+        margin: "4px 0"
       }
-    }, "\uD83D\uDCDD \u81EA\u5206\u7528\u30E1\u30E2\uFF08\u3053\u306E\u7AEF\u672B\u306B\u3060\u3051\u4FDD\u5B58\u30FB", MEMO_MAX, "\u5B57\u307E\u3067\uFF09"), /*#__PURE__*/React.createElement("textarea", {
+    }, "\u3053\u306E\u7AEF\u672B\u306B\u3060\u3051\u4FDD\u5B58\u30FB", MEMO_MAX, "\u5B57\u307E\u3067"), /*#__PURE__*/React.createElement("textarea", {
       id: "memo-" + p.no,
       value: memo[String(p.no)] || "",
       onChange: e => saveMemo(p.no, e.target.value),
