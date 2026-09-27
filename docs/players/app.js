@@ -1685,7 +1685,7 @@ function App() {
         display: "flex",
         alignItems: "center",
         padding: pf && (pf.tagline || pf.nickname) ? "8px 16px 14px" : "14px 16px",
-        gap: 12
+        gap: "clamp(4px, calc((100vw - 360px) * 0.2 + 6px), 12px)"
       }
     }, tab !== "list" && /*#__PURE__*/React.createElement("span", {
       style: {
@@ -1696,7 +1696,15 @@ function App() {
         textAlign: "center",
         flexShrink: 0
       }
-    }, idx + 1), /*#__PURE__*/React.createElement("button", {
+    }, idx + 1), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        flexShrink: 0,
+        minWidth: 24
+      }
+    }, /*#__PURE__*/React.createElement("button", {
       type: "button",
       onClick: e => {
         e.stopPropagation();
@@ -1722,7 +1730,17 @@ function App() {
         fontFamily: "inherit",
         userSelect: "none"
       }
-    }, hasOshi(oshi, p.no) ? "⭐" : "☆"), /*#__PURE__*/React.createElement("span", {
+    }, hasOshi(oshi, p.no) ? "⭐" : "☆"), p.female && /*#__PURE__*/React.createElement("span", {
+      role: "img",
+      "aria-label": "\u5973\u5B50\u9078\u624B",
+      title: "\u5973\u5B50\u9078\u624B",
+      style: {
+        color: "#ff7eb6",
+        fontSize: 13,
+        lineHeight: 1,
+        marginTop: 2
+      }
+    }, "\u2665")), /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: 13,
         fontWeight: 800,
@@ -1742,24 +1760,26 @@ function App() {
         display: "flex",
         alignItems: "baseline",
         gap: 8,
-        flexWrap: "wrap"
+        flexWrap: "nowrap",
+        minWidth: 0
       }
     }, /*#__PURE__*/React.createElement("span", {
+      "data-nm": "1",
       style: {
-        fontSize: 19,
+        fontSize: "clamp(15px, calc((100vw - 360px) * 0.067 + 17px), 19px)",
         fontWeight: 800,
-        color: "#e8edf2"
+        color: "#e8edf2",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        minWidth: 0
       }
-    }, p.name, p.female && /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "#ff7eb6",
-        marginLeft: 3,
-        fontSize: 15
-      }
-    }, "\u2665")), /*#__PURE__*/React.createElement("span", {
+    }, p.name), /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: 13,
-        color: "#6b7f95"
+        color: "#6b7f95",
+        whiteSpace: "nowrap",
+        flexShrink: 0
       }
     }, p.branch), hasMemo(memo, p.no) && /*#__PURE__*/React.createElement("span", {
       role: "img",
@@ -1767,7 +1787,8 @@ function App() {
       title: "\u30E1\u30E2\u3042\u308A",
       style: {
         fontSize: 13,
-        lineHeight: 1
+        lineHeight: 1,
+        flexShrink: 0
       }
     }, "\uD83D\uDCDD")), p.kana && /*#__PURE__*/React.createElement("div", {
       style: {
@@ -1778,7 +1799,7 @@ function App() {
     }, p.kana)), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
-        gap: 18,
+        gap: "clamp(10px, calc((100vw - 360px) * 0.27 + 10px), 18px)",
         flexShrink: 0
       }
     }, tab !== "list" && k ? [["率", (tab === "makuri" ? k.makuriRate : k.sashiRate) || "-", tab === "makuri" ? "#ff9e64" : "#7ee787", tab === "makuri" ? "まくり率" : "差し率"], ["数", tab === "makuri" ? k.makuri : k.sashi, "#e0e6ed", tab === "makuri" ? "まくり数" : "差し数"]].map(([t, v, col, lb], i) => /*#__PURE__*/React.createElement("div", {

@@ -696,20 +696,24 @@ function App() {
                 {pf.tagline&&<span style={{fontSize:10,fontWeight:800,color:"#ffd166",background:"#ffd16618",border:"1px solid #ffd16640",borderRadius:5,padding:"1px 7px",letterSpacing:0.5,whiteSpace:"nowrap",maxWidth:"100%",overflow:"hidden",textOverflow:"ellipsis"}}>{pf.tagline}</span>}
                 {pf.nickname&&<span style={{fontSize:10,fontWeight:800,color:"#5ec8e6",background:"#5ec8e618",border:"1px solid #5ec8e640",borderRadius:5,padding:"1px 7px",letterSpacing:0.5,whiteSpace:"nowrap",maxWidth:"100%",overflow:"hidden",textOverflow:"ellipsis"}}>{pf.nickname}</span>}
               </div>}
-              <div style={{display:"flex",alignItems:"center",padding:pf&&(pf.tagline||pf.nickname)?"8px 16px 14px":"14px 16px",gap:12}}>
+              <div style={{display:"flex",alignItems:"center",padding:pf&&(pf.tagline||pf.nickname)?"8px 16px 14px":"14px 16px",gap:"clamp(4px, calc((100vw - 360px) * 0.2 + 6px), 12px)"}}>
                 {tab!=="list" && <span style={{fontSize:15,fontWeight:900,color:"#ffd166",minWidth:26,textAlign:"center",flexShrink:0}}>{idx+1}</span>}
                 {/* タップ領域は 24×24px 以上（WCAG 2.2 / 2.5.8）。絵文字は 18px のまま、当たり判定だけ広げる */}
+                {/* ☆の下に女子の♥。名前の横に置くと支部が次の行へ落ちてカードの高さが揃わないため */}
+                <div style={{display:"flex",flexDirection:"column",alignItems:"center",flexShrink:0,minWidth:24}}>
                 <button type="button" onClick={e=>{e.stopPropagation();toggleOshi(p.no,p.name);}} title="推しフォロー" aria-pressed={hasOshi(oshi,p.no)} aria-label={p.name+(hasOshi(oshi,p.no)?"のフォローを解除":"をフォロー")} style={{fontSize:18,lineHeight:1,color:hasOshi(oshi,p.no)?"#ffd166":"#8a94a3",cursor:"pointer",flexShrink:0,padding:0,minWidth:24,minHeight:24,display:"inline-flex",alignItems:"center",justifyContent:"center",background:"none",border:"none",fontFamily:"inherit",userSelect:"none"}}>{hasOshi(oshi,p.no)?"⭐":"☆"}</button>
+                {p.female&&<span role="img" aria-label="女子選手" title="女子選手" style={{color:"#ff7eb6",fontSize:13,lineHeight:1,marginTop:2}}>♥</span>}
+                </div>
                 <span style={{fontSize:13,fontWeight:800,padding:"4px 9px",borderRadius:8,background:RANK_BADGE[p.rank],color:"#fff",flexShrink:0}}>{p.rank}</span>
                 <div style={{minWidth:0,flex:1}}>
-                  <div style={{display:"flex",alignItems:"baseline",gap:8,flexWrap:"wrap"}}>
-                    <span style={{fontSize:19,fontWeight:800,color:"#e8edf2"}}>{p.name}{p.female&&<span style={{color:"#ff7eb6",marginLeft:3,fontSize:15}}>♥</span>}</span>
-                    <span style={{fontSize:13,color:"#6b7f95"}}>{p.branch}</span>
-                    {hasMemo(memo,p.no)&&<span role="img" aria-label="メモあり" title="メモあり" style={{fontSize:13,lineHeight:1}}>📝</span>}
+                  <div style={{display:"flex",alignItems:"baseline",gap:8,flexWrap:"nowrap",minWidth:0}}>
+                    <span data-nm="1" style={{fontSize:"clamp(15px, calc((100vw - 360px) * 0.067 + 17px), 19px)",fontWeight:800,color:"#e8edf2",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",minWidth:0}}>{p.name}</span>
+                    <span style={{fontSize:13,color:"#6b7f95",whiteSpace:"nowrap",flexShrink:0}}>{p.branch}</span>
+                    {hasMemo(memo,p.no)&&<span role="img" aria-label="メモあり" title="メモあり" style={{fontSize:13,lineHeight:1,flexShrink:0}}>📝</span>}
                   </div>
                   {p.kana&&<div style={{fontSize:10,color:"#8aa0b4",marginTop:1}}>{p.kana}</div>}
                 </div>
-                <div style={{display:"flex",gap:18,flexShrink:0}}>
+                <div style={{display:"flex",gap:"clamp(10px, calc((100vw - 360px) * 0.27 + 10px), 18px)",flexShrink:0}}>
                   {tab!=="list" && k ? [["率",(tab==="makuri"?k.makuriRate:k.sashiRate)||"-",tab==="makuri"?"#ff9e64":"#7ee787",(tab==="makuri"?"まくり率":"差し率")],["数",tab==="makuri"?k.makuri:k.sashi,"#e0e6ed",(tab==="makuri"?"まくり数":"差し数")]].map(([t,v,col,lb],i)=>(
                     <div key={i} style={{textAlign:"center"}}>
                       <div style={{fontSize:22,fontWeight:800,color:col,lineHeight:1,fontVariantNumeric:"tabular-nums"}}>{v}{t==="率"&&v!=="-"&&<span style={{fontSize:12}}>%</span>}</div>
