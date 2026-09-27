@@ -25,6 +25,8 @@ $PyDir   = Split-Path $Py
 $LogDir  = Join-Path $Repo 'scripts\logs'
 $LogFile = Join-Path $LogDir ("codeWatcher_{0}.log" -f (Get-Date -Format 'yyyyMMdd'))
 $Lock    = Join-Path $LogDir '.codeWatcher.lock'
+$Cool    = Join-Path $LogDir '.codeWatcher.cooldown'   # 利用上限に当たったら、この時刻までは起動しない
+$CoolMinutes = 30
 $SyncWaitMinutes = 30
 
 if (-not (Test-Path $LogDir)) { New-Item -ItemType Directory -Path $LogDir -Force | Out-Null }
@@ -43,6 +45,14 @@ if (Test-Path $Lock) {
     $old = Get-Content $Lock -ErrorAction SilentlyContinue
     if ($old -and (Get-Process -Id $old -ErrorAction SilentlyContinue)) { exit 0 }
     Remove-Item $Lock -Force -ErrorAction SilentlyContinue
+}
+
+# --- 利用上限の待機中なら何もしない -------------------------------------------
+if (Test-Path $Cool) {
+    $until = [datetime]::MinValue
+    [void][datetime]::TryParse((Get-Content $Cool -Raw).Trim(), [ref]$until)
+    if ((Get-Date) -lt $until) { exit 0 }
+    Remove-Item $Cool -Force -ErrorAction SilentlyContinue
 }
 
 if (-not (Test-Path $Shikyu)) { Log "codeShikyu が見えない（Drive 未起動か未同期）: $Shikyu"; exit 0 }
@@ -107,9 +117,21 @@ try {
     $rc = $LASTEXITCODE
     $ErrorActionPreference = $prev
 
-    $sid = ''
-    try { $sid = (Get-Content $out -Raw -Encoding utf8 | ConvertFrom-Json).session_id } catch {}
+    $sid = ''; $apiErr = $null; $turns = $null
+    try {
+        $j = Get-Content $out -Raw -Encoding utf8 | ConvertFrom-Json
+        $sid = $j.session_id; $apiErr = $j.api_error_status; $turns = $j.num_turns
+    } catch {}
     Log ("[{0}] 終了 rc={1} session={2}" -f $name, $rc, $sid)
+
+    # 利用上限（429）・過負荷（529）で1手も進まずに落ちたときは、終わった扱いにしない。
+    # report.md と done.txt を置かず、待機時間を置いて次の回にやり直す（2026-09-27 初回に 429 で停止扱いになった）
+    if (($apiErr -eq 429 -or $apiErr -eq 529) -and -not (Test-Path $report)) {
+        $until = (Get-Date).AddMinutes($CoolMinutes)
+        Set-Content -Path $Cool -Value ($until.ToString('yyyy-MM-dd HH:mm:ss')) -Encoding ascii
+        Log ("[{0}] API {1} で未着手のまま終了。{2} まで待ってやり直す（turns={3}）" -f $name, $apiErr, $until.ToString('HH:mm'), $turns)
+        return
+    }
 
     if (-not (Test-Path $report)) {
         Write-Utf8NoBom $report ("停止 / 見張り: Code が report.md を置かずに終了（rc={0}・ログ scripts\logs\codeWatcher_{1}.json）" -f $rc, $name)
