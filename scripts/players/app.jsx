@@ -568,6 +568,20 @@ function App() {
   // 全noteから双方向の関係グラフを構築（prof / 選手データのロード後に再計算）
   const relIndex = useMemo(()=>players?buildRelIndex(prof):{}, [prof, players]);
 
+  // 同期（養成期）・同郷（出身都道府県）の索引。yousei / home は detail 側の項目なので、
+  // detail が届くまでは空。並びは級別→勝率の順（図鑑の既定の並びに合わせる）。
+  const peerIndex = useMemo(()=>{
+    const ys={}, hm={};
+    if(!players || !detail) return {ys, hm};
+    const RK={A1:0,A2:1,B1:2,B2:3};
+    const sorted=[...players].sort((a,b)=>(RK[a.rank]??9)-(RK[b.rank]??9) || (b.win||0)-(a.win||0));
+    for(const p of sorted){
+      if(p.yousei) (ys[p.yousei]||(ys[p.yousei]=[])).push(p);
+      if(p.home) (hm[p.home]||(hm[p.home]=[])).push(p);
+    }
+    return {ys, hm};
+  }, [players, detail]);
+
   const branches = useMemo(()=>players?[...new Set(players.map(p=>p.branch))].sort():[], [players]);
   const filtered = useMemo(()=>{
     if(!players) return [];
@@ -768,6 +782,23 @@ function App() {
                       ))}
                     </div>
                   );})()}
+                  {/* 同期（養成期が同じ）・同郷（出身が同じ）の現役選手。人数が多いので畳んでおく */}
+                  {[["同期",p.yousei&&peerIndex.ys[p.yousei],p.yousei?p.yousei+"期":""],["同郷",p.home&&peerIndex.hm[p.home],p.home?p.home+"出身":""]].map(([lbl,list,sub])=>{
+                    const others=(list||[]).filter(x=>x.no!==p.no);
+                    if(!others.length) return null;
+                    return (
+                      <details key={lbl} onClick={e=>e.stopPropagation()} style={{marginTop:8}}>
+                        <summary style={{fontSize:11,color:"#8faabe",fontWeight:700,cursor:"pointer",userSelect:"none"}}>{lbl}の選手　<span style={{color:"#6b7f95",fontWeight:400}}>{sub}・現役{others.length}名</span></summary>
+                        <div style={{display:"flex",flexWrap:"wrap",gap:6,marginTop:6}}>
+                          {others.map(x=>(
+                            <span key={x.no} onClick={e=>{e.stopPropagation();jump(x.no);}} title={"→ "+x.name+"（"+x.branch+"・"+x.rank+"）"} style={{fontSize:11,cursor:"pointer",borderRadius:6,padding:"2px 8px",background:"#8faabe14",border:"1px solid #8faabe40",color:"#c5d2e0"}}>
+                              <span style={{color:RANK_TX[x.rank]||"#6b7f95",fontWeight:700,marginRight:4,fontSize:10}}>{x.rank}</span>{x.name}
+                            </span>
+                          ))}
+                        </div>
+                      </details>
+                    );
+                  })}
                   {pf&&(pf.hobby||pf.food||pf.note)&&<div style={{height:14}}></div>}
                   {/* ■ 出場予定（公式サイトの選手ページ由来・先頭2節） */}
                   {(()=>{
