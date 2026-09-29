@@ -1,0 +1,58 @@
+name: トップ「今日の開催」データ生成
+
+# docs/data/todayTop.json を作る。トップページはこの小さなJSONだけを読む。
+# 入力は highlights.json（当日）・gradeSchedule.json・racerStatsCore.json（すべて公開済み）。
+# 生成は冪等（中身が同じなら書かない・コミットしない）なので、多重発火しても壊れない。
+# highlights.json を書く2つのWFの完了後に走り、取りこぼしに備えて朝にも schedule で走る。
+# JST 11:00から11:40の競合帯は schedule から外している。
+on:
+  workflow_run:
+    workflows: ["見どころJSON自動生成", "夜間パイプライン統合（自己判断）"]
+    types: [completed]
+  schedule:
+    - cron: "57 15 * * *"   # JST 00:57
+    - cron: "57 21 * * *"   # JST 06:57
+    - cron: "27 0 * * *"    # JST 09:27
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: today-top
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: build todayTop.json
+        run: python scripts/buildTodayTop.py
+
+      - name: commit
+        env:
+          BR: ${{ github.ref_name }}
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add docs/data/todayTop.json 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "no change"; exit 0
+          fi
+          git commit -m "auto: todayTop.json"
+          for i in 1 2 3 4 5 6; do
+            git fetch origin "$BR" || true
+            if git rebase -X theirs "origin/$BR"; then
+              if git push origin "HEAD:$BR"; then echo "pushed (try $i)"; exit 0; fi
+            else
+              git rebase --abort 2>/dev/null || true
+            fi
+            sleep $(( (RANDOM % 6) + 3 ))
+          done
+          echo "push retries exhausted"; exit 1
