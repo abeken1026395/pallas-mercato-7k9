@@ -37,6 +37,18 @@ SLEEP_SEC = 1.0
 OUT_PATH = os.path.join("docs", "data", "gradeSchedule.json")
 CSV_PATH = os.path.join("docs", "racers", "racers_today.csv")
 STATS_PATH = os.path.join("docs", "data", "racerStats.json")
+# トップ「今週のSG・G1」用。今日から7日間に開催中・開始の SG/G1/G2 の節だけを別ファイルに出す。
+# gradeSchedule.json（当日・翌日の2日分）は中身も大きさも変えない。
+WEEK_PATH = os.path.join("docs", "data", "gradeWeek.json")
+WEEK_DAYS = 7
+WEEK_GRADES = ("SG", "G1", "G2")
+JCD_NAME = {
+    "01": "桐生", "02": "戸田", "03": "江戸川", "04": "平和島", "05": "多摩川",
+    "06": "浜名湖", "07": "蒲郡", "08": "常滑", "09": "津", "10": "三国",
+    "11": "びわこ", "12": "住之江", "13": "尼崎", "14": "鳴門", "15": "丸亀",
+    "16": "児島", "17": "宮島", "18": "徳山", "19": "下関", "20": "若松",
+    "21": "芦屋", "22": "福岡", "23": "唐津", "24": "大村",
+}
 
 GRADE_MAP = {
     "is-gradeColorSG": "SG",
@@ -255,6 +267,42 @@ def annotate_female(days):
             info["レディース"] = (f == n)
 
 
+def build_week(sections, today):
+    """今日から WEEK_DAYS 日間に1日でも重なる SG/G1/G2 の節を返す（場ごとに断片をまとめる）。"""
+    t0 = today.strftime("%Y%m%d")
+    t1 = (today + datetime.timedelta(days=WEEK_DAYS - 1)).strftime("%Y%m%d")
+    merged = {}
+    for s in sections:
+        if s["区分"] not in WEEK_GRADES:
+            continue
+        if s["終了日"] < t0 or s["開始日"] > t1:
+            continue
+        key = None
+        for k, cur in merged.items():
+            if k[0] == s["jcd"] and not (s["終了日"] < cur["開始日"] or s["開始日"] > cur["終了日"]):
+                key = k
+                break
+        if key is None:
+            merged[(s["jcd"], s["開始日"])] = {
+                "場コード": s["jcd"],
+                "場名": JCD_NAME.get(s["jcd"], ""),
+                "区分": s["区分"],
+                "節名": s["節名"],
+                "開始日": s["開始日"],
+                "終了日": s["終了日"],
+            }
+        else:
+            cur = merged[key]
+            if s["開始日"] < cur["開始日"]:
+                cur["開始日"] = s["開始日"]
+            if s["終了日"] > cur["終了日"]:
+                cur["終了日"] = s["終了日"]
+            if not cur["節名"] and s["節名"]:
+                cur["節名"] = s["節名"]
+    out = sorted(merged.values(), key=lambda x: (x["開始日"], x["場コード"]))
+    return {"期間": {"開始": t0, "終了": t1}, "節": out}
+
+
 def target_months(today, tomorrow):
     """取得する年月(YYYYMM)を返す。前月・当月・翌日の月の順で重複を除く。
 
@@ -276,7 +324,8 @@ def main():
 
     sections = []
     ok = 0
-    for i, ym in enumerate(target_months(today, tomorrow)):
+    week_end = today + datetime.timedelta(days=WEEK_DAYS - 1)
+    for i, ym in enumerate(target_months(today, week_end)):
         if i:
             time.sleep(SLEEP_SEC)
         html = fetch_month(ym)
@@ -303,6 +352,12 @@ def main():
     for hd in targets:
         print("{0}: {1}場".format(hd, len(days.get(hd, {}))))
     print("保存: {0}".format(OUT_PATH))
+
+    week = build_week(sections, today)
+    week["updated"] = out["updated"]
+    with open(WEEK_PATH, "w", encoding="utf-8") as f:
+        json.dump(week, f, ensure_ascii=False, indent=2)
+    print("保存: {0} {1}節".format(WEEK_PATH, len(week["節"])))
 
 
 if __name__ == "__main__":
