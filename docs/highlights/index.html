@@ -19,9 +19,9 @@
 body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;line-height:1.6;-webkit-text-size-adjust:100%}
 .wrap{max-width:760px;margin:0 auto;padding:16px 14px 60px}
 header{padding:8px 2px 14px;border-bottom:1px solid var(--line);margin-bottom:14px}
-.eyebrow{color:var(--acc);font-size:12px;letter-spacing:.18em;font-weight:700}
+.eyebrow{color:#c4b5fd;font-size:12px;letter-spacing:.18em;font-weight:700}
 h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseline;justify-content:space-between;gap:8px}
-.h1link{font-size:11px;font-weight:700;color:var(--acc);text-decoration:none;border:1px solid var(--line);border-radius:7px;padding:4px 9px;background:var(--panel);white-space:nowrap}
+.h1link{font-size:12px;font-weight:700;color:var(--acc);text-decoration:none;border:1px solid var(--line);border-radius:7px;padding:4px 9px;background:var(--panel);white-space:nowrap}
 .h1link:active{opacity:.7}
 .date{color:var(--sub);font-size:13px;margin-top:4px}
 .lead{color:var(--sub);font-size:12.5px;margin-top:10px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
@@ -29,57 +29,57 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .tabs{display:flex;gap:6px;margin:16px 0 14px;position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:5}
 .tab{flex:1;text-align:center;padding:9px 4px;border:1px solid var(--line);border-radius:9px;background:var(--panel);color:var(--sub);font-size:13px;font-weight:700;cursor:pointer}
 .sortbtn{padding:4px 12px;border:1px solid var(--line);border-radius:14px;background:var(--panel);color:var(--sub);cursor:pointer;font-weight:600}
-.sortbtn.on{background:var(--acc);color:#0b1219;border-color:var(--acc)}
-.tab.on{color:var(--bg);background:var(--acc);border-color:var(--acc)}
-.tab.on.firm{background:var(--firm);border-color:var(--firm);color:#04121f}
+.sortbtn.on{background:rgba(139,123,224,.22);color:#e4defc;border-color:#8b7be0}
+.tab.on{color:#fff;background:#6d5bd0;border-color:#8b7be0}
+.tab.on.firm{background:#1f6f62;border-color:#5cc8b0;color:#fff}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:13px;margin-bottom:11px}
 .chead{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .rname{font-weight:800;font-size:15.5px}
 .deadline{color:var(--sub);font-size:12px;margin-left:auto}
-.kikaku{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;background:rgba(255,209,102,.16);color:var(--acc);margin-left:6px}
-.nichi{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;background:rgba(120,180,220,.14);color:#8fb8d6;margin-left:6px}
+.kikaku{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:10px;background:rgba(255,255,255,.06);color:#b8c4d0;margin-left:6px}
+.nichi{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:10px;background:rgba(120,180,220,.14);color:#8fb8d6;margin-left:6px}
 .vsetsu{font-size:12px;color:var(--sub);padding:2px 12px 8px;line-height:1.4}
-.livewx{font-size:11.5px;color:var(--sub);background:rgba(120,180,220,.10);border:1px solid var(--line);border-radius:9px;padding:5px 9px;margin:7px 0 2px;line-height:1.5}
-.windsig{font-size:11.5px;color:var(--sub);background:rgba(255,209,102,.10);border:1px solid rgba(255,209,102,.35);border-radius:9px;padding:5px 9px;margin:4px 0 2px;line-height:1.5}
-.tideinfo{font-size:11.5px;color:var(--sub);background:rgba(90,200,180,.10);border:1px solid var(--line);border-radius:9px;padding:5px 9px;margin:4px 0 2px;line-height:1.5}
+.livewx{font-size:12px;color:var(--sub);background:rgba(120,180,220,.10);border:1px solid var(--line);border-radius:9px;padding:5px 9px;margin:7px 0 2px;line-height:1.5}
+.windsig{font-size:12px;color:var(--sub);background:rgba(255,209,102,.10);border:1px solid rgba(255,209,102,.35);border-radius:9px;padding:5px 9px;margin:4px 0 2px;line-height:1.5}
+.tideinfo{font-size:12px;color:var(--sub);background:rgba(90,200,180,.10);border:1px solid var(--line);border-radius:9px;padding:5px 9px;margin:4px 0 2px;line-height:1.5}
 .tideinfo .cav,.windsig .cav{opacity:1}
-.fcstwx{font-size:11.5px;color:var(--sub);background:rgba(150,140,220,.12);border:1px solid rgba(150,140,220,.35);border-radius:9px;padding:5px 9px;margin:7px 0 2px;line-height:1.5}
+.fcstwx{font-size:12px;color:var(--sub);background:rgba(150,140,220,.12);border:1px solid rgba(150,140,220,.35);border-radius:9px;padding:5px 9px;margin:7px 0 2px;line-height:1.5}
 .fcstwx .cav{opacity:1}
 .windsig .cav{opacity:1}
 .nsfact{margin:4px 0 2px;border:1px solid rgba(143,180,214,.30);border-radius:9px;background:rgba(143,180,214,.09);overflow:hidden}
-.nsfact>summary{list-style:none;cursor:pointer;padding:6px 9px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11.5px;color:var(--sub)}
+.nsfact>summary{list-style:none;cursor:pointer;padding:6px 9px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--sub)}
 .nsfact>summary::-webkit-details-marker{display:none}
 .nsfact .nsh{font-weight:800;color:#8fb4d6}
-.nsfact .nscar{margin-left:auto;font-size:10px;opacity:.75}
+.nsfact .nscar{margin-left:auto;font-size:12px;opacity:.75}
 .nsfact[open] .nscar::after{content:"\9589\3058\308b \25b2"}
 .nsfact:not([open]) .nscar::after{content:"\4e00\89a7 \25bc"}
 .nsfact .nsb{padding:0 9px 8px}
-.nsfact .nsper{font-size:10px;color:var(--sub);opacity:.8;margin-bottom:5px}
+.nsfact .nsper{font-size:12px;color:var(--sub);opacity:.8;margin-bottom:5px}
 .nsfact table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
-.nsfact th{font-size:9.5px;color:var(--sub);font-weight:400;padding:2px 0 4px;text-align:right}
+.nsfact th{font-size:12px;color:var(--sub);font-weight:400;padding:2px 0 4px;text-align:right}
 .nsfact th:first-child{text-align:left}
 .nsfact td{padding:3px 0;text-align:right;border-top:1px solid rgba(143,180,214,.18);vertical-align:top}
 .nsfact td:first-child{text-align:left}
-.nsfact .nslane{display:inline-block;width:16px;height:16px;line-height:16px;text-align:center;border-radius:3px;font-size:10px;font-weight:700;margin-right:4px}
-.nsfact .nsnm{font-size:11px}
-.nsfact .nsn{font-size:10px;opacity:.75}
+.nsfact .nslane{display:inline-block;width:16px;height:16px;line-height:16px;text-align:center;border-radius:3px;font-size:12px;font-weight:700;margin-right:4px}
+.nsfact .nsnm{font-size:12px}
+.nsfact .nsn{font-size:12px;opacity:.75}
 .nsfact .nsp{font-size:12px;font-weight:700;display:block}
-.nsfact .nsk{font-size:9px;opacity:.7;display:block}
+.nsfact .nsk{font-size:12px;opacity:.7;display:block}
 .nsfact .nsself{background:rgba(143,180,214,.18);border-radius:3px}
 .nsfact .nsthin .nsp{font-weight:400;opacity:.6}
 .nsfact .nsbase td{border-top:1px solid rgba(143,180,214,.42)}
 .nsfact .nshelp{margin-top:8px;border-top:1px solid rgba(143,180,214,.18)}
-.nsfact .nshelp>summary{list-style:none;cursor:pointer;font-size:10px;color:var(--sub);opacity:.85;padding:6px 0 2px}
+.nsfact .nshelp>summary{list-style:none;cursor:pointer;font-size:12px;color:var(--sub);opacity:.85;padding:6px 0 2px}
 .nsfact .nshelp>summary::-webkit-details-marker{display:none}
 .nsfact .nshelp[open]>summary::after{content:" \25b2"}
 .nsfact .nshelp:not([open])>summary::after{content:" \25bc"}
-.nsfact .nshelp dl{margin:4px 0 2px;font-size:10px;line-height:1.6}
+.nsfact .nshelp dl{margin:4px 0 2px;font-size:12px;line-height:1.6}
 .nsfact .nshelp dt{opacity:.95;margin-top:6px}
 .nsfact .nshelp dd{opacity:.7;margin:1px 0 0}
 .nstab{display:flex;gap:4px;margin:2px 0 6px;flex-wrap:wrap}
-.nstab-b{font-size:10px;line-height:1;padding:5px 8px;border-radius:11px;border:1px solid rgba(143,180,214,.35);background:transparent;color:var(--sub);cursor:pointer;font-family:inherit}
+.nstab-b{font-size:12px;line-height:1;padding:5px 8px;border-radius:11px;border:1px solid rgba(143,180,214,.35);background:transparent;color:var(--sub);cursor:pointer;font-family:inherit}
 .nstab-b.on{background:#8fb4d6;color:#0b1219;border-color:#8fb4d6;font-weight:700}
-.e30fact{font-size:11.5px;color:var(--sub);background:rgba(143,214,192,.09);border:1px solid rgba(143,214,192,.30);border-radius:9px;padding:6px 9px;margin:4px 0 2px;line-height:1.55}
+.e30fact{font-size:12px;color:var(--sub);background:rgba(143,214,192,.09);border:1px solid rgba(143,214,192,.30);border-radius:9px;padding:6px 9px;margin:4px 0 2px;line-height:1.55}
 .e30fact .e30h{font-weight:800;color:#8fd6c0}
 .e30fact .e30grid{display:flex;flex-wrap:wrap;gap:4px 12px;margin:5px 0 3px}
 .e30fact .e30p{white-space:nowrap}
@@ -87,95 +87,95 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .e30fact .e30p .r2{color:#5ac8b4;font-weight:700}
 .e30fact .few{color:#e0a56a}
 .e30fact .cav{opacity:1}
-.badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;background:transparent}
-.b-hot{background:transparent;color:#e07a6e;border:1px solid rgba(255,107,91,.4)}
+.badge{font-size:12px;font-weight:700;padding:3px 8px;border-radius:20px;background:transparent}
+.b-hot{background:transparent;color:#c9a86a;border:1px solid rgba(201,168,106,.45)}
 .b-firm{background:transparent;color:#6f9fca;border:1px solid rgba(74,168,255,.4)}
-.b-mid{background:transparent;color:#c9a86a;border:1px solid rgba(255,209,102,.32)}
+.b-mid{background:transparent;color:#a99a80;border:1px solid rgba(169,154,128,.35)}
 .b-in{background:transparent;color:var(--sub);border:1px solid var(--line)}
 .boats{margin:11px 0 4px;display:flex;flex-direction:column;gap:4px}
 .boat{display:flex;align-items:center;gap:7px;font-size:12.5px;padding:3px 2px}
 .bp-yarare{margin-top:12px}
-.bp-yarare .t{font-size:9px;color:#8aa0b0;letter-spacing:.08em;margin-bottom:6px}
+.bp-yarare .t{font-size:12px;color:#8aa0b0;letter-spacing:.08em;margin-bottom:6px}
 .bp-yarare .row{display:flex;gap:6px}
 .bp-yarare .it{flex:1;background:#16242f;border:1px solid #22323f;border-radius:8px;padding:6px 2px;text-align:center}
-.bp-yarare .it .l{font-size:9px;color:#8aa0b0}
+.bp-yarare .it .l{font-size:12px;color:#8aa0b0}
 .bp-yarare .it .v{font-size:15px;font-weight:800;margin-top:2px;font-variant-numeric:tabular-nums}
 .bp-yarare .it.hi .v{color:#ff8a8a}
-.bp-yarare .nt{font-size:9px;color:#8aa0b0;margin-top:5px;text-align:center}
-.bp-kinmotor{margin-top:10px;font-size:11px;color:#a9c6dd;background:#0f1a26;border:1px solid #23364a;border-radius:8px;padding:6px 9px;line-height:1.5}
+.bp-yarare .nt{font-size:12px;color:#8aa0b0;margin-top:5px;text-align:center}
+.bp-kinmotor{margin-top:10px;font-size:12px;color:#a9c6dd;background:#0f1a26;border:1px solid #23364a;border-radius:8px;padding:6px 9px;line-height:1.5}
 .bp-kinmotor b{color:#e0e6ed}
 .bp-kinmotor .tsu{color:#8aa0b0}
-.bp-kinmotor .few{color:#e0a56a;font-size:9px;margin-left:4px}
+.bp-kinmotor .few{color:#e0a56a;font-size:12px;margin-left:4px}
 .bp-kinmotor .none{color:#8aa0b0}
 /* ①の下振れ要因（事実提示・見立て本文とは視覚的に分離／本文グレー・バッジは枠線化） */
-.downfactor{margin-top:10px;font-size:11px;color:#8aa0b4;background:#0f1a26;border:1px solid #23364a;border-left:3px solid #33465c;border-radius:8px;padding:8px 10px;line-height:1.6}
-.downfactor .df-n{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:transparent;color:#c9a86a;border:1px solid rgba(255,209,102,.32);margin-left:6px}
-.downfactor .df-none{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:transparent;color:#8aa0b0;border:1px solid #33465c;margin-left:6px}
+.downfactor{margin-top:10px;font-size:12px;color:#8aa0b4;background:#0f1a26;border:1px solid #23364a;border-left:3px solid #33465c;border-radius:8px;padding:8px 10px;line-height:1.6}
+.downfactor .df-n{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:20px;background:transparent;color:#c9a86a;border:1px solid rgba(255,209,102,.32);margin-left:6px}
+.downfactor .df-none{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:20px;background:transparent;color:#8aa0b0;border:1px solid #33465c;margin-left:6px}
 .downfactor .df-list{margin:6px 0 0;padding-left:16px}
 .downfactor .df-list li{margin:2px 0;color:#a9c6dd}
-.downfactor .df-ref{margin-top:6px;font-size:10px;color:#7d94a8;opacity:.85}
-.downfactor .df-cmp{display:block;font-size:10px;color:#7d94a8;opacity:.85;font-weight:400}
+.downfactor .df-ref{margin-top:6px;font-size:12px;color:#7d94a8;opacity:.85}
+.downfactor .df-cmp{display:block;font-size:12px;color:#7d94a8;opacity:.85;font-weight:400}
 /* 深層の実数ブロックを1つずつ開く。開いた直後の高さを抑えるため（2026-08-23）。 */
 .dfold{margin-top:8px;border:1px solid #23364a;border-radius:8px;background:#0f1a26;overflow:hidden}
 .dfold+.dfold{margin-top:6px}
 .dfold>summary{list-style:none;cursor:pointer;min-height:44px;display:flex;align-items:center;gap:6px;padding:0 11px;-webkit-tap-highlight-color:transparent}
 .dfold>summary::-webkit-details-marker{display:none}
-.dfold>summary::before{content:'\25B6';font-size:9px;color:#4aa8ff;flex-shrink:0;transition:transform .15s}
+.dfold>summary::before{content:'\25B6';font-size:12px;color:#4aa8ff;flex-shrink:0;transition:transform .15s}
 .dfold[open]>summary::before{transform:rotate(90deg)}
-.dfold .df-t{font-size:11.5px;font-weight:700;color:#a9c6dd}
-.dfold .df-s{font-size:10px;color:#7d94a8}
+.dfold .df-t{font-size:12px;font-weight:700;color:#a9c6dd}
+.dfold .df-s{font-size:12px;color:#7d94a8}
 .dfbody{padding:0 11px 10px}
 .dfbody .inrate-fact,.dfbody .tenji-fact,.dfbody .trail-fact,.dfbody .downfactor,.dfbody .collapse-fact{margin-top:0;border:none;border-left:none;border-radius:0;background:transparent;padding:0}
 /* ①の崩れ方（誰がどの手で崩すか・当場過去1年の実数。①着外レースの内訳） */
-.collapse-fact{margin-top:8px;font-size:11px;color:#8aa0b4;background:#0f1a26;border:1px solid #23364a;border-left:3px solid #33465c;border-radius:8px;padding:8px 10px;line-height:1.6}
+.collapse-fact{margin-top:8px;font-size:12px;color:#8aa0b4;background:#0f1a26;border:1px solid #23364a;border-left:3px solid #33465c;border-radius:8px;padding:8px 10px;line-height:1.6}
 .collapse-fact .cf-h{font-weight:700;color:#a9c6dd}
-.collapse-fact .cf-sub{font-weight:400;font-size:10px;color:#7d94a8;margin-left:4px}
+.collapse-fact .cf-sub{font-weight:400;font-size:12px;color:#7d94a8;margin-left:4px}
 .collapse-fact .cf-list{margin-top:5px;display:flex;flex-wrap:wrap;gap:6px 12px}
 .collapse-fact .cf-p{white-space:nowrap}
 .collapse-fact .cf-p b{color:#c9d9e8;font-weight:700}
-.collapse-fact .cf-today{margin-top:5px;font-size:11px;color:#a9c6dd}
-.collapse-fact .cf-note{margin-top:6px;font-size:10px;color:#7d94a8;opacity:.85}
-.inrate-fact,.tenji-fact,.trail-fact{margin-top:8px;font-size:11px;color:#8aa0b4;background:#0f1a26;border:1px solid #23364a;border-left:3px solid #33465c;border-radius:8px;padding:8px 10px;line-height:1.6}
+.collapse-fact .cf-today{margin-top:5px;font-size:12px;color:#a9c6dd}
+.collapse-fact .cf-note{margin-top:6px;font-size:12px;color:#7d94a8;opacity:.85}
+.inrate-fact,.tenji-fact,.trail-fact{margin-top:8px;font-size:12px;color:#8aa0b4;background:#0f1a26;border:1px solid #23364a;border-left:3px solid #33465c;border-radius:8px;padding:8px 10px;line-height:1.6}
 .inrate-fact .ir-h,.tenji-fact .tj-h,.trail-fact .tl-h{font-weight:700;color:#a9c6dd}
-.inrate-fact .ir-sub,.tenji-fact .tj-sub,.trail-fact .tl-sub{font-weight:400;font-size:10px;color:#7d94a8;margin-left:4px}
+.inrate-fact .ir-sub,.tenji-fact .tj-sub,.trail-fact .tl-sub{font-weight:400;font-size:12px;color:#7d94a8;margin-left:4px}
 .ir-t,.tj-t,.tl-t{width:100%;border-collapse:collapse;margin:5px 0 2px;font-variant-numeric:tabular-nums}
 .ir-t th,.ir-t td,.tj-t th,.tj-t td,.tl-t th,.tl-t td{padding:3px 0;border-bottom:1px solid #1b2a3a;font-weight:400;text-align:left;color:#c9d9e8}
 .ir-t td.n,.tj-t td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;padding-left:8px}
-.tjs-fact{font-size:11px;color:#8aa0b4;line-height:1.5}
-.tjs-d{font-size:10px;color:#7d94a8;margin:0 0 5px}
+.tjs-fact{font-size:12px;color:#8aa0b4;line-height:1.5}
+.tjs-d{font-size:12px;color:#7d94a8;margin:0 0 5px}
 .tjs-t{width:100%;border-collapse:collapse;table-layout:fixed;font-variant-numeric:tabular-nums}
-.tjs-t th{font-size:9.5px;color:#7d94a8;font-weight:400;padding:2px 0 4px;text-align:right}
+.tjs-t th{font-size:12px;color:#7d94a8;font-weight:400;padding:2px 0 4px;text-align:right}
 .tjs-t th:first-child{text-align:left;width:34%}
 .tjs-t td{padding:4px 0;text-align:right;border-top:1px solid #1b2a3a;vertical-align:top;color:#c9d9e8}
 .tjs-t td:first-child{text-align:left}
-.tjs-t td.tjs-few{text-align:center;font-size:10px;color:#7d94a8;vertical-align:middle}
-.tjs-nm{font-size:11px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tjs-s{font-size:9px;color:#7d94a8;display:block}
+.tjs-t td.tjs-few{text-align:center;font-size:12px;color:#7d94a8;vertical-align:middle}
+.tjs-nm{font-size:12px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tjs-s{font-size:12px;color:#7d94a8;display:block}
 .tjs-p{font-size:13px;font-weight:700;display:block}
 .tjs-p.dim{font-weight:400;color:#7d94a8}
-.tjs-k{font-size:9px;color:#7d94a8;display:block}
-.tjs-note{font-size:10px;color:#7d94a8;margin-top:6px;line-height:1.6}
+.tjs-k{font-size:12px;color:#7d94a8;display:block}
+.tjs-note{font-size:12px;color:#7d94a8;margin-top:6px;line-height:1.6}
 .ir-t tr:last-child th,.ir-t tr:last-child td,.tj-t tr:last-child th,.tj-t tr:last-child td,.tl-t tr:last-child th,.tl-t tr:last-child td{border-bottom:none}
 .tl-t th{white-space:nowrap;padding-right:8px;vertical-align:top}
-.tl-t td.tr-run{font-size:10.5px;line-height:1.7}
+.tl-t td.tr-run{font-size:12px;line-height:1.7}
 .tl-t .tr-one{display:block;white-space:nowrap}
 .tl-t .tr-one b{font-weight:700;color:#c9d9e8}
 .tl-t .tr-one b.win{color:#6fd18a}
 .tl-t .tr-one b.lose{color:#e88b7d}
 .tl-t td.dim{color:#5d7285}
-.trail-fact .tl-note{margin-top:6px;font-size:10px;color:#7d94a8;opacity:.85}
+.trail-fact .tl-note{margin-top:6px;font-size:12px;color:#7d94a8;opacity:.85}
 .tj-t td.fast{color:#6fd18a;font-weight:700}
 .tj-t td.slow{color:#e88b7d;font-weight:700}
 .tj-t td.dim{color:#5d7285}
-.inrate-fact .ir-note,.tenji-fact .tj-note{margin-top:6px;font-size:10px;color:#7d94a8;opacity:.85}
-.inrate-fact .ir-src{margin-top:5px;font-size:10px;color:#7d94a8;opacity:.75}
+.inrate-fact .ir-note,.tenji-fact .tj-note{margin-top:6px;font-size:12px;color:#7d94a8;opacity:.85}
+.inrate-fact .ir-src{margin-top:5px;font-size:12px;color:#7d94a8;opacity:.75}
 .wk{width:20px;height:20px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0}
 .wk1{background:var(--w1);color:#000}.wk2{background:var(--w2);color:#fff}.wk3{background:var(--w3);color:#fff}.wk4{background:var(--w4);color:#fff}.wk5{background:var(--w5);color:#000}.wk6{background:var(--w6);color:#fff}
-.lv{font-size:10.5px;font-weight:800;padding:1px 5px;border-radius:4px;flex-shrink:0}
+.lv{font-size:12px;font-weight:800;padding:1px 5px;border-radius:4px;flex-shrink:0}
 .lvA1{background:#c0392b;color:#fff}.lvA2{background:#e07b39;color:#fff}.lvB1{background:#33485c;color:#cfe}.lvB2{background:#26333f;color:#9ab}
 .nm{font-weight:700;min-width:58px;display:flex;flex-direction:column;justify-content:center;line-height:1.25}
-.nmkana{font-size:9.5px;font-weight:500;color:var(--sub);letter-spacing:.01em;white-space:nowrap;margin-top:1px}
-.fem{color:#ff6fae;font-size:11px;margin-left:2px}
+.nmkana{font-size:12px;font-weight:500;color:var(--sub);letter-spacing:.01em;white-space:nowrap;margin-top:1px}
+.fem{color:#ff6fae;font-size:12px;margin-left:2px}
 .venue{margin-bottom:8px}
 .vhead{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:13px 14px;cursor:pointer}
 /* 開催グレード。色を付けるのは SG・G1・女子戦の3種だけで、色だけで伝えないよう必ず文字バッジと併記する。
@@ -184,8 +184,8 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .vhead.g-sg{border-color:#ee3f3d;box-shadow:inset 4px 0 0 #ee3f3d;padding-left:18px}
 .vhead.g-g1{border-color:#b48ef0;box-shadow:inset 4px 0 0 #b48ef0;padding-left:18px}
 .vhead.g-lady{border-color:#fa628b;box-shadow:inset 4px 0 0 #fa628b;padding-left:18px}
-.vhead.open{border-color:var(--acc);background:#16222e}
-.gbadge{display:inline-block;font-size:11px;border-radius:4px;padding:1px 6px;margin-right:6px}
+.vhead.open{border-color:#8b7be0;background:#16222e}
+.gbadge{display:inline-block;font-size:12px;border-radius:4px;padding:1px 6px;margin-right:6px}
 .gb-sg{background:#ee3f3d;color:#0b1219}
 .gb-g1{background:#b48ef0;color:#0b1219}
 .gb-lady{background:#fa628b;color:#0b1219}
@@ -201,27 +201,27 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .kskall-wrap{display:none;margin:8px 0 0}
 .kskall-venue{font-size:12px;font-weight:800;color:var(--sub);margin:0 0 4px 2px}
 .ksk{background:linear-gradient(180deg,#12202e,#0e1822);border:1px solid #24384b;border-left:3px solid var(--acc);border-radius:12px;padding:12px 13px;margin:0 0 10px}
-.ksk-tag{font-size:11px;font-weight:800;color:var(--acc);letter-spacing:.02em}
+.ksk-tag{font-size:12px;font-weight:800;color:var(--acc);letter-spacing:.02em}
 .ksk-title{font-size:15px;font-weight:800;color:var(--txt);margin:5px 0 4px;line-height:1.4}
 .ksk-lead{font-size:13px;color:var(--sub);line-height:1.7}
 .ksk-btn{margin-top:9px;font-size:12px;font-weight:800;color:#04121f;background:var(--acc);border:none;border-radius:8px;padding:7px 12px;cursor:pointer}
 .ksk-full{margin-top:10px;border-top:1px solid var(--line);padding-top:10px}
 .ksk-body{font-size:13.5px;color:var(--txt);line-height:1.95;margin:0}
 .ksk-link{color:var(--acc2);text-decoration:none;border-bottom:1px dotted var(--acc2)}
-.ksk-terms{margin-top:10px;font-size:11px;color:var(--sub)}
-.ksk-chip{display:inline-block;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:2px 9px;margin:0 4px 4px 0;font-size:11px;color:var(--txt)}
+.ksk-terms{margin-top:10px;font-size:12px;color:var(--sub)}
+.ksk-chip{display:inline-block;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:2px 9px;margin:0 4px 4px 0;font-size:12px;color:var(--txt)}
 .ksk-chip.is-tap{cursor:pointer;border-color:var(--acc2)}
 .ksk-chip.is-tap:hover{background:#1a2b3a}
 .ksk-chip.is-tap.on{background:var(--acc2);color:#04121f;border-color:var(--acc2)}
-.ksk-chip-mk{margin-left:3px;font-size:9px;font-weight:800;color:var(--acc2)}
+.ksk-chip-mk{margin-left:3px;font-size:12px;font-weight:800;color:var(--acc2)}
 .ksk-chip.is-tap.on .ksk-chip-mk{color:#04121f}
 .ksk-chip.is-plain{opacity:.7}
-.ksk-def{display:block;margin:2px 0 6px;padding:8px 10px;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--acc2);border-radius:8px;font-size:11.5px;line-height:1.75;color:var(--txt)}
+.ksk-def{display:block;margin:2px 0 6px;padding:8px 10px;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--acc2);border-radius:8px;font-size:12px;line-height:1.75;color:var(--txt)}
 .ksk-def .yomi{color:var(--sub);font-weight:700}
-.ksk-note{margin-top:9px;font-size:10.5px;color:var(--sub);opacity:.85;line-height:1.5}
-.flag{font-size:10px;font-weight:800;margin-left:3px}
+.ksk-note{margin-top:9px;font-size:12px;color:var(--sub);opacity:.85;line-height:1.5}
+.flag{font-size:12px;font-weight:800;margin-left:3px}
 .fF{color:var(--hot)}.fST{color:#4aa8ff}
-.mtr{font-size:10.5px;font-weight:700;padding:1px 5px;border-radius:4px;background:var(--panel2);border:1px solid var(--line);color:var(--sub);flex-shrink:0}
+.mtr{font-size:12px;font-weight:700;padding:1px 5px;border-radius:4px;background:var(--panel2);border:1px solid var(--line);color:var(--sub);flex-shrink:0}
 .mtr.hi{color:#3aab5a;border-color:rgba(58,171,90,.5)}
 .mtr.lo{color:#ff8a7a;border-color:rgba(255,138,122,.45)}
     .mtr.na{border-style:dashed}
@@ -231,74 +231,75 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .mtr-leg-item{display:inline-flex;align-items:center;gap:4px}
 .mtr-leg-item .flag{margin-left:0}
 .mtr-leg-item .up{color:var(--acc);font-weight:800}
-.mtr-leg-note{flex-basis:100%;font-size:11px;opacity:.7;line-height:1.5}
-.stat{color:var(--sub);font-size:11.5px;margin-left:auto;text-align:right;white-space:nowrap}
+.mtr-leg-note{flex-basis:100%;font-size:12px;opacity:.7;line-height:1.5}
+.stat{color:var(--sub);font-size:12px;margin-left:auto;text-align:right;white-space:nowrap}
 .stat .up{color:var(--acc);font-weight:800}
 .headline{margin-top:10px;font-size:13.5px;font-weight:800;color:var(--acc);line-height:1.45;display:flex;gap:6px;align-items:baseline}
-.headline .lbl{font-size:9.5px;font-weight:800;color:var(--bg);background:var(--acc);padding:2px 5px;border-radius:4px;flex-shrink:0;letter-spacing:.04em;position:relative;top:-1px}
+.headline .lbl{font-size:12px;font-weight:800;color:var(--bg);background:var(--acc);padding:2px 5px;border-radius:4px;flex-shrink:0;letter-spacing:.04em;position:relative;top:-1px}
 .tenkai{margin-top:9px;border-top:1px dashed var(--line);padding-top:9px}
-.tenkai .t{font-size:11px;color:var(--acc);font-weight:800;letter-spacing:.05em;margin-bottom:4px}
+.tenkai .t{font-size:12px;color:var(--acc);font-weight:800;letter-spacing:.05em;margin-bottom:4px}
 .tenkai p{font-size:12.5px;color:#cdd9e4;margin-bottom:3px}
 .tenkai p::before{content:"▸ ";color:var(--sub)}
-.suji{font-size:11.5px;color:var(--sub);margin-top:6px;background:var(--panel2);border:1px solid var(--line);border-radius:7px;padding:6px 9px}
+.suji{font-size:12px;color:var(--sub);margin-top:6px;background:var(--panel2);border:1px solid var(--line);border-radius:7px;padding:6px 9px}
 .suji b{color:var(--acc2)}
-.warn{font-size:10.5px;color:var(--sub);margin-top:6px;font-style:italic}
+.warn{font-size:12px;color:var(--sub);margin-top:6px;font-style:italic}
 .uranai-card{margin-top:10px;padding-top:9px;border-top:1px dashed #23364a;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
-.uranai-link{font-size:11.5px;font-weight:700;color:#a9c6dd;background:#0f1a26;border:1px solid #24344a;border-radius:8px;padding:7px 11px;text-decoration:none}
-.uranai-cav{font-size:10px;color:#7d94a8;line-height:1.5}
-.note{color:var(--sub);font-size:11px;text-align:center;margin-top:18px;line-height:1.7}
+.uranai-link{font-size:12px;font-weight:700;color:#a9c6dd;background:#0f1a26;border:1px solid #24344a;border-radius:8px;padding:7px 11px;text-decoration:none}
+.uranai-cav{font-size:12px;color:#7d94a8;line-height:1.5}
+.note{color:var(--sub);font-size:12px;text-align:center;margin-top:18px;line-height:1.7}
 .loading,.empty{text-align:center;color:var(--sub);padding:34px 0;font-size:13px}
 
 .boat{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .boat.open{background:rgba(255,209,102,.06)}
 .nm.fem-nm{color:#ff7eb6;font-weight:700}
-.jimoto{display:inline-block;font-size:9px;font-weight:700;background:#2f7be2;color:#fff;border-radius:4px;padding:1px 5px;margin-left:5px;vertical-align:middle}
-.bdmk{display:inline-block;font-size:9px;font-weight:700;background:#39424d;color:#e6ecf3;border-radius:4px;padding:1px 5px;margin-left:5px;vertical-align:middle}
-.bchev{float:right;color:#7a8b99;font-size:10px;transition:transform .2s}
+.jimoto{display:inline-block;font-size:12px;font-weight:700;background:#2f7be2;color:#fff;border-radius:4px;padding:1px 5px;margin-left:5px;vertical-align:middle}
+.bdmk{display:inline-block;font-size:12px;font-weight:700;background:#39424d;color:#e6ecf3;border-radius:4px;padding:1px 5px;margin-left:5px;vertical-align:middle}
+.bchev{float:right;color:#7a8b99;font-size:12px;transition:transform .2s}
 .boat.open .bchev{transform:rotate(90deg)}
 .bprof{display:none;padding:10px 8px 14px;background:rgba(0,0,0,.2);border-top:1px solid rgba(255,255,255,.05)}
 .bprof.show{display:block}
-.bp-top{font-size:11.5px;color:#8aa0b0;margin-bottom:9px}
+.bp-top{font-size:12px;color:#8aa0b0;margin-bottom:9px}
 .bp-top b{color:#e8eef3}
 .bp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .bp-c{background:#16242f;border:1px solid #22323f;border-radius:8px;padding:6px 4px;text-align:center}
-.bp-c .l{font-size:9px;color:#8aa0b0}
+.bp-c .l{font-size:12px;color:#8aa0b0}
 .bp-c .v{font-size:14px;font-weight:800;margin-top:2px;font-variant-numeric:tabular-nums}
 .bp-c.hl .v{color:#ffd166}
-.bp-c .s{font-size:8px;color:#8aa0b0}
+.bp-c .s{font-size:12px;color:#8aa0b0}
 .bp-c1{margin-top:10px}
-.bp-c1 .t{font-size:9px;color:#8aa0b0;letter-spacing:.08em;margin-bottom:6px}
+.bp-c1 .t{font-size:12px;color:#8aa0b0;letter-spacing:.08em;margin-bottom:6px}
 .bp-row{display:flex;align-items:center;gap:6px;margin-bottom:4px}
-.bp-row .lb{font-size:9px;color:#8aa0b0;width:24px;flex-shrink:0}
+.bp-row .lb{font-size:12px;color:#8aa0b0;width:24px;flex-shrink:0}
 .bp-row .br{flex:1;height:11px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
 .bp-row .br i{display:block;height:100%;border-radius:3px}
-.bp-row .vl{font-size:9px;width:34px;text-align:right;flex-shrink:0;font-variant-numeric:tabular-nums}
+.bp-row .vl{font-size:12px;width:34px;text-align:right;flex-shrink:0;font-variant-numeric:tabular-nums}
 .bp-uns{font-size:13px;font-weight:800;color:#ff7eb6}
 .daysw{display:flex;align-items:center;gap:6px;margin:10px 0 0}
 .dsw-btn{font-size:12px;font-weight:700;color:var(--sub);background:var(--panel2);border:1px solid var(--line);border-radius:18px;padding:5px 13px;cursor:pointer}
-.dsw-btn.on{color:#04121f;background:var(--acc);border-color:var(--acc)}
+.dsw-btn.on{color:#fff;background:#6d5bd0;border-color:#8b7be0}
 .dsw-btn:active{opacity:.7}
 .viewguide{color:var(--sub);font-size:12px;line-height:1.65;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 11px;margin:10px 0 0}
 .viewguide b{color:var(--txt)}
 .nextnote{color:var(--acc2);font-size:12px;line-height:1.6;background:rgba(90,170,255,.08);border:1px solid var(--acc2);border-radius:10px;padding:8px 11px;margin:8px 0}
-.vnext{font-size:11px;color:var(--sub);margin:3px 0 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.part-badge{display:inline-block;font-size:10px;font-weight:800;color:#04121f;background:#e0b64a;border-radius:6px;padding:2px 7px}
+.vnext{font-size:12px;color:var(--sub);margin:3px 0 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.part-badge{display:inline-block;font-size:12px;font-weight:800;color:#04121f;background:#e0b64a;border-radius:6px;padding:2px 7px}
 /* レース・アコーディオン（場別／波乱・堅め 共用） */
 .race{background:var(--panel);border:1px solid var(--line);border-radius:13px;margin-bottom:9px;overflow:hidden;scroll-margin-top:64px}
-.race.open{border-color:var(--acc)}
+.race.open{border-color:#8b7be0}
 .rhead{padding:11px 13px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .rhead:focus-visible{outline:2px solid var(--acc2);outline-offset:-2px}
-.rtop{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rtop{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.rtop .deadline{margin-left:auto;white-space:nowrap}
 .race .rname{font-weight:800;font-size:15px}
 /* 中止（chushiToday.json）。色は増やさず、本文色の枠付き文字で出す */
 .chushi-h{padding:11px 13px}
 .chushi-b{display:inline-block;font-size:12px;font-weight:800;padding:2px 9px;border-radius:10px;border:1px solid var(--sub);color:var(--txt);margin-left:auto}
-.vchushi{font-size:11px;font-weight:800;padding:1px 7px;border-radius:9px;border:1px solid var(--sub);color:var(--txt);white-space:nowrap}
+.vchushi{font-size:12px;font-weight:800;padding:1px 7px;border-radius:9px;border:1px solid var(--sub);color:var(--txt);white-space:nowrap}
 .rchip.chushi{color:var(--sub);text-decoration:line-through}
-.rchev{color:var(--sub);font-size:11px;flex-shrink:0;transition:transform .18s}
+.rchev{color:var(--sub);font-size:12px;flex-shrink:0;transition:transform .18s}
 .race.open .rchev{transform:rotate(180deg)}
-.rmitate{margin-top:7px;font-size:13px;font-weight:700;color:var(--txt);line-height:1.45;display:flex;gap:6px;align-items:baseline}
-.rmitate .lbl{font-size:9.5px;font-weight:800;color:var(--acc);background:rgba(255,209,102,.13);border:1px solid rgba(255,209,102,.4);padding:1px 5px;border-radius:4px;flex-shrink:0;letter-spacing:.04em;position:relative;top:-1px}
+.rmitate{margin-top:8px;font-size:15px;font-weight:400;color:var(--txt);line-height:1.65;display:flex;gap:6px;align-items:baseline}
+.rmitate .lbl{font-size:12px;font-weight:800;color:var(--acc);background:rgba(255,209,102,.13);border:1px solid rgba(255,209,102,.4);padding:1px 5px;border-radius:4px;flex-shrink:0;letter-spacing:.04em;position:relative;top:-1px}
 .rmitate .mt-txt{flex:1}
 .rbody{padding:2px 13px 13px}
 .rbody[hidden]{display:none}
@@ -309,22 +310,22 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .rchip:focus-visible{outline:2px solid var(--acc2);outline-offset:1px}
 .rchip.past{color:var(--sub);background:var(--panel2);opacity:.55}
 .rchip.hot{border-color:rgba(255,209,102,.55)}
-.rchip-mk{font-size:9px;color:var(--acc);line-height:1}
+.rchip-mk{font-size:12px;color:var(--acc);line-height:1}
 /* 締切ライブ演出（当日のみ・1分毎更新） */
-.soon-badge{display:none;font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px;background:rgba(255,209,102,.16);color:var(--acc);border:1px solid rgba(255,209,102,.4)}
+.soon-badge{display:none;font-size:12px;font-weight:800;padding:2px 7px;border-radius:10px;background:rgba(255,209,102,.16);color:var(--acc);border:1px solid rgba(255,209,102,.4)}
 .race.soon .soon-badge{display:inline-flex;align-items:center}
 .race.past:not(.open) .rhead{opacity:.55}
 .rchip.soon{border-color:rgba(255,209,102,.6)}
 .rchip.soon::after{content:"";position:absolute;top:-2px;right:-2px;width:7px;height:7px;border-radius:50%;background:var(--acc)}
 /* 前日/前々日タブの確定結果併記（実数のみ・判定しない） */
-.rresult{font-size:11.5px;font-weight:800;color:#8fd6c0;background:rgba(143,214,192,.10);border:1px solid rgba(143,214,192,.30);border-radius:8px;padding:2px 8px;white-space:nowrap}
+.rresult{font-size:12px;font-weight:800;color:#8fd6c0;background:rgba(143,214,192,.10);border:1px solid rgba(143,214,192,.30);border-radius:8px;padding:2px 8px;white-space:nowrap}
 .rresult b{color:#8fd6c0;font-variant-numeric:tabular-nums}
 .rresult b.man,.rresult-row b.man{color:var(--hot)}
 .rresult-row{font-size:12.5px;font-weight:700;color:#a9d9c8;background:rgba(143,214,192,.09);border:1px solid rgba(143,214,192,.28);border-radius:9px;padding:6px 10px;margin:0 0 9px;line-height:1.55;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}
 .rresult-row b{color:#8fd6c0;font-variant-numeric:tabular-nums}
-.rresult-row .src{font-size:10px;color:var(--sub);opacity:.75;font-weight:600}
+.rresult-row .src{font-size:12px;color:var(--sub);opacity:.75;font-weight:600}
 /* 締切二段階演出（当日のみ・既存1分タイマーで更新）＋場カードの次レース締切 */
-.vnext{margin-left:auto;font-size:11px;color:var(--sub);white-space:nowrap;font-variant-numeric:tabular-nums}
+.vnext{margin-left:auto;font-size:12px;color:var(--sub);white-space:nowrap;font-variant-numeric:tabular-nums}
 .vnext .vnext-t{font-weight:700}
 .vnext.soon{color:var(--acc)}
 .vnext.urgent,.vnext.urgent .vnext-t{color:var(--hot)}
@@ -333,9 +334,9 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .rchip.urgent{border-color:rgba(255,107,91,.7)}
 .rchip.urgent::after{background:var(--hot)}
 /* ⭐推し表示（キー br_oshi は出走表・選手図鑑と共有。このページは読むだけで登録・解除しない） */
-.oshi-badge{font-size:11px;font-weight:700;color:#0b1219;background:#ffd166;border-radius:6px;padding:1px 7px;white-space:nowrap}
+.oshi-badge{font-size:12px;font-weight:700;color:#0b1219;background:#ffd166;border-radius:6px;padding:1px 7px;white-space:nowrap}
 .oshi-mk{color:#ffd166;font-size:12px;margin-left:3px}
-.oshi-note{color:#7a6c44;font-size:10px;line-height:1.7}
+.oshi-note{color:#7a6c44;font-size:12px;line-height:1.7}
 #oshibar{display:none;gap:8px;margin:8px 0;font-size:13px;align-items:center;flex-wrap:wrap}
 .oshi-btn{cursor:pointer;padding:4px 12px;border-radius:14px;border:1px solid #4a4636;color:#c9c2ad;min-height:24px;display:inline-flex;align-items:center}
 .oshi-btn.on{background:#ffd166;color:#0b1219;border-color:#ffd166;font-weight:700}
@@ -344,9 +345,32 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .siteback:focus-visible{outline:2px solid currentColor;outline-offset:2px}
 .sitelink{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;margin:6px 0 2px;font-size:13px;line-height:1;color:inherit;text-decoration:underline;text-underline-offset:3px}
 .sitelink:focus-visible{outline:2px solid currentColor;outline-offset:2px}
-body::after{content:"データ攻め ／ YouTube あべけん";display:block;margin:18px 0 20px;font-size:11px;color:#8a8f98;letter-spacing:.02em;text-align:center}
+body::after{content:"データ攻め ／ YouTube あべけん";display:block;margin:18px 0 20px;font-size:12px;color:#8a8f98;letter-spacing:.02em;text-align:center}
 html[data-vr] body::after{content:none;margin:0}
-.vr-note{display:block;margin:18px 0 20px;font-size:11px;color:#8a8f98;letter-spacing:.02em;text-align:center}
+.vr-note{display:block;margin:18px 0 20px;font-size:12px;color:#8a8f98;letter-spacing:.02em;text-align:center}
+.bunrui{display:inline-block;font-size:12px;font-weight:700;padding:2px 9px;border-radius:6px;margin-right:2px}
+.bunrui.b-are{background:rgba(242,177,85,.16);color:#f2b155;border:1px solid rgba(242,177,85,.6)}
+.bunrui.b-kata{background:rgba(92,200,176,.14);color:#5cc8b0;border:1px solid rgba(92,200,176,.55)}
+.lead1{color:#b8c4d0;font-size:13px;margin-top:10px;line-height:1.7}
+.howto{margin-top:10px;border:1px solid var(--line);border-radius:10px;background:var(--panel2)}
+.howto>summary{cursor:pointer;list-style:none;padding:12px;min-height:44px;font-size:13px;font-weight:700;color:#c4b5fd}
+.howto>summary::-webkit-details-marker{display:none}
+.howto>summary::after{content:" ▼";font-size:11px}
+.howto[open]>summary::after{content:" ▲"}
+.howto-in{padding:0 12px 12px;font-size:13px;color:var(--sub);line-height:1.7}
+.howto-in .viewguide{margin-top:10px}
+.ksk{background:#121c28;border:1px solid #223246;border-radius:14px;padding:16px}
+.ksk-tag{color:#d9b779;font-weight:700;letter-spacing:.04em}
+.ksk-title{font-size:18px;font-weight:700;color:#eef1f4;line-height:1.45}
+.ksk-lead{font-size:14px;color:#b8c4d0;line-height:1.75}
+.ksk-btn{background:#2a3a4f;color:#e6edf3;font-size:13px;padding:9px 14px;border-radius:10px}
+.ksk-body{margin:0}
+.ksk-body p{font-size:16px;line-height:1.85;color:#d9e0e7;margin:0 0 1.1em;letter-spacing:.02em}
+.ksk-body p:first-child{color:#eef1f4}
+.ksk-link{color:inherit;border-bottom:1px solid rgba(122,176,230,.55)}
+.ksk-chip{font-size:13px;padding:5px 12px;margin:6px 6px 0 0}
+.kskall-bar{border-left:1px solid #24384b}
+.bnote{font-size:12.5px;color:var(--sub);margin:0 2px 10px;line-height:1.6}
 </style>
 </head>
 <body>
@@ -359,9 +383,9 @@ html[data-vr] body::after{content:none;margin:0}
   <div class="eyebrow">TODAY'S FOCUS</div>
   <h1>本日の見どころ</h1>
   <div class="date" id="date">読み込み中…</div>
-  <div class="lead">
-    出走表＋モーターのデータから<b>機械的に拾える条件だけ</b>を並べています。買い目・確率・勝者予想は出しません。
-    展開文はコース別の役割（①逃げ／②差し／③④まくり）に沿った<b>複数の筋の併置</b>。最後の一歩は読み手が埋めてください。
+  <div class="lead1">出走表とモーターのデータから、機械的に拾える条件だけを並べています。買い目・確率・勝者予想は出しません。</div>
+  <details class="howto"><summary>このページの見方・記号</summary><div class="howto-in">
+    <p>展開文はコース別の役割（①逃げ／②差し／③④まくり）に沿った<b>複数の筋の併置</b>です。最後の一歩は読み手が埋めてください。</p>
     <div class="mtr-legend">
       <span class="mtr-leg-title">機バッジの枠色</span>
       <span class="mtr-leg-item"><span class="mtr hi">機</span>6艇平均より上位</span>
@@ -376,27 +400,28 @@ html[data-vr] body::after{content:none;margin:0}
       <span class="mtr-leg-item"><span class="flag fF">F</span>今節フライング持ち</span>
       <span class="mtr-leg-item"><span class="flag fST">ST</span>平均STが鋭い（目安0.15以下）</span>
       <span class="mtr-leg-item"><span class="up">▲</span>当地勝率が全国勝率より高い（その場を得意）</span>
-      <span class="mtr-leg-item"><span class="badge b-mid">波乱</span>①の着外しやすさ・6段階（4以上赤／2-3金／1灰）</span>
+      <span class="mtr-leg-item"><span class="bunrui b-are">荒れ</span><span class="bunrui b-kata">堅め</span>朝の分類（トップの答え合わせと同じ）　<span class="badge b-mid">①着外</span>①号艇の着外しやすさ・6段階</span>
       <span class="mtr-leg-item"><span class="rchip-mk" style="font-size:12px">⚡</span>その場で波乱指数が最も高いレース</span>
     </div>
-  </div>
-</header>
-
-<div class="viewguide">
+    <div class="viewguide">
   タブは左から <b>前々日・前日・当日・明日</b>（時系列）。<b>明日</b>は前夜プレビューで、各場のレース確定後に順次追加されます。
   各カードは<b>表層のバッジ→タップで内訳</b>の二層表示。買い目・確率・勝者予想は扱いません。
 </div>
+  </div></details>
+</header>
+
+
 <div class="daysw"><button class="dsw-btn" data-d="2" onclick="setDay(2)">前々日</button><button class="dsw-btn" data-d="1" onclick="setDay(1)">前日</button><button class="dsw-btn on" data-d="0" onclick="setDay(0)">当日</button><button class="dsw-btn" data-d="3" onclick="setDay(3)">明日</button></div>
 <button class="kskall-bar" id="kskAllBar" aria-expanded="false" aria-controls="kskAllWrap" onclick="kskAllToggle()">📝 観戦記をまとめて読む ▼</button>
 <div class="kskall-wrap" id="kskAllWrap"></div>
 <div class="tabs">
-  <div class="tab on" data-v="hot" onclick="sw('hot')">⚡ 波乱注目</div>
-  <div class="tab firm" data-v="firm" onclick="sw('firm')">🛡 堅め注目</div>
-  <div class="tab" data-v="all" onclick="sw('all')">📋 場別</div>
+  <div class="tab on" data-v="hot" onclick="sw('hot')">荒れ</div>
+  <div class="tab firm" data-v="firm" onclick="sw('firm')">堅め</div>
+  <div class="tab" data-v="all" onclick="sw('all')">場別</div>
 </div>
 <div id="sortbar" style="display:flex;gap:8px;margin:8px 0;font-size:13px;">
   <span style="opacity:.6;align-self:center;">並び替え</span>
-  <span class="sortbtn on" data-s="cond" onclick="ss('cond')">波乱順</span>
+  <span class="sortbtn on" data-s="cond" onclick="ss('cond')">①着外順</span>
   <span class="sortbtn" data-s="time" onclick="ss('time')">締切順</span>
 </div>
 <div id="oshibar"><span class="oshi-btn" id="oshiBtn" role="button" tabindex="0" aria-pressed="false" onclick="toggleOshiOnly()">⭐ 推しのみ</span><span style="opacity:.6">フォロー中の選手が出るレースだけを表示</span></div>
@@ -415,7 +440,7 @@ html[data-vr] body::after{content:none;margin:0}
     }else if(!document.querySelector(".vr-note")){
       var n = document.createElement("small");
       n.className = "vr-note";
-      n.style.cssText = "display:block;margin:18px 0 20px;font-size:11px;color:#8a8f98;text-align:center";
+      n.style.cssText = "display:block;margin:18px 0 20px;font-size:12px;color:#8a8f98;text-align:center";
       n.textContent = "データ攻め ／ YouTube あべけん";
       document.body.appendChild(n);
     }
@@ -512,13 +537,21 @@ function boatRow(b, ba){
   </div><div class="bprof" id="bp-${rid}"></div>`;
 }
 
-function badge(r){
-  if(VIEW==='firm') return `<span class="badge b-firm">イン堅め</span>`;
-  const lv=haranLv(r);
-  if(lv>=4) return `<span class="badge b-hot">波乱 ${lv}</span>`;
-  if(lv>=2) return `<span class="badge b-mid">波乱 ${lv}</span>`;
-  return `<span class="badge b-in">波乱 ${lv}</span>`;
+// 朝の分類（highlights.json の「分類」。predictions/ に保存した判定と同じ・トップの答え合わせの対象）。
+// 波乱＝荒れ（琥珀）、堅め（青緑）。混戦と未保存はキーなし＝札を出さない。
+function bunruiTag(r){
+  const b=r['分類'];
+  if(b==='波乱') return `<span class="bunrui b-are">荒れ</span>`;
+  if(b==='堅め') return `<span class="bunrui b-kata">堅め</span>`;
+  return '';
 }
+function badge(r){
+  const lv=haranLv(r);
+  const cls=lv>=4?'b-hot':(lv>=2?'b-mid':'b-in');
+  return bunruiTag(r)+`<span class="badge ${cls}">①着外${lv}</span>`;
+}
+// その日のデータに「分類」があるか（9/30より前の前日・前々日や、明日の前夜プレビューには無い）。
+function hasBunrui(arr){ return arr.some(r=>r['分類']==='波乱'||r['分類']==='堅め'); }
 // 波乱バッジの数字＝波乱指数を6段階に区切ったもの（並び順と必ず一致する）。
 // 区切りは predictions/ の波乱指数と results の①着順の突き合わせ（2026-08-28〜09-26・4,530レース）で
 // 段階1〜6の①着外率が 9.5/17.8/23.8/30.8/33.6/52.6% と単調に上がることを確認した値。仮置き。
@@ -771,12 +804,12 @@ function renderKansenki(a, jcd){
   }).join('');
   const terms=chips?`<div class="ksk-terms">用語　${chips}</div>`:'';
   return `<div class="ksk">
-    <div class="ksk-tag">📝 観戦記${a['styleType']?`｜${kEsc(a['styleType'])}`:''}</div>
+    <div class="ksk-tag">観戦記${a['styleType']?`｜${kEsc(a['styleType'])}`:''}</div>
     <div class="ksk-title">${kEsc(a['title']||'')}</div>
     <div class="ksk-lead">${lead}</div>
     <button class="ksk-btn" id="kskb-${jcd}" onclick="kskToggle('${jcd}')">観戦記を読む ▼</button>
     <div class="ksk-full" id="kskf-${jcd}" style="display:none">
-      <p class="ksk-body">${full}</p>
+      <div class="ksk-body">${full.split(/\n+/).filter(x=>x.trim()).map(x=>'<p>'+x+'</p>').join('')}</div>
       ${terms}
     </div>
     <div class="ksk-note">観戦記｜前日までの確定データのみで書いています。予想・買い目は扱いません。</div>
@@ -919,19 +952,22 @@ function render(){
     // 波乱指数があるならそれで絞る。無い日だけ従来の整数カウンタに戻す。中止のレースは出さない。
     arr=arr.filter(r=>!isChushi(r));
     const useHi=arr.some(r=>hidx(r)!==null);
-    arr=useHi ? arr.filter(r=>{const v=hidx(r);return v!==null&&v>=HI_MIN;})
+    const bun=hasBunrui(arr);
+    arr=bun ? arr.filter(r=>r['分類']==='波乱')
+       : useHi ? arr.filter(r=>{const v=hidx(r);return v!==null&&v>=HI_MIN;})
               : arr.filter(r=>r['波乱']>=2);
     if(SORT==='time') arr.sort((x,y)=>dl2min(x['締切時刻'])-dl2min(y['締切時刻']));
     else if(useHi) arr.sort((x,y)=>hidx(y)-hidx(x)||x['場名'].localeCompare(y['場名'],'ja'));
     else arr.sort((x,y)=>y['波乱']-x['波乱']||x['場名'].localeCompare(y['場名'],'ja'));
-    if(!arr.length){el.innerHTML='<div class="empty">本日は波乱注目の条件に当てはまるレースがありません。</div>';return;}
-    el.innerHTML=arr.map(r=>renderCard(r,'flat')).join('');
+    if(!arr.length){el.innerHTML='<div class="empty">この日は「荒れ」と分類したレースがありません。</div>';return;}
+    el.innerHTML=(bun?'':'<div class="bnote">この日は朝の分類を公開する前のため、①着外が高い順に並べています。</div>')+arr.map(r=>renderCard(r,'flat')).join('');
   }else if(VIEW==='firm'){
-    arr=arr.filter(r=>r['イン堅']&&!isChushi(r));
+    const bunK=hasBunrui(arr);
+    arr=bunK ? arr.filter(r=>r['分類']==='堅め'&&!isChushi(r)) : arr.filter(r=>r['イン堅']&&!isChushi(r));
     if(SORT==='time') arr.sort((x,y)=>dl2min(x['締切時刻'])-dl2min(y['締切時刻']));
     else arr.sort((x,y)=>haranKey(x)-haranKey(y)||y['イン1着率']-x['イン1着率']);
-    if(!arr.length){el.innerHTML='<div class="empty">本日はイン堅め条件のレースがありません。</div>';return;}
-    el.innerHTML=arr.map(r=>renderCard(r,'flat')).join('');
+    if(!arr.length){el.innerHTML='<div class="empty">この日は「堅め」と分類したレースがありません。</div>';return;}
+    el.innerHTML=(bunK?'':'<div class="bnote">この日は朝の分類を公開する前のため、イン堅めの条件で並べています。</div>')+arr.map(r=>renderCard(r,'flat')).join('');
   }else{
     el.innerHTML=renderVenues();
   }
@@ -1183,7 +1219,7 @@ function bProfHTML(no, boat){
    <div class="bp-c"><div class="l">1着/2着</div><div class="v" style="font-size:12px">${p.w1}/${p.w2}</div></div>
    <div class="bp-c"><div class="l">優勝</div><div class="v">${p.yusyo}</div></div>
    <div class="bp-c"><div class="l">F数</div><div class="v">${p.f}</div></div>
-   <div class="bp-c"><div class="l">アウト戦</div><div class="v">${(p.out||0).toFixed?p.out.toFixed(1):p.out}<span style="font-size:9px">%</span></div></div>
+   <div class="bp-c"><div class="l">アウト戦</div><div class="v">${(p.out||0).toFixed?p.out.toFixed(1):p.out}<span style="font-size:12px">%</span></div></div>
    <div class="bp-c"><div class="l">複勝率</div><div class="v">${(p.fuku!=null?p.fuku:0).toFixed(2)}</div></div>
   </div>
   ${kinMotorFact(no)}
@@ -1465,7 +1501,7 @@ fetch(SRC+'?_='+Date.now())
 }
 loadHL();
 </script>
-<footer style="margin:24px auto 8px;max-width:900px;text-align:center;font-size:10px;color:#8a94a3;letter-spacing:.3px;line-height:1.7;">© 2026 データ攻め ── 制作・運営 <a href="https://www.youtube.com/@abe-ken" target="_blank" rel="noopener" style="color:#9aa4b3;text-decoration:underline;">あべけん</a></footer>
+<footer style="margin:24px auto 8px;max-width:900px;text-align:center;font-size:12px;color:#8a94a3;letter-spacing:.3px;line-height:1.7;">© 2026 データ攻め ── 制作・運営 <a href="https://www.youtube.com/@abe-ken" target="_blank" rel="noopener" style="color:#9aa4b3;text-decoration:underline;">あべけん</a></footer>
 <script src="../assets/guard.js" defer></script>
 </body>
 </html>
