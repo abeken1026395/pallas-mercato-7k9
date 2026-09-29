@@ -1,10 +1,16 @@
 ﻿# writeKansenkiLocal.ps1
 # 観戦記の自走をローカルPCで実行する（認証済み claude CLI＝Maxプラン枠・API課金なし）。
 # GitHub Actions では OAuth/Secret 問題で自走が安定しなかったため、ローカルのタスクスケジューラで毎朝実行する。
-# 登録: scripts/registerWriteKansenkiLocal.ps1（毎日 JST 5:30・Interactive＋WakeToRun）。
+# 登録: scripts/registerWriteKansenkiLocal.ps1（毎日 JST 1:00 が本命・5:30 が予備・Interactive＋WakeToRun）。
 #
 # 処理順（writeKansenki.yml のローカル移植）:
 #   a. main へ同期（checkout main → pull）。作業ツリーが汚れていれば何もせず退避（ユーザー作業の巻き込み回避）。
+#   a2. 素材の自前生成（2026-09-30 けん裁定）。source/<pubdate>.json が無ければ、Actions の夜の実行を待たずに作る。
+#      夜の updateResults の定時実行は 3から5時間遅れるのが常態で（09-09 から 09-30 の素材作成は最早 02:25）、
+#      09-29 は素材が 05:44 まで無く観戦記が0本になった。
+#      出走表CSVの開催日が掲載日に切り替わるまで待ち（10分おきに pull）、前日の結果を buildResults.py で取り直し、
+#      件数が predictions/<前日>.json の予測件数に届くまで待つ（中止レースがあっても 02:30 で打ち切って進む）。
+#      素材だけを commit・push する。取り直した results/<前日>.json は commit せず元に戻す（正本は Actions）。
 #   b. kansenki_pubplan.py で掲載日の toWrite を得て、三状態で判定する（writeKansenki.yml の plan と同じ分類）。
 #      正常な0（全場執筆済・前日非開催の構造上の除外だけ）→ 正常終了（exit 0）。
 #      source が無い・掲載日が取れない・場数0・入力が揃わず書けない場が残る → 未検証（exit 1）。
@@ -97,6 +103,40 @@ else:
 print(json.dumps({"state": state, "why": why, "unresolved": unresolved, "excused": excused}, ensure_ascii=False))
 '@
 
+# 素材の自前生成の下調べ（a2）。引数: モード 掲載日。出力は JSON 1行。
+#   csv     : 出走表CSVの開催日（最多の値）を返す。{"csv": "YYYYMMDD"}
+#   results : 前日の結果を buildResults.py（HD=前日）で取り直し、件数と予測件数を返す。
+#             {"prev": "YYYYMMDD", "got": n, "expect": m}（予測ファイルが無ければ expect=-1）
+$SourcePrepPy = @'
+import csv, datetime, io, json, os, subprocess, sys
+mode, pub = sys.argv[1], sys.argv[2]
+if mode == "csv":
+    counts = {}
+    with io.open("docs/racers/racers_today.csv", "r", encoding="utf-8-sig") as f:
+        for r in csv.DictReader(f):
+            k = (r.get("開催日") or "").strip()
+            counts[k] = counts.get(k, 0) + 1
+    print(json.dumps({"csv": max(counts.items(), key=lambda kv: kv[1])[0] if counts else ""}))
+    sys.exit(0)
+prev = (datetime.datetime.strptime(pub, "%Y%m%d") - datetime.timedelta(days=1)).strftime("%Y%m%d")
+env = dict(os.environ, HD=prev)
+rc = subprocess.run([sys.executable, "scripts/buildResults.py"], env=env,
+                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode
+got = 0
+try:
+    with io.open("results/%s.json" % prev, "r", encoding="utf-8") as f:
+        got = len(json.load(f).get("結果") or [])
+except Exception:
+    got = 0
+expect = -1
+try:
+    with io.open("predictions/%s.json" % prev, "r", encoding="utf-8") as f:
+        expect = len(json.load(f).get("予測") or [])
+except Exception:
+    expect = -1
+print(json.dumps({"prev": prev, "got": got, "expect": expect, "rc": rc}))
+'@
+
 # 生成済み記事(articles/<pubdate>-<jcd>.json)の jcd 一覧を返す（レジューム判定用）。
 function Get-DoneJcds {
     @(Get-ChildItem -Path (Join-Path $ArticlesDir ("{0}-*.json" -f $Pubdate)) -ErrorAction SilentlyContinue |
@@ -139,6 +179,73 @@ try {
     Invoke-Step 'git pull origin main' { & $Git pull origin main } | Out-Null
     # 破壊防止ガード2（pull直後）: 必須ファイル消失＝作業ツリー破壊なら非0で中断（自動復旧しない）。
     Invoke-Step 'ガード2(worktree健全性)' { & $Ps -NoProfile -ExecutionPolicy Bypass -File $Guard -Stage post -Repo $Repo -LogFile $LogFile } | Out-Null
+
+    # --- a2) 素材の自前生成（source が無いときだけ） ----------------------
+    $srcFull = Join-Path $Repo ($SourceRel -replace '/', '\')
+    if (-not (Test-Path $srcFull)) {
+        $prepPath = Join-Path $env:TEMP 'kansenki_source_prep.py'
+        Set-Content -Path $prepPath -Value $SourcePrepPy -Encoding utf8
+        function Get-Prep($mode) {
+            $t = Invoke-Native { & $Py $prepPath $mode $Pubdate }
+            $last = @($t -split "`r?`n" | Where-Object { $_.Trim() }) | Select-Object -Last 1
+            if (-not $last) { throw ("素材の下調べ({0})が出力なし" -f $mode) }
+            return ($last | ConvertFrom-Json)
+        }
+        function Restore-PrevResults($rel) {
+            if (-not $rel) { return }
+            $tracked = & $Git ls-files -- $rel
+            if ($tracked) { Invoke-Native { & $Git checkout -- $rel } | Out-Null }
+            else { Remove-Item (Join-Path $Repo ($rel -replace '/', '\')) -Force -ErrorAction SilentlyContinue }
+        }
+        # 待つのは 02:30 まで。予備の 5:30 回（締切を過ぎてから始まる回）は待たずに1回だけ試す。
+        $deadline = (Get-Date).Date.AddHours(2).AddMinutes(30)
+        if ((Get-Date) -gt $deadline) { $deadline = Get-Date }
+        Log ("素材 {0} が無い → 自前で作る（待つのは {1:HH:mm} まで）" -f $SourceRel, $deadline)
+
+        # 1) 出走表CSVの開催日が掲載日に切り替わるのを待つ
+        $csvDate = ''
+        while ($true) {
+            $csvDate = (Get-Prep 'csv').csv
+            if ($csvDate -eq $Pubdate -or (Test-Path $srcFull)) { break }
+            if ((Get-Date) -ge $deadline) { Log ("出走表CSVの開催日={0} のまま締切。素材を作れない" -f $csvDate); break }
+            Log ("素材待ち: 出走表CSVの開催日={0}（掲載日 {1} に未切替）。10分後に pull して再確認" -f $csvDate, $Pubdate)
+            Start-Sleep -Seconds 600
+            Invoke-Step 'git pull origin main（素材待ち）' { & $Git pull origin main } | Out-Null
+        }
+
+        if (-not (Test-Path $srcFull) -and $csvDate -eq $Pubdate) {
+            # 2) 前日の結果を取り直し、件数が予測件数に届くまで待つ
+            $prevRel = $null
+            while ($true) {
+                $r = Get-Prep 'results'
+                $prevRel = "results/{0}.json" -f $r.prev
+                Log ("前日 {0} の結果: {1} 件 / 予測 {2} 件（buildResults rc={3}）" -f $r.prev, $r.got, $r.expect, $r.rc)
+                if ($r.expect -gt 0 -and $r.got -ge $r.expect) { break }
+                if ((Get-Date) -ge $deadline) { Log "締切に達したため、この件数で素材を作る（中止レースの可能性）"; break }
+                Restore-PrevResults $prevRel
+                Start-Sleep -Seconds 600
+                Invoke-Step 'git pull origin main（結果待ち）' { & $Git pull origin main } | Out-Null
+            }
+
+            # 3) 素材を作り、素材だけを commit・push する
+            Invoke-Step 'buildKansenkiSource.py' { & $Py scripts\buildKansenkiSource.py } | Out-Null
+            Restore-PrevResults $prevRel   # 取り直した結果は commit しない（正本は Actions の夜の実行）
+            if (Test-Path $srcFull) {
+                Invoke-Step 'git add（素材）' { & $Git add -- $SourceRel } | Out-Null
+                Invoke-Step 'git commit（素材）' { & $Git commit -m "kansenki: $Pubdate の素材をローカルで生成" } | Out-Null
+                try {
+                    Invoke-Step 'git pull --rebase（素材）' { & $Git pull --rebase origin main } | Out-Null
+                } catch {
+                    Invoke-Native { & $Git rebase --abort } | Out-Null
+                    throw "素材の git pull --rebase が衝突。中止した（ローカルのコミットは残存。手動確認が必要）"
+                }
+                Invoke-Step 'git push（素材）' { & $Git push origin main } | Out-Null
+                Log ("素材を push（{0}）" -f (& $Git rev-parse --short HEAD).Trim())
+            } else {
+                Log "buildKansenkiSource.py の後も素材が無い"
+            }
+        }
+    }
 
     # --- b) 執筆計画（未執筆かつ書ける場） -------------------------------
     $planPath = Join-Path $env:TEMP 'plan.json'
