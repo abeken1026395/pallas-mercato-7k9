@@ -168,11 +168,38 @@ def main():
             "主役正誤": r.get("主役正誤", ""),
         })
 
+    # 荒れの基準率（トップの答え合わせカードの比較対象）。
+    # 全レース＝判定に関係なく数えた荒れ率。波乱以外＝朝に「波乱」と分類しなかったレースだけの荒れ率。
+    # 配当が数値でない行は分母から外す。
+    base_all = [0, 0]
+    base_other = [0, 0]
+    for r in rows:
+        pay = to_int(r.get("配当"))
+        if pay is None:
+            continue
+        hit = 1 if pay >= HARAN_TH else 0
+        base_all[0] += 1
+        base_all[1] += hit
+        if (r.get("判定") or "").strip() != "波乱":
+            base_other[0] += 1
+            base_other[1] += hit
+    haran_base = {
+        "全レース": {
+            "件数": base_all[0],
+            "荒れ率": round(100 * base_all[1] / base_all[0], 1) if base_all[0] else None,
+        },
+        "波乱以外": {
+            "件数": base_other[0],
+            "荒れ率": round(100 * base_other[1] / base_other[0], 1) if base_other[0] else None,
+        },
+    }
+
     dates = sorted(set(r.get("日付", "") for r in rows if r.get("日付")))
     summary = {
         "総レース数": n,
         "集計期間": {"開始": dates[0], "終了": dates[-1]} if dates else None,
         "判定別的中率": judge_rate,
+        "荒れ基準率": haran_base,
         "主役": main_stats,
         "スコア帯別荒れ率": score_bands,
         "直近ログ": recent,
