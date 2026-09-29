@@ -47,6 +47,35 @@ def to_int(s):
         return None
 
 
+def latest_complete_day(rows, hit_marks, haran_th):
+    by_day = defaultdict(list)
+    for r in rows:
+        d = (r.get("日付") or "").strip()
+        if d:
+            by_day[d].append(r)
+    for day in sorted(by_day, reverse=True)[:10]:
+        try:
+            with open(os.path.join("predictions", day + ".json"), encoding="utf-8") as f:
+                expect = len(json.load(f).get("予測") or [])
+        except Exception:
+            continue
+        rs = by_day[day]
+        if not expect or len(rs) != expect:
+            continue
+        out = {"日付": day, "件数": len(rs)}
+        for j in ("波乱", "堅め"):
+            s = [r for r in rs if (r.get("判定") or "").strip() == j]
+            out[j] = {
+                "件数": len(s),
+                "的中": sum(1 for r in s if (r.get("波乱正誤") or "").strip() in hit_marks),
+            }
+        out["混戦件数"] = sum(1 for r in rs if (r.get("判定") or "").strip() == "混戦")
+        pays = [p for p in (to_int(r.get("配当")) for r in rs) if p is not None]
+        out["全体"] = {"件数": len(pays), "荒れ": sum(1 for p in pays if p >= haran_th)}
+        return out
+    return None
+
+
 def main():
     if not os.path.exists(LOG):
         # ログがまだ無い場合も空サマリを出して後段(commit)を止めない
@@ -194,12 +223,18 @@ def main():
         },
     }
 
+    # 直近の確定日（トップの「昨日の答え合わせ」用）。
+    # その日の predictions/YYYYMMDD.json のレース数と verify_log の行数が一致した最新の日だけを採る。
+    # 照合の途中の日（行数が足りない日）は出さない。10日さかのぼって無ければ None。
+    last_day = latest_complete_day(rows, HIT, HARAN_TH)
+
     dates = sorted(set(r.get("日付", "") for r in rows if r.get("日付")))
     summary = {
         "総レース数": n,
         "集計期間": {"開始": dates[0], "終了": dates[-1]} if dates else None,
         "判定別的中率": judge_rate,
         "荒れ基準率": haran_base,
+        "直近確定日": last_day,
         "主役": main_stats,
         "スコア帯別荒れ率": score_bands,
         "直近ログ": recent,
