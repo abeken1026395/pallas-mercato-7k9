@@ -443,7 +443,12 @@ def main():
     # 日中の再生成では racerFormIndex（03:30更新）や出走表が朝と変わっていて、計算し直すと
     # 分類が数レースずれる。読者の見る見どころと、答え合わせに使う保存済みの分類をそろえる。
     _saved_verdict = {}
+    # 当日の predictions が未作成なら、この回の最後に今回の判定をそのまま保存する（1441行付近）。
+    # そのときは今回の判定＝保存される分類なので、見どころの「分類」にも入れてよい。
+    _pred_will_write = False
     if not NEXT and rac:
+        _pred_will_write = not os.path.exists(
+            os.path.join('predictions', '{}.json'.format(rac[0].get('開催日', ''))))
         try:
             with open(os.path.join('predictions', '{}.json'.format(rac[0].get('開催日', ''))),
                       encoding='utf-8') as _pf:
@@ -635,6 +640,11 @@ def main():
         if _sv in ('波乱', '堅め', '混戦') and _sv != verdict:
             verdict = _sv
             hero = 1 if verdict == '堅め' else (4 if verdict == '波乱' else None)
+        # 公開する朝の分類。保存済みの分類（無ければこの回で保存する分類）が波乱か堅めのときだけ入れる。
+        # 混戦・翌日モード・保存済みに無いレースはキーを入れない。
+        bunrui = None
+        if not NEXT and verdict in ('波乱', '堅め') and (_sv in ('波乱', '堅め', '混戦') or _pred_will_write):
+            bunrui = verdict
         it = INTOP.get(ba, 53)
         use_m = motok.get(ba, True)
         mt = [b['_mtr'] for b in bo]
@@ -1270,6 +1280,8 @@ def main():
             'downFactors': downFactors,  # 追加:①の下振れ要因（事実提示・確率/買い目なし）
             'collapse': collapse  # 追加:①の崩れ方（場別実数・確率/買い目なし。①着外レースの内訳）
         }
+        if bunrui:
+            out_entry['分類'] = bunrui
         return out_entry, pred_entry
 
     # 呼び出し：場×レース単位に例外を握って「取れた分だけ」蓄積。失敗はログ。
@@ -1438,7 +1450,8 @@ def main():
         print(f"NOTE: {STATS_OUT} の生成に失敗（highlights.json は正常）: {e}")
 
     # --- 検証ログ：予測を確定保存（結果を見る前・一度書いたら動かさない）---
-    # 公開highlights.jsonには判定/主役艇を入れず、非公開predictions/にだけ残す。
+    # 公開highlights.jsonには主役艇・スコアを入れず、非公開predictions/にだけ残す。
+    # 判定は波乱・堅めだけ「分類」として公開する（混戦はキーなし）。
     pred_written = None
     if pred_list:
         os.makedirs('predictions', exist_ok=True)
