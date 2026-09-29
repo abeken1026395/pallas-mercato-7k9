@@ -806,6 +806,7 @@ function App() {
   const [cstat, setCstat] = useState(null);
   const [sched, setSched] = useState(null);
   const [wst, setWst] = useState(null);
+  const [prize, setPrize] = useState(null); // 公式「獲得賞金順位表 ベスト50」。null=未取得 / false=取得失敗
   const [wstPer, setWstPer] = useState(3);
   const [scMeta, setScMeta] = useState(null);
   const [csMeta, setCsMeta] = useState(null);
@@ -1061,6 +1062,24 @@ function App() {
       if (j && j.cells && Array.isArray(j.base)) setWst(j);else setWst(false);
     }).catch(() => {
       setWst(false);
+    });
+  }, [open]);
+  useEffect(() => {
+    if (!open || prize !== null) return;
+    fetch("../data/prizeRank.json").then(r => r.ok ? r.json() : Promise.reject()).then(j => {
+      if (j && Array.isArray(j.rows) && j.period) {
+        const m = {};
+        j.rows.forEach(x => {
+          m[x.no] = x;
+        });
+        setPrize({
+          map: m,
+          period: j.period,
+          source: j.source
+        });
+      } else setPrize(false);
+    }).catch(() => {
+      setPrize(false);
     });
   }, [open]);
   // ■ スタート節の「枠別平均ST」。wakuST に居ない選手は折りたたみごと出さない
@@ -1958,7 +1977,36 @@ function App() {
         fontWeight: 700,
         color: l === "養成期" ? "#79c0ff" : l === "能力指数" ? "#ffd166" : "#e0e6ed"
       }
-    }, v))))), pf && pf.hobby && /*#__PURE__*/React.createElement("div", {
+    }, v))))), (() => {
+      const x = prize && prize.map[p.no];
+      if (!x) return null;
+      const md = s => Number(s.slice(5, 7)) + "/" + Number(s.slice(8, 10));
+      return /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 12,
+          color: "#c5d2e0",
+          margin: "-4px 0 10px"
+        }
+      }, "\uD83D\uDCB0 \u4ECA\u5E74\u306E\u7372\u5F97\u8CDE\u91D1 ", /*#__PURE__*/React.createElement("b", {
+        style: {
+          color: "#ffd166"
+        }
+      }, x.rank, "\u4F4D"), "\u3000\xA5", x.prize.toLocaleString("ja-JP"), /*#__PURE__*/React.createElement("span", {
+        style: {
+          fontSize: 10,
+          color: "#6b7f95",
+          marginLeft: 6
+        }
+      }, md(prize.period.from), "\u301C", md(prize.period.to), "\u96C6\u8A08\u30FB", /*#__PURE__*/React.createElement("a", {
+        href: prize.source,
+        target: "_blank",
+        rel: "noopener",
+        onClick: e => e.stopPropagation(),
+        style: {
+          color: "#6b7f95"
+        }
+      }, "\u516C\u5F0F\u30D9\u30B9\u30C850")));
+    })(), pf && pf.hobby && /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 12,
         color: "#c5d2e0",
