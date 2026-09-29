@@ -20,22 +20,22 @@
 <meta name="theme-color" content="#0c1520">
 <style>
 :root{
-  --bg:#0c1520;--card:#121e2c;--card2:#16243449;--line:#233447;--tx:#e6e8eb;--sub:#a0acb8;--dim:#7a8ba0;
+  --bg:#0a1422;--card:#12233a;--card2:#16243449;--line:#24406a;--tx:#e6e8eb;--sub:#a0acb8;--dim:#7a8ba0;
   --are:#f2b155;--kata:#5cc8b0;--base:#6b7280;--accent:#7fb4ff;--mido:#a78bfa;--midoTx:#c4b5fd;
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;-webkit-font-smoothing:antialiased}
+body{margin:0;background:radial-gradient(140% 55% at 50% 0%,#1b3a5e 0%,#122a45 32%,#0c1a2c 62%,var(--bg) 100%) var(--bg);background-repeat:no-repeat;color:var(--tx);font-family:-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;-webkit-font-smoothing:antialiased}
 .wrap{max-width:480px;margin:0 auto;padding:18px 16px 40px}
 .num{font-variant-numeric:tabular-nums}
 a{color:inherit;text-decoration:none}
 
 /* ヘッダー */
-.hd{text-align:center;padding:14px 0 6px}
-.logo{font-size:44px;font-weight:800;letter-spacing:.06em;margin:0;line-height:1.1}
-.catch{font-size:13px;color:var(--sub);letter-spacing:.08em;margin:8px 0 0}
-.catch span{font-size:10.5px;color:var(--dim);letter-spacing:.2em;margin-right:6px}
-.promise{margin:14px auto 0;font-size:14px;color:var(--tx);font-weight:600}
-.promise small{display:block;font-size:11.5px;color:var(--dim);font-weight:400;margin-top:3px}
+.hd{text-align:center;padding:26px 0 6px}
+.logo{font-size:58px;font-weight:900;letter-spacing:.05em;margin:0;line-height:1.02;white-space:nowrap;background:linear-gradient(180deg,#f5f8fb 0%,#c9d6e4 70%,#aebfd2 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.catch{font-size:14px;color:#dfe6ee;font-weight:600;letter-spacing:.08em;margin:10px 0 0}
+.catch span{font-size:11px;color:#8ea3b8;font-weight:400;letter-spacing:.22em;margin-right:6px}
+.promise{margin:16px auto 0;font-size:15px;color:var(--tx);font-weight:700}
+.promise small{display:block;font-size:11.5px;color:#8ea3b8;font-weight:400;margin-top:4px}
 
 /* よく使う6ページ */
 .quick{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin:18px 0 0}
@@ -52,17 +52,17 @@ a{color:inherit;text-decoration:none}
 
 /* 見出し */
 .sec{margin:26px 0 10px;display:flex;align-items:baseline;gap:10px}
-.sec h2{font-size:15px;margin:0;font-weight:700}
+.sec h2{font-size:15px;margin:0;font-weight:700;padding-left:10px;border-left:3px solid #3b6fa8;line-height:1.2}
 .sec .s{font-size:12px;color:var(--dim)}
 
 /* 今日 */
-#todayBlock{min-height:396px}
-.exOpen #todayBlock{min-height:644px}
+#todayBlock{min-height:506px}
+.exOpen #todayBlock{min-height:754px}
 .exOpen .exb{transition:none}
 .today:not(.ready){visibility:hidden}
 .tdFail[hidden],.today[hidden]{display:none}
-.tdFail{display:flex;align-items:center;min-height:396px;justify-content:center;border:1px dashed var(--line);border-radius:16px;color:var(--sub);font-size:14px}
-.today{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px}
+.tdFail{display:flex;align-items:center;min-height:506px;justify-content:center;border:1px dashed var(--line);border-radius:16px;color:var(--sub);font-size:14px}
+.today{background:linear-gradient(160deg,#16304f 0%,var(--card) 55%);border:1px solid var(--line);border-radius:16px;padding:16px}
 .date{display:flex;align-items:baseline;gap:10px}
 .date .d{font-size:26px;font-weight:800}
 .date .w{font-size:13px;color:var(--sub)}
@@ -74,6 +74,13 @@ a{color:inherit;text-decoration:none}
 .v i{font-style:normal;font-size:10.5px;color:var(--dim)}
 .v i.fin{color:var(--midoTx)}
 .v.g{border-color:color-mix(in srgb,var(--mido) 55%,transparent);color:var(--tx)}
+.grade{font-size:12.5px;color:var(--sub);margin:8px 2px 0;line-height:1.7}
+.grade[hidden]{display:none}
+.grade .gh{font-size:11.5px;color:var(--dim);margin-bottom:2px}
+.grade b{color:var(--midoTx);font-weight:700;margin-right:6px}
+.grade span{color:var(--tx);margin-left:8px;white-space:nowrap}
+.grade .gi{margin:3px 0}
+.grade small{display:block;font-size:11px;color:var(--dim);line-height:1.5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .vrest{font-size:12px;color:var(--sub);margin:2px 2px 0}
 .peaks{margin:12px 0 0;padding:0;list-style:none}
 .peaks li{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid #1c2b3c;font-size:14px}
@@ -93,14 +100,26 @@ a{color:inherit;text-decoration:none}
 .exb .kind.plain{background:#1d2a3a;color:var(--sub)}
 .exmore{font-size:12px;color:var(--dim);padding:6px 0 2px}
 .v i.lady{color:var(--sub)}
+.homeHint{margin:10px 0 0;text-align:center;font-size:12.5px;color:var(--sub)}
+.homeHint small{display:block;font-size:11px;color:var(--dim);margin-top:2px}
 .cta{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:12px;padding:12px;border-radius:12px;background:color-mix(in srgb,var(--mido) 22%,transparent);border:1px solid color-mix(in srgb,var(--mido) 50%,transparent);color:var(--tx);font-size:14px;font-weight:700}
 
 /* 答え合わせ */
-.tb{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px}
+.tb{background:linear-gradient(160deg,#16304f 0%,var(--card) 55%);border:1px solid var(--line);border-radius:16px;padding:16px}
 .tbh{display:flex;align-items:center;gap:8px}
 .pill{font-size:11.5px;color:var(--sub);border:1px solid var(--line);border-radius:999px;padding:3px 10px}
 .upd{margin-left:auto;font-size:11.5px;color:var(--dim)}
-.tbt{font-size:16px;font-weight:700;margin:12px 0 4px}
+.day{margin:10px 0 6px;padding:12px;border-radius:12px;background:#0d1b2e;border:1px solid #1f3656}
+.day[hidden]{display:none}
+.dayh{font-size:13px;color:var(--sub);display:flex;align-items:baseline;gap:6px}
+.dayh b{color:var(--tx);font-size:16px}
+.dayh>span{margin-left:auto;font-size:11.5px;color:var(--dim)}
+.dayr{display:flex;justify-content:space-between;font-size:13.5px;padding:6px 0 0}
+.dayr b{color:var(--tx)}
+.dv{font-weight:700}
+.dv.are{color:var(--are)}.dv.kata{color:var(--kata)}
+.dayn{font-size:12px;color:var(--dim);margin-top:8px;line-height:1.6}
+.tbt{font-size:15px;font-weight:700;margin:12px 0 4px}
 .row{padding:12px 0 4px}
 .row+.row{border-top:1px solid #1c2b3c}
 .rl{font-size:13px;color:var(--sub)}
@@ -173,7 +192,7 @@ body{position:relative}
 <header class="hd">
   <h1 class="logo">データ攻め</h1>
   <p class="catch"><span>BOATRACE DATA</span>今日も、読んでから。</p>
-  <p class="promise">買い目は出しません。判断するのは、あなた。<small>毎朝、開催前に数字だけ更新します</small></p>
+  <p class="promise">材料はそろえた。決めるのは、あなた。<small>買い目・予想は出さず、毎朝の開催前に数字だけ更新</small></p>
 </header>
 
 <nav class="quick" aria-label="よく使うページ">
@@ -192,12 +211,13 @@ body{position:relative}
   <span class="ul-arrow" aria-hidden="true">&#8594;</span>
 </a>
 
-<div class="sec"><h2 id="tdHead">今日の開催</h2></div>
+<div class="sec"><h2 id="tdHead">今日の開催</h2><span class="s">毎朝4時ごろ更新・展示は11時ごろまで</span></div>
 <div id="todayBlock">
 <section class="today" id="tdCard">
   <div class="date"><span class="d num" id="tdDate"></span><span class="w" id="tdWd"></span><span class="c"><b class="num" id="tdV"></b>場 ・ <b class="num" id="tdR"></b>レース</span></div>
   <div class="venues" id="tdMark"></div>
   <div class="vrest" id="tdRest"></div>
+  <div class="grade" id="tdGrade" hidden></div>
   <ul class="peaks" id="tdPeaks"></ul>
   <div class="extra" id="tdExtra" hidden>
     <button class="exh" id="exBtn" aria-expanded="false" aria-controls="exBody"><span id="exSum"></span><span class="exar">▼</span></button>
@@ -207,14 +227,21 @@ body{position:relative}
 </section>
 <a class="tdFail" id="tdFail" href="./highlights/" hidden>今日の開催は見どころで確認できます →</a>
 </div>
+<div class="homeHint">ホーム画面に置くと、朝いちばんに開けます<small>iPhone：共有ボタン →「ホーム画面に追加」</small></div>
 
 <div class="sec"><h2>朝の見立ては当たっているか</h2></div>
 <section class="tb">
   <div class="tbh"><span class="pill">朝の見立て｜答え合わせ</span><span class="upd num" id="tbUpd">9/29 夜に採点</span></div>
-  <div class="tbt">荒れ模様と見たレースは、<br>いつもより荒れた。</div>
+  <div class="day" id="dayBox">
+    <div class="dayh"><b class="num" id="dDate">9/29</b> の答え合わせ<span class="num"><span id="dN">144</span>レース</span></div>
+    <div class="dayr"><span>「荒れる」と見た <b class="num" id="dHn">43</b> 本</span><span class="dv are num"><span id="dHh">14</span> 本が荒れた</span></div>
+    <div class="dayr"><span>「堅め」と見た <b class="num" id="dKn">64</b> 本</span><span class="dv kata num"><span id="dKh">51</span> 本が堅く決着</span></div>
+    <div class="dayn" id="dNote">その日の全体は 144本中40本が荒れました。「荒れる」と見た方がよく荒れた日です。</div>
+  </div>
+  <div class="tbt">通して見ると、荒れ模様と見たレースは、<br>いつもより荒れた。</div>
 
   <div class="row are">
-    <div class="rl">朝「荒れる」と見た <b class="num" id="nHarai">20,134</b> レース</div>
+    <div class="rl">朝「荒れる」と見た <b class="num" id="nHarai">20,176</b> レース</div>
     <div class="rv"><span class="big num" id="v-harai" role="button" tabindex="0" aria-controls="panel" aria-expanded="false">35.9%</span><span class="usual">が荒れた ／ いつもは <b class="num" id="bHarai">30.7%</b></span></div>
     <div class="bars" aria-hidden="true">
       <div class="bar me"><i id="barHarai" style="width:35.9%"></i></div>
@@ -223,7 +250,7 @@ body{position:relative}
   </div>
 
   <div class="row kata">
-    <div class="rl">朝「堅め」と見た <b class="num" id="nKata">27,991</b> レース</div>
+    <div class="rl">朝「堅め」と見た <b class="num" id="nKata">28,054</b> レース</div>
     <div class="rv"><span class="big num" id="v-kata" role="button" tabindex="0" aria-controls="panel" aria-expanded="false">74.6%</span><span class="usual">が堅く決着 ／ いつもは <b class="num" id="bKata">69.3%</b></span></div>
     <div class="bars" aria-hidden="true">
       <div class="bar me"><i id="barKata" style="width:74.6%"></i></div>
@@ -233,15 +260,15 @@ body{position:relative}
   </div>
 
   <div class="note">有料noteとは仕組みも集計も別です。</div>
-  <div class="foot num">毎朝の見立てを夜に答え合わせ ─ <span id="v-total">66,263</span>レース<span id="v-asof">（2025/7/15から2026/9/29）</span></div>
+  <div class="foot num">毎朝の見立てを夜に答え合わせ ─ <span id="v-total">66,404</span>レース<span id="v-asof">（2025/7/15から2026/9/29）</span></div>
 
   <button class="more" id="more" aria-expanded="false" aria-controls="panel">数え方を見る</button>
   <div class="panel" id="panel"><div><div class="pb">
     <h3>荒れる ＝ 3連単の払戻 5,000円以上</h3>
-    <p>朝に「荒れる」と分類した <b class="num" id="pNHarai">20,134</b> レースのうち、荒れたのは <span id="pHarai">35.9%</span>。全 <span id="pAll">66,263</span> レースでは <span id="pBase">30.7%</span>。「荒れる」と見なかった <span id="pNOther">46,129</span> レースだけなら <span id="pOther">28.5%</span>。</p>
+    <p>朝に「荒れる」と分類した <b class="num" id="pNHarai">20,176</b> レースのうち、荒れたのは <span id="pHarai">35.9%</span>。全 <span id="pAll">66,404</span> レースでは <span id="pBase">30.7%</span>。「荒れる」と見なかった <span id="pNOther">46,228</span> レースだけなら <span id="pOther">28.5%</span>。</p>
     <p>荒れやすさを伝える見立てです。「荒れる」と見たレースの約3分の2は荒れていません。それも全部数えています。</p>
     <h3>堅め ＝ 3連単の払戻 5,000円未満</h3>
-    <p>対象 <b class="num" id="pNKata">27,991</b> レース。全レースでは <span id="pBaseK">69.3%</span>。「混戦」と見た <span id="pNKonsen">18,138</span> レースは、どちらとも言っていないので入りません。</p>
+    <p>対象 <b class="num" id="pNKata">28,054</b> レース。全レースでは <span id="pBaseK">69.3%</span>。「混戦」と見た <span id="pNKonsen">18,174</span> レースは、どちらとも言っていないので入りません。</p>
     <h3>書き換えない</h3>
     <p>見立ては朝、結果が出る前に保存し、あとから直しません。外れたレースも除かずに、全部を分母に入れています。</p>
     <h3>このサイトと有料noteの違い</h3>
@@ -342,6 +369,18 @@ function lineBoxes(){
         put("bKata", bk + "%"); put("pBaseK", bk + "%"); w("barKataB", bk);
       }
       if(typeof other === "number"){ put("pOther", other + "%"); }
+      var ld = d["直近確定日"], box = document.getElementById("dayBox");
+      if(ld && ld["日付"] && ld["波乱"] && ld["堅め"] && ld["全体"]){
+        var ds = String(ld["日付"]);
+        put("dDate", parseInt(ds.slice(4,6),10) + "/" + parseInt(ds.slice(6,8),10));
+        put("dN", fmt(ld["件数"])); put("dHn", ld["波乱"]["件数"]); put("dHh", ld["波乱"]["的中"]);
+        put("dKn", ld["堅め"]["件数"]); put("dKh", ld["堅め"]["的中"]);
+        var an = ld["全体"]["件数"], ah = ld["全体"]["荒れ"], hn = ld["波乱"]["件数"], hh = ld["波乱"]["的中"];
+        var cmp = "";
+        if(an && hn){ var pr = hh / hn, br = ah / an;
+          cmp = pr > br ? "「荒れる」と見た方がよく荒れた日です。" : (pr < br ? "「荒れる」と見た方が荒れなかった日です。" : ""); }
+        put("dNote", "その日の全体は " + an + "本中" + ah + "本が荒れました。" + cmp);
+      } else if(box){ box.hidden = true; }
       if(nO != null){ put("pNOther", fmt(nO)); }
       if(typeof st === "string" && typeof end === "string" && /^\d{8}$/.test(st) && /^\d{8}$/.test(end)){
         set(4, "（" + ymd(st) + "から" + ymd(end) + "）");
@@ -423,9 +462,24 @@ function renderToday(d){
     $("tdCard").classList.add("ready");
   }catch(e){ fail(); }
 }
-fetch("./data/todayTop.json?_=" + Date.now(), { cache: "no-store" })
-  .then(function(r){ return r.ok ? r.json() : Promise.reject(); })
-  .then(renderToday)
+// 今週のSG・G1（docs/data/gradeWeek.json・fetchGradeSchedule.py が生成）。読めなければ行を出さない。
+function renderWeek(w, d){
+  var el = document.getElementById("tdGrade");
+  var S = (w && w["節"]) || [];
+  if(!el || !S.length) return;
+  var day = {}; ((d && d["レース"]) || []).forEach(function(r){ day[r["場コード"]] = r["日目"]; });
+  var md = function(x){ x = String(x); return parseInt(x.slice(4,6),10) + "/" + parseInt(x.slice(6,8),10); };
+  var esc = function(t){ return String(t == null ? "" : t).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); };
+  el.innerHTML = '<div class="gh">今週のSG・G1</div>' + S.map(function(z){
+    var tail = day[z["場コード"]] ? "（" + esc(day[z["場コード"]]) + "）" : "";
+    return '<div class="gi"><b>' + esc(z["区分"]) + '</b>' + esc(z["場名"]) + '<span class="num">' + md(z["開始日"]) + 'から' + md(z["終了日"]) + '</span>' + tail + '<small>' + esc(z["節名"]) + '</small></div>';
+  }).join("");
+  el.hidden = false;
+}
+Promise.all([
+  fetch("./data/todayTop.json?_=" + Date.now(), { cache: "no-store" }).then(function(r){ return r.ok ? r.json() : Promise.reject(); }),
+  fetch("./data/gradeWeek.json?_=" + Date.now(), { cache: "no-store" }).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; })
+]).then(function(a){ try{ renderWeek(a[1], a[0]); }catch(e){} renderToday(a[0]); })
   .catch(function(){ fail(); });
 // 最新の更新1行＋更新サイン。updates.json の最新1件を quicknav 直下に常時表示する。
 // 未読のときだけ赤い点（行頭とタイル右上）を出す。日付の文字を必ず併記する（色だけで伝えない）。
