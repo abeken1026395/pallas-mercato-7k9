@@ -12,6 +12,7 @@ import csv, json, sys, os, datetime
 from collections import defaultdict
 
 import birthdayMark   # 誕生日マークの判定（scripts/birthdayMark.py）
+import areModel       # 朝の分類の荒れモデル（scripts/areModel.py・係数は data/areModel.json）
 
 RACERS = sys.argv[1] if len(sys.argv) > 1 else "docs/racers/racers_today.csv"
 MOTORS = sys.argv[2] if len(sys.argv) > 2 else "docs/motor/motors_all.csv"
@@ -430,6 +431,14 @@ def main():
     except Exception:
         _form = {}
         _formven = {}
+    # 荒れモデル（data/areModel.json）。稼働日以降の開催日だけ、朝の分類をこれで決める。
+    # racerFormIndex.json にコース別直近10走（cLast10）と場の荒れ率（areRate）が無い間は使わず、
+    # 従来の展開スコアの閾値で分類する（その場合 predictions の 判定モデル は 'score'）。
+    _are = areModel.load()
+    _are_ready = bool(_are) and any('cLast10' in (v or {}) for v in _form.values()) \
+        and any((v or {}).get('areRate') is not None for v in _formven.values())
+    if _are and not _are_ready:
+        print("WARN: data/areModel.json はあるが racerFormIndex.json に cLast10/areRate が無い。従来の分類で出す")
 
     # 見立ての比較基準：1コース1着率を持つ選手全体の中央値（母数ガードは racerInRate 側で済み）。
     # 固定値を書かず毎回算出する。単独の数字を置かないための「真ん中」を作るだけで、判定には非関与。
@@ -600,6 +609,16 @@ def main():
             verdict, hero = '波乱', 4
         else:
             verdict, hero = '混戦', None  # 混戦の主役は下で機力→実力→決まり手で判断
+        # 稼働日以降は荒れモデルで分類し直す（主役の決め方は分類に従う・従来と同じ）。
+        # 従来の分類は 旧判定 として predictions にだけ残す。
+        old_verdict, are_p, model_id = verdict, None, 'score'
+        if _are_ready and str(bo[0].get('開催日', '')) >= str(_are.get('稼働日') or '99999999'):
+            _af = areModel.features([b.get('級別') for b in bo], [b.get('登録番号') for b in bo],
+                                    _form, _formven, bo[0]['場コード'], rc)
+            are_p = areModel.score(_af, _are)
+            verdict = areModel.verdict(are_p, _are)
+            hero = 1 if verdict == '堅め' else (4 if verdict == '波乱' else None)
+            model_id = _are['版']
         it = INTOP.get(ba, 53)
         use_m = motok.get(ba, True)
         mt = [b['_mtr'] for b in bo]
@@ -1168,7 +1187,12 @@ def main():
                           # 並び替え指標の実測を後から測るために保存する（照合WFの既存6項目には影響しない）。
                           # これが無いと highlights.json は毎日上書きされるため、上位10%の実①着外率を
                           # あとから数える材料が残らない。2026-11下旬に再測して係数の要否を判断する。
-                          '波乱指数': haran_idx}
+                          '波乱指数': haran_idx,
+                          # 分類に使ったモデル（'score'＝従来の展開スコア閾値）。照合WFの既存6項目には影響しない。
+                          '判定モデル': model_id}
+        if are_p is not None:
+            pred_entry['荒れ点数'] = round(are_p, 4)
+            pred_entry['旧判定'] = old_verdict
 
         boats = []
         for b in bo:
@@ -1409,6 +1433,8 @@ def main():
             pred_doc = {'開催日': kaisai, '生成時刻': doc['生成時刻'],
                         '閾値': {'堅め': TH_KATA, '波乱': TH_HARAN},
                         '予測': pred_list}
+            if any(p.get('判定モデル') not in (None, 'score') for p in pred_list):
+                pred_doc['荒れモデル'] = {'版': _are['版'], '閾値': _are['閾値'], '稼働日': _are.get('稼働日')}
             with open(pred_path, 'w', encoding='utf-8') as pf:
                 json.dump(pred_doc, pf, ensure_ascii=False, separators=(',', ':'))
             pred_written = pred_path

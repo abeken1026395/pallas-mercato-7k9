@@ -229,6 +229,34 @@ def main():
     last_day = latest_complete_day(rows, HIT, HARAN_TH)
 
     dates = sorted(set(r.get("日付", "") for r in rows if r.get("日付")))
+
+    # 分類のモデルごとの区間（トップで混ぜずに見せるための材料。既存キーは変えない）。
+    # 2026-07-07 より前は、2026-07-07 に閾値を調整して作り直した判定（朝に保存したものではない）。
+    # 荒れモデルの稼働日は data/areModel.json の 稼働日。
+    try:
+        with open(os.path.join("data", "areModel.json"), encoding="utf-8") as f:
+            kado = str(json.load(f).get("稼働日") or "")
+    except Exception:
+        kado = ""
+    spans = [("作り直し", "", "20260707"), ("旧モデル", "20260707", kado or "99999999")]
+    if kado:
+        spans.append(("荒れモデル", kado, "99999999"))
+    by_span = {}
+    for name, lo, hi in spans:
+        rs = [r for r in rows if lo <= (r.get("日付") or "") < hi]
+        if not rs:
+            continue
+        ds = sorted(set(r["日付"] for r in rs))
+        e = {"開始": ds[0], "終了": ds[-1], "件数": len(rs)}
+        for j in ("波乱", "堅め", "混戦"):
+            s_ = [r for r in rs if (r.get("判定") or "").strip() == j]
+            t = [r for r in s_ if (r.get("波乱正誤") or "").strip() in HIT + NG]
+            h = sum(1 for r in t if (r.get("波乱正誤") or "").strip() in HIT)
+            e[j] = {"件数": len(s_), "的中率": round(100 * h / len(t), 1) if t else None}
+        pays = [p for p in (to_int(r.get("配当")) for r in rs) if p is not None]
+        e["荒れ率"] = round(100 * sum(1 for p in pays if p >= HARAN_TH) / len(pays), 1) if pays else None
+        by_span[name] = e
+
     summary = {
         "総レース数": n,
         "集計期間": {"開始": dates[0], "終了": dates[-1]} if dates else None,
@@ -239,6 +267,7 @@ def main():
         "スコア帯別荒れ率": score_bands,
         "直近ログ": recent,
         "万舟閾値": HARAN_TH,
+        "区間別": by_span,
     }
 
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
