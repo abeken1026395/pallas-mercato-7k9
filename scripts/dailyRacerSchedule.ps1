@@ -64,6 +64,25 @@ if (Test-Path $LockFile) {
 }
 Set-Content -Path $LockFile -Value $PID -Encoding ascii
 
+# --- 観戦記の執筆（1:00 から）と同じ作業フォルダで git がぶつからないよう、終わるまで待つ ---
+# 2026-09-30 けん裁定で観戦記を 1:00 に移した。観戦記は素材待ちを含めて 02:30 過ぎまで動くことがある。
+# 同じフォルダで git を同時に動かすと index.lock が残り、両方が失敗する（09-26 の事故と同じ型）。
+$KansenkiLock = Join-Path $LogDir '.writeKansenki.lock'
+$waitUntil = (Get-Date).AddMinutes(120)
+$waitLogged = $false
+while (Test-Path $KansenkiLock) {
+    $kpid = Get-Content $KansenkiLock -ErrorAction SilentlyContinue | Select-Object -First 1
+    if (-not ($kpid -and (Get-Process -Id $kpid -ErrorAction SilentlyContinue))) { break }
+    if ((Get-Date) -ge $waitUntil) {
+        Log ("観戦記(PID {0})が120分たっても終わらないため中止" -f $kpid)
+        Remove-Item $LockFile -Force -ErrorAction SilentlyContinue
+        exit 1
+    }
+    if (-not $waitLogged) { Log ("観戦記(PID {0})の実行中。終わるまで1分おきに待つ（最大120分）" -f $kpid); $waitLogged = $true }
+    Start-Sleep -Seconds 60
+}
+if ($waitLogged) { Log "観戦記の終了を確認。続行" }
+
 try {
     Set-Location $Repo
     $env:PYTHONIOENCODING = 'utf-8'
