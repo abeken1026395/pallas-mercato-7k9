@@ -66,6 +66,19 @@ APPJS = {
     "docs/motor/index.html": "docs/motor/app.js",   # 生成物。正本 scripts/template.html＋scripts/motor/app.jsx
 }
 
+# クレジット層（canonical照合）。判定関数がトップレベル定数を包んでいる。関数名が消えたら検知する
+# /kensho/ ハブは判定関数を持たず canonical だけ
+CREDIT = {
+    "docs/updates/index.html": "baseRows",
+    "docs/announcers/index.html": "glyphWidth",
+    "docs/glossary/index.html": "emStep",
+    "docs/next/index.html": "baselineGrid",
+    "docs/uranai/index.html": "kernPair",
+    "docs/results/index.html": "rowGutter",
+    "docs/highlights/index.html": "stemWidth",
+    "docs/kensho/index.html": None,
+}
+
 # 対象外（けん裁定済み）
 EXEMPT_PREFIX = ("docs/aisho-suminoe/", "docs/shobuun-suminoe/", "docs/probe/")
 EXEMPT_SUFFIX = "-payouts/index.html"  # 24場の万舟率ページ（2026-08-08 見送り裁定）
@@ -119,14 +132,25 @@ def main():
         elif JUDGE not in read(appjs):
             fails.append("app.js に判定式が無い: " + appjs)
 
+    # 5) クレジット層に canonical と判定関数が残っているか
+    for p, fn in CREDIT.items():
+        if not os.path.exists(p):
+            fails.append("クレジット層の対象が存在しない: " + p)
+            continue
+        s = read(p)
+        if 'rel="canonical"' not in s:
+            fails.append("canonical が無い: " + p)
+        if fn and s.count(fn) < 2:
+            fails.append("クレジット層の判定関数が消えている: %s（%s）" % (p, fn))
+
     if fails:
         print("FAIL %d 件" % len(fails))
         for m in fails:
             print("  - " + m)
         return 1
-    print("PASS: HTML %d 件（GUARD %d / L2 %d / APPJS %d / EXEMPT %d）"
+    print("PASS: HTML %d 件（GUARD %d / L2 %d / APPJS %d / EXEMPT %d / CREDIT %d）"
           % (len(all_html), len(GUARD), len(L2) + len(L2_ALSO), len(APPJS),
-             len(all_html) - len(GUARD) - len(L2) - len(APPJS)))
+             len(all_html) - len(GUARD) - len(L2) - len(APPJS), len(CREDIT)))
     return 0
 
 
