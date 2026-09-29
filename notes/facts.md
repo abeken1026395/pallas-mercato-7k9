@@ -514,16 +514,20 @@ AUC 0.6937（2026実測比 −0.0171）／上位10%①着外率 41.1%（**再学
 - **M14/M15/M16 は 2026-08-20 に意味が変わった。**型別集計は2026-08-20で区切る
 - `波乱指数` の `predictions/` への保存開始は **2026-08-25〜27**
 
-### コピーガード（2026-08-19完了・3方式が並存）
+### コピーガード（2026-08-19完了・2026-09-30 現物で件数を更新）
 
 |方式|対象|判定|
 |---|---|---|
-|**クレジット層**|**8ページ**|**canonical照合**。ホスト名・リポジトリ名をコードに書かない＝**URL変更で修正不要**|
-|L2（判定式ハードコード）|7ページ|`location.hostname` と `pathname` のベタ書き＝**URL変更時に修正が必要**|
-|guard.js|13ページ|同上|
+|**guard.js**|**20ページ**|`docs/assets/guard.js` を読み込む。`location.hostname` と `pathname` のベタ書き＝**URL変更時に修正が必要**|
+|L2（判定式ハードコード）|**4ページ＋併用2**|`fan` `stadium` `racers` `next/stadiumPreview`。`index` と `payouts` は guard.js と併用。判定式は同上|
+|app.js 側|**2ページ**|`players` `motor`（HTMLは器で、判定式は app.js）。判定式は同上|
+|**クレジット層**|**8ページ（guard.js と重ねがけ）**|**canonical照合**。ホスト名・リポジトリ名をコードに書かない＝**URL変更で修正不要**|
+
+分類の正本は `scripts/lintGuard.py`（GUARD／L2／APPJS／CREDIT）。対象外27件は24場の万舟率・`aisho-suminoe`・`shobuun-suminoe`・`probe`（2026-08-08 見送り裁定）。
+2026-09-30 実測：偽ドメインで対象26ページ全部に帯が出る／127.0.0.1 では0件（ヘッドレスChrome・main `817d3899`）。
 
 クレジット層の8ページ：`updates` `kensho` `announcers` `glossary` `next` `uranai` `results` `highlights`。
-判定関数はページごとに別名（`baseRows` `glyphWidth` `emStep` `baselineGrid` `kernPair` `rowGutter` `stemWidth`）で、**各ページのトップレベル定数を包んである**＝消すとページが壊れる。**`/kensho/` ハブだけはJSゼロで常時表示が仕様。**
+判定関数はページごとに別名（`baseRows` `glyphWidth` `emStep` `baselineGrid` `kernPair` `rowGutter` `stemWidth`）で、**各ページのトップレベル定数を包んである**＝消すとページが壊れる。`/kensho/` ハブは判定関数を持たず canonical だけ（guard.js は読み込むので偽ドメインでは帯が出る）。
 
 URL変更時に直すファイル（L2の生き残り分）：
 `docs/assets/guard.js` `docs/index.html` `docs/fan/index.html` `docs/stadium/index.html` `docs/payouts/index.html` `docs/next/stadiumPreview.html` `scripts/template.html` `scripts/template_racers.html` `scripts/players/app.jsx` `scripts/lintGuard.py` の `JUDGE` 定数
