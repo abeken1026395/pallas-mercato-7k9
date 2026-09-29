@@ -340,6 +340,7 @@ function App() {
   const [cstat, setCstat] = useState(null);
   const [sched, setSched] = useState(null);
   const [wst, setWst] = useState(null);
+  const [prize, setPrize] = useState(null);   // 公式「獲得賞金順位表 ベスト50」。null=未取得 / false=取得失敗
   const [wstPer, setWstPer] = useState(3);
   const [scMeta, setScMeta] = useState(null);
   const [csMeta, setCsMeta] = useState(null);
@@ -472,6 +473,13 @@ function App() {
     fetch("../data/wakuST.json").then(r=>r.ok?r.json():Promise.reject()).then(j=>{
       if(j && j.cells && Array.isArray(j.base)) setWst(j); else setWst(false);
     }).catch(()=>{ setWst(false); });
+  },[open]);
+  useEffect(()=>{
+    if(!open || prize!==null) return;
+    fetch("../data/prizeRank.json").then(r=>r.ok?r.json():Promise.reject()).then(j=>{
+      if(j && Array.isArray(j.rows) && j.period){ const m={}; j.rows.forEach(x=>{ m[x.no]=x; }); setPrize({map:m, period:j.period, source:j.source}); }
+      else setPrize(false);
+    }).catch(()=>{ setPrize(false); });
   },[open]);
   // ■ スタート節の「枠別平均ST」。wakuST に居ない選手は折りたたみごと出さない
   const WST_PER = [["2m","2ヶ月"],["3m","3ヶ月"],["6m","半年"],["1y","1年"],["2y","2年"]];
@@ -769,6 +777,15 @@ function App() {
                     ))}
                   </div>
                   </>)}
+                  {/* 公式は上位50名しか公表しないので、圏外の選手には何も出さない */}
+                  {(()=>{const x=prize&&prize.map[p.no]; if(!x) return null;
+                    const md=s=>Number(s.slice(5,7))+"/"+Number(s.slice(8,10));
+                    return (
+                      <div style={{fontSize:12,color:"#c5d2e0",margin:"-4px 0 10px"}}>
+                        💰 今年の獲得賞金 <b style={{color:"#ffd166"}}>{x.rank}位</b>　¥{x.prize.toLocaleString("ja-JP")}
+                        <span style={{fontSize:10,color:"#6b7f95",marginLeft:6}}>{md(prize.period.from)}〜{md(prize.period.to)}集計・<a href={prize.source} target="_blank" rel="noopener" onClick={e=>e.stopPropagation()} style={{color:"#6b7f95"}}>公式ベスト50</a></span>
+                      </div>
+                    );})()}
                   {pf&&pf.hobby&&<div style={{fontSize:12,color:"#c5d2e0",marginTop:-4}}>🎣 趣味：{pf.hobby}</div>}
                   {pf&&pf.food&&<div style={{fontSize:12,color:"#c5d2e0",marginTop:4}}>🍴 好物：{pf.food}</div>}
                   {pf&&pf.note&&<div style={{fontSize:12,color:"#c5d2e0",marginTop:4,lineHeight:1.6}}>💬 {renderNote(pf.note, jump)}</div>}
