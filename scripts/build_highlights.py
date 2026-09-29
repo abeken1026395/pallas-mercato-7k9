@@ -439,6 +439,18 @@ def main():
         and any((v or {}).get('areRate') is not None for v in _formven.values())
     if _are and not _are_ready:
         print("WARN: data/areModel.json はあるが racerFormIndex.json に cLast10/areRate が無い。従来の分類で出す")
+    # その日の分類が predictions/ に保存済みなら、見どころはその分類に従う。
+    # 日中の再生成では racerFormIndex（03:30更新）や出走表が朝と変わっていて、計算し直すと
+    # 分類が数レースずれる。読者の見る見どころと、答え合わせに使う保存済みの分類をそろえる。
+    _saved_verdict = {}
+    if not NEXT and rac:
+        try:
+            with open(os.path.join('predictions', '{}.json'.format(rac[0].get('開催日', ''))),
+                      encoding='utf-8') as _pf:
+                for _p in json.load(_pf).get('予測', []) or []:
+                    _saved_verdict[(str(_p.get('場コード')), str(_p.get('レース')))] = _p.get('判定')
+        except Exception:
+            _saved_verdict = {}
 
     # 見立ての比較基準：1コース1着率を持つ選手全体の中央値（母数ガードは racerInRate 側で済み）。
     # 固定値を書かず毎回算出する。単独の数字を置かないための「真ん中」を作るだけで、判定には非関与。
@@ -619,6 +631,10 @@ def main():
             verdict = areModel.verdict(are_p, _are)
             hero = 1 if verdict == '堅め' else (4 if verdict == '波乱' else None)
             model_id = _are['版']
+        _sv = _saved_verdict.get((str(bo[0]['場コード']), str(rc)))
+        if _sv in ('波乱', '堅め', '混戦') and _sv != verdict:
+            verdict = _sv
+            hero = 1 if verdict == '堅め' else (4 if verdict == '波乱' else None)
         it = INTOP.get(ba, 53)
         use_m = motok.get(ba, True)
         mt = [b['_mtr'] for b in bo]
