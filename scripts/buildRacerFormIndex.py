@@ -13,6 +13,8 @@
 #   c1last10  1コース直近10走の平均着  5走以上
 #   avgSt     過去平均ST              20走以上
 #   out1Rate  場の①着外率(%)          200レース以上
+#   cLast10   コース別の直近10走の平均着 5走以上（{"1":..,"6":..}・荒れモデル用）
+#   areRate   場の荒れ率(%)＝3連単5,000円以上 200レース以上（荒れモデル用）
 #
 # 「着」は着順ではなくコードを含む（7=妨害 8=エンスト 9=転覆 10=落水 11=沈没
 #  12=不完走 13=失格 14=F 15=L 16=欠場）。平均着では 7〜15 を6に丸め、
@@ -33,6 +35,7 @@ MIN_LAST = 10
 MIN_C1 = 5
 MIN_ST = 20
 MIN_VEN = 200
+HARAN_TH = 5000   # 荒れの線。verifyPredictions.py・build_verify_summary.py と同じ（REFERENCE.md (6)）
 
 SRC = "データ攻め（YouTube あべけん）"
 
@@ -54,8 +57,10 @@ def main():
     files = sorted(glob.glob(os.path.join(DATA_DIR, "*.json")))
     last = {}    # 登番 -> deque(直近LAST_N着)
     c1 = {}      # 登番 -> deque(1コース直近C1_N着)
+    cc = {}      # (登番, コース) -> deque(そのコース直近C1_N着)。荒れモデル（scripts/areModel.py）が使う
     st = {}      # 登番 -> [本数, ST合計]
     ven = {}     # 場コード -> [レース数, ①着外数]
+    are = {}     # 場コード -> [払戻のあるレース数, 3連単5,000円以上の数]。荒れモデルが使う
     scanned = skipped = 0
     days = []
 
@@ -80,6 +85,15 @@ def main():
                 if b.get("枠") == 1:
                     b1 = b
                     break
+            try:
+                pay = int(race.get("三連単配当") or 0)
+            except Exception:
+                pay = 0
+            if jcd and pay > 0:
+                a = are.setdefault(jcd, [0, 0])
+                a[0] += 1
+                if pay >= HARAN_TH:
+                    a[1] += 1
             if jcd and b1 is not None:
                 c = norm_chaku(b1.get("着"))
                 if c is not None:
@@ -96,6 +110,8 @@ def main():
                     last.setdefault(toban, deque(maxlen=LAST_N)).append(c)
                     if str(b.get("コース")) == "1":
                         c1.setdefault(toban, deque(maxlen=C1_N)).append(c)
+                    if str(b.get("コース")) in ("1", "2", "3", "4", "5", "6"):
+                        cc.setdefault((toban, str(b.get("コース"))), deque(maxlen=C1_N)).append(c)
                 s = b.get("ST")
                 if s is not None:
                     try:
@@ -111,6 +127,11 @@ def main():
         L = list(last.get(toban) or [])
         C = list(c1.get(toban) or [])
         S = st.get(toban) or [0, 0.0]
+        cl = {}
+        for k in ("1", "2", "3", "4", "5", "6"):
+            CC = list(cc.get((toban, k)) or [])
+            if len(CC) >= MIN_C1:
+                cl[k] = round(sum(CC) / len(CC), 3)
         racers[toban] = {
             "last20": (round(sum(L) / len(L), 3) if len(L) >= MIN_LAST else None),
             "last20N": len(L),
@@ -118,14 +139,18 @@ def main():
             "c1last10N": len(C),
             "avgSt": (round(S[1] / S[0], 4) if S[0] >= MIN_ST else None),
             "avgStN": S[0],
+            "cLast10": cl,
         }
 
     venues = {}
-    for jcd in sorted(ven.keys()):
-        n, o = ven[jcd]
+    for jcd in sorted(set(list(ven.keys()) + list(are.keys()))):
+        n, o = ven.get(jcd, [0, 0])
+        an, ah = are.get(jcd, [0, 0])
         venues[jcd] = {
             "out1Rate": (round(o / n * 100, 2) if n >= MIN_VEN else None),
             "out1N": n,
+            "areRate": (round(ah / an * 100, 2) if an >= MIN_VEN else None),
+            "areN": an,
         }
 
     days.sort()

@@ -141,7 +141,7 @@
 ### (6) 変更禁止の定数（手で動かさない）
 | 定数 | 値 | 定義場所 | 注意 |
 |---|---|---|---|
-| `HARAN_TH` | `5000` | `verifyPredictions.py:13`／`build_verify_summary.py:122`／`buildKansenkiSource.py:86` | **3ファイルに重複定義。単一の定義ファイルは存在しない** |
+| `HARAN_TH` | `5000` | `verifyPredictions.py:13`／`build_verify_summary.py:122`／`buildKansenkiSource.py:86`／`buildRacerFormIndex.py`（場の荒れ率 areRate）／`trainAreModel.py`（荒れモデルの目的変数） | **5ファイルに重複定義。単一の定義ファイルは存在しない** |
 | `TH_KATA` / `TH_HARAN` | `+0.04` / `-0.09` | `build_highlights.py:81-82` | 5.3万件のグリッド探索による最適値 |
 | `BA_TH` | 24場ごとの (堅め, 波乱) | `build_highlights.py:86-111` | `verify_log.csv` 20250715-20260705 の全期間実測（2026-07-06反映） |
 | `MIRROR_FIRST` | `"20250715"` | `buildE30Stats.py:40` | BoatraceOpenAPI ミラーの最古配信日。**これ以前は 404** |
