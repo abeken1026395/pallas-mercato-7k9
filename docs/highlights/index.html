@@ -682,6 +682,12 @@ function renderCard(r, ctx){
 function sw(v){VIEW=v;document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.v===v));render();}
 function ss(s){SORT=s;document.querySelectorAll('.sortbtn').forEach(t=>t.classList.toggle('on',t.dataset.s===s));render();}
 function dl2min(hhmm){if(!hhmm||hhmm.indexOf(':')<0)return 99999;const p=hhmm.split(':');return (+p[0])*60+(+p[1]);}
+// 締切順の並べ替えキー。当日タブでは締切を過ぎたレースを後ろに回し、締切間近が常に上に来る。
+function dlSortKey(r){
+  const d=dl2min(r['締切時刻']);
+  const isToday=(SRC==='highlights.json' && !ISNEXT);
+  return (isToday && d<99999 && d<nowMinJST()) ? d+100000 : d;
+}
 function nowMinJST(){const d=new Date();return (d.getUTCHours()*60+d.getUTCMinutes()+540)%1440;}  // JSTの現在分（TZ非依存）
 // 締切に応じた表示状態を付け替える（再描画せずクラスのみ／時刻演出は当日タブのみ）
 function refreshDeadlineState(){
@@ -952,7 +958,7 @@ function render(){
        : useHi ? arr.filter(r=>{const v=hidx(r);return v!==null&&v>=HI_MIN;})
               : arr.filter(r=>r['波乱']>=2);
     // 分類がある日は締切順だけ（分類の中に順位を付けない）。分類が無い日は従来の①着外の順。
-    if(bun||SORT==='time') arr.sort((x,y)=>dl2min(x['締切時刻'])-dl2min(y['締切時刻']));
+    if(bun||SORT==='time') arr.sort((x,y)=>dlSortKey(x)-dlSortKey(y));
     else if(useHi) arr.sort((x,y)=>hidx(y)-hidx(x)||x['場名'].localeCompare(y['場名'],'ja'));
     else arr.sort((x,y)=>y['波乱']-x['波乱']||x['場名'].localeCompare(y['場名'],'ja'));
     if(!arr.length){el.innerHTML='<div class="empty">この日は「荒れ」と分類したレースがありません。</div>';return;}
@@ -960,7 +966,7 @@ function render(){
   }else if(VIEW==='firm'){
     const bunK=hasBunrui(arr);
     arr=bunK ? arr.filter(r=>r['分類']==='堅め'&&!isChushi(r)) : arr.filter(r=>r['イン堅']&&!isChushi(r));
-    if(bunK||SORT==='time') arr.sort((x,y)=>dl2min(x['締切時刻'])-dl2min(y['締切時刻']));
+    if(bunK||SORT==='time') arr.sort((x,y)=>dlSortKey(x)-dlSortKey(y));
     else arr.sort((x,y)=>haranKey(x)-haranKey(y)||y['イン1着率']-x['イン1着率']);
     if(!arr.length){el.innerHTML='<div class="empty">この日は「堅め」と分類したレースがありません。</div>';return;}
     el.innerHTML=(bunK?'':'<div class="bnote">この日は朝の分類を公開する前のため、イン堅めの条件で並べています。</div>')+arr.map(r=>renderCard(r,'flat')).join('');
@@ -968,10 +974,16 @@ function render(){
     el.innerHTML=renderVenues();
   }
   refreshDeadlineState();
+  window.__pastN=pastCount();
   if(typeof bindNsTabs==='function') bindNsTabs();
   if(typeof bindTjsTabs==='function') bindTjsTabs();
 }
-if(!window.__dlTimer){ window.__dlTimer=setInterval(refreshDeadlineState, 60000); }  // 1分毎に締切表示を更新（タイマー1本）
+// 荒れ・堅めの一覧は、締切を過ぎたレースが出たときだけ並べ直す（それ以外は再描画しない）
+function pastCount(){ return document.querySelectorAll('#list > .race.past').length; }
+if(!window.__dlTimer){ window.__dlTimer=setInterval(function(){
+  refreshDeadlineState();
+  if((VIEW==='hot'||VIEW==='firm') && window.__pastN!==undefined && pastCount()!==window.__pastN){ render(); }
+}, 60000); }  // 1分毎に締切表示を更新（タイマー1本）
 syncOshiBar();
 
 // ①(進入コース1)の下振れ要因を「事実提示」として表示する（確率・買い目は出さない）。
