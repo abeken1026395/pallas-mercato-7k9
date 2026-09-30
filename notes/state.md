@@ -42,20 +42,11 @@
 |U5 検証01|注記で完了（#418）。results/ にチルトが無く programs キャッシュも無いため元の3表を再現できず。3表の見出しに「表ごとに対象の条件が異なる（元の集計条件は未記録）」、「386日」→「2025/7/15〜2026/8/6」|
 |U6 占い|表示から外して完了（#419）。`fukusho` を計算するコードがリポジトリに無く（手動アップロード由来）意味を特定できないため、選手パネルの「複勝率」を削除。値は不変|
 
-## 到達性C案（siteReachPlan20260911・2026-09-14 完了）
+## 検索エンジンへの公開（2026-09-30 C案を取り消し）
 
-計画 `notes/siteReachPlan20260911.md`（#426）。関門・自走マージは pageAuditFixPlan20260911 第2節をそのまま適用し、1テーマ1PRで直列に実施（#427〜#430）。**差し戻しなし。** テーマごとの記録は `notes/pageAuditProgress.md` の末尾。
+全ページ noindex に戻した（#590、main a41c2180）。sitemap.xml と updateSitemap.yml は削除。経緯と方針は facts.md 2章「検索エンジンへの公開範囲」と saiteiLog.md
 
-|テーマ|結果|
-|---|---|
-|V1 検索に開く|完了（#427）。`docs/robots.txt` を閉じた12ディレクトリ＋`/data/` の Disallow 13行＋Sitemap 行に。開く35本の noindex を削除（検証3本は正本テンプレートを直し updateKensho.yml で再生成）。閉じた14本の noindex は残した|
-|V2 description・OGP|完了（#428）。開く35本に description（88〜112字）・og:type/title/description/image/url/site_name・twitter:card。og:image は既存の icon512.png（200を確認）|
-|V3 sitemap.xml|完了（#429）。`scripts/buildSitemap.py`＋`.github/workflows/updateSitemap.yml`（日次 JST 04:00＋手動）。マージ後の手動実行で生成物 `<url>` 35件・閉じたページ0件（`e8cf957c8`）|
-|V4 流入元の記録|完了（#430）。`notes/siteReach.md` に `?from=desc`／`?from=yt`／`?from=oc`|
-|V5 Cloudflare Web Analytics|保留（トークン未提供）|
-|V6 Search Console|保留（検証値未提供）|
-
-- V1 のマージ前、M5 で走行中WFが2本あってマージを見送った同じコマンドで、updateKensho.yml を1回余分に dispatch した。V1 のテンプレートを含まない main で通常の再生成が1回走っただけで（`bad190b6c`）、生成物は定時と同じ形・読者影響なし
+- 検証3本（勝負駆け・体重・F持ち）は正本テンプレートだけ直した。本番の noindex は 2026-10-01 11:20 の updateKensho.yml の再生成で付く。翌日に3本の noindex を確かめる
 
 ## 未マージPR・作業ブランチ
 
@@ -187,8 +178,8 @@
 - /fan/ のCLSが0.545（監査後に悪化・原因未確認）。/uranai/ のCLSが0.148。どちらも台帳D1と同種
 - 万舟のデータ期間の終わりが丸亀8/28・蒲郡9/8で止まっている（開催なしか集計元の更新漏れかは不明）
 - 監査台帳 notes/pageAudit20260910.md の未確認：iPhone Safari での表示、公開URLの実物、観戦記の他の日、選手図鑑の残り1,638名
-- **`docs/robots.txt` はクローラーに読まれていない**（2026-09-14 実測）。robots.txt はホスト直下 `https://abeken1026395.github.io/robots.txt` だけが読まれ、そこは404。V1 で書いた Disallow 13行と Sitemap 行は効いていない。閉じた14本は noindex が残るので検索には出ないが、`docs/data/` 配下の運用メモ（`kansenki/SECRET_SETUP.md` など6本）は noindex を付けられない形式で、実際には塞がっていない。sitemap の登録は Search Console（V6）が要る
-- 到達性の保留：V5 Cloudflare Web Analytics（トークン待ち）・V6 Search Console（検証値待ち）・og:image の専用画像 1200×630（別テーマ）
+- **`docs/robots.txt` はクローラーに読まれていない**（2026-09-14 実測）。robots.txt はホスト直下 `https://abeken1026395.github.io/robots.txt` だけが読まれ、そこは404。全面 Disallow に戻したが効いていない。HTMLは noindex で守っているが、`docs/data/` 配下の運用メモ（`kansenki/SECRET_SETUP.md` など6本）は noindex を付けられない形式で、実際には塞がっていない
+- 到達性の保留：V5 Cloudflare Web Analytics（トークン待ち）。V6 Search Console と og:image の専用画像は、検索に出さない方針になったので不要
 
 ---
 
