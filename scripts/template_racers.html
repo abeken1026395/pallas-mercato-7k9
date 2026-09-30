@@ -102,10 +102,10 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 /* パネル */
 .panel { border-radius:10px; padding:10px 12px; margin-top:8px; font-size:13px; line-height:1.7; }
 .panel .ttl { font-size:13px; font-weight:bold; margin-bottom:3px; }
-.panel-arare { background:#231a12; border:1px solid #4a370f; }
+.panel-arare { background:#0f1a26; border:1px solid #2a3a57; border-left:3px solid #f2b155; }
 .panel-arare .ttl { color:#f2b155; }
-.panel-arare ul { margin:2px 0 0 16px; color:#d8c9a5; }
-.panel-down { background:#131c26; border:1px solid #26384a; }
+.panel-arare ul { margin:2px 0 0 16px; color:#cdd6e0; }
+.panel-down { background:#0f1a26; border:1px solid #2a3a57; }
 .panel-down .ttl { color:#9fb8cc; }
 .panel-down ul { margin:2px 0 0 16px; color:#c2d0dc; }
 .panel-down ul li.none { color:#7d94a8; }
@@ -119,16 +119,16 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .yomi-verdict { font-size:13px; color:#9fb8cc; margin-top:7px; }
 .panel-yomi .note { font-size:13px; color:#7d94a8; margin-top:6px; }
 .my-sec.yomi .my-note { margin-top:4px; }
-.panel-tenkai { background:#0f1c17; border:1px solid #1e4033; }
+.panel-tenkai { background:#0f1a26; border:1px solid #2a3a57; }
 .panel-tenkai .ttl { color:#e0e6ed; }
-.panel-tenkai ul { margin:3px 0 0 16px; color:#bcd6c8; }
+.panel-tenkai ul { margin:3px 0 0 16px; color:#cdd6e0; }
 .panel-tenkai li { margin:2px 0; }
-.panel-tenkai .note { font-size:13px; color:#6f8a7d; margin-top:5px; }
-.panel-wind { background:#0f1e2b; border:1px solid #1c3a52; color:#a9c6dd; }
+.panel-tenkai .note { font-size:13px; color:#8a94a3; margin-top:5px; }
+.panel-wind { background:#0f1a26; border:1px solid #2a3a57; color:#cdd6e0; }
 .panel-wind .ttl { color:#e0e6ed; }
-.panel-tide { background:#0d1c1a; border:1px solid #1c3f39; color:#a9d6cc; }
+.panel-tide { background:#0f1a26; border:1px solid #2a3a57; color:#cdd6e0; }
 .panel-tide .ttl { color:#e0e6ed; }
-.panel-tide .note { font-size:13px; color:#6f8a82; margin-top:5px; }
+.panel-tide .note { font-size:13px; color:#8a94a3; margin-top:5px; }
 .lv-高 { color:#f2b155; font-weight:bold; } .lv-中 { color:#f2b155; font-weight:bold; } .lv-低 { color:#5cc8b0; font-weight:bold; }
 
 /* 並び替え */
@@ -407,6 +407,33 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .siteback:focus-visible{outline:2px solid currentColor;outline-offset:2px}
 .sitelink{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;margin:6px 0 2px;font-size:13px;line-height:1;color:inherit;text-decoration:underline;text-underline-offset:3px}
 .sitelink:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+
+/* 艇カードの数字のまとまり（2026-10 改修）：全国・当地・モーター・ボート × 勝率・2連率・3連率 */
+.nums { display:grid; grid-template-columns:3.6em repeat(4,1fr); margin-top:8px; row-gap:2px; font-variant-numeric:tabular-nums; }
+.nums .h { font-size:13px; color:#9fb0c3; text-align:right; line-height:1.3; padding-bottom:3px; border-bottom:1px solid #2a3a4d; }
+.nums .h a { color:#7fb4ff; text-decoration:none; border-bottom:1px dotted currentColor; }
+.nums .l { font-size:13px; color:#9fb0c3; align-self:center; white-space:nowrap; }
+.nums .v { font-size:16px; text-align:right; color:#e0e6ed; }
+.nums .v.na { color:#8a94a3; }
+.arare-def { font-size:13px; color:#8a94a3; margin-top:4px; line-height:1.5; }
+.boat-st { color:#e0e6ed; font-variant-numeric:tabular-nums; }
+.badges { display:flex; gap:5px; flex-wrap:wrap; margin-top:5px; }
+.badges:empty { display:none; }
+.card-legend { font-size:13px; color:#9fb0c3; margin:8px 2px 0; line-height:1.6; }
+.card-legend .sw { display:inline-block; padding:0 6px; margin:0 3px 0 8px; color:#e0e6ed; border-radius:3px; font-size:13px; }
+.card-legend .sw-j { border:1.5px dashed #c3ccd6; }
+.card-legend .sw-l { border:1px solid #9fb0c3; border-radius:999px; }
+.card-legend .sw-f { border:2px solid #e0e6ed; font-weight:800; }
+.race-links { display:grid; grid-template-columns:1fr 1fr; }
+.race-links > * { justify-content:center; text-align:center; }
+.mido { margin-top:12px; border:1px solid #24344a; border-radius:10px; background:#0f1a26; }
+.mido > summary { list-style:none; cursor:pointer; min-height:44px; display:flex; align-items:center; justify-content:space-between; padding:0 12px; font-size:15px; font-weight:bold; color:#e0e6ed; }
+.mido > summary::-webkit-details-marker { display:none; }
+.mido > summary::after { content:"開く ▼"; font-size:13px; font-weight:normal; color:#7fb4ff; white-space:nowrap; margin-left:8px; }
+.chips { align-items:center; }
+.mido[open] > summary::after { content:"閉じる ▲"; }
+.mido > .mido-body { padding:0 10px 10px; }
+.mido-note { font-size:13px; color:#9fb0c3; margin:0 2px 6px; }
 </style>
 </head>
 <body>
@@ -1441,7 +1468,7 @@ function kinMotorLine(row){
   var few=k.n<5;   // 節序盤の少数走はN少を明示（%は参考）
   return '<div class="kinmotor">今節モーター No.'+esc(moNo)+'：<b>'+k.n+'走</b> 2連対<b>'+k.w2+'</b>（'+k.rate+'%）'
     +(few?'<span class="km-few">N少</span>':'')
-    +'<span class="km-tsu">／通算2連率 '+fmtPct(tsu)+'</span>'+sk+'</div>';
+    +sk+'</div>';
 }
 
 /* 企画レースの当日判定（企画名文字列のキーワードのみ・保守的）。
@@ -1519,13 +1546,10 @@ function shuTable(row){
 function downFactorPanel(df){
   var n=(df&&df.count)||0;
   var items=(df&&df.items)||[];
-  var dispN=n>=2?2:n;
-  var REF={0:'11.9%',1:'27.2%',2:'33.1%'};
   var list=n>0
     ? '<ul>'+items.map(function(it){return '<li>'+esc(it)+'</li>';}).join("")+'</ul>'
     : '<ul><li class="none">該当なし</li></ul>';
-  var note='過去1年、①の下振れ要因が'+dispN+'つ当てはまったレースの①着外率は'+REF[dispN]+'（全体19.2%）';
-  return '<div class="panel panel-down"><div class="ttl">①の下振れ要因</div>'+list+'<div class="note">'+note+'</div></div>';
+  return '<div class="panel panel-down"><div class="ttl">①の下振れ要因（'+n+'つ）</div>'+list+'</div>';
 }
 
 function renderRace(app,crumb,v){
@@ -1558,7 +1582,7 @@ function renderRace(app,crumb,v){
   if(/^\d{8}$/.test(v.hd)){
     var base="https://www.boatrace.jp/owpc/pc/race/", q="?rno="+view.rno+"&jcd="+v.jcd+"&hd="+v.hd;
     var closed=isClosed(v.hd,rc.deadline);
-    off=(chR?'':'<a class="offlink '+(closed?"offlink-result":"offlink-pend")+'" href="'+base+'raceresult'+q+'" target="_blank" rel="noopener">🏁 '+(closed?"レース結果（公式）":"結果（締切後に確定）")+' ↗</a>')
+    off=(chR?'':'<a class="offlink '+(closed?"offlink-result":"offlink-pend")+'" href="'+base+'raceresult'+q+'" target="_blank" rel="noopener">🏁 '+(closed?"レース結果（公式）":"結果（締切後）")+' ↗</a>')
       +'<a class="offlink offlink-card" href="'+base+'racelist'+q+'" target="_blank" rel="noopener">公式出走表 ↗</a>';
   }
   var uranai='<a class="offlink offlink-card" href="../uranai/?jcd='+v.jcd+'&hd='+v.hd+'&rno='+view.rno+'R&from=racers">🔮 この6艇を占う</a>';
@@ -1570,31 +1594,33 @@ function renderRace(app,crumb,v){
   /* サマリーチップ */
   var ar=chR?null:findArare(v.jcd,view.rno,v.hd), wd=chR?null:findWind(v.jcd,v.hd,rc.deadline);
   var chips=[];
-  if(ar) chips.push('<span class="chip chip-arare-'+esc(ar.level)+'">荒れ <b>'+esc(ar.level)+'</b> '+esc(ar.score)+'/'+esc((arare&&arare.max_score)||"-")+'</span>');
+  if(ar) chips.push('<span class="chip chip-arare-'+esc(ar.level)+'">荒れ <b>'+esc(ar.level)+'</b>（'+esc((arare&&arare.max_score)||"-")+'点中'+esc(ar.score)+'点）</span>');
   if(hl&&hl.in1!=null) chips.push('<span class="chip">イン1着率 <b>'+esc(hl.in1)+'%</b></span>');
   if(hl&&hl.haran!=null) chips.push('<span class="chip">波乱度 <b>'+esc(hl.haran)+'</b></span>');
   var venueIsFix=HL_META.fix.indexOf(v.name)>=0;
   if(venueIsFix) chips.push('<span class="chip chip-fix">進入固定</span>');
   kikakuChips(rc.kikaku, venueIsFix).forEach(function(c){ chips.push(c); });
   if(wd) chips.push('<span class="chip">風 <b>'+esc(windArrow(wd.dir)+" "+wd.dir)+'</b> '+esc(wd.wind)+'m</span>');
-  if(hl) chips.push('<a class="chip chip-link" href="../highlights/">📖 見立てを読む</a>');
+  if(hl) chips.push('<a class="chip chip-link" href="../highlights/#v'+parseInt(v.jcd,10)+'">📖 見立てを読む</a>');
   if(chips.length) html+='<div class="chips">'+chips.join("")+'</div>';
 
+  /* 荒れサインは荒れの札の根拠なので表層に残す（点つき）。下振れ要因・展開・風・潮は1つの折りたたみへ */
+  var mido='', midoParts=[];
   /* 荒れ要因 */
   if(ar&&ar.factors&&ar.factors.length){
-    html+='<div class="panel panel-arare"><div class="ttl">荒れサイン</div><ul>'+ar.factors.map(function(f){return '<li>'+esc(f)+'</li>';}).join("")+'</ul></div>';
+    html+='<div class="panel panel-arare"><div class="ttl">荒れサイン（'+esc((arare&&arare.max_score)||"-")+'点中'+esc(ar.score)+'点）</div><ul>'+ar.factors.map(function(f){return '<li>'+esc(f)+'（'+(/荒れ度高/.test(f)?2:1)+'点）</li>';}).join("")+'</ul><div class="arare-def">6点の内訳：水面の荒れ度（高2点・中1点）、1号艇の級別、1号艇の当地勝率、4号艇のスタート、1号艇の機力（各1点）</div></div>';
   }
   /* ①の下振れ要因（highlights.json の値をそのまま表示。新規集計はしない） */
-  if(hl&&hl.df) html+=downFactorPanel(hl.df);
+  if(hl&&hl.df){ mido+=downFactorPanel(hl.df); midoParts.push('下振れ要因'+((hl.df.count)||0)+'つ'); }
   /* 展開（複数シナリオ・断定なし。見立て/波及は非表示） */
   if(hl&&hl.tenkai&&hl.tenkai.length){
-    html+='<div class="panel panel-tenkai"><div class="ttl">展開の見どころ</div><ul>'
+    midoParts.push('展開'); mido+='<div class="panel panel-tenkai"><div class="ttl">展開の見どころ</div><ul>'
       +hl.tenkai.map(function(t){return '<li>'+esc(t)+'</li>';}).join("")
       +'</ul><div class="note">※データに基づく複数シナリオの併置。勝敗の断定・買い目ではありません。</div></div>';
   }
   /* 風詳細 */
   if(wd){
-    html+='<div class="panel panel-wind"><div class="ttl">締切時刻の風予報</div>'
+    midoParts.push('風'); mido+='<div class="panel panel-wind"><div class="ttl">締切時刻の風予報</div>'
       +esc((windArrow(wd.dir)+" ")+wd.dir)+' '+esc(wd.wind)+'m｜'+esc(wd.wx)+'（'+esc(String(wd.time).replace("T"," ").slice(5))+' 時点）</div>';
   }
   /* 当日干満（潮汐場のみ・水面コンディションの事実。見どころと同じ思想） */
@@ -1606,11 +1632,13 @@ function renderRace(app,crumb,v){
     if(ts['満潮']&&ts['満潮'].length) tp.push('満潮 '+ts['満潮'].map(esc).join('・'));
     if(ts['干潮']&&ts['干潮'].length) tp.push('干潮 '+ts['干潮'].map(esc).join('・'));
     if(tp.length){
-      html+='<div class="panel panel-tide"><div class="ttl">当日の潮（水面コンディションの事実）</div>'
+      midoParts.push('潮'); mido+='<div class="panel panel-tide"><div class="ttl">当日の潮（水面コンディションの事実）</div>'
         +tp.join('｜')
         +'<div class="note">事実の提示のみ。勝敗・荒れ予想には用いません。</div></div>';
     }
   }
+
+  if(mido) html+='<details class="mido" data-dk="mido"><summary>見どころ：'+midoParts.join('・')+'</summary><div class="mido-body"><div class="mido-note">当ポータルが数字から作った材料で、勝敗の断定・買い目ではありません。</div>'+mido+'</div></details>';
 
   /* 並び替え */
   var sorts=[["枠","枠順"],["ST","平均ST"],["機力","機力"],["当地","当地勝率"]];
@@ -1638,10 +1666,11 @@ function renderRace(app,crumb,v){
   ensureTJ();
   html+=wakuStatsTable(rc.boats);
   html+=nigeSecondTable(rc.boats);
+  html+='<div class="card-legend">札：<span class="sw sw-j">点線</span>数字から出した判定<span class="sw sw-l">丸</span>地元<span class="sw sw-f">太線</span>F持ち</div>';
   html+=boats.map(function(row){ return boatCard(row,v,hl,minST,maxST,maxMotor); }).join("");
 
   html+=yomiBox(v,view.rno);
-  html+='<div class="legend-note">出典: BOATRACE公式出走表（勝率・モーター・今節成績）｜決まり手構成は直近183日集計｜1号艇の決着は枠別成績と同じ期間｜機力評価・展開・荒れ指数は当ポータル生成｜風はOpen-Meteo。<br>本ページは水面傾向・展開の可視化に留め、勝敗の断定・買い目・確率は提示しません。</div>';
+  html+='<div class="legend-note">出典: BOATRACE公式出走表（勝率・2連率・3連率・モーター・ボート・今節成績。モーターとボートは勝率なし）｜決まり手構成は直近183日集計｜1号艇の決着は枠別成績と同じ期間｜機力評価・展開・荒れ指数は当ポータル生成｜風はOpen-Meteo。<br>本ページは水面傾向・展開の可視化に留め、勝敗の断定・買い目・確率は提示しません。</div>';
 
   app.innerHTML=html;
   document.getElementById("back0").onclick=function(e){e.preventDefault();view={page:"venues",sort:view.sort};render();};
@@ -1660,6 +1689,7 @@ function renderRace(app,crumb,v){
   });
 }
 
+function numPct(s){ var x=parseFloat(s); return isNaN(x)?'-':x.toFixed(1); }
 function boatCard(row,v,hl,minST,maxST,maxMotor){
   var lane=parseInt(g(row,"枠"));
   var lc=LANE_COLOR[lane]||["#333","#fff"];
@@ -1687,21 +1717,13 @@ function boatCard(row,v,hl,minST,maxST,maxMotor){
     +(fn>0?'<span class="badge-f">F'+fn+'</span>':'')
     +(bdMark?'<span class="badge-bd">誕</span>':'');
 
-  /* 相対バー: ST（小さいほど良い→反転）, モーター */
-  var stPct=(!isNaN(st)&&maxST>minST)?((maxST-st)/(maxST-minST)*100):(!isNaN(st)?100:0);
-  var moPct=(!isNaN(motor)&&maxMotor>0)?(motor/maxMotor*100):0;
-  var meter='<div class="meter">'
-    +'<div class="meter-row"><span class="meter-lb">ST</span><div class="meter-track"><div class="meter-fill" style="width:'+stPct.toFixed(0)+'%;background:'+"#6f8aa3"+'"></div></div><span class="meter-val'+(fastest?" meter-best":"")+'">'+(isNaN(st)?"-":st.toFixed(2))+'</span></div>'
-    +'<div class="meter-row"><span class="meter-lb">機力</span><div class="meter-track"><div class="meter-fill" style="width:'+moPct.toFixed(0)+'%;background:'+"#6f8aa3"+'"></div></div><span class="meter-val"></span></div>'
-    +'</div>';
-
   /* タグ */
   var tags=[];
   if(sharpST) tags.push('<span class="tag" style="border:1.5px dashed #c3ccd6;border-radius:3px;color:#e0e6ed">鋭いST</span>');
   if(localAdv||hot) tags.push('<span class="tag tag-local">当地得意</span>');
   if(machEval==="high") tags.push('<span class="tag tag-mach-high">機力◎</span>');
   else if(machEval==="low") tags.push('<span class="tag tag-mach-low">機力△</span>');
-  var tagsHtml=tags.length?'<div class="tags">'+tags.join("")+'</div>':'';
+  var tagsHtml=(badges||tags.length)?'<div class="badges">'+badges+tags.join("")+'</div>':'';
 
   var nameHtml=toban
     ?'<a class="pname" href="../players/?toban='+esc(toban)+'" style="color:inherit;text-decoration:none;">'+esc(name)+'<span class="badge-detail">詳細</span></a>'
@@ -1712,18 +1734,20 @@ function boatCard(row,v,hl,minST,maxST,maxMotor){
   return '<div class="boat'+(oshi?' oshi-on':'')+'"><div class="lane-bar" style="background:'+lc[0]+'"></div><div class="boat-body">'
     +'<div class="boat-top">'
     +'<span class="lane-num" style="background:'+lc[0]+';color:'+lc[1]+';'+((lane===1||lane===2)?'border:1px solid #445;':'')+'">'+lane+'</span>'
-    +'<span class="klass k-'+esc(kl)+'">'+esc(kl)+'</span>'+nameHtml+badges+oshiBtn
+    +'<span class="klass k-'+esc(kl)+'">'+esc(kl)+'</span>'+nameHtml+oshiBtn
     +'</div>'
     +(KANA[toban]?'<div class="pkana">'+esc(KANA[toban])+'</div>':'')
     +(nick?'<div class="nick">“'+esc(nick)+'”</div>':'')
-    +'<div class="boat-sub">'+esc(g(row,"支部"))+'／'+esc(g(row,"出身"))+'・'+esc(g(row,"年齢"))+'歳</div>'
+    +'<div class="boat-sub">'+esc(g(row,"支部"))+'／'+esc(g(row,"出身"))+'・'+esc(g(row,"年齢"))+'歳　平均ST <span class="boat-st">'+(isNaN(st)?"-":st.toFixed(2))+'</span></div>'
     +tagsHtml
-    +'<div class="stats">'
-    +'<div class="stat"><div class="lb">全国勝率</div><div class="v">'+fmtNum(g(row,"全国勝率"))+'</div><div class="v2">2連 '+fmtPct(g(row,"全国2連率"))+'</div></div>'
-    +'<div class="stat'+(hot?' hot':'')+'"><div class="lb">当地勝率'+(hot?'<span class="up"> ↑</span>':'')+'</div><div class="v">'+fmtNum(g(row,"当地勝率"))+'</div><div class="v2">2連 '+fmtPct(g(row,"当地2連率"))+'</div></div>'
-    +'<div class="stat mach"><div class="lb">モーター'+(g(row,"モーターNo")?' <a href="../motor-maintenance/#m'+esc(g(row,"場コード"))+'-'+esc(parseInt(g(row,"モーターNo"),10))+'" onclick="event.stopPropagation()" style="color:inherit;text-decoration:none;border-bottom:1px dotted currentColor">No.'+esc(g(row,"モーターNo"))+' 整備</a>':'')+'</div><div class="v">'+fmtPct(g(row,"モーター2連率"))+'</div><div class="v2">3連 '+fmtPct(g(row,"モーター3連率"))+'</div></div>'
+    +'<div class="nums">'
+    +'<span></span><span class="h">全国</span><span class="h">当地'+(hot?' ↑':'')+'</span>'
+    +'<span class="h">モーター<br>'+(g(row,"モーターNo")?'<a href="../motor-maintenance/#m'+esc(g(row,"場コード"))+'-'+esc(parseInt(g(row,"モーターNo"),10))+'" onclick="event.stopPropagation()">'+esc(g(row,"モーターNo"))+'号 整備</a>':'-')+'</span>'
+    +'<span class="h">ボート<br>'+(g(row,"ボートNo")?esc(g(row,"ボートNo"))+'号':'-')+'</span>'
+    +'<span class="l">勝率</span><span class="v">'+fmtNum(g(row,"全国勝率"))+'</span><span class="v">'+fmtNum(g(row,"当地勝率"))+'</span><span class="v na" aria-label="なし">-</span><span class="v na" aria-label="なし">-</span>'
+    +'<span class="l">2連率%</span><span class="v">'+numPct(g(row,"全国2連率"))+'</span><span class="v">'+numPct(g(row,"当地2連率"))+'</span><span class="v">'+numPct(g(row,"モーター2連率"))+'</span><span class="v">'+numPct(g(row,"ボート2連率"))+'</span>'
+    +'<span class="l">3連率%</span><span class="v">'+numPct(g(row,"全国3連率"))+'</span><span class="v">'+numPct(g(row,"当地3連率"))+'</span><span class="v">'+numPct(g(row,"モーター3連率"))+'</span><span class="v">'+numPct(g(row,"ボート3連率"))+'</span>'
     +'</div>'
-    +meter
     +kinMotorLine(row)
     +kimariteBar(km)
     +tenjiBlock(toban)
