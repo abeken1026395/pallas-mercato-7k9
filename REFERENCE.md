@@ -194,7 +194,7 @@
 - なお a. の「toWrite:0 なら success」は、この失敗とは別経路。
   キーが無くても、書く対象が0の日は執筆ステップ自体に入らないので緑で終わる。
 
-#### b. `update{場名}Payouts.yml` はスクリプトがクラッシュしても success
+#### b. `update{場名}Payouts.yml` はスクリプトがクラッシュしても success（2026-10-01 に24本とも廃止。記録として残す）
 - スクレイプ手順に `continue-on-error: true` が付いている。**24本すべてに付いている**
   （2026-08-02 実測: `update*Payouts.yml` 24本 / `continue-on-error` を含むもの 24本）。
 - 「1場こけても他場・後続を止めない」ための設計で、意図自体は正しい。
@@ -494,9 +494,10 @@ localdata/           Kファイル成果物のローカル保管。**.gitignore 
 | `kansenkiMissingAlarm.yml` | `37 22` | 全欠なら **GitHub Issue 起票**（冪等） |
 
 ### 払戻（24場）
-`update{場名}Payouts.yml` × 24。UTC 15:20〜17:25 に**15分刻みでずらして**配置。
-いずれも `scrape{場名}PayoutsApi.py` → `build{場名}ManRate.py`。**全て `continue-on-error` 付き**で、
-1場こけても他場・後続を止めない。`YM`/`ym` 入力で対象月を指定できる。
+**2026-10-01 に `update{場名}Payouts.yml` 24本を廃止**し、`updateResultsLive.yml` の中で
+`buildPayoutsFromResults.py`（`results/*.json` から24場の払戻CSVへ不足分だけ足す・外部取得なし）→ `build{場名}ManRate.py` × 24 を回す形に統合した。
+各レースの結果取り込みのたびに払戻が伸びる。両方にある 66,505 レースで従来の外部取得と3連単の食い違い 0 件（2026-10-01 実測）。
+旧 `scrape{場名}PayoutsApi.py` は削除せず残している（WFからは呼ばない）。
 集計は `updatePayoutsSummary.yml`（`10 16`）が buildPayoutsSummary / buildTrifectaTop /
 buildBoat1Second / buildChampRace をまとめて実行。
 
