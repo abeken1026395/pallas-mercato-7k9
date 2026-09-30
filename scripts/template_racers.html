@@ -574,6 +574,15 @@ function parseHL(j){
 }
 
 var view={page:"venues", key:null, rno:null, sort:"枠"};
+/* 整備ページなどから #v24 で来たとき、その場のレース一覧から始める（本日の開催を優先） */
+(function(){
+  var m=/^#v(\d{2})$/.exec(location.hash||""); if(!m) return;
+  var ks=Object.keys(venues).filter(function(k){ return venues[k].jcd===m[1]; }).sort();
+  if(!ks.length) return;
+  var n=nowJST(), t=n.getUTCFullYear()+("0"+(n.getUTCMonth()+1)).slice(-2)+("0"+n.getUTCDate()).slice(-2);
+  var k=ks.filter(function(x){ return venues[x].hd===t; })[0]||ks[0];
+  view={page:"races", key:k, rno:null, sort:"枠"};
+})();
 function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 function nowJST(){ return new Date(Date.now()+9*3600*1000); }
 function fmtNum(s){ var f=parseFloat(s); return isNaN(f)?"-":f.toFixed(2); }
@@ -1712,7 +1721,7 @@ function boatCard(row,v,hl,minST,maxST,maxMotor){
     +'<div class="stats">'
     +'<div class="stat"><div class="lb">全国勝率</div><div class="v">'+fmtNum(g(row,"全国勝率"))+'</div><div class="v2">2連 '+fmtPct(g(row,"全国2連率"))+'</div></div>'
     +'<div class="stat'+(hot?' hot':'')+'"><div class="lb">当地勝率'+(hot?'<span class="up"> ↑</span>':'')+'</div><div class="v">'+fmtNum(g(row,"当地勝率"))+'</div><div class="v2">2連 '+fmtPct(g(row,"当地2連率"))+'</div></div>'
-    +'<div class="stat mach"><div class="lb">モーター'+(g(row,"モーターNo")?' No.'+esc(g(row,"モーターNo")):'')+'</div><div class="v">'+fmtPct(g(row,"モーター2連率"))+'</div><div class="v2">3連 '+fmtPct(g(row,"モーター3連率"))+'</div></div>'
+    +'<div class="stat mach"><div class="lb">モーター'+(g(row,"モーターNo")?' <a href="../motor-maintenance/#m'+esc(g(row,"場コード"))+'-'+esc(parseInt(g(row,"モーターNo"),10))+'" onclick="event.stopPropagation()" style="color:inherit;text-decoration:none;border-bottom:1px dotted currentColor">No.'+esc(g(row,"モーターNo"))+' 整備</a>':'')+'</div><div class="v">'+fmtPct(g(row,"モーター2連率"))+'</div><div class="v2">3連 '+fmtPct(g(row,"モーター3連率"))+'</div></div>'
     +'</div>'
     +meter
     +kinMotorLine(row)

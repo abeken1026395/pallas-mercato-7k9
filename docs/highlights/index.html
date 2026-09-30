@@ -512,7 +512,7 @@ function motorNote(r){
   return '';
 }
 
-function boatRow(b, ba){
+function boatRow(b, ba, jc){
   let fl=''; if(b['F']) fl+='<span class="flag fF">F</span>'; if(b['鋭ST']) fl+='<span class="flag fST">ST</span>';
   const mev = b['機力評価'];
   const mc = mev==='hi'?' hi':mev==='lo'?' lo':mev==='na'?' na':'';
@@ -526,7 +526,7 @@ function boatRow(b, ba){
     <span class="wk wk${b['枠']}">${b['枠']}</span>
     <span class="lv lv${b['級別']}">${b['級別']}</span>
     <span class="nm${fem?' fem-nm':''}"><span class="nmline"><a href="../players/?toban=${no}" onclick="event.stopPropagation()" style="color:inherit;text-decoration:none;border-bottom:1px dotted #4a6a8a">${b['氏名']}</a>${jim?'<span class="jimoto">地元</span>':''}${b['誕生日']?'<span class="bdmk">誕</span>':''}${fl}${isOshi(no)?'<span class="oshi-mk">⭐</span>':''}</span>${b['氏名カナ']?`<span class="nmkana">${b['氏名カナ']}</span>`:''}</span>
-    <span class="mtr${mc}">機${mtxt}</span>
+    ${(/^\d+$/.test(String(mtxt))&&jc)?`<a class="mtr${mc}" href="../motor-maintenance/#m${jc}-${mtxt}" onclick="event.stopPropagation()" style="text-decoration:none;border-bottom:1px dotted #4a6a8a" aria-label="${mtxt}号機の整備の記録">機${mtxt}</a>`:`<span class="mtr${mc}">機${mtxt}</span>`}
     <span class="stat">全${b['全国勝率'].toFixed(2)}／当${up?'<span class="up">':''}${b['当地勝率']>0?b['当地勝率'].toFixed(2):'－'}${up?'▲</span>':''}</span>
     <span class="bchev">▶</span>
   </div><div class="bprof" id="bp-${rid}"></div>`;
@@ -664,7 +664,7 @@ function renderCard(r, ctx){
       ${wx}
       ${e30Info(r)}
       ${nigeSecondFact(r)}
-      <div class="boats">${r['艇'].map(b=>boatRow(b, r['場名'])).join('')}</div>
+      <div class="boats">${r['艇'].map(b=>boatRow(b, r['場名'], r['場コード'])).join('')}</div>
       <div class="tenkai"><div class="t">展開の筋</div>${r['展開'].map(p=>`<p>${p}</p>`).join('')}</div>
       <div class="suji"><b>波及の連鎖</b>：${r['波及']}</div>
       ${inRateHtml(r)}
@@ -932,7 +932,7 @@ function renderVenues(){
         return `<button class="rchip${isHot?' hot':''}" data-target="${uid}" data-dl="${dl2min(r['締切時刻'])}" aria-label="${n}Rへ移動">${n}${isHot?'<span class="rchip-mk" aria-hidden="true">⚡</span>':''}</button>`;
       }).join('')+`</div>`;
     }
-    return `<div class="venue">
+    return `<div class="venue" id="v-${v.code}">
       <div class="vhead${gb.cls}${open?' open':''}" onclick="toggleVenue('${ba}')">
         <span class="vname">${hasPin(PIN,v.code)?'<span class="pin-mk">📍</span>':''}${ba}</span>
         <span class="vmeta">${v.list.length}R${hot?` ・波乱${hot}`:''}</span>${ch?`<span class="vchushi">${kEsc(ch['表記'])}</span>`:''}
@@ -977,6 +977,19 @@ function render(){
   window.__pastN=pastCount();
   if(typeof bindNsTabs==='function') bindNsTabs();
   if(typeof bindTjsTabs==='function') bindTjsTabs();
+  applyVenueHash();
+}
+// 整備ページなどから #v24 で来たとき、場別タブでその場を開く（初回の1回だけ）
+let VENUE_HASH_DONE=false;
+function applyVenueHash(){
+  if(VENUE_HASH_DONE||ISNEXT||!RACES.length) return;
+  const m=/^#v(\d{2})$/.exec(location.hash||''); VENUE_HASH_DONE=true;
+  if(!m) return;
+  const r=RACES.find(x=>x['場コード']===m[1]); if(!r) return;
+  VIEW='all'; OPEN_VENUE=r['場名'];
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.v==='all'));
+  render();
+  const el=document.getElementById('v-'+m[1]); if(el) el.scrollIntoView({block:'start'});
 }
 // 荒れ・堅めの一覧は、締切を過ぎたレースが出たときだけ並べ直す（それ以外は再描画しない）
 function pastCount(){ return document.querySelectorAll('#list > .race.past').length; }
