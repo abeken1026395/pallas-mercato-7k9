@@ -77,6 +77,9 @@ input[type=search]{width:min(320px,100%)}
 .karte{margin-top:14px;scroll-margin-top:72px}
 .khead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .khead h2{font-size:20px;font-weight:800}
+.xl{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.xl a{display:inline-flex;align-items:center;min-height:36px;padding:0 12px;border:1px solid var(--line2);border-radius:18px;font-size:13px;font-weight:700;color:var(--steel);text-decoration:none;background:var(--panel)}
+.vhead .xs{margin-left:auto;font-size:12.5px;font-weight:600;color:var(--steel)}
 .khead .s{font-size:13px;color:var(--sub)}
 .runs{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;margin-top:6px}
 .runs .rn{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--txt)}
@@ -228,7 +231,7 @@ function drawRecent(){
   $("vjump").innerHTML=js.map(function(j){return '<button class="chipbtn" data-j="'+j+'">'+esc(V[j])+" "+g[j].length+"</button>"}).join("");
   $("rlist").innerHTML=js.map(function(j){
     var xs=g[j].slice().sort(function(a,b){return (a.rno||99)-(b.rno||99)||a.r[8]-b.r[8]});
-    return '<div class="vhead" id="vh'+j+'">'+esc(V[j])+"<small>"+xs.length+"件</small></div>"+'<div class="card">'+xs.map(function(x){
+    return '<div class="vhead" id="vh'+j+'">'+esc(V[j])+"<small>"+xs.length+'件</small><a class="xs" href="../highlights/#v'+j+'">見どころ</a><a class="xs" style="margin-left:10px" href="../racers/#v'+j+'">出走表</a></div>'+'<div class="card">'+xs.map(function(x){
       var r=x.r,w=x.pera?'<span class="p pera">ペラ新</span>':chips(x.parts);
       var when=dayLabel(dayOf(x.r,x.d))+(x.rno?x.rno+"R の直前情報":"");
       return '<button class="ev" data-j="'+r[0]+'" data-m="'+r[8]+'"><span class="mno">'+r[8]+"<small>号機</small></span>"
@@ -287,6 +290,7 @@ function drawKarte(scroll){
   var rows=byMotor[curJ+"-"+curM]||[],all=setsuOf(rows),rn=((M.renewInfo||{})[curJ]||[])[0],ss=rn?all.filter(function(g){return g[0][1]>=rn}):all,old=all.length-ss.length,nEx=0;
   ss.forEach(function(g){if(g.some(function(r){return r[15].length}))nEx++});
   var h='<div class="khead"><h2>'+esc(V[curJ])+" "+curM+'号機</h2><span class="s">'+ss.length+"節のうち交換あり "+nEx+"節</span></div>";
+  h+='<div class="xl"><a href="../highlights/#v'+curJ+'">'+esc(V[curJ])+'の見どころ</a><a href="../racers/#v'+curJ+'">'+esc(V[curJ])+'の出走表</a></div>';
   var ri=(M.renewInfo||{})[curJ],run=(M.usage||{})[curJ+"-"+curM];
   if(ri&&run!=null)h+='<div class="runs"><span class="rn">'+run.toLocaleString()+'</span><span class="ru">走</span><span class="rs">新替 '+md(ri[0])+"（"+(ri[1]==="記録"?"手元の記録":ri[1])+"）から "+md(M.usageTo)+" まで</span></div>";
   var ns=(M.setsuSince||{})[curJ];
@@ -373,6 +377,12 @@ $("t-racer").onclick=function(){show("racer");drawRacer()};
 })();
 
 drawDays();drawRecent();
+// 見どころ・出走表から来たとき：#m24-35 はそのモーターの経歴、#v24 はその場の機番一覧を開く
+(function(){
+  var h=location.hash||"",m=/^#m(\d{2})-(\d{1,3})$/.exec(h),v=/^#v(\d{2})$/.exec(h);
+  if(m&&V[m[1]]){openMotor(m[1],+m[2]);return;}
+  if(v&&V[v[1]]){curJ=v[1];curM=null;show("motor");drawGrid();}
+})();
 
 // 新替日と新替後の走行数（motorUsage.json）、新替後の節数（motorHistory.json）。
 // 届かなくても本体は壊さない（経歴に新替の区切りと走行数が出ないだけ）。
