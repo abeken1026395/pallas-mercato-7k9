@@ -18,6 +18,8 @@ RACERS = sys.argv[1] if len(sys.argv) > 1 else "docs/racers/racers_today.csv"
 MOTORS = sys.argv[2] if len(sys.argv) > 2 else "docs/motor/motors_all.csv"
 MOTOR_REPLACE = "docs/data/motorReplace.json"   # モーター新替の記録（手入力可・自動追記）
 GRADE_SCHEDULE = "docs/data/gradeSchedule.json"  # 節の開始日（モーター新替日の記録に使う）
+MOTOR_HISTORY = "docs/data/motorHistory.json"   # 節完結の記録（新替の注記を出す節数を数える）
+REPLACE_SHOW_SETSU = 5                    # 新替から何節の間、新替の注記を出すか（初おろし節を含む・2026-09-30 けん裁定）
 MOTOR_MIN_RUNS = 10                       # これ未満の走破数は機力を評価しない
 OUT    = sys.argv[3] if len(sys.argv) > 3 else "docs/highlights/highlights.json"
 KIM    = sys.argv[4] if len(sys.argv) > 4 else "docs/players/racerKimarite.csv"
@@ -1350,11 +1352,28 @@ def main():
             json.dump(motor_replace, _wf, ensure_ascii=False, indent=1, sort_keys=True)
             _wf.write('\n')
 
+    # 表示用：新替から REPLACE_SHOW_SETSU 節（motorHistory.json の節完結の記録で数える・初おろし節を含む）が
+    # 終わった場は、見どころ・出走表の新替の注記に載せない。motorReplace.json の記録そのものは消さない。
+    # 記録が読めないときは従来どおり全部載せる。
+    motor_replace_disp = motor_replace
+    try:
+        with open(MOTOR_HISTORY, encoding='utf-8') as _hf:
+            _sess = (json.load(_hf) or {}).get('sessions') or []
+        _disp = {}
+        for _ba, _v in motor_replace.items():
+            _d = str((_v or {}).get('新替日') or '')
+            _n = sum(1 for _s in _sess if _s.get('jcd') == _ba and str(_s.get('開催日') or '') >= _d)
+            if _n < REPLACE_SHOW_SETSU:
+                _disp[_ba] = _v
+        motor_replace_disp = _disp
+    except Exception:
+        motor_replace_disp = motor_replace
+
     doc = {
         '生成時刻': datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9))).isoformat(timespec='seconds'),
         '開催日': kaisai,
         '確定イン率場': sorted(CONFIRMED),
-        'モーター新替': motor_replace,
+        'モーター新替': motor_replace_disp,
         # 深層で「単独の数字を置かない」ための比較基準。表層には出さず、タップした先でだけ使う。
         '1コース1着率の基準': {
             '中央値': _med_rate, '人数': _n_rate, '最低走数': 20,
@@ -1401,7 +1420,7 @@ def main():
         next_doc = {
             '生成時刻': now_iso, '開催日': kaisai, 'プレビュー': True,
             '確定イン率場': sorted(CONFIRMED),
-            'モーター新替': motor_replace,
+            'モーター新替': motor_replace_disp,
             'レース数': len(merged_races), 'レース': merged_races,
             '場別': merged_meta,
         }

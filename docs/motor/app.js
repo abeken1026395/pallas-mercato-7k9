@@ -1065,6 +1065,9 @@ function App() {
     const r = replMap[String(jcd || "").padStart(2, "0")];
     const d = r ? String(r["新替日"] || "") : "";
     if (!/^\d{8}$/.test(d)) return null;
+    // 新替から5節（motorHistory.json の節完結の記録で数える・初おろし節を含む）が終わった場は出さない（2026-09-30 けん裁定）
+    const hs = motorHist ? motorHist[String(jcd || "").padStart(2, "0")] || [] : [];
+    if (hs.filter(s => String(s["開催日"] || "") >= d).length >= 5) return null;
     return d.slice(0, 4) + "/" + Number(d.slice(4, 6)) + "/" + Number(d.slice(6, 8));
   };
   const usageFor = (jcd, mno) => {
