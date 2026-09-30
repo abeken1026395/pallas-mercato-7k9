@@ -333,7 +333,11 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .race.urgent .soon-badge{color:var(--hot);background:rgba(255,107,91,.16);border-color:rgba(255,107,91,.45)}
 .rchip.urgent{border-color:rgba(255,107,91,.7)}
 .rchip.urgent::after{background:var(--hot)}
-/* ⭐推し表示（キー br_oshi は出走表・選手図鑑と共有。このページは読むだけで登録・解除しない） */
+/* ⭐推し表示（キー br_oshi は出走表・選手図鑑と共有。登録・解除は選手を開いた欄のボタンから） */
+.oshi-follow{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;margin:0 0 10px;border-radius:22px;border:1px solid #4a4636;background:none;color:#c9c2ad;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer}
+.oshi-follow.on{background:#ffd166;color:#0b1219;border-color:#ffd166}
+.oshi-follow:focus-visible{outline:2px solid #ffd166;outline-offset:2px}
+.oshi-slot{display:contents}
 .oshi-badge{font-size:12px;font-weight:700;color:#0b1219;background:#ffd166;border-radius:6px;padding:1px 7px;white-space:nowrap}
 .oshi-mk{color:#ffd166;font-size:12px;margin-left:3px}
 .oshi-note{color:#7a6c44;font-size:12px;line-height:1.7}
@@ -467,7 +471,7 @@ function lsGet(k,d){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):
 function pinCode(c){ var t=String(c==null?"":c); return t.length===1 ? "0"+t : t; }
 function hasPin(list,code){ return list.some(function(p){ return p && pinCode(p.code)===pinCode(code); }); }
 var PIN=lsGet("br_stadium",[]); if(!Array.isArray(PIN)) PIN=[];
-/* ===== ⭐推しフォロー（出走表 scripts/template_racers.html・選手図鑑 scripts/players/app.jsx と共有。キー br_oshi ／形式 [{toban,name}] ／このページは読むだけで書き込まない） ===== */
+/* ===== ⭐推しフォロー（出走表 scripts/template_racers.html・選手図鑑 scripts/players/app.jsx と共有。キー br_oshi ／形式 [{toban,name}] ／このページでも選手を開いた欄のボタンで登録・解除できる） ===== */
 var OSHI=lsGet("br_oshi",[]); if(!Array.isArray(OSHI)) OSHI=[];
 function isOshi(toban){ return OSHI.some(function(o){ return o && String(o.toban)===String(toban); }); }
 function oshiInRace(r){
@@ -484,7 +488,7 @@ function oshiRaceBadge(r){
   var txt = (ns.length<=2) ? ns.join('・') : (ns.length+'人');
   return '<span class="oshi-badge">⭐ 推し '+kEsc(txt)+'</span>';
 }
-var OSHI_ONLY=false;   /* 絞り込み状態。localStorageには保存しない（読むだけの原則を維持） */
+var OSHI_ONLY=false;   /* 絞り込み状態。localStorageには保存しない（開くたびに全レース表示から始める） */
 function racesForView(){ return OSHI_ONLY ? RACES.filter(function(r){ return oshiInRace(r).length>0; }) : RACES; }
 function syncOshiBar(){
   var bar=document.getElementById('oshibar'); if(!bar) return;
@@ -494,6 +498,54 @@ function syncOshiBar(){
   b.setAttribute('aria-pressed', OSHI_ONLY?'true':'false');
 }
 function toggleOshiOnly(){ OSHI_ONLY=!OSHI_ONLY; syncOshiBar(); render(); }
+/* 登録・解除（出走表 toggleOshi と同じ形式で書く：先頭に追加・登番は文字列） */
+function lsSetOshi(v){ try{ localStorage.setItem("br_oshi", JSON.stringify(v)); }catch(e){} }
+function toggleOshiFollow(toban, name){
+  toban=String(toban||''); if(!toban) return;
+  OSHI=lsGet("br_oshi",[]); if(!Array.isArray(OSHI)) OSHI=[];
+  if(isOshi(toban)) OSHI=OSHI.filter(function(o){ return !(o && String(o.toban)===toban); });
+  else OSHI.unshift({toban:toban, name:name||""});
+  lsSetOshi(OSHI);
+  updateOshiUI();
+}
+function oshiFollowHTML(toban, name){
+  if(!toban) return '';
+  var on=isOshi(toban);
+  return '<button type="button" class="oshi-follow'+(on?' on':'')+'" data-toban="'+kEsc(String(toban))+'" data-name="'+kEsc(name||'')+'" aria-pressed="'+(on?'true':'false')+'">'+(on?'⭐ 推しフォロー中（タップで解除）':'☆ 推しフォローする')+'</button>';
+}
+/* 画面を描き直さずに印だけ差し替える（開いている選手欄を閉じないため） */
+function updateOshiUI(){
+  document.querySelectorAll('.oshi-follow').forEach(function(bt){
+    var on=isOshi(bt.dataset.toban);
+    bt.classList.toggle('on', on);
+    bt.setAttribute('aria-pressed', on?'true':'false');
+    bt.textContent = on ? '⭐ 推しフォロー中（タップで解除）' : '☆ 推しフォローする';
+  });
+  document.querySelectorAll('.boat[data-no]').forEach(function(el){
+    var line=el.querySelector('.nmline'); if(!line) return;
+    var mk=line.querySelector('.oshi-mk'), on=isOshi(el.dataset.no);
+    if(on && !mk){ var s=document.createElement('span'); s.className='oshi-mk'; s.textContent='⭐'; line.appendChild(s); }
+    else if(!on && mk){ mk.remove(); }
+  });
+  document.querySelectorAll('.race[data-uid]').forEach(function(el){
+    var slot=el.querySelector('.oshi-slot'); if(!slot) return;
+    var uid=el.dataset.uid, r=null;
+    for(var i=0;i<RACES.length;i++){ if(RACES[i]['場コード']+'_'+RACES[i]['レース']===uid){ r=RACES[i]; break; } }
+    slot.innerHTML = r ? oshiRaceBadge(r) : '';
+  });
+  if(!OSHI.length) OSHI_ONLY=false;
+  syncOshiBar();
+  if(OSHI_ONLY) render();
+}
+document.addEventListener('click', function(e){
+  var bt=e.target.closest('.oshi-follow'); if(!bt) return;
+  e.stopPropagation();
+  toggleOshiFollow(bt.dataset.toban, bt.dataset.name);
+});
+/* 出走表・選手図鑑でフォローしてから戻ったとき（別タブ・戻る操作）も印を合わせる */
+function reloadOshi(){ OSHI=lsGet("br_oshi",[]); if(!Array.isArray(OSHI)) OSHI=[]; updateOshiUI(); }
+window.addEventListener('storage', function(e){ if(e.key==="br_oshi") reloadOshi(); });
+window.addEventListener('pageshow', function(e){ if(e.persisted) reloadOshi(); });
 
 function isJimoto(b, ba){
   const js=JIMOTO[ba]; if(!js) return false;
@@ -656,7 +708,7 @@ function renderCard(r, ctx){
   const resRow=res?`<div class="rresult-row">🏁 <span>結果 <b>${res.finish}</b></span>${res.payout!=null?`<span>3連単 <b class="${res.payout>=10000?'man':''}">${(res.payout).toLocaleString()}円</b></span>`:''}<span class="src">出典：results（確定成績）</span></div>`:'';
   return `<div class="race${open?' open':''}" data-uid="${uid}" data-dl="${dl2min(r['締切時刻'])}">
     <div class="rhead" role="button" tabindex="0" aria-expanded="${open?'true':'false'}" aria-controls="rb-${uid}" data-uid="${uid}">
-      <div class="rtop"><span class="rname">${title}</span>${r['日目']?`<span class="nichi">${r['日目']}</span>`:''}${r['企画名']?`<span class="kikaku">${r['企画名']}</span>`:''}${badge(r)}${oshiRaceBadge(r)}<span class="soon-badge" aria-hidden="true">まもなく</span>${resHead}${r['締切時刻']?`<span class="deadline">締切 ${r['締切時刻']}</span>`:''}<span class="rchev" aria-hidden="true">▼</span></div>
+      <div class="rtop"><span class="rname">${title}</span>${r['日目']?`<span class="nichi">${r['日目']}</span>`:''}${r['企画名']?`<span class="kikaku">${r['企画名']}</span>`:''}${badge(r)}<span class="oshi-slot">${oshiRaceBadge(r)}</span><span class="soon-badge" aria-hidden="true">まもなく</span>${resHead}${r['締切時刻']?`<span class="deadline">締切 ${r['締切時刻']}</span>`:''}<span class="rchev" aria-hidden="true">▼</span></div>
       <div class="rmitate"><span class="lbl">見立て</span><span class="mt-txt">${r['見立て']}</span></div>
     </div>
     <div class="rbody" id="rb-${uid}"${open?'':' hidden'}>
@@ -1274,16 +1326,17 @@ document.addEventListener('click',function(e){
       // 同カード内の艇データを探す
       let boat=null;
       for(const r of RACES){ if(r['艇']){ const f=r['艇'].find(x=>String(x['登録番号'])===no && (r['場名']+'_'+x['枠']+'_'+no)===rid); if(f){boat=f;break;} } }
+      const fb=()=>oshiFollowHTML(no, boat?boat['氏名']:'');
       const fill=function(){
-        prof.innerHTML=bProfHTML(no, boat||{'当地勝率':0,'全国勝率':0});
+        prof.innerHTML=fb()+bProfHTML(no, boat||{'当地勝率':0,'全国勝率':0});
         prof.dataset.filled='1';
       };
       if(PROF_READY){ fill(); }
       else{
-        prof.innerHTML='<div class="bp-top">読み込み中…</div>';
+        prof.innerHTML=fb()+'<div class="bp-top">読み込み中…</div>';
         loadPROF().then(function(ok){
           if(ok){ fill(); }
-          else{ prof.innerHTML='<div class="bp-top">選手データを取得できませんでした</div>'; }
+          else{ prof.innerHTML=fb()+'<div class="bp-top">選手データを取得できませんでした</div>'; }
         });
       }
     }
