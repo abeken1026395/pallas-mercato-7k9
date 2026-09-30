@@ -504,7 +504,7 @@ function motorNote(r){
   if(rep && rep['新替日'] && /^\d{8}$/.test(rep['新替日'])){
     const d = rep['新替日'];
     const ymd = `${d.slice(0,4)}年${+d.slice(4,6)}月${+d.slice(6,8)}日`;
-    return `<div class="warn">※この場は ${ymd} にモーターを新替。実績が積み上がるまで、機の枠色は付きません。</div>`;
+    return `<div class="warn">※この場は ${ymd} にモーターを新替。新替から5節までは各機の走った数が少なく、2連率の比べ合いは参考程度です。</div>`;
   }
   if(!r['モーター使用']){
     return `<div class="warn">※この場はモーター2連率が0%の機が多く、機力の比較ができません。</div>`;
