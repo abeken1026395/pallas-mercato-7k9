@@ -22,12 +22,13 @@
 
 |対象|アシスタントbash|クラウドCode|ローカルCode|
 |---|---|---|---|
-|`raw.githubusercontent.com` / `api.github.com` / `github.com`|**可**|可|可|
+|`raw.githubusercontent.com`・`git ls-remote`（github.com の git）|**可**|可|可|
+|`api.github.com` / `github.com` のページ（commits.atom など）|**不可**（2026-10-01 実測・プロキシで403）|可|可|
 |`github.io`|不可|—|—|
 |`boatrace.jp`|不可|未確認|**可**|
 |`mbrace.or.jp`|不可|**不可**（IPブロック）|**可**|
 
-- `api.github.com` は**未認証だとレート制限に当たる**（403）。そのときは `github.com/<repo>/commits/main.atom` から最新SHAを取り、`raw` をSHA固定で叩く
+- アシスタントbashで最新の main SHA は `git ls-remote https://github.com/abeken1026395/pallas-mercato-7k9.git refs/heads/main` で取り、`raw` をSHA固定で叩く（2026-10-01 に `api.github.com` と `commits/main.atom` がどちらも403になった）
 - アシスタント環境には **Playwright（Chromium）** がある。ローカルHTTPサーバを立てて実表示を検証できる
 
 ### クラウドCodeとローカルCodeの使い分け
