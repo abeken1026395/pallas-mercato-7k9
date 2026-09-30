@@ -62,6 +62,7 @@ KFILES_DIR = os.environ.get("KFILES_DIR", os.path.join("data", "kfiles"))
 TEACHER = os.environ.get("MOTORS_ALL_CSV", os.path.join("docs", "motor", "motors_all.csv"))
 OUT = os.path.join("docs", "data", "motorUsage.json")
 REPLACE = os.path.join("docs", "data", "motorReplace.json")  # モーター新替日の記録（build_highlights.py が自動追記・手入力可）
+CONFIRMED = os.path.join("data", "motorStartConfirmed.json")  # 各場の現モーター使用開始日を出典つきで確かめた記録（非公開・手入力）
 
 # 出力JSONの形式印。app.jsx はこの値が無いJSONの走行数を表示しない（旧形式の止血）。
 SCHEMA = "venueWindow-1"
@@ -227,6 +228,15 @@ def load_teacher(path=TEACHER):
     return out
 
 
+def load_confirmed(path=CONFIRMED):
+    """motorStartConfirmed.json → {jcd: {使用開始日, 種別}}。読めなければ空。"""
+    try:
+        with open(path, encoding="utf-8") as f:
+            return (json.load(f) or {}).get("venues") or {}
+    except Exception:
+        return {}
+
+
 def load_replace(path=REPLACE):
     """motorReplace.json → {jcd: 新替日(YYYYMMDD)}。読めなければ空。"""
     try:
@@ -349,6 +359,7 @@ def aggregate(records, teacher):
     # 教師の開催日。公式値の基準日を割り出すのと venues に持たせるのに使う。
     tdates = teacher_dates()
     repl = load_replace()
+    conf = load_confirmed()
     for jcd in sorted(by_venue):
         by_day = by_venue[jcd]
         mend = measure_end(by_day, tdates.get(jcd, ""))
@@ -372,6 +383,10 @@ def aggregate(records, teacher):
             venues[jcd] = {"coverageFrom": start, "fitError": round(err, 3), "matched": matched}
             print("  [ok] {} {} … 新替日(推定) {} / 平均誤差 {:.2f}pt / 照合{}機 / 誤差測定は{}まで".format(
                 jcd, name, start, err, matched, mend or "全期間"))
+        # 推定した窓の開始日が、出典で確かめた使用開始日と同じなら、その出典の種別（公式／二次／記録）を添える
+        _cf = conf.get(jcd) or {}
+        if _cf.get("使用開始日") == venues[jcd]["coverageFrom"] and _cf.get("種別"):
+            venues[jcd]["startSource"] = _cf["種別"]
         for hd, day in by_day.items():
             if hd < start:
                 continue
