@@ -219,7 +219,7 @@ function MotorKarte({parts,upd}){
 function fmtRate(r){ return typeof r==="number" ? r.toFixed(1) : String(r||"-"); }
 // 8桁を年入りの YYYY/M/D にする。fmtHd は年を落とすため別関数にした（fmtHd は他で使う）。
 function fmtHdY(hd){ const h=String(hd||""); return h.length===8?`${+h.slice(0,4)}/${+h.slice(4,6)}/${+h.slice(6,8)}`:h; }
-function MotorUsageLine({usage,from,officialAsOf}){
+function MotorUsageLine({usage,from,officialAsOf,src}){
   if(!usage || !from) return null;
   const w = usage["走"];
   if(!w) return null;
@@ -230,8 +230,8 @@ function MotorUsageLine({usage,from,officialAsOf}){
   const showOff = (typeof off === "number") && officialAsOf;
   return (
     <div style={{fontSize:F.sm,lineHeight:1.7,color:C.dim,fontVariantNumeric:"tabular-nums"}}
-      title={`新替日は公式非公開のため、公式のモーター2連対率と突き合わせた推定。窓内初出${fmtHd(usage["窓内初出日"])}・最新${fmtHd(usage["最新日"])}`}>
-      <span style={{color:C.label}}>モーター新替（推定 {fmtHdY(from)}）以降</span> <b style={{color:"#cdd9e5"}}>{w}走</b> ・勝{usage["勝"]} ・2連{usage["2連"]}<span style={{color:C.ok}}>（{fmtRate(usage["2連率"])}%）</span> ・3連{usage["3連"]}<span style={{color:"#79c0ff"}}>（{fmtRate(usage["3連率"])}%）</span>
+      title={src?`新替日は${src==="記録"?"手元の記録":src+"の情報"}で確かめた日。窓内初出${fmtHd(usage["窓内初出日"])}・最新${fmtHd(usage["最新日"])}`:`新替日は公式非公開のため、公式のモーター2連対率と突き合わせた推定。窓内初出${fmtHd(usage["窓内初出日"])}・最新${fmtHd(usage["最新日"])}`}>
+      <span style={{color:C.label}}>{src?`モーター新替 ${fmtHdY(from)}（${src==="記録"?"手元の記録":src}）以降`:`モーター新替（推定 ${fmtHdY(from)}）以降`}</span> <b style={{color:"#cdd9e5"}}>{w}走</b> ・勝{usage["勝"]} ・2連{usage["2連"]}<span style={{color:C.ok}}>（{fmtRate(usage["2連率"])}%）</span> ・3連{usage["3連"]}<span style={{color:"#79c0ff"}}>（{fmtRate(usage["3連率"])}%）</span>
       {showOff && <div style={{marginTop:2,color:C.muted}}
         title="公式のモーター2連対率は各場の直近の節が終わった時点の値。こちらは最新開催日までの実測なので基準日が異なる。">
         公式 {fmtHd(officialAsOf)}時点 {fmtRate(off)}%
@@ -244,7 +244,7 @@ function MotorUsageLine({usage,from,officialAsOf}){
 // 走行数と整備履歴は行タップで開く深層に置く（無くても今日の判断はできる＝表層に要らない）。
 // 閉じている間は深層のDOMを作らない。全場表示では1,000機超あり、常時描くと
 // 場の切り替え（unmount）でメインスレッドが数秒止まっていた。表示件数ではなく破棄ノード数が効く。
-function MotorRow({row,rk,fem,parts,upd,usage,usageFrom,median,officialAsOf}){
+function MotorRow({row,rk,fem,parts,upd,usage,usageFrom,median,officialAsOf,usageSrc}){
   const [open,setOpen] = useState(false);
   const v=row[CI.rate], g=row[CI.grade];
   const my=myoumi(g,rk);
@@ -283,7 +283,7 @@ function MotorRow({row,rk,fem,parts,upd,usage,usageFrom,median,officialAsOf}){
       </div>
       {open && hasDeep && (
         <div style={{margin:"6px 0 0 12px",padding:"8px 10px",background:"#0d1622",border:"1px solid #16222f",borderRadius:8}}>
-          <MotorUsageLine usage={usage} from={usageFrom} officialAsOf={officialAsOf}/>
+          <MotorUsageLine usage={usage} from={usageFrom} officialAsOf={officialAsOf} src={usageSrc}/>
           <MotorKarte parts={parts} upd={upd}/>
         </div>
       )}
@@ -312,7 +312,7 @@ function E30Badge({info}){
 
 // 場カード。既定は上位3機だけ開いた状態。フォロー場は最初から全機、検索中は全機かつ畳みボタンを出さない
 //（絞り込んだ結果を勝手に隠さない）。
-function VenueCard({venue,rows,pinned,searching,e30,meta,prevTop,repl,isPrev,females,partsFor,usageFor,usageFromFor,officialAsOfFor,upd}){
+function VenueCard({venue,rows,pinned,searching,e30,meta,prevTop,repl,isPrev,females,partsFor,usageFor,usageFromFor,officialAsOfFor,usageSrcFor,upd}){
   const [open,setOpen] = useState(pinned);
   const showAll = searching || open;
   const shown = showAll ? rows : rows.slice(0,TOP_N);
@@ -332,7 +332,7 @@ function VenueCard({venue,rows,pinned,searching,e30,meta,prevTop,repl,isPrev,fem
           )}
           {repl && (
             <div style={{fontSize:F.xs,color:C.dim,marginTop:3,fontVariantNumeric:"tabular-nums"}}>
-              モーター新替 <b style={{color:"#cdd9e5"}}>{repl}</b> <span style={{color:C.muted}}>（実績が積み上がるまで序列は付けません）</span>
+              モーター新替 <b style={{color:"#cdd9e5"}}>{repl}</b> <span style={{color:C.muted}}>（5節までは各機の走った数が少なく、2連率の比べ合いは参考程度です）</span>
             </div>
           )}
         </div>
@@ -345,7 +345,7 @@ function VenueCard({venue,rows,pinned,searching,e30,meta,prevTop,repl,isPrev,fem
             fem={females&&females.has(String(r[CI.toban]))}
             parts={partsFor(r[CI.jcd], r[CI.mno])} upd={upd}
             usage={usageFor(r[CI.jcd], r[CI.mno])} usageFrom={usageFromFor(r[CI.jcd])} median={median}
-            officialAsOf={officialAsOfFor(r[CI.jcd])}/>
+            officialAsOf={officialAsOfFor(r[CI.jcd])} usageSrc={usageSrcFor(r[CI.jcd])}/>
         ))}
         {!searching && rows.length>TOP_N && (
           hidden>0
@@ -460,8 +460,9 @@ function App(){
     if(!/^\d{8}$/.test(d)) return null;
     // 新替から5節（motorHistory.json の節完結の記録で数える・初おろし節を含む）が終わった場は出さない（2026-09-30 けん裁定）
     const hs = motorHist ? (motorHist[String(jcd||"").padStart(2,"0")]||[]) : [];
-    if(hs.filter(s=>String(s["開催日"]||"")>=d).length>=5) return null;
-    return d.slice(0,4)+"/"+Number(d.slice(4,6))+"/"+Number(d.slice(6,8));
+    const ns = hs.filter(s=>String(s["開催日"]||"")>=d).length;
+    if(ns>=5) return null;
+    return d.slice(0,4)+"/"+Number(d.slice(4,6))+"/"+Number(d.slice(6,8))+"（"+ns+"節終了）";
   };
   const usageFor = (jcd, mno) => {
     if(!usageMap) return null;
@@ -473,6 +474,12 @@ function App(){
     const v = usageVenues[String(jcd||"").padStart(2,"0")];
     const d = v ? String(v.coverageFrom||"") : "";
     return /^\d{8}$/.test(d) ? d : "";
+  };
+  // 新替日を出典で確かめた種別（公式／二次／記録）。確かめていない場は ""（推定として出す）。
+  const usageSrcFor = (jcd) => {
+    if(!usageVenues) return "";
+    const v = usageVenues[String(jcd||"").padStart(2,"0")];
+    return (v && v.startSource) || "";
   };
   // 公式2連対率の基準日（＝その場の直近の節の最終開催日・YYYYMMDD）。持たない場は ""。
   const officialAsOfFor = (jcd) => {
@@ -570,7 +577,7 @@ function App(){
           prevTop={prevTopFor(rows[0][CI.jcd], rows[0][CI.hd])}
           repl={replFor(rows[0][CI.jcd])}
           isPrev={isPrevSetsu(rows[0][CI.hd])}
-          females={females} partsFor={partsFor} usageFor={usageFor} usageFromFor={usageFromFor} officialAsOfFor={officialAsOfFor} upd={partsUpd}/>
+          females={females} partsFor={partsFor} usageFor={usageFor} usageFromFor={usageFromFor} officialAsOfFor={officialAsOfFor} usageSrcFor={usageSrcFor} upd={partsUpd}/>
       ))}
     </div>
   );

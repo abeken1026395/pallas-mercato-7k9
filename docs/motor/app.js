@@ -481,7 +481,8 @@ function fmtHdY(hd) {
 function MotorUsageLine({
   usage,
   from,
-  officialAsOf
+  officialAsOf,
+  src
 }) {
   if (!usage || !from) return null;
   const w = usage["走"];
@@ -498,12 +499,12 @@ function MotorUsageLine({
       color: C.dim,
       fontVariantNumeric: "tabular-nums"
     },
-    title: `新替日は公式非公開のため、公式のモーター2連対率と突き合わせた推定。窓内初出${fmtHd(usage["窓内初出日"])}・最新${fmtHd(usage["最新日"])}`
+    title: src ? `新替日は${src === "記録" ? "手元の記録" : src + "の情報"}で確かめた日。窓内初出${fmtHd(usage["窓内初出日"])}・最新${fmtHd(usage["最新日"])}` : `新替日は公式非公開のため、公式のモーター2連対率と突き合わせた推定。窓内初出${fmtHd(usage["窓内初出日"])}・最新${fmtHd(usage["最新日"])}`
   }, /*#__PURE__*/React.createElement("span", {
     style: {
       color: C.label
     }
-  }, "\u30E2\u30FC\u30BF\u30FC\u65B0\u66FF\uFF08\u63A8\u5B9A ", fmtHdY(from), "\uFF09\u4EE5\u964D"), " ", /*#__PURE__*/React.createElement("b", {
+  }, src ? `モーター新替 ${fmtHdY(from)}（${src === "記録" ? "手元の記録" : src}）以降` : `モーター新替（推定 ${fmtHdY(from)}）以降`), " ", /*#__PURE__*/React.createElement("b", {
     style: {
       color: "#cdd9e5"
     }
@@ -537,7 +538,8 @@ function MotorRow({
   usage,
   usageFrom,
   median,
-  officialAsOf
+  officialAsOf,
+  usageSrc
 }) {
   const [open, setOpen] = useState(false);
   const v = row[CI.rate],
@@ -693,7 +695,8 @@ function MotorRow({
   }, /*#__PURE__*/React.createElement(MotorUsageLine, {
     usage: usage,
     from: usageFrom,
-    officialAsOf: officialAsOf
+    officialAsOf: officialAsOf,
+    src: usageSrc
   }), /*#__PURE__*/React.createElement(MotorKarte, {
     parts: parts,
     upd: upd
@@ -768,6 +771,7 @@ function VenueCard({
   usageFor,
   usageFromFor,
   officialAsOfFor,
+  usageSrcFor,
   upd
 }) {
   const [open, setOpen] = useState(pinned);
@@ -865,7 +869,7 @@ function VenueCard({
     style: {
       color: C.muted
     }
-  }, "\uFF08\u5B9F\u7E3E\u304C\u7A4D\u307F\u4E0A\u304C\u308B\u307E\u3067\u5E8F\u5217\u306F\u4ED8\u3051\u307E\u305B\u3093\uFF09"))), /*#__PURE__*/React.createElement("span", {
+  }, "\uFF085\u7BC0\u307E\u3067\u306F\u5404\u6A5F\u306E\u8D70\u3063\u305F\u6570\u304C\u5C11\u306A\u304F\u30012\u9023\u7387\u306E\u6BD4\u3079\u5408\u3044\u306F\u53C2\u8003\u7A0B\u5EA6\u3067\u3059\uFF09"))), /*#__PURE__*/React.createElement("span", {
     style: {
       fontSize: F.xs,
       color: C.muted,
@@ -887,7 +891,8 @@ function VenueCard({
     usage: usageFor(r[CI.jcd], r[CI.mno]),
     usageFrom: usageFromFor(r[CI.jcd]),
     median: median,
-    officialAsOf: officialAsOfFor(r[CI.jcd])
+    officialAsOf: officialAsOfFor(r[CI.jcd]),
+    usageSrc: usageSrcFor(r[CI.jcd])
   })), !searching && rows.length > TOP_N && (hidden > 0 ? /*#__PURE__*/React.createElement(MoreBtn, {
     onClick: () => setOpen(true)
   }, "\u25BC \u6B8B\u308A", hidden, "\u6A5F\u3092\u898B\u308B") : /*#__PURE__*/React.createElement(MoreBtn, {
@@ -1067,8 +1072,9 @@ function App() {
     if (!/^\d{8}$/.test(d)) return null;
     // 新替から5節（motorHistory.json の節完結の記録で数える・初おろし節を含む）が終わった場は出さない（2026-09-30 けん裁定）
     const hs = motorHist ? motorHist[String(jcd || "").padStart(2, "0")] || [] : [];
-    if (hs.filter(s => String(s["開催日"] || "") >= d).length >= 5) return null;
-    return d.slice(0, 4) + "/" + Number(d.slice(4, 6)) + "/" + Number(d.slice(6, 8));
+    const ns = hs.filter(s => String(s["開催日"] || "") >= d).length;
+    if (ns >= 5) return null;
+    return d.slice(0, 4) + "/" + Number(d.slice(4, 6)) + "/" + Number(d.slice(6, 8)) + "（" + ns + "節終了）";
   };
   const usageFor = (jcd, mno) => {
     if (!usageMap) return null;
@@ -1080,6 +1086,12 @@ function App() {
     const v = usageVenues[String(jcd || "").padStart(2, "0")];
     const d = v ? String(v.coverageFrom || "") : "";
     return /^\d{8}$/.test(d) ? d : "";
+  };
+  // 新替日を出典で確かめた種別（公式／二次／記録）。確かめていない場は ""（推定として出す）。
+  const usageSrcFor = jcd => {
+    if (!usageVenues) return "";
+    const v = usageVenues[String(jcd || "").padStart(2, "0")];
+    return v && v.startSource || "";
   };
   // 公式2連対率の基準日（＝その場の直近の節の最終開催日・YYYYMMDD）。持たない場は ""。
   const officialAsOfFor = jcd => {
@@ -1424,6 +1436,7 @@ function App() {
     usageFor: usageFor,
     usageFromFor: usageFromFor,
     officialAsOfFor: officialAsOfFor,
+    usageSrcFor: usageSrcFor,
     upd: partsUpd
   })));
 }
