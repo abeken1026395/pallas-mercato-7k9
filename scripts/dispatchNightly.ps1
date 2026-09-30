@@ -1,10 +1,10 @@
-# dispatchNightly.ps1
+﻿# dispatchNightly.ps1
 # 夜間パイプライン（nightlyPipeline.yml）を GitHub の workflow_dispatch で起動するだけの小さなスクリプト。
 # Windowsタスクスケジューラから 18:05 / 20:05 / 22:05 に実行される想定（登録: scripts/registerDispatchNightly.ps1）。
 #
 # なぜ要るか（2026-09-30 けん裁定）:
 #   翌日の見どころ（highlights_next.json）は nightlyPipeline が作る。その起動は GitHub の schedule と
-#   heartbeat（これも schedule）だけに頼っていた。2026-09-30 は 17:03〜23:36 の予定27回が1回も発火せず、
+#   heartbeat（これも schedule）だけに頼っていた。2026-09-30 は 17:03 から 23:36 の予定27回が1回も発火せず、
 #   手動で起動するまで翌日分が出なかった。PCの定時タスクから起動をかけて、18時台に翌日分を出す。
 #   nightlyPipeline は冪等（現物を見て no-op／補完する）なので、多重に起動しても壊れない。
 #

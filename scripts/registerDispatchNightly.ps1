@@ -1,4 +1,4 @@
-# registerDispatchNightly.ps1
+﻿# registerDispatchNightly.ps1
 # dispatchNightly.ps1 を毎日 18:05 / 20:05 / 22:05 に走らせるタスクを登録する。再実行で上書き更新。
 #
 # 本体は C:\Users\USER\dispatchNightly\ にコピーしてから登録する（codeWatcher と同じ理由：
