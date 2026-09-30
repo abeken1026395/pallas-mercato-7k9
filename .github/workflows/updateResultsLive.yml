@@ -58,6 +58,14 @@ jobs:
       - name: build results site data (docs/results/)
         run: python scripts/buildResultsSite.py
 
+      # 24場の3連単払戻CSVと万舟率を results/ から作る（外部取得なし・各レースのあとに反映）。
+      # 2026-10-01 に場ごとの update<場>Payouts.yml 24本を廃止してここへ統合した。
+      # 既存行は消さず足すだけ（lib/csv_guard）。失敗しても results のコミットは止めない（commit は always）。
+      - name: build payouts from results (docs/payouts/)
+        run: |
+          python scripts/buildPayoutsFromResults.py
+          for f in scripts/build*ManRate.py; do python "$f"; done
+
       - name: commit
         if: always()
         env:
@@ -66,6 +74,8 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add results/ docs/results/data/ 2>/dev/null || true
+          # 払戻は別の add にする（まとめると1つ欠けただけで results まで0件 stage になる）
+          git add docs/payouts/*Payouts.csv docs/payouts/*ManRate.json 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "no changes"; exit 0
           fi
