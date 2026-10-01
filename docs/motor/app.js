@@ -22,7 +22,8 @@ const C = {
   // 注記の下限（最も暗い #26333f 上で 4.76:1）
   dim: "#7d94a8",
   // 注記（暗い背景専用。バッジ地の上には置かない）
-  accent: "#ffd166",
+  accent: "#e0e6ed",
+  // 見出し（黄はやめた。出走表と同じ辞書）
   link: "#8fd0ff",
   fem: "#ff9ec9",
   ok: "#8fd6c0",
@@ -137,30 +138,32 @@ const RK = {
   top: {
     key: "top",
     label: "超抜",
-    color: "#ffd166",
-    tcolor: "#ffd166"
+    color: "#c3ccd6",
+    tcolor: C.text
   },
   hi: {
     key: "hi",
     label: "上位",
-    color: "#79c0ff",
-    tcolor: "#79c0ff"
+    color: "#8fa6bd",
+    tcolor: C.sub
   },
   mid: {
     key: "mid",
     label: "普通",
-    color: "#7d9bb5",
+    color: "#7c94ab",
     tcolor: C.label
   },
   low: {
     key: "low",
     label: "下位",
-    color: "#556579",
+    color: "#5d7186",
     tcolor: C.muted
   }
 };
-function rankByPos(pos, total, rate, usage) {
+function rankByPos(pos, total, rate, usage, fresh) {
   if (!total || !pos) return RK.na;
+  // 新替から5節は機力が見えにくい（通説・2026-10-01 けん裁定）。その場の全機に序列を付けない。
+  if (fresh) return RK.na;
   // 実績のない機・走行数が少ない機に序列を付けない（新替直後など）。
   // 全機0.0%の場で先頭3機が「超抜」になるのを防ぐ。
   const _v = parseFloat(rate);
@@ -179,12 +182,12 @@ function isB(g) {
 // B級×高機力＝妙味（人気が落ちやすい構造。判断は読者に委ねる）。
 // 場内で上位40%以内のモーターにB級が乗っている状態。
 function myoumi(g, rk) {
-  return isB(g) && (rk.key === "top" || rk.key === "hi");
-}
+  return false;
+} // 2026-10-01 けん裁定でやめた（妙味は推しに見えるため）
 
 // 級別バッジ。白文字では #e05a5a が 3.63、#5a7fe0 が 3.79 で AA 未達だったため、
 // 地色はそのままに文字を暗色へ反転した（5.18／4.98／4.57）。「超抜」バッジと同じ作法。
-const gradeColor = g => String(g).startsWith("A") ? "#e05a5a" : String(g).startsWith("B") ? "#5a7fe0" : "#6b7f95";
+const gradeColor = g => String(g).startsWith("A") ? "#e05a5a" : String(g).startsWith("B") ? "#86a6cf" : "#6b7f95";
 
 // 節名は長いので末尾を…で省略（表示用のみ・原文はtitle属性で保持）。
 function truncStr(s, n) {
@@ -250,7 +253,7 @@ function MoreBtn({
       alignItems: "center",
       justifyContent: "center",
       gap: 6,
-      minHeight: 32,
+      minHeight: 44,
       minWidth: HIT,
       marginTop: mt || 0,
       padding: "6px 14px",
@@ -539,13 +542,15 @@ function MotorRow({
   usageFrom,
   median,
   officialAsOf,
-  usageSrc
+  usageSrc,
+  hl,
+  fresh
 }) {
   const [open, setOpen] = useState(false);
   const v = row[CI.rate],
     g = row[CI.grade];
   const my = myoumi(g, rk);
-  const hasDeep = !!(usageFrom && usage && usage["走"]) || !!(parts && parts.length);
+  const hasDeep = !!(usageFrom && usage && usage["走"]) || parts === undefined || !!(parts && parts.length);
   const heart = fem ? /*#__PURE__*/React.createElement("span", {
     style: {
       color: C.fem,
@@ -554,7 +559,10 @@ function MotorRow({
   }, "\u2665") : null;
   const nameColor = fem ? C.fem : C.link;
   const toggle = () => {
-    if (hasDeep) setOpen(o => !o);
+    if (hasDeep) {
+      if (window.__loadKarte) window.__loadKarte();
+      setOpen(o => !o);
+    }
   };
   return /*#__PURE__*/React.createElement("div", {
     style: {
@@ -565,6 +573,7 @@ function MotorRow({
     tabIndex: hasDeep ? 0 : undefined,
     "aria-expanded": hasDeep ? open : undefined,
     "data-motor-row": "1",
+    "data-hl": hl ? "1" : undefined,
     onClick: toggle,
     onKeyDown: e => {
       if (hasDeep && (e.key === "Enter" || e.key === " ")) {
@@ -579,8 +588,8 @@ function MotorRow({
       padding: "9px 10px",
       borderRadius: 8,
       cursor: hasDeep ? "pointer" : "default",
-      background: my ? "#1a2412" : "#0f1923",
-      border: my ? "1px solid #3a5220" : "1px solid #16222f"
+      background: "#0f1923",
+      border: hl ? "2px solid #7fb4ff" : "1px solid #16222f"
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -617,11 +626,13 @@ function MotorRow({
     onClick: e => e.stopPropagation(),
     style: {
       color: nameColor,
-      textDecoration: "none",
-      borderBottom: "1px dotted #4a6a8a",
+      textDecoration: "underline dotted #4a6a8a",
+      textUnderlineOffset: 4,
       display: "inline-block",
-      padding: "3px 2px",
-      minHeight: HIT
+      padding: "12px 2px",
+      margin: "-9px 0",
+      minHeight: 44,
+      boxSizing: "border-box"
     }
   }, dispName(row[CI.name]) || "-", heart) : /*#__PURE__*/React.createElement("span", {
     style: {
@@ -643,31 +654,34 @@ function MotorRow({
       padding: "1px 6px",
       borderRadius: 3
     }
-  }, g || "-"), rk.key === "top" ? /*#__PURE__*/React.createElement("span", {
+  }, g || "-"), hl && /*#__PURE__*/React.createElement("span", {
     style: {
       fontSize: F.xs,
       fontWeight: 800,
-      color: C.onLight,
-      background: "#ffd166",
-      padding: "1px 7px",
+      color: "#7fb4ff"
+    }
+  }, "\u9078\u3093\u3060\u6A5F"), fresh && usage && usage["走"] ? /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: F.xs,
+      color: C.label,
+      fontVariantNumeric: "tabular-nums"
+    }
+  }, usage["走"], "\u8D70") : null, rk.key === "top" ? /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: F.xs,
+      fontWeight: 800,
+      color: C.text,
+      border: "1.5px dashed #c3ccd6",
+      padding: "0 6px",
       borderRadius: 3
     }
-  }, "\u8D85\u629C") : /*#__PURE__*/React.createElement("span", {
+  }, "\u8D85\u629C") : rk.key === "na" ? null : /*#__PURE__*/React.createElement("span", {
     style: {
       fontSize: F.xs,
       fontWeight: 800,
       color: rk.tcolor
     }
-  }, rk.label), my && /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: F.xs,
-      fontWeight: 800,
-      color: "#a8e063",
-      border: "1px solid #3a5220",
-      borderRadius: 3,
-      padding: "1px 6px"
-    }
-  }, "B\u7D1A\xD7\u9AD8\u6A5F\u529B"))), /*#__PURE__*/React.createElement(Bar, {
+  }, rk.label))), /*#__PURE__*/React.createElement(Bar, {
     v: v,
     c: rk.color,
     tc: rk.tcolor,
@@ -697,7 +711,13 @@ function MotorRow({
     from: usageFrom,
     officialAsOf: officialAsOf,
     src: usageSrc
-  }), /*#__PURE__*/React.createElement(MotorKarte, {
+  }), parts === undefined ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: F.sm,
+      color: C.muted,
+      marginTop: 6
+    }
+  }, "\u6574\u5099\u5C65\u6B74\u3092\u8AAD\u307F\u8FBC\u3093\u3067\u3044\u307E\u3059\u2026") : /*#__PURE__*/React.createElement(MotorKarte, {
     parts: parts,
     upd: upd
   })));
@@ -726,18 +746,19 @@ function E30Badge({
       cursor: "pointer",
       display: "inline-flex",
       alignItems: "center",
-      minHeight: HIT,
-      minWidth: HIT,
+      minHeight: 44,
+      minWidth: 44,
+      margin: "-10px 0",
       justifyContent: "center"
     }
   }, /*#__PURE__*/React.createElement("span", {
     style: {
       fontSize: F.xs,
       fontWeight: 800,
-      color: C.onLight,
-      background: "#8fd6c0",
-      borderRadius: 4,
-      padding: "1px 7px"
+      color: C.text,
+      border: "1px solid #9fb0c0",
+      borderRadius: 3,
+      padding: "0 6px"
     }
   }, "E30")), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -761,6 +782,8 @@ function VenueCard({
   rows,
   pinned,
   searching,
+  single,
+  hlMno,
   e30,
   meta,
   prevTop,
@@ -775,7 +798,9 @@ function VenueCard({
   upd
 }) {
   const [open, setOpen] = useState(pinned);
-  const showAll = searching || open;
+  const showAll = searching || open || single;
+  // 新替から5節の場は率の順に並べない（並びが序列に見えるため）。機番順にする。
+  if (repl) rows = rows.slice().sort((a, b) => (parseInt(a[CI.mno]) || 0) - (parseInt(b[CI.mno]) || 0));
   const shown = showAll ? rows : rows.slice(0, TOP_N);
   const hidden = rows.length - shown.length;
   const median = VENUE_MEDIAN[venue];
@@ -848,7 +873,7 @@ function VenueCard({
     title: `${prevTop.節名}（${prevTop.開催日}）節内2連率トップ`
   }, "\u524D\u7BC01\u4F4D\u6A5F ", /*#__PURE__*/React.createElement("b", {
     style: {
-      color: C.ok
+      color: C.text
     }
   }, "M", prevTop.no), " ", /*#__PURE__*/React.createElement("span", {
     style: {
@@ -869,7 +894,7 @@ function VenueCard({
     style: {
       color: C.muted
     }
-  }, "\uFF085\u7BC0\u307E\u3067\u306F\u5404\u6A5F\u306E\u8D70\u3063\u305F\u6570\u304C\u5C11\u306A\u304F\u30012\u9023\u7387\u306E\u6BD4\u3079\u5408\u3044\u306F\u53C2\u8003\u7A0B\u5EA6\u3067\u3059\uFF09"))), /*#__PURE__*/React.createElement("span", {
+  }, "\uFF08\u65B0\u66FF\u304B\u30895\u7BC0\u306F\u6A5F\u529B\u304C\u898B\u3048\u306B\u304F\u3044\u305F\u3081\u3001\u5E8F\u5217\u3092\u4ED8\u3051\u305A\u6A5F\u756A\u9806\u306B\u4E26\u3079\u3066\u3044\u307E\u3059\u3002\u7387\u306E\u6A2A\u306E\u300C\u25EF\u8D70\u300D\u306F\u65B0\u66FF\u304B\u3089\u8D70\u3063\u305F\u6570\uFF09"))), /*#__PURE__*/React.createElement("span", {
     style: {
       fontSize: F.xs,
       color: C.muted,
@@ -884,7 +909,9 @@ function VenueCard({
   }, shown.map((r, i) => /*#__PURE__*/React.createElement(MotorRow, {
     key: r[CI.mno] + "_" + i,
     row: r,
-    rk: rankByPos(i + 1, rows.length, r[CI.rate], usageFor(r[CI.jcd], r[CI.mno])),
+    rk: rankByPos(i + 1, rows.length, r[CI.rate], usageFor(r[CI.jcd], r[CI.mno]), !!repl),
+    hl: hlMno && String(r[CI.mno]).trim() === hlMno,
+    fresh: !!repl,
     fem: females && females.has(String(r[CI.toban])),
     parts: partsFor(r[CI.jcd], r[CI.mno]),
     upd: upd,
@@ -893,14 +920,42 @@ function VenueCard({
     median: median,
     officialAsOf: officialAsOfFor(r[CI.jcd]),
     usageSrc: usageSrcFor(r[CI.jcd])
-  })), !searching && rows.length > TOP_N && (hidden > 0 ? /*#__PURE__*/React.createElement(MoreBtn, {
+  })), !searching && !single && rows.length > TOP_N && (hidden > 0 ? /*#__PURE__*/React.createElement(MoreBtn, {
     onClick: () => setOpen(true)
   }, "\u25BC \u6B8B\u308A", hidden, "\u6A5F\u3092\u898B\u308B") : /*#__PURE__*/React.createElement(MoreBtn, {
     onClick: () => setOpen(false)
   }, "\u25B2 \u4E0A\u4F4D", TOP_N, "\u6A5F\u3060\u3051\u8868\u793A"))));
 }
+
+// URL の末尾で場と機番を受け取る（#v24＝場、#m24-35＝場24の35号機）。読み込み後に1回だけ見る。無い場は何もしない。
+function readHash() {
+  const h = String(location.hash || "");
+  let m = h.match(/^#v(\d{1,2})$/);
+  if (m) return {
+    jcd: m[1].padStart(2, "0"),
+    mno: ""
+  };
+  m = h.match(/^#m(\d{1,2})-(\d{1,3})$/);
+  if (m) return {
+    jcd: m[1].padStart(2, "0"),
+    mno: String(Number(m[2]))
+  };
+  return null;
+}
 function App() {
-  const [vf, setVf] = useState("ALL");
+  const [hl] = useState(readHash);
+  const [vf, setVf] = useState(() => {
+    if (!hl) return "ALL";
+    const r = R.data.find(x => String(x[CI.jcd]).padStart(2, "0") === hl.jcd);
+    return r ? r[CI.venue] : "ALL";
+  });
+  useEffect(() => {
+    if (!hl || !hl.mno) return;
+    const el = document.querySelector('[data-hl="1"]');
+    if (el) el.scrollIntoView({
+      block: "center"
+    });
+  }, []);
   const [pins] = useState(loadPin);
   const [q, setQ] = useState("");
   const [showHelp, setShowHelp] = useState(false);
@@ -934,13 +989,7 @@ function App() {
     // scripts/buildMotorKarte.py が作る派生ファイルで、描画に使う8列だけを機ごとに索引済み・整列済みで持つ。
     // 索引化とソートはビルド時に済ませてあるので、ここでは受け取るだけ（全21MBの読み込みと37,887行の走査をやめた）。
     // 欠落・該当無しはフォールバック（カルテを出さない）で既存表示を壊さない。
-    fetch("../data/motorKarte.json").then(r => r.ok ? r.json() : Promise.reject()).then(j => {
-      const rs = j && j.records;
-      if (rs && typeof rs === "object") {
-        setPartsMap(rs);
-        setPartsUpd(String(j.updated || ""));
-      }
-    }).catch(() => {});
+    // 3.78MB あるので、最初に行を開いたときに読む（window.__loadKarte）。
     // モーター新替(推定)以降の走行数集計（docs/data/motorUsage.json・Kファイル自前集計）。
     // 索引キーは jcd_モーターNo。欠落はフォールバック（非表示）で既存表示を壊さない。
     // schema が USAGE_SCHEMA でないJSON（場ごとの集計窓を持たない旧形式）は採らない。
@@ -1051,10 +1100,25 @@ function App() {
     };
   };
 
+  // 整備履歴は行を開いたときに1回だけ取りに行く。
+  useEffect(() => {
+    let started = false;
+    window.__loadKarte = () => {
+      if (started) return;
+      started = true;
+      fetch("../data/motorKarte.json").then(r => r.ok ? r.json() : Promise.reject()).then(j => {
+        const rs = j && j.records;
+        if (rs && typeof rs === "object") {
+          setPartsMap(rs);
+          setPartsUpd(String(j.updated || ""));
+        } else setPartsMap({});
+      }).catch(() => setPartsMap({}));
+    };
+  }, []);
   // jcd＋モーターNo で整備履歴（部品交換の時系列）を引く。未取得・該当無しは null。
   const karteKey = (jcd, mno) => String(jcd || "").padStart(2, "0") + "_" + String(mno || "").trim();
   const partsFor = (jcd, mno) => {
-    if (!partsMap) return null;
+    if (!partsMap) return undefined; // 未読込
     return partsMap[karteKey(jcd, mno)] || null;
   };
   // カルテ出典行に出す時刻は機ごとに持たない。
@@ -1114,7 +1178,7 @@ function App() {
     const h = String(hd || "");
     return maxHd && h.length === 8 && h < maxHd;
   };
-  const topCount = useMemo(() => {
+  const topCount = (() => {
     const g = {};
     for (const r of R.data) {
       const v = r[CI.venue] || "その他";
@@ -1122,10 +1186,11 @@ function App() {
     }
     let n = 0;
     for (const v in g) {
+      if (replFor(g[v][0][CI.jcd])) continue;
       n += Math.min(3, g[v].length);
     }
     return n;
-  }, []);
+  })();
   const grouped = useMemo(() => {
     let rows = R.data;
     if (vf !== "ALL") rows = rows.filter(r => r[CI.venue] === vf);
@@ -1185,9 +1250,9 @@ function App() {
     }
   }, /*#__PURE__*/React.createElement("b", {
     style: {
-      color: C.onLight,
-      background: "#ffd166",
-      padding: "1px 7px",
+      color: C.text,
+      border: "1.5px dashed #c3ccd6",
+      padding: "0 6px",
       borderRadius: 3,
       fontSize: F.xs,
       fontWeight: 800
@@ -1207,7 +1272,7 @@ function App() {
     onClick: () => setShowHelp(s => !s),
     style: {
       marginBottom: 8,
-      minHeight: 40,
+      minHeight: 44,
       padding: "8px 14px",
       background: "#1a2738",
       color: "#8faabe",
@@ -1271,11 +1336,11 @@ function App() {
     }
   }, /*#__PURE__*/React.createElement("div", null, "\u305D\u306E\u5834\u306E2\u9023\u7387\u306E\u9AD8\u3044\u9806\u306B\u3001", /*#__PURE__*/React.createElement("b", {
     style: {
-      color: C.accent
+      color: C.text
     }
   }, "\u8D85\u629C"), "\uFF08\u4E0A\u4F4D3\u6A5F\uFF09\uFF0F", /*#__PURE__*/React.createElement("b", {
     style: {
-      color: "#79c0ff"
+      color: C.sub
     }
   }, "\u4E0A\u4F4D"), "\uFF08\u301C40%\uFF09\uFF0F", /*#__PURE__*/React.createElement("b", {
     style: {
@@ -1285,7 +1350,7 @@ function App() {
     style: {
       color: C.muted
     }
-  }, "\u4E0B\u4F4D"), "\u3067\u8272\u5206\u3051\u3002"), /*#__PURE__*/React.createElement("div", {
+  }, "\u4E0B\u4F4D"), "\u3002\u5E2F\u3068\u30D0\u30FC\u306F\u660E\u308B\u3044\u307B\u3069\u4E0A\u4F4D\u3067\u3059\u3002\u65B0\u66FF\u304B\u30895\u7BC0\u306E\u5834\u306F\u5E8F\u5217\u3092\u4ED8\u3051\u307E\u305B\u3093\u3002"), /*#__PURE__*/React.createElement("div", {
     style: {
       color: C.muted,
       marginTop: 4
@@ -1327,21 +1392,6 @@ function App() {
       fontWeight: 700,
       marginBottom: 4
     }
-  }, "\u300CB\u7D1A\xD7\u9AD8\u6A5F\u529B\u300D\u30BF\u30B0"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      paddingLeft: 4,
-      marginBottom: 8
-    }
-  }, "\u4E0B\u7D1A\u306E\u9078\u624B\u304C\u6A5F\u529B\u4E0A\u4F4D\u306E\u30E2\u30FC\u30BF\u30FC\u3092\u5F15\u3044\u3066\u3044\u308B\u72B6\u614B\u3002\u4EBA\u6C17\u304C\u843D\u3061\u3084\u3059\u3044\u69CB\u9020\u3067\u3059\u3002", /*#__PURE__*/React.createElement("b", {
-    style: {
-      color: C.text
-    }
-  }, "\u8CB7\u3044\u76EE\u306F\u51FA\u3057\u307E\u305B\u3093"), "\u3002\u8AAD\u307F\u65B9\u306F\u5404\u81EA\u306E\u5224\u65AD\u3067\u3002"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      color: "#8faabe",
-      fontWeight: 700,
-      marginBottom: 4
-    }
   }, "\u8D70\u884C\u6570\u306B\u3064\u3044\u3066"), /*#__PURE__*/React.createElement("div", {
     style: {
       paddingLeft: 4
@@ -1373,7 +1423,7 @@ function App() {
     value: vf,
     onChange: e => setVf(e.target.value),
     style: {
-      minHeight: 40,
+      minHeight: 44,
       padding: "8px",
       background: "#162232",
       color: C.text,
@@ -1394,7 +1444,7 @@ function App() {
     style: {
       flex: 1,
       minWidth: 120,
-      minHeight: 40,
+      minHeight: 44,
       padding: "8px 10px",
       background: "#162232",
       color: C.text,
@@ -1426,6 +1476,8 @@ function App() {
     rows: rows,
     pinned: hasPin(pins, rows[0][CI.jcd]),
     searching: searching,
+    single: vf !== "ALL",
+    hlMno: hl && hl.jcd === String(rows[0][CI.jcd]).padStart(2, "0") ? hl.mno : "",
     e30: e30For(rows[0][CI.jcd], rows[0][CI.hd]),
     meta: metaFor(rows[0][CI.jcd]),
     prevTop: prevTopFor(rows[0][CI.jcd], rows[0][CI.hd]),
