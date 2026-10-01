@@ -19,6 +19,7 @@ import os
 import csv
 import json
 import re
+import sys
 import datetime
 
 # ---- 任意依存（pointrank取得用）。無ければ scoreRank は常にnullで続行 ----
@@ -105,6 +106,9 @@ HEADERS = {
 # 汎用ヘルパ
 # ---------------------------------------------------------------------------
 def jst_now():
+    ov = os.environ.get("BKS_NOW")  # 検証用の上書き（YYYYMMDDHHMM・JST）。本番では未設定
+    if ov:
+        return datetime.datetime.strptime(ov, "%Y%m%d%H%M").replace(tzinfo=JST)
     return datetime.datetime.now(JST)
 
 
@@ -1268,13 +1272,89 @@ def build_venue(jcd, venue_rows, results_map, vstats, kimarite_map, profile,
     }
 
 
+# ---------------------------------------------------------------------------
+# 夕方便（翌日分を前夜に書く・2026-10-02 けん裁定）
+# ---------------------------------------------------------------------------
+READY_MIN_RACES = 12  # 夕方便で「前日結果がそろった」「出走表がそろった」とみなす最少レース数
+
+
+def _opt(name):
+    if name in sys.argv:
+        i = sys.argv.index(name)
+        if i + 1 < len(sys.argv):
+            return sys.argv[i + 1]
+    return None
+
+
+def ready_venues(pub8, by_jcd, results_map, pred_prev, prev_days):
+    """夕方便で素材に入れてよい場を選ぶ。
+    前日結果が途中までの場を入れると、補完マージ（非null不変）で途中の結果が素材に固定され、
+    後の便で直らない。そこで次を全部満たす場だけを入れ、残りは夜の便に任せる。
+      1) 掲載日の出走表が1Rから最終Rまで欠けずにあり（各6艇）、12R以上
+      2) 前日の予測ファイルがあり、前日結果のレース数が max(その場の予測レース数, 12) 以上
+         その場の前日予測が0件なら、前日結果も0件で、かつ初日か中止明け（前日素材と日目が同じ）
+    戻り: (入れる場のリスト, {場: 入れない理由})"""
+    ok, why = [], {}
+    if pred_prev is None:
+        for jcd in sorted(by_jcd):
+            why[jcd] = "前日の予測ファイルが無い"
+        return ok, why
+    exp = {}
+    for x in (pred_prev.get("予測") or []):
+        exp.setdefault(str(x.get("場コード")).zfill(2), set()).add(rno_to_int(x.get("レース")))
+    for jcd in sorted(by_jcd):
+        rows = [r for r in by_jcd[jcd] if (r.get("開催日") or "").strip() == pub8]
+        if not rows:
+            why[jcd] = "掲載日の出走表がまだ無い"
+            continue
+        cnt = {}
+        for r in rows:
+            k = rno_to_int(r.get("レース"))
+            cnt[k] = cnt.get(k, 0) + 1
+        races = sorted(k for k in cnt if k is not None)
+        if (None in cnt or races != list(range(1, len(races) + 1))
+                or len(races) < READY_MIN_RACES or any(cnt[k] != 6 for k in races)):
+            why[jcd] = "掲載日の出走表が欠けている（%dレース・%d行）" % (len(races), len(rows))
+            continue
+        e = len(exp.get(jcd, ()))
+        got = len({rno_to_int(r.get("レース")) for r in results_map.get(jcd, [])})
+        day_num, _ = day_num_and_label(rows)
+        if e > 0:
+            need = max(e, READY_MIN_RACES)
+            if got < need:
+                why[jcd] = "前日結果 %d / %d レース" % (got, need)
+                continue
+        else:
+            if got > 0:
+                why[jcd] = "前日の予測0件なのに結果%dレース（判定できない）" % got
+                continue
+            pd = prev_days.get(jcd)
+            if not (day_num == 1 or (pd is not None and pd == day_num)):
+                why[jcd] = "前日の予測・結果とも0件で、初日でも中止明けでもない"
+                continue
+        ok.append(jcd)
+    return ok, why
+
+
 def main():
     allow_daytime = os.environ.get("BKS_ALLOW_DAYTIME") == "1"
     now = jst_now()
+    today8 = now.strftime("%Y%m%d")
+    tomorrow8 = (now.date() + datetime.timedelta(days=1)).strftime("%Y%m%d")
+    opt_pub = _opt("--pubdate")
+    ready_flag = "--ready-only" in sys.argv[1:]
+    if opt_pub is not None and not re.match(r"^\d{8}$", opt_pub):
+        raise SystemExit("--pubdate は YYYYMMDD: %r" % opt_pub)
+    if ready_flag:
+        # 夕方便（2026-10-02）。翌日の掲載日だけを対象にし、前日結果がそろった場だけを足す。
+        # 既にある場は1バイトも変えないので、夜間帯の制限（§4.1）は掛けない。
+        if opt_pub != tomorrow8:
+            raise SystemExit("--ready-only は翌日の掲載日（%s）を --pubdate で渡す専用: %r"
+                             % (tomorrow8, opt_pub))
     # 夜間帯 = JST22:00〜翌08:59。updateResults の schedule 実発火は遅延が常態で
     # 03〜06時台に流れ込むため、当日レース開始(〜10:30)前を許容範囲としてhour<9まで広げる。
     # 日中(09〜21時)の再実行は従来どおり排除（§4.1/§4.3）。
-    if not allow_daytime and not (now.hour >= 22 or now.hour < 9):
+    elif not allow_daytime and not (now.hour >= 22 or now.hour < 9):
         raise SystemExit(
             "夜間帯（JST22時以降〜翌9時）専用。日中の再実行は禁止（§4.1/§4.3）。"
             "ローカル検証時は BKS_ALLOW_DAYTIME=1 で明示的に上書き。")
@@ -1288,7 +1368,17 @@ def main():
     for r in rows:
         hd_counts[(r.get("開催日") or "").strip()] = hd_counts.get(
             (r.get("開催日") or "").strip(), 0) + 1
-    csv_hd8 = max(hd_counts.items(), key=lambda kv: kv[1])[0]
+    if opt_pub is not None:
+        if opt_pub not in hd_counts:
+            print("出走表CSVに掲載日 {} の行が無い（CSV開催日={}）。素材は作らない"
+                  .format(opt_pub, sorted(hd_counts)))
+            return
+        csv_hd8 = opt_pub
+    else:
+        csv_hd8 = max(hd_counts.items(), key=lambda kv: kv[1])[0]
+    # 翌日以降の掲載日を作るときは、夕方便と同じく「前日結果がそろった場だけ」にする。
+    # 夜の定時便でも、日付が変わる前に出走表の行数が翌日に傾くと翌日分を作りうるため。
+    ready_only = ready_flag or (csv_hd8 > today8)
     date_dash = ymd_dash(csv_hd8)                     # 掲載日
     results_date8 = (parse_date8(csv_hd8) - datetime.timedelta(days=1)).strftime("%Y%m%d")
 
@@ -1301,7 +1391,8 @@ def main():
     motor_usage = load_motor_usage()
     # 角度の基準（直近365日の results と predictions）。前日の荒れ指数と前日素材の柱の型も読む。
     angle_base, angle_calib = load_angle_baseline(results_date8)
-    pred_prev = load_json(os.path.join(PREDICTIONS_DIR, results_date8 + ".json")) or {}
+    pred_prev_raw = load_json(os.path.join(PREDICTIONS_DIR, results_date8 + ".json"))
+    pred_prev = pred_prev_raw or {}
     pred_all = {}
     for x in (pred_prev.get("予測") or []):
         pred_all.setdefault(str(x.get("場コード")).zfill(2), {})[rno_to_int(x.get("レース"))] = x.get("波乱指数")
@@ -1313,8 +1404,19 @@ def main():
             prev_src[v.get("jcd")] = pl.get("type")
     angle_ctx = (angle_base, angle_calib, pred_all, prev_src)
 
+    ready = None
+    if ready_only:
+        prev_days = {v.get("jcd"): v.get("dayNum") for v in (prev_src_doc.get("venues") or [])}
+        ok_jcds, why = ready_venues(csv_hd8, by_jcd, results_map, pred_prev_raw, prev_days)
+        ready = set(ok_jcds)
+        print("[夕方便] 掲載日={} 入れる場={}".format(csv_hd8, " ".join(ok_jcds) or "なし"))
+        for jcd in sorted(why):
+            print("[夕方便] 入れない {}({}): {}".format(jcd, VENUES.get(jcd, jcd), why[jcd]))
+
     venues = []
     for jcd in sorted(by_jcd.keys()):
+        if ready is not None and jcd not in ready:
+            continue
         venue_rows = [r for r in by_jcd[jcd] if (r.get("開催日") or "").strip() == csv_hd8]
         if not venue_rows:
             continue
@@ -1331,7 +1433,27 @@ def main():
     # サイレント欠番の可視化: 実行時にCSV開催日・導出date・既存sourceの有無を必ずログ。
     print("CSV開催日={} 導出date(掲載日)={} results(前日)={} 既存source={}".format(
         csv_hd8, date_dash, results_date8, "有" if existing is not None else "無"))
-    if existing is not None:
+    if ready_only:
+        # 夕方便：既にある場は読み込んだまま1バイトも変えない。新しくそろった場だけを足す。
+        if existing is None:
+            if not venues:
+                print("[夕方便] 入れられる場が無い。素材は作らない")
+                return
+            doc = {"date": date_dash, "venues": venues, "readyOnlyAt": now.isoformat()}
+        else:
+            have = {v.get("jcd") for v in (existing.get("venues") or [])}
+            add = [v for v in venues if v.get("jcd") not in have]
+            if not add:
+                print("[夕方便] 足す場が無い（既存 {}場は不変）。書き換えない".format(len(have)))
+                return
+            merged = list(existing.get("venues") or []) + add
+            merged.sort(key=lambda v: str(v.get("jcd")))
+            doc = dict(existing)
+            doc["venues"] = merged
+            doc["readyOnlyAt"] = now.isoformat()
+            print("[夕方便] 足す場={}（既存 {}場は不変）".format(
+                " ".join(v.get("jcd") for v in add), len(have)))
+    elif existing is not None:
         # 導出date（=掲載日）のファイルが既に存在＝CSVが翌日カードへ未更新。
         # 新しい日付の素材は生成されず、既存への null補完のみ（非null不変）に留まる。
         print("CSV未更新のため新規生成なし（既存 {}.json への null補完のみ・非null不変）"

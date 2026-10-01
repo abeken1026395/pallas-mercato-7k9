@@ -1,6 +1,8 @@
 ﻿# registerWriteKansenkiLocal.ps1
-# writeKansenkiLocal.ps1 を「毎日 JST 1:00（本命）と 5:30（予備）」に走らせるタスクを登録する。再実行で上書き更新。
+# writeKansenkiLocal.ps1 を「毎日 JST 18:40 から 23:40 まで の毎時（夕方便）と 1:00（本命）と 5:30（予備）」に走らせるタスクを登録する。再実行で上書き更新。
 # 1:00 は 2026-09-30 けん裁定。5:30 の回は、1:00 の回が書き終えていれば pubplan が「執筆済み」と判定して何もしない。
+# 夕方便は 2026-10-02 けん裁定（「出走表が取れた時点で執筆させて表示させたい」）。17時以降の回は翌日分を書き、
+# 翌日の出走表と当日の結果がそろった場だけを書く（そろっていなければ何もせず正常終了）。
 # 1:00 の回が素材待ち（最大 02:30）と執筆で長引くことがあるため、実行時間の上限を 4時間にする。
 #
 # ログオン種別について（registerDailyMotorUsage.ps1 と同じ理由・重要）:
@@ -20,6 +22,12 @@ $action = New-ScheduledTaskAction -Execute $PwshExe `
     -Argument ('-NoProfile -NonInteractive -ExecutionPolicy Bypass -File "{0}"' -f $Script)
 
 $trigger = @(
+    (New-ScheduledTaskTrigger -Daily -At '18:40'),
+    (New-ScheduledTaskTrigger -Daily -At '19:40'),
+    (New-ScheduledTaskTrigger -Daily -At '20:40'),
+    (New-ScheduledTaskTrigger -Daily -At '21:40'),
+    (New-ScheduledTaskTrigger -Daily -At '22:40'),
+    (New-ScheduledTaskTrigger -Daily -At '23:40'),
     (New-ScheduledTaskTrigger -Daily -At '01:00'),
     (New-ScheduledTaskTrigger -Daily -At '05:30')
 )
