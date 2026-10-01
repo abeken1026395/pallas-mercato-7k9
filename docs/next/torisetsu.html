@@ -145,7 +145,7 @@ li{margin-bottom:6px}
 .use,.miss{margin:18px 0;padding:14px 16px;font-size:15.5px;line-height:1.8}
 .use{background:rgba(255,255,255,.035);border-left:3px solid #4a8a94}
 .miss{background:rgba(255,255,255,.035);border-left:3px solid var(--kigen)}
-.use b,.miss b{display:block;font-size:15px;margin-bottom:5px}
+.use b,.miss b{display:block;font-family:var(--disp);font-weight:400;font-size:13px;letter-spacing:.08em;margin-bottom:6px}
 .use b{color:#9fc6cc}.miss b{color:var(--kigen)}
 .sign{margin:22px 0;padding:16px;background:var(--mizuU);border-radius:var(--maru);
   font-size:15.5px;line-height:1.8}
@@ -155,7 +155,9 @@ li{margin-bottom:6px}
 /* ── Q&A：押すと開く ─────────────────── */
 .sy{border-bottom:1px solid rgba(29,90,99,.55)}
 .sy .q{margin:0;padding:15px 34px 15px 0;position:relative;cursor:pointer;
-  font-size:17px;font-weight:700;line-height:1.6;list-style:none}
+  font-size:17px;font-weight:700;line-height:1.6;list-style:none;transition:padding .2s}
+.sy.open .q{padding-left:14px;box-shadow:inset 3px 0 0 var(--kigen);color:#eef5f5}
+.sy.open .a>div{padding-left:14px}
 .sy .q::after{content:"";position:absolute;right:6px;top:22px;
   width:9px;height:9px;border-right:2px solid var(--kigen);border-bottom:2px solid var(--kigen);
   transform:rotate(45deg);transition:transform .22s ease}
@@ -179,18 +181,25 @@ table.sym td.k{width:6.4em;white-space:nowrap}
 .kim{display:inline-block;width:46px;height:13px;border-radius:2px}
 
 /* ── もくじ ──────────────────────────── */
-#toc{position:fixed;inset:0;z-index:70;background:#0b222a;
-  overflow-y:auto;transform:translateY(100%);transition:transform .26s cubic-bezier(.2,.8,.3,1);
+#toc{position:fixed;left:0;right:0;bottom:0;height:90vh;z-index:70;background:#0b222a;
+  border-radius:24px 24px 0 0;border-top:1px solid #2a6470;
+  box-shadow:0 -12px 40px rgba(0,0,0,.5);
+  overflow-y:auto;transform:translateY(100%);transition:transform .3s cubic-bezier(.2,.8,.3,1);
   -webkit-overflow-scrolling:touch}
+#toc::before{content:"";position:sticky;top:10px;display:block;width:44px;height:5px;
+  margin:0 auto;border-radius:3px;background:#2f6a75;z-index:1}
+#shade{position:fixed;inset:0;z-index:69;background:rgba(3,14,18,.55);
+  opacity:0;pointer-events:none;transition:opacity .3s}
+#shade.on{opacity:1;pointer-events:auto}
 #toc.on{transform:translateY(0)}
-#toc .inr{max-width:33em;margin:0 auto;padding:22px 20px 110px}
+#toc .inr{max-width:33em;margin:0 auto;padding:12px 20px 120px}
 #toc h2{font-family:var(--disp);font-weight:400;font-size:26px;letter-spacing:.02em;margin:0 0 4px}
 #toc .gp{margin:28px 0 8px;font-family:var(--disp);font-size:12px;letter-spacing:.14em;color:var(--kigen)}
 #toc a{display:flex;gap:11px;align-items:center;padding:11px 0;
   border-bottom:1px solid rgba(29,90,99,.45);color:var(--moji);
   text-decoration:none;font-size:17px;font-weight:700}
 #toc a i{flex:none;width:24px;height:24px;border-radius:50%;font-style:normal;
-  font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center}
+  font-family:var(--disp);font-size:11px;display:flex;align-items:center;justify-content:center}
 #toc a i.dot{width:10px;height:10px;margin:0 7px;background:#2d7b84}
 #toc a i.bar{width:5px;height:19px;border-radius:3px;margin:0 9.5px;background:#2d7b84}
 #toc .gp.hide,#toc a.hide{display:none}
@@ -1265,7 +1274,7 @@ main{padding-bottom:112px}
 <div id="zoom"><img alt=""></div>
 
 <script>
-var VER='g';document.getElementById('ver').textContent='版 '+VER;
+var VER='h';document.getElementById('ver').textContent='版 '+VER;
 window.CUE={"figBoatBottom":{"ar":1.4444,"cx":0.04,"r":0.03538,"ys":[0.13944,0.28972,0.35583,0.43389,0.56722,0.68389]},"figBoatTop":{"ar":0.963,"cx":0.04,"r":0.03538,"ys":[0.05593,0.14111,0.23741,0.34852,0.48556,0.56333,0.65963,0.76333,0.88185]},"figGlossary":{"ar":1.0,"cx":0.04,"r":0.03538,"ys":[0.15423,0.26962,0.41962,0.60808,0.80038,0.91577,0.99077]},"figHlCards":{"ar":1.04,"cx":0.04,"r":0.03538,"ys":[0.0964,0.2564,0.3364,0.4164,0.6804]},"figHlLegend":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.13828,0.27621,0.41069,0.46931,0.52448,0.62103,0.73138,0.82793]},"figKensho":{"ar":0.9286,"cx":0.04,"r":0.03538,"ys":[0.14321,0.25036,0.3575,0.57179,0.64321,0.92893]},"figMaint":{"ar":0.9286,"cx":0.04,"r":0.03538,"ys":[0.13607,0.2075,0.34321,0.53607,0.71464,0.83964,0.98786]},"figMotor":{"ar":0.9286,"cx":0.04,"r":0.03538,"ys":[0.09321,0.21464,0.30036,0.4075,0.50036,0.62732,0.67339,0.81464,0.98071]},"figPayTop":{"ar":1.0,"cx":0.04,"r":0.03538,"ys":[0.19269,0.285,0.39269,0.52346,0.61577]},"figPlayerInfo":{"ar":0.8667,"cx":0.04,"r":0.03538,"ys":[0.01833,0.347,0.427,0.52033,0.747,0.867,0.947]},"figPlayerRank":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.03828,0.18655,0.25552,0.42793,0.57276,0.84862,0.93138]},"figPlayerStats":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.04172,0.30379,0.41414,0.57276,0.6831,0.76241,0.86241]},"figRaceHead":{"ar":0.9286,"cx":0.04,"r":0.03538,"ys":[0.06821,0.12893,0.21464,0.36464,0.47179,0.61464]},"figRaceTop":{"ar":1.8571,"cx":0.04,"r":0.03538,"ys":[0.10071,0.20786,0.33643,0.47214,0.62929,0.84357]},"figResultBoats":{"ar":0.9286,"cx":0.04,"r":0.03538,"ys":[0.02536,0.10036,0.1825,0.44679,0.74679,0.8575]},"figStadiumDetail":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.03241,0.07517,0.13828,0.38655,0.44172,0.52448,0.66241]},"figStadiumList":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.75897,0.82793,0.8969]},"figStadiumTop":{"ar":1.1304,"cx":0.04,"r":0.03538,"ys":[0.11348,0.47,0.55696,0.6787,0.83522]},"figTopKaisai":{"ar":0.8667,"cx":0.04,"r":0.03538,"ys":[0.02167,0.26033,0.37033,0.507,0.71367,0.847]},"figTopKensho":{"ar":0.8667,"cx":0.04,"r":0.03538,"ys":[0.07033,0.12033,0.21367,0.29367,0.46033,0.57367,0.667]},"figTopNav":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.23483,0.38655,0.54517,0.64862,0.77966,0.84862,0.96586]},"figTopPages":{"ar":0.8667,"cx":0.04,"r":0.03538,"ys":[0.067,0.22367,0.467,0.867]},"figVenueList":{"ar":1.0,"cx":0.04,"r":0.03538,"ys":[0.085,0.19269,0.32346,0.50038,0.67731]}};
 /* ヒーロー：レーンを描いて、1回だけ走らせる */
 (function(){
@@ -1519,7 +1528,10 @@ z.addEventListener('click',function(){z.classList.remove('on');});
 
 /* もくじ・さがす */
 var toc=document.getElementById('toc');
-function openToc(o){toc.classList.toggle('on',o);document.body.style.overflow=o?'hidden':'';}
+var shade=document.createElement('div');shade.id='shade';document.body.appendChild(shade);
+function openToc(o){toc.classList.toggle('on',o);shade.classList.toggle('on',o);
+  document.body.style.overflow=o?'hidden':'';}
+shade.addEventListener('click',function(){openToc(false);});
 document.getElementById('bToc').addEventListener('click',function(){openToc(!toc.classList.contains('on'));});
 document.getElementById('bTop').addEventListener('click',function(){openToc(false);scrollTo({top:0,behavior:'smooth'});});
 toc.addEventListener('click',function(e){if(e.target.closest('a'))openToc(false);});
