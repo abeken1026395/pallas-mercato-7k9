@@ -9,6 +9,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>トリセツ（実験場）| データ攻め</title>
 <meta name="description" content="データ攻めの読み方。記号の意味と、画面ごとの見かたを引けます。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap">
 <style>
 :root{
   --mizu:#0d2730;      /* 水の底：地 */
@@ -17,6 +20,7 @@
   --moji:#c3d0d0;
   --mojiS:#8aa6aa;
   --kigen:#e4ad4e;     /* 強調はこの1色だけ */
+  --disp:'Dela Gothic One','Hiragino Sans','Noto Sans JP',sans-serif;
   --w1:#dfe6e6; --w1t:#10222a;
   --w2:#2b3238; --w2t:#f3f6f6;
   --w3:#cf4234; --w3t:#fff;
@@ -43,14 +47,20 @@ a{color:var(--kigen)}
 
 /* ── ヒーロー：6レーンのスタート ───────── */
 #hero{position:relative;overflow:hidden;padding:0 0 34px;
-  background:linear-gradient(180deg,#0a2028 0%,#0d2730 70%)}
+  background:
+    radial-gradient(120% 60% at 50% 0%,#153c47 0%,rgba(13,39,48,0) 60%),
+    linear-gradient(180deg,#0a2028 0%,#0d2730 70%)}
+#hero::before{content:"";position:absolute;left:0;right:0;top:0;height:300px;
+  background:repeating-linear-gradient(180deg,rgba(255,255,255,.028) 0 1px,transparent 1px 34px);
+  pointer-events:none}
 #lanes{position:relative;height:246px;margin-bottom:22px;padding-top:30px}
 #lanes .ln{position:absolute;left:0;right:0;height:1px;background:var(--sen);opacity:.45}
 #lanes .st{position:absolute;top:22px;bottom:14px;left:78%;width:2px;
   background:var(--kigen);opacity:.5}
-#lanes .bt{position:absolute;width:36px;height:27px;border-radius:3px 10px 10px 3px;
-  display:flex;align-items:center;justify-content:center;
-  font-weight:900;font-size:15px;line-height:1;
+#lanes .bt{position:absolute;width:44px;height:27px;
+  clip-path:polygon(0 0,86% 0,100% 50%,86% 100%,0 100%,10% 50%);
+  display:flex;align-items:center;justify-content:center;padding-right:3px;
+  font-family:var(--disp);font-size:15px;line-height:1;
   transform:translateX(-78px);opacity:0}
 #lanes .wake{position:absolute;height:2px;width:0;
   background:linear-gradient(90deg,transparent,rgba(160,220,228,.34));opacity:0}
@@ -60,45 +70,51 @@ a{color:var(--kigen)}
   45%{opacity:1}to{transform:translateX(0);opacity:1}}
 @keyframes wake{from{width:0;opacity:0}45%{opacity:.9}to{width:var(--wk);opacity:.55}}
 
-#hero h1{margin:0;font-size:40px;font-weight:800;color:#dbe7e7;letter-spacing:-.045em;line-height:1.15}
-#hero h1 small{display:block;font-size:16px;font-weight:700;letter-spacing:.02em;
-  color:var(--mojiS);margin-bottom:8px}
-#hero .cre{margin:14px 0 0;font-size:16px;color:var(--mojiS)}
+#hero h1{margin:0;font-family:var(--disp);font-weight:400;font-size:58px;color:#eef5f5;
+  letter-spacing:.01em;line-height:1.05;
+  text-shadow:4px 4px 0 rgba(228,173,78,.55)}
+#hero h1 small{display:block;font-family:var(--disp);font-size:15px;letter-spacing:.14em;
+  color:var(--kigen);margin-bottom:10px;text-shadow:none}
+#hero .cre{margin:18px 0 0;font-size:16px;color:var(--mojiS)}
+#hero .cre b{color:var(--moji);font-weight:700}
 #hero .date{margin:20px 0 0;font-size:13px;color:#6b8990}
 #ver{margin-left:10px;opacity:.75}
 
 /* ── 3つの入口 ───────────────────────── */
 .doors{display:grid;gap:10px;margin:24px 0 0}
-.door{display:block;text-decoration:none;color:var(--moji);
-  background:var(--mizuU);border-left:5px solid var(--sen);
-  padding:14px 16px;border-radius:0 var(--maru) var(--maru) 0}
-.door b{display:block;font-size:19px;font-weight:900;letter-spacing:-.02em}
+.door{position:relative;overflow:hidden;display:block;text-decoration:none;color:var(--moji);
+  background:linear-gradient(90deg,#123a45,#0f313b);
+  padding:16px 18px;border-radius:var(--maru);border:1px solid #1f515b}
+.door b{display:block;font-family:var(--disp);font-weight:400;font-size:19px;letter-spacing:.02em}
 .door span{font-size:14px;color:var(--mojiS)}
-.door.d1{border-left-color:var(--w3)}
-.door.d2{border-left-color:var(--w4)}
-.door.d3{border-left-color:var(--w6)}
+.door i{position:absolute;right:10px;top:-10px;font-family:var(--disp);font-style:normal;
+  font-size:76px;line-height:1;color:rgba(228,173,78,.13);pointer-events:none}
 
 /* ── 部の扉 ──────────────────────────── */
-.partttl{margin:0;padding:52px 0 30px;border-top:1px solid var(--sen)}
-.partttl .no{font-size:13px;font-weight:700;color:var(--kigen);letter-spacing:.08em}
-.partttl .nm{font-size:34px;font-weight:800;letter-spacing:-.045em;line-height:1.2;margin:2px 0 10px}
+.partttl{margin:0;padding:64px 0 34px;border-top:1px solid var(--sen);position:relative;overflow:hidden}
+.partttl .no{font-family:var(--disp);font-size:13px;color:var(--kigen);letter-spacing:.16em}
+.partttl .nm{font-family:var(--disp);font-weight:400;font-size:40px;letter-spacing:.01em;
+  line-height:1.15;margin:6px 0 12px;color:#eef5f5}
+.partttl::before{content:attr(data-n);position:absolute;right:-6px;top:22px;
+  font-family:var(--disp);font-size:150px;line-height:1;color:rgba(228,173,78,.07);pointer-events:none}
 .partttl .cap{font-size:15px;color:var(--mojiS);line-height:1.8}
 .bg1 .nm,.bg2 .nm,.bg3 .nm{color:#e6eeee}
 
 /* ── 見出し ──────────────────────────── */
 h3.step,h3.pg{position:sticky;top:0;z-index:30;margin:38px 0 14px;
   padding:12px 0 10px;background:var(--mizu);
-  font-size:23px;font-weight:800;letter-spacing:-.035em;line-height:1.3;color:#e6eeee;
+  font-family:var(--disp);font-weight:400;font-size:21px;letter-spacing:.01em;line-height:1.3;color:#eef5f5;
   border-bottom:1px solid var(--sen);
   display:flex;align-items:center;gap:10px}
 h3.step .n{flex:none;width:30px;height:30px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
-  font-size:16px;font-weight:900}
+  font-size:15px;font-family:var(--disp)}
 h3.pg::before{content:"";flex:none;width:6px;height:25px;border-radius:3px;background:#36808a}
 h3 .tag{flex:none;margin-left:auto;font-size:12px;font-weight:700;letter-spacing:0;
+  font-family:"Hiragino Sans","Noto Sans JP","Noto Sans CJK JP",sans-serif;
   color:var(--mojiS);border:1px solid var(--sen);border-radius:999px;padding:2px 9px}
 h3 .tag.new{color:var(--kigen);border-color:var(--kigen)}
-h4{margin:30px 0 8px;font-size:18px;font-weight:800;letter-spacing:-.02em;color:#a9c3c6}
+h4{margin:30px 0 8px;font-size:17px;font-weight:700;letter-spacing:0;color:#9fc0c4}
 p{margin:0 0 14px}
 .small{font-size:14px;color:var(--mojiS);line-height:1.8}
 
@@ -168,8 +184,8 @@ table.sym td.k{width:6.4em;white-space:nowrap}
   -webkit-overflow-scrolling:touch}
 #toc.on{transform:translateY(0)}
 #toc .inr{max-width:33em;margin:0 auto;padding:22px 20px 110px}
-#toc h2{font-size:22px;font-weight:900;letter-spacing:-.03em;margin:0 0 4px}
-#toc .gp{margin:26px 0 8px;font-size:13px;font-weight:700;color:var(--mojiS)}
+#toc h2{font-family:var(--disp);font-weight:400;font-size:26px;letter-spacing:.02em;margin:0 0 4px}
+#toc .gp{margin:28px 0 8px;font-family:var(--disp);font-size:12px;letter-spacing:.14em;color:var(--kigen)}
 #toc a{display:flex;gap:11px;align-items:center;padding:11px 0;
   border-bottom:1px solid rgba(29,90,99,.45);color:var(--moji);
   text-decoration:none;font-size:17px;font-weight:700}
@@ -185,12 +201,14 @@ table.sym td.k{width:6.4em;white-space:nowrap}
 #hit{margin:8px 0 0;font-size:13px;color:var(--mojiS);min-height:1.6em}
 
 /* ── 下の帯 ──────────────────────────── */
-#bar{position:fixed;left:0;right:0;bottom:0;z-index:65;display:flex;
-  background:rgba(11,34,42,.95);border-top:1px solid var(--sen);
-  backdrop-filter:blur(8px);padding-bottom:env(safe-area-inset-bottom)}
+#bar{position:fixed;left:16px;right:16px;bottom:calc(14px + env(safe-area-inset-bottom));
+  z-index:65;display:flex;border-radius:999px;overflow:hidden;
+  background:rgba(14,44,53,.92);border:1px solid #2a6470;
+  box-shadow:0 10px 30px rgba(0,0,0,.45);backdrop-filter:blur(10px)}
 #bar button{flex:1;background:none;border:0;color:var(--moji);
-  font-family:inherit;font-size:15px;font-weight:700;padding:14px 0;cursor:pointer}
-#bar button+button{border-left:1px solid var(--sen)}
+  font-family:inherit;font-size:15px;font-weight:700;padding:15px 0;cursor:pointer}
+#bar button+button{border-left:1px solid #2a6470}
+#bar button:active{background:rgba(228,173,78,.14)}
 
 /* ── 写真の拡大 ──────────────────────── */
 #zoom{position:fixed;inset:0;z-index:90;background:rgba(9,28,35,.97);
@@ -268,7 +286,7 @@ figure .playbtn{margin-top:10px}
 
 /* ── 貼りついた見出しは細くなる ─────── */
 h3.step,h3.pg{transition:padding .22s ease,font-size .22s ease}
-h3.stuck{font-size:19px;padding:9px 0 8px;border-bottom-color:var(--kigen)}
+h3.stuck{font-size:17px;padding:9px 0 8px;border-bottom-color:var(--kigen)}
 h3.stuck .n{width:24px;height:24px;font-size:13px}
 h3.stuck::before{height:19px}
 figure.play{top:46px}
@@ -311,7 +329,7 @@ figure img:active{opacity:.82}
 #lanes .st{animation:sway 5.5s ease-in-out infinite}
 @keyframes sway{0%,100%{opacity:.35}50%{opacity:.7}}
 
-main{padding-bottom:96px}
+main{padding-bottom:112px}
 @media (max-width:380px){
   body{font-size:16px}#hero h1{font-size:33px}.partttl .nm{font-size:29px}
   h3.step,h3.pg{font-size:22px}
@@ -329,12 +347,12 @@ main{padding-bottom:96px}
   <div id="lanes"></div>
   <div class="wrap">
     <h1><small>データ攻め</small>トリセツ</h1>
-    <p class="cre">材料はそろえた。決めるのは、あなた。<br>
+    <p class="cre"><b>材料はそろえた。決めるのは、あなた。</b><br>
     このサイトの記号と画面の見かたを、ここに全部置いています。</p>
     <div class="doors">
-      <a class="door d1" href="#p1"><b>はじめの3分</b><span>まずここだけ。5つの手順です</span></a>
-      <a class="door d2" href="#p2"><b>困ったとき</b><span>記号の意味／画面がおかしく見えるとき</span></a>
-      <a class="door d3" href="#p3"><b>画面の辞書</b><span>12の画面を1つずつ。引いてください</span></a>
+      <a class="door d1" href="#p1"><i>1</i><b>はじめの3分</b><span>まずここだけ。5つの手順です</span></a>
+      <a class="door d2" href="#p2"><i>2</i><b>困ったとき</b><span>記号の意味／画面がおかしく見えるとき</span></a>
+      <a class="door d3" href="#p3"><i>3</i><b>画面の辞書</b><span>12の画面を1つずつ。引いてください</span></a>
     </div>
     <p class="date">2026年9月30日の画面です<span id="ver"></span></p>
   </div>
@@ -343,7 +361,7 @@ main{padding-bottom:96px}
 <main class="wrap">
 
 <section class="sec">
-<div class="partttl bg1" id="p1">
+<div class="partttl bg1" id="p1" data-n="1">
   <div class="no">第1部</div>
   <div class="nm">はじめの3分</div>
   <div class="cap">ここだけ読めば、今日から使えます。<br>あとは、分からない画面が出たときに開いてください。</div>
@@ -481,7 +499,7 @@ main{padding-bottom:96px}
 
 </section>
 <section class="sec">
-<div class="partttl bg2" id="p2">
+<div class="partttl bg2" id="p2" data-n="2">
   <div class="no">第2部</div>
   <div class="nm">困ったとき</div>
   <div class="cap">記号の意味が分からない。画面がおかしく見える。<br>ここから引いてください。</div>
@@ -682,7 +700,7 @@ main{padding-bottom:96px}
 
 </section>
 <section class="sec">
-<div class="partttl bg3" id="p3">
+<div class="partttl bg3" id="p3" data-n="3">
   <div class="no">第3部</div>
   <div class="nm">画面の辞書</div>
   <div class="cap">全部を読む必要はありません。<br>気になったページだけ、引いてください。</div>
@@ -1247,7 +1265,7 @@ main{padding-bottom:96px}
 <div id="zoom"><img alt=""></div>
 
 <script>
-var VER='f';document.getElementById('ver').textContent='版 '+VER;
+var VER='g';document.getElementById('ver').textContent='版 '+VER;
 window.CUE={"figBoatBottom":{"ar":1.4444,"cx":0.04,"r":0.03538,"ys":[0.13944,0.28972,0.35583,0.43389,0.56722,0.68389]},"figBoatTop":{"ar":0.963,"cx":0.04,"r":0.03538,"ys":[0.05593,0.14111,0.23741,0.34852,0.48556,0.56333,0.65963,0.76333,0.88185]},"figGlossary":{"ar":1.0,"cx":0.04,"r":0.03538,"ys":[0.15423,0.26962,0.41962,0.60808,0.80038,0.91577,0.99077]},"figHlCards":{"ar":1.04,"cx":0.04,"r":0.03538,"ys":[0.0964,0.2564,0.3364,0.4164,0.6804]},"figHlLegend":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.13828,0.27621,0.41069,0.46931,0.52448,0.62103,0.73138,0.82793]},"figKensho":{"ar":0.9286,"cx":0.04,"r":0.03538,"ys":[0.14321,0.25036,0.3575,0.57179,0.64321,0.92893]},"figMaint":{"ar":0.9286,"cx":0.04,"r":0.03538,"ys":[0.13607,0.2075,0.34321,0.53607,0.71464,0.83964,0.98786]},"figMotor":{"ar":0.9286,"cx":0.04,"r":0.03538,"ys":[0.09321,0.21464,0.30036,0.4075,0.50036,0.62732,0.67339,0.81464,0.98071]},"figPayTop":{"ar":1.0,"cx":0.04,"r":0.03538,"ys":[0.19269,0.285,0.39269,0.52346,0.61577]},"figPlayerInfo":{"ar":0.8667,"cx":0.04,"r":0.03538,"ys":[0.01833,0.347,0.427,0.52033,0.747,0.867,0.947]},"figPlayerRank":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.03828,0.18655,0.25552,0.42793,0.57276,0.84862,0.93138]},"figPlayerStats":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.04172,0.30379,0.41414,0.57276,0.6831,0.76241,0.86241]},"figRaceHead":{"ar":0.9286,"cx":0.04,"r":0.03538,"ys":[0.06821,0.12893,0.21464,0.36464,0.47179,0.61464]},"figRaceTop":{"ar":1.8571,"cx":0.04,"r":0.03538,"ys":[0.10071,0.20786,0.33643,0.47214,0.62929,0.84357]},"figResultBoats":{"ar":0.9286,"cx":0.04,"r":0.03538,"ys":[0.02536,0.10036,0.1825,0.44679,0.74679,0.8575]},"figStadiumDetail":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.03241,0.07517,0.13828,0.38655,0.44172,0.52448,0.66241]},"figStadiumList":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.75897,0.82793,0.8969]},"figStadiumTop":{"ar":1.1304,"cx":0.04,"r":0.03538,"ys":[0.11348,0.47,0.55696,0.6787,0.83522]},"figTopKaisai":{"ar":0.8667,"cx":0.04,"r":0.03538,"ys":[0.02167,0.26033,0.37033,0.507,0.71367,0.847]},"figTopKensho":{"ar":0.8667,"cx":0.04,"r":0.03538,"ys":[0.07033,0.12033,0.21367,0.29367,0.46033,0.57367,0.667]},"figTopNav":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.23483,0.38655,0.54517,0.64862,0.77966,0.84862,0.96586]},"figTopPages":{"ar":0.8667,"cx":0.04,"r":0.03538,"ys":[0.067,0.22367,0.467,0.867]},"figVenueList":{"ar":1.0,"cx":0.04,"r":0.03538,"ys":[0.085,0.19269,0.32346,0.50038,0.67731]}};
 /* ヒーロー：レーンを描いて、1回だけ走らせる */
 (function(){
