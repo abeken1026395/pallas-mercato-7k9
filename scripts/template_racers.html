@@ -456,6 +456,7 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 <div id="app"><div class="empty">読み込み中…</div></div>
 </div>
 
+<script src="../assets/haranLv.js"></script>
 <script>
 var RAW = __DATA_PLACEHOLDER__;
 /* 誕生日マーク {開催日:{登録番号:1}}。該当者のみ。判定は scripts/birthdayMark.py */
@@ -596,7 +597,7 @@ function parseHL(j){
     var key=r["場コード"]+"_"+r["レース"];
     var boats={};
     (r["艇"]||[]).forEach(function(b){ boats[b["枠"]]=b; });
-    HL[key]={ haran:r["波乱"], inkata:r["イン堅"], in1:r["イン1着率"], motor:r["モーター使用"],
+    HL[key]={ haran:r["波乱"], hidx:r["波乱指数"], inkata:r["イン堅"], in1:r["イン1着率"], motor:r["モーター使用"],
               tenkai:r["展開"]||[], boats:boats, df:r["downFactors"]||null };
   });
 }
@@ -1538,7 +1539,7 @@ function shuTable(row){
   });
   if(!has) return "";
   var head=SHU_LABELS.map(function(l){return '<th>'+l+'</th>';}).join("");
-  return '<div class="shu-wrap"><div class="shu-cap">今節成績（進入コース/着順・<span class="r1">1着</span>金）</div>'
+  return '<div class="shu-wrap"><div class="shu-cap">今節成績（進入コース/着順・<span class="r1">1着</span>は色つき）</div>'
     +'<table class="shu"><tr>'+head+'</tr><tr>'+cells.join("")+'</tr></table></div>';
 }
 
@@ -1597,7 +1598,9 @@ function renderRace(app,crumb,v){
   var chips=[];
   if(ar) chips.push('<span class="chip chip-arare-'+esc(ar.level)+'">荒れ <b>'+esc(ar.level)+'</b>（'+esc((arare&&arare.max_score)||"-")+'点中'+esc(ar.score)+'点）</span>');
   if(hl&&hl.in1!=null) chips.push('<span class="chip">イン1着率 <b>'+esc(hl.in1)+'%</b></span>');
-  if(hl&&hl.haran!=null) chips.push('<span class="chip">波乱度 <b>'+esc(hl.haran)+'</b></span>');
+  /* ①着外の段階。見どころの「①着外」と同じ値（区切りは ../assets/haranLv.js にだけ置く） */
+  var lvTxt=hl?haranLvOf(hl.hidx,hl.haran):null;
+  if(lvTxt!=null) chips.push('<span class="chip">①着外 <b>'+esc(lvTxt)+'</b></span>');
   var venueIsFix=HL_META.fix.indexOf(v.name)>=0;
   if(venueIsFix) chips.push('<span class="chip chip-fix">進入固定</span>');
   kikakuChips(rc.kikaku, venueIsFix).forEach(function(c){ chips.push(c); });

@@ -431,6 +431,7 @@ html[data-vr] body::after{content:none;margin:0}
 <div class="note" id="note"></div>
 </div>
 
+<script src="../assets/haranLv.js"></script>
 <script>
   function stemWidth(v){
     var c = document.querySelector('link[rel="canonical"]');
@@ -601,14 +602,9 @@ function badge(r){
 // その日のデータに「分類」があるか（9/30より前の前日・前々日や、明日の前夜プレビューには無い）。
 function hasBunrui(arr){ return arr.some(r=>r['分類']==='波乱'||r['分類']==='堅め'); }
 // 波乱バッジの数字＝波乱指数を6段階に区切ったもの（並び順と必ず一致する）。
-// 区切りは predictions/ の波乱指数と results の①着順の突き合わせ（2026-08-28〜09-26・4,530レース）で
-// 段階1〜6の①着外率が 9.5/17.8/23.8/30.8/33.6/52.6% と単調に上がることを確認した値。仮置き。
+// 区切りの値と根拠は ../assets/haranLv.js にだけ置く（出走表の「①着外」と同じ値にするため）。
 // 波乱指数が無い日（生成前・読み込み失敗）は従来の条件数をそのまま出す。
-const HARAN_CUT=[0,0.4,0.7,1.0,1.3];
-function haranLv(r){
-  const v=hidx(r); if(v===null) return r['波乱'];
-  let lv=1; for(const c of HARAN_CUT){ if(v>=c) lv++; } return lv;
-}
+function haranLv(r){ return haranLvOf(hidx(r), r['波乱']); }
 // 並べ替え・⚡用の連続値。波乱指数が無い日は条件数。
 function haranKey(r){ const v=hidx(r); return v===null?(r['波乱']||0):v; }
 
