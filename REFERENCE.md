@@ -640,7 +640,7 @@ mbrace 依存と Claude CLI 依存の処理はローカル PC のタスクで回
 
 | タスク名 | 実行 | トリガ | 内容 |
 |---|---|---|---|
-| `boatrace-writeKansenkiLocal` | `scripts/writeKansenkiLocal.ps1` | 毎日 **JST 05:30** | 認証済み `claude.exe` で観戦記を執筆 → lint → PASS分のみ commit&push |
+| `boatrace-writeKansenkiLocal` | `scripts/writeKansenkiLocal.ps1` | 毎日 **JST 18:40 から 23:40 まで毎時（夕方便＝翌日分）・01:00（本命）・05:30（予備）** | 認証済み `claude.exe` で観戦記を執筆 → lint → PASS分のみ commit&push。夕方便は翌日の出走表と当日の結果がそろった場だけを書く（2026-10-02） |
 | `boatrace-dailyMotorUsage` | `scripts/dailyMotorUsage.ps1` | 毎日 **JST 06:00** | fetchKfiles（直近7日・mbrace）→ buildMotorUsage → backfillMotorPartsMotorNo → `motorUsage.json`/`motorParts.json` のみ commit&push |
 | `boatrace-updateKimarite` | `scripts/updateKimariteLocal.ps1` | **毎月2・16日 JST 06:30** | scrapeKimarite（183日・mbrace）→ **検証4項目** → 通ったものだけ `racerKimarite.csv` へ配置 → commit&push（→(3)） |
 

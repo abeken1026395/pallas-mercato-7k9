@@ -23,6 +23,7 @@
 import io
 import os
 import re
+import csv
 import sys
 import json
 import glob
@@ -59,6 +60,8 @@ FOCUS_MIN = 3                # 注目選手（focusRacers）から最低何人�
 NORACE_WRITE_FROM = "20260922"  # この日以降、中止明け（前日と日目が同じ場）は網羅の除外にしない
 DUP_FROM = "20260922"        # この日以降、同日の他場と「数字と名前を除くと同じ形の文」を共有したら FAIL
 DUP_MIN = 12                 # 照合する文の最小字数（短い定型「決まり手は逃げ。」などは除く）
+COVERAGE_DUE = (7, 30)       # 網羅の期限＝掲載日のこの時刻(JST)。前夜の夕方便から書き足すため、期限前の未執筆は持ち越し（2026-10-02）
+RACERS_CSV = "docs/racers/racers_today.csv"
 
 
 def load(path):
@@ -427,6 +430,32 @@ def postponed(ymd, jcd, day_num):
     return False
 
 
+def coverage_now():
+    """網羅の期限判定に使う現在時刻（JST・naive）。KANSENKI_NOW（YYYYMMDDHHMM）で上書きできる。"""
+    ov = os.environ.get("KANSENKI_NOW")
+    if ov:
+        return datetime.datetime.strptime(ov, "%Y%m%d%H%M")
+    return datetime.datetime.utcnow() + datetime.timedelta(hours=9)
+
+
+def before_due(ymd, now=None):
+    """掲載日 ymd の網羅の期限（COVERAGE_DUE）より前か。"""
+    due = datetime.datetime(int(ymd[:4]), int(ymd[4:6]), int(ymd[6:8]), *COVERAGE_DUE)
+    return (now or coverage_now()) < due
+
+
+def csv_venues(ymd):
+    """出走表CSVにある掲載日 ymd の場コード（CSVがその日の行を持たなければ空）。"""
+    out = set()
+    if not os.path.exists(RACERS_CSV):
+        return out
+    with io.open(RACERS_CSV, encoding="utf-8-sig") as f:
+        for row in csv.DictReader(f):
+            if (row.get("開催日") or "").strip() == ymd and row.get("場コード"):
+                out.add(str(row.get("場コード")).strip().zfill(2))
+    return out
+
+
 def check_coverage(ymd):
     """網羅性チェック: source/YYYYMMDD.json の全venueに記事があるか。
     源泉(source)は cron で場が増えて再生成されうる（不完全CSV時点の暫定sourceが後で
@@ -462,11 +491,20 @@ def check_coverage(ymd):
                            % (ymd, jcd, name, prev_day8(ymd)))
             continue
         miss.append(("記事欠", "%s-%s(%s) の記事が無い" % (ymd, jcd, name)))
+    # 出走表にあるのに素材に入っていない場（夕方便は結果がそろった場だけを素材に入れ、
+    # 残りは夜の便が足す。足されないまま朝になった場をここで捕える。2026-10-02）。
+    have = {str(v.get("jcd")) for v in venues}
+    for jcd in sorted(csv_venues(ymd) - have):
+        miss.append(("素材欠", "%s-%s 出走表にあるのに素材に無い" % (ymd, jcd)))
     # その日の記事が1本も無ければ「観戦記非運用日」としてスキップ（欠場検知の対象外）。
     # 「一部書いたのに一部欠けている」乖離だけを捕える設計。0本は執筆自体の未着手で別問題。
     if not present:
         return None
-    return {"miss": miss, "excused": excused, "venues": len(venues)}
+    # 期限（掲載日 07:30 JST）より前の欠けは、後の便で書き足す途中なので持ち越し扱い（2026-10-02）。
+    pending = []
+    if miss and before_due(ymd):
+        pending, miss = miss, []
+    return {"miss": miss, "excused": excused, "venues": len(venues), "pending": pending}
 
 
 def run_coverage(ymds):
@@ -488,6 +526,11 @@ def run_coverage(ymds):
             print("FAIL 網羅 %s" % ymd)
             for cat, tok in res["miss"]:
                 print("   [%s] %s" % (cat, tok))
+        elif res.get("pending"):
+            print("PASS 網羅 %s（期限前：未執筆 %d件は後の便へ持ち越し）"
+                  % (ymd, len(res["pending"])))
+            for cat, tok in res["pending"]:
+                print("   [持ち越し・%s] %s" % (cat, tok))
         elif res["excused"]:
             print("PASS 網羅 %s（source全%d場中 %d場は執筆不能で除外）"
                   % (ymd, res["venues"], len(res["excused"])))

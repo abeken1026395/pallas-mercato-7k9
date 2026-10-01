@@ -240,7 +240,7 @@ td の中身だけを取ると全件空になる。class を読むこと。
 
 |タスク|時刻|内容|
 |---|---|---|
-|`boatrace-writeKansenkiLocal`|5:30|観戦記の自走|
+|`boatrace-writeKansenkiLocal`|18:40 から 23:40 まで毎時（夕方便＝翌日分）・1:00・5:30|観戦記の自走。夕方便は翌日の出走表と当日の結果がそろった場だけを書く（2026-10-02）|
 |`boatrace-dailyMotorUsage`|6:00|Kファイル収集→motorUsage再生成→補填。**稼働中**（2026-09-05 06:05 更新を実測）。ログは `scripts/logs/dailyMotorUsage_YYYYMMDD.log` の3行だけ読む|
 |`boatrace-dailyPartsBackfill`|**9:00 と 18:30**|モーターNo補填（本命は9:00）|
 |`boatrace-updateKimarite`|毎月2・16日 6:30|決まり手更新|

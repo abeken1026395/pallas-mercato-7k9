@@ -83,6 +83,13 @@ jobs:
             --body "$(printf '掲載日 %s の観戦記が1本も生成されておらず、未マージの記事PR（kansenki/%s）もありません。\n\nsource は存在します（対象場: %s）。\n\n対応: writeKansenki を起動して執筆→PR、または手動執筆。lint 全場PASS を確認のうえ人がマージ＝公開してください。\n（この Issue は執筆漏れ検知の自動起票です。記事PRが出れば次回は起票されません。）' "$PUB" "$PUB" "$VEN")"
           echo "起票しました（掲載日 ${PUB}）"
 
+      # 一部の場だけ欠けた日を期限後に捕える（2026-10-02）。夕方便で前夜から場ごとに書き足すため、
+      # lint の網羅は掲載日 07:30 JST より前の欠けを「持ち越し」として通す。期限後のここで落とす。
+      # 記事0本の日は lint 側で SKIP（上の 0本検知と Issue が受け持つ）。
+      - name: coverage after due (partial venues)
+        if: ${{ !cancelled() && steps.d.outcome == 'success' && steps.d.outputs.missing != '1' }}
+        run: python scripts/lintKansenki.py --coverage "${{ steps.d.outputs.pubdate }}"
+
       # 不合格（掲載日なのに記事0本）は Issue を起票したうえでジョブも落とす（旧: 起票しても緑）。
       - name: fail if missing
         if: ${{ !cancelled() && steps.d.outputs.missing == '1' }}
