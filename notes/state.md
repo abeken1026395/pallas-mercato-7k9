@@ -22,6 +22,7 @@
 |トリセツ（`/torisetsu/`・使い方の案内）|2026-10-01 本番化（#624）。出走表・モーターの節を今の画面に（#626）。全14ページの「📘 トリセツ」→該当の節、トリセツ左上→トップ、下の帯の戻るボタン（#627）。トップの入口はヘッダー直下の1つだけ（下部のチップは `3d28ff2` で外した）。出走表の「波乱度」を見どころの「①着外」と同じ値に（#629・区切りの唯一の定義は `docs/assets/haranLv.js`）|①#629 は `scripts/template_racers.html` だけの変更。**生成物 `docs/racers/index.html` は次の定時の再生成で反映**（2026-10-01 夜の時点で `haranLvOf` 0件・`実測`）。反映後に出走表と見どころの①着外が全レースで一致するか数える ②けんが iPhone Safari で本番のトリセツ（もくじ・図の丸・戻るボタン）を確かめる ③作り直しの道具（図の撮影 shootFigs.py・組み立て build.py・本番化 toProd.py など）はクラウドのコンテナにしか無く、リポジトリに無い。画面が変わって図を撮り直すときは道具ごと作り直しになる。リポジトリに入れるか（置き場所は裁定）|
 |出走表（`/racers/`）の読みやすさ改修|PR #606（文字13px以上・タップ44px・色の辞書・札の形）と #608（艇カードの数字を1つの表に・棒をやめる・荒れサインに点数・見どころ系を1つの折りたたみ・手書きの①着外率を外す）をマージ。更新履歴は2つまとめて1件。経緯と会議の結果は saiteiLog.md|①けんが iPhone Safari で本番を確かめる ②①の下振れ要因の「①着外率」を、分母と期間をデータから計算して戻す（手書きの 11.9%・27.2%・33.1%・全体19.2% を外した。要因が3つでも「2つ」と表示していた）③6艇の中の1番が棒でなくなった点を常連の読者に確かめる（会議で2人が反対）|
 
+- 計測タグの残り4ページ（docs/racers/index.html・docs/motor/index.html・docs/motor-maintenance/index.html・docs/kensho/taiju/index.html）：正本は PR #633 で修正済み。次回のWF実行で生成物にタグが入るのを待つ。入ったら git show で token 173925d64f4a495bac679b00505ea517 の出現を確かめ、この行を消す
 ## 全ページ監査の修正（pageAuditFixPlan20260911・2026-09-11 完了）
 
 台帳 `notes/pageAudit20260910.md`、計画 `notes/pageAuditFixPlan20260911.md`、テーマごとの記録 `notes/pageAuditProgress.md`。
@@ -188,7 +189,6 @@
 - 万舟のデータ期間の終わりが丸亀8/28・蒲郡9/8で止まっている（開催なしか集計元の更新漏れかは不明）
 - 監査台帳 notes/pageAudit20260910.md の未確認：iPhone Safari での表示、公開URLの実物、観戦記の他の日、選手図鑑の残り1,638名
 - **`docs/robots.txt` はクローラーに読まれていない**（2026-09-14 実測）。robots.txt はホスト直下 `https://abeken1026395.github.io/robots.txt` だけが読まれ、そこは404。全面 Disallow に戻したが効いていない。HTMLは noindex で守っているが、`docs/data/` 配下の運用メモ（`kansenki/SECRET_SETUP.md` など6本）は noindex を付けられない形式で、実際には塞がっていない
-- 到達性の保留：V5 Cloudflare Web Analytics（トークン待ち）。V6 Search Console と og:image の専用画像は、検索に出さない方針になったので不要
 
 ---
 
