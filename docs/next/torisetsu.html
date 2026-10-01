@@ -266,17 +266,44 @@ h3.stuck .n{width:24px;height:24px;font-size:13px}
 h3.stuck::before{height:19px}
 figure.play{top:46px}
 
-/* ── 押したときの手ごたえ（残り物を出さない） ── */
+/* ── 押したときの手ごたえ ──────────── */
 *{-webkit-tap-highlight-color:transparent}
 .playbtn,.nav button,#bar button,.door,#toc a,.sy .q{
   transition:transform .09s ease,background-color .09s ease,border-color .09s ease}
-.playbtn:active,.nav button:active{transform:scale(.94);border-color:var(--kigen);
-  background:rgba(228,173,78,.14)}
+.playbtn:active,.nav button:active{transform:scale(.94);border-color:var(--kigen)}
 .door:active{transform:scale(.985);background:#19424d}
-#bar button:active{background:rgba(228,173,78,.12)}
-#toc a:active{background:rgba(228,173,78,.10)}
 .sy .q:active{color:var(--kigen)}
 figure img:active{opacity:.82}
+
+/* ── 水紋：ポワンと広がって薄く消える ── */
+#ripL{position:fixed;inset:0;z-index:999;pointer-events:none;overflow:hidden}
+.rip{position:absolute;width:236px;height:236px;margin:-118px 0 0 -118px;
+  opacity:0;animation:ripFade 1.15s linear forwards}
+.rip i{display:block;width:100%;height:100%;border-radius:50%;
+  transform:scale(.04);
+  background:radial-gradient(circle,
+    rgba(228,173,78,0) 50%,
+    rgba(228,173,78,.42) 63%,
+    rgba(228,173,78,.16) 76%,
+    rgba(228,173,78,0) 88%);
+  animation:ripGrow 1.15s cubic-bezier(.08,.62,.2,1) forwards}
+.rip.r2{animation-duration:1.3s}
+.rip.r2 i{animation-duration:1.3s;animation-delay:.14s;
+  background:radial-gradient(circle,
+    rgba(228,173,78,0) 54%,
+    rgba(228,173,78,.3) 66%,
+    rgba(228,173,78,0) 80%)}
+.rip.r3{animation-duration:1.45s}
+.rip.r3 i{animation-duration:1.45s;animation-delay:.3s;
+  background:radial-gradient(circle,
+    rgba(228,173,78,0) 58%,
+    rgba(228,173,78,.18) 68%,
+    rgba(228,173,78,0) 80%)}
+.rip.core{animation-duration:.5s}
+.rip.core i{animation-duration:.5s;
+  background:radial-gradient(circle,rgba(228,173,78,.3) 0%,rgba(228,173,78,0) 58%)}
+@keyframes ripFade{0%{opacity:0}8%{opacity:1}55%{opacity:.75}100%{opacity:0}}
+@keyframes ripGrow{from{transform:scale(.04)}to{transform:scale(1)}}
 
 /* ── 水位の先に艇の点 ───────────────── */
 #gauge{position:fixed;overflow:visible}
@@ -1374,6 +1401,20 @@ document.getElementById('lanes').addEventListener('click',function(){
     if(!tick){tick=true;requestAnimationFrame(upd);}
   },{passive:true});
   upd();
+})();
+
+/* 水紋：押した所からポワンと広がる */
+(function(){
+  var L=document.createElement('div');L.id='ripL';document.body.appendChild(L);
+  addEventListener('pointerdown',function(e){
+    if(!e.target.closest('.playbtn,.nav button,#bar button,#toc a,.sy .q,.door,figure img,#lanes'))return;
+    ['core','','r2','r3'].forEach(function(k){
+      var s=document.createElement('span');s.className='rip '+k;
+      s.style.left=e.clientX+'px';s.style.top=e.clientY+'px';
+      s.appendChild(document.createElement('i'));
+      L.appendChild(s);setTimeout(function(){s.remove();},1800);
+    });
+  },true);
 })();
 
 /* 水位 */
