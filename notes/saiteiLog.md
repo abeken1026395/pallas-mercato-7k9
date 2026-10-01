@@ -521,3 +521,8 @@
 
 ---
 
+- 2026-10-01 計測開始：Cloudflare Web Analytics を全ページに導入（PR #633、squash-merge はけんが GitHub 上で実施）。token 173925d64f4a495bac679b00505ea517（公開ページに埋め込む値で秘密ではない）。docs の html 55件中48件にタグ。除外は aisho-suminoe・shobuun-suminoe（触らない遺物）と probe/beforeinfoProbe（内部確認用）
+- 2026-10-01 gitleaks がビーコン token を秘密と誤検知するため、.gitleaks.toml（useDefault=true、allowlist は token 1つだけ）を追加した
+- 2026-10-01 Cloudflare の「アクセス数」はサイト外からの参照元がある閲覧だけを数える。けん自身の直接閲覧は「ページの表示数」にだけ入る
+- 2026-10-01 手で起動したローカルCodeでは gh pr merge が権限判定（Merge Without Review）で拒否される。見張りタスク経由の起動では通っている。手動起動で止まったら、けんが GitHub 上で直接マージする
+- 2026-10-01 ローカルCodeが時刻を UTC（11:47）のまま JST 判定に使った事例あり。時刻判定は必ず前提コマンドの JST 表示で行う
