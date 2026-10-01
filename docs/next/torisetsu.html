@@ -65,6 +65,7 @@ a{color:var(--kigen)}
   color:var(--mojiS);margin-bottom:8px}
 #hero .cre{margin:14px 0 0;font-size:16px;color:var(--mojiS)}
 #hero .date{margin:20px 0 0;font-size:13px;color:#6b8990}
+#ver{margin-left:10px;opacity:.75}
 
 /* ── 3つの入口 ───────────────────────── */
 .doors{display:grid;gap:10px;margin:24px 0 0}
@@ -276,7 +277,8 @@ figure.play{top:46px}
 figure img:active{opacity:.82}
 
 /* ── 水紋：ポワンと広がって薄く消える ── */
-#ripL{position:fixed;inset:0;z-index:999;pointer-events:none;overflow:hidden}
+#ripL{position:fixed;top:0;left:0;right:0;bottom:0;z-index:999;
+  pointer-events:none;overflow:hidden}
 .rip{position:absolute;width:236px;height:236px;margin:-118px 0 0 -118px;
   opacity:0;animation:ripFade 1.15s linear forwards}
 .rip i{display:block;width:100%;height:100%;border-radius:50%;
@@ -340,7 +342,7 @@ main{padding-bottom:96px}
       <a class="door d2" href="#p2"><b>困ったとき</b><span>記号の意味／画面がおかしく見えるとき</span></a>
       <a class="door d3" href="#p3"><b>画面の辞書</b><span>12の画面を1つずつ。引いてください</span></a>
     </div>
-    <p class="date">2026年9月30日の画面です</p>
+    <p class="date">2026年9月30日の画面です<span id="ver"></span></p>
   </div>
 </section>
 
@@ -1251,6 +1253,7 @@ main{padding-bottom:96px}
 <div id="zoom"><img alt=""></div>
 
 <script>
+var VER='c';document.getElementById('ver').textContent='版 '+VER;
 window.CUE={"figBoatBottom":{"ar":1.4444,"cx":0.04,"r":0.03538,"ys":[0.13944,0.28972,0.35583,0.43389,0.56722,0.68389]},"figBoatTop":{"ar":0.963,"cx":0.04,"r":0.03538,"ys":[0.05593,0.14111,0.23741,0.34852,0.48556,0.56333,0.65963,0.76333,0.88185]},"figGlossary":{"ar":1.0,"cx":0.04,"r":0.03538,"ys":[0.15423,0.26962,0.41962,0.60808,0.80038,0.91577,0.99077]},"figHlCards":{"ar":1.04,"cx":0.04,"r":0.03538,"ys":[0.0964,0.2564,0.3364,0.4164,0.6804]},"figHlLegend":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.13828,0.27621,0.41069,0.46931,0.52448,0.62103,0.73138,0.82793]},"figKensho":{"ar":0.9286,"cx":0.04,"r":0.03538,"ys":[0.14321,0.25036,0.3575,0.57179,0.64321,0.92893]},"figMaint":{"ar":0.9286,"cx":0.04,"r":0.03538,"ys":[0.13607,0.2075,0.34321,0.53607,0.71464,0.83964,0.98786]},"figMotor":{"ar":0.9286,"cx":0.04,"r":0.03538,"ys":[0.09321,0.21464,0.30036,0.4075,0.50036,0.62732,0.67339,0.81464,0.98071]},"figPayTop":{"ar":1.0,"cx":0.04,"r":0.03538,"ys":[0.19269,0.285,0.39269,0.52346,0.61577]},"figPlayerInfo":{"ar":0.8667,"cx":0.04,"r":0.03538,"ys":[0.01833,0.347,0.427,0.52033,0.747,0.867,0.947]},"figPlayerRank":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.03828,0.18655,0.25552,0.42793,0.57276,0.84862,0.93138]},"figPlayerStats":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.04172,0.30379,0.41414,0.57276,0.6831,0.76241,0.86241]},"figRaceHead":{"ar":0.9286,"cx":0.04,"r":0.03538,"ys":[0.06821,0.12893,0.21464,0.36464,0.47179,0.61464]},"figRaceTop":{"ar":1.8571,"cx":0.04,"r":0.03538,"ys":[0.10071,0.20786,0.33643,0.47214,0.62929,0.84357]},"figResultBoats":{"ar":0.9286,"cx":0.04,"r":0.03538,"ys":[0.02536,0.10036,0.1825,0.44679,0.74679,0.8575]},"figStadiumDetail":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.03241,0.07517,0.13828,0.38655,0.44172,0.52448,0.66241]},"figStadiumList":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.75897,0.82793,0.8969]},"figStadiumTop":{"ar":1.1304,"cx":0.04,"r":0.03538,"ys":[0.11348,0.47,0.55696,0.6787,0.83522]},"figTopKaisai":{"ar":0.8667,"cx":0.04,"r":0.03538,"ys":[0.02167,0.26033,0.37033,0.507,0.71367,0.847]},"figTopKensho":{"ar":0.8667,"cx":0.04,"r":0.03538,"ys":[0.07033,0.12033,0.21367,0.29367,0.46033,0.57367,0.667]},"figTopNav":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.23483,0.38655,0.54517,0.64862,0.77966,0.84862,0.96586]},"figTopPages":{"ar":0.8667,"cx":0.04,"r":0.03538,"ys":[0.067,0.22367,0.467,0.867]},"figVenueList":{"ar":1.0,"cx":0.04,"r":0.03538,"ys":[0.085,0.19269,0.32346,0.50038,0.67731]}};
 /* ヒーロー：レーンを描いて、1回だけ走らせる */
 (function(){
@@ -1406,15 +1409,19 @@ document.getElementById('lanes').addEventListener('click',function(){
 /* 水紋：押した所からポワンと広がる */
 (function(){
   var L=document.createElement('div');L.id='ripL';document.body.appendChild(L);
-  addEventListener('pointerdown',function(e){
+  function hit(e){
+    var t=(e.touches&&e.touches[0])||e,x=t.clientX,y=t.clientY;
     if(!e.target.closest('.playbtn,.nav button,#bar button,#toc a,.sy .q,.door,figure img,#lanes'))return;
     ['core','','r2','r3'].forEach(function(k){
       var s=document.createElement('span');s.className='rip '+k;
-      s.style.left=e.clientX+'px';s.style.top=e.clientY+'px';
+      s.style.left=x+'px';s.style.top=y+'px';
       s.appendChild(document.createElement('i'));
-      L.appendChild(s);setTimeout(function(){s.remove();},1800);
+      L.appendChild(s);setTimeout(function(){
+        if(s.parentNode)s.parentNode.removeChild(s);},1800);
     });
-  },true);
+  }
+  if(window.PointerEvent){addEventListener('pointerdown',hit,true);}
+  else{addEventListener('touchstart',hit,true);addEventListener('mousedown',hit,true);}
 })();
 
 /* 水位 */
