@@ -14,7 +14,7 @@
   --mizu:#0d2730;      /* 水の底：地 */
   --mizuU:#143842;     /* 水面：引いた部分 */
   --sen:#23606a;       /* レーンの線 */
-  --moji:#c6d4d4;
+  --moji:#c3d0d0;
   --mojiS:#8aa6aa;
   --kigen:#e4ad4e;     /* 強調はこの1色だけ */
   --w1:#dfe6e6; --w1t:#10222a;
@@ -30,7 +30,7 @@ html{-webkit-text-size-adjust:100%}
 body{
   margin:0;background:var(--mizu);color:var(--moji);
   font-family:"Hiragino Sans","Noto Sans JP","Noto Sans CJK JP","Yu Gothic",sans-serif;
-  font-size:17px;line-height:1.9;font-weight:400;
+  font-size:16.5px;line-height:1.88;font-weight:400;
   letter-spacing:.01em;
 }
 .wrap{max-width:33em;margin:0 auto;padding:0 20px}
@@ -39,7 +39,7 @@ a{color:var(--kigen)}
 
 /* ── 水位：読んだ量 ───────────────────── */
 #gauge{position:fixed;top:0;left:0;height:3px;width:0;z-index:60;
-  background:linear-gradient(90deg,var(--sen),var(--kigen));opacity:.75;transition:width .12s linear}
+  background:var(--sen);opacity:.9;transition:width .12s linear}
 
 /* ── ヒーロー：6レーンのスタート ───────── */
 #hero{position:relative;overflow:hidden;padding:0 0 34px;
@@ -80,15 +80,15 @@ a{color:var(--kigen)}
 
 /* ── 部の扉 ──────────────────────────── */
 .partttl{margin:0;padding:52px 0 30px;border-top:1px solid var(--sen)}
-.partttl .no{font-size:13px;font-weight:700;color:var(--mojiS);letter-spacing:.08em}
+.partttl .no{font-size:13px;font-weight:700;color:var(--kigen);letter-spacing:.08em}
 .partttl .nm{font-size:34px;font-weight:800;letter-spacing:-.045em;line-height:1.2;margin:2px 0 10px}
 .partttl .cap{font-size:15px;color:var(--mojiS);line-height:1.8}
-.bg1 .nm{color:#e38b7c}.bg2 .nm{color:#86aad4}.bg3 .nm{color:#6cb894}
+.bg1 .nm,.bg2 .nm,.bg3 .nm{color:#e6eeee}
 
 /* ── 見出し ──────────────────────────── */
 h3.step,h3.pg{position:sticky;top:0;z-index:30;margin:38px 0 14px;
   padding:12px 0 10px;background:var(--mizu);
-  font-size:25px;font-weight:800;letter-spacing:-.04em;line-height:1.3;color:#dbe7e7;
+  font-size:23px;font-weight:800;letter-spacing:-.035em;line-height:1.3;color:#e6eeee;
   border-bottom:1px solid var(--sen);
   display:flex;align-items:center;gap:10px}
 h3.step .n{flex:none;width:30px;height:30px;border-radius:50%;
@@ -109,26 +109,28 @@ p{margin:0 0 14px}
 
 /* ── 写真と番号の対応 ────────────────── */
 figure{margin:18px 0}
-figure img{border:1px solid var(--sen);cursor:zoom-in;background:#0d2730;filter:saturate(.92) brightness(.97)}
+figure img{cursor:zoom-in;background:#0d2730;filter:saturate(.92) brightness(.97)}
 figcaption{margin-top:7px;font-size:13.5px;color:var(--mojiS)}
 ol.lg{counter-reset:c;list-style:none;margin:10px 0 18px;padding:0}
-ol.lg>li{counter-increment:c;position:relative;padding:9px 0 9px 40px;
+ol.lg>li{counter-increment:c;position:relative;padding:9px 0 9px 40px;cursor:pointer;
   border-bottom:1px solid rgba(29,90,99,.45);font-size:16px;line-height:1.75}
 ol.lg>li:last-child{border-bottom:0}
 ol.lg>li::before{content:counter(c);position:absolute;left:0;top:10px;
-  width:26px;height:26px;border-radius:50%;background:var(--kigen);color:#241900;
-  font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center}
+  width:26px;height:26px;border-radius:50%;box-sizing:border-box;
+  border:2px solid var(--kigen);color:var(--kigen);background:transparent;
+  font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;
+  transition:background-color .15s,color .15s}
 ol.lg>li.on{background:rgba(228,173,78,.07);box-shadow:inset 3px 0 0 var(--kigen)}
-ol.lg>li.on::before{box-shadow:0 0 0 4px rgba(228,173,78,.24)}
+ol.lg>li.on::before{background:var(--kigen);color:#241900;box-shadow:0 0 0 4px rgba(228,173,78,.22)}
 ul{margin:10px 0 16px;padding-left:1.25em}
 li{margin-bottom:6px}
 
 /* ── 囲み ────────────────────────────── */
 .use,.miss{margin:18px 0;padding:14px 16px;font-size:15.5px;line-height:1.8}
-.use{background:rgba(47,127,224,.1);border-left:4px solid var(--w4)}
-.miss{background:rgba(224,64,47,.1);border-left:4px solid var(--w3)}
+.use{background:rgba(255,255,255,.035);border-left:3px solid #4a8a94}
+.miss{background:rgba(255,255,255,.035);border-left:3px solid var(--kigen)}
 .use b,.miss b{display:block;font-size:15px;margin-bottom:5px}
-.use b{color:#9ec8ff}.miss b{color:#ff9d8c}
+.use b{color:#9fc6cc}.miss b{color:var(--kigen)}
 .sign{margin:22px 0;padding:16px;background:var(--mizuU);border-radius:var(--maru);
   font-size:15.5px;line-height:1.8}
 .end{margin:34px 0 0;padding:26px 0;border-top:1px solid var(--sen);
@@ -210,10 +212,14 @@ ol.lg>li>b{display:block;color:#dde8e8;font-size:16.5px;margin-bottom:1px}
 figure.play{position:sticky;top:54px;z-index:20;
   background:var(--mizu);padding-bottom:8px;margin-bottom:10px}
 figure.play figcaption{display:none}
-.vp{position:relative;overflow:hidden}
-figure.play .vp{border:1px solid var(--sen);background:#0d2730}
+.vp{position:relative;overflow:hidden;border-radius:16px;border:1px solid #2a5c66;
+  box-shadow:0 10px 30px rgba(0,0,0,.35),inset 0 0 0 1px rgba(255,255,255,.04)}
+figure.play .vp{background:#0d2730;border-color:#3d7c87}
 .pan{position:relative;transition:transform .6s cubic-bezier(.3,.85,.3,1)}
 .pan img{display:block;width:100%;border:0}
+.hot{position:absolute;transform:translate(-50%,-50%);border-radius:50%;
+  background:transparent;border:0;padding:0;margin:0;cursor:pointer}
+.hot:focus-visible{outline:2px solid var(--kigen)}
 figure.play .pan img{filter:none}
 .ring{position:absolute;border-radius:50%;pointer-events:none;
   border:3px solid #fff;opacity:0;transition:opacity .2s;
@@ -279,33 +285,21 @@ figure img:active{opacity:.82}
 /* ── 水紋：ポワンと広がって薄く消える ── */
 #ripL{position:fixed;top:0;left:0;right:0;bottom:0;z-index:999;
   pointer-events:none;overflow:hidden}
-.rip{position:absolute;width:236px;height:236px;margin:-118px 0 0 -118px;
-  opacity:0;animation:ripFade 1.15s linear forwards}
-.rip i{display:block;width:100%;height:100%;border-radius:50%;
-  transform:scale(.04);
-  background:radial-gradient(circle,
-    rgba(228,173,78,0) 50%,
-    rgba(228,173,78,.42) 63%,
-    rgba(228,173,78,.16) 76%,
-    rgba(228,173,78,0) 88%);
-  animation:ripGrow 1.15s cubic-bezier(.08,.62,.2,1) forwards}
-.rip.r2{animation-duration:1.3s}
-.rip.r2 i{animation-duration:1.3s;animation-delay:.14s;
-  background:radial-gradient(circle,
-    rgba(228,173,78,0) 54%,
-    rgba(228,173,78,.3) 66%,
-    rgba(228,173,78,0) 80%)}
-.rip.r3{animation-duration:1.45s}
-.rip.r3 i{animation-duration:1.45s;animation-delay:.3s;
-  background:radial-gradient(circle,
-    rgba(228,173,78,0) 58%,
-    rgba(228,173,78,.18) 68%,
-    rgba(228,173,78,0) 80%)}
-.rip.core{animation-duration:.5s}
-.rip.core i{animation-duration:.5s;
-  background:radial-gradient(circle,rgba(228,173,78,.3) 0%,rgba(228,173,78,0) 58%)}
-@keyframes ripFade{0%{opacity:0}8%{opacity:1}55%{opacity:.75}100%{opacity:0}}
-@keyframes ripGrow{from{transform:scale(.04)}to{transform:scale(1)}}
+.rip{position:absolute;border-radius:50%;box-sizing:border-box;
+  transform:translate(-50%,-50%);
+  width:14px;height:14px;opacity:0;
+  border:4px solid rgba(228,173,78,.62);
+  box-shadow:0 0 14px rgba(228,173,78,.45),inset 0 0 14px rgba(228,173,78,.35);
+  animation:rip 1.15s linear forwards}
+.rip.r2{animation-delay:.13s;animation-duration:1.3s;border-color:rgba(228,173,78,.45)}
+
+@keyframes rip{
+  0%  {width:14px; height:14px; opacity:0;   border-width:4px}
+  7%  {opacity:1}
+  25% {width:118px;height:118px;border-width:3px}
+  55% {width:184px;height:184px;opacity:.55;border-width:2px}
+  100%{width:238px;height:238px;opacity:0;   border-width:1px}
+}
 
 /* ── 水位の先に艇の点 ───────────────── */
 #gauge{position:fixed;overflow:visible}
@@ -350,7 +344,7 @@ main{padding-bottom:96px}
 
 <section class="sec">
 <div class="partttl bg1" id="p1">
-  <div class="no">PART 1</div>
+  <div class="no">第1部</div>
   <div class="nm">はじめの3分</div>
   <div class="cap">ここだけ読めば、今日から使えます。<br>あとは、分からない画面が出たときに開いてください。</div>
 </div>
@@ -488,7 +482,7 @@ main{padding-bottom:96px}
 </section>
 <section class="sec">
 <div class="partttl bg2" id="p2">
-  <div class="no">PART 2</div>
+  <div class="no">第2部</div>
   <div class="nm">困ったとき</div>
   <div class="cap">記号の意味が分からない。画面がおかしく見える。<br>ここから引いてください。</div>
 </div>
@@ -689,7 +683,7 @@ main{padding-bottom:96px}
 </section>
 <section class="sec">
 <div class="partttl bg3" id="p3">
-  <div class="no">PART 3</div>
+  <div class="no">第3部</div>
   <div class="nm">画面の辞書</div>
   <div class="cap">全部を読む必要はありません。<br>気になったページだけ、引いてください。</div>
 </div>
@@ -1253,7 +1247,7 @@ main{padding-bottom:96px}
 <div id="zoom"><img alt=""></div>
 
 <script>
-var VER='d';document.getElementById('ver').textContent='版 '+VER;
+var VER='f';document.getElementById('ver').textContent='版 '+VER;
 window.CUE={"figBoatBottom":{"ar":1.4444,"cx":0.04,"r":0.03538,"ys":[0.13944,0.28972,0.35583,0.43389,0.56722,0.68389]},"figBoatTop":{"ar":0.963,"cx":0.04,"r":0.03538,"ys":[0.05593,0.14111,0.23741,0.34852,0.48556,0.56333,0.65963,0.76333,0.88185]},"figGlossary":{"ar":1.0,"cx":0.04,"r":0.03538,"ys":[0.15423,0.26962,0.41962,0.60808,0.80038,0.91577,0.99077]},"figHlCards":{"ar":1.04,"cx":0.04,"r":0.03538,"ys":[0.0964,0.2564,0.3364,0.4164,0.6804]},"figHlLegend":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.13828,0.27621,0.41069,0.46931,0.52448,0.62103,0.73138,0.82793]},"figKensho":{"ar":0.9286,"cx":0.04,"r":0.03538,"ys":[0.14321,0.25036,0.3575,0.57179,0.64321,0.92893]},"figMaint":{"ar":0.9286,"cx":0.04,"r":0.03538,"ys":[0.13607,0.2075,0.34321,0.53607,0.71464,0.83964,0.98786]},"figMotor":{"ar":0.9286,"cx":0.04,"r":0.03538,"ys":[0.09321,0.21464,0.30036,0.4075,0.50036,0.62732,0.67339,0.81464,0.98071]},"figPayTop":{"ar":1.0,"cx":0.04,"r":0.03538,"ys":[0.19269,0.285,0.39269,0.52346,0.61577]},"figPlayerInfo":{"ar":0.8667,"cx":0.04,"r":0.03538,"ys":[0.01833,0.347,0.427,0.52033,0.747,0.867,0.947]},"figPlayerRank":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.03828,0.18655,0.25552,0.42793,0.57276,0.84862,0.93138]},"figPlayerStats":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.04172,0.30379,0.41414,0.57276,0.6831,0.76241,0.86241]},"figRaceHead":{"ar":0.9286,"cx":0.04,"r":0.03538,"ys":[0.06821,0.12893,0.21464,0.36464,0.47179,0.61464]},"figRaceTop":{"ar":1.8571,"cx":0.04,"r":0.03538,"ys":[0.10071,0.20786,0.33643,0.47214,0.62929,0.84357]},"figResultBoats":{"ar":0.9286,"cx":0.04,"r":0.03538,"ys":[0.02536,0.10036,0.1825,0.44679,0.74679,0.8575]},"figStadiumDetail":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.03241,0.07517,0.13828,0.38655,0.44172,0.52448,0.66241]},"figStadiumList":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.75897,0.82793,0.8969]},"figStadiumTop":{"ar":1.1304,"cx":0.04,"r":0.03538,"ys":[0.11348,0.47,0.55696,0.6787,0.83522]},"figTopKaisai":{"ar":0.8667,"cx":0.04,"r":0.03538,"ys":[0.02167,0.26033,0.37033,0.507,0.71367,0.847]},"figTopKensho":{"ar":0.8667,"cx":0.04,"r":0.03538,"ys":[0.07033,0.12033,0.21367,0.29367,0.46033,0.57367,0.667]},"figTopNav":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.23483,0.38655,0.54517,0.64862,0.77966,0.84862,0.96586]},"figTopPages":{"ar":0.8667,"cx":0.04,"r":0.03538,"ys":[0.067,0.22367,0.467,0.867]},"figVenueList":{"ar":1.0,"cx":0.04,"r":0.03538,"ys":[0.085,0.19269,0.32346,0.50038,0.67731]}};
 /* ヒーロー：レーンを描いて、1回だけ走らせる */
 (function(){
@@ -1319,6 +1313,18 @@ window.CUE={"figBoatBottom":{"ar":1.4444,"cx":0.04,"r":0.03538,"ys":[0.13944,0.2
     pan.appendChild(img);vp.appendChild(pan);
     var ring=document.createElement('span');ring.className='ring';pan.appendChild(ring);
     var cue=document.createElement('div');cue.className='cue';fig.appendChild(cue);
+    c.ys.forEach(function(y,i){                 /* 図の中の番号そのものを押せる */
+      var h=document.createElement('button');h.className='hot';h.type='button';
+      h.setAttribute('aria-label','説明 '+(i+1));
+      h.style.left=(c.cx*100)+'%';h.style.top=(y*100)+'%';
+      h.addEventListener('click',function(e){e.stopPropagation();enter(i,false);});
+      pan.appendChild(h);
+    });
+    function sizeHot(){
+      var d=Math.max(44,2*c.r*img.offsetWidth+10)+'px';
+      pan.querySelectorAll('.hot').forEach(function(h){h.style.width=d;h.style.height=d;});
+    }
+    img.addEventListener('load',sizeHot);sizeHot();addEventListener('resize',sizeHot);
 
     var btn=document.createElement('button');btn.className='playbtn';
     var bar=document.createElement('span');bar.className='bar';btn.appendChild(bar);
@@ -1426,22 +1432,35 @@ window.CUE={"figBoatBottom":{"ar":1.4444,"cx":0.04,"r":0.03538,"ys":[0.13944,0.2
   upd();
 })();
 
-/* 水紋：押した所からポワンと広がる */
+/* 水紋：画面のどこを押しても出る（スクロールのときは出さない） */
 (function(){
   var L=document.createElement('div');L.id='ripL';document.body.appendChild(L);
-  function hit(e){
-    var t=(e.touches&&e.touches[0])||e,x=t.clientX,y=t.clientY;
-    if(!e.target.closest('.playbtn,.nav button,#bar button,#toc a,.sy .q,.door,figure img,#lanes'))return;
-    ['core','','r2','r3'].forEach(function(k){
+  var sx=0,sy=0,sv=0,ok=false;
+  function pt(e){var t=(e.changedTouches&&e.changedTouches[0])||(e.touches&&e.touches[0])||e;
+    return {x:t.clientX,y:t.clientY};}
+  function down(e){var p=pt(e);sx=p.x;sy=p.y;sv=window.pageYOffset;ok=true;}
+  function up(e){
+    if(!ok)return;ok=false;
+    var p=pt(e);
+    if(Math.abs(p.x-sx)>12||Math.abs(p.y-sy)>12)return;
+    if(Math.abs(window.pageYOffset-sv)>4)return;
+    ['','r2'].forEach(function(k){
       var s=document.createElement('span');s.className='rip '+k;
-      s.style.left=x+'px';s.style.top=y+'px';
-      s.appendChild(document.createElement('i'));
-      L.appendChild(s);setTimeout(function(){
-        if(s.parentNode)s.parentNode.removeChild(s);},1800);
+      s.style.left=p.x+'px';s.style.top=p.y+'px';
+      L.appendChild(s);
+      setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},1900);
     });
   }
-  if(window.PointerEvent){addEventListener('pointerdown',hit,true);}
-  else{addEventListener('touchstart',hit,true);addEventListener('mousedown',hit,true);}
+  if(window.PointerEvent){
+    addEventListener('pointerdown',down,true);
+    addEventListener('pointerup',up,true);
+    addEventListener('pointercancel',function(){ok=false;},true);
+  }else{
+    addEventListener('touchstart',down,true);
+    addEventListener('touchend',up,true);
+    addEventListener('mousedown',down,true);
+    addEventListener('mouseup',up,true);
+  }
 })();
 
 /* 水位 */
