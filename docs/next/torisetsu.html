@@ -1253,7 +1253,7 @@ main{padding-bottom:96px}
 <div id="zoom"><img alt=""></div>
 
 <script>
-var VER='c';document.getElementById('ver').textContent='版 '+VER;
+var VER='d';document.getElementById('ver').textContent='版 '+VER;
 window.CUE={"figBoatBottom":{"ar":1.4444,"cx":0.04,"r":0.03538,"ys":[0.13944,0.28972,0.35583,0.43389,0.56722,0.68389]},"figBoatTop":{"ar":0.963,"cx":0.04,"r":0.03538,"ys":[0.05593,0.14111,0.23741,0.34852,0.48556,0.56333,0.65963,0.76333,0.88185]},"figGlossary":{"ar":1.0,"cx":0.04,"r":0.03538,"ys":[0.15423,0.26962,0.41962,0.60808,0.80038,0.91577,0.99077]},"figHlCards":{"ar":1.04,"cx":0.04,"r":0.03538,"ys":[0.0964,0.2564,0.3364,0.4164,0.6804]},"figHlLegend":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.13828,0.27621,0.41069,0.46931,0.52448,0.62103,0.73138,0.82793]},"figKensho":{"ar":0.9286,"cx":0.04,"r":0.03538,"ys":[0.14321,0.25036,0.3575,0.57179,0.64321,0.92893]},"figMaint":{"ar":0.9286,"cx":0.04,"r":0.03538,"ys":[0.13607,0.2075,0.34321,0.53607,0.71464,0.83964,0.98786]},"figMotor":{"ar":0.9286,"cx":0.04,"r":0.03538,"ys":[0.09321,0.21464,0.30036,0.4075,0.50036,0.62732,0.67339,0.81464,0.98071]},"figPayTop":{"ar":1.0,"cx":0.04,"r":0.03538,"ys":[0.19269,0.285,0.39269,0.52346,0.61577]},"figPlayerInfo":{"ar":0.8667,"cx":0.04,"r":0.03538,"ys":[0.01833,0.347,0.427,0.52033,0.747,0.867,0.947]},"figPlayerRank":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.03828,0.18655,0.25552,0.42793,0.57276,0.84862,0.93138]},"figPlayerStats":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.04172,0.30379,0.41414,0.57276,0.6831,0.76241,0.86241]},"figRaceHead":{"ar":0.9286,"cx":0.04,"r":0.03538,"ys":[0.06821,0.12893,0.21464,0.36464,0.47179,0.61464]},"figRaceTop":{"ar":1.8571,"cx":0.04,"r":0.03538,"ys":[0.10071,0.20786,0.33643,0.47214,0.62929,0.84357]},"figResultBoats":{"ar":0.9286,"cx":0.04,"r":0.03538,"ys":[0.02536,0.10036,0.1825,0.44679,0.74679,0.8575]},"figStadiumDetail":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.03241,0.07517,0.13828,0.38655,0.44172,0.52448,0.66241]},"figStadiumList":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.75897,0.82793,0.8969]},"figStadiumTop":{"ar":1.1304,"cx":0.04,"r":0.03538,"ys":[0.11348,0.47,0.55696,0.6787,0.83522]},"figTopKaisai":{"ar":0.8667,"cx":0.04,"r":0.03538,"ys":[0.02167,0.26033,0.37033,0.507,0.71367,0.847]},"figTopKensho":{"ar":0.8667,"cx":0.04,"r":0.03538,"ys":[0.07033,0.12033,0.21367,0.29367,0.46033,0.57367,0.667]},"figTopNav":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.23483,0.38655,0.54517,0.64862,0.77966,0.84862,0.96586]},"figTopPages":{"ar":0.8667,"cx":0.04,"r":0.03538,"ys":[0.067,0.22367,0.467,0.867]},"figVenueList":{"ar":1.0,"cx":0.04,"r":0.03538,"ys":[0.085,0.19269,0.32346,0.50038,0.67731]}};
 /* ヒーロー：レーンを描いて、1回だけ走らせる */
 (function(){
@@ -1276,21 +1276,22 @@ window.CUE={"figBoatBottom":{"ar":1.4444,"cx":0.04,"r":0.03538,"ys":[0.13944,0.2
 })();
 
 
-/* 図の順番再生：図の中を動かして、今いる丸を真ん中に出す */
+/* 図と説明をつなぐ：行を押すと図がその丸を映す。順番再生もできる */
 (function(){
   var CUE=window.CUE||{},timer=null,cur=null;
-  function stop(){
+
+  function leave(){
     if(timer){clearInterval(timer);timer=null;}
-    if(cur){
-      cur.fig.classList.remove('play');
-      cur.btn.classList.remove('on');
-      cur.btn.label.nodeValue='順番に見る';
-      cur.nav.classList.remove('on');
-      cur.pan.style.transform='';cur.vp.style.height='';
-      cur.lis.forEach(function(x){x.classList.remove('on');});
-      cur=null;
-    }
+    if(!cur)return;
+    cur.fig.classList.remove('play');
+    cur.btn.classList.remove('on');
+    cur.btn.label.nodeValue='順番に見る';
+    cur.nav.classList.remove('on');
+    cur.pan.style.transform='';cur.vp.style.height='';
+    cur.lis.forEach(function(x){x.classList.remove('on');});
+    cur=null;
   }
+
   document.querySelectorAll('figure').forEach(function(fig){
     var img=fig.querySelector('img');
     if(!img)return;
@@ -1301,7 +1302,16 @@ window.CUE={"figBoatBottom":{"ar":1.4444,"cx":0.04,"r":0.03538,"ys":[0.13944,0.2
     var lis=[].slice.call(ol.querySelectorAll('li'));
     var key=(img.getAttribute('src')||'').replace(/^.*\/|\.jpg$/g,'');
     var c=CUE[key];
-    if(!c||c.ys.length!==lis.length||lis.length<3)return;
+    if(!c||c.ys.length!==lis.length||lis.length<3){
+      lis.forEach(function(li){               /* 図と対応が取れない表は印だけ */
+        li.addEventListener('click',function(){
+          var on=li.classList.contains('on');
+          lis.forEach(function(x){x.classList.remove('on');});
+          if(!on)li.classList.add('on');
+        });
+      });
+      return;
+    }
 
     var vp=document.createElement('div');vp.className='vp';
     var pan=document.createElement('div');pan.className='pan';
@@ -1312,24 +1322,20 @@ window.CUE={"figBoatBottom":{"ar":1.4444,"cx":0.04,"r":0.03538,"ys":[0.13944,0.2
 
     var btn=document.createElement('button');btn.className='playbtn';
     var bar=document.createElement('span');bar.className='bar';btn.appendChild(bar);
-    var label=document.createTextNode('順番に見る');btn.appendChild(label);
-    btn.label=label;
+    var label=document.createTextNode('順番に見る');btn.appendChild(label);btn.label=label;
     var nav=document.createElement('span');nav.className='nav';
-    var prev=document.createElement('button');prev.textContent='◀';
-    prev.setAttribute('aria-label','前へ');
-    var next=document.createElement('button');next.textContent='▶';
-    next.setAttribute('aria-label','次へ');
+    var prev=document.createElement('button');prev.textContent='◀';prev.setAttribute('aria-label','前へ');
+    var next=document.createElement('button');next.textContent='▶';next.setAttribute('aria-label','次へ');
     nav.appendChild(prev);nav.appendChild(next);
     fig.appendChild(btn);fig.appendChild(nav);
 
-    var last=0;
+    var at=-1,last=0;
     function show(i){
       last=i;
       var iw=img.offsetWidth,ih=img.offsetHeight;
       if(!img.complete||ih<60){img.loading='eager';return;}
       vp.style.height=Math.round(Math.min(innerHeight*0.46,ih))+'px';
-      var vh=vp.clientHeight;
-      var d=2*c.r*iw;
+      var vh=vp.clientHeight,d=2*c.r*iw;
       ring.style.width=d+'px';ring.style.height=d+'px';
       ring.style.left=(c.cx*100)+'%';ring.style.top=(c.ys[i]*100)+'%';
       var t=vh*0.42-c.ys[i]*ih;
@@ -1339,56 +1345,70 @@ window.CUE={"figBoatBottom":{"ar":1.4444,"cx":0.04,"r":0.03538,"ys":[0.13944,0.2
       cue.style.animation='none';void cue.offsetHeight;cue.style.animation='';
     }
     img.addEventListener('load',function(){if(fig.classList.contains('play'))show(last);});
-    btn.addEventListener('click',function(){
-      if(cur&&cur.btn===btn){stop();return;}
-      stop();
-      cur={fig:fig,btn:btn,lis:lis,pan:pan,vp:vp,nav:nav};
-      fig.classList.add('play');btn.classList.add('on');
-      btn.label.nodeValue='とめる';nav.classList.add('on');
-      img.loading='eager';
-      vp.style.height=Math.round(innerHeight*0.46)+'px';
-      var i=-1;
-      function step(){
-        i++;
-        if(i>=lis.length){stop();return;}
-        lis.forEach(function(x){x.classList.remove('on');});
-        lis[i].classList.add('on');
-        show(i);
-        var r=lis[i].getBoundingClientRect();
-        var base=fig.getBoundingClientRect().bottom+14;
-        if(r.top<base||r.bottom>innerHeight-66)
-          scrollBy({top:r.top-base,behavior:'smooth'});
+
+    function enter(i,scroll){
+      if(cur&&cur.fig!==fig)leave();
+      if(!cur){
+        cur={fig:fig,btn:btn,lis:lis,pan:pan,vp:vp,nav:nav};
+        fig.classList.add('play');nav.classList.add('on');
+        img.loading='eager';
+        vp.style.height=Math.round(innerHeight*0.46)+'px';
       }
-      function go(d){
-        if(timer){clearInterval(timer);}
-        i=Math.max(-1,Math.min(lis.length-1,i+d-1));
-        step();
-        bar.style.animation='none';void bar.offsetHeight;bar.style.animation='';
-        timer=setInterval(step,2400);
-      }
-      prev.onclick=function(e){e.stopPropagation();go(-1);};
-      next.onclick=function(e){e.stopPropagation();go(1);};
-      step();timer=setInterval(step,2400);
+      at=i;
+      lis.forEach(function(x){x.classList.remove('on');});
+      lis[i].classList.add('on');
+      show(i);
+      setTimeout(function(){
+        if(scroll){
+          var r=fig.getBoundingClientRect();
+          if(r.top<40||r.top>innerHeight*0.4)scrollBy({top:r.top-46,behavior:'smooth'});
+          return;
+        }
+        /* 図は上に貼りつくので、貼りついたときの下端で測る */
+        var base=46+fig.offsetHeight+14;
+        var q=lis[i].getBoundingClientRect();
+        if(q.top<base||q.bottom>innerHeight-72)
+          scrollTo({top:scrollY+q.top-base,behavior:'smooth'});
+      },40);
+    }
+
+    lis.forEach(function(li,i){
+      li.addEventListener('click',function(){
+        if(cur&&cur.fig===fig&&at===i&&!timer){leave();return;}
+        if(timer){clearInterval(timer);timer=null;
+          btn.classList.remove('on');btn.label.nodeValue='順番に見る';}
+        enter(i,false);
+      });
     });
+
+    function tick(){
+      if(at+1>=lis.length){
+        clearInterval(timer);timer=null;
+        btn.classList.remove('on');btn.label.nodeValue='順番に見る';
+        return;
+      }
+      enter(at+1,false);
+    }
+    btn.addEventListener('click',function(){
+      if(timer){clearInterval(timer);timer=null;
+        btn.classList.remove('on');btn.label.nodeValue='順番に見る';return;}
+      enter(cur&&cur.fig===fig&&at>=0?at:0,at<0);
+      btn.classList.add('on');btn.label.nodeValue='とめる';
+      bar.style.animation='none';void bar.offsetHeight;bar.style.animation='';
+      timer=setInterval(tick,2400);
+    });
+    function step(d){
+      var i=Math.max(0,Math.min(lis.length-1,(at<0?0:at)+d));
+      enter(i,false);
+      if(timer){clearInterval(timer);timer=setInterval(tick,2400);
+        bar.style.animation='none';void bar.offsetHeight;bar.style.animation='';}
+    }
+    prev.onclick=function(e){e.stopPropagation();step(-1);};
+    next.onclick=function(e){e.stopPropagation();step(1);};
   });
-  addEventListener('keydown',function(e){if(e.key==='Escape')stop();});
+
+  addEventListener('keydown',function(e){if(e.key==='Escape')leave();});
 })();
-
-/* 部の扉：見えたら線を1回引く */
-(function(){
-  var io=new IntersectionObserver(function(es){
-    es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('seen');io.unobserve(e.target);}});
-  },{threshold:.4});
-  document.querySelectorAll('.partttl').forEach(function(p){io.observe(p);});
-})();
-
-/* ヒーロー：押すともう一度スタート */
-document.getElementById('lanes').addEventListener('click',function(){
-  document.body.classList.remove('go');
-  void document.getElementById('lanes').offsetWidth;
-  document.body.classList.add('go');
-});
-
 
 /* 貼りついた見出しを細くする */
 (function(){
@@ -1450,17 +1470,6 @@ document.querySelectorAll('.sy').forEach(function(s){
   q.addEventListener('click',tg);
   q.addEventListener('keydown',function(e){
     if(e.key==='Enter'||e.key===' '){e.preventDefault();tg();}
-  });
-});
-
-/* 写真の番号と説明の行をつなぐ：行を押すと写真の番号が光る */
-document.querySelectorAll('ol.lg').forEach(function(ol){
-  ol.querySelectorAll('li').forEach(function(li){
-    li.addEventListener('click',function(){
-      var on=li.classList.contains('on');
-      ol.querySelectorAll('li').forEach(function(x){x.classList.remove('on');});
-      if(!on)li.classList.add('on');
-    });
   });
 });
 
