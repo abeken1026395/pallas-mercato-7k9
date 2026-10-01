@@ -266,14 +266,17 @@ h3.stuck .n{width:24px;height:24px;font-size:13px}
 h3.stuck::before{height:19px}
 figure.play{top:46px}
 
-/* ── 押した所から波紋（いちばん上の層に出す） ── */
-#ripL{position:fixed;inset:0;z-index:999;pointer-events:none;overflow:hidden}
-.rip{position:absolute;width:22px;height:22px;border-radius:50%;
-  border:2px solid rgba(228,173,78,.95);
-  transform:translate(-50%,-50%) scale(.3);
-  animation:rip .5s cubic-bezier(.2,.7,.3,1) forwards}
-.rip.b{animation-delay:.07s;border-color:rgba(228,173,78,.5)}
-@keyframes rip{to{transform:translate(-50%,-50%) scale(4.2);opacity:0}}
+/* ── 押したときの手ごたえ（残り物を出さない） ── */
+*{-webkit-tap-highlight-color:transparent}
+.playbtn,.nav button,#bar button,.door,#toc a,.sy .q{
+  transition:transform .09s ease,background-color .09s ease,border-color .09s ease}
+.playbtn:active,.nav button:active{transform:scale(.94);border-color:var(--kigen);
+  background:rgba(228,173,78,.14)}
+.door:active{transform:scale(.985);background:#19424d}
+#bar button:active{background:rgba(228,173,78,.12)}
+#toc a:active{background:rgba(228,173,78,.10)}
+.sy .q:active{color:var(--kigen)}
+figure img:active{opacity:.82}
 
 /* ── 水位の先に艇の点 ───────────────── */
 #gauge{position:fixed;overflow:visible}
@@ -1371,19 +1374,6 @@ document.getElementById('lanes').addEventListener('click',function(){
     if(!tick){tick=true;requestAnimationFrame(upd);}
   },{passive:true});
   upd();
-})();
-
-/* 押した所から波紋 */
-(function(){
-  var L=document.createElement('div');L.id='ripL';document.body.appendChild(L);
-  addEventListener('pointerdown',function(e){
-    if(!e.target.closest('.playbtn,.nav button,#bar button,#toc a,.sy .q,.door,figure img'))return;
-    ['','b'].forEach(function(k){
-      var s=document.createElement('span');s.className='rip '+k;
-      s.style.left=e.clientX+'px';s.style.top=e.clientY+'px';
-      L.appendChild(s);setTimeout(function(){s.remove();},700);
-    });
-  },true);
 })();
 
 /* 水位 */
