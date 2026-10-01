@@ -1,0 +1,9 @@
+# gitleaks 設定（pre-commit フックが読む）。既定ルールはそのまま使う。
+[extend]
+useDefault = true
+
+# Cloudflare Web Analytics のビーコン token は公開HTMLに埋め込む前提の識別子で、秘密情報ではない。
+# この token 1つだけを除外する。
+[allowlist]
+description = "Cloudflare Web Analytics beacon token (public)"
+regexes = ['''173925d64f4a495bac679b00505ea517''']
