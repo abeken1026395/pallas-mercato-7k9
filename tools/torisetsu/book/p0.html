@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>データ攻め トリセツ</title>
+<style>
+  @page { margin: 7mm 6mm 9mm 6mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Noto Sans CJK JP", sans-serif;
+    color: #14212e; font-size: 13pt; line-height: 1.85;
+    margin: 0; padding: 0; -webkit-print-color-adjust: exact;
+  }
+  a { color: inherit; text-decoration: none; }
+
+  .cover { page-break-after: always; text-align: center; padding-top: 6mm; }
+  .cover .band {
+    background: linear-gradient(135deg, #0d2740 0%, #1a5f92 55%, #1b9fc4 100%);
+    color: #fff; padding: 24px 10px 20px; border-radius: 12px;
+  }
+  .cover h1 { font-size: 22pt; margin: 0; font-weight: 900; letter-spacing: 1px; }
+  .cover .en { font-size: 9pt; color: #b7e6f7; margin-top: 10px; letter-spacing: 1px; }
+  .cover .lead {
+    font-size: 16pt; font-weight: 900; margin: 22px 0 8px; line-height: 1.7; color: #0d2740;
+  }
+  .cover .lead em { font-style: normal; color: #ff5a00; }
+  .cover .body { font-size: 12pt; line-height: 1.9; color: #33465a; }
+  .cover .spec {
+    margin: 18px auto 0; display: inline-block;
+    background: #fff2e0; border: 2px solid #ff8f2e; border-radius: 999px;
+    padding: 7px 20px; font-size: 11pt; font-weight: 800; color: #a83a00;
+  }
+  .cover .rev { margin-top: 18px; font-size: 10pt; color: #7d8fa1; }
+
+  .toc { page-break-after: always; }
+  .toc h2 { font-size: 14pt; margin: 0 0 1px; color: #0d2740; font-weight: 900; }
+  .toc .sub { font-size: 9pt; color: #6b8296; margin-bottom: 5px; }
+  .toc .part {
+    margin: 6px 0 3px; padding: 5px 10px; border-radius: 7px;
+    color: #fff; font-weight: 900; font-size: 11.5pt;
+  }
+  .toc .p1 { background: #e8590c; }
+  .toc .p2 { background: #1971c2; }
+  .toc .p3 { background: #2f9e44; }
+  .toc .part .cap { display: block; font-size: 8.5pt; font-weight: 600; opacity: .93; }
+  .toc ol { margin: 0 0 4px; padding-left: 0; list-style: none; }
+  .toc ol li {
+    padding: 2.5px 4px 2.5px 11px; border-bottom: 1px dotted #c9d6e2; font-size: 10pt;
+  }
+  .toc ol li b { color: #0d2740; }
+  table.toc2 { width: 100%; border-collapse: collapse; margin: 2px 0 4px; }
+  table.toc2 td { padding: 2.5px 3px 2.5px 11px; border-bottom: 1px dotted #c9d6e2;
+    font-size: 10pt; width: 50%; }
+  .toc .hint {
+    margin-top: 7px; background: #eef7ff; border-left: 5px solid #1971c2;
+    padding: 7px 10px; font-size: 9.5pt; color: #17415f; line-height: 1.6;
+  }
+
+  .partpage { page-break-before: always; }
+  .partttl { color: #fff; border-radius: 11px; padding: 17px 15px; margin-bottom: 14px; }
+  .partttl .no { font-size: 10pt; letter-spacing: 2px; opacity: .9; }
+  .partttl .nm { font-size: 20pt; font-weight: 900; line-height: 1.35; margin-top: 3px; }
+  .partttl .cap { font-size: 11pt; margin-top: 7px; opacity: .96; line-height: 1.65; }
+  .bg1 { background: linear-gradient(135deg, #e8590c, #f59f00); }
+  .bg2 { background: linear-gradient(135deg, #1864ab, #228be6); }
+  .bg3 { background: linear-gradient(135deg, #2b8a3e, #51cf66); }
+
+  h3.step {
+    font-size: 15pt; font-weight: 900; color: #0d2740;
+    margin: 22px 0 9px; padding-left: 44px; position: relative;
+    page-break-after: avoid; line-height: 1.4;
+  }
+  h3.step .n {
+    position: absolute; left: 0; top: 1px;
+    width: 34px; height: 34px; border-radius: 9px;
+    background: #e8590c; color: #fff; font-size: 16pt; text-align: center;
+    line-height: 34px;
+  }
+  h3.pg {
+    font-size: 16pt; font-weight: 900; color: #fff; background: #1864ab;
+    margin: 24px 0 11px; padding: 10px 13px; border-radius: 9px;
+    page-break-after: avoid;
+  }
+  h3.pg .tag {
+    font-size: 9.5pt; background: #ffd43b; color: #613400; border-radius: 999px;
+    padding: 2px 10px; margin-left: 8px; vertical-align: 3px; font-weight: 800;
+  }
+  h3.pg .tag.new { background: #ff6b6b; color: #fff; }
+  h4 {
+    font-size: 13pt; color: #1971c2; margin: 15px 0 5px; font-weight: 900;
+  }
+  p { margin: 0 0 9px; }
+  ul { margin: 0 0 10px; padding-left: 19px; }
+  li { margin-bottom: 6px; }
+  .small { font-size: 11pt; color: #6b8296; }
+
+  .use {
+    background: #fff4e6; border-left: 7px solid #f76707; border-radius: 0 9px 9px 0;
+    padding: 11px 13px; margin: 11px 0 13px; page-break-inside: avoid;
+  }
+  .use b { color: #d9480f; display: block; margin-bottom: 3px; font-size: 12pt; }
+  .miss {
+    background: #f1f3f5; border-left: 7px solid #868e96; border-radius: 0 9px 9px 0;
+    padding: 11px 13px; margin: 11px 0 13px; font-size: 12pt;
+    page-break-inside: avoid; color: #343a40;
+  }
+  .miss b { color: #212529; display: block; margin-bottom: 3px; }
+
+  figure { margin: 13px 0 6px; page-break-inside: avoid; }
+  figure img { width: 100%; max-height: 112mm; object-fit: contain; display: block;
+    border: 2px solid #dbe3ea; border-radius: 7px; }
+  figcaption { font-size: 10pt; color: #8494a4; margin-top: 5px; line-height: 1.6; }
+  ol.lg { margin: 9px 0 13px; padding-left: 0; list-style: none; counter-reset: lg; }
+  ol.lg li {
+    counter-increment: lg; margin-bottom: 8px; padding-left: 29px;
+    position: relative; font-size: 12pt; line-height: 1.75;
+  }
+  ol.lg li::before {
+    content: counter(lg); position: absolute; left: 0; top: 3px;
+    width: 21px; height: 21px; border-radius: 50%; background: #ff7a00; color: #fff;
+    font-size: 10pt; font-weight: 900; text-align: center; line-height: 21px;
+  }
+
+  table.sym { width: 100%; border-collapse: collapse; margin: 9px 0 13px; font-size: 11.5pt; }
+  table.sym td { padding: 8px 6px; border-bottom: 1px solid #e3e9ef; vertical-align: middle; }
+  table.sym td.k { width: 100px; text-align: center; }
+  .chip {
+    display: inline-block; border-radius: 6px; padding: 2px 9px;
+    font-size: 11pt; font-weight: 800; color: #fff;
+  }
+  .chipo {
+    display: inline-block; border-radius: 999px; padding: 2px 10px;
+    font-size: 11pt; font-weight: 800; border: 2px solid;
+  }
+  .waku {
+    display: inline-block; width: 28px; height: 28px; line-height: 28px;
+    border-radius: 6px; text-align: center; font-weight: 900; font-size: 11.5pt;
+  }
+  .w1 { background: #fff; color: #111; border: 1.5px solid #adb5bd; }
+  .w2 { background: #212529; color: #fff; }
+  .w3 { background: #e8563f; color: #fff; }
+  .w4 { background: #1c7ed6; color: #fff; }
+  .w5 { background: #ffd43b; color: #111; }
+  .w6 { background: #2f9e44; color: #fff; }
+  .kim { display: inline-block; width: 50px; height: 14px; border-radius: 3px; }
+
+  .sy { margin-bottom: 13px; page-break-inside: avoid; }
+  .sy .q {
+    background: #fff5f5; border-left: 7px solid #e03131; border-radius: 0 7px 7px 0;
+    padding: 9px 12px; font-weight: 900; color: #c92a2a; font-size: 12.5pt;
+  }
+  .sy .a { padding: 8px 12px 0 17px; font-size: 12pt; }
+
+  .back { text-align: right; font-size: 10pt; color: #1971c2; margin: 15px 0 0; font-weight: 800; }
+  .mk { font-size: 1pt; color: #ffffff; line-height: 1; }
+
+  .end {
+    margin-top: 24px; padding: 18px 13px; border-radius: 11px;
+    background: linear-gradient(135deg, #0d2740, #1b9fc4); color: #fff;
+    text-align: center; font-size: 14pt; font-weight: 900; line-height: 1.8;
+  }
+  .sign { text-align: center; font-size: 10pt; color: #6b8296; margin-top: 11px; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="band">
+    <h1>データ攻め トリセツ</h1>
+    <div class="en">BOATRACE DATA ─ 今日も、読んでから。</div>
+  </div>
+  <div class="lead">材料はそろえた。<br>決めるのは、<em>あなた</em>。</div>
+  <div class="body">
+    競艇のデータを見るサイトです。<br>
+    買い目は出しません。「◯号艇が来る」も言いません。<br><br>
+    出すのは、数字と、その数字の出どころだけです。
+  </div>
+  <div class="spec">14ページ ／ 無料 ／ 登録なし ／ 広告なし</div>
+  <div class="rev">2026年9月30日版 ／ 画面はその日のもの</div>
+</div>
+
+<div class="toc">
+  <span class="mk">@@top@@</span>
+  <h2>もくじ</h2>
+  <div class="sub">押すと、そのページに飛びます。</div>
+
+  <a href="#p1"><div class="part p1">第1部　はじめの3分
+    <span class="cap">ここだけ読めば、今日から使えます</span></div></a>
+  <ol>
+    <li><a href="#s11"><b>1. ホーム画面に置く</b></a></li>
+    <li><a href="#s12"><b>2. トップで今日の開催を見る</b></a></li>
+    <li><a href="#s13"><b>3. 答え合わせの帯を読む</b></a></li>
+    <li><a href="#s14"><b>4. 自分の場と好きな選手を登録する</b></a></li>
+    <li><a href="#s15"><b>5. 1日の見る順番</b></a></li>
+  </ol>
+
+  <a href="#p2"><div class="part p2">第2部　困ったとき
+    <span class="cap">記号の意味と、よくある質問</span></div></a>
+  <ol>
+    <li><a href="#s21"><b>記号の見本</b>　荒れ ①着外 機 の意味</a></li>
+    <li><a href="#s22"><b>おかしく見えるとき</b>　9つ</a></li>
+    <li><a href="#s23"><b>よくある質問</b></a></li>
+  </ol>
+
+  <a href="#p3"><div class="part p3">第3部　画面の辞書
+    <span class="cap">全部を読む必要はありません。引くだけです</span></div></a>
+  <table class="toc2">
+    <tr><td><a href="#g01">出走表</a></td><td><a href="#g02">見どころ</a></td></tr>
+    <tr><td><a href="#g03">モーター</a></td><td><a href="#g04">モーター整備</a></td></tr>
+    <tr><td><a href="#g05">24場のトリセツ</a></td><td><a href="#g06">選手図鑑</a></td></tr>
+    <tr><td><a href="#g07">レース結果</a></td><td><a href="#g08">万舟のツボ</a></td></tr>
+    <tr><td><a href="#g09">検証</a></td><td><a href="#g10">場の文化ほか</a></td></tr>
+    <tr><td><a href="#g11">用語辞典ほか</a></td><td><a href="#g12">やらないこと</a></td></tr>
+  </table>
+
+  <div class="hint">
+    <b>はじめての方へ</b>　第1部だけで足ります。3分で読めます。
+  </div>
+</div>
