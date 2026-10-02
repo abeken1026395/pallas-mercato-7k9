@@ -9,10 +9,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>選手占い ｜ 相性・勝負運</title>
 <style>
-/* 1列・左揃え。主役は「今日の干支盤」1つだけ。色の辞書：金＝選択中／あなた、桃・青緑・藤・若草＝点の内訳4項目（凡例あり）、級別の4色は他ページと同じ */
+/* 1列・左揃え。主役は「今日の干支盤」1つだけ。色の辞書：金＝選択中／あなた、水色・若竹・藤・牡丹＝点の内訳4項目（凡例あり）、級別の4色は他ページと同じ。
+   内訳4色は明度を4段（L* 87・76・67・57）に分け、1型・2型・3型の色覚でも色差21以上（CIE Lab・Machado 2009）。帯は2pxのすき間で区切る */
 :root{
  --night:#0b1219;--panel:#111c26;--panel2:#16242f;--line:#24364a;--ink:#e9eef2;--sub:#9db0bf;--dim:#7d909f;
- --gold:#ffd166;--rose:#ff8fc0;--teal:#5fd3c6;--wist:#b9a8ff;--leaf:#b5dc7a;
+ --gold:#ffd166;--mizu:#59eeff;--wakatake:#85cc8c;--fuji:#ad95e6;--botan:#cc66a3;
  --mincho:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP","BIZ UDPMincho",serif;
  --gothic:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic","YuGothic","Noto Sans JP",sans-serif;
  color-scheme:dark;
@@ -62,6 +63,20 @@ input:focus,select:focus{outline:none;border-color:var(--gold)}
 .seg button{min-height:44px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--sub);font:inherit;font-weight:700;font-size:15px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .seg button[aria-pressed="true"]{border-color:var(--gold);color:var(--gold);background:var(--panel2)}
 .search{margin-top:8px}
+.scope{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:14px}
+.scope button{min-height:44px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--sub);font:inherit;font-weight:700;font-size:15px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.scope button[aria-pressed="true"]{border-color:var(--gold);color:var(--gold);background:var(--panel2)}
+.pick{margin-top:10px}
+.pick select{margin-top:2px}
+.rchips{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:8px}
+.rchips button{min-height:48px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;font-size:15px;font-weight:700;line-height:1.2;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.rchips button small{display:block;font-size:13px;font-weight:500;color:var(--sub);font-variant-numeric:tabular-nums}
+.rchips button.done{color:var(--dim)}
+.rchips button[aria-pressed="true"]{border-color:var(--gold);color:var(--gold);background:var(--panel2)}
+.starpick{margin-top:12px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--panel);font-size:15px}
+.starpick b{color:var(--gold)}
+.starpick small{display:block;font-size:13px;color:var(--sub);margin-top:2px}
+.chip.star{color:var(--ink)}
 
 .count{margin-top:12px;font-size:13px;color:var(--sub)}
 .legend{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:6px;font-size:13px;color:var(--sub)}
@@ -87,7 +102,7 @@ input:focus,select:focus{outline:none;border-color:var(--gold)}
 .chip.oshi{color:var(--gold);border-color:var(--gold)}
 .sc{text-align:right}
 .sc b{display:block;font-family:var(--mincho);font-size:26px;line-height:1;font-variant-numeric:tabular-nums}
-.stack{display:flex;width:64px;height:6px;margin-top:6px;border-radius:3px;overflow:hidden;background:rgba(255,255,255,.08)}
+.stack{display:flex;gap:2px;width:68px;height:7px;margin-top:6px;border-radius:3px;overflow:hidden}
 .stack i{display:block;height:100%}
 .chev{color:var(--dim);font-size:13px;transition:transform .2s}
 .ent[aria-expanded="true"] .chev{transform:rotate(90deg)}
@@ -171,6 +186,14 @@ html[data-vr] body::after{content:none;margin:0}
  <p class="mine" id="mine"></p>
 </section>
 
+<div class="scope" id="scope" role="group" aria-label="見る範囲">
+ <button type="button" data-s="list" aria-pressed="true">選手を並べる</button>
+ <button type="button" data-s="race" aria-pressed="false">今日のレースで見る</button>
+</div>
+<section class="pick" id="pick" aria-label="レースを選ぶ" hidden>
+ <label for="pv" class="sr">場</label><select id="pv"></select>
+ <div class="rchips" id="rchips" role="group" aria-label="レース"></div>
+</section>
 <div class="seg" id="seg" role="group" aria-label="絞り込み">
  <button type="button" data-g="m" aria-pressed="true">男子</button>
  <button type="button" data-g="f" aria-pressed="false">女子</button>
@@ -275,7 +298,7 @@ function lsGetJSON(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(
 let OSHI=lsGetJSON('br_oshi',[]);if(!Array.isArray(OSHI))OSHI=[];
 function isOshi(toban){return OSHI.some(o=>o&&String(o.toban)===String(toban));}
 const RACE_MODE=!!(Q_JCD&&Q_HD&&Q_RNO);
-let RACE=null,RACE_MSG='';
+let RACE=null,RACE_MSG='',SCOPE='list',TODAYROWS=null,TODAYHD='';
 
 /* ===== 暦 ===== */
 const STEM='甲乙丙丁戊己庚辛壬癸',BRANCH='子丑寅卯辰巳午未申酉戌亥';
@@ -332,7 +355,7 @@ function natal(p){
 function pad(n){return String(n).padStart(2,'0');}
 
 /* ===== 点 ===== */
-const COL=['var(--rose)','var(--teal)','var(--wist)','var(--leaf)'];
+const COL=['var(--mizu)','var(--wakatake)','var(--fuji)','var(--botan)'];
 const LAB={aisho:['血液型','星座','生まれ年の干支','生まれ日の十干'],shobu:['今日の十干','今日の十二支','今月の星座','体のリズム']};
 function scoreAisho(me,p){
  const n=natal(p);if(!n)return null;
@@ -388,10 +411,10 @@ function compute(){
  for(let i=0;i<ranked.length;i++){if((ranked[i-1]&&ranked[i-1].rank===ranked[i].rank)||(ranked[i+1]&&ranked[i+1].rank===ranked[i].rank))ranked[i].tie=true;}
 }
 function isBirthday(p){const n=natal(p);return !!n&&n.mo===TODAY.m&&n.d===TODAY.d;}
-function stackHTML(parts){return '<span class="stack" aria-hidden="true">'+parts.map((x,i)=>`<i style="width:${x.pt}%;background:${COL[i]}"></i>`).join('')+'</span>';}
-function metaHTML(p,rank){
+function stackHTML(parts){return '<span class="stack" aria-hidden="true">'+parts.map((x,i)=>`<i style="flex:0 0 calc(${x.pt}% - 1.5px);background:${COL[i]}"></i>`).join('')+'</span>';}
+function metaHTML(p,rank,extra){
  const r=rank||p.rank||'';
- return `<span class="meta">${r?`<span class="cls ${esc(r)}">${esc(r)}</span>`:''}<span>${esc(p.branch||'')}</span>${isOshi(p.no)?'<span class="chip oshi">★推し</span>':''}${isBirthday(p)?'<span class="chip">今日が誕生日</span>':''}</span>`;
+ return `<span class="meta">${r?`<span class="cls ${esc(r)}">${esc(r)}</span>`:''}<span>${esc(p.branch||'')}</span>${isOshi(p.no)?'<span class="chip oshi">★推し</span>':''}${isBirthday(p)?'<span class="chip">今日が誕生日</span>':''}${extra||''}</span>`;
 }
 function rowHTML(o){
  const p=o.p;
@@ -409,7 +432,8 @@ function render(){
  const m=me();
  $('mine').innerHTML=m?`あなたは <b>${m.seiza}座</b>（${m.elem}）・<b>${BRANCH[m.yb]}年</b>・生まれ日の十干は <b>${STEM[m.ds]}</b>（${GOGYO_OF_STEM[m.ds]}）・<b>${m.blood}型</b>`:'';
  if(!LOADED)return;
- if(RACE){renderRace();return;}
+ $('seg').hidden=SCOPE==='race';$('q').parentNode.hidden=SCOPE==='race';$('pick').hidden=SCOPE!=='race';
+ if(SCOPE==='race'){renderRace();return;}
  $('back').innerHTML='';
  $('rmsg').hidden=!RACE_MSG;$('rmsg').textContent=RACE_MSG;
  compute();
@@ -430,23 +454,37 @@ function render(){
  $('more').hidden=!(ranked.length>LIMIT);
  $('moreBtn').textContent=`もっと見る（残り${ranked.length-LIMIT}人）`;
 }
-/* レース単位表示（枠順で固定。並べ替えはしない） */
+/* レース単位表示（枠順のまま。星の順は札で添える） */
 function renderRace(){
- $('rmsg').hidden=true;$('seg').hidden=true;document.querySelector('.search').hidden=true;$('more').hidden=true;
+ $('more').hidden=true;
+ if(!RACE){
+  $('rmsg').hidden=!RACE_MSG;$('rmsg').textContent=RACE_MSG;
+  $('count').textContent='';$('legend').innerHTML='';$('back').innerHTML=backlinkHTML();
+  $('list').innerHTML='<div class="hint">今日のレースのデータがまだありません。朝に出走表が出ると選べます。</div>';return;
+ }
+ $('rmsg').hidden=true;
  const m=TAB==='aisho'?me():null;
- const hd=RACE.hd.length===8?`${RACE.hd.slice(0,4)}年${+RACE.hd.slice(4,6)}月${+RACE.hd.slice(6,8)}日`:RACE.hd;
- $('count').textContent=`${RACE.venue} ／ ${hd} ／ ${RACE.rno}　枠順で表示`;
+ const dl=RACE.deadline?`（締切 ${RACE.deadline}）`:'';
+ $('count').textContent=`${RACE.venue} ${RACE.rno}${dl}　枠順で表示`;
  $('legend').innerHTML=(TAB==='aisho'&&!m)?'':legendHTML();
  $('back').innerHTML=backlinkHTML();
- $('list').innerHTML=RACE.rows.map(o=>{
-  const p=o.p;
-  const r=p?(TAB==='aisho'?(m?scoreAisho(m,p):null):scoreShobu(TODAY,p)):null;
-  const nm=(p&&p.name)||o.name;
-  const sc=r?`<b>${r.sc}</b>${stackHTML(r.parts)}`:`<b>—</b>`;
-  if(r){o.parts=r.parts;o.sc=r.sc;}
-  return `<button type="button" class="ent" data-no="${esc(o.no)}" aria-expanded="false" aria-controls="pf-${esc(o.no)}"${p?'':' disabled'}><span class="rk">${esc(o.frame)}<small>号艇</small></span><span class="nm"><span class="kana">${p?esc(kana2hira(p.kana)):''}</span><span class="full">${esc(nm)}</span>${p?metaHTML(p,o.rank):`<span class="meta"><span class="cls ${esc(o.rank)}">${esc(o.rank)}</span></span>`}</span><span class="sc">${sc}</span><span class="chev" aria-hidden="true">${p?'▶':''}</span></button><div class="prof" id="pf-${esc(o.no)}" hidden></div>`;
+ RACE.rows.forEach(o=>{const r=o.p?(TAB==='aisho'?(m?scoreAisho(m,o.p):null):scoreShobu(TODAY,o.p)):null;o.parts=r?r.parts:null;o.sc=r?r.sc:null;o.star=0;});
+ const sc=RACE.rows.filter(o=>o.sc!==null).slice().sort((a,b)=>b.sc-a.sc||(+a.frame)-(+b.frame));
+ sc.forEach((o,i)=>{o.star=(i>0&&sc[i-1].sc===o.sc)?sc[i-1].star:i+1;});
+ let top='';
+ if(sc.length){
+  const t=sc[0],nm=(t.p&&t.p.name)||t.name;
+  top=`<div class="starpick">このレースの星の推しは <b>${esc(t.frame)}号艇 ${esc(nm)}</b>（${TAB==='aisho'?'相性':'勝負運'} ${t.sc}点）。<small>根拠は星だけです。舟券は自分の目で。</small></div>`;
+ }else if(TAB==='aisho'){
+  top='<div class="hint">生年月日と血液型を入れると、この6人との相性が出ます。</div>';
+ }
+ $('list').innerHTML=top+RACE.rows.map(o=>{
+  const p=o.p,nm=(p&&p.name)||o.name;
+  const scH=o.sc!==null?`<b>${o.sc}</b>${stackHTML(o.parts)}`:`<b>—</b>`;
+  const star=o.star?`<span class="chip star">星の${o.star}番</span>`:'';
+  const meta=p?metaHTML(p,o.rank,star):`<span class="meta"><span class="cls ${esc(o.rank)}">${esc(o.rank)}</span>${star}</span>`;
+  return `<button type="button" class="ent" data-no="${esc(o.no)}" aria-expanded="false" aria-controls="pf-${esc(o.no)}"${p?'':' disabled'}><span class="rk">${esc(o.frame)}<small>号艇</small></span><span class="nm"><span class="kana">${p?esc(kana2hira(p.kana)):''}</span><span class="full">${esc(nm)}</span>${meta}</span><span class="sc">${scH}</span><span class="chev" aria-hidden="true">${p?'▶':''}</span></button><div class="prof" id="pf-${esc(o.no)}" hidden></div>`;
  }).join('');
- if(TAB==='aisho'&&!m)$('list').insertAdjacentHTML('afterbegin','<div class="hint" style="margin-bottom:8px">生年月日と血液型を入れると、この6人との相性が出ます。</div>');
 }
 function parseCSV(text){
  const t=text.replace(/^﻿/,'');
@@ -463,20 +501,48 @@ function parseCSV(text){
  const head=rows.shift()||[];
  return rows.filter(r=>r.length>1).map(r=>{const o={};head.forEach((h,j)=>o[h]=(r[j]||'').trim());return o;});
 }
-function loadRace(){
+function loadToday(){
  return fetch('../racers/racers_today.csv').then(r=>{if(!r.ok)throw 0;return r.text();}).then(txt=>{
-  const rows=parseCSV(txt);
-  if(!rows.some(r=>r['開催日']===Q_HD)){RACE_MSG='このレースのデータは当日のみ表示できます。';return;}
-  const jcd=Q_JCD.replace(/\D/g,'').padStart(2,'0'),rno=Q_RNO.replace(/\D/g,'');
-  const hit=rows.filter(r=>r['場コード']===jcd&&r['開催日']===Q_HD&&r['レース'].replace(/\D/g,'')===rno);
-  if(!hit.length){RACE_MSG='このレースのデータは見つかりませんでした。';return;}
-  hit.sort((a,b)=>(+a['枠']||0)-(+b['枠']||0));
-  RACE={venue:hit[0]['場名'],hd:Q_HD,rno:hit[0]['レース'],rows:hit.map(r=>{
-   const no=String(r['登録番号']);
-   return{no:no,frame:r['枠'],name:r['氏名'].replace(/[　\s]+/g,' ').trim(),rank:r['級別'],p:PLAYERS.find(x=>x.no===no)||null};
-  })};
- }).catch(()=>{RACE_MSG='レースのデータを読み込めませんでした。';});
+  const rows=parseCSV(txt).filter(r=>r['開催日']&&r['場コード']&&r['レース']);
+  const cnt={};rows.forEach(r=>cnt[r['開催日']]=(cnt[r['開催日']]||0)+1);
+  TODAYHD=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0]||'';
+  TODAYROWS=rows.filter(r=>r['開催日']===TODAYHD);
+ }).catch(()=>{TODAYROWS=[];RACE_MSG='レースのデータを読み込めませんでした。';});
 }
+function rnoNum(x){return +String(x).replace(/\D/g,'')||0;}
+function venues(){const v={};(TODAYROWS||[]).forEach(r=>{if(!v[r['場コード']])v[r['場コード']]=r['場名'];});return Object.keys(v).sort().map(k=>({jcd:k,name:v[k]}));}
+function racesOf(jcd){const m={};(TODAYROWS||[]).forEach(r=>{if(r['場コード']===jcd){const n=rnoNum(r['レース']);if(!m[n])m[n]={rno:n,label:r['レース'],deadline:r['締切時刻']||''};}});return Object.values(m).sort((a,b)=>a.rno-b.rno);}
+function nowHM(){const d=new Date(Date.now()+9*3600000);return pad(d.getUTCHours())+':'+pad(d.getUTCMinutes());} /* 締切は日本時間 */
+function selectRace(jcd,rno,push){
+ const hit=(TODAYROWS||[]).filter(r=>r['場コード']===jcd&&rnoNum(r['レース'])===rno).sort((a,b)=>(+a['枠']||0)-(+b['枠']||0));
+ if(!hit.length){RACE=null;RACE_MSG='このレースのデータは見つかりませんでした。';return;}
+ RACE={jcd,venue:hit[0]['場名'],hd:TODAYHD,rno:hit[0]['レース'],deadline:hit[0]['締切時刻']||'',rows:hit.map(r=>{
+  const no=String(r['登録番号']);
+  return{no,frame:r['枠'],name:r['氏名'].replace(/[　\s]+/g,' ').trim(),rank:r['級別'],p:PLAYERS.find(x=>x.no===no)||null};
+ })};
+ RACE_MSG='';
+ $('pv').value=jcd;drawChips();
+ if(push){try{const u=new URL(location.href);u.search=`?jcd=${jcd}&hd=${TODAYHD}&rno=${rno}`+(Q_FROM&&BACKLINK[Q_FROM]?`&from=${Q_FROM}`:'');history.replaceState(null,'',u);}catch(e){}}
+}
+function drawChips(){
+ const jcd=$('pv').value,hm=nowHM();
+ $('rchips').innerHTML=racesOf(jcd).map(x=>`<button type="button" data-r="${x.rno}" aria-pressed="${RACE&&RACE.jcd===jcd&&rnoNum(RACE.rno)===x.rno?'true':'false'}" class="${x.deadline&&x.deadline<hm?'done':''}">${x.rno}R<small>${esc(x.deadline)}</small></button>`).join('');
+}
+function firstRaceOf(jcd){const hm=nowHM(),rs=racesOf(jcd);return (rs.find(x=>x.deadline&&x.deadline>=hm)||rs[rs.length-1]||{}).rno;}
+function buildPicker(){
+ const vs=venues();
+ $('pv').innerHTML=vs.map(v=>`<option value="${esc(v.jcd)}">${esc(v.name)}</option>`).join('');
+ if(!vs.length)return;
+ /* 最初は、締切がいちばん近いレース */
+ const hm=nowHM();let best=null;
+ (TODAYROWS||[]).forEach(r=>{const d=r['締切時刻']||'';if(d>=hm&&(!best||d<best.d))best={d,jcd:r['場コード'],rno:rnoNum(r['レース'])};});
+ if(!best){const j=vs[0].jcd;best={jcd:j,rno:firstRaceOf(j)};}
+ selectRace(best.jcd,best.rno,false);
+}
+$('pv').addEventListener('change',()=>{const j=$('pv').value;selectRace(j,firstRaceOf(j),true);render();});
+$('rchips').addEventListener('click',e=>{const b=e.target.closest('button[data-r]');if(!b)return;selectRace($('pv').value,+b.dataset.r,true);render();});
+function setScope(sc){SCOPE=sc;document.querySelectorAll('#scope button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.s===sc?'true':'false'));}
+document.querySelectorAll('#scope button').forEach(b=>b.addEventListener('click',()=>{setScope(b.dataset.s);render();}));
 function num(v,suf){return (v===undefined||v===null||v==='')?'—':esc(v)+(suf||'');}
 function profHTML(p,parts){
  const why=parts?`<h3>星の内訳</h3><div class="why">${parts.map((x,i)=>`<div><i style="background:${COL[i]}"></i><span>${LAB[TAB][i]}：${esc(x.w)}</span><em>${x.pt}点</em></div>`).join('')}</div>`:'';
@@ -508,7 +574,7 @@ function toggle(btn,force){
  if(open&&!prof.dataset.filled){
   const p=PLAYERS.find(x=>x.no===no);if(!p)return;
   let parts=null;
-  if(RACE){const o=RACE.rows.find(x=>x.no===no);parts=o&&o.parts||null;}
+  if(SCOPE==='race'&&RACE){const o=RACE.rows.find(x=>x.no===no);parts=o&&o.parts||null;}
   else{const o=(ranked||[]).find(x=>x.p.no===no);parts=o?o.parts:null;}
   prof.innerHTML=profHTML(p,parts);prof.dataset.filled='1';
  }
@@ -566,11 +632,22 @@ function tally(days){
   const n=rows.length;
   rows.forEach((o,i)=>{const k=i<n/3?0:i<2*n/3?1:2;for(const g of[T[k],ALL]){g.ppl++;g.st+=o.r.st;g.w+=o.r.w;g.t3+=o.r.t3;}});
  }
- return{T,ALL};
+ /* レースごとの星の推し（勝負運が6人でいちばん高い選手・同点は内の枠）と、同じレースの1号艇 */
+ const RS={n:0,star:0,one:0};
+ for(const day of days){
+  const y=+day.hd.slice(0,4),m=+day.hd.slice(4,6),d=+day.hd.slice(6,8),ctx=dayCtx(y,m,d);
+  for(const rc of (day.races||[])){
+   const ok=rc.filter(b=>b[1]!==16);if(!ok.length)continue;
+   let top=null;for(const b of ok){const p=byNo[b[0]];const s=p?scoreShobu(ctx,p):null;if(!s)continue;if(!top||s.sc>top.sc||(s.sc===top.sc&&b[2]<top.f))top={sc:s.sc,f:b[2],ch:b[1]};}
+   if(!top)continue;RS.n++;if(top.ch===1)RS.star++;
+   const one=rc.find(b=>b[2]===1);if(one&&one[1]===1)RS.one++;
+  }
+ }
+ return{T,ALL,RS};
 }
 function pct(a,b){return b?(a/b*100).toFixed(1)+'%':'—';}
 function showTally(days){
- const{T,ALL}=tally(days);
+ const{T,ALL,RS}=tally(days);
  const hd=s=>`${+s.slice(4,6)}月${+s.slice(6,8)}日`;
  const span=days.length===1?hd(days[0].hd)+'のレース':`${hd(days[days.length-1].hd)}から${hd(days[0].hd)}の${days.length}日`;
  const lab=['勝負運 上位3分の1','真ん中','下位3分の1'];
@@ -584,13 +661,15 @@ function showTally(days){
  $('checkBody').innerHTML=`<p>${span}・その日の勝負運で、走った選手を3つに分けました。</p>
  <div class="tblwrap"><table><thead><tr><th scope="col"></th><th scope="col">${days.length===1?'選手':'延べ選手'}</th><th scope="col">出走</th><th scope="col">1着率</th><th scope="col">3着以内率</th></tr></thead><tbody>${rows}</tbody></table></div>
  <p class="verdict">${v}</p>
+ <p>レースごとの星の推し（勝負運が6人でいちばん高い選手）が1着になったのは <b style="color:var(--ink)">${RS.n?pct(RS.star,RS.n):'—'}</b>（${RS.n}レース）。同じレースの1号艇は ${RS.n?pct(RS.one,RS.n):'—'}。${RS.star<RS.one?'星より枠でした。':'星が枠に勝ちました。たぶん、たまたまです。'}</p>
  <p>出典：当サイトの結果データ（公式のレース結果）。欠場は数えず、転覆・失格などは出走に数えています。級別や枠の偏りはそろえていません。${days.length===1?'1日分だと、偶然でも数ポイントの差は出ます。':''}</p>`;
 }
 function loadDay(hd){
  return getJSON(`../results/data/${hd}.json`).then(j=>{
   const boats=[];
-  for(const v of (j['場']||[]))for(const r of (v['レース']||[]))for(const b of (r['艇']||[]))boats.push([String(b['登番']),+b['着']]);
-  return{hd,boats};
+  const races=[];
+  for(const v of (j['場']||[]))for(const r of (v['レース']||[])){const rc=[];for(const b of (r['艇']||[])){boats.push([String(b['登番']),+b['着']]);rc.push([String(b['登番']),+b['着'],+b['枠']||0]);}races.push(rc);}
+  return{hd,boats,races};
  });
 }
 function startCheck(){
@@ -611,10 +690,15 @@ render(); /* 先にリード文だけ出す（一覧の高さは保つ） */
 Promise.all([getJSON('../data/racerStatsCore.json'),getJSON('../data/racerStatsDetail.json')])
  .then(([core,detail])=>{
   PLAYERS=buildPlayers(core,detail);
-  return RACE_MODE?loadRace():null;
+  return loadToday();
  })
  .then(()=>{
-  if(Q_TOBAN&&!RACE){
+  buildPicker();
+  if(RACE_MODE){
+   if(Q_HD===TODAYHD){selectRace(Q_JCD.replace(/\D/g,'').padStart(2,'0'),rnoNum(Q_RNO),false);setScope('race');}
+   else RACE_MSG='このレースのデータは当日のみ表示できます。';
+  }
+  if(Q_TOBAN&&SCOPE!=='race'){
    $('q').value=Q_TOBAN;
    setGen('all');
    if(TAB==='aisho'&&!me())setTab('shobu');
@@ -622,7 +706,7 @@ Promise.all([getJSON('../data/racerStatsCore.json'),getJSON('../data/racerStatsD
   LOADED=true;
   render();
   startCheck();
-  if(Q_TOBAN&&!RACE){const b=$('list').querySelector(`.ent[data-no="${CSS.escape(Q_TOBAN)}"]`);if(b){toggle(b,true);setTimeout(()=>b.scrollIntoView({behavior:'smooth',block:'center'}),200);}}
+  if(Q_TOBAN&&SCOPE!=='race'){const b=$('list').querySelector(`.ent[data-no="${CSS.escape(Q_TOBAN)}"]`);if(b){toggle(b,true);setTimeout(()=>b.scrollIntoView({behavior:'smooth',block:'center'}),200);}}
  })
  .catch(()=>{
   $('list').innerHTML='<div class="hint">選手データを読み込めませんでした。時間をおいて開き直してください。</div>';
