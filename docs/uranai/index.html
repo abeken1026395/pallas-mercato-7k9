@@ -57,6 +57,16 @@ input,select{display:block;width:100%;min-height:46px;background:var(--panel2);b
 input:focus,select:focus{outline:none;border-color:var(--gold)}
 .mine{margin-top:10px;font-size:14px;color:var(--sub)}
 .mine b{color:var(--gold);font-weight:700}
+.mycard{margin-top:10px;padding:14px;border:1px solid var(--gold);border-radius:14px;background:var(--panel2)}
+.mycard h2{font-size:14px;font-weight:700;color:var(--sub)}
+.mycard .big{display:flex;align-items:baseline;gap:6px;margin-top:2px}
+.mycard .big b{font-family:var(--mincho);font-size:52px;line-height:1;font-variant-numeric:tabular-nums}
+.mycard .big span{font-size:15px;color:var(--sub)}
+.mycard .stack{width:100%;height:10px;margin-top:10px}
+.mycard .pos{margin-top:8px;font-size:14px;color:var(--sub)}
+.mycard .pos b{color:var(--ink)}
+.mycard .say{margin-top:10px;font-size:15px}
+.mycard .hint{margin-top:8px;padding:12px;font-size:14px}
 
 /* 絞り込み */
 .seg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:14px}
@@ -185,6 +195,7 @@ html[data-vr] body::after{content:none;margin:0}
  </div>
  <p class="mine" id="mine"></p>
 </section>
+<section class="mycard" id="mycard" aria-label="あなたの今日の勝負運" hidden></section>
 
 <div class="scope" id="scope" role="group" aria-label="見る範囲">
  <button type="button" data-s="list" aria-pressed="true">選手を並べる</button>
@@ -366,6 +377,10 @@ function scoreAisho(me,p){
 function dayCtx(y,m,d){const dp=dayPillar(y,m,d),sz=seiza(m,d);return{y,m,d,s:dp.s,b:dp.b,seiza:sz,elem:ELEM[sz],dn:dayNum(y,m,d)};}
 function scoreShobu(day,p){
  const n=natal(p);if(!n)return null;
+ return shobuOf(day,n);
+}
+/* 勝負運の計算本体（選手でもあなたでも同じ式） */
+function shobuOf(day,n){
  const t=day.dn-n.dn,v=Math.sin(2*Math.PI*t/23);
  const bio={pt:Math.round(12.5*(1+v)),w:v>0.7?'山':v<-0.7?'谷':v>=0?'上り坂':'下り坂'};
  const parts=[relStem(day.s,n.ds),relBranch(day.b,n.yb),relElem(day.elem,n.elem),bio];
@@ -420,17 +435,36 @@ function rowHTML(o){
  const p=o.p;
  return `<button type="button" class="ent ${o.rank<=3?'top3':''}" data-no="${esc(p.no)}" aria-expanded="false" aria-controls="pf-${esc(p.no)}"><span class="rk">${o.rank}${o.tie?'<small>同点</small>':''}</span><span class="nm"><span class="kana">${esc(kana2hira(p.kana))}</span><span class="full">${esc(p.name)}</span>${metaHTML(p)}</span><span class="sc"><b>${o.sc}</b>${stackHTML(o.parts)}</span><span class="chev" aria-hidden="true">▶</span></button><div class="prof" id="pf-${esc(p.no)}" hidden></div>`;
 }
+/* あなたの今日の勝負運（選手と同じ式・同じ物差し）。一言は点の帯ごとの固定文 */
+const MYSAY=[[80,'星はあなたの味方のようです。財布の味方かは別です。'],[70,'星まわりは上々。ただし、星は舟券を買ってくれません。'],[60,'星はやや好意的。片想いくらいの距離感です。'],[50,'可もなく不可もなく。星もあなたも平常運転です。'],[40,'星はよそ見をしています。こっちを向くまで、データでも見ていてください。'],[30,'星は本日、定休日のようです。データ攻めは年中無休です。'],[0,'星があなたを避けています。悪いのは星です。あなたは悪くありません。']]; /* 計算上の最低は23点 */
+function renderMy(){
+ const box=$('mycard');
+ if(TAB!=='shobu'){box.hidden=true;return;}
+ box.hidden=false;
+ const m=me();
+ if(!m){box.innerHTML='<h2>あなたの今日の勝負運</h2><div class="hint">上で生年月日と血液型を入れると、あなたの勝負運も出ます。</div>';return;}
+ const r=shobuOf(TODAY,{ds:m.ds,yb:m.yb,elem:m.elem,dn:dayNum(m.y,m.mo,m.d)});
+ let pos='';
+ if(LOADED){
+  let n=0,above=0;
+  for(const p of PLAYERS){const x=scoreShobu(TODAY,p);if(!x)continue;n++;if(x.sc>r.sc)above++;}
+  if(n)pos=`<p class="pos">選手 <b>${n.toLocaleString()}人</b>と同じ物差しで並べると、あなたは <b>${(above+1).toLocaleString()}位</b>あたり。</p>`;
+ }
+ const say=(MYSAY.find(x=>r.sc>=x[0])||MYSAY[MYSAY.length-1])[1];
+ box.innerHTML=`<h2>あなたの今日の勝負運</h2><div class="big"><b>${r.sc}</b><span>／100点</span></div>${stackHTML(r.parts)}<div class="why">${r.parts.map((x,i)=>`<div><i style="background:${COL[i]}"></i><span>${LAB.shobu[i]}：${esc(x.w)}</span><em>${x.pt}点</em></div>`).join('')}</div>${pos}<p class="say">${say}</p>`;
+}
 function legendHTML(){return LAB[TAB].map((l,i)=>`<span><i style="background:${COL[i]}"></i>${l}</span>`).join('');}
 function render(){
  if(TAB==='aisho'){
   $('inputPanel').hidden=false;
   $('lead').textContent='全国勝率もモーターも展示も、ぜんぶ見ません。データ攻めで唯一、データを捨てたページです。';
  }else{
-  $('inputPanel').hidden=true;
+  $('inputPanel').hidden=false;
   $('lead').textContent='今日の星まわりだけで選手を並べます。実力は別売りです。';
  }
  const m=me();
  $('mine').innerHTML=m?`あなたは <b>${m.seiza}座</b>（${m.elem}）・<b>${BRANCH[m.yb]}年</b>・生まれ日の十干は <b>${STEM[m.ds]}</b>（${GOGYO_OF_STEM[m.ds]}）・<b>${m.blood}型</b>`:'';
+ renderMy();
  if(!LOADED)return;
  $('seg').hidden=SCOPE==='race';$('q').parentNode.hidden=SCOPE==='race';$('pick').hidden=SCOPE!=='race';
  if(SCOPE==='race'){renderRace();return;}
