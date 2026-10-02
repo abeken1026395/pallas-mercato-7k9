@@ -15,7 +15,7 @@ async def main():
         ctx = await b.new_context(viewport={"width": 390, "height": 844},
                                   device_scale_factor=S.DSF, service_workers="block")
         await ctx.route("**/*", S.route)
-        await ctx.add_init_script("try{localStorage.setItem('uranai_me',JSON.stringify({bd:'1990-04-01',bl:'O'}))}catch(e){}")
+        await ctx.add_init_script("try{localStorage.setItem('uranai_me',JSON.stringify({bd:'1990-04-01',bl:'O'}));localStorage.setItem('uranai_motion','off')}catch(e){}")  # 図は動きを止めて撮る
         pg = await ctx.new_page()
         errs = []
         pg.on("pageerror", lambda e: errs.append(str(e)))
@@ -30,7 +30,7 @@ async def main():
         await pg.click("#tab-shobu")
         await pg.wait_for_timeout(500)
         await S.grab(pg, "figUranaiMine", "#mycard", "#mycard",
-                     ["#mycard .big", "#mycard .why", "#mycard .pos", "#mycard .say"], pad_top=14, pad_bot=14)
+                     ["#mycard .big", "#mycard .front .stack", "#mycard .say", "#flipbtn"], pad_top=14, pad_bot=14)
         # レースで占う（勝負運・締切に関係なく12Rが並ぶ最初の場の1R）
         await pg.click("#tab-shobu")
         await pg.click('#scope button[data-s="race"]')
