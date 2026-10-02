@@ -1,4 +1,4 @@
-"""選手占いの図2枚（figUranai・figUranaiCheck）を撮る。shootFigs.py の grab を使う。"""
+"""選手占いの図3枚（figUranai・figUranaiCheck・figUranaiRace）を撮る。shootFigs.py の grab を使う。"""
 import asyncio, sys
 sys.path.insert(0, "/home/claude/next")
 import types
@@ -25,7 +25,15 @@ async def main():
                      ["#today", ".tabs", "#inputPanel", "#seg", ".ent#0"], pad_top=14, pad_bot=14)
         await pg.wait_for_timeout(500)
         await S.grab(pg, "figUranaiCheck", "#checkTtl", "#howTtl",
-                     ["table", ".verdict", "#chk7", "#howTtl"], pad_top=14, pad_bot=16)
+                     ["table", ".verdict", "text^:レースごとの星の推し", "#chk7", "#howTtl"], pad_top=14, pad_bot=16)
+        # レースで占う（勝負運・締切に関係なく12Rが並ぶ最初の場の1R）
+        await pg.click("#tab-shobu")
+        await pg.click('#scope button[data-s="race"]')
+        await pg.select_option("#pv", index=0)
+        await pg.click('#rchips button[data-r="1"]')
+        await pg.wait_for_timeout(500)
+        await S.grab(pg, "figUranaiRace", "#scope", ".ent#1",
+                     ["#scope", "#pv", "#rchips", ".starpick", ".ent#0 >> .chip.star"], pad_top=14, pad_bot=14)
         print("errs", errs)
         await b.close()
 
