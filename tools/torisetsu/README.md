@@ -11,6 +11,7 @@
 - `next/build.py` … shell と部を組み立てて `next/index.html` を作る
 - `fig.py` … 番号の丸を描く共通部品（shootFigs.py が読む）
 - `next/shootTop.py` … トップの図3枚（figTopNav・figTopKaisai・figTopKensho）
+- `next/shootUranai.py` … 選手占いの図2枚（figUranai・figUranaiCheck）。撮ったあと dark.py・cue.py を回し、cue.json は既存の値に2件を足す形で合わせる
 - `next/shootFigs.py` ほか `shoot*.py`・`probe*.py`・`cap.py` … 本番ページを Playwright で撮って図を作る（番号の丸は要素の矩形から自動）
 - `next/dark.py`（図の左の白帯を地の色に）・`cue.py`（オレンジの丸を検出して cue.json）
 - `next/toProd.py`（本番 `docs/torisetsu/` へ・外部リクエスト0）・`toDocs.py`（実験場へ）

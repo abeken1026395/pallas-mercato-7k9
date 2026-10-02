@@ -9,129 +9,214 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>選手占い ｜ 相性・勝負運</title>
 <style>
-:root{--bg:#0b1219;--card:#121d28;--card2:#16242f;--line:#22323f;--ink:#e8eef3;--sub:#8aa0b0;--gold:#ffd166;--rose:#ff7eb6;}
+/* 1列・左揃え。主役は「今日の干支盤」1つだけ。色の辞書：金＝選択中／あなた、桃・青緑・藤・若草＝点の内訳4項目（凡例あり）、級別の4色は他ページと同じ */
+:root{
+ --night:#0b1219;--panel:#111c26;--panel2:#16242f;--line:#24364a;--ink:#e9eef2;--sub:#9db0bf;--dim:#7d909f;
+ --gold:#ffd166;--rose:#ff8fc0;--teal:#5fd3c6;--wist:#b9a8ff;--leaf:#b5dc7a;
+ --mincho:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP","BIZ UDPMincho",serif;
+ --gothic:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic","YuGothic","Noto Sans JP",sans-serif;
+ color-scheme:dark;
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--ink);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;line-height:1.6;-webkit-text-size-adjust:100%}
-.wrap{max-width:560px;margin:0 auto;padding:20px 16px 60px}
-header{text-align:center;padding:24px 0 8px}
-.kicker{font-size:11px;letter-spacing:.32em;color:var(--rose);font-weight:700}
-h1{font-size:23px;font-weight:800;margin-top:6px;letter-spacing:.02em}
-h1 .v{color:var(--gold)}
-.lead{font-size:12.5px;color:var(--sub);margin-top:8px;overflow-wrap:break-word}
-.tabs{display:flex;gap:8px;margin-top:18px}
-.tab{flex:1;text-align:center;padding:11px 8px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--sub);font-weight:800;font-size:14px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:.15s}
-.tab .em{font-size:11px;display:block;font-weight:600;color:var(--sub);margin-top:2px}
-.tab.on{background:var(--card2);color:var(--gold);border-color:var(--gold)}
-.tab.on .em{color:var(--rose)}
-.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:14px}
-.panel h2{font-size:12px;letter-spacing:.16em;color:var(--sub);font-weight:700;margin-bottom:12px}
-.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-label{font-size:12px;color:var(--sub);display:block;margin-bottom:4px}
-input,select{background:var(--card2);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:10px 12px;font-size:15px;width:100%;font-family:inherit}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--night);color:var(--ink);font-family:var(--gothic);font-size:15px;line-height:1.7}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.top{display:flex;flex-wrap:wrap;gap:4px 8px;padding:6px 16px 0;max-width:600px;margin:0 auto}
+.siteback,.sitelink{display:inline-flex;align-items:center;min-height:44px;padding:0 8px;font-size:14px;color:var(--sub);text-decoration:underline;text-underline-offset:3px}
+.wrap{max-width:600px;margin:0 auto;padding:4px 16px 48px}
+
+/* 冒頭 */
+.hero{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:14px 0 6px}
+.hero>div{min-width:0}
+h1{font-family:var(--mincho);font-size:40px;line-height:1.15;font-weight:700;letter-spacing:.06em;text-wrap:balance}
+.lead{margin-top:10px;font-size:15px;color:var(--ink)}
+.quip{margin-top:6px;font-size:13px;color:var(--sub)}
+.dial{width:132px;height:132px;flex-shrink:0}
+.dial text{font-family:var(--mincho)}
+.today{margin-top:6px;font-size:13px;color:var(--sub)}
+.today b{color:var(--gold);font-weight:700}
+@media (max-width:380px){.hero{grid-template-columns:1fr}.dial{justify-self:start}}
+
+/* タブ */
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+.tab{min-height:64px;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:var(--panel);color:var(--sub);font:inherit;font-weight:700;font-size:17px;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.tab small{display:block;font-size:13px;font-weight:500;color:var(--dim);margin-top:2px}
+.tab[aria-selected="true"]{border-color:var(--gold);color:var(--gold);background:var(--panel2)}
+.tab[aria-selected="true"] small{color:var(--ink)}
+
+/* 入力 */
+.me{margin-top:12px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+.me[hidden]{display:none}
+.me h2{font-size:14px;font-weight:700;color:var(--sub)}
+.fields{display:grid;grid-template-columns:minmax(0,1fr) 112px;gap:10px;margin-top:8px}
+label{display:block;font-size:13px;color:var(--sub);margin-bottom:4px}
+input,select{display:block;width:100%;min-height:46px;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:8px 12px;font:inherit;font-size:16px}
 input:focus,select:focus{outline:none;border-color:var(--gold)}
-.f{flex:1;min-width:120px}
-.seg{display:flex;gap:6px;margin-top:14px}
-.seg div{flex:1;text-align:center;padding:9px 6px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--sub);font-weight:700;font-size:13px;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.seg div.on{background:var(--card2);color:var(--gold);border-color:var(--gold)}
-.search{margin-top:10px}
-.you{margin-top:14px;font-size:12.5px;color:var(--sub);text-align:center}
-.you b{color:var(--gold)}
-.hint{margin-top:18px;background:var(--card);border:1px dashed var(--line);border-radius:16px;padding:28px 18px;text-align:center;color:var(--sub);font-size:13px}
+.mine{margin-top:10px;font-size:14px;color:var(--sub)}
+.mine b{color:var(--gold);font-weight:700}
+
+/* 絞り込み */
+.seg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:14px}
+.seg button{min-height:44px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--sub);font:inherit;font-weight:700;font-size:15px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.seg button[aria-pressed="true"]{border-color:var(--gold);color:var(--gold);background:var(--panel2)}
+.search{margin-top:8px}
+
+.count{margin-top:12px;font-size:13px;color:var(--sub)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:6px;font-size:13px;color:var(--sub)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.back{margin-top:8px}
+.backlink{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel);font-size:14px;font-weight:700;text-decoration:none}
+.rmsg{margin-top:12px;font-size:14px;color:var(--sub)}
+
+/* 一覧 */
+.list{margin-top:10px;min-height:120px}
+.ent{display:grid;grid-template-columns:44px minmax(0,1fr) auto 18px;gap:10px;align-items:center;width:100%;min-height:64px;padding:10px 12px;margin-top:8px;background:var(--panel);border:1px solid var(--line);border-radius:12px;color:inherit;font:inherit;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.ent[aria-expanded="true"]{border-color:var(--gold);border-bottom-left-radius:0;border-bottom-right-radius:0}
+.rk{font-family:var(--mincho);font-size:20px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums;color:var(--sub);line-height:1.1}
+.rk small{display:block;font-family:var(--gothic);font-size:13px;font-weight:500}
+.ent.top3 .rk{color:var(--gold)}
+.nm{min-width:0}
+.nm .kana{display:block;font-size:13px;color:var(--dim);line-height:1.3}
+.nm .full{display:block;font-size:17px;font-weight:700;line-height:1.35;overflow-wrap:anywhere}
+.nm .meta{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-size:13px;color:var(--sub);margin-top:2px}
+.cls{display:inline-block;font-size:13px;font-weight:700;padding:0 6px;border-radius:5px;line-height:20px}
+.A1{background:#e23b3b;color:#fff}.A2{background:#e67e22;color:#0b1219}.B1{background:#2f7be2;color:#fff}.B2{background:#4a5b68;color:#fff}
+.chip{display:inline-block;font-size:13px;padding:0 6px;border-radius:5px;line-height:20px;border:1px solid var(--line);color:var(--ink)}
+.chip.oshi{color:var(--gold);border-color:var(--gold)}
+.sc{text-align:right}
+.sc b{display:block;font-family:var(--mincho);font-size:26px;line-height:1;font-variant-numeric:tabular-nums}
+.stack{display:flex;width:64px;height:6px;margin-top:6px;border-radius:3px;overflow:hidden;background:rgba(255,255,255,.08)}
+.stack i{display:block;height:100%}
+.chev{color:var(--dim);font-size:13px;transition:transform .2s}
+.ent[aria-expanded="true"] .chev{transform:rotate(90deg)}
+.prof{padding:6px 14px 16px;background:var(--panel);border:1px solid var(--gold);border-top:none;border-radius:0 0 12px 12px}
+.prof[hidden]{display:none}
+.prof h3{font-size:14px;font-weight:700;color:var(--sub);margin-top:12px}
+.why{margin-top:6px;display:grid;gap:6px}
+.why div{display:grid;grid-template-columns:12px minmax(0,1fr) auto;gap:8px;align-items:baseline;font-size:14px}
+.why i{width:10px;height:10px;border-radius:2px;align-self:center}
+.why span{color:var(--sub)}
+.why em{font-style:normal;font-weight:700;font-variant-numeric:tabular-nums}
+.real{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:6px}
+.real div{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:6px 8px}
+.real dt{font-size:13px;color:var(--sub)}
+.real dd{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.c1{margin-top:6px;display:grid;gap:4px}
+.c1 div{display:grid;grid-template-columns:64px minmax(0,1fr) 52px;gap:8px;align-items:center;font-size:13px}
+.c1 b{display:block;height:12px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden}
+.c1 b i{display:block;height:100%;background:var(--sub)}
+.c1 span:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.tozukan{display:inline-flex;align-items:center;min-height:44px;margin-top:8px;font-size:14px;text-decoration:underline;text-underline-offset:3px}
+.hint{margin-top:10px;padding:24px 16px;border:1px dashed var(--line);border-radius:14px;color:var(--sub);font-size:15px}
 .hint b{color:var(--gold)}
-.list{margin-top:14px;min-height:104px}
-.rmsg{margin-top:12px;font-size:12px;color:var(--sub);text-align:center;line-height:1.7}
-.nm .full a{display:inline-block;min-height:24px;padding:2px 1px;color:inherit;text-decoration:underline;text-underline-offset:2px}
-.nm .full .oshi{display:inline-block;min-width:24px;min-height:24px;line-height:24px;text-align:center;color:var(--gold);font-size:13px}
-.back{margin-top:8px;text-align:center}
-.backlink{display:inline-block;min-width:24px;min-height:24px;padding:9px 16px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font-size:13px;font-weight:700;text-decoration:none}
+.more{margin-top:12px}
+.more button{min-height:44px;padding:0 20px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font:inherit;font-weight:700;cursor:pointer}
+
+/* 答え合わせ */
+.check{margin-top:36px;padding-top:20px;border-top:1px solid var(--line)}
+.check h2,.how h2{font-family:var(--mincho);font-size:24px;font-weight:700;line-height:1.3}
+.check p{margin-top:6px;font-size:14px;color:var(--sub)}
+.tblwrap{margin-top:12px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+th,td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+thead th{font-size:13px;color:var(--sub);font-weight:500}
+.verdict{margin-top:12px;padding:12px 14px;border-left:3px solid var(--gold);background:var(--panel);font-size:15px}
+.chkbtn{margin-top:10px}
+.chkbtn button{min-height:44px;padding:0 16px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.chkbtn button[disabled]{opacity:.6;cursor:default}
+
+/* 計算式 */
+.how{margin-top:32px}
+.how details{margin-top:10px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+.how summary{min-height:48px;display:flex;align-items:center;padding:0 14px;font-weight:700;cursor:pointer}
+.how .body{padding:0 14px 14px;font-size:14px}
+.how .body p,.how .body li{margin-top:6px}
+.how ul{padding-left:1.2em}
+.how .body .s{color:var(--sub)}
+.foot{margin-top:24px;font-size:13px;color:var(--sub)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.ent{display:flex;align-items:center;gap:10px;padding:11px 12px;background:var(--card);border:1px solid var(--line);border-left-width:4px;border-radius:12px;margin-top:8px;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.ent.lvA1{border-left-color:#e23b3b}.ent.lvA2{border-left-color:#e67e22}.ent.lvB1{border-left-color:#2f7be2}.ent.lvB2{border-left-color:#4a5b68}
-.rank{font-size:13px;font-weight:800;color:var(--sub);width:34px;text-align:center;flex-shrink:0;font-variant-numeric:tabular-nums}
-.ent.t3 .rank{color:var(--gold)}
-/* レース単位表示の艇番。全員リストの順位（.rank）とは別物と分かるよう幅と色を上書きする。出走表の艇色は持ち込まない */
-.rank.rankframe{width:auto;min-width:48px;padding:0 2px;color:var(--ink);white-space:nowrap}
-.ent.t3 .rank.rankframe{color:var(--ink)}
-.rkbadge{display:inline-block;font-size:10px;font-weight:800;padding:2px 6px;border-radius:5px;flex-shrink:0}
-.rkA1{background:#e23b3b;color:#fff}.rkA2{background:#e67e22;color:#fff}.rkB1{background:#2f7be2;color:#fff}.rkB2{background:#4a5b68;color:#fff}
-.nm{flex:1;min-width:0}
-.nm .kana{display:block;font-size:10px;color:var(--sub);letter-spacing:.04em;line-height:1.2}
-.nm .full{font-size:15px;font-weight:600}
-.nm .full .h{color:var(--rose);font-size:12px}
-.nm .meta{font-size:10.5px;color:var(--sub)}
-.bar{height:5px;border-radius:3px;background:rgba(255,255,255,.07);margin-top:4px;overflow:hidden;max-width:160px}
-.bar i{display:block;height:100%;border-radius:3px}
-.sc{font-weight:800;font-size:17px;font-variant-numeric:tabular-nums;flex-shrink:0}
-.chev{flex-shrink:0;color:var(--sub);font-size:11px;transition:transform .2s}
-.ent.open{border-color:var(--gold)}
-.ent.open .chev{transform:rotate(90deg)}
-.prof{display:none;background:var(--card);border:1px solid var(--line);border-top:none;border-radius:0 0 12px 12px;margin-top:-8px;padding:6px 12px 14px}
-.prof.show{display:block}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
-.cell{background:var(--card2);border:1px solid var(--line);border-radius:9px;padding:8px 6px;text-align:center}
-.cell .lb{font-size:9.5px;color:var(--sub);letter-spacing:.04em}
-.cell .vl{font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;margin-top:2px}
-.cell .sub{font-size:9px;color:var(--sub);margin-top:1px}
-.c1wrap{margin-top:12px}
-.c1ttl{font-size:10px;color:var(--sub);letter-spacing:.1em;margin-bottom:7px}
-.c1row{display:flex;align-items:center;gap:7px;margin-bottom:5px}
-.c1lb{font-size:10px;color:var(--sub);width:26px;flex-shrink:0}
-.c1bar{flex:1;height:13px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden}
-.c1bar i{display:block;height:100%;border-radius:4px}
-.c1val{font-size:10px;color:var(--ink);width:38px;text-align:right;flex-shrink:0;font-variant-numeric:tabular-nums}
-.more{margin-top:14px;text-align:center}
-.more button{display:inline-block;background:var(--card2);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:10px 22px;font-size:13px;font-weight:700;cursor:pointer}
-.note{margin-top:22px;font-size:11px;color:var(--sub);line-height:1.7;text-align:center}
-.foot{margin-top:8px;font-size:10.5px;color:#5a6f7d;text-align:center}
-.sitelink{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;margin:6px 0 2px;font-size:13px;line-height:1;color:inherit;text-decoration:underline;text-underline-offset:3px}
-.sitelink:focus-visible{outline:2px solid currentColor;outline-offset:2px}
-.siteback{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;margin:6px 0 2px;font-size:13px;line-height:1;color:inherit;text-decoration:underline;text-underline-offset:3px}
-.siteback:focus-visible{outline:2px solid currentColor;outline-offset:2px}
 body::after{content:"データ攻め ／ YouTube あべけん";display:block;margin:18px 0 20px;font-size:11px;color:#8a8f98;letter-spacing:.02em;text-align:center}
 html[data-vr] body::after{content:none;margin:0}
 .vr-note{display:block;margin:18px 0 20px;font-size:11px;color:#8a8f98;letter-spacing:.02em;text-align:center}
+@media (prefers-reduced-motion:reduce){.chev{transition:none}}
 </style>
 </head>
 <body>
-<a class="siteback" href="../">← データ攻め トップ</a>
-<a class="sitelink" href="../torisetsu/#g10">📘 トリセツ</a>
+<nav class="top"><a class="siteback" href="../">← データ攻め トップ</a><a class="sitelink" href="../torisetsu/#g10">📘 トリセツ</a></nav>
 <div class="wrap">
-<header>
-<div class="kicker">URANAI  BOAT  RACE</div>
-<h1>選手<span class="v">占い</span></h1>
-<p class="lead" id="lead"></p>
+<header class="hero">
+ <div>
+  <h1>選手占い</h1>
+  <p class="lead" id="lead"></p>
+  <p class="quip">当たれば星のおかげ、外れたら星のせい。舟券代は星から出ません。</p>
+  <p class="today" id="today"></p>
+ </div>
+ <svg class="dial" id="dial" viewBox="0 0 132 132" role="img" aria-label="今日の日の干支"></svg>
 </header>
 
-<div class="tabs">
-<div class="tab on" data-t="aisho">相性<span class="em">あなた × 選手</span></div>
-<div class="tab" data-t="shobu">勝負運<span class="em">今日の星まわり</span></div>
+<div class="tabs" role="tablist">
+ <button class="tab" role="tab" id="tab-aisho" data-t="aisho" aria-selected="true">相性<small>あなた × 選手<br>片想い歓迎</small></button>
+ <button class="tab" role="tab" id="tab-shobu" data-t="shobu" aria-selected="false">勝負運<small>今日の星まわり<br>実力は別売り</small></button>
 </div>
 
-<div class="panel" id="inputPanel">
-<h2>あなたの情報</h2>
-<div class="row">
-<div class="f"><label>生年月日</label><input type="date" id="bd" value="" min="1930-01-01" max="2012-12-31"></div>
-<div class="f" style="max-width:130px"><label>血液型</label>
-<select id="bl"><option value="" disabled selected>選ぶ</option><option>A</option><option>B</option><option>O</option><option>AB</option></select></div>
-</div>
-</div>
+<section class="me" id="inputPanel" aria-label="あなたの情報">
+ <h2>あなたの生まれ</h2>
+ <div class="fields">
+  <div><label for="bd">生年月日</label><input type="date" id="bd" value="" min="1930-01-01" max="2012-12-31"></div>
+  <div><label for="bl">血液型</label><select id="bl"><option value="" disabled selected>選ぶ</option><option>A</option><option>B</option><option>O</option><option>AB</option></select></div>
+ </div>
+ <p class="mine" id="mine"></p>
+</section>
 
-<div class="seg" id="seg">
-<div data-g="m" class="on">男子</div>
-<div data-g="f">女子</div>
-<div data-g="all">全員</div>
-<div data-g="oshi">推し</div>
+<div class="seg" id="seg" role="group" aria-label="絞り込み">
+ <button type="button" data-g="m" aria-pressed="true">男子</button>
+ <button type="button" data-g="f" aria-pressed="false">女子</button>
+ <button type="button" data-g="all" aria-pressed="false">全員</button>
+ <button type="button" data-g="oshi" aria-pressed="false">推し</button>
 </div>
-<div class="search"><input type="text" id="q" placeholder="名前・ふりがな・登番で検索"></div>
+<div class="search"><label class="sr" for="q">選手を検索</label><input type="text" id="q" placeholder="名前・ふりがな・登番で検索" autocomplete="off"></div>
 
-<p class="rmsg" id="rmsg" style="display:none"></p>
-<div class="you" id="you"></div>
+<p class="rmsg" id="rmsg" hidden></p>
+<p class="count" id="count"></p>
+<div class="legend" id="legend"></div>
 <div class="back" id="back"></div>
 <div class="list" id="list"><div class="hint">選手データを読み込んでいます…</div></div>
-<div class="more" id="more" style="display:none"><button id="moreBtn">もっと見る</button></div>
+<div class="more" id="more" hidden><button type="button" id="moreBtn">もっと見る</button></div>
 
-<p class="note" id="note"></p>
-<p class="foot">入力はこの端末にだけ保存されます／出典：公式期別成績</p>
+<section class="check" id="check" aria-labelledby="checkTtl">
+ <h2 id="checkTtl">星の答え合わせ</h2>
+ <p>勝負運が本物なら、上位の選手はたくさん勝っているはず。終わったレースで確かめます。</p>
+ <div id="checkBody"><p>結果を読み込んでいます…</p></div>
+ <div class="chkbtn"><button type="button" id="chk7" hidden>直近7日分で確かめる（約1.7MB読み込みます）</button></div>
+</section>
+
+<section class="how" aria-labelledby="howTtl">
+ <h2 id="howTtl">星の計算式</h2>
+ <p class="s" style="font-size:14px;color:var(--sub);margin-top:4px">占いでも、中身は全部見せます。同じ生年月日なら、誰が計算しても同じ点になります。</p>
+ <details><summary>相性（100点・日付では変わらない）</summary><div class="body">
+  <ul>
+   <li><b>血液型 25点</b>：言い伝えの組み合わせ表（O×Bが高め、A×Bが低め）。科学的な根拠はありません。</li>
+   <li><b>星座 25点</b>：火・地・風・水の4つに分けて、同じ25／火と風・地と水20／火と水・地と風10／それ以外15。</li>
+   <li><b>生まれ年の干支 25点</b>：三合25／支合23／同じ18／ちょうど反対（冲）5／それ以外13。</li>
+   <li><b>生まれ日の十干 25点</b>：生まれた日の干支の「干」（甲・乙…）を五行で比べる。干合25／相生20／同じ五行16／相剋8。</li>
+  </ul>
+  <p class="s">同点は登番の小さい順。星は同点の決め方を教えてくれませんでした。</p>
+ </div></details>
+ <details><summary>勝負運（100点・毎日0時に変わる）</summary><div class="body">
+  <ul>
+   <li><b>今日の十干 25点</b>：今日の日の「干」と、選手の生まれ日の「干」を五行で比べる（相性と同じ表）。</li>
+   <li><b>今日の十二支 25点</b>：今日の日の「支」と、選手の生まれ年の干支（相性と同じ表）。</li>
+   <li><b>今月の星座 25点</b>：今日が何座の期間かと、選手の星座（相性と同じ表）。</li>
+   <li><b>体のリズム 25点</b>：生まれた日から数えた日数を23日周期の波にして、山の日25・谷の日0。</li>
+  </ul>
+  <p class="s">日の干支は2000年1月1日＝戊午の日を起点に60日周期で数えます。年の干支は1月1日で切り替えます（立春ではありません）。星座の境目は毎年同じ日付で区切ります。</p>
+ </div></details>
+</section>
+
+<p class="foot">入力はこの端末にだけ保存されます。星にも送りません。／選手の成績の出典：公式期別成績</p>
 </div>
 
 <script>
@@ -189,89 +274,95 @@ function backlinkHTML(){
 function lsGetJSON(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
 let OSHI=lsGetJSON('br_oshi',[]);if(!Array.isArray(OSHI))OSHI=[];
 function isOshi(toban){return OSHI.some(o=>o&&String(o.toban)===String(toban));}
-function oshiBadge(toban){return isOshi(toban)?'<span class="oshi" title="推し">★<span class="sr">推し</span></span>':'';}
 const RACE_MODE=!!(Q_JCD&&Q_HD&&Q_RNO);
 let RACE=null,RACE_MSG='';
-const AISHO_SEED=20260101; // 相性は固定（日付で動かさない）
-const now=new Date();
-const DAY_SEED=now.getFullYear()*10000+(now.getMonth()+1)*100+now.getDate(); // 勝負運は今日で毎朝更新
-const ETO=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
-const SANGO=[['申','子','辰'],['寅','午','戌'],['亥','卯','未'],['巳','酉','丑']].map(s=>new Set(s));
-const ROKUGO=[['子','丑'],['寅','亥'],['卯','戌'],['辰','酉'],['巳','申'],['午','未']].map(s=>s.join());
-const CHU={子:'午',午:'子',丑:'未',未:'丑',寅:'申',申:'寅',卯:'酉',酉:'卯',辰:'戌',戌:'辰',巳:'亥',亥:'巳'};
+
+/* ===== 暦 ===== */
+const STEM='甲乙丙丁戊己庚辛壬癸',BRANCH='子丑寅卯辰巳午未申酉戌亥';
+const GOGYO_OF_STEM=['木','木','火','火','土','土','金','金','水','水'];
+const GOGYO_NEXT={木:'火',火:'土',土:'金',金:'水',水:'木'};
+const SANGO=[[8,0,4],[2,6,10],[11,3,7],[5,9,1]];          /* 申子辰・寅午戌・亥卯未・巳酉丑 */
+const SHIGO=['0,1','2,11','3,10','4,9','5,8','6,7'];       /* 子丑・寅亥・卯戌・辰酉・巳申・午未 */
 const ELEM={おひつじ:'火',しし:'火',いて:'火',おうし:'地',おとめ:'地',やぎ:'地',ふたご:'風',てんびん:'風',みずがめ:'風',かに:'水',さそり:'水',うお:'水'};
-function eto(y){return ETO[((y-4)%12+12)%12];}
-function seiza(mo,d){
- const z=[[1,20,'やぎ'],[2,19,'みずがめ'],[3,21,'うお'],[4,20,'おひつじ'],[5,21,'おうし'],[6,22,'ふたご'],[7,23,'かに'],[8,23,'しし'],[9,23,'おとめ'],[10,24,'てんびん'],[11,23,'さそり'],[12,22,'いて'],[12,31,'やぎ']];
- for(const[em,ed,n]of z){if(mo<em||(mo==em&&d<=ed))return n;}return 'やぎ';
+/* 星座の境目（標準の日付）：各星座の最終日 */
+const SEIZA_END=[[1,19,'やぎ'],[2,18,'みずがめ'],[3,20,'うお'],[4,19,'おひつじ'],[5,20,'おうし'],[6,21,'ふたご'],[7,22,'かに'],[8,22,'しし'],[9,22,'おとめ'],[10,23,'てんびん'],[11,22,'さそり'],[12,21,'いて'],[12,31,'やぎ']];
+function seiza(mo,d){for(const[em,ed,n]of SEIZA_END){if(mo<em||(mo===em&&d<=ed))return n;}return 'やぎ';}
+function dayNum(y,m,d){return Math.floor(Date.UTC(y,m-1,d)/86400000);}
+const DAY0=dayNum(2000,1,1); /* 戊午の日（60干支の54番） */
+function dayPillar(y,m,d){const i=(((54+dayNum(y,m,d)-DAY0)%60)+60)%60;return{s:i%10,b:i%12};}
+function yearBranch(y){return((y-4)%12+12)%12;}
+function relStem(a,b){
+ if(Math.abs(a-b)===5)return{pt:25,w:'干合'};
+ const ga=GOGYO_OF_STEM[a],gb=GOGYO_OF_STEM[b];
+ if(ga===gb)return{pt:16,w:'同じ五行'};
+ if(GOGYO_NEXT[ga]===gb||GOGYO_NEXT[gb]===ga)return{pt:20,w:'相生'};
+ return{pt:8,w:'相剋'};
 }
-const BLOOD={'O,O':.7,'O,A':.8,'O,B':.85,'O,AB':.65,'A,A':.6,'A,B':.5,'A,AB':.75,'B,B':.7,'B,AB':.8,'AB,AB':.6};
-function bloodScore(a,b){return BLOOD[a+','+b]??BLOOD[b+','+a]??.5;}
+function relBranch(a,b){
+ if(SANGO.some(g=>g.includes(a)&&g.includes(b))&&a!==b)return{pt:25,w:'三合'};
+ if(SHIGO.includes([a,b].sort((x,y)=>x-y).join()))return{pt:23,w:'支合'};
+ if(a===b)return{pt:18,w:'同じ'};
+ if((a+6)%12===b)return{pt:5,w:'冲（反対）'};
+ return{pt:13,w:'ふつう'};
+}
+function relElem(a,b){
+ if(a===b)return{pt:25,w:'同じ'+a};
+ const k=[a,b].sort().join();
+ if(k==='火,風'||k==='地,水')return{pt:20,w:'助け合う'};
+ if(k==='水,火'||k==='地,風')return{pt:10,w:'すれ違う'};
+ return{pt:15,w:'ふつう'};
+}
+const BLOOD={'O,O':.7,'A,O':.8,'B,O':.85,'AB,O':.65,'A,A':.6,'A,B':.5,'A,AB':.75,'B,B':.7,'AB,B':.8,'AB,AB':.6};
+function relBlood(a,b){const v=BLOOD[[a,b].sort().join()];return v==null?null:{pt:Math.round(v*25),w:a+'×'+b};}
 const WARE={昭和:1925,平成:1988,令和:2018};
 function parseBirth(s){
  const m=(s||'').match(/(昭和|平成|令和)(\d+)年(\d+)月(\d+)日/);
  if(!m)return null;
  return[WARE[m[1]]+ +m[2],+m[3],+m[4]];
 }
-function pno(p){return parseInt(p.no,10)||0;}
-/* 相性（固定） */
-function scoreAisho(me,p){
- const b=parseBirth(p.birth);if(!b)return 0;
- const[y,mo,d]=b;
- const sB=bloodScore(me.blood,p.blood)*25;
- const pe=ELEM[seiza(mo,d)],meE=me.elem;
- let sE;
- if(pe===meE)sE=25;
- else if((pe=='火'&&meE=='風')||(pe=='風'&&meE=='火')||(pe=='地'&&meE=='水')||(pe=='水'&&meE=='地'))sE=20;
- else if((pe=='火'&&meE=='水')||(pe=='水'&&meE=='火')||(pe=='地'&&meE=='風')||(pe=='風'&&meE=='地'))sE=10;
- else sE=15;
- const pet=eto(y),pair=[pet,me.eto].sort().join();
- let sT;
- if(pet===me.eto)sT=18;
- else if(SANGO.some(g=>g.has(pet)&&g.has(me.eto)))sT=25;
- else if(ROKUGO.includes(pair))sT=23;
- else if(CHU[me.eto]===pet)sT=5;
- else sT=14;
- const base=y*10000+mo*100+d;
- const h=(base*31+AISHO_SEED*17+pno(p)*7)%1000;
- return Math.round(sB+sE+sT+h/1000*25);
+/* 選手ごとの不変の暦（初回に1度だけ作る） */
+function natal(p){
+ if(p._n!==undefined)return p._n;
+ const b=parseBirth(p.birth);
+ if(!b){p._n=null;return null;}
+ const[y,mo,d]=b,dp=dayPillar(y,mo,d),sz=seiza(mo,d);
+ p._n={y,mo,d,ds:dp.s,db:dp.b,yb:yearBranch(y),seiza:sz,elem:ELEM[sz],dn:dayNum(y,mo,d)};
+ return p._n;
 }
-/* 勝負運（毎朝＝今日の日付） */
-const DAY_ETO=(()=>{const base=Date.UTC(1873,0,1);const d=Math.floor((Date.UTC(now.getFullYear(),now.getMonth(),now.getDate())-base)/86400000);return ETO[((d%12)+12)%12];})();
-const DAY_SEIZA=seiza(now.getMonth()+1,now.getDate());const DAY_ELEM=ELEM[DAY_SEIZA];
-function scoreShobu(p){
- const b=parseBirth(p.birth);if(!b)return 0;
- const[y,mo,d]=b;const no=pno(p);
- const base=y*10000+mo*100+d;
- const sDay=((base*37+DAY_SEED*13+no*11)%1000)/1000*25;
- const pe=eto(y),pair=[pe,DAY_ETO].sort().join();
- let sE;
- if(pe===DAY_ETO)sE=20;
- else if(SANGO.some(g=>g.has(pe)&&g.has(DAY_ETO)))sE=25;
- else if(ROKUGO.includes(pair))sE=23;
- else if(CHU[DAY_ETO]===pe)sE=6;
- else sE=14;
- const pel=ELEM[seiza(mo,d)];let baseE;
- if(pel===DAY_ELEM)baseE=22;
- else if((pel=='火'&&DAY_ELEM=='風')||(pel=='風'&&DAY_ELEM=='火')||(pel=='地'&&DAY_ELEM=='水')||(pel=='水'&&DAY_ELEM=='地'))baseE=19;
- else if((pel=='火'&&DAY_ELEM=='水')||(pel=='水'&&DAY_ELEM=='火')||(pel=='地'&&DAY_ELEM=='風')||(pel=='風'&&DAY_ELEM=='地'))baseE=11;
- else baseE=15;
- const wobble=((no*7+DAY_SEED)%7)-3;
- const sS=Math.max(5,Math.min(25,baseE+wobble));
- const bmap={A:2,B:3,O:5,AB:7};
- const sB=((DAY_SEED+(bmap[p.blood]||1)*111+no*3)%100)/100*25;
- return Math.round(sDay+sE+sS+sB);
-}
-function kana2hira(s){return (s||'').replace(/[\u30a1-\u30f6]/g,c=>String.fromCharCode(c.charCodeAt(0)-0x60));}
-const BARC=s=>s>=80?'#ffd166':s>=65?'#ff7eb6':s>=50?'#5f9fd6':'#6b7f8c';
-const $=id=>document.getElementById(id);
+function pad(n){return String(n).padStart(2,'0');}
 
-let TAB='aisho',GEN='m',LIMIT=120,ranked=[],LOADED=false;
+/* ===== 点 ===== */
+const COL=['var(--rose)','var(--teal)','var(--wist)','var(--leaf)'];
+const LAB={aisho:['血液型','星座','生まれ年の干支','生まれ日の十干'],shobu:['今日の十干','今日の十二支','今月の星座','体のリズム']};
+function scoreAisho(me,p){
+ const n=natal(p);if(!n)return null;
+ const bl=relBlood(me.blood,p.blood)||{pt:12,w:'血液型不明'};
+ const parts=[bl,relElem(me.elem,n.elem),relBranch(me.yb,n.yb),relStem(me.ds,n.ds)];
+ return{sc:parts.reduce((a,x)=>a+x.pt,0),parts};
+}
+function dayCtx(y,m,d){const dp=dayPillar(y,m,d),sz=seiza(m,d);return{y,m,d,s:dp.s,b:dp.b,seiza:sz,elem:ELEM[sz],dn:dayNum(y,m,d)};}
+function scoreShobu(day,p){
+ const n=natal(p);if(!n)return null;
+ const t=day.dn-n.dn,v=Math.sin(2*Math.PI*t/23);
+ const bio={pt:Math.round(12.5*(1+v)),w:v>0.7?'山':v<-0.7?'谷':v>=0?'上り坂':'下り坂'};
+ const parts=[relStem(day.s,n.ds),relBranch(day.b,n.yb),relElem(day.elem,n.elem),bio];
+ return{sc:parts.reduce((a,x)=>a+x.pt,0),parts};
+}
+const now=new Date();
+const TODAY=dayCtx(now.getFullYear(),now.getMonth()+1,now.getDate());
+
+function kana2hira(s){return (s||'').replace(/[ァ-ヶ]/g,c=>String.fromCharCode(c.charCodeAt(0)-0x60));}
+const $=id=>document.getElementById(id);
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+let TAB='aisho',GEN='m',LIMIT=100,ranked=[],LOADED=false;
 function me(){
  const v=$('bd').value,bl=$('bl').value;
  if(!v||!bl)return null;
  const[Y,M,D]=v.split('-').map(Number);
- return{y:Y,mo:M,d:D,blood:bl,eto:eto(Y),elem:ELEM[seiza(M,D)]};
+ if(!Y||!M||!D)return null;
+ const dp=dayPillar(Y,M,D),sz=seiza(M,D);
+ return{y:Y,mo:M,d:D,blood:bl,yb:yearBranch(Y),ds:dp.s,db:dp.b,seiza:sz,elem:ELEM[sz]};
 }
 function filtered(){
  let a=PLAYERS;
@@ -279,80 +370,86 @@ function filtered(){
  else if(GEN==='f')a=a.filter(p=>p.female);
  else if(GEN==='oshi')a=a.filter(p=>isOshi(p.no));
  const q=$('q').value.trim();
- if(q){const qh=kana2hira(q);a=a.filter(p=>p.name.includes(q)||kana2hira(p.kana).includes(qh)||p.kana.includes(q)||String(p.no).includes(q));}
+ if(q){const qh=kana2hira(q);a=a.filter(p=>(p.name||'').includes(q)||kana2hira(p.kana).includes(qh)||String(p.no).includes(q));}
  return a;
 }
 function compute(){
- if(TAB==='aisho'){const m=me();if(!m){ranked=null;return;}ranked=filtered().map(p=>({p,sc:scoreAisho(m,p)}));}
- else ranked=filtered().map(p=>({p,sc:scoreShobu(p)}));
- ranked.sort((a,b)=>b.sc-a.sc);
+ const m=TAB==='aisho'?me():null;
+ if(TAB==='aisho'&&!m){ranked=null;return;}
+ ranked=[];
+ for(const p of filtered()){
+  const r=TAB==='aisho'?scoreAisho(m,p):scoreShobu(TODAY,p);
+  if(r)ranked.push({p,sc:r.sc,parts:r.parts});
+ }
+ ranked.sort((a,b)=>b.sc-a.sc||(+a.p.no)-(+b.p.no));
+ /* 同点は同じ順位（1,1,3…） */
+ let prev=null,rk=0;
+ ranked.forEach((o,i)=>{if(o.sc!==prev){rk=i+1;prev=o.sc;}o.rank=rk;o.tie=false;});
+ for(let i=0;i<ranked.length;i++){if((ranked[i-1]&&ranked[i-1].rank===ranked[i].rank)||(ranked[i+1]&&ranked[i+1].rank===ranked[i].rank))ranked[i].tie=true;}
 }
-function rowHTML(o,i){
- const p=o.p;const fem=p.female?' <span class="h">♥</span>':'';
- return `<div class="ent lv${p.rank} ${i<3?'t3':''}" data-no="${p.no}"><div class="rank">${i+1}</div><span class="rkbadge rk${p.rank}">${p.rank}</span><div class="nm"><span class="kana">${kana2hira(p.kana)}</span><span class="full">${p.name}${oshiBadge(p.no)}${fem}</span><span class="meta">${p.branch}</span><div class="bar"><i style="width:${o.sc}%;background:${BARC(o.sc)}"></i></div></div><div class="sc">${o.sc}</div><div class="chev">▶</div></div><div class="prof" id="pf-${p.no}"></div>`;
+function isBirthday(p){const n=natal(p);return !!n&&n.mo===TODAY.m&&n.d===TODAY.d;}
+function stackHTML(parts){return '<span class="stack" aria-hidden="true">'+parts.map((x,i)=>`<i style="width:${x.pt}%;background:${COL[i]}"></i>`).join('')+'</span>';}
+function metaHTML(p,rank){
+ const r=rank||p.rank||'';
+ return `<span class="meta">${r?`<span class="cls ${esc(r)}">${esc(r)}</span>`:''}<span>${esc(p.branch||'')}</span>${isOshi(p.no)?'<span class="chip oshi">★推し</span>':''}${isBirthday(p)?'<span class="chip">今日が誕生日</span>':''}</span>`;
 }
+function rowHTML(o){
+ const p=o.p;
+ return `<button type="button" class="ent ${o.rank<=3?'top3':''}" data-no="${esc(p.no)}" aria-expanded="false" aria-controls="pf-${esc(p.no)}"><span class="rk">${o.rank}${o.tie?'<small>同点</small>':''}</span><span class="nm"><span class="kana">${esc(kana2hira(p.kana))}</span><span class="full">${esc(p.name)}</span>${metaHTML(p)}</span><span class="sc"><b>${o.sc}</b>${stackHTML(o.parts)}</span><span class="chev" aria-hidden="true">▶</span></button><div class="prof" id="pf-${esc(p.no)}" hidden></div>`;
+}
+function legendHTML(){return LAB[TAB].map((l,i)=>`<span><i style="background:${COL[i]}"></i>${l}</span>`).join('');}
 function render(){
  if(TAB==='aisho'){
-  $('inputPanel').style.display='block';
-  $('lead').innerHTML='血液型・星座・干支・生年月日の相性だけで選手を並べます。予想ではなく遊びです。';
-  $('note').innerHTML='相性＝血液型25・星座25・干支25・生年月日25の合計100点。日付では変わりません。';
+  $('inputPanel').hidden=false;
+  $('lead').textContent='全国勝率もモーターも展示も、ぜんぶ見ません。データ攻めで唯一、データを捨てたページです。';
  }else{
-  $('inputPanel').style.display='none';
-  $('lead').innerHTML='実力は見ません。今日の星まわりだけで並べた遊びで、予想ではありません。当たったら運、外れても運。';
-  $('note').innerHTML='勝負運＝生年月日25・干支の日運25・星座の日運25・血液型バイオリズム25の合計100点。毎朝その日の星まわりで並び替わります。';
+  $('inputPanel').hidden=true;
+  $('lead').textContent='今日の星まわりだけで選手を並べます。実力は別売りです。';
  }
- if(!LOADED)return; // 読み込み中はリスト領域に触らない（高さを保つ）
+ const m=me();
+ $('mine').innerHTML=m?`あなたは <b>${m.seiza}座</b>（${m.elem}）・<b>${BRANCH[m.yb]}年</b>・生まれ日の十干は <b>${STEM[m.ds]}</b>（${GOGYO_OF_STEM[m.ds]}）・<b>${m.blood}型</b>`:'';
+ if(!LOADED)return;
  if(RACE){renderRace();return;}
  $('back').innerHTML='';
- $('rmsg').style.display=RACE_MSG?'block':'none';
- $('rmsg').textContent=RACE_MSG;
+ $('rmsg').hidden=!RACE_MSG;$('rmsg').textContent=RACE_MSG;
  compute();
  if(ranked===null){
-  $('you').innerHTML='';
-  $('list').innerHTML='<div class="hint"><b>生年月日</b>と<b>血液型</b>を選ぶと<br>相性順に並びます。</div>';
-  $('more').style.display='none';return;
+  $('count').textContent='';$('legend').innerHTML='';
+  $('list').innerHTML='<div class="hint"><b>生年月日</b>と<b>血液型</b>を入れると、運命の選手が並びます。<br>運命に払戻はありません。</div>';
+  $('more').hidden=true;return;
  }
  if(GEN==='oshi'&&ranked.length===0){
-  $('you').innerHTML='';
-  $('list').innerHTML='<div class="hint">選手図鑑や出走表で<b>★</b>を付けると、ここに出ます。<br><a class="backlink" href="../players/" style="margin-top:12px">選手図鑑をひらく</a></div>';
-  $('more').style.display='none';return;
+  $('count').textContent='';$('legend').innerHTML='';
+  $('list').innerHTML='<div class="hint">推しがまだいません。選手図鑑や出走表で<b>★</b>を付けると、星と推しがここで出会います。<br><a class="backlink" href="../players/" style="margin-top:12px">選手図鑑をひらく</a></div>';
+  $('more').hidden=true;return;
  }
- if(TAB==='aisho'){const m=me();$('you').innerHTML=`あなた：<b>${seiza(m.mo,m.d)}座</b>・<b>${m.eto}年</b>・<b>${m.blood}型</b>　該当 ${ranked.length}名`;}
- else $('you').innerHTML=`本日 <b>${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日</b>／ 日の干支 <b>${DAY_ETO}</b>・星座 <b>${DAY_SEIZA}座</b>　該当 ${ranked.length}名`;
- const show=ranked.slice(0,LIMIT);
- $('list').innerHTML=show.map((o,i)=>rowHTML(o,i)).join('');
- $('more').style.display=ranked.length>LIMIT?'block':'none';
- $('moreBtn').textContent=`もっと見る（残り${ranked.length-LIMIT}名）`;
+ $('count').textContent=(TAB==='aisho'?'相性の高い順':'今日の勝負運の高い順')+`　${ranked.length}人`;
+ $('legend').innerHTML=legendHTML();
+ if(!ranked.length){$('list').innerHTML='<div class="hint">その名前・登番の選手は見つかりませんでした。</div>';$('more').hidden=true;return;}
+ $('list').innerHTML=ranked.slice(0,LIMIT).map(rowHTML).join('');
+ $('more').hidden=!(ranked.length>LIMIT);
+ $('moreBtn').textContent=`もっと見る（残り${ranked.length-LIMIT}人）`;
 }
-/* レース単位表示（枠順で固定。並べ替え・強調はしない） */
-function raceScore(o,m){
- const p=o.p;
- if(!p||!p.birth)return '—';
- if(TAB==='aisho')return m?scoreAisho(m,p):'—';
- return scoreShobu(p);
-}
-function raceRowHTML(o,m){
- const p=o.p,rk=(p&&p.rank)||o.rank||'B2';
- const nm=(p&&p.name)||o.name,kn=(p&&p.kana)?kana2hira(p.kana):'';
- const br=(p&&p.branch)?p.branch:'';
- const fem=(p&&p.female)?' <span class="h">♥</span>':'';
- const link=`<a href="?toban=${o.no}">${nm}</a>`;
- const sc=raceScore(o,m);
- return `<div class="ent lv${rk}" data-no="${o.no}"><div class="rank rankframe">${o.frame}号艇</div><span class="rkbadge rk${rk}">${rk}</span><div class="nm"><span class="kana">${kn}</span><span class="full">${link}${oshiBadge(o.no)}${fem}</span><span class="meta">${br}</span></div><div class="sc">${sc}</div>${p?'<div class="chev">▶</div>':''}</div><div class="prof" id="pf-${o.no}"></div>`;
-}
+/* レース単位表示（枠順で固定。並べ替えはしない） */
 function renderRace(){
- $('rmsg').style.display='none';
- $('seg').style.display='none';
- document.querySelector('.search').style.display='none';
- $('more').style.display='none';
- const m=(TAB==='aisho')?me():null;
+ $('rmsg').hidden=true;$('seg').hidden=true;document.querySelector('.search').hidden=true;$('more').hidden=true;
+ const m=TAB==='aisho'?me():null;
  const hd=RACE.hd.length===8?`${RACE.hd.slice(0,4)}年${+RACE.hd.slice(4,6)}月${+RACE.hd.slice(6,8)}日`:RACE.hd;
- $('you').innerHTML=`<b>${RACE.venue}</b> ／ ${hd} ／ <b>${RACE.rno}</b>　枠順で表示`;
+ $('count').textContent=`${RACE.venue} ／ ${hd} ／ ${RACE.rno}　枠順で表示`;
+ $('legend').innerHTML=(TAB==='aisho'&&!m)?'':legendHTML();
  $('back').innerHTML=backlinkHTML();
- $('list').innerHTML=RACE.rows.map(o=>raceRowHTML(o,m)).join('');
+ $('list').innerHTML=RACE.rows.map(o=>{
+  const p=o.p;
+  const r=p?(TAB==='aisho'?(m?scoreAisho(m,p):null):scoreShobu(TODAY,p)):null;
+  const nm=(p&&p.name)||o.name;
+  const sc=r?`<b>${r.sc}</b>${stackHTML(r.parts)}`:`<b>—</b>`;
+  if(r){o.parts=r.parts;o.sc=r.sc;}
+  return `<button type="button" class="ent" data-no="${esc(o.no)}" aria-expanded="false" aria-controls="pf-${esc(o.no)}"${p?'':' disabled'}><span class="rk">${esc(o.frame)}<small>号艇</small></span><span class="nm"><span class="kana">${p?esc(kana2hira(p.kana)):''}</span><span class="full">${esc(nm)}</span>${p?metaHTML(p,o.rank):`<span class="meta"><span class="cls ${esc(o.rank)}">${esc(o.rank)}</span></span>`}</span><span class="sc">${sc}</span><span class="chev" aria-hidden="true">${p?'▶':''}</span></button><div class="prof" id="pf-${esc(o.no)}" hidden></div>`;
+ }).join('');
+ if(TAB==='aisho'&&!m)$('list').insertAdjacentHTML('afterbegin','<div class="hint" style="margin-bottom:8px">生年月日と血液型を入れると、この6人との相性が出ます。</div>');
 }
 function parseCSV(text){
- const t=text.replace(/^\uFEFF/,'');
+ const t=text.replace(/^﻿/,'');
  const rows=[];let row=[],cur='',q=false;
  for(let i=0;i<t.length;i++){
   const c=t[i];
@@ -380,66 +477,137 @@ function loadRace(){
   })};
  }).catch(()=>{RACE_MSG='レースのデータを読み込めませんでした。';});
 }
-function openPlayer(no){
- const ent=$('list').querySelector(`.ent[data-no="${no}"]`);
- if(!ent)return false;
- if(!ent.classList.contains('open')){
-  ent.classList.add('open');
-  const prof=$('pf-'+no),p=PLAYERS.find(x=>x.no==no);
-  if(prof&&p&&!prof.dataset.filled){prof.innerHTML=profHTML(p);prof.dataset.filled='1';}
-  prof&&prof.classList.add('show');
+function num(v,suf){return (v===undefined||v===null||v==='')?'—':esc(v)+(suf||'');}
+function profHTML(p,parts){
+ const why=parts?`<h3>星の内訳</h3><div class="why">${parts.map((x,i)=>`<div><i style="background:${COL[i]}"></i><span>${LAB[TAB][i]}：${esc(x.w)}</span><em>${x.pt}点</em></div>`).join('')}</div>`:'';
+ const c1=(p.c1||[]).map(v=>typeof v==='number'?v:0);
+ const cmax=Math.max(...c1,1);
+ const bars=c1.length?`<h3>コース別の1着率</h3><div class="c1">${c1.map((v,i)=>`<div><span>${i+1}コース</span><b><i style="width:${v/cmax*100}%"></i></b><span>${v.toFixed(1)}%</span></div>`).join('')}</div>`:'';
+ return `${why}
+ <h3>ここから先は現実です</h3>
+ <dl class="real">
+  <div><dt>登番</dt><dd>${num(p.no)}</dd></div>
+  <div><dt>出身</dt><dd>${num(p.home)}</dd></div>
+  <div><dt>年齢</dt><dd>${num(p.age,'歳')}</dd></div>
+  <div><dt>生年月日</dt><dd style="font-size:13px">${num(p.birth)}</dd></div>
+  <div><dt>血液型</dt><dd>${num(p.blood)}</dd></div>
+  <div><dt>全国勝率</dt><dd>${num(p.win)}</dd></div>
+  <div><dt>平均ST</dt><dd>${num(p.avgst)}</dd></div>
+  <div><dt>出走</dt><dd>${num(p.syutsu)}</dd></div>
+  <div><dt>1着／2着</dt><dd>${num(p.win1)}／${num(p.win2)}</dd></div>
+  <div><dt>優勝／優出</dt><dd>${num(p.yusyo)}／${num(p.yusyutsu)}</dd></div>
+  <div><dt>F数</dt><dd>${num(p.f)}</dd></div>
+  <div><dt>能力指数</dt><dd>${num(p.power)}</dd></div>
+ </dl>${bars}
+ <a class="tozukan" href="../players/?toban=${encodeURIComponent(p.no)}">選手図鑑で見る</a>`;
+}
+function toggle(btn,force){
+ const no=btn.dataset.no,prof=$('pf-'+no);if(!prof)return;
+ const open=force!==undefined?force:btn.getAttribute('aria-expanded')!=='true';
+ btn.setAttribute('aria-expanded',open?'true':'false');
+ if(open&&!prof.dataset.filled){
+  const p=PLAYERS.find(x=>x.no===no);if(!p)return;
+  let parts=null;
+  if(RACE){const o=RACE.rows.find(x=>x.no===no);parts=o&&o.parts||null;}
+  else{const o=(ranked||[]).find(x=>x.p.no===no);parts=o?o.parts:null;}
+  prof.innerHTML=profHTML(p,parts);prof.dataset.filled='1';
  }
- setTimeout(()=>ent.scrollIntoView({behavior:'smooth',block:'center'}),200);
- return true;
+ prof.hidden=!open;
 }
-function profHTML(p){
- const c1=(p.c1||[0,0,0,0,0,0]).map(v=>typeof v==='number'?v:0);
- const cmax=Math.max(...c1,1);const lbls=['1','2','3','4','5','6'];
- let bars='';
- c1.forEach((v,idx)=>{const col=idx<2?'#ffd166':'#5f9fd6';
-  bars+=`<div class="c1row"><div class="c1lb">${lbls[idx]}号</div><div class="c1bar"><i style="width:${v/cmax*100}%;background:${col}"></i></div><div class="c1val">${v.toFixed(1)}%</div></div>`;});
- return `<div class="grid">
-  <div class="cell"><div class="lb">登番</div><div class="vl" style="font-size:13px">${p.no}</div></div>
-  <div class="cell"><div class="lb">出身 / 年齢</div><div class="vl" style="font-size:12px">${p.home} / ${p.age}歳</div></div>
-  <div class="cell"><div class="lb">血液 / 生年月日</div><div class="vl" style="font-size:11px">${p.blood} / ${p.birth}</div></div>
-  <div class="cell"><div class="lb">全国勝率</div><div class="vl">${p.win}</div></div>
-  <div class="cell"><div class="lb">平均ST</div><div class="vl">${p.avgst}</div></div>
-  <div class="cell"><div class="lb">出走</div><div class="vl">${p.syutsu}</div></div>
-  <div class="cell"><div class="lb">1着 / 2着</div><div class="vl" style="font-size:13px">${p.win1} / ${p.win2}</div></div>
-  <div class="cell"><div class="lb">優勝 / 優出</div><div class="vl" style="font-size:13px">${p.yusyo} / ${p.yusyutsu}</div></div>
-  <div class="cell"><div class="lb">能力指数</div><div class="vl">${p.power}</div></div>
-  <div class="cell"><div class="lb">F数</div><div class="vl">${p.f}</div></div>
-  <div class="cell"><div class="lb">アウト戦</div><div class="vl">${p.out}<span style="font-size:10px">%</span></div></div>
- </div>
- <div class="c1wrap"><div class="c1ttl">コース別 1着率（黄=1・2コース／青=3〜6コース）</div>${bars}</div>`;
+$('list').addEventListener('click',e=>{const b=e.target.closest('.ent');if(b&&!b.disabled)toggle(b);});
+function setTab(t){TAB=t;LIMIT=100;document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x.dataset.t===t?'true':'false'));render();}
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>setTab(t.dataset.t)));
+function setGen(g){GEN=g;LIMIT=100;document.querySelectorAll('#seg button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.g===g?'true':'false'));}
+document.querySelectorAll('#seg button').forEach(s=>s.addEventListener('click',()=>{setGen(s.dataset.g);render();}));
+$('moreBtn').addEventListener('click',()=>{LIMIT+=100;render();});
+let qt;$('q').addEventListener('input',()=>{clearTimeout(qt);qt=setTimeout(()=>{LIMIT=100;render();},180);});
+function saveMe(){const m=me();if(m)try{localStorage.setItem('uranai_me',JSON.stringify({bd:$('bd').value,bl:m.blood}));}catch(e){}render();}
+$('bd').addEventListener('change',saveMe);$('bl').addEventListener('change',saveMe);
+try{const s=JSON.parse(localStorage.getItem('uranai_me'));if(s){$('bd').value=s.bd||'';if(s.bl)$('bl').value=s.bl;}}catch(e){}
+
+/* ===== 今日の干支盤 ===== */
+function drawDial(){
+ const cx=66,cy=66,R=52;let h='';
+ h+=`<circle cx="${cx}" cy="${cy}" r="${R+12}" fill="none" stroke="var(--line)" stroke-width="1"/>`;
+ h+=`<circle cx="${cx}" cy="${cy}" r="${R-12}" fill="none" stroke="var(--line)" stroke-width="1"/>`;
+ for(let i=0;i<12;i++){
+  const a=(i*30-90)*Math.PI/180,x=cx+R*Math.cos(a),y=cy+R*Math.sin(a),on=i===TODAY.b;
+  if(on)h+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="10" fill="var(--gold)"/>`;
+  h+=`<text x="${x.toFixed(1)}" y="${(y+4.5).toFixed(1)}" text-anchor="middle" font-size="13" fill="${on?'#0b1219':'var(--sub)'}" font-weight="${on?700:400}">${BRANCH[i]}</text>`;
+ }
+ const a=(TODAY.b*30-90)*Math.PI/180;
+ h+=`<line x1="${cx}" y1="${cy}" x2="${(cx+(R-14)*Math.cos(a)).toFixed(1)}" y2="${(cy+(R-14)*Math.sin(a)).toFixed(1)}" stroke="var(--gold)" stroke-width="1.5"/>`;
+ h+=`<circle cx="${cx}" cy="${cy}" r="17" fill="var(--panel2)" stroke="var(--gold)" stroke-width="1"/>`;
+ h+=`<text x="${cx}" y="${cy+6}" text-anchor="middle" font-size="17" font-weight="700" fill="var(--gold)">${STEM[TODAY.s]}</text>`;
+ $('dial').innerHTML=h;
+ $('dial').setAttribute('aria-label',`今日は${STEM[TODAY.s]}${BRANCH[TODAY.b]}の日`);
+ $('today').innerHTML=`今日 ${TODAY.m}月${TODAY.d}日は <b>${STEM[TODAY.s]}${BRANCH[TODAY.b]}</b>の日／<b>${TODAY.seiza}座</b>の期間`;
 }
-$('list').addEventListener('click',e=>{
- if(e.target.closest('a'))return;
- const ent=e.target.closest('.ent');if(!ent)return;
- const no=ent.dataset.no;const prof=$('pf-'+no);
- const open=ent.classList.toggle('open');
- if(open){const p=PLAYERS.find(x=>x.no==no);
-  if(prof&&!prof.dataset.filled){prof.innerHTML=profHTML(p);prof.dataset.filled='1';}
-  prof&&prof.classList.add('show');
- }else{prof&&prof.classList.remove('show');}
-});
-document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
- TAB=t.dataset.t;LIMIT=120;
- document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===t));render();
-}));
-document.querySelectorAll('#seg div').forEach(s=>s.addEventListener('click',()=>{
- GEN=s.dataset.g;LIMIT=120;
- document.querySelectorAll('#seg div').forEach(x=>x.classList.toggle('on',x===s));render();
-}));
-$('moreBtn').addEventListener('click',()=>{LIMIT+=120;render();});
-let qt;$('q').addEventListener('input',()=>{clearTimeout(qt);qt=setTimeout(()=>{LIMIT=120;render();},180);});
-$('bd').addEventListener('change',()=>{const m=me();if(m)try{localStorage.setItem('uranai_me',JSON.stringify({bd:$('bd').value,bl:m.blood}));}catch(e){}render();});
-$('bl').addEventListener('change',()=>{const m=me();if(m)try{localStorage.setItem('uranai_me',JSON.stringify({bd:$('bd').value,bl:m.blood}));}catch(e){}render();});
-try{const s=JSON.parse(localStorage.getItem('uranai_me'));if(s){$('bd').value=s.bd;if(s.bl)$('bl').value=s.bl;}}catch(e){}
-function syncSeg(){document.querySelectorAll('#seg div').forEach(x=>x.classList.toggle('on',x.dataset.g===GEN));}
-function syncTabs(){document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.dataset.t===TAB));}
+drawDial();
+
+/* ===== 星の答え合わせ（終わった日の結果で、勝負運の上位・下位の成績を並べる） ===== */
+let RESIDX=null;
 function getJSON(u){return fetch(u).then(r=>{if(!r.ok)throw 0;return r.json();});}
-render(); // 先にリード文・注記だけ出す（リスト領域は読み込み中の高さを維持）
+function tally(days){
+ /* days: [{hd, boats:[[登番,着]...]}]。その日の勝負運で、その日に走った選手を3つに分ける（選手単位）。成績は出走単位 */
+ const T=[0,1,2].map(()=>({ppl:0,st:0,w:0,t3:0})),ALL={ppl:0,st:0,w:0,t3:0};
+ const byNo={};PLAYERS.forEach(p=>byNo[p.no]=p);
+ for(const day of days){
+  const y=+day.hd.slice(0,4),m=+day.hd.slice(4,6),d=+day.hd.slice(6,8),ctx=dayCtx(y,m,d);
+  const per={};
+  for(const[no,ch]of day.boats){
+   if(ch===16||!byNo[no])continue;               /* 16＝欠場は分母から除く。7〜15は出走に数える */
+   const r=per[no]||(per[no]={st:0,w:0,t3:0});
+   r.st++;if(ch===1)r.w++;if(ch>=1&&ch<=3)r.t3++;
+  }
+  const rows=[];
+  for(const no in per){const s=scoreShobu(ctx,byNo[no]);if(s)rows.push({no,sc:s.sc,r:per[no]});}
+  rows.sort((a,b)=>b.sc-a.sc||(+a.no)-(+b.no));
+  const n=rows.length;
+  rows.forEach((o,i)=>{const k=i<n/3?0:i<2*n/3?1:2;for(const g of[T[k],ALL]){g.ppl++;g.st+=o.r.st;g.w+=o.r.w;g.t3+=o.r.t3;}});
+ }
+ return{T,ALL};
+}
+function pct(a,b){return b?(a/b*100).toFixed(1)+'%':'—';}
+function showTally(days){
+ const{T,ALL}=tally(days);
+ const hd=s=>`${+s.slice(4,6)}月${+s.slice(6,8)}日`;
+ const span=days.length===1?hd(days[0].hd)+'のレース':`${hd(days[days.length-1].hd)}から${hd(days[0].hd)}の${days.length}日`;
+ const lab=['勝負運 上位3分の1','真ん中','下位3分の1'];
+ const rows=T.map((g,i)=>`<tr><th scope="row">${lab[i]}</th><td>${g.ppl}</td><td>${g.st}</td><td>${pct(g.w,g.st)}</td><td>${pct(g.t3,g.st)}</td></tr>`).join('')+
+  `<tr><th scope="row">全体</th><td>${ALL.ppl}</td><td>${ALL.st}</td><td>${pct(ALL.w,ALL.st)}</td><td>${pct(ALL.t3,ALL.st)}</td></tr>`;
+ const d=T[0].st&&T[2].st?(T[0].w/T[0].st-T[2].w/T[2].st)*100:0;
+ let v;
+ if(Math.abs(d)<2)v=`上位と下位の1着率の差は${Math.abs(d).toFixed(1)}ポイント。星の予言力はほぼゼロでした。安心して実力を見てください。`;
+ else if(d>0)v=`上位の方が1着率が${d.toFixed(1)}ポイント高い。星、ちょっと当てました。たまたまかもしれません。`;
+ else v=`下位の方が1着率が${(-d).toFixed(1)}ポイント高い。星の完敗です。`;
+ $('checkBody').innerHTML=`<p>${span}・その日の勝負運で、走った選手を3つに分けました。</p>
+ <div class="tblwrap"><table><thead><tr><th scope="col"></th><th scope="col">${days.length===1?'選手':'延べ選手'}</th><th scope="col">出走</th><th scope="col">1着率</th><th scope="col">3着以内率</th></tr></thead><tbody>${rows}</tbody></table></div>
+ <p class="verdict">${v}</p>
+ <p>出典：当サイトの結果データ（公式のレース結果）。欠場は数えず、転覆・失格などは出走に数えています。級別や枠の偏りはそろえていません。${days.length===1?'1日分だと、偶然でも数ポイントの差は出ます。':''}</p>`;
+}
+function loadDay(hd){
+ return getJSON(`../results/data/${hd}.json`).then(j=>{
+  const boats=[];
+  for(const v of (j['場']||[]))for(const r of (v['レース']||[]))for(const b of (r['艇']||[]))boats.push([String(b['登番']),+b['着']]);
+  return{hd,boats};
+ });
+}
+function startCheck(){
+ getJSON('../results/data/index.json').then(ix=>{
+  RESIDX=(ix['日付']||[]).map(x=>x['開催日']).filter(Boolean).sort().reverse();
+  if(!RESIDX.length)throw 0;
+  return loadDay(RESIDX[0]);
+ }).then(d=>{showTally([d]);if(RESIDX.length>=7)$('chk7').hidden=false;})
+ .catch(()=>{$('checkBody').innerHTML='<p>結果を読み込めませんでした。時間をおいて開き直してください。</p>';});
+}
+$('chk7').addEventListener('click',()=>{
+ const b=$('chk7');b.disabled=true;b.textContent='読み込んでいます…';
+ Promise.all(RESIDX.slice(0,7).map(loadDay)).then(ds=>{showTally(ds);b.hidden=true;})
+ .catch(()=>{b.disabled=false;b.textContent='読み込めませんでした。もう一度';});
+});
+
+render(); /* 先にリード文だけ出す（一覧の高さは保つ） */
 Promise.all([getJSON('../data/racerStatsCore.json'),getJSON('../data/racerStatsDetail.json')])
  .then(([core,detail])=>{
   PLAYERS=buildPlayers(core,detail);
@@ -448,12 +616,13 @@ Promise.all([getJSON('../data/racerStatsCore.json'),getJSON('../data/racerStatsD
  .then(()=>{
   if(Q_TOBAN&&!RACE){
    $('q').value=Q_TOBAN;
-   GEN='all';syncSeg();
-   if(TAB==='aisho'&&!me()){TAB='shobu';syncTabs();}
+   setGen('all');
+   if(TAB==='aisho'&&!me())setTab('shobu');
   }
   LOADED=true;
   render();
-  if(Q_TOBAN&&!RACE)openPlayer(Q_TOBAN);
+  startCheck();
+  if(Q_TOBAN&&!RACE){const b=$('list').querySelector(`.ent[data-no="${CSS.escape(Q_TOBAN)}"]`);if(b){toggle(b,true);setTimeout(()=>b.scrollIntoView({behavior:'smooth',block:'center'}),200);}}
  })
  .catch(()=>{
   $('list').innerHTML='<div class="hint">選手データを読み込めませんでした。時間をおいて開き直してください。</div>';
