@@ -21,11 +21,24 @@ self.addEventListener("activate", function (e) {
   self.clients.claim();
 });
 
+/* ページを開く要求を、HTTP キャッシュを通さずに取り直す。古いブラウザが navigate の要求に
+   オプションを付けるのを拒んだときは、同じ URL を同じ条件で取り直す */
+function fresh(req) {
+  try {
+    return fetch(req, { cache: "no-cache" });
+  } catch (err) {
+    return fetch(req.url, { cache: "no-cache", credentials: "same-origin", redirect: "manual" });
+  }
+}
+
 self.addEventListener("fetch", function (e) {
   var req = e.request;
   if (req.method !== "GET") return;
+  /* ページを開くときだけ、ブラウザの HTTP キャッシュ（GitHub Pages は最大10分）を使わず、必ず配信元に新しい版があるか確かめる。
+     変わっていなければ 304 で軽く済む。データ・画像・アイコンはこれまでどおり */
+  var net = req.mode === "navigate" ? fresh(req) : fetch(req);
   e.respondWith(
-    fetch(req).then(function (res) {
+    net.then(function (res) {
       var cp = res.clone();
       caches.open(CACHE).then(function (c) { c.put(req, cp); }).catch(function () {});
       return res;
