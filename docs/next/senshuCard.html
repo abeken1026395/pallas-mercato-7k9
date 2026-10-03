@@ -379,7 +379,7 @@ function render(){if(window.drawShImgs)setTimeout(drawShImgs,0);
   el.innerHTML=plate+`<div class="body">
   <div class="hero">
     <div class="hT"><span class="hk">総合</span><span class="hv" style="color:${ov?TC[tier(ov[1])]:"inherit"}">${ov?kg(rl(ov[1]),30):"—"}</span><span class="hs">${ov?`偏差値 ${ov[0].toFixed(1)}`:"4項目以上で出す"}</span></div>
-    ${(()=>{const yc=P.yc||[[0,0,0,0,0,0],[0,0,0,0,0,0]],y=yc[0],yo=yc[1][0],G=["SG","G1","G2","G3","一般"];const ch=G.map((g,i)=>y[i+1]?`<span class="${i===0?"sg":""}">${g} ${y[i+1]}</span>`:"").join("");
+    ${(()=>{const yc=P.yc||[[0,0,0,0,0,0],[0,0,0,0,0,0]],y=yc[0],yo=yc[1][0],G=["SG","G1","G2","G3","一般","シリーズ"];const ch=G.map((g,i)=>y[i+1]?`<span class="${i===0?"sg":""}">${g} ${y[i+1]}</span>`:"").join("");
       return `<div class="hT"><span class="hk">優勝<small class="hkS">2017年〜</small></span><span class="hv yuV">${kg(String(y[0]),30,-20)}<small>回</small></span><span class="hs">${ch||"—"}</span><span class="hs2">優出 ${yo}回</span><span class="hs2">${win.label}の優勝 ${w.yu?w.yu[0]:0}回</span></div>`;})()}
     <div class="hW"><span class="hk">武器</span>${wp?`<span class="wv">${kg(TG[wp[0]][1],34)}</span><span class="wr" style="color:${TC[tier(wp[1][3])]}">${rl(wp[1][3])}</span><i class="slash"></i><span class="hs">${TG[wp[0]][2]}　${wp[1][1]}/${wp[1][2]}回（${wp[1][0].toFixed(1)}%）</span>`:`<span class="wv">${best?kg(LAB[best].replace("<br>",""),30):"—"}</span><i class="slash"></i><span class="hs">${best?`偏差値${w.it[best][4].toFixed(1)}・${rl(w.it[best][2])}`:""}</span>`}</div>
   </div>
@@ -397,7 +397,7 @@ function render(){if(window.drawShImgs)setTimeout(drawShImgs,0);
    <div class="key" style="margin-top:6px">前づけ（枠より内のコースに入った）${w.mae[0]}/${w.mae[1]}走（${pc(w.mae[0],w.mae[1])}）</div></div>
   <div class="share"><a target="_blank" rel="noopener" href="https://x.com/intent/post?text=${encodeURIComponent(`${P.name}（${cur}）の選手カード${ov?`　総合 ${rl(ov[1])}`:""}${wp?`　武器：${TG[wp[0]][1]} ${rl(wp[1][3])}`:""}`)}&url=${encodeURIComponent(SITE+"?toban="+cur)}">Xに投稿</a><a target="_blank" rel="noopener" href="https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(SITE+"?toban="+cur)}">LINEで送る</a><button type="button" id="shImg">画像を共有</button></div>
   <div class="shareNote" id="shMsg"></div>
-  <div class="foot"><div>出典：公式レース結果（${ymd(win.from)}〜${ymd(win.to)}）。欠場は分母から除き、失格・F・Lは出走に数える。</div><div>優勝・優出：公式番組データで副題が「優勝戦」のレース（GP優勝戦・S戦優勝戦・男女W優勝戦の各レースを含み、準優勝戦は除く）。優勝は公式レース結果の1着。大きな数字は${ymd(D.yc.from)}〜${ymd(D.yc.to)}（優勝戦${D.yc.finals.toLocaleString()}レース、うち結果の無い${D.yc.canceled}レースは中止として優勝なし）。それより前の優勝は入っていない。${win.label}の優勝戦は${win.finals}レース。</div><div>順位は各項目の分母20走以上の選手の中での位置。偏差値＝50＋10×（値−平均）÷標準偏差（平均STは小さいほど高い）。総合＝6項目の偏差値の平均（4項目以上）。水面図は模式図で、場ごとの形とは違う。</div></div></div>`;
+  <div class="foot"><div>出典：公式レース結果と競走成績（${ymd(win.from)}〜${ymd(win.to)}）。出走の数え方は公式に合わせる（責任外の失格・出遅れ・欠場は数えず、責任のある欠場は数える）。平均STはFを除く全走。</div><div>優勝・優出：公式番組データで、副題が開催の優勝を決めるレース（「優勝戦」「優勝」「決勝戦」「賞金女王決定戦」「王将位決定戦」など。準優勝戦・順位決定戦は除く。男女W優勝戦は両方）。優勝はその1着、優出はその出走表に載った選手。グランプリとクイーンズクライマックス（2018年まで）のシリーズ戦は「シリーズ」に数える。大きな数字は${ymd(D.yc.from)}〜${ymd(D.yc.to)}（優勝戦${D.yc.finals.toLocaleString()}レース、うち中止の${D.yc.canceled}レースは数えない）。それより前の優勝は入っていない。公式番組データに中身が無い日（延べ${D.yc.empty}場日）は確かめられていない。${win.label}の優勝戦は${win.finals}レース。</div><div>特色：回数の少ない選手は全選手の平均に寄せて順位を付ける（経験ベイズ）。出すのは上位20%以内で、回数が最低回数（${(D.tags||[]).map(t=>`${t[1]}${t[3]}回`).join("・")}）以上のとき。最低回数は、期間の前半で上位20%以内だった選手の7割以上が後半も上位20%以内に残る最小の回数（5回以上。回数で残る割合が変わらない特色は5回）。回数と率は実数のまま出す。2コース差し・道中の抜きは、回数を増やしても7割に届かないので出さない。</div><div>順位は各項目の分母20走以上の選手の中での位置。偏差値＝50＋10×（値−平均）÷標準偏差（平均STは小さいほど高い）。総合＝6項目の偏差値の平均（4項目以上）。水面図は模式図で、場ごとの形とは違う。</div></div></div>`;
 }
 async function h2hFor(no){const k=Number(no)%64;if(!(k in H2H)){try{const r=await fetch(`senshuCard/h2h/${k}.json`);H2H[k]=r.ok?await r.json():{};}catch(e){H2H[k]={};}}
   if(!H2Hmeta){try{H2Hmeta=await (await fetch("senshuCard/h2h/meta.json")).json();}catch(e){H2Hmeta={};}}return H2H[k][no]||{};}
@@ -492,7 +492,7 @@ function drawStory(no,kuro){
   if(ov){const s=rl(ov[1]),z=scFit(s,440,88);scKg(c,s,64,y+46,z,TCp[tier(ov[1])]);scTxt(c,`偏差値 ${ov[0].toFixed(1)}`,64,y+146,22,SUB);}
   scTxt(c,"優 勝",564,y+14,22,SUB);scTxt(c,"2017年〜",650,y+17,18,SUB);
   const nw=scKg(c,String(yu[0]),564,y+40,96,INK);scTxt(c,"回",574+nw,y+96,26,SUB);
-  {const G=["SG","G1","G2","G3","一般"];let x=nw<120?680+nw:564,yy=nw<120?y+50:y+140;const x0=x;
+  {const G=["SG","G1","G2","G3","一般","シリーズ"];let x=nw<120?680+nw:564,yy=nw<120?y+50:y+140;const x0=x;
    G.forEach((g,i)=>{if(!yu[i+1])return;const s=`${g} ${yu[i+1]}`,ww=scTw(c,s,22)+16;if(x+ww>1030&&x>x0){x=x0;yy+=40;}
      if(i===0){c.fillStyle=INK;c.fillRect(x,yy,ww,34);}c.strokeStyle=i===0?INK:pal.SUB;c.lineWidth=2;c.strokeRect(x,yy,ww,34);
      scTxt(c,s,x+8,yy+3,22,i===0?pal.WATER:INK);x+=ww+6;});}
