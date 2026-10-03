@@ -86,7 +86,7 @@ CREDIT = {
 }
 
 # 対象外（けん裁定済み）
-EXEMPT_PREFIX = ("docs/aisho-suminoe/", "docs/shobuun-suminoe/", "docs/probe/")
+EXEMPT_PREFIX = ("docs/aisho-suminoe/", "docs/shobuun-suminoe/", "docs/probe/", "docs/in/")  # docs/in/ は告知用の入口（中身なし・即移動。2026-10-03）
 EXEMPT_SUFFIX = "-payouts/index.html"  # 24場の万舟率ページ（2026-08-08 見送り裁定）
 
 
