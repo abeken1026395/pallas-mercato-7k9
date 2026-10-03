@@ -277,7 +277,7 @@ function nameBlock(P){
   const parts=np.map((n,i)=>`<span class="part"><span class="rb">${kp[i]?kg(kp[i],Math.max(12,Math.round(px*0.3))):""}</span><span class="nmK">${kg(n,px,-10)}</span></span>`).join("");
   return `<div class="nmRow" aria-label="${P.name}（${kp.join(" ")}）">${parts}</div>${P.tag?`<div class="tag">${kg(P.tag,24)}</div>`:""}`;
 }
-const PRI=["makuri","maezuke","tiltDash","nige","msOut","makuriC","sashi2","tiltDash","nige","maezuke","tilt","outKeep","nuki","tenji"];
+const PRI=["makuri","maezuke","tiltDash","nige","sashi","c4","nuki","outKeep","p23","msOut","makuriC","sashi2","tiltDash","nige","maezuke","tilt","outKeep","nuki","tenji"];
 const IT=["r1","r2","in1","mid3","out3","st"];
 const AX={r1:"1着率",r2:"2連対率",in1:"1コース1着",mid3:"2・3コース",out3:"4〜6コース",st:"平均ST"};
 const LAB={r1:"1着率",r2:"2連対率",in1:"1コース1着率",mid3:"2・3コース<br>3連対率",out3:"4〜6コース<br>3連対率",st:"平均ST"};
@@ -385,6 +385,7 @@ function render(){if(window.drawShImgs)setTimeout(drawShImgs,0);
     <div class="hW"><span class="hk">武器</span>${wp?`<span class="wv">${kg(TG[wp[0]][1],34)}</span><span class="wr" style="color:${TC[tier(wp[1][3])]}">${rl(wp[1][3])}</span><i class="slash"></i><span class="hs">${TG[wp[0]][2]}　${wp[1][1]}/${wp[1][2]}回（${wp[1][0].toFixed(1)}%）${tagAvg(wp[0],W)!=null?`・全選手平均 ${tagAvg(wp[0],W).toFixed(1)}%`:""}</span>`:(best&&w.it[best][2]<=30)?`<span class="wv">${kg(LAB[best].replace("<br>",""),30)}</span><i class="slash"></i><span class="hs">6項目の中でいちばん上位・偏差値${w.it[best][4].toFixed(1)}・${rl(w.it[best][2])}</span>`:`<span class="hs" style="font-size:13px">上位20%以内の持ち味は、この期間はなし</span>`}</div>
   </div>
   ${tgl.length?`<div><div class="sec"><b>${kg("得意技",22)}</b><small>武器のほかの得意技（上位20%以内）</small></div><div class="tgs">${tgl.map(([k,v])=>`<div class="tg"><span class="nm" style="color:${TC[tier(v[3])]}">${kg(TG[k][1],20)}</span><span class="rk" style="color:${TC[tier(v[3])]}">${rl(v[3])}</span><span class="de">${TG[k][2]}　${v[1]}/${v[2]}回（${v[0].toFixed(1)}%）${["tilt","tiltDash","tenji"].includes(k)?"・直前情報は2026/1/1から":""}</span></div>`).join("")}</div></div>`:""}
+  ${TLs.sub.length?`<div><div class="sec"><b>${kg("持ち味",22)}</b><small>上位20%以内・年によって入れ替わりやすい</small></div><div class="tgs">${TLs.sub.map(([k,v])=>`<div class="tg"><span class="nm" style="color:${TC[tier(v[3])]}">${kg(TG[k][1],20)}</span><span class="rk" style="color:${TC[tier(v[3])]}">${rl(v[3])}</span><span class="de">${TG[k][2]}　${v[1]}/${v[2]}回（${v[0].toFixed(1)}%）${["tilt","tiltDash","tenji"].includes(k)?"・直前情報は2026/1/1から":""}</span></div>`).join("")}</div></div>`:""}
   
   <div><div class="sec"><b>${kg("コース別成績",22)}</b><small>進入コース別・出走${w.n}走</small></div>${water(w,win)}
    <div class="key"><span><i style="background:var(--needle)"></i>1着率</span><span><i style="background:rgba(255,255,255,.25)"></i>3着内率</span><span><i style="background:var(--buoyR);width:3px"></i>全選手のそのコースの1着率</span><span>薄い行は20走未満</span></div></div>
@@ -477,11 +478,11 @@ function scPlate(c,p,no,x0,y0,w,h,s,pal){
   c.fillStyle="#e2353b";c.beginPath();c.moveTo(x0,y0+h+sk);c.lineTo(x0+w,y0+h);c.lineTo(x0+w,y0+h+t);c.lineTo(x0,y0+h+sk+t);c.fill();
   c.fillStyle="#0d0d0d";c.beginPath();c.moveTo(x0,y0+h);c.lineTo(x0+w,y0+h);c.lineTo(x0,y0+h+sk);c.fill();
 }
-function tagList(w){let L=Object.entries(w.tg||{}).filter(([k,v])=>v[3]<=20&&!["tenji","outKeep","tilt"].includes(k)).sort((a,b)=>a[1][3]-b[1][3]||PRI.indexOf(a[0])-PRI.indexOf(b[0]));
-  if(L.some(x=>x[0]==="tiltDash"))L=L.filter(x=>x[0]!=="tilt");{const i=L.findIndex(x=>x[0]==="makuriC"||x[0]==="msOut");if(i>=0)L=L.filter((x,j)=>j===i||!(x[0]==="makuriC"||x[0]==="msOut"));}
-  const wp=L.find(x=>x[0]!=="tenji");return {wp,rest:L.filter(x=>x!==wp).slice(0,3)};}
+function tagList(w){const L=Object.entries(w.tg||{}).filter(([k,v])=>v[3]<=20).sort((a,b)=>a[1][3]-b[1][3]||PRI.indexOf(a[0])-PRI.indexOf(b[0]));
+  const L1=L.filter(x=>x[1][4]!==2),L2=L.filter(x=>x[1][4]===2);const wp=L1[0]||L2[0];
+  return {wp,rest:L1.filter(x=>x!==wp).slice(0,3),sub:L2.filter(x=>x!==wp).slice(0,4)};}
 function tagAvg(k,Wk){const p=(D.win[Wk].tagPrior||{})[k];return p?p[0]/(p[0]+p[1])*100:null;}
-function scPicks(w){const t=tagList(w);return t.wp?[t.wp,...t.rest]:t.rest;}
+function scPicks(w){const t=tagList(w);return [t.wp,...t.rest,...t.sub].filter(Boolean);}
 function scLine(c,x1,y1,x2,y2,col,lw=2){c.strokeStyle=col;c.lineWidth=lw;c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();}
 function scMark(c,y,col="#ffd23f"){c.fillStyle=col;c.beginPath();c.fillRect(36,y+12,12,38);}
 function drawStory(no,kuro){
@@ -516,7 +517,7 @@ function drawStory(no,kuro){
    else scTxt(c,"上位20%以内の持ち味は、この期間はなし",x0,y0+60,28,SUB);}
   y+=208;
   const TG=Object.fromEntries((D.tags||[]).map(t=>[t[0],t])),tg=scPicks(w).slice(1,2);
-  scMark(c,y,"#e2353b");scKg(c,"得意技",62,y,46,INK);scTxt(c,"武器のほかの得意技",1040,y+18,22,SUB,"ra");
+  const lb2=(tg[0]&&tg[0][1][4]===2)?"持ち味":"得意技";scMark(c,y,"#e2353b");scKg(c,lb2,62,y,46,INK);scTxt(c,lb2==="持ち味"?"年によって入れ替わりやすい":"武器のほかの得意技",1040,y+18,22,SUB,"ra");
   scLine(c,40,y+66,1040,y+66,LN);y+=82;
   tg.forEach(([k,v])=>{const col=TCp[tier(v[3])];scKg(c,TG[k][1],40,y,46,col);scTxt(c,rl(v[3]),1040,y+8,32,col,"ra");
     scTxt(c,`${TG[k][2]}　${v[1]}/${v[2]}回（${v[0].toFixed(1)}%）`,40,y+58,24,SUB);scLine(c,40,y+88,1040,y+88,"rgba(255,255,255,.094)");y+=94;});
@@ -557,7 +558,7 @@ function setPal(p){PAL=p;document.querySelectorAll(".palSel button").forEach(x=>
 document.querySelectorAll(".palSel button").forEach(b=>b.addEventListener("click",()=>setPal(b.dataset.pal)));
 try{const s=localStorage.getItem("senshuCardPal");if(s!==null)setPal(s)}catch(_){}
 document.querySelectorAll("[data-w]").forEach(b=>b.addEventListener("click",()=>{W=b.dataset.w;document.querySelectorAll("[data-w]").forEach(x=>x.setAttribute("aria-pressed",x===b));render();renderVs();}));
-Promise.all([fetch("senshuCard/card2D.json").then(r=>r.json()),fetch("senshuCard/kgOutlineC.json").then(r=>r.json()).catch(()=>null)]).then(([j,k])=>{D=j;K=k;const WZ={nige:["鉄壁イン","④1マーク・逃げ","決まった割合"],makuri:["豪腕まくり","④1マーク・まくり","決まった割合"],maezuke:["イン強奪","②進入・位置取り","やった割合"],tiltDash:["チルトダッシュ","①展示・チルト","やった割合"]};D.tags=(D.tags||[]).map(t=>{const z=WZ[t[0]];return z?[t[0],z[0],`${z[1]}｜${z[0]===t[1]?"":t[1]+"："}${t[2]}（${z[2]}）`,t[3]]:t;});if(!D.players[cur])cur="4238";if(cmp===cur)cmp=cur==="4320"?"4238":"4320";render();renderVs();}).catch(()=>{document.getElementById("card").innerHTML='<div class="body">データを読み込めませんでした。再読み込みしてください。</div>';});
+Promise.all([fetch("senshuCard/card2D.json").then(r=>r.json()),fetch("senshuCard/kgOutlineC.json").then(r=>r.json()).catch(()=>null)]).then(([j,k])=>{D=j;K=k;const WZ={nige:["鉄壁イン","④1マーク・逃げ","決まった割合"],makuri:["豪腕まくり","④1マーク・まくり","決まった割合"],maezuke:["イン強奪","②進入・位置取り","やった割合"],tiltDash:["チルトダッシュ","①展示・チルト","やった割合"],sashi:["針の穴","④1マーク・差し","決まった割合"],c4:["四ノ陣","④1マーク・4コース","入った割合"],nuki:["逆転の舟足","⑤道中・抜き","決まった割合"],outKeep:["大外の意地","⑥着順・粘り","入った割合"],p23:["食らいつき","⑥着順・2着3着","入った割合"]};D.tags=(D.tags||[]).map(t=>{const z=WZ[t[0]];return z?[t[0],z[0],`${z[1]}｜${z[0]===t[1]?"":t[1]+"："}${t[2]}（${z[2]}）`,t[3]]:t;});if(!D.players[cur])cur="4238";if(cmp===cur)cmp=cur==="4320"?"4238":"4320";render();renderVs();}).catch(()=>{document.getElementById("card").innerHTML='<div class="body">データを読み込めませんでした。再読み込みしてください。</div>';});
 </script>
 
 <footer style="margin:24px auto 8px;max-width:560px;padding:0 16px;text-align:center;font-size:10px;color:#8a94a3;line-height:1.7;">見出しの書体：キルゴU（作者 名残雪 様）をアウトライン化して加工（Cパターン）<br>© 2026 データ攻め ── 制作・運営 あべけん</footer>
