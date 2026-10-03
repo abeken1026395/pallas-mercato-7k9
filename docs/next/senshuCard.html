@@ -186,23 +186,26 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .plate .meta{letter-spacing:.06em;font-size:11.5px;color:#9a9a9a}
 .plate .grade{border-width:2px;font-size:20px;padding:0 7px;align-self:flex-start;margin-top:14px}
 .body{padding:18px 16px 16px;gap:22px}
-.hero{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);border:1px solid var(--rule)}
-.hero>div{background:var(--water);padding:10px 12px 12px;display:flex;flex-direction:column;gap:4px;min-width:0}
-.hW{grid-column:1/-1;display:grid!important;grid-template-columns:1fr auto;align-items:end;column-gap:10px;background:linear-gradient(90deg,var(--hwG,rgba(255,210,63,.09)),transparent 70%),var(--water)!important;border-left:3px solid var(--needle)}
+.hero{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.hero>div{padding:2px 0 4px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.hero>.hT+.hT{border-left:1px solid var(--rule);padding-left:14px}
+.hW{grid-column:1/-1;display:grid!important;grid-template-columns:1fr auto;align-items:end;column-gap:10px;margin-top:18px;padding-bottom:4px!important}
+.hW .wv{color:var(--wInk)}
+.hW .slash{grid-column:1/-1;height:9px;background:var(--buoyR);transform:skewX(-28deg);transform-origin:left;margin:6px 0 4px 4px;width:calc(100% - 10px)}
 .hW .hk,.hW .hs{grid-column:1/-1}
 .hk{font-size:10.5px;font-weight:900;letter-spacing:.24em;color:var(--wSub)}
 .hv,.wv{line-height:0;display:flex;align-items:flex-end;gap:4px}
-.yuV{color:var(--yuC,var(--needle))}
+.yuV{color:var(--wInk)}
 .yuV small{font-size:12px;font-weight:700;color:var(--wSub);line-height:1}
 .wr{font-family:var(--fNum);font-weight:800;font-size:18px;line-height:1}
 .hs{font-size:11.5px;color:var(--wSub);display:flex;flex-wrap:wrap;gap:4px;font-variant-numeric:tabular-nums}
 .hs span{border:1px solid rgba(255,255,255,.55);color:var(--wInk);font-family:var(--fNum);font-weight:700;font-size:11.5px;padding:0 5px;line-height:1.5}
-.hs span.sg{background:var(--needle);border-color:var(--needle);color:var(--onNeedle,#121212)}
+.hs span.sg{background:var(--wInk);border-color:var(--wInk);color:var(--water)}
 .hs2{font-size:11px;color:var(--wSub)}
 .hkS{font-size:10px;font-weight:700;letter-spacing:.04em;margin-left:6px}
 .sec{border-bottom:1px solid var(--rule);padding-bottom:6px;align-items:center}
 .sec b{position:relative;padding-left:12px}
-.sec b::before{content:"";position:absolute;left:0;top:50%;width:6px;height:16px;margin-top:-8px;background:var(--mark,var(--needle));transform:skewX(-14deg)}
+.sec b::before{content:"";position:absolute;left:0;top:50%;width:6px;height:16px;margin-top:-8px;background:var(--buoyR);transform:skewX(-14deg)}
 .sec small{margin-left:auto;text-align:right;font-size:10.5px;letter-spacing:.02em}
 .key{gap:4px 14px;font-size:10.5px}
 .mt{padding:9px 0;border-bottom:1px solid var(--rule2)}
@@ -378,7 +381,7 @@ function render(){if(window.drawShImgs)setTimeout(drawShImgs,0);
     <div class="hT"><span class="hk">総合</span><span class="hv" style="color:${ov?TC[tier(ov[1])]:"inherit"}">${ov?kg(rl(ov[1]),30):"—"}</span><span class="hs">${ov?`偏差値 ${ov[0].toFixed(1)}`:"4項目以上で出す"}</span></div>
     ${(()=>{const yc=P.yc||[[0,0,0,0,0,0],[0,0,0,0,0,0]],y=yc[0],yo=yc[1][0],G=["SG","G1","G2","G3","一般"];const ch=G.map((g,i)=>y[i+1]?`<span class="${i===0?"sg":""}">${g} ${y[i+1]}</span>`:"").join("");
       return `<div class="hT"><span class="hk">優勝<small class="hkS">2017年〜</small></span><span class="hv yuV">${kg(String(y[0]),30,-20)}<small>回</small></span><span class="hs">${ch||"—"}</span><span class="hs2">優出 ${yo}回</span><span class="hs2">${win.label}の優勝 ${w.yu?w.yu[0]:0}回</span></div>`;})()}
-    <div class="hW"><span class="hk">武器</span>${wp?`<span class="wv" style="color:${TC[tier(wp[1][3])]}">${kg(TG[wp[0]][1],30)}</span><span class="wr" style="color:${TC[tier(wp[1][3])]}">${rl(wp[1][3])}</span><span class="hs">${TG[wp[0]][2]}　${wp[1][1]}/${wp[1][2]}回（${wp[1][0].toFixed(1)}%）</span>`:`<span class="wv">${best?kg(LAB[best].replace("<br>",""),26):"—"}</span><span class="hs">${best?`偏差値${w.it[best][4].toFixed(1)}・${rl(w.it[best][2])}`:""}</span>`}</div>
+    <div class="hW"><span class="hk">武器</span>${wp?`<span class="wv">${kg(TG[wp[0]][1],34)}</span><span class="wr" style="color:${TC[tier(wp[1][3])]}">${rl(wp[1][3])}</span><i class="slash"></i><span class="hs">${TG[wp[0]][2]}　${wp[1][1]}/${wp[1][2]}回（${wp[1][0].toFixed(1)}%）</span>`:`<span class="wv">${best?kg(LAB[best].replace("<br>",""),30):"—"}</span><i class="slash"></i><span class="hs">${best?`偏差値${w.it[best][4].toFixed(1)}・${rl(w.it[best][2])}`:""}</span>`}</div>
   </div>
   ${tgl.length>1?`<div><div class="sec"><b>${kg("特色",22)}</b><small>武器のほかに上位20%以内の持ち味</small></div><div class="tgs">${tgl.slice(1).map(([k,v])=>`<div class="tg"><span class="nm" style="color:${TC[tier(v[3])]}">${kg(TG[k][1],20)}</span><span class="rk" style="color:${TC[tier(v[3])]}">${rl(v[3])}</span><span class="de">${TG[k][2]}　${v[1]}/${v[2]}回（${v[0].toFixed(1)}%）${["tilt","tiltDash","tenji"].includes(k)?"・直前情報は2026/1/1から":""}</span></div>`).join("")}</div></div>`:""}
   
@@ -484,42 +487,43 @@ function drawStory(no,kuro){
   if(!w){scTxt(c,"直近1年に出走がありません",40,360,28,SUB);return cv;}
   const LN=pal.LN;
   let y=350;const ov=w.ov,yc=P.yc||[[0,0,0,0,0,0],[0,0,0,0,0,0]],yu=yc[0],yo=yc[1][0];
-  c.strokeStyle=LN;c.lineWidth=2;c.strokeRect(40,y,1000,180);scLine(c,540,y,540,y+180,LN);
+  scLine(c,540,y+6,540,y+174,LN);
   scTxt(c,"総 合",64,y+14,22,SUB);
   if(ov){const s=rl(ov[1]),z=scFit(s,440,88);scKg(c,s,64,y+46,z,TCp[tier(ov[1])]);scTxt(c,`偏差値 ${ov[0].toFixed(1)}`,64,y+146,22,SUB);}
   scTxt(c,"優 勝",564,y+14,22,SUB);scTxt(c,"2017年〜",650,y+17,18,SUB);
-  const nw=scKg(c,String(yu[0]),564,y+40,96,pal.YU);scTxt(c,"回",574+nw,y+96,26,SUB);
+  const nw=scKg(c,String(yu[0]),564,y+40,96,INK);scTxt(c,"回",574+nw,y+96,26,SUB);
   {const G=["SG","G1","G2","G3","一般"];let x=nw<120?680+nw:564,yy=nw<120?y+50:y+140;const x0=x;
    G.forEach((g,i)=>{if(!yu[i+1])return;const s=`${g} ${yu[i+1]}`,ww=scTw(c,s,22)+16;if(x+ww>1030&&x>x0){x=x0;yy+=40;}
-     if(i===0){c.fillStyle=YEL;c.fillRect(x,yy,ww,34);}c.strokeStyle=i===0?YEL:pal.SUB;c.lineWidth=2;c.strokeRect(x,yy,ww,34);
-     scTxt(c,s,x+8,yy+3,22,i===0?pal.ONACC:INK);x+=ww+6;});}
+     if(i===0){c.fillStyle=INK;c.fillRect(x,yy,ww,34);}c.strokeStyle=i===0?INK:pal.SUB;c.lineWidth=2;c.strokeRect(x,yy,ww,34);
+     scTxt(c,s,x+8,yy+3,22,i===0?pal.WATER:INK);x+=ww+6;});}
   scTxt(c,`優出 ${yo}回`,nw<120?680+nw:564+nw+50,y+100,22,SUB);
   y+=196;
   {const x0=40,y0=y,x1=1040,y1=y+170,big=88,small=22,tg=scPicks(w);
-   c.fillStyle=pal.HWG;c.fillRect(x0,y0,x1-x0,y1-y0);c.fillStyle=YEL;c.fillRect(x0,y0,6,y1-y0);
-   scTxt(c,"武 器",x0+26,y0+14,small,SUB);
+   
+   scTxt(c,"武 器",x0,y0+14,small,SUB);
    let lab,desc,top;const TG=Object.fromEntries((D.tags||[]).map(t=>[t[0],t]));
    if(tg.length){const [k,v]=tg[0];lab=TG[k][1];desc=`${TG[k][2]}　${v[1]}/${v[2]}回（${v[0].toFixed(1)}%）`;top=v[3];}
    else{const its=Object.entries(w.it||{});if(its.length){const [k,x]=its.sort((a,b)=>b[1][4]-a[1][4])[0];lab=LAB[k].replace("<br>","");top=x[2];desc=`6項目の中でいちばん上位（偏差値 ${x[4].toFixed(1)}）`;}}
    if(lab){const col=TCp[tier(top)],rk=rl(top),rkw=scKgW(rk,Math.round(big*0.55)),z=scFit(lab,(x1-x0)-80-rkw,big);
-     scKg(c,lab,x0+26,y0+18+small+Math.round((big-z)*0.6),z,col);scKg(c,rk,x1-20,y0+18+small+Math.round(big*0.32),Math.round(big*0.55),col,{anchor:"ra"});
-     scTxt(c,desc,x0+26,y0+18+small+big+Math.round(big*0.25),small,SUB);}
+     const ly=y0+18+small+Math.round((big-z)*0.6);scKg(c,lab,x0,ly,z,INK);scKg(c,rk,x1,y0+18+small+Math.round(big*0.32),Math.round(big*0.55),col,{anchor:"ra"});
+     const sy=y0+18+small+big+8,sw=Math.min(x1-x0-10,scKgW(lab,z)+40);c.fillStyle="#e2353b";c.beginPath();c.moveTo(x0+6,sy+12);c.lineTo(x0+sw+6,sy+12);c.lineTo(x0+sw+12,sy);c.lineTo(x0+12,sy);c.fill();
+     scTxt(c,desc,x0,sy+24,small,SUB);}
    else scTxt(c,"—",x0+26,y0+60,big*0.8,SUB);}
   y+=192;
   const TG=Object.fromEntries((D.tags||[]).map(t=>[t[0],t])),tg=scPicks(w).slice(1,3);
-  scMark(c,y,pal.MARK||YEL);scKg(c,"特色",62,y,46,INK);scTxt(c,"武器のほかに上位20%以内",1040,y+18,22,SUB,"ra");
+  scMark(c,y,"#e2353b");scKg(c,"特色",62,y,46,INK);scTxt(c,"武器のほかに上位20%以内",1040,y+18,22,SUB,"ra");
   scLine(c,40,y+66,1040,y+66,LN);y+=82;
-  tg.forEach(([k,v])=>{const col=TCp[tier(v[3])];scKg(c,TG[k][1],40,y,46,col);scKg(c,rl(v[3]),1040,y+4,40,col,{anchor:"ra"});
+  tg.forEach(([k,v])=>{const col=TCp[tier(v[3])];scKg(c,TG[k][1],40,y,46,col);scTxt(c,rl(v[3]),1040,y+8,32,col,"ra");
     scTxt(c,`${TG[k][2]}　${v[1]}/${v[2]}回（${v[0].toFixed(1)}%）`,40,y+58,21,SUB);scLine(c,40,y+88,1040,y+88,"rgba(255,255,255,.094)");y+=94;});
   if(!tg.length){scTxt(c,"ほかに上位20%以内の特色はなし",40,y,24,SUB);y+=50;}
-  y+=10;scMark(c,y,pal.MARK||YEL);scKg(c,"計器",62,y,46,INK);scTxt(c,"30マス＝偏差値20〜80",1040,y+18,22,SUB,"ra");
+  y+=10;scMark(c,y,"#e2353b");scKg(c,"計器",62,y,46,INK);scTxt(c,"30マス＝偏差値20〜80",1040,y+18,22,SUB,"ra");
   scLine(c,40,y+66,1040,y+66,LN);y+=82;
   for(const k of ["r1","r2","in1","mid3","out3","st"]){
     if(y>1350-76)break;const v=(w.it||{})[k];scTxt(c,LAB[k].replace("<br>",""),40,y,24,INK);
     const on=!v?0:Math.max(1,Math.min(30,Math.round((v[4]-20)/60*30))),col=v?TCp[tier(v[2])]:SUB;
     for(let i=0;i<30;i++){const x=360+i*17;c.fillStyle=i<on?col:pal.OFF;c.fillRect(x,y+6,14,21);
       if(i===14){c.strokeStyle="rgba(255,255,255,.59)";c.lineWidth=1;c.strokeRect(x+.5,y+6.5,13,20);}}
-    if(v)scKg(c,rl(v[2]),1040,y,28,col,{anchor:"ra"});else scTxt(c,"走数不足",1040,y,24,col,"ra");y+=33;}
+    if(v)scTxt(c,rl(v[2]),1040,y,24,col,"ra");else scTxt(c,"走数不足",1040,y,24,col,"ra");y+=33;}
   const yd=s=>`${s.slice(0,4)}/${+s.slice(4,6)}/${+s.slice(6)}`;
   scTxt(c,`データ攻め｜選手カード　直近1年（${yd(Wn.from)}〜${yd(Wn.to)}）公式データより（優勝は2017年〜）`,40,1350-44,20,SUB);
   return cv;
