@@ -231,7 +231,6 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .palSel{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}.palSel.two{grid-template-columns:1fr 1fr}
 .palSel button{font:inherit;font-size:12px;min-height:44px;border:2px solid var(--line);border-radius:4px;color:#fff;cursor:pointer;padding:0 2px}
 .palSel button[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 2px var(--bg) inset}
-.kg{overflow:visible}
 .crumb{font-size:12px;margin-bottom:6px}.crumb a{color:inherit}
 </style>
 </head>
@@ -562,7 +561,7 @@ document.querySelectorAll("[data-w]").forEach(b=>b.addEventListener("click",()=>
 Promise.all([fetch("senshuCard/card2.json").then(r=>r.json()),fetch("senshuCard/kgOutlineC.json").then(r=>r.json()).catch(()=>null)]).then(([j,k])=>{D=j;K=k;if(!D.players[cur])cur="4238";if(cmp===cur)cmp=cur==="4320"?"4238":"4320";render();renderVs();}).catch(()=>{document.getElementById("card").innerHTML='<div class="body">データを読み込めませんでした。再読み込みしてください。</div>';});
 </script>
 
-<footer style="margin:24px auto 8px;max-width:560px;padding:0 16px;text-align:center;font-size:10px;color:#8a94a3;line-height:1.7;">見出しの書体：キルゴU（作者 名残雪 様）をアウトライン化して加工<br>© 2026 データ攻め ── 制作・運営 あべけん</footer>
+<footer style="margin:24px auto 8px;max-width:560px;padding:0 16px;text-align:center;font-size:10px;color:#8a94a3;line-height:1.7;">見出しの書体：キルゴU（作者 名残雪 様）をアウトライン化して加工（Cパターン）<br>© 2026 データ攻め ── 制作・運営 あべけん</footer>
 <script src="../assets/guard.js" defer></script>
 </body>
 </html>
