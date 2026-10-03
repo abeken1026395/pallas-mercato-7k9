@@ -382,9 +382,9 @@ function render(){if(window.drawShImgs)setTimeout(drawShImgs,0);
     <div class="hT"><span class="hk">総合</span><span class="hv" style="color:${ov?TC[tier(ov[1])]:"inherit"}">${ov?kg(rl(ov[1]),30):"—"}</span><span class="hs">${ov?`偏差値 ${ov[0].toFixed(1)}（平均50）`:"4項目以上で出す"}</span><span class="hs2">${ov?`6項目の偏差値の平均・${ov[2].toLocaleString()}人中`:""}</span></div>
     ${(()=>{const yc=P.yc||[[0,0,0,0,0,0],[0,0,0,0,0,0]],y=yc[0],yo=yc[1][0],G=["SG","G1","G2","G3","一般","シリーズ"];const ch=G.map((g,i)=>y[i+1]?`<span class="${i===0?"sg":""}">${g} ${y[i+1]}</span>`:"").join("");
       return `<div class="hT"><span class="hk">優勝<small class="hkS">2017年以降</small></span><span class="hv yuV">${kg(String(y[0]),30,-20)}<small>回</small></span><span class="hs">${ch||"—"}</span><span class="hs2">優出 ${yo}回</span><span class="hs2">${win.label}の優勝 ${w.yu?w.yu[0]:0}回</span></div>`;})()}
-    <div class="hW"><span class="hk">武器</span>${wp?`<span class="wv">${kg(TG[wp[0]][1],34)}</span><span class="wr" style="color:${TC[tier(wp[1][3])]}">${rl(wp[1][3])}</span><i class="slash"></i><span class="hs">${TG[wp[0]][2]}　${wp[1][1]}/${wp[1][2]}回（${wp[1][0].toFixed(1)}%）${tagAvg(wp[0],W)!=null?`・全選手平均 ${tagAvg(wp[0],W).toFixed(1)}%`:""}</span>`:(best&&w.it[best][2]<=30)?`<span class="wv">${kg(LAB[best].replace("<br>",""),30)}</span><i class="slash"></i><span class="hs">6項目の中でいちばん上位・偏差値${w.it[best][4].toFixed(1)}・${rl(w.it[best][2])}</span>`:`<span class="hs" style="font-size:13px">上位20%以内の持ち味は、この期間はなし</span>`}</div>
+    <div class="hW"><span class="hk">武器</span>${wp?`<span class="wv">${kg(TG[wp[0]][1],34)}</span><span class="wr" style="color:${TC[tier(wp[1][3])]}">${rl(wp[1][3])}</span><i class="slash"></i><span class="hs">【${CH[wp[1][4]||3]}】${TG[wp[0]][2]}　${wp[1][1]}/${wp[1][2]}回（${wp[1][0].toFixed(1)}%）${tagAvg(wp[0],W)!=null?`・全選手平均 ${tagAvg(wp[0],W).toFixed(1)}%`:""}</span>`:(best&&w.it[best][2]<=30)?`<span class="wv">${kg(LAB[best].replace("<br>",""),30)}</span><i class="slash"></i><span class="hs">6項目の中でいちばん上位・偏差値${w.it[best][4].toFixed(1)}・${rl(w.it[best][2])}</span>`:`<span class="hs" style="font-size:13px">上位20%以内の持ち味は、この期間はなし</span>`}</div>
   </div>
-  ${tgl.length?`<div><div class="sec"><b>${kg("得意技",22)}</b><small>武器のほかの得意技（上位20%以内）</small></div><div class="tgs">${tgl.map(([k,v])=>`<div class="tg"><span class="nm" style="color:${TC[tier(v[3])]}">${kg(TG[k][1],20)}</span><span class="rk" style="color:${TC[tier(v[3])]}">${rl(v[3])}</span><span class="de">${TG[k][2]}　${v[1]}/${v[2]}回（${v[0].toFixed(1)}%）${["tilt","tiltDash","tenji"].includes(k)?"・直前情報は2026/1/1から":""}</span></div>`).join("")}</div></div>`:""}
+  ${tgl.length?`<div><div class="sec"><b>${kg("得意技",22)}</b><small>この選手の上位の技（全選手の中の順位つき）</small></div><div class="tgs">${tgl.map(([k,v])=>`<div class="tg"><span class="nm" style="color:${TC[tier(v[3])]}">${kg(TG[k][1],20)}</span><span class="rk" style="color:${TC[tier(v[3])]}">${rl(v[3])}</span><span class="de">【${CH[v[4]||3]}】${TG[k][2]}　${v[1]}/${v[2]}回（${v[0].toFixed(1)}%）${["tilt","tiltDash","tenji"].includes(k)?"・直前情報は2026/1/1から":""}</span></div>`).join("")}</div></div>`:""}
   ${TLs.sub.length?`<div><div class="sec"><b>${kg("持ち味",22)}</b><small>上位20%以内・年によって入れ替わりやすい</small></div><div class="tgs">${TLs.sub.map(([k,v])=>`<div class="tg"><span class="nm" style="color:${TC[tier(v[3])]}">${kg(TG[k][1],20)}</span><span class="rk" style="color:${TC[tier(v[3])]}">${rl(v[3])}</span><span class="de">${TG[k][2]}　${v[1]}/${v[2]}回（${v[0].toFixed(1)}%）${["tilt","tiltDash","tenji"].includes(k)?"・直前情報は2026/1/1から":""}</span></div>`).join("")}</div></div>`:""}
   
   <div><div class="sec"><b>${kg("コース別成績",22)}</b><small>進入コース別・出走${w.n}走</small></div>${water(w,win)}
@@ -478,9 +478,9 @@ function scPlate(c,p,no,x0,y0,w,h,s,pal){
   c.fillStyle="#e2353b";c.beginPath();c.moveTo(x0,y0+h+sk);c.lineTo(x0+w,y0+h);c.lineTo(x0+w,y0+h+t);c.lineTo(x0,y0+h+sk+t);c.fill();
   c.fillStyle="#0d0d0d";c.beginPath();c.moveTo(x0,y0+h);c.lineTo(x0+w,y0+h);c.lineTo(x0,y0+h+sk);c.fill();
 }
-function tagList(w){const L=Object.entries(w.tg||{}).filter(([k,v])=>v[3]<=20).sort((a,b)=>a[1][3]-b[1][3]||PRI.indexOf(a[0])-PRI.indexOf(b[0]));
-  const L1=L.filter(x=>x[1][4]!==2),L2=L.filter(x=>x[1][4]===2);const wp=L1[0]||L2[0];
-  return {wp,rest:L1.filter(x=>x!==wp).slice(0,3),sub:L2.filter(x=>x!==wp).slice(0,4)};}
+const CH=["","得意技","持ち味","本人の中では上"];
+function tagList(w){const L=Object.entries(w.tg||{}).sort((a,b)=>(a[1][4]||3)-(b[1][4]||3)||a[1][3]-b[1][3]||PRI.indexOf(a[0])-PRI.indexOf(b[0]));
+  const top=L.slice(0,4);return {wp:top[0],rest:top.slice(1),sub:[]};}
 function tagAvg(k,Wk){const p=(D.win[Wk].tagPrior||{})[k];return p?p[0]/(p[0]+p[1])*100:null;}
 function scPicks(w){const t=tagList(w);return [t.wp,...t.rest,...t.sub].filter(Boolean);}
 function scLine(c,x1,y1,x2,y2,col,lw=2){c.strokeStyle=col;c.lineWidth=lw;c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();}
@@ -508,7 +508,7 @@ function drawStory(no,kuro){
    
    scTxt(c,"武 器",x0,y0+14,small,SUB);
    let lab,desc,top;const TG=Object.fromEntries((D.tags||[]).map(t=>[t[0],t]));
-   if(tg.length){const [k,v]=tg[0];lab=TG[k][1];const av=tagAvg(k,"y1");desc=`${TG[k][2]}　${v[1]}/${v[2]}回（${v[0].toFixed(1)}%）${av!=null?`・平均 ${av.toFixed(1)}%`:""}`;top=v[3];}
+   if(tg.length){const [k,v]=tg[0];lab=TG[k][1];const av=tagAvg(k,"y1");desc=`【${CH[v[4]||3]}】${TG[k][2]}　${v[1]}/${v[2]}回（${v[0].toFixed(1)}%）${av!=null?`・平均 ${av.toFixed(1)}%`:""}`;top=v[3];}
    else{const its=Object.entries(w.it||{});if(its.length){const [k,x]=its.sort((a,b)=>b[1][4]-a[1][4])[0];if(x[2]<=30){lab=LAB[k].replace("<br>","");top=x[2];desc=`6項目の中でいちばん上位（偏差値 ${x[4].toFixed(1)}）`;}}}
    if(lab){const col=TCp[tier(top)],rk=rl(top),rkw=scKgW(rk,Math.round(big*0.55)),z=scFit(lab,(x1-x0)-80-rkw,big);
      const ly=y0+18+small+Math.round((big-z)*0.6);scKg(c,lab,x0,ly,z,INK);scKg(c,rk,x1,y0+18+small+Math.round(big*0.32),Math.round(big*0.55),col,{anchor:"ra"});
@@ -516,11 +516,11 @@ function drawStory(no,kuro){
      scTxt(c,desc,x0,sy+24,small,SUB);}
    else scTxt(c,"上位20%以内の持ち味は、この期間はなし",x0,y0+60,28,SUB);}
   y+=208;
-  const TG=Object.fromEntries((D.tags||[]).map(t=>[t[0],t])),tg=scPicks(w).slice(1,2);
-  const lb2=(tg[0]&&tg[0][1][4]===2)?"持ち味":"得意技";scMark(c,y,"#e2353b");scKg(c,lb2,62,y,46,INK);scTxt(c,lb2==="持ち味"?"年によって入れ替わりやすい":"武器のほかの得意技",1040,y+18,22,SUB,"ra");
+  const TG=Object.fromEntries((D.tags||[]).map(t=>[t[0],t])),tg=scPicks(w).slice(1,3);
+  const lb2="得意技";scMark(c,y,"#e2353b");scKg(c,lb2,62,y,46,INK);scTxt(c,"この選手の上位の技",1040,y+18,22,SUB,"ra");
   scLine(c,40,y+66,1040,y+66,LN);y+=82;
   tg.forEach(([k,v])=>{const col=TCp[tier(v[3])];scKg(c,TG[k][1],40,y,46,col);scTxt(c,rl(v[3]),1040,y+8,32,col,"ra");
-    scTxt(c,`${TG[k][2]}　${v[1]}/${v[2]}回（${v[0].toFixed(1)}%）`,40,y+58,24,SUB);scLine(c,40,y+88,1040,y+88,"rgba(255,255,255,.094)");y+=94;});
+    scTxt(c,`【${CH[v[4]||3]}】${TG[k][2]}　${v[1]}/${v[2]}回（${v[0].toFixed(1)}%）`,40,y+58,24,SUB);scLine(c,40,y+88,1040,y+88,"rgba(255,255,255,.094)");y+=94;});
   if(!tg.length){scTxt(c,"ほかに上位20%以内のほかの得意技はなし",40,y,24,SUB);y+=50;}
   y+=22;scMark(c,y,"#e2353b");scKg(c,"計器",62,y,46,INK);scTxt(c,"30マス＝偏差値20〜80",1040,y+18,22,SUB,"ra");
   scLine(c,40,y+66,1040,y+66,LN);y+=82;
