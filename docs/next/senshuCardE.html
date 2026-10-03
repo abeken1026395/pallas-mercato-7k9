@@ -399,10 +399,10 @@ function render(){if(window.drawShImgs)setTimeout(drawShImgs,0);
   ${kmT?`<div><div class="sec"><b>${kg("決まり手",22)}</b><small>1着${kmT}回の内訳</small></div>
    <div class="km" style="margin-top:8px">${kmT?w.km.map((c,i)=>c?`<i style="width:${c/kmT*100}%;background:${KMC[i]}"></i>`:"").join(""):""}</div>
    <div class="kmKey" style="margin-top:6px">${KM.map((m,i)=>`<div><b style="background:${KMC[i]}"></b>${m} <span>${w.km[i]}</span></div>`).join("")}</div>
-   <div class="key" style="margin-top:6px">枠番より内のコースに入った進入 ${w.mae[0]}/${w.mae[1]}走（${pc(w.mae[0],w.mae[1])}）</div></div>`:""}
+   <div class="key" style="margin-top:6px">枠番より内側のコースに入った割合 ${w.mae[0]}/${w.mae[1]}走（${pc(w.mae[0],w.mae[1])}）</div></div>`:""}
   <div class="share"><a target="_blank" rel="noopener" href="https://x.com/intent/post?text=${encodeURIComponent(`【選手カード】${P.name}（${cur}）${wp&&isF(wp[0])?`／${NM(wp[0],wp[1])}：${wp[1][6]}`:""}${wp&&!isF(wp[0])?`／武器：${NM(wp[0],wp[1])} ${wp[1][1]}/${wp[1][2]}回（${wp[1][0].toFixed(1)}%${(wp[1][4]||3)<3&&tagAvg(wp[0],W)!=null?`・全体平均${tagAvg(wp[0],W).toFixed(1)}%`:""}）`:""}${ov&&ov[1]<=50?`／総合 ${rl(ov[1])}`:""}（${win.label}）　#ボートレース #${P.name} #データ攻め`)}&url=${encodeURIComponent(SITE+"?toban="+cur)}">Xに投稿</a><a target="_blank" rel="noopener" href="https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(SITE+"?toban="+cur)}">LINEで送る</a><button type="button" id="shImg">画像を保存</button></div>
   <div class="shareNote" id="shMsg"></div>
-  <details class="foot"><summary>データの数え方・出典</summary><div>出典：公式レース結果と競走成績（${ymd(win.from)}〜${ymd(win.to)}）。出走の数え方は公式に合わせる（責任外の失格・出遅れ・欠場は数えず、責任のある欠場は数える）。平均STはFを除く全走。</div><div>優勝・優出：公式番組データで、副題が開催の優勝を決めるレース（「優勝戦」「優勝」「決勝戦」「賞金女王決定戦」「王将位決定戦」など。準優勝戦・順位決定戦は除く。男女W優勝戦は両方）。優勝はその1着、優出はその出走表に載った選手。グランプリとクイーンズクライマックス（2018年まで）のシリーズ戦は「シリーズ」に数える。大きな数字は${ymd(D.yc.from)}〜${ymd(D.yc.to)}（優勝戦${D.yc.finals.toLocaleString()}レース、うち中止の${D.yc.canceled}レースは数えない）。それより前の優勝は入っていない。公式番組データに中身が無い延べ${D.yc.empty}場日は、公式の競走成績にも結果が登録されていない（中止として優勝なし）。${win.label}の優勝戦は${win.finals}レース。</div><div>得意技：展示一番時計は体重や機力の影響が大きいので得意技に入れない。チルト跳ねとチルトダッシュが両方あるときはチルトダッシュだけ出す。回数の少ない選手は全選手の平均に寄せて順位を付ける（経験ベイズ）。出すのは上位20%以内で、回数が最低回数（${(D.tags||[]).map(t=>`${t[1]}${t[3]}回`).join("・")}）以上のとき。最低回数は、期間の前半で上位20%以内だった選手の7割以上が後半も上位20%以内に残る最小の回数（5回以上。回数で残る割合が変わらない得意技は5回）。回数と率は実数のまま出す。2コース差し・道中の抜きは、回数を増やしても7割に届かないので出さない。</div><div>順位は各項目の分母20走以上の選手の中での位置。偏差値＝50＋10×（値−平均）÷標準偏差（平均STは小さいほど高い）。総合＝6項目の偏差値の平均（4項目以上）。コース別成績の図は模式図で、場ごとの形とは違う。</div></details></div>`;
+  <details class="foot"><summary>データの数え方・出典</summary><div>出典：公式レース結果と競走成績（${ymd(win.from)}〜${ymd(win.to)}）。出走の数え方は公式に合わせる（責任外の失格・出遅れ・欠場は数えず、責任のある欠場は数える）。平均STはFを除く全走。技の回数と分母は、公式レース結果に載った出走すべて（責任外の失格・出遅れも含む）で数えるので、出走数と1〜2走ずれることがある。</div><div>優勝・優出：公式番組データで、副題が開催の優勝を決めるレース（「優勝戦」「優勝」「決勝戦」「賞金女王決定戦」「王将位決定戦」など。準優勝戦・順位決定戦は除く。男女W優勝戦は両方）。優勝はその1着、優出はその出走表に載った選手。グランプリとクイーンズクライマックス（2018年まで）のシリーズ戦は「シリーズ」に数える。大きな数字は${ymd(D.yc.from)}〜${ymd(D.yc.to)}（優勝戦${D.yc.finals.toLocaleString()}レース、うち中止の${D.yc.canceled}レースは数えない）。それより前の優勝は入っていない。公式番組データに中身が無い延べ${D.yc.empty}場日は、公式の競走成績にも結果が登録されていない（中止として優勝なし）。${win.label}の優勝戦は${win.finals}レース。</div><div>技：13種類の技を、全選手の中の順位で3段に分ける。順位は、回数の少ない選手を全選手の平均に寄せてから付ける（経験ベイズ）。【得意技】は、期間の前半で上位20%だった選手の7割以上が後半も上位20%に残る技（豪腕まくり・イン強奪・チルトダッシュ）で、上位20%以内かつ最低回数以上のとき。【持ち味】は、それ以外の技で上位20%以内かつ最低回数以上のとき（逃げは上位10%以内を鉄壁イン、それより下をイン城塞と呼ぶ）。札の無い技は、全選手の平均以上で、分母20以上・回数3以上（半年は分母10以上・回数2以上）のときだけ出す。最低回数（直近1年。半年はその半分、2025年7月以降は1.25倍）：まくり 得意技26回・持ち味13回／前づけ 8回・4回／チルト 10回・5回／逃げ 持ち味5回／差し14回／4コース15回／抜き5回／大外5・6コース20回／2着3着60回。展示一番時計は体重や機力の影響が大きいので技に入れない。</div><div>積み上げ：技が4つに足りないときは、2017年以降の優勝・優出、デビュー後はじめての1着（デビューが2025年7月15日以降の選手だけ）、級別が最後に上がったとき、期間内の1着、デビュー日と養成期、期間内でいちばん速いスタート（0.10以下のとき）、期間内にいちばん多く走った場、期間内の出走数の順で埋める。</div><div>順位は各項目の分母20走以上の選手の中での位置。偏差値＝50＋10×（値−平均）÷標準偏差（平均STは小さいほど高い）。総合＝6項目の偏差値の平均（4項目以上）。コース別成績の図は模式図で、場ごとの形とは違う。</div></details></div>`;
 }
 async function h2hFor(no){const k=Number(no)%64;if(!(k in H2H)){try{const r=await fetch(`senshuCard/h2h/${k}.json`);H2H[k]=r.ok?await r.json():{};}catch(e){H2H[k]={};}}
   if(!H2Hmeta){try{H2Hmeta=await (await fetch("senshuCard/h2h/meta.json")).json();}catch(e){H2Hmeta={};}}return H2H[k][no]||{};}
@@ -451,7 +451,9 @@ function scKg(c,s,x,y,px,fill,o={}){
   return w;
 }
 function scFitTxt(c,s,x,y,px,fill,max){let z=px;while(z>16&&scTw(c,s,z)>max)z-=1;c.save();c.beginPath();c.rect(x,y-4,max,z*1.6);c.clip();scTxt(c,s,x,y,z,fill);c.restore();}
-function SDESC(k,v){if(isF(k))return v[6];const t=(D.tags.find(x=>x[0]===k)||[,,""])[2];return `${CHP(v)}${v[1]}/${v[2]}回（${v[0].toFixed(1)}%）｜${t.split("｜")[0]}`;}
+const DS={nige:"1コースで走ったレースのうち、決まり手「逃げ」で1着になった割合",makuri:"3〜6コースで走ったレースのうち、決まり手「まくり」か「まくり差し」で1着になった割合（2コースからは数えない）",maezuke:"4〜6枠で走ったレースのうち、枠番より2つ以上内側の1〜3コースに入った割合（例：5枠から3コース。欠場があれば枠を繰り上げて数える）",tiltDash:"2026年1月以降のすべての出走のうち、チルトを+1.0度以上に上げて4〜6コースから出た割合",sashi:"2〜6コースで走ったレースのうち、決まり手「差し」で1着になった割合",c4:"4コースで走ったレースのうち、3着以内に入った割合",nuki:"走ったレースのうち、決まり手「抜き」（1周目の1マークより後で前の艇を抜く）で1着になった割合",outKeep:"5・6コースで走ったレースのうち、3着以内に入った割合",p23:"走ったレースのうち、2着か3着に入った割合",geko:"2〜6コースで走ったレースのうち、コースの数字より良い着順でゴールした割合（例：5コースから4着以内）",fut:"走ったレースのうち、枠番より外のコースに出なかった割合（例：3枠で1〜3コース）",zst:"本番のスタートタイミングが0.09以下だった割合（フライング・出遅れのレースは除いて数える）",kanso:"走ったレースのうち、失格・転覆などの事故なくゴールした割合"};
+const DSS={nige:"1コースで逃げて1着",makuri:"3〜6コースからまくり・まくり差しで1着",maezuke:"4〜6枠から2つ以上内の1〜3コースへ",tiltDash:"チルト+1.0度以上で4〜6コースから（2026年1月〜）",sashi:"2〜6コースから差して1着",c4:"4コースから3着以内",nuki:"1マークの後に抜いて1着",outKeep:"5・6コースから3着以内",p23:"2着か3着",geko:"コースの数字より良い着順",fut:"枠番より外に出ない進入",zst:"本番ST0.09以下（F・L除く）",kanso:"事故なくゴール"};
+function SDESC(k,v){if(isF(k))return v[6];const t=(D.tags.find(x=>x[0]===k)||[,,""])[2];return `${CHP(v)}${v[1]}/${v[2]}回（${v[0].toFixed(1)}%）｜${DSS[k]||t}`;}
 function scTxt(c,s,x,y,px,fill,an="la",bold=true){
   c.font=`${bold?700:400} ${px}px ${SC_UI}`;c.fillStyle=fill;c.textBaseline="top";
   c.textAlign=an[0]==="r"?"right":an[0]==="m"?"center":"left";
@@ -484,7 +486,7 @@ function scPlate(c,p,no,x0,y0,w,h,s,pal){
   c.fillStyle="#0d0d0d";c.beginPath();c.moveTo(x0,y0+h);c.lineTo(x0+w,y0+h);c.lineTo(x0,y0+h+sk);c.fill();
 }
 const CH=["","得意技","持ち味",""];
-const WN={nige:["鉄壁イン","鉄壁イン","先マイ一閃"],makuri:["豪腕まくり","旋風まくり","外殻破り"],maezuke:["イン強奪","枠なり破り","深攻め"],tiltDash:["チルトダッシュ","天翔るダッシュ","天翔るダッシュ"],sashi:["針の穴","針の穴","影差し"],c4:["四ノ陣","四ノ陣","陣取り合戦"],nuki:["逆転の舟足","逆転の舟足","抜け駆け"],outKeep:["大外の意地","大外の意地","夜叉の走り"],p23:["食らいつき","食らいつき","追い上げの鬼"],geko:["下剋上","下剋上","下剋上"],fut:["不退転","不退転","不退転"],zst:["ゼロ台の牙","ゼロ台の牙","ゼロ台の牙"],kanso:["完全走破","完全走破","完全走破"]};
+const WN={nige:["鉄壁イン","鉄壁イン","先マイ一閃"],makuri:["豪腕まくり","旋風まくり","外殻破り"],maezuke:["イン強奪","枠なり破り","深攻め"],tiltDash:["チルトダッシュ","天翔るダッシュ","天翔るダッシュ"],sashi:["針の穴","針の穴","影差し"],c4:["四ノ陣","四ノ陣","四ノ太刀"],nuki:["逆転の舟足","逆転の舟足","道中の逆襲"],outKeep:["大外の意地","大外の意地","夜叉の走り"],p23:["食らいつき","食らいつき","二の矢"],geko:["下剋上","下剋上","下剋上"],fut:["不退転","不退転","不退転"],zst:["ゼロ台の牙","ゼロ台の牙","ゼロ台の牙"],kanso:["完全走破","完全走破","完全走破"]};
 function NM(k,v){if(isF(k))return v[5];if(k==="nige"&&(v[4]||3)===2)return v[3]<=10?"鉄壁イン":"イン城塞";const z=WN[k];return z?z[(v[4]||3)-1]:(D.tags.find(t=>t[0]===k)||[,k])[1];}
 
 let AY={};
@@ -496,15 +498,16 @@ function FACTS(P,w,Wk){const no=Object.keys(D.players).find(t=>D.players[t]===P)
   if(yc[0][0]>0)F("f_yu","覇者の証",`2017年以降の優勝 ${yc[0][0]}回`);
   if(yc[1][0]>0)F("f_yo","大舞台",`2017年以降の優勝戦出場 ${yc[1][0]}回`);
   if(b[3])F("f_fw","初白星",`${ymdJ(b[3])}、デビュー後はじめての1着`);
-  if(b[2])F("f_up","駆け上がり",`${b[2][1]}から${b[2][2]}へ（${ymdJ(b[2][0]).replace(/\d+日$/,"")}）`);
+  if(b[2])F("f_up","駆け上がり",`最後の昇級 ${b[2][1]}→${b[2][2]}（${ymdJ(b[2][0]).replace(/\d+日$/,"")}から）`);
   if(x&&x[2]>0)F("f_win","勝ち星",`${WL[Wk]}の1着 ${x[2]}回`);
-  if(b[0]||b[1])F("f_deb","初陣",b[0]?`${ymdJ(b[0])}デビュー${b[1]?`（${b[1]}期）`:""}`:`${b[1]}期`);
-  if(x&&x[3]!=null&&x[3]<=0.10)F("f_st","閃光スタート",`${WL[Wk]}でいちばん速いスタート ${x[3].toFixed(2)}（${x[5]}・${ymdJ(x[4])}）`);
-  if(x)F("f_home","主戦場",`${WL[Wk]}にいちばん多く走った場 ${x[0]} ${x[1]}走`);
+  if(b[0]||b[1])F("f_deb","初陣",b[0]?`${ymdJ(b[0])}デビュー${b[1]?`（養成${b[1]}期）`:""}`:`養成${b[1]}期でデビュー`);
+  if(x&&x[3]!=null&&x[3]<=0.10)F("f_st","閃光スタート",`${WL[Wk]}の本番ST最速 ${x[3].toFixed(2)}（${x[5]}・${ymdJ(x[4])}）`);
+  if(x&&x[1]<w.n)F("f_home","主戦場",`${WL[Wk]}にいちばん多く走った場 ${x[0]} ${x[1]}走`);
   if(w.n>0)F("f_n","積み重ね",`${WL[Wk]}の出走 ${w.n}走`);
   return L;}
-function tagList(w,P,Wk){const L=Object.entries(w.tg||{}).filter(([k,v])=>(v[4]||3)<3||(v[2]>=20&&v[0]>=(tagAvg(k,Wk)??0))).sort((a,b)=>(a[1][4]||3)-(b[1][4]||3)||a[1][3]-b[1][3]||PRI.indexOf(a[0])-PRI.indexOf(b[0]));
-  const top=L.concat(FACTS(P,w,Wk)).slice(0,4);return {wp:top[0],rest:top.slice(1),sub:[]};}
+function tagList(w,P,Wk){const L=Object.entries(w.tg||{}).filter(([k,v])=>(v[4]||3)<3||(v[2]>=(Wk==="h1"?10:20)&&v[1]>=(Wk==="h1"?2:3)&&v[0]>=(tagAvg(k,Wk)??0))).sort((a,b)=>(a[1][4]||3)-(b[1][4]||3)||a[1][3]-b[1][3]||PRI.indexOf(a[0])-PRI.indexOf(b[0]));
+  const all=L.concat(FACTS(P,w,Wk)),i=all.findIndex(x=>!["fut","kanso"].includes(x[0]));if(i>0)all.unshift(all.splice(i,1)[0]);
+  const top=all.slice(0,4);return {wp:top[0],rest:top.slice(1),sub:[]};}
 function tagAvg(k,Wk){const p=(D.win[Wk].tagPrior||{})[k];return p?p[0]/(p[0]+p[1])*100:null;}
 function scPicks(w,P){const t=tagList(w,P,"y1");return [t.wp,...t.rest,...t.sub].filter(Boolean);}
 function scLine(c,x1,y1,x2,y2,col,lw=2){c.strokeStyle=col;c.lineWidth=lw;c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();}
@@ -582,7 +585,7 @@ function setPal(p){PAL=p;document.querySelectorAll(".palSel button").forEach(x=>
 document.querySelectorAll(".palSel button").forEach(b=>b.addEventListener("click",()=>setPal(b.dataset.pal)));
 try{const s=localStorage.getItem("senshuCardPal");if(s!==null)setPal(s)}catch(_){}
 document.querySelectorAll("[data-w]").forEach(b=>b.addEventListener("click",()=>{W=b.dataset.w;document.querySelectorAll("[data-w]").forEach(x=>x.setAttribute("aria-pressed",x===b));render();renderVs();}));
-Promise.all([fetch("senshuCard/card2D.json").then(r=>r.json()),fetch("senshuCard/ayumi.json").then(r=>r.json()),fetch("senshuCard/kgOutlineC.json").then(r=>r.json()).catch(()=>null)]).then(([j,a,k])=>{D=j;AY=a;K=k;const WZ={nige:["鉄壁イン","④1マーク・逃げ","決まった割合"],makuri:["豪腕まくり","④1マーク・まくり","決まった割合"],maezuke:["イン強奪","②進入・位置取り","やった割合"],tiltDash:["チルトダッシュ","①展示・チルト","やった割合"],sashi:["針の穴","④1マーク・差し","決まった割合"],c4:["四ノ陣","④1マーク・4コース","入った割合"],nuki:["逆転の舟足","⑤道中・抜き","決まった割合"],outKeep:["大外の意地","⑥着順・粘り","入った割合"],p23:["食らいつき","⑥着順・2着3着","入った割合"],geko:["下剋上","⑥着順・着順上げ","上げた割合"],fut:["不退転","②進入・枠を守る","守った割合"],zst:["ゼロ台の牙","③スタート・好スタート","決めた割合"],kanso:["完全走破","⑥着順・完走","走り切った割合"]};D.tags=(D.tags||[]).map(t=>{const z=WZ[t[0]];return z?[t[0],z[0],`${z[1]}｜${z[0]===t[1]?"":t[1]+"："}${t[2]}（${z[2]}）`,t[3]]:t;});if(!D.players[cur])cur="4238";if(cmp===cur)cmp=cur==="4320"?"4238":"4320";render();renderVs();}).catch(()=>{document.getElementById("card").innerHTML='<div class="body">データを読み込めませんでした。再読み込みしてください。</div>';});
+Promise.all([fetch("senshuCard/card2D.json").then(r=>r.json()),fetch("senshuCard/ayumi.json").then(r=>r.json()),fetch("senshuCard/kgOutlineC.json").then(r=>r.json()).catch(()=>null)]).then(([j,a,k])=>{D=j;AY=a;K=k;D.tags=(D.tags||[]).map(t=>DS[t[0]]?[t[0],t[1],DS[t[0]],t[3]]:t);if(!D.players[cur])cur="4238";if(cmp===cur)cmp=cur==="4320"?"4238":"4320";render();renderVs();}).catch(()=>{document.getElementById("card").innerHTML='<div class="body">データを読み込めませんでした。再読み込みしてください。</div>';});
 </script>
 
 <footer style="margin:24px auto 8px;max-width:560px;padding:0 16px;text-align:center;font-size:10px;color:#8a94a3;line-height:1.7;">見出しの書体：キルゴU（作者 名残雪 様）をアウトライン化して加工（Cパターン）<br>© 2026 データ攻め ── 制作・運営 あべけん</footer>
