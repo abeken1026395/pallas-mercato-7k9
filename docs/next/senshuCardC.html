@@ -384,7 +384,7 @@ function render(){if(window.drawShImgs)setTimeout(drawShImgs,0);
       return `<div class="hT"><span class="hk">優勝<small class="hkS">2017年以降</small></span><span class="hv yuV">${kg(String(y[0]),30,-20)}<small>回</small></span><span class="hs">${ch||"—"}</span><span class="hs2">優出 ${yo}回</span><span class="hs2">${win.label}の優勝 ${w.yu?w.yu[0]:0}回</span></div>`;})()}
     <div class="hW"><span class="hk">武器</span>${wp?`<span class="wv">${kg(TG[wp[0]][1],34)}</span><span class="wr" style="color:${TC[tier(wp[1][3])]}">${rl(wp[1][3])}</span><i class="slash"></i><span class="hs">${TG[wp[0]][2]}　${wp[1][1]}/${wp[1][2]}回（${wp[1][0].toFixed(1)}%）${tagAvg(wp[0],W)!=null?`・全選手平均 ${tagAvg(wp[0],W).toFixed(1)}%`:""}</span>`:(best&&w.it[best][2]<=30)?`<span class="wv">${kg(LAB[best].replace("<br>",""),30)}</span><i class="slash"></i><span class="hs">6項目の中でいちばん上位・偏差値${w.it[best][4].toFixed(1)}・${rl(w.it[best][2])}</span>`:`<span class="hs" style="font-size:13px">上位20%以内の持ち味は、この期間はなし</span>`}</div>
   </div>
-  ${tgl.length?`<div><div class="sec"><b>${kg("特色",22)}</b><small>武器のほかに上位20%以内の持ち味</small></div><div class="tgs">${tgl.map(([k,v])=>`<div class="tg"><span class="nm" style="color:${TC[tier(v[3])]}">${kg(TG[k][1],20)}</span><span class="rk" style="color:${TC[tier(v[3])]}">${rl(v[3])}</span><span class="de">${TG[k][2]}　${v[1]}/${v[2]}回（${v[0].toFixed(1)}%）${["tilt","tiltDash","tenji"].includes(k)?"・直前情報は2026/1/1から":""}</span></div>`).join("")}</div></div>`:""}
+  ${tgl.length?`<div><div class="sec"><b>${kg("得意技",22)}</b><small>武器のほかの得意技（上位20%以内）</small></div><div class="tgs">${tgl.map(([k,v])=>`<div class="tg"><span class="nm" style="color:${TC[tier(v[3])]}">${kg(TG[k][1],20)}</span><span class="rk" style="color:${TC[tier(v[3])]}">${rl(v[3])}</span><span class="de">${TG[k][2]}　${v[1]}/${v[2]}回（${v[0].toFixed(1)}%）${["tilt","tiltDash","tenji"].includes(k)?"・直前情報は2026/1/1から":""}</span></div>`).join("")}</div></div>`:""}
   
   <div><div class="sec"><b>${kg("コース別成績",22)}</b><small>進入コース別・出走${w.n}走</small></div>${water(w,win)}
    <div class="key"><span><i style="background:var(--needle)"></i>1着率</span><span><i style="background:rgba(255,255,255,.25)"></i>3着内率</span><span><i style="background:var(--buoyR);width:3px"></i>全選手のそのコースの1着率</span><span>薄い行は20走未満</span></div></div>
@@ -398,7 +398,7 @@ function render(){if(window.drawShImgs)setTimeout(drawShImgs,0);
    <div class="key" style="margin-top:6px">前づけ（枠より内のコースに入った）${w.mae[0]}/${w.mae[1]}走（${pc(w.mae[0],w.mae[1])}）</div></div>
   <div class="share"><a target="_blank" rel="noopener" href="https://x.com/intent/post?text=${encodeURIComponent(`${P.name}の選手カード（${win.label}）${ov?`　総合 ${rl(ov[1])}`:""}${wp?`　武器：${TG[wp[0]][1]}（${wp[1][1]}/${wp[1][2]}回）`:""}　#ボートレース #${P.name}`)}&url=${encodeURIComponent(SITE+"?toban="+cur)}">Xに投稿</a><a target="_blank" rel="noopener" href="https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(SITE+"?toban="+cur)}">LINEで送る</a><button type="button" id="shImg">画像を保存</button></div>
   <div class="shareNote" id="shMsg"></div>
-  <details class="foot"><summary>データの数え方・出典</summary><div>出典：公式レース結果と競走成績（${ymd(win.from)}〜${ymd(win.to)}）。出走の数え方は公式に合わせる（責任外の失格・出遅れ・欠場は数えず、責任のある欠場は数える）。平均STはFを除く全走。</div><div>優勝・優出：公式番組データで、副題が開催の優勝を決めるレース（「優勝戦」「優勝」「決勝戦」「賞金女王決定戦」「王将位決定戦」など。準優勝戦・順位決定戦は除く。男女W優勝戦は両方）。優勝はその1着、優出はその出走表に載った選手。グランプリとクイーンズクライマックス（2018年まで）のシリーズ戦は「シリーズ」に数える。大きな数字は${ymd(D.yc.from)}〜${ymd(D.yc.to)}（優勝戦${D.yc.finals.toLocaleString()}レース、うち中止の${D.yc.canceled}レースは数えない）。それより前の優勝は入っていない。公式番組データに中身が無い日（延べ${D.yc.empty}場日）は確かめられていない。${win.label}の優勝戦は${win.finals}レース。</div><div>特色：回数の少ない選手は全選手の平均に寄せて順位を付ける（経験ベイズ）。出すのは上位20%以内で、回数が最低回数（${(D.tags||[]).map(t=>`${t[1]}${t[3]}回`).join("・")}）以上のとき。最低回数は、期間の前半で上位20%以内だった選手の7割以上が後半も上位20%以内に残る最小の回数（5回以上。回数で残る割合が変わらない特色は5回）。回数と率は実数のまま出す。2コース差し・道中の抜きは、回数を増やしても7割に届かないので出さない。</div><div>順位は各項目の分母20走以上の選手の中での位置。偏差値＝50＋10×（値−平均）÷標準偏差（平均STは小さいほど高い）。総合＝6項目の偏差値の平均（4項目以上）。コース別成績の図は模式図で、場ごとの形とは違う。</div></details></div>`;
+  <details class="foot"><summary>データの数え方・出典</summary><div>出典：公式レース結果と競走成績（${ymd(win.from)}〜${ymd(win.to)}）。出走の数え方は公式に合わせる（責任外の失格・出遅れ・欠場は数えず、責任のある欠場は数える）。平均STはFを除く全走。</div><div>優勝・優出：公式番組データで、副題が開催の優勝を決めるレース（「優勝戦」「優勝」「決勝戦」「賞金女王決定戦」「王将位決定戦」など。準優勝戦・順位決定戦は除く。男女W優勝戦は両方）。優勝はその1着、優出はその出走表に載った選手。グランプリとクイーンズクライマックス（2018年まで）のシリーズ戦は「シリーズ」に数える。大きな数字は${ymd(D.yc.from)}〜${ymd(D.yc.to)}（優勝戦${D.yc.finals.toLocaleString()}レース、うち中止の${D.yc.canceled}レースは数えない）。それより前の優勝は入っていない。公式番組データに中身が無い日（延べ${D.yc.empty}場日）は確かめられていない。${win.label}の優勝戦は${win.finals}レース。</div><div>得意技：展示一番時計は体重や機力の影響が大きいので得意技に入れない。チルト跳ねとチルトダッシュが両方あるときはチルトダッシュだけ出す。回数の少ない選手は全選手の平均に寄せて順位を付ける（経験ベイズ）。出すのは上位20%以内で、回数が最低回数（${(D.tags||[]).map(t=>`${t[1]}${t[3]}回`).join("・")}）以上のとき。最低回数は、期間の前半で上位20%以内だった選手の7割以上が後半も上位20%以内に残る最小の回数（5回以上。回数で残る割合が変わらない得意技は5回）。回数と率は実数のまま出す。2コース差し・道中の抜きは、回数を増やしても7割に届かないので出さない。</div><div>順位は各項目の分母20走以上の選手の中での位置。偏差値＝50＋10×（値−平均）÷標準偏差（平均STは小さいほど高い）。総合＝6項目の偏差値の平均（4項目以上）。コース別成績の図は模式図で、場ごとの形とは違う。</div></details></div>`;
 }
 async function h2hFor(no){const k=Number(no)%64;if(!(k in H2H)){try{const r=await fetch(`senshuCard/h2h/${k}.json`);H2H[k]=r.ok?await r.json():{};}catch(e){H2H[k]={};}}
   if(!H2Hmeta){try{H2Hmeta=await (await fetch("senshuCard/h2h/meta.json")).json();}catch(e){H2Hmeta={};}}return H2H[k][no]||{};}
@@ -477,7 +477,7 @@ function scPlate(c,p,no,x0,y0,w,h,s,pal){
   c.fillStyle="#e2353b";c.beginPath();c.moveTo(x0,y0+h+sk);c.lineTo(x0+w,y0+h);c.lineTo(x0+w,y0+h+t);c.lineTo(x0,y0+h+sk+t);c.fill();
   c.fillStyle="#0d0d0d";c.beginPath();c.moveTo(x0,y0+h);c.lineTo(x0+w,y0+h);c.lineTo(x0,y0+h+sk);c.fill();
 }
-function tagList(w){let L=Object.entries(w.tg||{}).filter(([k,v])=>v[3]<=20).sort((a,b)=>a[1][3]-b[1][3]||PRI.indexOf(a[0])-PRI.indexOf(b[0]));
+function tagList(w){let L=Object.entries(w.tg||{}).filter(([k,v])=>v[3]<=20&&k!=="tenji").sort((a,b)=>a[1][3]-b[1][3]||PRI.indexOf(a[0])-PRI.indexOf(b[0]));
   if(L.some(x=>x[0]==="tiltDash"))L=L.filter(x=>x[0]!=="tilt");
   const wp=L.find(x=>x[0]!=="tenji");return {wp,rest:L.filter(x=>x!==wp).slice(0,3)};}
 function tagAvg(k,Wk){const p=(D.win[Wk].tagPrior||{})[k];return p?p[0]/(p[0]+p[1])*100:null;}
@@ -516,11 +516,11 @@ function drawStory(no,kuro){
    else scTxt(c,"上位20%以内の持ち味は、この期間はなし",x0,y0+60,28,SUB);}
   y+=208;
   const TG=Object.fromEntries((D.tags||[]).map(t=>[t[0],t])),tg=scPicks(w).slice(1,2);
-  scMark(c,y,"#e2353b");scKg(c,"特色",62,y,46,INK);scTxt(c,"武器のほかに上位20%以内",1040,y+18,22,SUB,"ra");
+  scMark(c,y,"#e2353b");scKg(c,"得意技",62,y,46,INK);scTxt(c,"武器のほかの得意技",1040,y+18,22,SUB,"ra");
   scLine(c,40,y+66,1040,y+66,LN);y+=82;
   tg.forEach(([k,v])=>{const col=TCp[tier(v[3])];scKg(c,TG[k][1],40,y,46,col);scTxt(c,rl(v[3]),1040,y+8,32,col,"ra");
     scTxt(c,`${TG[k][2]}　${v[1]}/${v[2]}回（${v[0].toFixed(1)}%）`,40,y+58,24,SUB);scLine(c,40,y+88,1040,y+88,"rgba(255,255,255,.094)");y+=94;});
-  if(!tg.length){scTxt(c,"ほかに上位20%以内の特色はなし",40,y,24,SUB);y+=50;}
+  if(!tg.length){scTxt(c,"ほかに上位20%以内のほかの得意技はなし",40,y,24,SUB);y+=50;}
   y+=22;scMark(c,y,"#e2353b");scKg(c,"計器",62,y,46,INK);scTxt(c,"30マス＝偏差値20〜80",1040,y+18,22,SUB,"ra");
   scLine(c,40,y+66,1040,y+66,LN);y+=82;
   for(const k of ["r1","r2","in1","mid3","out3","st"]){
