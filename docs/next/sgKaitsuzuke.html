@@ -24,7 +24,7 @@ h1 { font-size:24px; line-height:1.35; letter-spacing:.5px; text-align:center; }
 .num { text-align:right; white-space:nowrap; }
 .big { font-size:clamp(19px,5.6vw,26px); font-weight:bold; font-variant-numeric:tabular-nums; letter-spacing:-.5px; }
 .big.m { color:var(--minus); } .big.p { color:var(--plus); }
-.meta { font-size:11px; color:var(--sub); margin-top:2px; font-variant-numeric:tabular-nums; }
+.meta { font-size:11px; color:var(--sub); margin-top:2px; min-height:1.5em; font-variant-numeric:tabular-nums; }
 svg { display:block; width:100%; height:auto; margin-top:8px; overflow:visible; }
 .ax { stroke:var(--line); stroke-width:1; }
 .zero { stroke:#3a4a5e; stroke-dasharray:4 4; stroke-width:1; }
@@ -84,19 +84,18 @@ function build(id, s, color) {
   });
   h += `<line class="zero" x1="${L}" y1="${y(0)}" x2="${R}" y2="${y(0)}"/><text class="lab" x="${R}" y="${y(0) - 4}" text-anchor="end">0円</text>`;
   h += `<text class="lab" x="${L + 2}" y="${B - 4}">${yen(lo)}</text>`;
-  let d = `M${L},${y(0)}`;
-  s.cum.forEach((v, i) => d += `L${x(i).toFixed(1)},${y(v).toFixed(1)}`);
-  h += `<path class="path" d="${d}" stroke="${color}"/><circle class="dot" r="5" fill="var(--minus)" cx="${L}" cy="${y(0)}"/>`;
+  const seg = s.cum.map((v, i) => `L${x(i).toFixed(1)},${y(v).toFixed(1)}`);
+  const head = `M${L},${y(0).toFixed(1)}`;
+  h += `<path class="path" d="${head}" stroke="${color}"/><circle class="dot" r="5" fill="var(--minus)" cx="${L}" cy="${y(0)}"/>`;
   g.innerHTML = h;
-  const p = g.querySelector('.path'), c = g.querySelector('.dot'), len = p.getTotalLength();
-  p.style.strokeDasharray = len; p.style.strokeDashoffset = len;
-  return { s, p, c, len, x, y };
+  const p = g.querySelector('.path'), c = g.querySelector('.dot');
+  return { s, p, c, seg, head, x, y };
 }
 const A = build('gA', D.a, 'var(--a)'), Bp = build('gB', D.b, 'var(--b)');
 function paint(o, vid, mid, k) {
   const n = o.s.cum.length, i = Math.max(0, Math.min(n - 1, Math.floor(k * n) - 1));
   const v = k <= 0 ? 0 : o.s.cum[i];
-  o.p.style.strokeDashoffset = o.len * (1 - k);
+  o.p.setAttribute('d', o.head + (k <= 0 ? '' : o.seg.slice(0, i + 1).join('')));
   o.c.setAttribute('cx', k <= 0 ? L : o.x(i)); o.c.setAttribute('cy', o.y(v));
   const el = document.getElementById(vid);
   el.textContent = yen(v); el.className = 'big ' + (v < 0 ? 'm' : v > 0 ? 'p' : '');
@@ -104,16 +103,26 @@ function paint(o, vid, mid, k) {
   else document.getElementById(mid).textContent = '';
 }
 const DUR = 7000;
-let t0 = 0;
-function frame(t) {
-  if (!t0) t0 = t;
-  const k = Math.min(1, (t - t0) / DUR);
-  paint(A, 'vA', 'mA', k); paint(Bp, 'vB', 'mB', k);
-  if (k < 1) requestAnimationFrame(frame);
+const runs = [[A, 'vA', 'mA', 'cA'], [Bp, 'vB', 'mB', 'cB']].map(([o, v, m, c]) => ({ o, v, m, c, t0: 0, on: false }));
+function run(r) {
+  r.t0 = 0; r.on = true;
+  const step = t => {
+    if (!r.t0) r.t0 = t;
+    const k = Math.min(1, (t - r.t0) / DUR);
+    paint(r.o, r.v, r.m, k);
+    if (k < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
 }
-function play() { t0 = 0; requestAnimationFrame(frame); }
-document.getElementById('re').onclick = play;
-play();
+runs.forEach(r => paint(r.o, r.v, r.m, 0));
+if ('IntersectionObserver' in window) {
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    const r = runs.find(x => x.c === e.target.id);
+    if (e.isIntersecting && !r.on) { run(r); io.unobserve(e.target); }
+  }), { threshold: 0.6 });
+  runs.forEach(r => io.observe(document.getElementById(r.c)));
+} else runs.forEach(run);
+document.getElementById('re').onclick = () => runs.forEach(run);
 document.getElementById('note').innerHTML =
   '<b>対象</b>　' + D.sg.map(s => s[1]).join('・') + '（各6日間・全レース）<br>' +
   '<b>①</b>　確定オッズが最も低い1点。同じ最低オッズが複数ある' + D.a.tie + 'レースは組番の小さい方<br>' +
