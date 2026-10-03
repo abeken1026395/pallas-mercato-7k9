@@ -237,7 +237,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 
 
 <div class="wrap">
-  <div><div class="crumb"><a href="./">← 実験場</a></div><h1>選手カード C（試作）</h1><p class="lead">選手図鑑の詳細の一番上に入る想定の試作です。本番のページではありません。</p></div>
+  <div><div class="crumb"><a href="./">← 実験場</a></div><h1>選手カード C（試作）</h1><p class="lead">全選手の中で、この選手はどこにいるか。1枚で、分母つきで。予想はしない、位置を見せる。集めるカードではありません。<br>（試作・本番のページではありません）</p></div>
   <div class="srch"><input id="q" type="search" placeholder="選手を探す：名前か登番" autocomplete="off" aria-label="選手を探す"><div class="hits" id="hits"></div></div>
   <div class="seg" role="group" aria-label="期間"><button data-w="y1" aria-pressed="true">直近1年</button><button data-w="h1" aria-pressed="false">直近半年</button><button data-w="all" aria-pressed="false">2025年7月〜</button></div>
   <div class="perNote" id="perNote"></div>
@@ -246,7 +246,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     <button data-pal="kuro" aria-pressed="false" style="background:#121212">漆黒</button>
   </div></div>
   <article class="card" id="card"><div class="body">読み込み中</div></article>
-  <section class="srch"><label for="q2">この選手と比べる</label><input id="q2" type="search" placeholder="比べる相手：名前か登番" autocomplete="off"><div class="hits" id="hits2"></div></section>
+  <section class="srch"><label for="q2">手合わせ（2選手を比べる）</label><input id="q2" type="search" placeholder="比べる相手：名前か登番" autocomplete="off"><div class="hits" id="hits2"></div></section>
   <article class="card" id="vs" hidden></article>
   <section class="srch" id="shareSec">
     <label>保存用の画像（直近1年）</label>
@@ -396,7 +396,7 @@ function render(){if(window.drawShImgs)setTimeout(drawShImgs,0);
    <div class="km" style="margin-top:8px">${kmT?w.km.map((c,i)=>c?`<i style="width:${c/kmT*100}%;background:${KMC[i]}"></i>`:"").join(""):""}</div>
    <div class="kmKey" style="margin-top:6px">${KM.map((m,i)=>`<div><b style="background:${KMC[i]}"></b>${m} <span>${w.km[i]}</span></div>`).join("")}</div>
    <div class="key" style="margin-top:6px">前づけ（枠より内のコースに入った）${w.mae[0]}/${w.mae[1]}走（${pc(w.mae[0],w.mae[1])}）</div></div>
-  <div class="share"><a target="_blank" rel="noopener" href="https://x.com/intent/post?text=${encodeURIComponent(`${P.name}の選手カード（${win.label}）${ov?`　総合 ${rl(ov[1])}`:""}${wp?`　武器：${TG[wp[0]][1]}（${wp[1][1]}/${wp[1][2]}回）`:""}　#ボートレース #${P.name}`)}&url=${encodeURIComponent(SITE+"?toban="+cur)}">Xに投稿</a><a target="_blank" rel="noopener" href="https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(SITE+"?toban="+cur)}">LINEで送る</a><button type="button" id="shImg">画像を保存</button></div>
+  <div class="share"><a target="_blank" rel="noopener" href="https://x.com/intent/post?text=${encodeURIComponent(`【選手カード】${P.name}（${cur}）${wp?`／武器：${TG[wp[0]][1]} ${wp[1][1]}/${wp[1][2]}回（${wp[1][0].toFixed(1)}%${tagAvg(wp[0],W)!=null?`・全体平均${tagAvg(wp[0],W).toFixed(1)}%`:""}）`:""}${ov?`／総合 ${rl(ov[1])}`:""}（${win.label}）　#ボートレース #${P.name} #データ攻め`)}&url=${encodeURIComponent(SITE+"?toban="+cur)}">Xに投稿</a><a target="_blank" rel="noopener" href="https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(SITE+"?toban="+cur)}">LINEで送る</a><button type="button" id="shImg">画像を保存</button></div>
   <div class="shareNote" id="shMsg"></div>
   <details class="foot"><summary>データの数え方・出典</summary><div>出典：公式レース結果と競走成績（${ymd(win.from)}〜${ymd(win.to)}）。出走の数え方は公式に合わせる（責任外の失格・出遅れ・欠場は数えず、責任のある欠場は数える）。平均STはFを除く全走。</div><div>優勝・優出：公式番組データで、副題が開催の優勝を決めるレース（「優勝戦」「優勝」「決勝戦」「賞金女王決定戦」「王将位決定戦」など。準優勝戦・順位決定戦は除く。男女W優勝戦は両方）。優勝はその1着、優出はその出走表に載った選手。グランプリとクイーンズクライマックス（2018年まで）のシリーズ戦は「シリーズ」に数える。大きな数字は${ymd(D.yc.from)}〜${ymd(D.yc.to)}（優勝戦${D.yc.finals.toLocaleString()}レース、うち中止の${D.yc.canceled}レースは数えない）。それより前の優勝は入っていない。公式番組データに中身が無い延べ${D.yc.empty}場日は、公式の競走成績にも結果が登録されていない（中止として優勝なし）。${win.label}の優勝戦は${win.finals}レース。</div><div>得意技：展示一番時計は体重や機力の影響が大きいので得意技に入れない。チルト跳ねとチルトダッシュが両方あるときはチルトダッシュだけ出す。回数の少ない選手は全選手の平均に寄せて順位を付ける（経験ベイズ）。出すのは上位20%以内で、回数が最低回数（${(D.tags||[]).map(t=>`${t[1]}${t[3]}回`).join("・")}）以上のとき。最低回数は、期間の前半で上位20%以内だった選手の7割以上が後半も上位20%以内に残る最小の回数（5回以上。回数で残る割合が変わらない得意技は5回）。回数と率は実数のまま出す。2コース差し・道中の抜きは、回数を増やしても7割に届かないので出さない。</div><div>順位は各項目の分母20走以上の選手の中での位置。偏差値＝50＋10×（値−平均）÷標準偏差（平均STは小さいほど高い）。総合＝6項目の偏差値の平均（4項目以上）。コース別成績の図は模式図で、場ごとの形とは違う。</div></details></div>`;
 }
