@@ -48,6 +48,7 @@ GUARD = [
     "docs/next/sgKaitsuzuke.html",
     "docs/next/senshuCard.html",
     "docs/next/senshuCardC.html",
+    "docs/next/senshuCardD.html",
     "docs/next/torisetsu.html",
     "docs/payouts/index.html",
     "docs/results/index.html",
