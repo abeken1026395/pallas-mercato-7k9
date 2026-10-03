@@ -481,7 +481,7 @@ function scPlate(c,p,no,x0,y0,w,h,s,pal){
   c.fillStyle="#0d0d0d";c.beginPath();c.moveTo(x0,y0+h);c.lineTo(x0+w,y0+h);c.lineTo(x0,y0+h+sk);c.fill();
 }
 const CH=["","得意技","持ち味",""];
-const WN={nige:["鉄壁イン","イン城塞","一番乗り"],makuri:["豪腕まくり","旋風まくり","外殻破り"],maezuke:["イン強奪","枠なり破り","内取り"],tiltDash:["チルトダッシュ","天翔るダッシュ","伸び足"],sashi:["針の穴","針の穴","隙間縫い"],c4:["四ノ陣","四ノ陣","陣取り合戦"],nuki:["逆転の舟足","逆転の舟足","割り込み斬り"],outKeep:["大外の意地","大外の意地","粘り腰"],p23:["食らいつき","食らいつき","追い上げの鬼"]};
+const WN={nige:["鉄壁イン","鉄壁イン","先マイ一閃"],makuri:["豪腕まくり","旋風まくり","外殻破り"],maezuke:["イン強奪","枠なり破り","深攻め"],tiltDash:["チルトダッシュ","天翔るダッシュ","天翔るダッシュ"],sashi:["針の穴","針の穴","影差し"],c4:["四ノ陣","四ノ陣","陣取り合戦"],nuki:["逆転の舟足","逆転の舟足","抜け駆け"],outKeep:["大外の意地","大外の意地","夜叉の走り"],p23:["食らいつき","食らいつき","追い上げの鬼"]};
 function NM(k,v){const z=WN[k];return z?z[(v[4]||3)-1]:(D.tags.find(t=>t[0]===k)||[,k])[1];}
 function tagList(w){const L=Object.entries(w.tg||{}).sort((a,b)=>(a[1][4]||3)-(b[1][4]||3)||a[1][3]-b[1][3]||PRI.indexOf(a[0])-PRI.indexOf(b[0]));
   const top=L.slice(0,4);return {wp:top[0],rest:top.slice(1),sub:[]};}
