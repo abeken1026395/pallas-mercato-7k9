@@ -142,7 +142,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .sec b{transform:none!important;font-size:0!important;line-height:0!important}
 .plate .tag{background:none!important;padding:0!important;line-height:0}
 .plate .who{display:flex;flex-direction:column;align-items:flex-start;padding:10px 0 12px}
-.nmRow{display:flex;gap:12px;align-items:flex-end;color:#ff2a2a;flex-wrap:nowrap}
+.nmRow{display:flex;gap:12px;align-items:flex-end;color:var(--nameR,#ff2a2a);flex-wrap:nowrap}
 .nmRow .part{display:flex;flex-direction:column;align-items:center;gap:3px}
 .nmRow .rb{line-height:0;min-height:15px}
 .nmRow .nmK{line-height:0}
@@ -173,7 +173,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 
 .vsHead .p{display:flex;flex-direction:column;gap:4px}
 .vsHead .p:last-child{align-items:flex-end}
-.nmRow.vsN{gap:6px;color:#ff2a2a;padding-bottom:6px}
+.nmRow.vsN{gap:6px;color:var(--nameR,#ff2a2a);padding-bottom:6px}
 .nmRow.vsN.ca{box-shadow:inset 0 -4px 0 #ffd23f}.nmRow.vsN.cb{box-shadow:inset 0 -4px 0 #5cc8ff}
 
 /* ===== B：ブラッシュアップ層 ===== */
@@ -188,16 +188,16 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .body{padding:18px 16px 16px;gap:22px}
 .hero{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);border:1px solid var(--rule)}
 .hero>div{background:var(--water);padding:10px 12px 12px;display:flex;flex-direction:column;gap:4px;min-width:0}
-.hW{grid-column:1/-1;display:grid!important;grid-template-columns:1fr auto;align-items:end;column-gap:10px;background:linear-gradient(90deg,rgba(255,210,63,.09),transparent 70%),var(--water)!important;border-left:3px solid var(--needle)}
+.hW{grid-column:1/-1;display:grid!important;grid-template-columns:1fr auto;align-items:end;column-gap:10px;background:linear-gradient(90deg,var(--hwG,rgba(255,210,63,.09)),transparent 70%),var(--water)!important;border-left:3px solid var(--needle)}
 .hW .hk,.hW .hs{grid-column:1/-1}
 .hk{font-size:10.5px;font-weight:900;letter-spacing:.24em;color:var(--wSub)}
 .hv,.wv{line-height:0;display:flex;align-items:flex-end;gap:4px}
-.yuV{color:var(--needle)}
+.yuV{color:var(--yuC,var(--needle))}
 .yuV small{font-size:12px;font-weight:700;color:var(--wSub);line-height:1}
 .wr{font-family:var(--fNum);font-weight:800;font-size:18px;line-height:1}
 .hs{font-size:11.5px;color:var(--wSub);display:flex;flex-wrap:wrap;gap:4px;font-variant-numeric:tabular-nums}
 .hs span{border:1px solid rgba(255,255,255,.55);color:var(--wInk);font-family:var(--fNum);font-weight:700;font-size:11.5px;padding:0 5px;line-height:1.5}
-.hs span.sg{background:var(--needle);border-color:var(--needle);color:#121212}
+.hs span.sg{background:var(--needle);border-color:var(--needle);color:var(--onNeedle,#121212)}
 .hs2{font-size:11px;color:var(--wSub)}
 .hkS{font-size:10px;font-weight:700;letter-spacing:.04em;margin-left:6px}
 .sec{border-bottom:1px solid var(--rule);padding-bottom:6px;align-items:center}
@@ -220,7 +220,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .vsHead .x{clip-path:polygon(12% 0,100% 0,88% 100%,0 100%);padding:0 18px}
 
 /* 地色の見比べ用 */
-.card[data-pal="kuro"]{--water:#121212;--water2:#1b1b1b;--wl:rgba(255,255,255,.14);--wInk:#f5f5f5;--wSub:#a9a9a9;--wDim:rgba(255,255,255,.08);--t3:#d9d9d9;--t2:#8c8c8c;--t1:#5a5a5a}
+.card[data-pal="kuro"]{--water:#141212;--water2:#1d1a19;--wl:rgba(236,230,218,.13);--wInk:#ece6da;--wSub:#9c948a;--wDim:rgba(236,230,218,.07);--needle:#d8342c;--onNeedle:#f4efe6;--hwG:rgba(216,52,44,.12);--nameR:#e8322a;--yuC:#ece6da;--t5:#e0463c;--t4:#ece6da;--t3:#b3aba0;--t2:#7a736b;--t1:#4d4844}
 .card[data-pal="night"]{--water:#0b1830;--water2:#10213f;--wl:rgba(160,190,255,.18);--wInk:#eef3ff;--wSub:#9fb1d6;--wDim:rgba(255,255,255,.08);--t3:#9fc3ff;--t2:#5f86c9;--t1:#3c5a8c}
 .card[data-pal="tetsu"]{--water:#1f2328;--water2:#282d33;--wl:rgba(255,255,255,.14);--wInk:#f2f3f5;--wSub:#a3a9b2;--wDim:rgba(255,255,255,.08);--t3:#c7cdd6;--t2:#8a929e;--t1:#5d6470}
 .card[data-pal="aka"]{--water:#2a0d0f;--water2:#3a1215;--wl:rgba(255,200,200,.16);--wInk:#fff3f1;--wSub:#d7a7a3;--wDim:rgba(255,255,255,.08);--t3:#ffc8c0;--t2:#c98a84;--t1:#8f5a55}
@@ -422,8 +422,8 @@ hook(document.getElementById("q2"),document.getElementById("hits2"),no=>{cmp=no;
 /* 保存用の縦長画像（1080×1350）をブラウザで描く。shareB2.py の story() の移植 */
 const SC={P2:{}};
 function scPal(kuro){
-  return kuro?{WATER:"#121212",SUB:"#a9a9a9",TC:{5:"#ffd23f",4:"#ffffff",3:"#d9d9d9",2:"#8c8c8c",1:"#5a5a5a"}}
-             :{WATER:"#0b4a50",SUB:"#a6cdd0",TC:{5:"#ffd23f",4:"#ffffff",3:"#9fd9dc",2:"#5ea6ac",1:"#3d777c"}};
+  return kuro?{WATER:"#141212",SUB:"#9c948a",INK:"#ece6da",ACC:"#d8342c",ONACC:"#f4efe6",YU:"#ece6da",HWG:"rgba(216,52,44,.12)",NAME:"#e8322a",LN:"rgba(236,230,218,.16)",OFF:"rgba(236,230,218,.08)",TC:{5:"#e0463c",4:"#ece6da",3:"#b3aba0",2:"#7a736b",1:"#4d4844"}}
+             :{WATER:"#0b4a50",SUB:"#a6cdd0",INK:"#f3fafa",ACC:"#ffd23f",ONACC:"#121212",YU:"#ffd23f",HWG:"rgba(255,210,63,.086)",NAME:"#ff2a2a",LN:"rgba(255,255,255,.18)",OFF:"rgba(255,255,255,.1)",TC:{5:"#ffd23f",4:"#ffffff",3:"#9fd9dc",2:"#5ea6ac",1:"#3d777c"}};
 }
 const SC_UI="'Hiragino Sans','Hiragino Kaku Gothic ProN','Noto Sans JP','Noto Sans CJK JP','Yu Gothic',Meiryo,sans-serif";
 function scGlyph(ch){if(!SC.P2[ch]){const g=K.g[ch];SC.P2[ch]=g?[g[0],new Path2D(g[1])]:null;}return SC.P2[ch];}
@@ -465,8 +465,8 @@ function scPlate(c,p,no,x0,y0,w,h,s,pal){
   while(true){gap=Math.round(size*0.28);const tot=np.reduce((a,n)=>a+scKgW(n,size,-size*0.02),0)+gap*(np.length-1);if(tot<=avail||size<40)break;size-=4;}
   const ny=y0+Math.round(70*s);let x=nx;const rpx=Math.max(18,Math.round(size*0.27));
   np.forEach((n,i)=>{const wN=scKgW(n,size,-size*0.02);
-    if(kp[i])scKg(c,kp[i],x+wN/2,ny-Math.round(6*s),rpx,"#ff2a2a",{anchor:"ms",stroke:Math.max(1,Math.round(2*s)),sf:"#fff"});
-    scKg(c,n,x,ny,size,"#ff2a2a",{ls:-size*0.02,stroke:Math.max(2,Math.round(3*s)),sf:"#fff"});x+=wN+gap;});
+    if(kp[i])scKg(c,kp[i],x+wN/2,ny-Math.round(6*s),rpx,pal.NAME,{anchor:"ms",stroke:Math.max(1,Math.round(2*s)),sf:"#fff"});
+    scKg(c,n,x,ny,size,pal.NAME,{ls:-size*0.02,stroke:Math.max(2,Math.round(3*s)),sf:"#fff"});x+=wN+gap;});
   if(p.tag){let tz=Math.round(40*s);while(scKgW(p.tag,tz)>w-bw-Math.round(80*s)&&tz>18)tz-=2;
     const ty=Math.min(ny+size+Math.round(20*s),y0+h-tz-Math.round(18*s));scKg(c,p.tag,gx+gw,ty,tz,"#fff",{anchor:"ra"});}
   const sk=Math.round(w*0.024),t=Math.round(11*s);
@@ -475,28 +475,28 @@ function scPlate(c,p,no,x0,y0,w,h,s,pal){
 }
 function scPicks(w){return Object.entries(w.tg||{}).filter(([k,v])=>v[3]<=20).sort((a,b)=>a[1][3]-b[1][3]||PRI.indexOf(a[0])-PRI.indexOf(b[0]));}
 function scLine(c,x1,y1,x2,y2,col,lw=2){c.strokeStyle=col;c.lineWidth=lw;c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();}
-function scMark(c,y){c.fillStyle="#ffd23f";c.beginPath();c.moveTo(40,y+12);c.lineTo(52,y+12);c.lineTo(46,y+50);c.lineTo(34,y+50);c.fill();}
+function scMark(c,y,col="#ffd23f"){c.fillStyle=col;c.beginPath();c.moveTo(40,y+12);c.lineTo(52,y+12);c.lineTo(46,y+50);c.lineTo(34,y+50);c.fill();}
 function drawStory(no,kuro){
-  const P=D.players[no],w=P.w.y1,Wn=D.win.y1,pal=scPal(kuro),TCp=pal.TC,SUB=pal.SUB,INK="#f3fafa",YEL="#ffd23f";
+  const P=D.players[no],w=P.w.y1,Wn=D.win.y1,pal=scPal(kuro),TCp=pal.TC,SUB=pal.SUB,INK=pal.INK,YEL=pal.ACC;
   const cv=document.createElement("canvas");cv.width=1080;cv.height=1350;const c=cv.getContext("2d");
   c.fillStyle=pal.WATER;c.fillRect(0,0,1080,1350);
   scPlate(c,P,no,0,0,1080,290,1.05,pal);
   if(!w){scTxt(c,"直近1年に出走がありません",40,360,28,SUB);return cv;}
-  const LN="rgba(255,255,255,.18)";
+  const LN=pal.LN;
   let y=350;const ov=w.ov,yc=P.yc||[[0,0,0,0,0,0],[0,0,0,0,0,0]],yu=yc[0],yo=yc[1][0];
   c.strokeStyle=LN;c.lineWidth=2;c.strokeRect(40,y,1000,180);scLine(c,540,y,540,y+180,LN);
   scTxt(c,"総 合",64,y+14,22,SUB);
   if(ov){const s=rl(ov[1]),z=scFit(s,440,88);scKg(c,s,64,y+46,z,TCp[tier(ov[1])]);scTxt(c,`偏差値 ${ov[0].toFixed(1)}`,64,y+146,22,SUB);}
   scTxt(c,"優 勝",564,y+14,22,SUB);scTxt(c,"2017年〜",650,y+17,18,SUB);
-  const nw=scKg(c,String(yu[0]),564,y+40,96,YEL);scTxt(c,"回",574+nw,y+96,26,SUB);
+  const nw=scKg(c,String(yu[0]),564,y+40,96,pal.YU);scTxt(c,"回",574+nw,y+96,26,SUB);
   {const G=["SG","G1","G2","G3","一般"];let x=nw<120?680+nw:564,yy=nw<120?y+50:y+140;const x0=x;
    G.forEach((g,i)=>{if(!yu[i+1])return;const s=`${g} ${yu[i+1]}`,ww=scTw(c,s,22)+16;if(x+ww>1030&&x>x0){x=x0;yy+=40;}
-     if(i===0){c.fillStyle=YEL;c.fillRect(x,yy,ww,34);}c.strokeStyle="rgba(255,255,255,.75)";c.lineWidth=2;c.strokeRect(x,yy,ww,34);
-     scTxt(c,s,x+8,yy+3,22,i===0?"#121212":INK);x+=ww+6;});}
+     if(i===0){c.fillStyle=YEL;c.fillRect(x,yy,ww,34);}c.strokeStyle=i===0?YEL:pal.SUB;c.lineWidth=2;c.strokeRect(x,yy,ww,34);
+     scTxt(c,s,x+8,yy+3,22,i===0?pal.ONACC:INK);x+=ww+6;});}
   scTxt(c,`優出 ${yo}回`,nw<120?680+nw:564+nw+50,y+100,22,SUB);
   y+=196;
   {const x0=40,y0=y,x1=1040,y1=y+170,big=88,small=22,tg=scPicks(w);
-   c.fillStyle="rgba(255,210,63,.086)";c.fillRect(x0,y0,x1-x0,y1-y0);c.fillStyle=YEL;c.fillRect(x0,y0,6,y1-y0);
+   c.fillStyle=pal.HWG;c.fillRect(x0,y0,x1-x0,y1-y0);c.fillStyle=YEL;c.fillRect(x0,y0,6,y1-y0);
    scTxt(c,"武 器",x0+26,y0+14,small,SUB);
    let lab,desc,top;const TG=Object.fromEntries((D.tags||[]).map(t=>[t[0],t]));
    if(tg.length){const [k,v]=tg[0];lab=TG[k][1];desc=`${TG[k][2]}　${v[1]}/${v[2]}回（${v[0].toFixed(1)}%）`;top=v[3];}
@@ -507,17 +507,17 @@ function drawStory(no,kuro){
    else scTxt(c,"—",x0+26,y0+60,big*0.8,SUB);}
   y+=192;
   const TG=Object.fromEntries((D.tags||[]).map(t=>[t[0],t])),tg=scPicks(w).slice(1,3);
-  scMark(c,y);scKg(c,"特色",62,y,46,INK);scTxt(c,"武器のほかに上位20%以内",1040,y+18,22,SUB,"ra");
+  scMark(c,y,YEL);scKg(c,"特色",62,y,46,INK);scTxt(c,"武器のほかに上位20%以内",1040,y+18,22,SUB,"ra");
   scLine(c,40,y+66,1040,y+66,LN);y+=82;
   tg.forEach(([k,v])=>{const col=TCp[tier(v[3])];scKg(c,TG[k][1],40,y,46,col);scKg(c,rl(v[3]),1040,y+4,40,col,{anchor:"ra"});
     scTxt(c,`${TG[k][2]}　${v[1]}/${v[2]}回（${v[0].toFixed(1)}%）`,40,y+58,21,SUB);scLine(c,40,y+88,1040,y+88,"rgba(255,255,255,.094)");y+=94;});
   if(!tg.length){scTxt(c,"ほかに上位20%以内の特色はなし",40,y,24,SUB);y+=50;}
-  y+=10;scMark(c,y);scKg(c,"計器",62,y,46,INK);scTxt(c,"30マス＝偏差値20〜80",1040,y+18,22,SUB,"ra");
+  y+=10;scMark(c,y,YEL);scKg(c,"計器",62,y,46,INK);scTxt(c,"30マス＝偏差値20〜80",1040,y+18,22,SUB,"ra");
   scLine(c,40,y+66,1040,y+66,LN);y+=82;
   for(const k of ["r1","r2","in1","mid3","out3","st"]){
     if(y>1350-76)break;const v=(w.it||{})[k];scTxt(c,LAB[k].replace("<br>",""),40,y,24,INK);
     const on=!v?0:Math.max(1,Math.min(30,Math.round((v[4]-20)/60*30))),col=v?TCp[tier(v[2])]:SUB;
-    for(let i=0;i<30;i++){const x=360+i*17;c.fillStyle=i<on?col:"rgba(255,255,255,.1)";c.fillRect(x,y+6,14,21);
+    for(let i=0;i<30;i++){const x=360+i*17;c.fillStyle=i<on?col:pal.OFF;c.fillRect(x,y+6,14,21);
       if(i===14){c.strokeStyle="rgba(255,255,255,.59)";c.lineWidth=1;c.strokeRect(x+.5,y+6.5,13,20);}}
     if(v)scKg(c,rl(v[2]),1040,y,28,col,{anchor:"ra"});else scTxt(c,"走数不足",1040,y,24,col,"ra");y+=33;}
   const yd=s=>`${s.slice(0,4)}/${+s.slice(4,6)}/${+s.slice(6)}`;
