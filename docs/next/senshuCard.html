@@ -291,7 +291,8 @@ const rl=t=>t<=50?`上位${t}%`:`下位${101-t}%`;
 const pc=(a,b)=>b?(a/b*100).toFixed(1)+"%":"—";
 const ymd=s=>s?`${s.slice(0,4)}/${+s.slice(4,6)}/${+s.slice(6)}`:"";
 const fmV=(k,v)=>k==="st"?v.toFixed(2):v.toFixed(1)+"%";
-let D=null,W="y1",cur="4238",cmp="4320";const H2H={};let H2Hmeta=null;
+let D=null,W="y1",cur="4238",cmp="4320";
+try{const q=new URLSearchParams(location.search).get("toban");if(q&&/^\d{4}$/.test(q))cur=q;}catch(_){}const H2H={};let H2Hmeta=null;
 const f1=x=>x.toFixed(1);
 
 function cells(dv,col,n=30){const on=dv==null?0:Math.max(1,Math.min(n,Math.round((dv-20)/60*n)));let h="";for(let i=1;i<=n;i++)h+=`<i class="${i===Math.round(n/2)?"mid":""}" style="${i<=on?`background:${col}`:""}"></i>`;return `<span class="cells" aria-hidden="true">${h}</span>`;}
@@ -552,7 +553,7 @@ function setPal(p){PAL=p;document.querySelectorAll(".palSel button").forEach(x=>
 document.querySelectorAll(".palSel button").forEach(b=>b.addEventListener("click",()=>setPal(b.dataset.pal)));
 try{const s=localStorage.getItem("senshuCardPal");if(s!==null)setPal(s)}catch(_){}
 document.querySelectorAll("[data-w]").forEach(b=>b.addEventListener("click",()=>{W=b.dataset.w;document.querySelectorAll("[data-w]").forEach(x=>x.setAttribute("aria-pressed",x===b));render();renderVs();}));
-Promise.all([fetch("senshuCard/card2.json").then(r=>r.json()),fetch("senshuCard/kgOutline.json").then(r=>r.json()).catch(()=>null)]).then(([j,k])=>{D=j;K=k;render();renderVs();}).catch(()=>{document.getElementById("card").innerHTML='<div class="body">データを読み込めませんでした。再読み込みしてください。</div>';});
+Promise.all([fetch("senshuCard/card2.json").then(r=>r.json()),fetch("senshuCard/kgOutline.json").then(r=>r.json()).catch(()=>null)]).then(([j,k])=>{D=j;K=k;if(!D.players[cur])cur="4238";if(cmp===cur)cmp=cur==="4320"?"4238":"4320";render();renderVs();}).catch(()=>{document.getElementById("card").innerHTML='<div class="body">データを読み込めませんでした。再読み込みしてください。</div>';});
 </script>
 
 <footer style="margin:24px auto 8px;max-width:560px;padding:0 16px;text-align:center;font-size:10px;color:#8a94a3;line-height:1.7;">見出しの書体：キルゴU（作者 名残雪 様）<br>© 2026 データ攻め ── 制作・運営 あべけん</footer>
