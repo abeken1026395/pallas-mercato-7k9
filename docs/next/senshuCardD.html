@@ -277,7 +277,7 @@ function nameBlock(P){
   const parts=np.map((n,i)=>`<span class="part"><span class="rb">${kp[i]?kg(kp[i],Math.max(12,Math.round(px*0.3))):""}</span><span class="nmK">${kg(n,px,-10)}</span></span>`).join("");
   return `<div class="nmRow" aria-label="${P.name}（${kp.join(" ")}）">${parts}</div>${P.tag?`<div class="tag">${kg(P.tag,24)}</div>`:""}`;
 }
-const PRI=["msOut","makuriC","sashi2","tiltDash","nige","maezuke","tilt","outKeep","nuki","tenji"];
+const PRI=["makuri","maezuke","tiltDash","nige","msOut","makuriC","sashi2","tiltDash","nige","maezuke","tilt","outKeep","nuki","tenji"];
 const IT=["r1","r2","in1","mid3","out3","st"];
 const AX={r1:"1着率",r2:"2連対率",in1:"1コース1着",mid3:"2・3コース",out3:"4〜6コース",st:"平均ST"};
 const LAB={r1:"1着率",r2:"2連対率",in1:"1コース1着率",mid3:"2・3コース<br>3連対率",out3:"4〜6コース<br>3連対率",st:"平均ST"};
@@ -557,7 +557,7 @@ function setPal(p){PAL=p;document.querySelectorAll(".palSel button").forEach(x=>
 document.querySelectorAll(".palSel button").forEach(b=>b.addEventListener("click",()=>setPal(b.dataset.pal)));
 try{const s=localStorage.getItem("senshuCardPal");if(s!==null)setPal(s)}catch(_){}
 document.querySelectorAll("[data-w]").forEach(b=>b.addEventListener("click",()=>{W=b.dataset.w;document.querySelectorAll("[data-w]").forEach(x=>x.setAttribute("aria-pressed",x===b));render();renderVs();}));
-Promise.all([fetch("senshuCard/card2.json").then(r=>r.json()),fetch("senshuCard/kgOutlineC.json").then(r=>r.json()).catch(()=>null)]).then(([j,k])=>{D=j;K=k;const WZ={nige:"鉄壁イン",makuriC:"豪腕まくり",msOut:"豪腕まくり",maezuke:"イン強奪",tiltDash:"跳ね上げ砲"};D.tags=(D.tags||[]).map(t=>WZ[t[0]]?[t[0],WZ[t[0]],`${t[1]}：${t[2]}`,t[3]]:t);if(!D.players[cur])cur="4238";if(cmp===cur)cmp=cur==="4320"?"4238":"4320";render();renderVs();}).catch(()=>{document.getElementById("card").innerHTML='<div class="body">データを読み込めませんでした。再読み込みしてください。</div>';});
+Promise.all([fetch("senshuCard/card2D.json").then(r=>r.json()),fetch("senshuCard/kgOutlineC.json").then(r=>r.json()).catch(()=>null)]).then(([j,k])=>{D=j;K=k;const WZ={nige:"鉄壁イン",makuri:"豪腕まくり",maezuke:"イン強奪"};D.tags=(D.tags||[]).map(t=>WZ[t[0]]?[t[0],WZ[t[0]],`${t[1]}：${t[2]}`,t[3]]:t);if(!D.players[cur])cur="4238";if(cmp===cur)cmp=cur==="4320"?"4238":"4320";render();renderVs();}).catch(()=>{document.getElementById("card").innerHTML='<div class="body">データを読み込めませんでした。再読み込みしてください。</div>';});
 </script>
 
 <footer style="margin:24px auto 8px;max-width:560px;padding:0 16px;text-align:center;font-size:10px;color:#8a94a3;line-height:1.7;">見出しの書体：キルゴU（作者 名残雪 様）をアウトライン化して加工（Cパターン）<br>© 2026 データ攻め ── 制作・運営 あべけん</footer>
