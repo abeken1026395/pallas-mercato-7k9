@@ -17,7 +17,7 @@
   --bg:#eef1f2; --ink:#18232a; --sub:#5a6870; --line:#d3dadd; --panel:#ffffff; --press:#0b6b73;
   --water:#0b4a50; --water2:#0e5960; --wl:rgba(255,255,255,.16); --wInk:#f3fafa; --wSub:#a6cdd0; --wDim:rgba(255,255,255,.09);
   --needle:#ffd23f; --buoyR:#e2353b; --plate:#f7f7f3; --plateInk:#121212;
-  --t5:#ffd23f; --t4:#ffffff; --t3:#9fd9dc; --t2:#5ea6ac; --t1:#3d777c;
+  --t5:#ffffff; --t4:#c4e8ea; --t3:#8fc4c8; --t2:#5ea6ac; --t1:#3d777c;
   --fUi:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",sans-serif;
   --fDisp:"Dela Gothic One","Hiragino Sans",sans-serif;
   --fNum:"Barlow Condensed","Arial Narrow",sans-serif;
@@ -223,7 +223,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .vsHead .x{padding:0 18px}
 
 /* 地色の見比べ用 */
-.card[data-pal="kuro"]{--water:#141212;--water2:#1d1a19;--wl:rgba(236,230,218,.13);--wInk:#ece6da;--wSub:#9c948a;--wDim:rgba(236,230,218,.07);--needle:#ece6da;--onNeedle:#141212;--hwG:rgba(217,180,74,.10);--mark:#d8342c;--nameR:#e8322a;--yuC:#dcb84f;--t5:#dcb84f;--t4:#ece6da;--t3:#b3aba0;--t2:#7a736b;--t1:#4d4844}
+.card[data-pal="kuro"]{--water:#141212;--water2:#1d1a19;--wl:rgba(236,230,218,.13);--wInk:#ece6da;--wSub:#9c948a;--wDim:rgba(236,230,218,.07);--needle:#ece6da;--onNeedle:#141212;--hwG:rgba(217,180,74,.10);--mark:#d8342c;--nameR:#e8322a;--yuC:#dcb84f;--t5:#fffaf0;--t4:#cfc7ba;--t3:#a39b90;--t2:#7a736b;--t1:#4d4844}
 .card[data-pal="night"]{--water:#0b1830;--water2:#10213f;--wl:rgba(160,190,255,.18);--wInk:#eef3ff;--wSub:#9fb1d6;--wDim:rgba(255,255,255,.08);--t3:#9fc3ff;--t2:#5f86c9;--t1:#3c5a8c}
 .card[data-pal="tetsu"]{--water:#1f2328;--water2:#282d33;--wl:rgba(255,255,255,.14);--wInk:#f2f3f5;--wSub:#a3a9b2;--wDim:rgba(255,255,255,.08);--t3:#c7cdd6;--t2:#8a929e;--t1:#5d6470}
 .card[data-pal="aka"]{--water:#2a0d0f;--water2:#3a1215;--wl:rgba(255,200,200,.16);--wInk:#fff3f1;--wSub:#d7a7a3;--wDim:rgba(255,255,255,.08);--t3:#ffc8c0;--t2:#c98a84;--t1:#8f5a55}
@@ -277,7 +277,7 @@ function nameBlock(P){
   const parts=np.map((n,i)=>`<span class="part"><span class="rb">${kp[i]?kg(kp[i],Math.max(12,Math.round(px*0.3))):""}</span><span class="nmK">${kg(n,px,-10)}</span></span>`).join("");
   return `<div class="nmRow" aria-label="${P.name}（${kp.join(" ")}）">${parts}</div>${P.tag?`<div class="tag">${kg(P.tag,24)}</div>`:""}`;
 }
-const PRI=["makuri","maezuke","tiltDash","nige","sashi","c4","nuki","outKeep","p23","msOut","makuriC","sashi2","tiltDash","nige","maezuke","tilt","outKeep","nuki","tenji"];
+const PRI=["makuri","maezuke","tiltDash","nige","sashi","c4","nuki","outKeep","p23","geko","fut","zst","kanso","msOut","makuriC","sashi2","tiltDash","nige","maezuke","tilt","outKeep","nuki","tenji"];
 const IT=["r1","r2","in1","mid3","out3","st"];
 const AX={r1:"1着率",r2:"2連対率",in1:"1コース1着",mid3:"2・3コース",out3:"4〜6コース",st:"平均ST"};
 const LAB={r1:"1着率",r2:"2連対率",in1:"1コース1着率",mid3:"2・3コース<br>3連対率",out3:"4〜6コース<br>3連対率",st:"平均ST"};
@@ -293,7 +293,7 @@ const CHP=v=>{const c=CH[v[4]||3];return c?`【${c}】`:"";};
 const pc=(a,b)=>b?(a/b*100).toFixed(1)+"%":"—";
 const ymd=s=>s?`${s.slice(0,4)}/${+s.slice(4,6)}/${+s.slice(6)}`:"";
 const fmV=(k,v)=>k==="st"?v.toFixed(2):v.toFixed(1)+"%";
-let D=null,W="y1",cur="4238",cmp="4320";
+let D=null,W="y1",cur="4238",cmp="";
 try{const q=new URLSearchParams(location.search).get("toban");if(q&&/^\d{4}$/.test(q))cur=q;}catch(_){}const H2H={};let H2Hmeta=null;
 const f1=x=>x.toFixed(1);
 
@@ -367,7 +367,7 @@ function clock(w,win){
 }
 function meter(k,w){
   const v=w.it[k],f=frac(k,w);
-  if(!v){const n=k==="st"?w.st[1]:(f?f[1]:0);return `<div class="mt"><span class="lb">${LAB[k]}</span>${cells(null)}<span class="row2"><span>分母 ${n}走（20走以上で順位を出す）</span><span>走数不足</span></span></div>`;}
+  if(!v){const n=k==="st"?w.st[1]:(f?f[1]:0);return `<div class="mt"><span class="lb">${LAB[k]}</span>${cells(null)}<span class="row2"><span>${n?`出走 ${n}走（20走から順位を出す）`:"この期間の出走なし"}</span><span></span></span></div>`;}
   const [x,n,top,N,dv]=v,col=TC[tier(top)];
   return `<div class="mt"><span class="lb">${LAB[k]}</span>${cells(dv,col)}<span class="row2"><span>${fmV(k,x)}（${f?`${f[0]}/${f[1]}`:`${n}走`}）偏差値${dv.toFixed(1)}・${N.toLocaleString()}人中</span><span class="rk" style="color:${col}">${rl(top)}</span></span></div>`;
 }
@@ -381,9 +381,10 @@ function render(){if(window.drawShImgs)setTimeout(drawShImgs,0);
   const wp=TLs.wp;
   el.innerHTML=plate+`<div class="body">
   <div class="hero">
-    <div class="hT"><span class="hk">総合</span><span class="hv" style="color:${ov?TC[tier(ov[1])]:"inherit"}">${ov?kg(ov[1]<=50?rl(ov[1]):ov[0].toFixed(1),30):"—"}</span><span class="hs">${ov?(ov[1]<=50?`偏差値 ${ov[0].toFixed(1)}（平均50）`:"偏差値（平均50）"):"4項目以上で出す"}</span><span class="hs2">${ov?`6項目の偏差値の平均・${ov[2].toLocaleString()}人中`:""}</span></div>
+    <div class="hT"><span class="hk">総合</span><span class="hv" style="color:${ov?TC[tier(ov[1])]:"inherit"}">${ov?(ov[1]<=50?kg(rl(ov[1]),30):""):"—"}</span><span class="hs">${ov?`偏差値 ${ov[0].toFixed(1)}（平均50）`:"4項目以上で出す"}</span><span class="hs2">${ov?`6項目の偏差値の平均・${ov[2].toLocaleString()}人中`:""}</span></div>
     ${(()=>{const yc=P.yc||[[0,0,0,0,0,0],[0,0,0,0,0,0]],y=yc[0],yo=yc[1][0],G=["SG","G1","G2","G3","一般","シリーズ"];const ch=G.map((g,i)=>y[i+1]?`<span class="${i===0?"sg":""}">${g} ${y[i+1]}</span>`:"").join("");
-      return `<div class="hT"><span class="hk">優勝<small class="hkS">2017年以降</small></span><span class="hv yuV">${kg(String(y[0]),30,-20)}<small>回</small></span><span class="hs">${ch||"—"}</span><span class="hs2">優出 ${yo}回</span><span class="hs2">${win.label}の優勝 ${w.yu?w.yu[0]:0}回</span></div>`;})()}
+      if(!y[0])return yo?`<div class="hT"><span class="hk">優出<small class="hkS">2017年以降</small></span><span class="hv yuV">${kg(String(yo),30,-20)}<small>回</small></span><span class="hs2">優勝戦に出場した回数</span></div>`:`<div class="hT"><span class="hk">出走<small class="hkS">${win.label}</small></span><span class="hv yuV">${kg(String(w.n),30,-20)}<small>走</small></span><span class="hs2">この期間に走ったレース数</span></div>`;
+      return `<div class="hT"><span class="hk">優勝<small class="hkS">2017年以降</small></span><span class="hv yuV">${kg(String(y[0]),30,-20)}<small>回</small></span><span class="hs">${ch||"—"}</span><span class="hs2">優出 ${yo}回</span>${w.yu&&w.yu[0]?`<span class="hs2">${win.label}の優勝 ${w.yu[0]}回</span>`:""}</div>`;})()}
     <div class="hW"><span class="hk">${wp&&isF(wp[0])?"誇り":"武器"}</span>${wp?`<span class="wv">${kg(NM(wp[0],wp[1]),34)}</span><span class="wr" style="color:${TC[tier(wp[1][3])]}">${RK(wp[1])}</span><i class="slash"></i><span class="hs">${DESC(wp[0],wp[1])}${(wp[1][4]||3)<3&&tagAvg(wp[0],W)!=null?`・全選手平均 ${tagAvg(wp[0],W).toFixed(1)}%`:""}</span>`:(best&&w.it[best][2]<=30)?`<span class="wv">${kg(LAB[best].replace("<br>",""),30)}</span><i class="slash"></i><span class="hs">6項目の中でいちばん上位・偏差値${w.it[best][4].toFixed(1)}・${rl(w.it[best][2])}</span>`:`<span class="hs" style="font-size:13px">上位20%以内の持ち味は、この期間はなし</span>`}</div>
   </div>
   ${tgl.length?`<div><div class="sec"><b>${kg(tgl.some(x=>isF(x[0]))?"技と積み上げ":"得意技",22)}</b><small>${tgl.some(x=>isF(x[0]))?"技と、積み上げてきた事実":"この選手の技（得意技・持ち味は全選手の中の順位つき）"}</small></div><div class="tgs">${tgl.map(([k,v])=>`<div class="tg"><span class="nm" style="color:${TC[tier(v[3])]}">${kg(NM(k,v),20)}</span><span class="rk" style="color:${TC[tier(v[3])]}">${RK(v)}</span><span class="de">${DESC(k,v)}${["tilt","tiltDash","tenji"].includes(k)?"・直前情報は2026/1/1から":""}</span></div>`).join("")}</div></div>`:""}
@@ -395,10 +396,10 @@ function render(){if(window.drawShImgs)setTimeout(drawShImgs,0);
    <div class="key"><span><i style="background:var(--needle)"></i>平均ST ${avg==null?"—":avg.toFixed(2)}</span><span><i style="background:var(--wSub);height:2px"></i>全選手の平均 ${win.stAll[0].toFixed(2)}</span><span><i style="background:#ff8a7a"></i>0.20以上 ${pc(w.st[3],w.st[1])}（${w.st[3]}/${w.st[1]}）</span><span><i style="background:var(--buoyR);border-radius:50%;width:8px"></i>F ${w.st[2]}回</span>${w.noSt?`<span>STの記録なし ${w.noSt}走</span>`:""}<span>棒の長さ＝0.01秒ごとの本数</span></div></div>
   <div><div class="sec"><b>${kg("計器",22)}</b><small>30マス＝偏差値20〜80・白枠のマスが平均</small></div><div class="meters">${IT.map(k=>meter(k,w)).join("")}</div>
    <div class="key">${[5,4,3].map(t=>`<span><i style="background:${TC[t]}"></i>${TN[t]}</span>`).join("")}</div></div>
-  <div><div class="sec"><b>${kg("決まり手",22)}</b><small>1着${kmT}回の内訳</small></div>
+  ${kmT?`<div><div class="sec"><b>${kg("決まり手",22)}</b><small>1着${kmT}回の内訳</small></div>
    <div class="km" style="margin-top:8px">${kmT?w.km.map((c,i)=>c?`<i style="width:${c/kmT*100}%;background:${KMC[i]}"></i>`:"").join(""):""}</div>
    <div class="kmKey" style="margin-top:6px">${KM.map((m,i)=>`<div><b style="background:${KMC[i]}"></b>${m} <span>${w.km[i]}</span></div>`).join("")}</div>
-   <div class="key" style="margin-top:6px">前づけ（枠より内のコースに入った）${w.mae[0]}/${w.mae[1]}走（${pc(w.mae[0],w.mae[1])}）</div></div>
+   <div class="key" style="margin-top:6px">枠番より内のコースに入った進入 ${w.mae[0]}/${w.mae[1]}走（${pc(w.mae[0],w.mae[1])}）</div></div>`:""}
   <div class="share"><a target="_blank" rel="noopener" href="https://x.com/intent/post?text=${encodeURIComponent(`【選手カード】${P.name}（${cur}）${wp&&isF(wp[0])?`／${NM(wp[0],wp[1])}：${wp[1][6]}`:""}${wp&&!isF(wp[0])?`／武器：${NM(wp[0],wp[1])} ${wp[1][1]}/${wp[1][2]}回（${wp[1][0].toFixed(1)}%${(wp[1][4]||3)<3&&tagAvg(wp[0],W)!=null?`・全体平均${tagAvg(wp[0],W).toFixed(1)}%`:""}）`:""}${ov&&ov[1]<=50?`／総合 ${rl(ov[1])}`:""}（${win.label}）　#ボートレース #${P.name} #データ攻め`)}&url=${encodeURIComponent(SITE+"?toban="+cur)}">Xに投稿</a><a target="_blank" rel="noopener" href="https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(SITE+"?toban="+cur)}">LINEで送る</a><button type="button" id="shImg">画像を保存</button></div>
   <div class="shareNote" id="shMsg"></div>
   <details class="foot"><summary>データの数え方・出典</summary><div>出典：公式レース結果と競走成績（${ymd(win.from)}〜${ymd(win.to)}）。出走の数え方は公式に合わせる（責任外の失格・出遅れ・欠場は数えず、責任のある欠場は数える）。平均STはFを除く全走。</div><div>優勝・優出：公式番組データで、副題が開催の優勝を決めるレース（「優勝戦」「優勝」「決勝戦」「賞金女王決定戦」「王将位決定戦」など。準優勝戦・順位決定戦は除く。男女W優勝戦は両方）。優勝はその1着、優出はその出走表に載った選手。グランプリとクイーンズクライマックス（2018年まで）のシリーズ戦は「シリーズ」に数える。大きな数字は${ymd(D.yc.from)}〜${ymd(D.yc.to)}（優勝戦${D.yc.finals.toLocaleString()}レース、うち中止の${D.yc.canceled}レースは数えない）。それより前の優勝は入っていない。公式番組データに中身が無い延べ${D.yc.empty}場日は、公式の競走成績にも結果が登録されていない（中止として優勝なし）。${win.label}の優勝戦は${win.finals}レース。</div><div>得意技：展示一番時計は体重や機力の影響が大きいので得意技に入れない。チルト跳ねとチルトダッシュが両方あるときはチルトダッシュだけ出す。回数の少ない選手は全選手の平均に寄せて順位を付ける（経験ベイズ）。出すのは上位20%以内で、回数が最低回数（${(D.tags||[]).map(t=>`${t[1]}${t[3]}回`).join("・")}）以上のとき。最低回数は、期間の前半で上位20%以内だった選手の7割以上が後半も上位20%以内に残る最小の回数（5回以上。回数で残る割合が変わらない得意技は5回）。回数と率は実数のまま出す。2コース差し・道中の抜きは、回数を増やしても7割に届かないので出さない。</div><div>順位は各項目の分母20走以上の選手の中での位置。偏差値＝50＋10×（値−平均）÷標準偏差（平均STは小さいほど高い）。総合＝6項目の偏差値の平均（4項目以上）。コース別成績の図は模式図で、場ごとの形とは違う。</div></details></div>`;
@@ -411,7 +412,7 @@ async function renderVs(){
   let wa=0,wb=0;
   const rows=IT.map(k=>{const va=a.it[k],vb=b.it[k];let xa="",xb="";
     if(va&&vb&&va[0]!==vb[0]){const aw=k==="st"?va[0]<vb[0]:va[0]>vb[0];if(aw){xa="ca";wa++;}else{xb="cb";wb++;}}
-    return `<div class="dual"><span class="r ${xa}">${va?rl(va[2]):"不足"}${va?`<small>${fmV(k,va[0])}</small>`:""}</span><span class="flip">${cells(va?va[4]:null,"var(--needle)",15)}</span><span class="l">${AX[k]}</span>${cells(vb?vb[4]:null,"#5cc8ff",15)}<span class="r rb ${xb}">${vb?rl(vb[2]):"不足"}${vb?`<small>${fmV(k,vb[0])}</small>`:""}</span></div>`;}).join("");
+    return `<div class="dual"><span class="r ${xa}">${va?rl(va[2]):"—"}${va?`<small>${fmV(k,va[0])}</small>`:""}</span><span class="flip">${cells(va?va[4]:null,"var(--needle)",15)}</span><span class="l">${AX[k]}</span>${cells(vb?vb[4]:null,"#5cc8ff",15)}<span class="r rb ${xb}">${vb?rl(vb[2]):"—"}${vb?`<small>${fmV(k,vb[0])}</small>`:""}</span></div>`;}).join("");
   const h=(await h2hFor(cur))[cmp],m=H2Hmeta||{};
   const hh=h&&h[0]?`<div class="sc"><b class="ca">${h[1]}</b><span>同じレース${h[0]}回</span><b class="cb">${h[2]}</b></div><div class="nt">先着した回数。どちらかが失格・F・Lなどの回（${h[0]-h[1]-h[2]}回）は数えない。${ymd(m.from)}〜${ymd(m.to)}（期間の切り替えに関係なく全期間）</div>`:`<div class="nt">${ymd(m.from)}〜${ymd(m.to)} に同じレースを走ったのは1回以下（2回以上で数を出す）。</div>`;
   el.innerHTML=`<div class="vsHead"><div class="p"><div class="m">登番${cur}・${A.rank}</div>${vsName(A,"ca")}</div><div class="x">${kg("VS",24)}</div><div class="p"><div class="m">登番${cmp}・${B.rank}</div>${vsName(B,"cb")}</div></div>
@@ -429,8 +430,8 @@ hook(document.getElementById("q2"),document.getElementById("hits2"),no=>{cmp=no;
 /* 保存用の縦長画像（1080×1350）をブラウザで描く。shareB2.py の story() の移植 */
 const SC={P2:{}};
 function scPal(kuro){
-  return kuro?{WATER:"#141212",SUB:"#9c948a",INK:"#ece6da",ACC:"#d9b44a",ONACC:"#141212",YU:"#dcb84f",MARK:"#d8342c",HWG:"rgba(217,180,74,.10)",NAME:"#e8322a",LN:"rgba(236,230,218,.16)",OFF:"rgba(236,230,218,.08)",TC:{5:"#dcb84f",4:"#ece6da",3:"#b3aba0",2:"#7a736b",1:"#4d4844"}}
-             :{WATER:"#0b4a50",SUB:"#a6cdd0",INK:"#f3fafa",ACC:"#ffd23f",ONACC:"#121212",YU:"#ffd23f",HWG:"rgba(255,210,63,.086)",NAME:"#ff2a2a",LN:"rgba(255,255,255,.18)",OFF:"rgba(255,255,255,.1)",TC:{5:"#ffd23f",4:"#ffffff",3:"#9fd9dc",2:"#5ea6ac",1:"#3d777c"}};
+  return kuro?{WATER:"#141212",SUB:"#9c948a",INK:"#ece6da",ACC:"#d9b44a",ONACC:"#141212",YU:"#dcb84f",MARK:"#d8342c",HWG:"rgba(217,180,74,.10)",NAME:"#e8322a",LN:"rgba(236,230,218,.16)",OFF:"rgba(236,230,218,.08)",TC:{5:"#fffaf0",4:"#cfc7ba",3:"#a39b90",2:"#7a736b",1:"#4d4844"}}
+             :{WATER:"#0b4a50",SUB:"#a6cdd0",INK:"#f3fafa",ACC:"#ffd23f",ONACC:"#121212",YU:"#ffd23f",HWG:"rgba(255,210,63,.086)",NAME:"#ff2a2a",LN:"rgba(255,255,255,.18)",OFF:"rgba(255,255,255,.1)",TC:{5:"#ffffff",4:"#c4e8ea",3:"#8fc4c8",2:"#5ea6ac",1:"#3d777c"}};
 }
 const SC_UI="'Hiragino Sans','Hiragino Kaku Gothic ProN','Noto Sans JP','Noto Sans CJK JP','Yu Gothic',Meiryo,sans-serif";
 function scGlyph(ch){if(!SC.P2[ch]){const g=K.g[ch];SC.P2[ch]=g?[g[0],new Path2D(g[1])]:null;}return SC.P2[ch];}
@@ -449,6 +450,8 @@ function scKg(c,s,x,y,px,fill,o={}){
   c.fillStyle=fill;draw("f");
   return w;
 }
+function scFitTxt(c,s,x,y,px,fill,max){let z=px;while(z>16&&scTw(c,s,z)>max)z-=1;c.save();c.beginPath();c.rect(x,y-4,max,z*1.6);c.clip();scTxt(c,s,x,y,z,fill);c.restore();}
+function SDESC(k,v){if(isF(k))return v[6];const t=(D.tags.find(x=>x[0]===k)||[,,""])[2];return `${CHP(v)}${v[1]}/${v[2]}回（${v[0].toFixed(1)}%）｜${t.split("｜")[0]}`;}
 function scTxt(c,s,x,y,px,fill,an="la",bold=true){
   c.font=`${bold?700:400} ${px}px ${SC_UI}`;c.fillStyle=fill;c.textBaseline="top";
   c.textAlign=an[0]==="r"?"right":an[0]==="m"?"center":"left";
@@ -516,41 +519,41 @@ function drawStory(no,kuro){
   let y=350;const ov=w.ov,yc=P.yc||[[0,0,0,0,0,0],[0,0,0,0,0,0]],yu=yc[0],yo=yc[1][0];
   scLine(c,540,y+6,540,y+174,LN);
   scTxt(c,"総 合",64,y+14,22,SUB);
-  if(ov){const up=ov[1]<=50,s=up?rl(ov[1]):ov[0].toFixed(1),z=scFit(s,440,88);scKg(c,s,64,y+46,z,TCp[tier(ov[1])]);scTxt(c,up?`偏差値 ${ov[0].toFixed(1)}`:"偏差値（平均50）",64,y+146,22,SUB);}
-  scTxt(c,"優 勝",564,y+14,22,SUB);scTxt(c,"2017年以降",650,y+14,22,INK);
-  const nw=scKg(c,String(yu[0]),564,y+40,96,INK);scTxt(c,"回",574+nw,y+96,26,SUB);
+  if(ov){if(ov[1]<=50){const s=rl(ov[1]),z=scFit(s,440,88);scKg(c,s,64,y+46,z,TCp[tier(ov[1])]);scTxt(c,`偏差値 ${ov[0].toFixed(1)}`,64,y+146,22,SUB);}else scTxt(c,`偏差値 ${ov[0].toFixed(1)}（平均50）`,64,y+60,28,SUB);}
+  const z0=!yu[0],nr=z0&&!yo;scTxt(c,z0?(yo?"優 出":"出 走"):"優 勝",564,y+14,22,SUB);scTxt(c,nr?"直近1年":"2017年以降",650,y+14,22,INK);
+  const nw=scKg(c,String(z0?(yo||w.n):yu[0]),564,y+40,96,INK);scTxt(c,nr?"走":"回",574+nw,y+96,26,SUB);
   {const G=["SG","G1","G2","G3","一般","シリーズ"];let x=nw<120?680+nw:564,yy=nw<120?y+50:y+140;const x0=x;
    G.forEach((g,i)=>{if(!yu[i+1])return;const s=`${g} ${yu[i+1]}`,ww=scTw(c,s,22)+16;if(x+ww>1030&&x>x0){x=x0;yy+=40;}
      if(i===0){c.fillStyle=INK;c.fillRect(x,yy,ww,34);}c.strokeStyle=i===0?INK:pal.SUB;c.lineWidth=2;c.strokeRect(x,yy,ww,34);
      scTxt(c,s,x+8,yy+3,22,i===0?pal.WATER:INK);x+=ww+6;});}
-  scTxt(c,`優出 ${yo}回`,nw<120?680+nw:564+nw+50,y+100,22,SUB);
+  if(!z0)scTxt(c,`優出 ${yo}回`,nw<120?680+nw:564+nw+50,y+100,22,SUB);
   y+=196;
   {const x0=40,y0=y,x1=1040,y1=y+170,big=88,small=22,tg=scPicks(w,P);
    
    scTxt(c,tg[0]&&isF(tg[0][0])?"誇 り":"武 器",x0,y0+14,small,SUB);
    let lab,desc,top;const TG=Object.fromEntries((D.tags||[]).map(t=>[t[0],t]));
-   if(tg.length){const [k,v]=tg[0];lab=NM(k,v);const av=tagAvg(k,"y1");desc=`${DESC(k,v)}${(v[4]||3)<3&&av!=null?`・平均 ${av.toFixed(1)}%`:""}`;top=(v[4]||3)<3?v[3]:999;}
+   if(tg.length){const [k,v]=tg[0];lab=NM(k,v);const av=tagAvg(k,"y1");desc=`${SDESC(k,v)}${(v[4]||3)<3&&av!=null?`・平均 ${av.toFixed(1)}%`:""}`;top=(v[4]||3)<3?v[3]:999;}
    else{const its=Object.entries(w.it||{});if(its.length){const [k,x]=its.sort((a,b)=>b[1][4]-a[1][4])[0];if(x[2]<=30){lab=LAB[k].replace("<br>","");top=x[2];desc=`6項目の中でいちばん上位（偏差値 ${x[4].toFixed(1)}）`;}}}
    if(lab){const col=TCp[tier(top)],rk=rl(top),rkw=scKgW(rk,Math.round(big*0.55)),z=scFit(lab,(x1-x0)-80-rkw,big);
      const ly=y0+18+small+Math.round((big-z)*0.6);scKg(c,lab,x0,ly,z,INK);scKg(c,rk,x1,y0+18+small+Math.round(big*0.32),Math.round(big*0.55),col,{anchor:"ra"});
      const sy=y0+18+small+big+8,sw=Math.min(x1-x0-10,scKgW(lab,z)+40);c.fillStyle="#e2353b";c.beginPath();c.fillRect(x0,sy,x1-x0,12);
-     scTxt(c,desc,x0,sy+24,small,SUB);}
+     scFitTxt(c,desc,x0,sy+24,small,SUB,x1-x0);}
    else scTxt(c,"上位20%以内の持ち味は、この期間はなし",x0,y0+60,28,SUB);}
   y+=208;
   const TG=Object.fromEntries((D.tags||[]).map(t=>[t[0],t])),tg=scPicks(w,P).slice(1,3);
   const lb2=tg.some(x=>isF(x[0]))?"技と積み上げ":"得意技";scMark(c,y,"#e2353b");scKg(c,lb2,62,y,46,INK);scTxt(c,tg.some(x=>isF(x[0]))?"技と、積み上げてきた事実":"この選手の技",1040,y+18,22,SUB,"ra");
   scLine(c,40,y+66,1040,y+66,LN);y+=82;
   tg.forEach(([k,v])=>{const col=TCp[tier(v[3])];scKg(c,NM(k,v),40,y,46,col);scTxt(c,RK(v),1040,y+8,32,col,"ra");
-    scTxt(c,`${DESC(k,v)}`,40,y+58,24,SUB);scLine(c,40,y+88,1040,y+88,"rgba(255,255,255,.094)");y+=94;});
+    scFitTxt(c,SDESC(k,v),40,y+56,24,SUB,1000);scLine(c,40,y+84,1040,y+84,"rgba(255,255,255,.094)");y+=88;});
   if(!tg.length){scTxt(c,"ほかに上位20%以内のほかの得意技はなし",40,y,24,SUB);y+=50;}
-  y+=22;scMark(c,y,"#e2353b");scKg(c,"計器",62,y,46,INK);scTxt(c,"30マス＝偏差値20〜80",1040,y+18,22,SUB,"ra");
+  y+=8;scMark(c,y,"#e2353b");scKg(c,"計器",62,y,46,INK);scTxt(c,"30マス＝偏差値20〜80",1040,y+18,22,SUB,"ra");
   scLine(c,40,y+66,1040,y+66,LN);y+=82;
   for(const k of ["r1","r2","in1","mid3","out3","st"]){
-    if(y>1350-76)break;const v=(w.it||{})[k];scTxt(c,LAB[k].replace("<br>",""),40,y,26,INK);
+    if(y>1350-70)break;const v=(w.it||{})[k];scTxt(c,LAB[k].replace("<br>",""),40,y,24,INK);
     const on=!v?0:Math.max(1,Math.min(30,Math.round((v[4]-20)/60*30))),col=v?TCp[tier(v[2])]:SUB;
-    for(let i=0;i<30;i++){const x=360+i*17;c.fillStyle=i<on?col:pal.OFF;c.fillRect(x,y+6,14,21);
-      if(i===14){c.strokeStyle="rgba(255,255,255,.59)";c.lineWidth=1;c.strokeRect(x+.5,y+6.5,13,20);}}
-    if(v)scTxt(c,rl(v[2]),1040,y,26,col,"ra");else scTxt(c,"走数不足",1040,y,26,col,"ra");y+=40;}
+    for(let i=0;i<30;i++){const x=360+i*17;c.fillStyle=i<on?col:pal.OFF;c.fillRect(x,y+5,14,18);
+      if(i===14){c.strokeStyle="rgba(255,255,255,.59)";c.lineWidth=1;c.strokeRect(x+.5,y+5.5,13,17);}}
+    if(v)scTxt(c,rl(v[2]),1040,y,24,col,"ra");else{const f=frac(k,w),n=k==="st"?w.st[1]:(f?f[1]:0);scTxt(c,n?`${n}走`:"出走なし",1040,y,24,SUB,"ra");}y+=32;}
   const yd=s=>`${s.slice(0,4)}/${+s.slice(4,6)}/${+s.slice(6)}`;
   scTxt(c,`データ攻め｜選手カード　公式データ・直近1年（〜${yd(Wn.to)}）・優勝は2017年以降`,40,1350-48,24,SUB);
   return cv;
