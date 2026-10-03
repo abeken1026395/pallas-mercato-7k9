@@ -351,9 +351,9 @@ try {
     #   生成済みの記事を丸ごと捨てていた）。生成済み分を活かし、不足場のみを対象に
     #   再実行する（初回＋再試行2回＝最大3試行）。既に生成済みの場は対象から外す＝再執筆しない。
     $runbook = Get-Content $RunbookPath -Raw -Encoding utf8
-    $claudeOut = Join-Path $env:TEMP ("claude_out_{0}.json" -f $Pubdate)
     $maxAttempts = 3
     $claudeRc = 0
+    $noProgressRetried = $false   # 「rc=0 なのに0本」は1回だけ待ってやり直す（2026-10-03）
     for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
         $done = @(Get-DoneJcds)
         $remaining = @($toWrite | Where-Object { $_ -notin $done })
@@ -361,6 +361,8 @@ try {
         $targetStr = ($remaining -join ' ')
         $header = "掲載日=$Pubdate。執筆対象の場コード(jcd)は次のみ: $targetStr。この対象場だけを執筆し、既存記事のある場は絶対に上書きしない。PR作成・push・mergeは行わない（公開はスクリプトが行う）。以下のランブックに厳密に従うこと。"
         $prompt = $header + "`r`n`r`n" + $runbook   # runbook はデータとして連結（再解釈させない）
+        # 出力は試行ごとに別ファイルで残す（旧: 掲載日ごとに1つで、次の回に上書きされ原因を追えなかった。2026-10-03）
+        $claudeOut = Join-Path $LogDir ("claudeOut_{0}_{1}_{2}.json" -f $Pubdate, (Get-Date -Format 'yyyyMMdd-HHmmss'), $attempt)
         Log ("claude 実行開始（試行 {0}/{1}・対象{2}場=[{3}]・model=claude-sonnet-5, max-turns=200, acceptEdits）" -f $attempt, $maxAttempts, $remaining.Count, $targetStr)
         $prev = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
         & $Claude -p $prompt `
@@ -376,7 +378,10 @@ try {
             $cj = Get-Content $claudeOut -Raw -Encoding utf8 | ConvertFrom-Json
             Log ("claude 完了 rc={0} cost_usd={1} session={2}" -f $claudeRc, $cj.total_cost_usd, $cj.session_id)
         } catch {
-            Log ("claude 完了 rc={0}（JSON解析不可・出力先 {1}）" -f $claudeRc, $claudeOut)
+            $head = ''
+            try { $head = ((Get-Content $claudeOut -Raw -Encoding utf8) -replace '\s+', ' ').Trim() } catch { $head = '（出力ファイルを読めない）' }
+            if ($head.Length -gt 400) { $head = $head.Substring(0, 400) }
+            Log ("claude 完了 rc={0}（JSON解析不可・出力先 {1}）出力の先頭: {2}" -f $claudeRc, $claudeOut, $head)
         }
         $doneAfter = @(Get-DoneJcds)
         $after = @($toWrite | Where-Object { $_ -notin $doneAfter })
@@ -384,7 +389,14 @@ try {
         $progressed = ($after.Count -lt $remaining.Count)
         if ($attempt -lt $maxAttempts) {
             if (-not $progressed -and $claudeRc -eq 0) {
-                Log ("進捗なし・rc=0 → 再試行しない（未生成 {0}場=[{1}]）" -f $after.Count, ($after -join ' ')); break
+                if ($noProgressRetried) {
+                    Log ("進捗なし・rc=0（2回目）→ 再試行しない（未生成 {0}場=[{1}]）" -f $after.Count, ($after -join ' ')); break
+                }
+                # 旧: ここで即終了し、次の回（1時間後）まで待っていた（2026-10-02 18:40 の回で1時間の遅れ）。
+                $noProgressRetried = $true
+                Log ("進捗なし・rc=0 → 5分待って1回だけやり直す（未生成 {0}場=[{1}]）" -f $after.Count, ($after -join ' '))
+                Start-Sleep -Seconds 300
+                continue
             }
             Log ("未生成 {0}場=[{1}]（rc={2}）→ 再実行 {3}/{4}" -f $after.Count, ($after -join ' '), $claudeRc, ($attempt + 1), $maxAttempts)
         } else {
@@ -466,5 +478,8 @@ finally {
     Remove-Item $LockFile -Force -ErrorAction SilentlyContinue
     Get-ChildItem $LogDir -Filter 'writeKansenki_*.log' -ErrorAction SilentlyContinue |
         Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-30) } |
+        Remove-Item -Force -ErrorAction SilentlyContinue
+    Get-ChildItem $LogDir -Filter 'claudeOut_*.json' -ErrorAction SilentlyContinue |
+        Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-14) } |
         Remove-Item -Force -ErrorAction SilentlyContinue
 }
