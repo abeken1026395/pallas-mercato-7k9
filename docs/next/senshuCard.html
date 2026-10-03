@@ -1,0 +1,446 @@
+<!-- データ攻め by あべけん https://abeken1026395.github.io/pallas-mercato-7k9/ -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="UTF-8">
+<meta name="author" content="あべけん（データ攻め）">
+<link rel="canonical" href="https://abeken1026395.github.io/pallas-mercato-7k9/next/senshuCard.html">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>選手カード 試作 | データ攻め</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Barlow+Condensed:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@400;700;900&display=swap">
+<style>
+/* カード＝競艇場の水面。上に白い名札、水面図（進入コース別）、大時計（ST）、30マスの計器（6項目）。
+   色：水面の深い青緑／白線／大時計の黄針／ターンマークの赤白。艇の6色はコースには使わない（艇番と進入コースは別物） */
+:root{
+  --bg:#eef1f2; --ink:#18232a; --sub:#5a6870; --line:#d3dadd; --panel:#ffffff; --press:#0b6b73;
+  --water:#0b4a50; --water2:#0e5960; --wl:rgba(255,255,255,.16); --wInk:#f3fafa; --wSub:#a6cdd0; --wDim:rgba(255,255,255,.09);
+  --needle:#ffd23f; --buoyR:#e2353b; --plate:#f7f7f3; --plateInk:#121212;
+  --t5:#ffd23f; --t4:#ffffff; --t3:#9fd9dc; --t2:#5ea6ac; --t1:#3d777c;
+  --fUi:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",sans-serif;
+  --fDisp:"Dela Gothic One","Hiragino Sans",sans-serif;
+  --fNum:"Barlow Condensed","Arial Narrow",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0b1113;--ink:#e5ecee;--sub:#97a8ae;--line:#24323a;--panel:#131c20;--press:#6fd0d6;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0b1113;--ink:#e5ecee;--sub:#97a8ae;--line:#24323a;--panel:#131c20;--press:#6fd0d6;color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--fUi);font-size:15px;line-height:1.6}
+.wrap{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:20px 48px;display:grid;gap:14px}
+h1{font-size:20px;font-weight:900;margin:0}
+.lead{color:var(--sub);font-size:13px;margin:4px 0 0}
+.srch{display:grid;gap:8px}
+.srch label{font-size:14px;font-weight:700}
+.srch input{font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--line);border-radius:4px;background:var(--panel);color:var(--ink);min-height:44px;width:100%;box-sizing:border-box}
+.hits{display:flex;gap:6px;flex-wrap:wrap}
+.hits button,.seg button{font:inherit;font-size:14px;min-height:44px;padding:0 14px;border:1px solid var(--line);border-radius:4px;background:var(--panel);color:var(--ink);cursor:pointer}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.seg button{border:0;border-radius:0;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--water);color:#fff;font-weight:700}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--press);outline-offset:2px}
+.perNote{font-size:12px;color:var(--sub)}
+
+/* カード */
+.card{background:var(--water);color:var(--wInk);border-radius:4px;overflow:hidden;box-shadow:0 14px 30px -18px rgba(5,40,45,.9)}
+.plate{background:var(--plate);color:var(--plateInk);display:grid;grid-template-columns:auto 1fr auto;gap:0 12px;align-items:stretch;border-bottom:4px solid var(--needle)}
+.plate .toban{background:var(--plateInk);color:var(--plate);font-family:var(--fNum);font-weight:800;font-size:30px;line-height:1;padding:12px 10px;display:grid;place-items:center;letter-spacing:.02em}
+.plate .toban small{display:block;font-size:10px;font-weight:700;letter-spacing:.2em;opacity:.7;margin-bottom:2px;font-family:var(--fUi)}
+.plate .who{padding:10px 0;min-width:0}
+.plate .nm{font-family:var(--fDisp);font-size:32px;line-height:1.15;letter-spacing:.04em;overflow-wrap:anywhere}
+.plate .meta{font-size:12px;font-weight:700;color:#4b5459}
+.plate .tag{font-size:13px;font-weight:900;color:var(--buoyR)}
+.plate .grade{font-family:var(--fNum);font-weight:800;font-size:24px;align-self:center;margin-right:12px;border:2.5px solid var(--plateInk);padding:0 6px;line-height:1.2}
+.body{padding:14px 14px 14px;display:grid;gap:16px}
+.sumRow{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--wl);border:1px solid var(--wl)}
+.sum{background:var(--water);padding:8px 12px;display:grid;gap:1px}
+.sum .k{font-size:11px;font-weight:700;color:var(--wSub);letter-spacing:.08em}
+.sum .v{font-family:var(--fDisp);font-weight:400;font-size:34px;line-height:1.05}
+.sum .v.j{font-family:var(--fUi);font-weight:900;font-size:19px;line-height:1.3}
+.sum .s{font-size:11px;color:var(--wSub);font-variant-numeric:tabular-nums}
+.sec{display:flex;align-items:baseline;gap:8px;border-bottom:1px solid var(--wl);padding-bottom:4px}
+.sec b{font-size:14px;font-weight:900;letter-spacing:.06em}
+.sec small{font-size:11px;color:var(--wSub)}
+.fig{display:block;width:100%;height:auto}
+.fig text{font-family:var(--fUi)}
+.fig .num{font-family:var(--fNum);font-weight:700}
+.key{font-size:11px;color:var(--wSub);display:flex;flex-wrap:wrap;gap:2px 12px}
+.key i{display:inline-block;width:14px;height:8px;vertical-align:0;margin-right:4px}
+.meters{display:grid}
+.mt{display:grid;grid-template-columns:7.4em 1fr;gap:2px 10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--wl)}
+.mt:last-child{border-bottom:0}
+.mt .lb{font-size:13px;font-weight:700;line-height:1.25}
+.cells{display:grid;grid-template-columns:repeat(30,1fr);gap:2px;height:13px}
+.cells i{display:block;background:var(--wDim)}
+.cells i.mid{box-shadow:inset 0 0 0 1px rgba(255,255,255,.55)}
+.mt .row2{grid-column:1/-1;display:flex;justify-content:space-between;gap:8px;font-size:11.5px;color:var(--wSub);font-variant-numeric:tabular-nums}
+.mt .rk{font-family:var(--fNum);font-weight:800;font-size:16px;letter-spacing:.02em}
+.km{display:flex;height:12px;background:var(--wDim)}
+.km i{display:block;height:100%}
+.kmKey{display:grid;grid-template-columns:repeat(3,1fr);gap:3px 8px;font-size:11.5px;color:var(--wSub)}
+.kmKey b{display:inline-block;width:9px;height:9px;margin-right:4px}
+.kmKey span{color:var(--wInk);font-family:var(--fNum);font-weight:700;font-size:13px}
+.share{display:flex;gap:0;border:1px solid var(--wl)}
+.share a,.share button{flex:1;font:inherit;font-size:13px;font-weight:700;min-height:44px;display:flex;align-items:center;justify-content:center;background:transparent;color:var(--wInk);border:0;border-right:1px solid var(--wl);text-decoration:none;cursor:pointer}
+.share>*:last-child{border-right:0}
+.shareNote{font-size:11px;color:var(--wSub)}
+.foot{font-size:10.5px;color:var(--wSub);display:grid;gap:3px;border-top:1px solid var(--wl);padding-top:10px}
+/* 比べる */
+.vsHead{display:grid;grid-template-columns:1fr auto 1fr;background:var(--plate);color:var(--plateInk);border-bottom:4px solid var(--needle)}
+.vsHead .p{padding:10px 12px;min-width:0}
+.vsHead .p:last-child{text-align:right}
+.vsHead .m{font-size:11px;font-weight:700;color:#4b5459}
+.vsHead .n{font-family:var(--fDisp);font-size:22px;line-height:1.2;overflow-wrap:anywhere}
+.vsHead .x{background:var(--plateInk);color:var(--plate);font-family:var(--fNum);font-weight:800;font-size:22px;display:grid;place-items:center;padding:0 10px}
+.sc{display:grid;grid-template-columns:1fr auto 1fr;align-items:baseline}
+.sc b{font-family:var(--fNum);font-weight:800;font-size:54px;line-height:1}
+.sc b:last-child{text-align:right}
+.sc span{font-size:12px;color:var(--wSub);text-align:center}
+.nt{font-size:11px;color:var(--wSub)}
+.dual{display:grid;grid-template-columns:4.4em 1fr 5.6em 1fr 4.4em;gap:6px;align-items:center;padding:7px 0;border-bottom:1px solid var(--wl)}
+.dual .l{font-size:12px;font-weight:700;text-align:center;line-height:1.25}
+.dual .r{font-family:var(--fNum);font-weight:800;font-size:15px;color:var(--wSub)}
+.dual .r small{display:block;font-size:12px;font-weight:500}
+.dual .rb{text-align:right}
+.dual .cells{grid-template-columns:repeat(15,1fr);height:11px}
+.dual .flip{transform:scaleX(-1)}
+.tally{text-align:center;font-size:12px;color:var(--wSub)}
+.tally b{font-family:var(--fNum);font-weight:800;font-size:30px;color:var(--wInk)}
+.ca{color:#ffd23f}.cb{color:#5cc8ff}
+.dual .r.ca{color:#ffd23f}.dual .r.cb{color:#5cc8ff}
+.vsHead .n.ca{color:var(--plateInk);box-shadow:inset 0 -6px 0 #ffd23f}.vsHead .n.cb{color:var(--plateInk);box-shadow:inset 0 -6px 0 #ff8a7a}
+.vsHead .n{display:inline}
+@media (max-width:380px){.plate .nm{font-size:26px}.sum .v{font-size:28px}}
+/* はみ出し防止（iPhoneの文字拡大・LINEのブラウザでも横にはみ出さない） */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+.wrap>*,.body>*,.sum,.who,.mt>*,.dual>*,.ln{min-width:0}
+.seg{grid-template-columns:repeat(3,minmax(0,1fr))}
+.sumRow{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.perNote,.sum .s,.mt .row2,.key,.nt,.foot{overflow-wrap:anywhere}
+/* 極太の詰め組み：縦に伸ばし、字間を詰める */
+.plate{background:#0d0d0d;color:#fff;grid-template-columns:auto minmax(0,1fr) auto;border-bottom:0;position:relative}
+.plate::after{content:"";position:absolute;left:0;right:0;bottom:0;height:5px;background:var(--buoyR)}
+.plate .toban{background:#fff;color:#0d0d0d}
+.plate .meta{color:#bdbdbd}
+.plate .nm{font-family:var(--fDisp);font-size:48px;line-height:1;letter-spacing:-.04em;transform:none;transform-origin:left top;margin:4px 0 14px;color:#fff}
+.plate .tag{display:inline-block;background:var(--buoyR);color:#fff;font-family:var(--fDisp);font-size:15px;letter-spacing:0;padding:2px 8px;margin-bottom:8px;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.plate .grade{border-color:#fff;color:#fff}
+.sec b{font-family:var(--fDisp);font-weight:400;font-size:24px;letter-spacing:0;display:inline-block;transform:none;transform-origin:left bottom}
+.sum .v.j{font-family:var(--fDisp);font-weight:400;letter-spacing:0;font-size:24px}
+.vsHead{background:#0d0d0d;color:#fff;border-bottom:5px solid var(--buoyR)}
+.vsHead .m{color:#bdbdbd}
+.vsHead .x{background:var(--buoyR);color:#fff}
+.vsHead .n{font-size:28px;letter-spacing:-.01em}
+.vsHead .n.ca,.vsHead .n.cb{color:#fff}
+@media (max-width:380px){.plate .nm{font-size:40px}}
+
+
+/* キルゴUの輪郭（アウトライン）で描く見出し文字 */
+.kg{display:inline-block;vertical-align:bottom;fill:currentColor;overflow:visible;max-width:100%;height:auto}
+.sum{overflow:hidden}.sum .v{max-width:100%;line-height:0!important;padding:4px 0 6px}
+.nmRow{max-width:100%}.nmRow .part{min-width:0}
+.plate .nm{transform:none!important;margin:6px 0 8px!important;font-size:0!important;line-height:0!important}
+.sec b{transform:none!important;font-size:0!important;line-height:0!important}
+.plate .tag{background:none!important;padding:0!important;line-height:0}
+.plate .who{display:flex;flex-direction:column;align-items:flex-start;padding:10px 0 12px}
+.nmRow{display:flex;gap:12px;align-items:flex-end;color:#ff2a2a;flex-wrap:nowrap}
+.nmRow .part{display:flex;flex-direction:column;align-items:center;gap:3px}
+.nmRow .rb{line-height:0;min-height:15px}
+.nmRow .nmK{line-height:0}
+.plate .tag{align-self:flex-end;color:#fff!important;margin:8px 4px 0 0!important}
+
+.nmRow .kg path{stroke:rgba(255,255,255,.9);stroke-width:2.2px;vector-effect:non-scaling-stroke;paint-order:stroke fill;stroke-linejoin:round}
+.nmRow .rb .kg path{stroke-width:1.6px}
+.plate .toban small{line-height:0;margin-bottom:6px;opacity:.75}.plate .toban>div{line-height:0;display:grid;justify-items:center;gap:6px}
+
+.yu{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;border:1px solid var(--wl);padding:10px 12px}
+.yuMain{display:flex;align-items:flex-end;gap:6px;color:var(--needle);line-height:0}
+.yuMain .k{font-size:12px;font-weight:700;color:var(--wSub);line-height:1.2;writing-mode:vertical-rl;letter-spacing:.2em}
+.yuMain .u{font-size:13px;font-weight:700;color:var(--wSub);line-height:1.2}
+.yuSub{display:grid;gap:6px;min-width:0}
+.grs{display:flex;flex-wrap:wrap;gap:4px}
+.grs span{font-family:var(--fNum);font-weight:700;font-size:12px;color:var(--wSub);border:1px solid var(--wl);padding:1px 6px;display:inline-flex;gap:4px;align-items:baseline}
+.grs span b{font-size:15px;color:var(--wSub)}
+.grs span.on{color:var(--wInk);border-color:var(--wInk)}.grs span.on b{color:var(--needle)}
+.grs span.on.g0{background:#ffd23f;color:#121212;border-color:#ffd23f}.grs span.on.g0 b{color:#121212}
+.yuSub .s{font-size:11.5px;color:var(--wSub)}
+
+.tgs{display:grid;gap:0;margin-top:6px}
+.tg{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--wl)}
+.tg:last-child{border-bottom:0}
+.tg .nm{line-height:0}
+.tg .rk{font-family:var(--fNum);font-weight:800;font-size:16px}
+.tg .de{grid-column:1/-1;font-size:11.5px;color:var(--wSub);font-variant-numeric:tabular-nums}
+
+.vsHead .p{display:flex;flex-direction:column;gap:4px}
+.vsHead .p:last-child{align-items:flex-end}
+.nmRow.vsN{gap:6px;color:#ff2a2a;padding-bottom:6px}
+.nmRow.vsN.ca{box-shadow:inset 0 -4px 0 #ffd23f}.nmRow.vsN.cb{box-shadow:inset 0 -4px 0 #5cc8ff}
+
+/* ===== B：ブラッシュアップ層 ===== */
+:root{--gap:16px;--rule:rgba(255,255,255,.14);--rule2:rgba(255,255,255,.07)}
+.card{border-radius:2px;box-shadow:0 18px 40px -22px rgba(4,30,34,.95),0 0 0 1px rgba(0,0,0,.25)}
+.plate{position:relative;background:#0b0b0b;border-bottom:0!important;padding-bottom:14px;overflow:hidden}
+.plate::after{content:"";position:absolute;left:-20px;right:-20px;bottom:0;height:9px;background:#e2353b;transform:skewY(-1.4deg);transform-origin:left bottom}
+.plate::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,transparent 0 22px,rgba(255,255,255,.025) 22px 23px);pointer-events:none}
+.plate .toban{clip-path:polygon(0 0,100% 0,84% 100%,0 100%);padding-right:22px;background:#f4f2ea}
+.plate .meta{letter-spacing:.06em;font-size:11.5px;color:#9a9a9a}
+.plate .grade{border-width:2px;font-size:20px;padding:0 7px;align-self:flex-start;margin-top:14px}
+.body{padding:18px 16px 16px;gap:22px}
+.hero{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);border:1px solid var(--rule)}
+.hero>div{background:var(--water);padding:10px 12px 12px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.hW{grid-column:1/-1;display:grid!important;grid-template-columns:1fr auto;align-items:end;column-gap:10px;background:linear-gradient(90deg,rgba(255,210,63,.09),transparent 70%),var(--water)!important;border-left:3px solid var(--needle)}
+.hW .hk,.hW .hs{grid-column:1/-1}
+.hk{font-size:10.5px;font-weight:900;letter-spacing:.24em;color:var(--wSub)}
+.hv,.wv{line-height:0;display:flex;align-items:flex-end;gap:4px}
+.yuV{color:var(--needle)}
+.yuV small{font-size:12px;font-weight:700;color:var(--wSub);line-height:1}
+.wr{font-family:var(--fNum);font-weight:800;font-size:18px;line-height:1}
+.hs{font-size:11.5px;color:var(--wSub);display:flex;flex-wrap:wrap;gap:4px;font-variant-numeric:tabular-nums}
+.hs span{border:1px solid rgba(255,255,255,.55);color:var(--wInk);font-family:var(--fNum);font-weight:700;font-size:11.5px;padding:0 5px;line-height:1.5}
+.hs span.sg{background:var(--needle);border-color:var(--needle);color:#121212}
+.hs2{font-size:11px;color:var(--wSub)}
+.hkS{font-size:10px;font-weight:700;letter-spacing:.04em;margin-left:6px}
+.sec{border-bottom:1px solid var(--rule);padding-bottom:6px;align-items:center}
+.sec b{position:relative;padding-left:12px}
+.sec b::before{content:"";position:absolute;left:0;top:50%;width:6px;height:16px;margin-top:-8px;background:var(--needle);transform:skewX(-14deg)}
+.sec small{margin-left:auto;text-align:right;font-size:10.5px;letter-spacing:.02em}
+.key{gap:4px 14px;font-size:10.5px}
+.mt{padding:9px 0;border-bottom:1px solid var(--rule2)}
+.cells{height:12px;gap:1.5px}
+.cells i{border-radius:1px}
+.mt .rk{font-size:15px}
+.tg{padding:10px 0 10px 12px;border-bottom:1px solid var(--rule2);position:relative}
+.tg::before{content:"";position:absolute;left:0;top:12px;bottom:12px;width:3px;background:currentColor;opacity:.0}
+.share{border-color:var(--rule)}
+.share a,.share button{font-size:12.5px;letter-spacing:.04em}
+.share a:first-child{background:var(--needle);color:#121212}
+.foot{border-top:1px solid var(--rule);font-size:10px;line-height:1.7}
+.vsHead{border-bottom:0!important;position:relative;padding-bottom:12px}
+.vsHead::after{content:"";position:absolute;left:-20px;right:-20px;bottom:0;height:9px;background:#e2353b;transform:skewY(-1.4deg);transform-origin:left bottom}
+.vsHead .x{clip-path:polygon(12% 0,100% 0,88% 100%,0 100%);padding:0 18px}
+
+/* 地色の見比べ用 */
+.card[data-pal="kuro"]{--water:#121212;--water2:#1b1b1b;--wl:rgba(255,255,255,.14);--wInk:#f5f5f5;--wSub:#a9a9a9;--wDim:rgba(255,255,255,.08);--t3:#d9d9d9;--t2:#8c8c8c;--t1:#5a5a5a}
+.card[data-pal="night"]{--water:#0b1830;--water2:#10213f;--wl:rgba(160,190,255,.18);--wInk:#eef3ff;--wSub:#9fb1d6;--wDim:rgba(255,255,255,.08);--t3:#9fc3ff;--t2:#5f86c9;--t1:#3c5a8c}
+.card[data-pal="tetsu"]{--water:#1f2328;--water2:#282d33;--wl:rgba(255,255,255,.14);--wInk:#f2f3f5;--wSub:#a3a9b2;--wDim:rgba(255,255,255,.08);--t3:#c7cdd6;--t2:#8a929e;--t1:#5d6470}
+.card[data-pal="aka"]{--water:#2a0d0f;--water2:#3a1215;--wl:rgba(255,200,200,.16);--wInk:#fff3f1;--wSub:#d7a7a3;--wDim:rgba(255,255,255,.08);--t3:#ffc8c0;--t2:#c98a84;--t1:#8f5a55}
+.palSel{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}.palSel.two{grid-template-columns:1fr 1fr}
+.palSel button{font:inherit;font-size:12px;min-height:44px;border:2px solid var(--line);border-radius:4px;color:#fff;cursor:pointer;padding:0 2px}
+.palSel button[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 2px var(--bg) inset}
+.crumb{font-size:12px;margin-bottom:6px}.crumb a{color:inherit}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <div><div class="crumb"><a href="./">← 実験場</a></div><h1>選手カード（試作）</h1><p class="lead">選手図鑑の詳細の一番上に入る想定の試作です。本番のページではありません。</p></div>
+  <div class="srch"><input id="q" type="search" placeholder="選手を探す：名前か登番" autocomplete="off" aria-label="選手を探す"><div class="hits" id="hits"></div></div>
+  <div class="seg" role="group" aria-label="期間"><button data-w="y1" aria-pressed="true">直近1年</button><button data-w="h1" aria-pressed="false">直近半年</button><button data-w="all" aria-pressed="false">2025年7月〜</button></div>
+  <div class="perNote" id="perNote"></div>
+  <div><div class="lead" style="margin:0 0 6px">カードの色</div><div class="palSel two" role="group" aria-label="カードの色">
+    <button data-pal="" aria-pressed="true" style="background:#0b4a50">水面</button>
+    <button data-pal="kuro" aria-pressed="false" style="background:#121212">漆黒</button>
+  </div></div>
+  <article class="card" id="card"><div class="body">読み込み中</div></article>
+  <section class="srch"><label for="q2">この選手と比べる</label><input id="q2" type="search" placeholder="比べる相手：名前か登番" autocomplete="off"><div class="hits" id="hits2"></div></section>
+  <article class="card" id="vs" hidden></article>
+  <section class="srch" id="shareSec">
+    <label>共有・保存用の画像（試作・直近1年）</label>
+    <p class="lead">横長はLINE・Xに貼ったときに出る画像。縦長はスマホに保存してInstagramなどに載せる用。見本は5人分だけ作ってあります（6字の名前の例として大久保信一郎を含む）。</p>
+    <div id="shImgs" style="display:grid;gap:12px"></div>
+  </section>
+</div>
+
+<script>
+
+let K=null;
+function kg(s,px,ls=0){
+  if(!K) return s;
+  let x=0,ps="";
+  for(const ch of s){const g=K.g[ch]; if(!g) return `<span style="font-family:var(--fDisp);font-size:${px*0.8}px">${s}</span>`; ps+=`<path transform="translate(${x},0)" d="${g[1]}"/>`; x+=g[0]+ls;}
+  const top=40,h=940; return `<svg class="kg" role="img" aria-label="${s}" viewBox="0 ${top} ${Math.max(1,x-ls)} ${h}" height="${px}" width="${(px*(x-ls)/h).toFixed(1)}">${ps}</svg>`;
+}
+
+
+function vsName(P,side){
+  const np=P.np||[P.name], kp=P.kp||[""], len=[...P.name].length, px=Math.min(30,Math.floor(120/Math.max(3,len)));
+  const parts=np.map((n,i)=>`<span class="part"><span class="rb">${kp[i]?kg(kp[i],Math.max(10,Math.round(px*0.36))):""}</span><span class="nmK">${kg(n,px,-10)}</span></span>`).join("");
+  return `<div class="nmRow vsN ${side}" aria-label="${P.name}（${kp.join(" ")}）">${parts}</div>`;
+}
+function nameBlock(P){
+  const np=P.np||[P.name], kp=P.kp||[""];
+  const len=[...P.name].length, px=Math.min(52,Math.floor(210/Math.max(3,len)));
+  const parts=np.map((n,i)=>`<span class="part"><span class="rb">${kp[i]?kg(kp[i],Math.max(12,Math.round(px*0.3))):""}</span><span class="nmK">${kg(n,px,-10)}</span></span>`).join("");
+  return `<div class="nmRow" aria-label="${P.name}（${kp.join(" ")}）">${parts}</div>${P.tag?`<div class="tag">${kg(P.tag,24)}</div>`:""}`;
+}
+const PRI=["msOut","makuriC","sashi2","tiltDash","nige","maezuke","tilt","outKeep","nuki","tenji"];
+const IT=["r1","r2","in1","mid3","out3","st"];
+const AX={r1:"1着率",r2:"2連対率",in1:"イン1着",mid3:"2・3コース",out3:"ダッシュ",st:"平均ST"};
+const LAB={r1:"1着率",r2:"2連対率",in1:"イン1着率",mid3:"2・3コース<br>3連対率",out3:"ダッシュ<br>3連対率",st:"平均ST"};
+const KM=["逃げ","差し","まくり","まくり差し","抜き","恵まれ"];
+const KMC=["#ffd23f","#ffffff","#ff8a7a","#ffb3a8","#9fd9dc","#5ea6ac"];
+const TN={5:"上位10%",4:"上位30%",3:"中位",2:"下位30%",1:"下位10%"};
+const TC={5:"var(--t5)",4:"var(--t4)",3:"var(--t3)",2:"var(--t2)",1:"var(--t1)"};
+const SITE="https://abeken1026395.github.io/pallas-mercato-7k9/players/";
+const tier=t=>t<=10?5:t<=30?4:t<=70?3:t<=90?2:1;
+const rl=t=>t<=50?`上位${t}%`:`下位${101-t}%`;
+const pc=(a,b)=>b?(a/b*100).toFixed(1)+"%":"—";
+const ymd=s=>s?`${s.slice(0,4)}/${+s.slice(4,6)}/${+s.slice(6)}`:"";
+const fmV=(k,v)=>k==="st"?v.toFixed(2):v.toFixed(1)+"%";
+let D=null,W="y1",cur="4238",cmp="4320";const H2H={};let H2Hmeta=null;
+const f1=x=>x.toFixed(1);
+
+function cells(dv,col,n=30){const on=dv==null?0:Math.max(1,Math.min(n,Math.round((dv-20)/60*n)));let h="";for(let i=1;i<=n;i++)h+=`<i class="${i===Math.round(n/2)?"mid":""}" style="${i<=on?`background:${col}`:""}"></i>`;return `<span class="cells" aria-hidden="true">${h}</span>`;}
+function frac(k,w){
+  if(k==="r1")return [w.c[0],w.n]; if(k==="r2")return [w.c[0]+w.c[1],w.n];
+  if(k==="in1")return [w.co[0][1],w.co[0][0]];
+  if(k==="mid3")return [[1,2].reduce((s,i)=>s+w.co[i][1]+w.co[i][2]+w.co[i][3],0),w.co[1][0]+w.co[2][0]];
+  if(k==="out3")return [[3,4,5].reduce((s,i)=>s+w.co[i][1]+w.co[i][2]+w.co[i][3],0),w.co[3][0]+w.co[4][0]+w.co[5][0]];
+  return null;}
+
+/* 水面図：真上から。右へ進み、右上に1マーク。上が1コース（スタンドから遠い側）。棒の長さ＝率（0〜100%の共通の物差し） */
+function water(w,win,w2){
+  const X0=74,L=196,top=34,lh=30,H=top+lh*6+30;
+  let g=`<rect x="0" y="0" width="340" height="${H}" fill="var(--water2)"/>`;
+  for(const p of [0,25,50,75,100]){const x=X0+L*p/100;g+=`<line x1="${x}" y1="${top-6}" x2="${x}" y2="${top+lh*6}" stroke="var(--wl)" ${p?'stroke-dasharray="2 4"':""}/><text x="${x}" y="${top+lh*6+14}" text-anchor="middle" font-size="10" fill="var(--wSub)" class="num">${p}%</text>`;}
+  g+=`<line x1="${X0}" y1="${top-14}" x2="${X0}" y2="${top+lh*6+2}" stroke="#fff" stroke-width="2"/><text x="${X0-4}" y="${top-17}" text-anchor="end" font-size="9.5" fill="var(--wSub)">スタートライン</text>`;
+  // 1マーク（赤白のブイを真上から）
+  g+=`<g transform="translate(${X0+L+16},${top-16})"><circle r="9" fill="#fff"/><circle r="6" fill="var(--buoyR)"/><circle r="3" fill="#fff"/></g><text x="${X0+L+30}" y="${top-12}" font-size="9.5" fill="var(--wSub)">1マーク</text>`;
+  for(let i=0;i<6;i++){
+    const y=top+lh*i, cy=y+lh/2, x=w.co[i], n=x[0], p1=n?x[1]/n*100:0, p3=n?(x[1]+x[2]+x[3])/n*100:0, b=win.base[i], bp=b[1]/b[0]*100;
+    const thin=n<20, dash=i>=3, bx=dash?28:46;
+    g+=`<g opacity="${thin?.45:1}">`;
+    if(i) g+=`<line x1="0" y1="${y}" x2="340" y2="${y}" stroke="var(--wl)" stroke-width=".6"/>`;
+    g+=`<text x="10" y="${cy+5}" text-anchor="middle" font-size="14" fill="var(--wInk)" class="num">${i+1}</text>`;
+    g+=`<path d="M${bx} ${cy-5} L${bx+18} ${cy-5} L${bx+25} ${cy} L${bx+18} ${cy+5} L${bx} ${cy+5} Z" fill="none" stroke="var(--wSub)" stroke-width="1.2"/>`;
+    g+=`<path d="M${bx} ${cy-5} L${bx-10} ${cy-9} M${bx} ${cy+5} L${bx-10} ${cy+9}" stroke="var(--wl)" stroke-width="1.2"/>`;
+    if(w2){
+      const x2=w2.co[i],n2=x2[0],q1=n2?x2[1]/n2*100:0;
+      g+=`<rect x="${X0}" y="${cy-8}" width="${L*p1/100}" height="6" fill="var(--needle)"/><rect x="${X0}" y="${cy+2}" width="${L*q1/100}" height="6" fill="#5cc8ff" opacity="${n2<20?.45:1}"/>`;
+      g+=`<text x="336" y="${cy-1}" text-anchor="end" font-size="11" class="num" fill="var(--needle)">${n?f1(p1)+"%":"—"}</text><text x="336" y="${cy+10}" text-anchor="end" font-size="11" class="num" fill="#5cc8ff">${n2?f1(q1)+"%":"—"}</text>`;
+    } else {
+      g+=`<rect x="${X0}" y="${cy-7}" width="${L*p3/100}" height="14" fill="#fff" opacity=".16"/><rect x="${X0}" y="${cy-7}" width="${L*p1/100}" height="14" fill="var(--needle)"/>`;
+      g+=`<line x1="${X0+L*bp/100}" y1="${cy-10}" x2="${X0+L*bp/100}" y2="${cy+10}" stroke="var(--buoyR)" stroke-width="2"/>`;
+      g+=`<text x="336" y="${cy-1}" text-anchor="end" font-size="12" class="num" fill="var(--wInk)">${n?f1(p1)+"%":"—"}</text><text x="336" y="${cy+10}" text-anchor="end" font-size="9.5" class="num" fill="var(--wSub)">${x[1]}/${n}</text>`;
+    }
+    g+=`</g>`;
+  }
+  return `<svg class="fig" viewBox="0 0 340 ${H}" role="img" aria-label="進入コース別の1着率">${g}</svg>`;
+}
+/* 大時計：12秒針は1周12秒＝1秒で30°。正規のスタートは12時から1時の間（0〜1秒）。右の扇は0〜0.40秒を10倍に広げた図 */
+function clock(w,win){
+  const h=w.sth, max=Math.max(1,...h), avg=w.st[1]?w.st[0]/w.st[1]:null, all=win.stAll[0];
+  const cx=184,cy=196,r0=84,r1=142, ang=t=>(-60+t*300)*Math.PI/180;  // 0.01秒＝3°（実際の10倍）
+  const P=(a,r)=>[cx+r*Math.sin(a),cy-r*Math.cos(a)];
+  let g="";
+  // 小さな大時計（全体）
+  const sx=34,sy=40,sr=27; g+=`<circle cx="${sx}" cy="${sy}" r="${sr}" fill="var(--plate)"/>`;
+  for(let i=0;i<12;i++){const a=i*30*Math.PI/180;g+=`<line x1="${sx+(sr-3)*Math.sin(a)}" y1="${sy-(sr-3)*Math.cos(a)}" x2="${sx+(sr-9)*Math.sin(a)}" y2="${sy-(sr-9)*Math.cos(a)}" stroke="#121212" stroke-width="${i?1.5:3}"/>`;}
+  g+=`<path d="M${sx} ${sy} L${sx} ${sy-sr+2} A${sr-2} ${sr-2} 0 0 1 ${sx+(sr-2)*Math.sin(Math.PI/6)} ${sy-(sr-2)*Math.cos(Math.PI/6)} Z" fill="var(--needle)" opacity=".85"/>`;
+  if(avg!=null){const a=avg*30*Math.PI/180;g+=`<line x1="${sx}" y1="${sy}" x2="${sx+(sr-6)*Math.sin(a)}" y2="${sy-(sr-6)*Math.cos(a)}" stroke="#121212" stroke-width="2.5"/>`;}
+  g+=`<circle cx="${sx}" cy="${sy}" r="2.5" fill="#121212"/><text x="${sx}" y="${sy+sr+13}" text-anchor="middle" font-size="9" fill="var(--wSub)">大時計</text>`;
+  // 扇の地と目盛り
+  const arc=(r,a0,a1)=>{const [x0,y0]=P(a0,r),[x1,y1]=P(a1,r);return `M${x0} ${y0} A${r} ${r} 0 0 1 ${x1} ${y1}`;};
+  {const [a0x,a0y]=P(ang(0),r1),[a1x,a1y]=P(ang(.415),r1),[b1x,b1y]=P(ang(.415),r0),[b0x,b0y]=P(ang(0),r0);
+   g+=`<path d="M${a0x} ${a0y} A${r1} ${r1} 0 0 1 ${a1x} ${a1y} L${b1x} ${b1y} A${r0} ${r0} 0 0 0 ${b0x} ${b0y} Z" fill="rgba(255,255,255,.05)"/>`;}
+  g+=`<path d="${arc(r1,ang(.195),ang(.415))}" stroke="var(--buoyR)" stroke-width="3" fill="none"/>`;
+  for(let t=0;t<=40;t+=5){const [x0,y0]=P(ang(t/100),r1),[x1,y1]=P(ang(t/100),r1+(t%10?4:8));g+=`<line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y1}" stroke="var(--wSub)"/>`;
+    if(t%10===0){const [tx,ty]=P(ang(t/100),r1+18);g+=`<text x="${tx}" y="${ty+4}" text-anchor="middle" font-size="11" class="num" fill="var(--wInk)">${t===0?"0":"."+String(t).padStart(2,"0")}</text>`;}}
+  // 0.01秒ごとの本数（放射状の棒・長さ＝本数）
+  for(let i=0;i<=41;i++){if(!h[i])continue;const a=ang(Math.min(i,40.5)/100),len=(r1-r0-6)*h[i]/max;const [x0,y0]=P(a,r0),[x1,y1]=P(a,r0+len);
+    g+=`<line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y1}" stroke="${i>=20?"#ff8a7a":"#fff"}" stroke-width="3.2" stroke-linecap="butt" opacity="${i>=41?.6:1}"/>`;}
+  // 全選手の平均と、この選手の平均（黄針）
+  if(all!=null){const [x0,y0]=P(ang(all),r0-8),[x1,y1]=P(ang(all),r1+2);g+=`<line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y1}" stroke="var(--wSub)" stroke-dasharray="3 3"/>`;}
+  if(avg!=null){const [x1,y1]=P(ang(avg),r1+2);g+=`<line x1="${cx}" y1="${cy}" x2="${x1}" y2="${y1}" stroke="var(--needle)" stroke-width="3"/><circle cx="${cx}" cy="${cy}" r="6" fill="var(--needle)"/>`;}
+  // F（12時より前）
+  for(let i=0;i<w.st[2];i++){const [x,y]=P(ang(-0.03-i*0.025),r1-10);g+=`<circle cx="${x}" cy="${y}" r="4.5" fill="var(--buoyR)"/>`;}
+  const [fx,fy]=P(ang(-0.05),r1+18); g+=`<text x="${fx}" y="${fy+4}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--buoyR)">F</text>`;
+  g+=`<text x="8" y="${cy-2}" font-size="9.5" fill="var(--wSub)">0〜0.40秒を10倍に拡大</text>`;
+  return `<svg class="fig" viewBox="0 0 340 ${cy+8}" role="img" aria-label="大時計に描いたSTの分布">${g}</svg>`;
+}
+function meter(k,w){
+  const v=w.it[k],f=frac(k,w);
+  if(!v){const n=k==="st"?w.st[1]:(f?f[1]:0);return `<div class="mt"><span class="lb">${LAB[k]}</span>${cells(null)}<span class="row2"><span>分母 ${n}走（20走以上で順位を出す）</span><span>走数不足</span></span></div>`;}
+  const [x,n,top,N,dv]=v,col=TC[tier(top)];
+  return `<div class="mt"><span class="lb">${LAB[k]}</span>${cells(dv,col)}<span class="row2"><span>${fmV(k,x)}（${f?`${f[0]}/${f[1]}`:`${n}走`}）偏差値${dv.toFixed(1)}・${N.toLocaleString()}人中</span><span class="rk" style="color:${col}">${rl(top)}</span></span></div>`;
+}
+function render(){
+  const P=D.players[cur];if(!P)return;const w=P.w[W],win=D.win[W],el=document.getElementById("card");
+  document.getElementById("perNote").textContent=`${win.label}：${ymd(win.from)}〜${ymd(win.to)}・${win.days}日・${win.races.toLocaleString()}レース（公式レース結果）`;
+  const plate=`<div class="plate"><div class="toban"><div><small>${kg("登番",15)}</small>${kg(cur,26,-30)}</div></div><div class="who"><div class="meta">${P.branch}支部${P.age?"・"+P.age+"歳":""}</div>${nameBlock(P)}</div><div class="grade">${P.rank}</div></div>`;
+  if(!w){el.innerHTML=plate+`<div class="body">この期間に出走がありません。</div>`;return;}
+  const ov=w.ov,best=IT.filter(k=>w.it[k]).sort((a,b)=>w.it[b][4]-w.it[a][4])[0],kmT=w.km.reduce((a,b)=>a+b,0),avg=w.st[1]?w.st[0]/w.st[1]:null;
+  const TG=Object.fromEntries((D.tags||[]).map(x=>[x[0],x])), tgl=Object.entries(w.tg||{}).filter(([k,v])=>v[3]<=20).sort((x,y)=>x[1][3]-y[1][3]||PRI.indexOf(x[0])-PRI.indexOf(y[0])).slice(0,4);
+  const wp=tgl[0];
+  el.innerHTML=plate+`<div class="body">
+  <div class="hero">
+    <div class="hT"><span class="hk">総合</span><span class="hv" style="color:${ov?TC[tier(ov[1])]:"inherit"}">${ov?kg(rl(ov[1]),30):"—"}</span><span class="hs">${ov?`偏差値 ${ov[0].toFixed(1)}`:"4項目以上で出す"}</span></div>
+    ${(()=>{const yc=P.yc||[[0,0,0,0,0,0],[0,0,0,0,0,0]],y=yc[0],yo=yc[1][0],G=["SG","G1","G2","G3","一般"];const ch=G.map((g,i)=>y[i+1]?`<span class="${i===0?"sg":""}">${g} ${y[i+1]}</span>`:"").join("");
+      return `<div class="hT"><span class="hk">優勝<small class="hkS">2017年〜</small></span><span class="hv yuV">${kg(String(y[0]),30,-20)}<small>回</small></span><span class="hs">${ch||"—"}</span><span class="hs2">優出 ${yo}回</span><span class="hs2">${win.label}の優勝 ${w.yu?w.yu[0]:0}回</span></div>`;})()}
+    <div class="hW"><span class="hk">武器</span>${wp?`<span class="wv" style="color:${TC[tier(wp[1][3])]}">${kg(TG[wp[0]][1],30)}</span><span class="wr" style="color:${TC[tier(wp[1][3])]}">${rl(wp[1][3])}</span><span class="hs">${TG[wp[0]][2]}　${wp[1][1]}/${wp[1][2]}回（${wp[1][0].toFixed(1)}%）</span>`:`<span class="wv">${best?kg(LAB[best].replace("<br>",""),26):"—"}</span><span class="hs">${best?`偏差値${w.it[best][4].toFixed(1)}・${rl(w.it[best][2])}`:""}</span>`}</div>
+  </div>
+  ${tgl.length>1?`<div><div class="sec"><b>${kg("特色",22)}</b><small>武器のほかに上位20%以内の持ち味</small></div><div class="tgs">${tgl.slice(1).map(([k,v])=>`<div class="tg"><span class="nm" style="color:${TC[tier(v[3])]}">${kg(TG[k][1],20)}</span><span class="rk" style="color:${TC[tier(v[3])]}">${rl(v[3])}</span><span class="de">${TG[k][2]}　${v[1]}/${v[2]}回（${v[0].toFixed(1)}%）${["tilt","tiltDash","tenji"].includes(k)?"・直前情報は2026/1/1から":""}</span></div>`).join("")}</div></div>`:""}
+  
+  <div><div class="sec"><b>${kg("水面図",22)}</b><small>進入コース別・出走${w.n}走</small></div>${water(w,win)}
+   <div class="key"><span><i style="background:var(--needle)"></i>1着率</span><span><i style="background:rgba(255,255,255,.25)"></i>3着内率</span><span><i style="background:var(--buoyR);width:3px"></i>全選手のそのコースの1着率</span><span>薄い行は20走未満</span></div></div>
+  <div><div class="sec"><b>${kg("大時計",22)}</b><small>本番ST・${w.st[1]}走</small></div>${clock(w,win)}
+   <div class="key"><span><i style="background:var(--needle)"></i>平均ST ${avg==null?"—":avg.toFixed(2)}</span><span><i style="background:var(--wSub);height:2px"></i>全選手の平均 ${win.stAll[0].toFixed(2)}</span><span><i style="background:#ff8a7a"></i>0.20以上 ${pc(w.st[3],w.st[1])}（${w.st[3]}/${w.st[1]}）</span><span><i style="background:var(--buoyR);border-radius:50%;width:8px"></i>F ${w.st[2]}回</span>${w.noSt?`<span>STの記録なし ${w.noSt}走</span>`:""}<span>棒の長さ＝0.01秒ごとの本数</span></div></div>
+  <div><div class="sec"><b>${kg("計器",22)}</b><small>30マス＝偏差値20〜80・白枠のマスが平均</small></div><div class="meters">${IT.map(k=>meter(k,w)).join("")}</div>
+   <div class="key">${[5,4,3,2,1].map(t=>`<span><i style="background:${TC[t]}"></i>${TN[t]}</span>`).join("")}</div></div>
+  <div><div class="sec"><b>${kg("決まり手",22)}</b><small>1着${kmT}回の内訳</small></div>
+   <div class="km" style="margin-top:8px">${kmT?w.km.map((c,i)=>c?`<i style="width:${c/kmT*100}%;background:${KMC[i]}"></i>`:"").join(""):""}</div>
+   <div class="kmKey" style="margin-top:6px">${KM.map((m,i)=>`<div><b style="background:${KMC[i]}"></b>${m} <span>${w.km[i]}</span></div>`).join("")}</div>
+   <div class="key" style="margin-top:6px">前づけ（枠より内のコースに入った）${w.mae[0]}/${w.mae[1]}走（${pc(w.mae[0],w.mae[1])}）</div></div>
+  <div class="share"><a target="_blank" rel="noopener" href="https://x.com/intent/post?text=${encodeURIComponent(`${P.name}（${cur}）の選手カード${ov?`　総合 ${rl(ov[1])}`:""}${wp?`　武器：${TG[wp[0]][1]} ${rl(wp[1][3])}`:""}`)}&url=${encodeURIComponent(SITE+"?toban="+cur)}">Xに投稿</a><a target="_blank" rel="noopener" href="https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(SITE+"?toban="+cur)}">LINEで送る</a><button type="button" id="shImg">画像を共有</button></div>
+  <div class="shareNote" id="shMsg"></div>
+  <div class="foot"><div>出典：公式レース結果（${ymd(win.from)}〜${ymd(win.to)}）。欠場は分母から除き、失格・F・Lは出走に数える。</div><div>優勝・優出：公式番組データで副題が「優勝戦」のレース（GP優勝戦・S戦優勝戦・男女W優勝戦の各レースを含み、準優勝戦は除く）。優勝は公式レース結果の1着。大きな数字は${ymd(D.yc.from)}〜${ymd(D.yc.to)}（優勝戦${D.yc.finals.toLocaleString()}レース、うち結果の無い${D.yc.canceled}レースは中止として優勝なし）。それより前の優勝は入っていない。${win.label}の優勝戦は${win.finals}レース。</div><div>順位は各項目の分母20走以上の選手の中での位置。偏差値＝50＋10×（値−平均）÷標準偏差（平均STは小さいほど高い）。総合＝6項目の偏差値の平均（4項目以上）。水面図は模式図で、場ごとの形とは違う。</div></div></div>`;
+}
+async function h2hFor(no){const k=Number(no)%64;if(!(k in H2H)){try{const r=await fetch(`senshuCard/h2h/${k}.json`);H2H[k]=r.ok?await r.json():{};}catch(e){H2H[k]={};}}
+  if(!H2Hmeta){try{H2Hmeta=await (await fetch("senshuCard/h2h/meta.json")).json();}catch(e){H2Hmeta={};}}return H2H[k][no]||{};}
+async function renderVs(){
+  const A=D.players[cur],B=D.players[cmp],el=document.getElementById("vs");
+  if(!A||!B||cur===cmp){el.hidden=true;return;}const a=A.w[W],b=B.w[W];if(!a||!b){el.hidden=true;return;}el.hidden=false;
+  let wa=0,wb=0;
+  const rows=IT.map(k=>{const va=a.it[k],vb=b.it[k];let xa="",xb="";
+    if(va&&vb&&va[0]!==vb[0]){const aw=k==="st"?va[0]<vb[0]:va[0]>vb[0];if(aw){xa="ca";wa++;}else{xb="cb";wb++;}}
+    return `<div class="dual"><span class="r ${xa}">${va?rl(va[2]):"不足"}${va?`<small>${fmV(k,va[0])}</small>`:""}</span><span class="flip">${cells(va?va[4]:null,"var(--needle)",15)}</span><span class="l">${AX[k]}</span>${cells(vb?vb[4]:null,"#5cc8ff",15)}<span class="r rb ${xb}">${vb?rl(vb[2]):"不足"}${vb?`<small>${fmV(k,vb[0])}</small>`:""}</span></div>`;}).join("");
+  const h=(await h2hFor(cur))[cmp],m=H2Hmeta||{};
+  const hh=h&&h[0]?`<div class="sc"><b class="ca">${h[1]}</b><span>同じレース${h[0]}回</span><b class="cb">${h[2]}</b></div><div class="nt">先着した回数。どちらかが失格・F・Lなどの回（${h[0]-h[1]-h[2]}回）は数えない。${ymd(m.from)}〜${ymd(m.to)}（期間の切り替えに関係なく全期間）</div>`:`<div class="nt">${ymd(m.from)}〜${ymd(m.to)} に同じレースを走ったのは1回以下（2回以上で数を出す）。</div>`;
+  el.innerHTML=`<div class="vsHead"><div class="p"><div class="m">登番${cur}・${A.rank}</div>${vsName(A,"ca")}</div><div class="x">${kg("VS",24)}</div><div class="p"><div class="m">登番${cmp}・${B.rank}</div>${vsName(B,"cb")}</div></div>
+  <div class="body"><div><div class="sec"><b>${kg("直接対決",22)}</b><small>同じレースでの先着</small></div>${hh}</div>
+  <div><div class="sec"><b>${kg("水面図",22)}</b><small>進入コース別の1着率（${D.win[W].label}）</small></div>${water(a,D.win[W],b)}</div>
+  <div><div class="sec"><b>${kg("計器",22)}</b><small>実数で比べる・同じ値は数えない</small></div><div class="tally"><b class="ca">${wa}</b>　－　<b class="cb">${wb}</b></div>${rows}</div>
+  <div class="share"><a target="_blank" rel="noopener" href="https://x.com/intent/post?text=${encodeURIComponent(`${A.name} VS ${B.name}　直接対決 ${h&&h[0]?`${h[1]}－${h[2]}（同じレース${h[0]}回）`:"なし"}　6項目 ${wa}－${wb}`)}&url=${encodeURIComponent(SITE+"?toban="+cur)}">Xに投稿</a><a target="_blank" rel="noopener" href="https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(SITE+"?toban="+cur)}">LINEで送る</a></div></div>`;
+}
+function hook(inp,hits,pick){inp.addEventListener("input",()=>{const s=inp.value.trim();hits.innerHTML="";if(!s||!D)return;
+  const m=Object.entries(D.players).filter(([no,p])=>no.startsWith(s)||p.name.includes(s)).slice(0,8);
+  hits.innerHTML=m.map(([no,p])=>`<button data-no="${no}">${p.name} ${no}</button>`).join("")||`<span class="lead">見つかりません</span>`;});
+  hits.addEventListener("click",e=>{const b=e.target.closest("button");if(b){pick(b.dataset.no);hits.innerHTML="";inp.value="";}});}
+hook(document.getElementById("q"),document.getElementById("hits"),no=>{cur=no;render();renderVs();});
+hook(document.getElementById("q2"),document.getElementById("hits2"),no=>{cmp=no;renderVs();});
+fetch("senshuCard/shImgB.json").then(r=>r.json()).then(S=>{window.SHIMG=S;window.drawShImgs=()=>{const el=document.getElementById("shImgs"),K=PAL==="kuro"?"K":"";
+  el.innerHTML=["4571","3946","4238","4320","4112"].map(n=>`<figure style="margin:0;display:grid;gap:6px"><img alt="共有用の画像" style="width:100%;border:1px solid var(--line)" src="data:image/png;base64,${S["og"+K+"_"+n]}"><img alt="保存用の画像" style="width:60%;border:1px solid var(--line)" src="data:image/png;base64,${S["st"+K+"_"+n]}"></figure>`).join("");};drawShImgs();}).catch(()=>{});
+document.addEventListener("click",async e=>{
+  if(e.target.id!=="shImg") return; e.stopImmediatePropagation();
+  const msg=document.getElementById("shMsg"), S=window.SHIMG||{}, b=S["st"+(PAL==="kuro"?"K":"")+"_"+cur];
+  if(!b){msg.textContent="この見本では、保存用の画像は下の4人分だけ作ってあります。";return;}
+  try{const bin=atob(b);const u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);
+    const file=new File([u],`senshuCard_${cur}.png`,{type:"image/png"});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file]});msg.textContent="";} else throw 0;
+  }catch(_){msg.textContent="この画面では共有メニューを開けません。本番ページ（iPhoneのSafari）では、共有メニューから保存やInstagramを選べます。";}
+},true);
+let PAL="";
+function setPal(p){PAL=p;document.querySelectorAll(".palSel button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.pal===p));["card","vs"].forEach(id=>{const el=document.getElementById(id);if(PAL)el.dataset.pal=PAL;else delete el.dataset.pal;});
+  try{localStorage.setItem("senshuCardPal",p)}catch(_){} if(window.drawShImgs)drawShImgs();}
+document.querySelectorAll(".palSel button").forEach(b=>b.addEventListener("click",()=>setPal(b.dataset.pal)));
+try{const s=localStorage.getItem("senshuCardPal");if(s!==null)setPal(s)}catch(_){}
+document.querySelectorAll("[data-w]").forEach(b=>b.addEventListener("click",()=>{W=b.dataset.w;document.querySelectorAll("[data-w]").forEach(x=>x.setAttribute("aria-pressed",x===b));render();renderVs();}));
+document.addEventListener("click",e=>{if(e.target.id==="shImg")document.getElementById("shMsg").textContent="共有画像は、デザインが決まってから作ります。";});
+Promise.all([fetch("senshuCard/card2.json").then(r=>r.json()),fetch("senshuCard/kgOutline.json").then(r=>r.json()).catch(()=>null)]).then(([j,k])=>{D=j;K=k;render();renderVs();}).catch(()=>{document.getElementById("card").innerHTML='<div class="body">データを読み込めませんでした。再読み込みしてください。</div>';});
+</script>
+
+<footer style="margin:24px auto 8px;max-width:560px;padding:0 16px;text-align:center;font-size:10px;color:#8a94a3;line-height:1.7;">見出しの書体：キルゴU（作者 名残雪 様）<br>© 2026 データ攻め ── 制作・運営 あべけん</footer>
+<script src="../assets/guard.js" defer></script>
+</body>
+</html>
