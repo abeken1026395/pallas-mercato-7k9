@@ -26,6 +26,8 @@ svg { display:block; width:100%; height:auto; margin-top:8px; }
 .vl { fill:var(--fg); font-size:12px; font-variant-numeric:tabular-nums; }
 .end { font-size:14px; line-height:1.6; min-height:3.2em; margin-top:8px; text-align:center; }
 .end b { color:var(--win); font-weight:normal; }
+.nw { display:inline-block; white-space:nowrap; }
+.note .nw { display:inline; }
 .cap { font-size:12px; color:var(--sub); line-height:1.7; margin-top:6px; }
 .btn { display:block; margin:18px auto 0; min-height:44px; background:none; border:1px solid var(--acc); color:var(--acc); border-radius:22px; padding:8px 22px; font-size:14px; cursor:pointer; }
 .note { font-size:12px; color:var(--sub); line-height:1.8; margin-top:18px; }
@@ -35,14 +37,14 @@ svg { display:block; width:100%; height:auto; margin-top:8px; }
 <body>
 <div class="wrap">
 <div class="crumb"><a href="./">実験場</a> ／ 冬夏差を1年ずつ</div>
-<h1>冬のインは、<br>毎年強かったのか</h1>
-<p class="lead">検証07「冬はインか」の図を、1年ずつ描く試作です</p>
+<h1><span class="nw">冬のインは、</span><br><span class="nw">毎年強かったのか</span></h1>
+<p class="lead"><span class="nw">検証07「冬はインか」の図を、</span><span class="nw">1年ずつ描く試作です</span></p>
 
 <div class="card" id="card" role="img" aria-label="年ごとの冬夏差。10年のうち9年で冬が上、2022年だけ夏が上">
-  <div class="ttl">1コースの1着率、冬から夏を引いた差<small>条件を揃えたあと・年ごと（ポイント）</small></div>
+  <div class="ttl"><span class="nw">1コースの1着率、</span><span class="nw">冬から夏を引いた差</span><small>条件を揃えたあと・年ごと（ポイント）</small></div>
   <svg id="g" viewBox="0 0 360 262" aria-hidden="true"></svg>
   <p class="end" id="end" aria-live="polite"></p>
-  <p class="cap">右が冬の勝ち（青）、左が夏の勝ち（橙）。12月は翌年の冬に入れています。</p>
+  <p class="cap"><span class="nw">右が冬の勝ち（青）、</span><span class="nw">左が夏の勝ち（橙）。</span><span class="nw">12月は翌年の冬に</span><span class="nw">入れています。</span></p>
 </div>
 
 <button class="btn" id="re" type="button">もう一度見る</button>
@@ -85,7 +87,7 @@ function paint(ms) {
     r.dot.style.opacity = on ? 1 : 0; r.ln.style.opacity = on ? 1 : 0;
     r.lb.style.opacity = k >= 1 ? 1 : 0;
   });
-  endEl.innerHTML = ms >= R.length * PER + 200 ? D.rows.length + '年のうち<b>' + win + '年</b>で冬が上。夏が上だったのは' + D.rows.filter(r => r[1] < 0).map(r => r[0] + '年').join('・') + 'だけ' : '';
+  endEl.innerHTML = ms >= R.length * PER + 200 ? '<span class="nw">' + D.rows.length + '年のうち<b>' + win + '年</b>で冬が上。</span><br><span class="nw">夏が上だったのは' + D.rows.filter(r => r[1] < 0).map(r => r[0] + '年').join('・') + 'だけ</span>' : '';
 }
 const TOTAL = R.length * PER + 200;
 let busy = false;
@@ -108,12 +110,12 @@ else {
   io.observe(document.getElementById('card'));
 }
 document.getElementById('re').onclick = () => { if (!busy) { paint(0); run(); } };
-const n = (a) => Math.min(...a).toLocaleString('ja-JP') + 'から' + Math.max(...a).toLocaleString('ja-JP');
+const n = (a) => '<span class="nw">' + Math.min(...a).toLocaleString('ja-JP') + 'から</span><span class="nw">' + Math.max(...a).toLocaleString('ja-JP') + 'レース</span>';
 document.getElementById('note').innerHTML =
-  '<b>数え方</b>　冬は12月から2月、夏は7月と8月。同じ場・同じ年・同じレースの区分で、1コースの選手と外の5艇の強さ（直前12か月の1着率）を揃えて差を取った<br>' +
-  '<b>レース数</b>　各年の冬 ' + n(D.rows.map(r => r[2])) + '、夏 ' + n(D.rows.map(r => r[3])) + 'レース<br>' +
-  '<b>期間</b>　2016年11月から2026年8月（検証07と同じ）<br>' +
-  '<b>出典</b>　Kファイル（BOAT RACE 公式の競走成績）を集計した analysis/kensho07/stage1.json';
+  '<b>数え方</b>　<span class="nw">冬は12月から2月、</span><span class="nw">夏は7月と8月。</span><span class="nw">同じ場・同じ年・同じレースの区分で、</span><span class="nw">1コースの選手と外の5艇の強さ</span><span class="nw">（直前12か月の1着率）を</span><span class="nw">揃えて差を取った</span><br>' +
+  '<b>レース数</b>　各年の冬 ' + n(D.rows.map(r => r[2])) + '、<span class="nw">夏 </span>' + n(D.rows.map(r => r[3])) + '<br>' +
+  '<b>期間</b>　<span class="nw">2016年11月から2026年8月</span><span class="nw">（検証07と同じ）</span><br>' +
+  '<b>出典</b>　<span class="nw">Kファイル（BOAT RACE 公式の競走成績）を</span><span class="nw">集計した analysis/kensho07/stage1.json</span>';
 </script>
 <script src="../assets/guard.js" defer></script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics -->
