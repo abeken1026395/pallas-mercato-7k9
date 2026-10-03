@@ -202,7 +202,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .hkS{font-size:10px;font-weight:700;letter-spacing:.04em;margin-left:6px}
 .sec{border-bottom:1px solid var(--rule);padding-bottom:6px;align-items:center}
 .sec b{position:relative;padding-left:12px}
-.sec b::before{content:"";position:absolute;left:0;top:50%;width:6px;height:16px;margin-top:-8px;background:var(--needle);transform:skewX(-14deg)}
+.sec b::before{content:"";position:absolute;left:0;top:50%;width:6px;height:16px;margin-top:-8px;background:var(--mark,var(--needle));transform:skewX(-14deg)}
 .sec small{margin-left:auto;text-align:right;font-size:10.5px;letter-spacing:.02em}
 .key{gap:4px 14px;font-size:10.5px}
 .mt{padding:9px 0;border-bottom:1px solid var(--rule2)}
@@ -220,7 +220,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .vsHead .x{clip-path:polygon(12% 0,100% 0,88% 100%,0 100%);padding:0 18px}
 
 /* 地色の見比べ用 */
-.card[data-pal="kuro"]{--water:#141212;--water2:#1d1a19;--wl:rgba(236,230,218,.13);--wInk:#ece6da;--wSub:#9c948a;--wDim:rgba(236,230,218,.07);--needle:#d8342c;--onNeedle:#f4efe6;--hwG:rgba(216,52,44,.12);--nameR:#e8322a;--yuC:#ece6da;--t5:#e0463c;--t4:#ece6da;--t3:#b3aba0;--t2:#7a736b;--t1:#4d4844}
+.card[data-pal="kuro"]{--water:#141212;--water2:#1d1a19;--wl:rgba(236,230,218,.13);--wInk:#ece6da;--wSub:#9c948a;--wDim:rgba(236,230,218,.07);--needle:#d9b44a;--onNeedle:#141212;--hwG:rgba(217,180,74,.10);--mark:#d8342c;--nameR:#e8322a;--yuC:#dcb84f;--t5:#dcb84f;--t4:#ece6da;--t3:#b3aba0;--t2:#7a736b;--t1:#4d4844}
 .card[data-pal="night"]{--water:#0b1830;--water2:#10213f;--wl:rgba(160,190,255,.18);--wInk:#eef3ff;--wSub:#9fb1d6;--wDim:rgba(255,255,255,.08);--t3:#9fc3ff;--t2:#5f86c9;--t1:#3c5a8c}
 .card[data-pal="tetsu"]{--water:#1f2328;--water2:#282d33;--wl:rgba(255,255,255,.14);--wInk:#f2f3f5;--wSub:#a3a9b2;--wDim:rgba(255,255,255,.08);--t3:#c7cdd6;--t2:#8a929e;--t1:#5d6470}
 .card[data-pal="aka"]{--water:#2a0d0f;--water2:#3a1215;--wl:rgba(255,200,200,.16);--wInk:#fff3f1;--wSub:#d7a7a3;--wDim:rgba(255,255,255,.08);--t3:#ffc8c0;--t2:#c98a84;--t1:#8f5a55}
@@ -422,7 +422,7 @@ hook(document.getElementById("q2"),document.getElementById("hits2"),no=>{cmp=no;
 /* 保存用の縦長画像（1080×1350）をブラウザで描く。shareB2.py の story() の移植 */
 const SC={P2:{}};
 function scPal(kuro){
-  return kuro?{WATER:"#141212",SUB:"#9c948a",INK:"#ece6da",ACC:"#d8342c",ONACC:"#f4efe6",YU:"#ece6da",HWG:"rgba(216,52,44,.12)",NAME:"#e8322a",LN:"rgba(236,230,218,.16)",OFF:"rgba(236,230,218,.08)",TC:{5:"#e0463c",4:"#ece6da",3:"#b3aba0",2:"#7a736b",1:"#4d4844"}}
+  return kuro?{WATER:"#141212",SUB:"#9c948a",INK:"#ece6da",ACC:"#d9b44a",ONACC:"#141212",YU:"#dcb84f",MARK:"#d8342c",HWG:"rgba(217,180,74,.10)",NAME:"#e8322a",LN:"rgba(236,230,218,.16)",OFF:"rgba(236,230,218,.08)",TC:{5:"#dcb84f",4:"#ece6da",3:"#b3aba0",2:"#7a736b",1:"#4d4844"}}
              :{WATER:"#0b4a50",SUB:"#a6cdd0",INK:"#f3fafa",ACC:"#ffd23f",ONACC:"#121212",YU:"#ffd23f",HWG:"rgba(255,210,63,.086)",NAME:"#ff2a2a",LN:"rgba(255,255,255,.18)",OFF:"rgba(255,255,255,.1)",TC:{5:"#ffd23f",4:"#ffffff",3:"#9fd9dc",2:"#5ea6ac",1:"#3d777c"}};
 }
 const SC_UI="'Hiragino Sans','Hiragino Kaku Gothic ProN','Noto Sans JP','Noto Sans CJK JP','Yu Gothic',Meiryo,sans-serif";
@@ -507,12 +507,12 @@ function drawStory(no,kuro){
    else scTxt(c,"—",x0+26,y0+60,big*0.8,SUB);}
   y+=192;
   const TG=Object.fromEntries((D.tags||[]).map(t=>[t[0],t])),tg=scPicks(w).slice(1,3);
-  scMark(c,y,YEL);scKg(c,"特色",62,y,46,INK);scTxt(c,"武器のほかに上位20%以内",1040,y+18,22,SUB,"ra");
+  scMark(c,y,pal.MARK||YEL);scKg(c,"特色",62,y,46,INK);scTxt(c,"武器のほかに上位20%以内",1040,y+18,22,SUB,"ra");
   scLine(c,40,y+66,1040,y+66,LN);y+=82;
   tg.forEach(([k,v])=>{const col=TCp[tier(v[3])];scKg(c,TG[k][1],40,y,46,col);scKg(c,rl(v[3]),1040,y+4,40,col,{anchor:"ra"});
     scTxt(c,`${TG[k][2]}　${v[1]}/${v[2]}回（${v[0].toFixed(1)}%）`,40,y+58,21,SUB);scLine(c,40,y+88,1040,y+88,"rgba(255,255,255,.094)");y+=94;});
   if(!tg.length){scTxt(c,"ほかに上位20%以内の特色はなし",40,y,24,SUB);y+=50;}
-  y+=10;scMark(c,y,YEL);scKg(c,"計器",62,y,46,INK);scTxt(c,"30マス＝偏差値20〜80",1040,y+18,22,SUB,"ra");
+  y+=10;scMark(c,y,pal.MARK||YEL);scKg(c,"計器",62,y,46,INK);scTxt(c,"30マス＝偏差値20〜80",1040,y+18,22,SUB,"ra");
   scLine(c,40,y+66,1040,y+66,LN);y+=82;
   for(const k of ["r1","r2","in1","mid3","out3","st"]){
     if(y>1350-76)break;const v=(w.it||{})[k];scTxt(c,LAB[k].replace("<br>",""),40,y,24,INK);
