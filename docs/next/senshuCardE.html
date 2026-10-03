@@ -485,7 +485,7 @@ function scPlate(c,p,no,x0,y0,w,h,s,pal){
 }
 const CH=["","得意技","持ち味",""];
 const WN={nige:["鉄壁イン","鉄壁イン","先マイ一閃"],makuri:["豪腕まくり","旋風まくり","外殻破り"],maezuke:["イン強奪","枠なり破り","深攻め"],tiltDash:["チルトダッシュ","天翔るダッシュ","天翔るダッシュ"],sashi:["針の穴","針の穴","影差し"],c4:["四ノ陣","四ノ陣","陣取り合戦"],nuki:["逆転の舟足","逆転の舟足","抜け駆け"],outKeep:["大外の意地","大外の意地","夜叉の走り"],p23:["食らいつき","食らいつき","追い上げの鬼"],geko:["下剋上","下剋上","下剋上"],fut:["不退転","不退転","不退転"],zst:["ゼロ台の牙","ゼロ台の牙","ゼロ台の牙"],kanso:["完全走破","完全走破","完全走破"]};
-function NM(k,v){if(isF(k))return v[5];const z=WN[k];return z?z[(v[4]||3)-1]:(D.tags.find(t=>t[0]===k)||[,k])[1];}
+function NM(k,v){if(isF(k))return v[5];if(k==="nige"&&(v[4]||3)===2)return v[3]<=10?"鉄壁イン":"イン城塞";const z=WN[k];return z?z[(v[4]||3)-1]:(D.tags.find(t=>t[0]===k)||[,k])[1];}
 
 let AY={};
 const isF=k=>k.startsWith("f_");
