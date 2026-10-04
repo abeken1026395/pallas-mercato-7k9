@@ -372,7 +372,7 @@ function meter(k,w){
   return `<div class="mt"><span class="lb">${LAB[k]}</span>${cells(dv,col)}<span class="row2"><span>${fmV(k,x)}（${f?`${f[0]}/${f[1]}`:`${n}走`}）偏差値${dv.toFixed(1)}・${N.toLocaleString()}人中</span><span class="rk" style="color:${col}">${rl(top)}</span></span></div>`;
 }
 function render(){if(window.drawShImgs)setTimeout(drawShImgs,0);
-  const P=D.players[cur];if(!P)return;const w=P.w[W],win=D.win[W],el=document.getElementById("card");
+  const P=D.players[cur];if(!P){loadP(cur).then(()=>{if(D.players[cur])render();});return;}const w=P.w[W],win=D.win[W],el=document.getElementById("card");
   document.getElementById("perNote").textContent=`${win.label}：${ymd(win.from)}〜${ymd(win.to)}・${win.days}日・${win.races.toLocaleString()}レース（公式レース結果）`;
   const plate=`<div class="plate"><div class="toban"><div><small>${kg("登番",15)}</small>${kg(cur,26,-30)}</div></div><div class="who"><div class="meta">${P.branch}支部${P.age?"・"+P.age+"歳":""}</div>${nameBlock(P)}</div><div class="grade">${P.rank}</div></div>`;
   if(!w){el.innerHTML=plate+`<div class="body">この期間に出走がありません。</div>`;return;}
@@ -407,6 +407,7 @@ function render(){if(window.drawShImgs)setTimeout(drawShImgs,0);
 async function h2hFor(no){const k=Number(no)%64;if(!(k in H2H)){try{const r=await fetch(`senshuCard/h2h/${k}.json`);H2H[k]=r.ok?await r.json():{};}catch(e){H2H[k]={};}}
   if(!H2Hmeta){try{H2Hmeta=await (await fetch("senshuCard/h2h/meta.json")).json();}catch(e){H2Hmeta={};}}return H2H[k][no]||{};}
 async function renderVs(){
+  await loadP(cur);if(cmp)await loadP(cmp);
   const A=D.players[cur],B=D.players[cmp],el=document.getElementById("vs");
   if(!A||!B||cur===cmp){el.hidden=true;return;}const a=A.w[W],b=B.w[W];if(!a||!b){el.hidden=true;return;}el.hidden=false;
   let wa=0,wb=0;
@@ -422,8 +423,8 @@ async function renderVs(){
   <div class="share"><a target="_blank" rel="noopener" href="https://x.com/intent/post?text=${encodeURIComponent(`${A.name} VS ${B.name}　直接対決 ${h&&h[0]?`${h[1]}－${h[2]}（同じレース${h[0]}回）`:"なし"}　6項目で上回った数 ${wa}－${wb}　#ボートレース #${A.name} #${B.name}`)}&url=${encodeURIComponent(SITE+"?toban="+cur)}">Xに投稿</a><a target="_blank" rel="noopener" href="https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(SITE+"?toban="+cur)}">LINEで送る</a></div></div>`;
 }
 function hook(inp,hits,pick){inp.addEventListener("input",()=>{const s=inp.value.trim();hits.innerHTML="";if(!s||!D)return;
-  const m=Object.entries(D.players).filter(([no,p])=>no.startsWith(s)||p.name.includes(s)).slice(0,8);
-  hits.innerHTML=m.map(([no,p])=>`<button data-no="${no}">${p.name} ${no}</button>`).join("")||`<span class="lead">見つかりません</span>`;});
+  const m=Object.entries(IDX).filter(([no,nm])=>no.startsWith(s)||nm.includes(s)).slice(0,8);
+  hits.innerHTML=m.map(([no,nm])=>`<button data-no="${no}">${nm} ${no}</button>`).join("")||`<span class="lead">見つかりません</span>`;});
   hits.addEventListener("click",e=>{const b=e.target.closest("button");if(b){pick(b.dataset.no);hits.innerHTML="";inp.value="";}});}
 hook(document.getElementById("q"),document.getElementById("hits"),no=>{cur=no;render();renderVs();});
 hook(document.getElementById("q2"),document.getElementById("hits2"),no=>{cmp=no;renderVs();});
@@ -489,7 +490,8 @@ const CH=["","得意技","持ち味",""];
 const WN={nige:["鉄壁イン","鉄壁イン","先マイ一閃"],makuri:["豪腕まくり","旋風まくり","外殻破り"],maezuke:["内角強奪","枠なり破り","深攻め"],tiltDash:["チルトダッシュ","天翔るダッシュ","天翔るダッシュ"],sashi:["針の穴","針の穴","影差し"],c4:["四ノ陣","四ノ陣","四ノ太刀"],nuki:["逆転の舟足","逆転の舟足","道中の逆襲"],outKeep:["大外の意地","大外の意地","夜叉の走り"],p23:["食らいつき","食らいつき","二の矢"],geko:["下剋上","下剋上","下剋上"],fut:["不退転","不退転","不退転"],zst:["ゼロ台の牙","ゼロ台の牙","ゼロ台の牙"],kanso:["完全走破","完全走破","完全走破"]};
 function NM(k,v){if(isF(k))return v[5];if(k==="nige"&&(v[4]||3)===2)return v[3]<=10?"鉄壁イン":"イン城塞";const z=WN[k];return z?z[(v[4]||3)-1]:(D.tags.find(t=>t[0]===k)||[,k])[1];}
 
-let AY={};
+let AY={},IDX={};const LOADED={};
+async function loadP(no){if(!no)return;const k=Number(no)%64;if(!LOADED[k])LOADED[k]=fetch(`senshuCard/card/p/${k}.json`).then(r=>r.json()).then(o=>{for(const [t,v] of Object.entries(o)){D.players[t]=v;AY[t]=v.ay||{};}}).catch(()=>{delete LOADED[k];});await LOADED[k];}
 const isF=k=>k.startsWith("f_");
 const WL={y1:"直近1年",h1:"直近半年",all:"2025年7月以降"};
 const ymdJ=d=>{const x=String(d).replace(/-/g,"");return `${+x.slice(0,4)}年${+x.slice(4,6)}月${+x.slice(6,8)}日`;};
@@ -563,7 +565,7 @@ function drawStory(no,kuro){
 }
 
 let STORY=null;
-window.drawShImgs=()=>{if(!D||!K||!cur)return;const no=cur,kuro=PAL==="kuro",key=no+(kuro?"K":"");if(STORY&&STORY.key===key)return;
+window.drawShImgs=()=>{if(!D||!K||!cur||!D.players[cur])return;const no=cur,kuro=PAL==="kuro",key=no+(kuro?"K":"");if(STORY&&STORY.key===key)return;
   const cv=drawStory(no,kuro);STORY={key,no,blob:null,url:null};const st=STORY;
   cv.toBlob(b=>{if(STORY!==st)return;st.blob=b;st.url=URL.createObjectURL(b);
     document.getElementById("shImgs").innerHTML=`<img id="storyImg" alt="${D.players[no].name}の保存用画像" style="width:100%;max-width:420px;margin:0 auto;border:1px solid var(--line)" src="${st.url}">`;},"image/png");};
@@ -585,7 +587,7 @@ function setPal(p){PAL=p;document.querySelectorAll(".palSel button").forEach(x=>
 document.querySelectorAll(".palSel button").forEach(b=>b.addEventListener("click",()=>setPal(b.dataset.pal)));
 try{const s=localStorage.getItem("senshuCardPal");if(s!==null)setPal(s)}catch(_){}
 document.querySelectorAll("[data-w]").forEach(b=>b.addEventListener("click",()=>{W=b.dataset.w;document.querySelectorAll("[data-w]").forEach(x=>x.setAttribute("aria-pressed",x===b));render();renderVs();}));
-Promise.all([fetch("senshuCard/card2D.json").then(r=>r.json()),fetch("senshuCard/ayumi.json").then(r=>r.json()),fetch("senshuCard/kgOutlineC.json").then(r=>r.json()).catch(()=>null)]).then(([j,a,k])=>{D=j;AY=a;K=k;D.tags=(D.tags||[]).map(t=>DS[t[0]]?[t[0],t[1],DS[t[0]],t[3]]:t);if(!D.players[cur])cur="4238";if(cmp===cur)cmp=cur==="4320"?"4238":"4320";render();renderVs();}).catch(()=>{document.getElementById("card").innerHTML='<div class="body">データを読み込めませんでした。再読み込みしてください。</div>';});
+Promise.all([fetch("senshuCard/card/common.json").then(r=>r.json()),fetch("senshuCard/card/index.json").then(r=>r.json()),fetch("senshuCard/kgOutlineC.json").then(r=>r.json()).catch(()=>null)]).then(async([j,ix,k])=>{D=j;D.players={};IDX=ix;K=k;if(!IDX[cur])cur="4238";await loadP(cur);D.tags=(D.tags||[]).map(t=>DS[t[0]]?[t[0],t[1],DS[t[0]],t[3]]:t);if(cmp===cur)cmp=cur==="4320"?"4238":"4320";render();renderVs();}).catch(()=>{document.getElementById("card").innerHTML='<div class="body">データを読み込めませんでした。再読み込みしてください。</div>';});
 </script>
 
 <footer style="margin:24px auto 8px;max-width:560px;padding:0 16px;text-align:center;font-size:10px;color:#8a94a3;line-height:1.7;">見出しの書体：キルゴU（作者 名残雪 様）をアウトライン化して加工（Cパターン）<br>© 2026 データ攻め ── 制作・運営 あべけん</footer>
