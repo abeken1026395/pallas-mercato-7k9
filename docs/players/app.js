@@ -524,7 +524,7 @@ function BranchPanel({
       style: {
         fontSize: 11,
         fontWeight: 700,
-        color: up ? "#ffd166" : "#6b7f95",
+        color: up ? "#ffd166" : "#96a8bb",
         marginLeft: 4,
         fontVariantNumeric: "tabular-nums"
       }
@@ -537,7 +537,7 @@ function BranchPanel({
   if (!hasDetail) return /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 12,
-      color: "#6b7f95",
+      color: "#96a8bb",
       padding: "18px 2px",
       lineHeight: 1.7
     }
@@ -545,7 +545,7 @@ function BranchPanel({
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 11,
-      color: "#6b7f95",
+      color: "#96a8bb",
       margin: "2px 2px 10px",
       lineHeight: 1.5
     }
@@ -630,7 +630,7 @@ function BranchPanel({
   }, r.b), /*#__PURE__*/React.createElement("span", {
     style: {
       fontSize: 11,
-      color: "#6b7f95",
+      color: "#96a8bb",
       marginLeft: "auto",
       fontVariantNumeric: "tabular-nums"
     }
@@ -644,7 +644,7 @@ function BranchPanel({
     }
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
     style: {
-      color: "#6b7f95",
+      color: "#96a8bb",
       fontSize: 11
     }
   }, "\u52DD\u7387 "), /*#__PURE__*/React.createElement("b", {
@@ -654,7 +654,7 @@ function BranchPanel({
     }
   }, r.win.toFixed(2)), diff(r.win, all.win)), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
     style: {
-      color: "#6b7f95",
+      color: "#96a8bb",
       fontSize: 11
     }
   }, "\u30A2\u30A6\u30C8\u6226 "), /*#__PURE__*/React.createElement("b", {
@@ -664,7 +664,7 @@ function BranchPanel({
     }
   }, r.out.toFixed(1)), diff(r.out, all.out)), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
     style: {
-      color: "#6b7f95",
+      color: "#96a8bb",
       fontSize: 11
     }
   }, "\u5E73\u5747ST "), /*#__PURE__*/React.createElement("b", {
@@ -718,32 +718,32 @@ function BranchPanel({
     }
   })), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: 9,
-      color: "#6b7f95",
+      fontSize: 11,
+      color: "#96a8bb",
       marginTop: 2
     }
   }, i + 1), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: 9,
-      color: "#6b7f95",
+      fontSize: 11,
+      color: "#96a8bb",
       fontVariantNumeric: "tabular-nums"
     }
   }, v.n ? v.n.toLocaleString() : "—", "\u8D70")))), !hasKim ? /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 11,
-      color: "#6b7f95"
+      color: "#96a8bb"
     }
   }, "\u6C7A\u307E\u308A\u624B\u30C7\u30FC\u30BF\u8AAD\u307F\u8FBC\u307F\u4E2D\u2026") : r.kt === 0 ? /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 11,
-      color: "#6b7f95"
+      color: "#96a8bb"
     }
   }, "\u6C7A\u307E\u308A\u624B\u30C7\u30FC\u30BF\u306A\u3057") : /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       justifyContent: "space-between",
       fontSize: 11,
-      color: "#6b7f95",
+      color: "#96a8bb",
       marginBottom: 4
     }
   }, /*#__PURE__*/React.createElement("span", null, "\u6C7A\u307E\u308A\u624B\uFF081\u7740 ", r.kt, "\u672C\uFF09"), /*#__PURE__*/React.createElement("span", null, "\u307E\u304F\u308A\u7387 ", /*#__PURE__*/React.createElement("b", {
@@ -1099,7 +1099,7 @@ function App() {
     const th = {
       padding: "4px 0",
       borderBottom: "1px solid #1a2535",
-      color: "#6b7f95",
+      color: "#96a8bb",
       fontSize: 10,
       fontWeight: 400,
       textAlign: "right"
@@ -1128,7 +1128,7 @@ function App() {
       }
     }, /*#__PURE__*/React.createElement("span", null, "\u67A0\u5225\u5E73\u5747ST"), /*#__PURE__*/React.createElement("span", {
       style: {
-        color: "#6b7f95",
+        color: "#96a8bb",
         fontSize: 12
       }
     }, "\u25B8")), /*#__PURE__*/React.createElement("div", {
@@ -1213,16 +1213,16 @@ function App() {
         style: {
           padding: "0 0 5px",
           borderBottom: "1px solid #1a2535",
-          color: "#6b7f95",
-          fontSize: 10,
+          color: "#96a8bb",
+          fontSize: 11,
           fontVariantNumeric: "tabular-nums",
           whiteSpace: "nowrap"
         }
       }, "枠" + w + " 全体 " + (all === null ? "—" : all))));
     }))), /*#__PURE__*/React.createElement("div", {
       style: {
-        fontSize: 10,
-        color: "#6b7f95",
+        fontSize: 11,
+        color: "#96a8bb",
         marginTop: 8,
         lineHeight: 1.6
       }
@@ -1382,7 +1382,7 @@ function App() {
     }, "\u9078\u624B\u56F3\u9451"), /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: 12,
-        color: "#6b7f95"
+        color: "#96a8bb"
       }
     }, "2026\u5F8C\u671F\u3000\u6210\u7E3E\uFF1D\u671F\u9996\u6642\u70B9\uFF08fan2604\uFF09")), /*#__PURE__*/React.createElement("div", {
       style: {
@@ -1394,7 +1394,7 @@ function App() {
     }, coreErr ? "選手データを読み込めませんでした。ページを再読込してください。" : "読み込み中…", oshi.length > 0 && /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 11,
-        color: "#6b7f95",
+        color: "#96a8bb",
         marginTop: 6
       }
     }, "\u2B50\u30D5\u30A9\u30ED\u30FC", oshi.length, "\u540D\u306F\u3053\u306E\u7AEF\u672B\u306B\u4FDD\u5B58\u3055\u308C\u3066\u3044\u307E\u3059\uFF08\u6D88\u3048\u3066\u3044\u307E\u305B\u3093\uFF09\u3002")));
@@ -1420,7 +1420,7 @@ function App() {
   }, "\u9078\u624B\u56F3\u9451"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 12,
-      color: "#6b7f95",
+      color: "#96a8bb",
       marginTop: 4,
       lineHeight: 1.5
     }
@@ -1552,7 +1552,7 @@ function App() {
     style: {
       marginLeft: "auto",
       fontSize: 12,
-      color: "#6b7f95"
+      color: "#96a8bb"
     }
   }, (tab === "makuri" || tab === "sashi") && /*#__PURE__*/React.createElement("span", {
     style: {
@@ -1561,7 +1561,7 @@ function App() {
   }, "1\u774010\u672C\u4EE5\u4E0A\u30FB", tab === "makuri" ? "まくり" : "差し", "\u7387\u9806\u3000"), tab === "branch" ? "18支部" : filtered.length + "名")), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 11,
-      color: "#6b7f95",
+      color: "#96a8bb",
       lineHeight: 1.7,
       marginBottom: 12,
       padding: "9px 11px",
@@ -1592,7 +1592,7 @@ function App() {
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 11,
-      color: "#6b7f95",
+      color: "#96a8bb",
       marginBottom: 8
     }
   }, "\u30E1\u30E2\u306F\u9078\u624B\u306E\u8A73\u7D30\u3092\u958B\u3044\u3066\u66F8\u3051\u307E\u3059\u3002\u3053\u306E\u7AEF\u672B\u306E\u3053\u306E\u30D6\u30E9\u30A6\u30B6\u306B\u3060\u3051\u4FDD\u5B58\u3055\u308C\u3001\u5916\u90E8\u306B\u306F\u9001\u4FE1\u3055\u308C\u307E\u305B\u3093\u3002\u30D6\u30E9\u30A6\u30B6\u306E\u30C7\u30FC\u30BF\u3092\u6D88\u3059\u3068\u6D88\u3048\u307E\u3059\u3002\u6A5F\u7A2E\u5909\u66F4\u306E\u3068\u304D\u306F\u3001\u66F8\u304D\u51FA\u3057\u305F\u6587\u5B57\u5217\u3092\u65B0\u3057\u3044\u7AEF\u672B\u3067\u8AAD\u307F\u8FBC\u3093\u3067\u304F\u3060\u3055\u3044\u3002"), /*#__PURE__*/React.createElement("div", {
@@ -1822,7 +1822,7 @@ function App() {
     }, p.name), /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: 13,
-        color: "#6b7f95",
+        color: "#96a8bb",
         whiteSpace: "nowrap",
         flexShrink: 0
       }
@@ -1866,11 +1866,11 @@ function App() {
       }
     }, "%")), /*#__PURE__*/React.createElement("div", {
       style: {
-        fontSize: 10,
-        color: "#6b7f95",
+        fontSize: 11,
+        color: "#96a8bb",
         marginTop: 3
       }
-    }, lb))) : [["勝率", p.win.toFixed(2), "#ffd166"], ["複勝率", p.fukusho.toFixed(2), "#3fb1c9"]].map(([lb, v, col], i) => /*#__PURE__*/React.createElement("div", {
+    }, lb))) : [["勝率", p.win.toFixed(2), "#ffd166"], ["2連率%", (p.fukusho * 10).toFixed(1), "#3fb1c9"]].map(([lb, v, col], i) => /*#__PURE__*/React.createElement("div", {
       key: i,
       style: {
         textAlign: "center"
@@ -1885,8 +1885,8 @@ function App() {
       }
     }, v), /*#__PURE__*/React.createElement("div", {
       style: {
-        fontSize: 10,
-        color: "#6b7f95",
+        fontSize: 11,
+        color: "#96a8bb",
         marginTop: 3
       }
     }, lb))))), isOpen && /*#__PURE__*/React.createElement("div", {
@@ -1903,7 +1903,7 @@ function App() {
     }, /*#__PURE__*/React.createElement("summary", {
       style: {
         fontSize: 11,
-        color: "#6b7f95",
+        color: "#96a8bb",
         cursor: "pointer",
         padding: "4px 0",
         userSelect: "none"
@@ -1912,8 +1912,8 @@ function App() {
       htmlFor: "memo-" + p.no,
       style: {
         display: "block",
-        fontSize: 10,
-        color: "#6b7f95",
+        fontSize: 11,
+        color: "#96a8bb",
         margin: "4px 0"
       }
     }, "\u3053\u306E\u7AEF\u672B\u306B\u3060\u3051\u4FDD\u5B58\u30FB", MEMO_MAX, "\u5B57\u307E\u3067"), /*#__PURE__*/React.createElement("textarea", {
@@ -1938,7 +1938,7 @@ function App() {
     })), !detail ? /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 11,
-        color: "#6b7f95",
+        color: "#96a8bb",
         margin: "12px 0",
         lineHeight: 1.7
       }
@@ -1968,8 +1968,8 @@ function App() {
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
-        fontSize: 10,
-        color: "#6b7f95"
+        fontSize: 11,
+        color: "#96a8bb"
       }
     }, l), /*#__PURE__*/React.createElement("span", {
       style: {
@@ -1993,8 +1993,8 @@ function App() {
         }
       }, x.rank, "\u4F4D"), "\u3000\xA5", x.prize.toLocaleString("ja-JP"), /*#__PURE__*/React.createElement("span", {
         style: {
-          fontSize: 10,
-          color: "#6b7f95",
+          fontSize: 11,
+          color: "#96a8bb",
           marginLeft: 6
         }
       }, md(prize.period.from), "\u301C", md(prize.period.to), "\u96C6\u8A08\u30FB", /*#__PURE__*/React.createElement("a", {
@@ -2003,7 +2003,7 @@ function App() {
         rel: "noopener",
         onClick: e => e.stopPropagation(),
         style: {
-          color: "#6b7f95"
+          color: "#96a8bb"
         }
       }, "\u516C\u5F0F\u30D9\u30B9\u30C850")));
     })(), pf && pf.hobby && /*#__PURE__*/React.createElement("div", {
@@ -2038,8 +2038,8 @@ function App() {
         }
       }, /*#__PURE__*/React.createElement("span", {
         style: {
-          fontSize: 10,
-          color: "#6b7f95",
+          fontSize: 11,
+          color: "#96a8bb",
           fontWeight: 700
         }
       }, "\u95A2\u4FC2"), rels.map((r, i) => /*#__PURE__*/React.createElement("span", {
@@ -2085,7 +2085,7 @@ function App() {
         }
       }, lbl, "\u306E\u9078\u624B\u3000", /*#__PURE__*/React.createElement("span", {
         style: {
-          color: "#6b7f95",
+          color: "#96a8bb",
           fontWeight: 400
         }
       }, sub, "\u30FB\u73FE\u5F79", others.length, "\u540D")), /*#__PURE__*/React.createElement("div", {
@@ -2113,10 +2113,10 @@ function App() {
         }
       }, /*#__PURE__*/React.createElement("span", {
         style: {
-          color: RANK_TX[x.rank] || "#6b7f95",
+          color: RANK_TX[x.rank] || "#96a8bb",
           fontWeight: 700,
           marginRight: 4,
-          fontSize: 10
+          fontSize: 11
         }
       }, x.rank), x.name))));
     }), pf && (pf.hobby || pf.food || pf.note) && /*#__PURE__*/React.createElement("div", {
@@ -2140,13 +2140,13 @@ function App() {
         }
       }, "\u25A0 \u51FA\u5834\u4E88\u5B9A\u3000", /*#__PURE__*/React.createElement("span", {
         style: {
-          color: "#6b7f95",
+          color: "#96a8bb",
           fontWeight: 400
         }
       }, "\u516C\u5F0F\u30B5\u30A4\u30C8 \u9078\u624B\u30DA\u30FC\u30B8", scMeta && scMeta.取得 ? "／" + scMeta.取得 + "時点" : "")), sched === null ? /*#__PURE__*/React.createElement("div", {
         style: {
           fontSize: 11,
-          color: "#6b7f95",
+          color: "#96a8bb",
           background: "#0b1219",
           borderRadius: 8,
           padding: "12px"
@@ -2154,7 +2154,7 @@ function App() {
       }, "\u8AAD\u307F\u8FBC\u307F\u4E2D\u2026") : !es ? /*#__PURE__*/React.createElement("div", {
         style: {
           fontSize: 11,
-          color: "#6b7f95",
+          color: "#96a8bb",
           background: "#0b1219",
           borderRadius: 8,
           padding: "12px"
@@ -2162,7 +2162,7 @@ function App() {
       }, "\u3053\u306E\u9078\u624B\u306E\u51FA\u5834\u4E88\u5B9A\u306F\u53D6\u5F97\u3067\u304D\u3066\u3044\u306A\u3044\u3002") : es.length === 0 ? /*#__PURE__*/React.createElement("div", {
         style: {
           fontSize: 11,
-          color: "#6b7f95",
+          color: "#96a8bb",
           background: "#0b1219",
           borderRadius: 8,
           padding: "12px"
@@ -2214,14 +2214,14 @@ function App() {
       }, e.n), /*#__PURE__*/React.createElement("span", {
         style: {
           display: "block",
-          fontSize: 10,
-          color: "#6b7f95",
+          fontSize: 11,
+          color: "#96a8bb",
           marginTop: 1
         }
       }, e.g || "一般", e.h ? "・" + e.h : "", e.s && e.s.length ? "・" + e.s.join("・") : "")))), /*#__PURE__*/React.createElement("div", {
         style: {
-          fontSize: 10,
-          color: "#6b7f95",
+          fontSize: 11,
+          color: "#96a8bb",
           marginTop: 6,
           lineHeight: 1.5
         }
@@ -2230,7 +2230,7 @@ function App() {
       if (rankHist === null) return /*#__PURE__*/React.createElement("div", {
         style: {
           fontSize: 11,
-          color: "#6b7f95",
+          color: "#96a8bb",
           margin: "12px 0",
           lineHeight: 1.7
         }
@@ -2250,7 +2250,7 @@ function App() {
       }, "\u25A0 \u7D1A\u5225\u306E\u63A8\u79FB"), /*#__PURE__*/React.createElement("div", {
         style: {
           fontSize: 11,
-          color: "#6b7f95",
+          color: "#96a8bb",
           background: "#0b1219",
           borderRadius: 8,
           padding: "10px 12px",
@@ -2274,7 +2274,7 @@ function App() {
         }
       }, "\u25A0 \u7D1A\u5225\u306E\u63A8\u79FB\u3000", /*#__PURE__*/React.createElement("span", {
         style: {
-          color: "#6b7f95",
+          color: "#96a8bb",
           fontWeight: 400
         }
       }, "\u521D\u51FA\u8D70\u304B\u3089\u4ECA\u65E5\u307E\u3067\uFF0F\u516C\u5F0F \u756A\u7D44\u8868")), /*#__PURE__*/React.createElement("div", {
@@ -2286,7 +2286,7 @@ function App() {
       }, /*#__PURE__*/React.createElement("div", {
         style: {
           fontSize: 11,
-          color: "#6b7f95",
+          color: "#96a8bb",
           marginBottom: 8,
           lineHeight: 1.7
         }
@@ -2322,8 +2322,8 @@ function App() {
         style: {
           display: "flex",
           justifyContent: "space-between",
-          fontSize: 10,
-          color: "#6b7f95",
+          fontSize: 11,
+          color: "#96a8bb",
           fontVariantNumeric: "tabular-nums",
           margin: "4px 0 10px"
         }
@@ -2353,7 +2353,7 @@ function App() {
       }), g, " ", rhSpan(b.tot[g])) : null)), /*#__PURE__*/React.createElement("div", {
         style: {
           fontSize: 11,
-          color: "#6b7f95",
+          color: "#96a8bb",
           marginTop: 6,
           lineHeight: 1.7
         }
@@ -2380,7 +2380,7 @@ function App() {
         }
       }, /*#__PURE__*/React.createElement("span", null, "\u521D\u51FA\u8D70\u3068\u3001\u7D1A\u5225\u304C\u5909\u308F\u3063\u305F\u65E5\u3092\u898B\u308B\uFF08", ch.length, "\u4EF6\uFF09"), /*#__PURE__*/React.createElement("span", {
         style: {
-          color: "#6b7f95",
+          color: "#96a8bb",
           fontSize: 12
         }
       }, "\u25B8")), /*#__PURE__*/React.createElement("table", {
@@ -2413,14 +2413,14 @@ function App() {
         style: {
           padding: "5px 0",
           borderBottom: "1px solid #1a2535",
-          color: "#6b7f95",
+          color: "#96a8bb",
           fontSize: 11
         }
       }, i === 0 ? "初出走" : ""), /*#__PURE__*/React.createElement("td", {
         style: {
           padding: "5px 0",
           borderBottom: "1px solid #1a2535",
-          color: "#6b7f95",
+          color: "#96a8bb",
           fontSize: 11,
           textAlign: "right",
           fontVariantNumeric: "tabular-nums",
@@ -2428,8 +2428,8 @@ function App() {
         }
       }, rhSpan(s.ms)))))), /*#__PURE__*/React.createElement("div", {
         style: {
-          fontSize: 10,
-          color: "#6b7f95",
+          fontSize: 11,
+          color: "#96a8bb",
           marginTop: 8,
           lineHeight: 1.6
         }
@@ -2438,7 +2438,7 @@ function App() {
       if (slate === null) return /*#__PURE__*/React.createElement("div", {
         style: {
           fontSize: 11,
-          color: "#6b7f95",
+          color: "#96a8bb",
           margin: "12px 0",
           lineHeight: 1.7
         }
@@ -2459,7 +2459,7 @@ function App() {
       }, "\u25A0 \u30B9\u30BF\u30FC\u30C8"), /*#__PURE__*/React.createElement("div", {
         style: {
           fontSize: 11,
-          color: "#6b7f95",
+          color: "#96a8bb",
           background: "#0b1219",
           borderRadius: 8,
           padding: "10px 12px",
@@ -2530,7 +2530,7 @@ function App() {
         }
       }, "\u25A0 \u30B9\u30BF\u30FC\u30C8\u3000", /*#__PURE__*/React.createElement("span", {
         style: {
-          color: "#6b7f95",
+          color: "#96a8bb",
           fontWeight: 400
         }
       }, "ST0.20\u3088\u308A\u9045\u3044\u8D70\u306E\u5272\u5408", slMeta && slMeta.日数 ? "／過去" + slMeta.日数 + "日" : "")), /*#__PURE__*/React.createElement("div", {
@@ -2562,7 +2562,7 @@ function App() {
       }, sl.n, "\u8D70\u4E2D", sl.late, "\u56DE")), allPct !== null && /*#__PURE__*/React.createElement("div", {
         style: {
           fontSize: 11,
-          color: "#6b7f95",
+          color: "#96a8bb",
           marginTop: 6,
           lineHeight: 1.7,
           fontVariantNumeric: "tabular-nums"
@@ -2590,7 +2590,7 @@ function App() {
         }
       }, /*#__PURE__*/React.createElement("span", null, "\u30B3\u30FC\u30B9\u5225\u306B\u898B\u308B\uFF08", rows.length, "\u4EF6\uFF09"), /*#__PURE__*/React.createElement("span", {
         style: {
-          color: "#6b7f95",
+          color: "#96a8bb",
           fontSize: 12
         }
       }, "\u25B8")), /*#__PURE__*/React.createElement("table", {
@@ -2604,8 +2604,8 @@ function App() {
         style: {
           padding: "4px 0",
           borderBottom: "1px solid #1a2535",
-          color: "#6b7f95",
-          fontSize: 10,
+          color: "#96a8bb",
+          fontSize: 11,
           fontWeight: 400,
           textAlign: "left",
           width: "5.2em"
@@ -2614,8 +2614,8 @@ function App() {
         style: {
           padding: "4px 0",
           borderBottom: "1px solid #1a2535",
-          color: "#6b7f95",
-          fontSize: 10,
+          color: "#96a8bb",
+          fontSize: 11,
           fontWeight: 400,
           textAlign: "left"
         }
@@ -2623,8 +2623,8 @@ function App() {
         style: {
           padding: "4px 0",
           borderBottom: "1px solid #1a2535",
-          color: "#6b7f95",
-          fontSize: 10,
+          color: "#96a8bb",
+          fontSize: 11,
           fontWeight: 400,
           textAlign: "right"
         }
@@ -2654,16 +2654,16 @@ function App() {
         }
       }, r.my === null ? "—" : r.my + "%"), /*#__PURE__*/React.createElement("div", {
         style: {
-          color: "#6b7f95",
-          fontSize: 10,
+          color: "#96a8bb",
+          fontSize: 11,
           fontVariantNumeric: "tabular-nums",
           whiteSpace: "nowrap",
           marginTop: 1
         }
       }, r.my === null ? r.n + "走" : r.n + "走中" + r.late + "回"), r.all !== null && /*#__PURE__*/React.createElement("div", {
         style: {
-          color: "#6b7f95",
-          fontSize: 10,
+          color: "#96a8bb",
+          fontSize: 11,
           fontVariantNumeric: "tabular-nums",
           whiteSpace: "nowrap"
         }
@@ -2689,16 +2689,16 @@ function App() {
         }
       }, sayIt(r.srk, r.sall))), /*#__PURE__*/React.createElement("div", {
         style: {
-          color: "#6b7f95",
-          fontSize: 10,
+          color: "#96a8bb",
+          fontSize: 11,
           fontVariantNumeric: "tabular-nums",
           whiteSpace: "nowrap",
           marginTop: 1
         }
       }, r.sn === null ? "\u00a0" : r.sn + "走"), /*#__PURE__*/React.createElement("div", {
         style: {
-          color: "#6b7f95",
-          fontSize: 10,
+          color: "#96a8bb",
+          fontSize: 11,
           fontVariantNumeric: "tabular-nums",
           whiteSpace: "nowrap"
         }
@@ -2713,15 +2713,15 @@ function App() {
         }
       }, m6w && m6w.n >= guard ? "直近6ヶ月は平均 " + m6w.rank + " 番手（" + m6w.n + "走）" : "\u00a0"), /*#__PURE__*/React.createElement("div", {
         style: {
-          fontSize: 10,
-          color: "#6b7f95",
+          fontSize: 11,
+          color: "#96a8bb",
           marginTop: 8,
           lineHeight: 1.6
         }
       }, "\u3053\u3053\u3067\u306E\u300C\u9045\u308C\u300D\u306F\u516C\u5F0F\u306E\u51FA\u9045\u308C\uFF08\uFF2C\uFF09\u3067\u306F\u306A\u304F\u3001\u672C\u756A\u306E\u30B9\u30BF\u30FC\u30C8\u30BF\u30A4\u30DF\u30F3\u30B0\u304C 0.20\u3088\u308A\u9045\u304B\u3063\u305F\u8D70\u306E\u3053\u3068\u3002\u30B9\u30BF\u30FC\u30C8\u5C55\u793A\u3067\u306F\u306A\u304F\u672C\u756A\u306E\u5024\u3092\u6570\u3048\u3066\u3044\u308B\u3002", slMeta && slMeta.ガード ? "　" + slMeta.ガード + "走に満たないコースは割合を出さず走数だけを載せる。" : "", slMeta && slMeta.期間 ? "　対象期間 " + slMeta.期間 + "。" : "", slMeta && slMeta.出典 ? "　出典 " + slMeta.出典 : ""), /*#__PURE__*/React.createElement("div", {
         style: {
-          fontSize: 10,
-          color: "#6b7f95",
+          fontSize: 11,
+          color: "#96a8bb",
           marginTop: 6,
           lineHeight: 1.6
         }
@@ -2735,7 +2735,7 @@ function App() {
       }
     }, "\u25A0 \u6210\u7E3E\u3000", /*#__PURE__*/React.createElement("span", {
       style: {
-        color: "#6b7f95",
+        color: "#96a8bb",
         fontWeight: 400
       }
     }, "\u671F\u9996\u6642\u70B9\u306E\u5024\uFF08fan2604\uFF09")), /*#__PURE__*/React.createElement("div", {
@@ -2757,8 +2757,8 @@ function App() {
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
-        fontSize: 10,
-        color: "#6b7f95"
+        fontSize: 11,
+        color: "#96a8bb"
       }
     }, l), /*#__PURE__*/React.createElement("span", {
       style: {
@@ -2771,7 +2771,7 @@ function App() {
       if (cstat === null) return /*#__PURE__*/React.createElement("div", {
         style: {
           fontSize: 11,
-          color: "#6b7f95",
+          color: "#96a8bb",
           margin: "12px 0",
           lineHeight: 1.7
         }
@@ -2820,16 +2820,16 @@ function App() {
         }
       }, mine === null ? "—" : mine + "%"), /*#__PURE__*/React.createElement("div", {
         style: {
-          color: "#6b7f95",
-          fontSize: 10,
+          color: "#96a8bb",
+          fontSize: 11,
           fontVariantNumeric: "tabular-nums",
           whiteSpace: "nowrap",
           marginTop: 1
         }
       }, n, "\u8D70\u4E2D", hit, "\u56DE"), /*#__PURE__*/React.createElement("div", {
         style: {
-          color: "#6b7f95",
-          fontSize: 10,
+          color: "#96a8bb",
+          fontSize: 11,
           fontVariantNumeric: "tabular-nums",
           whiteSpace: "nowrap"
         }
@@ -2847,7 +2847,7 @@ function App() {
         }
       }, "\u25A0 \u30B3\u30FC\u30B9\u5225\u306E1\u7740\u7387\u3000", /*#__PURE__*/React.createElement("span", {
         style: {
-          color: "#6b7f95",
+          color: "#96a8bb",
           fontWeight: 400
         }
       }, "\u9032\u5165\u30B3\u30FC\u30B9\u5225", csMeta && csMeta.期間 && csMeta.期間.日数 ? "／過去" + csMeta.期間.日数 + "日" : "")), /*#__PURE__*/React.createElement("div", {
@@ -2899,19 +2899,19 @@ function App() {
         }
       }, r.r1 !== null ? r.r1 + "%" : "—"), /*#__PURE__*/React.createElement("div", {
         style: {
-          fontSize: 10,
-          color: "#6b7f95",
+          fontSize: 11,
+          color: "#96a8bb",
           fontVariantNumeric: "tabular-nums"
         }
       }, r.n, "\u8D70"), /*#__PURE__*/React.createElement("div", {
         style: {
-          fontSize: 10,
-          color: "#6b7f95"
+          fontSize: 11,
+          color: "#96a8bb"
         }
       }, r.c, "\u30B3\u30FC\u30B9")))), /*#__PURE__*/React.createElement("div", {
         style: {
-          fontSize: 10,
-          color: "#6b7f95",
+          fontSize: 11,
+          color: "#96a8bb",
           marginTop: 6,
           lineHeight: 1.5
         }
@@ -2938,7 +2938,7 @@ function App() {
         }
       }, /*#__PURE__*/React.createElement("span", null, "2\u7740\u30FB3\u7740\u307E\u3067\u898B\u308B\uFF08", rows.length, "\u4EF6\uFF09"), /*#__PURE__*/React.createElement("span", {
         style: {
-          color: "#6b7f95",
+          color: "#96a8bb",
           fontSize: 12
         }
       }, "\u25B8")), /*#__PURE__*/React.createElement("table", {
@@ -2952,8 +2952,8 @@ function App() {
         style: {
           padding: "4px 0",
           borderBottom: "1px solid #1a2535",
-          color: "#6b7f95",
-          fontSize: 10,
+          color: "#96a8bb",
+          fontSize: 11,
           fontWeight: 400,
           textAlign: "left",
           width: "5.2em"
@@ -2962,8 +2962,8 @@ function App() {
         style: {
           padding: "4px 0",
           borderBottom: "1px solid #1a2535",
-          color: "#6b7f95",
-          fontSize: 10,
+          color: "#96a8bb",
+          fontSize: 11,
           fontWeight: 400,
           textAlign: "right"
         }
@@ -2971,8 +2971,8 @@ function App() {
         style: {
           padding: "4px 0",
           borderBottom: "1px solid #1a2535",
-          color: "#6b7f95",
-          fontSize: 10,
+          color: "#96a8bb",
+          fontSize: 11,
           fontWeight: 400,
           textAlign: "right"
         }
@@ -2980,8 +2980,8 @@ function App() {
         style: {
           padding: "4px 0",
           borderBottom: "1px solid #1a2535",
-          color: "#6b7f95",
-          fontSize: 10,
+          color: "#96a8bb",
+          fontSize: 11,
           fontWeight: 400,
           textAlign: "right"
         }
@@ -2998,8 +2998,8 @@ function App() {
         }
       }, r.c, "\u30B3\u30FC\u30B9"), cell(r.r1, r.a1, r.w1, r.n), cell(r.r2, r.a2, r.w2, r.n), cell(r.r3, r.a3, r.w3, r.n))))), /*#__PURE__*/React.createElement("div", {
         style: {
-          fontSize: 10,
-          color: "#6b7f95",
+          fontSize: 11,
+          color: "#96a8bb",
           marginTop: 6,
           lineHeight: 1.6
         }
@@ -3013,7 +3013,7 @@ function App() {
       }
     }, "\u25A0 \u6C7A\u307E\u308A\u624B\u30FB\u524D\u3065\u3051\u3000", /*#__PURE__*/React.createElement("span", {
       style: {
-        color: "#6b7f95",
+        color: "#96a8bb",
         fontWeight: 400
       }
     }, "\u76F4\u8FD16\u30F6\u6708 / \u516C\u5F0F\u7AF6\u8D70\u6210\u7E3E")), /*#__PURE__*/React.createElement("div", {
@@ -3034,8 +3034,8 @@ function App() {
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
-        fontSize: 10,
-        color: "#6b7f95"
+        fontSize: 11,
+        color: "#96a8bb"
       }
     }, l), /*#__PURE__*/React.createElement("span", {
       style: {
@@ -3046,15 +3046,15 @@ function App() {
       }
     }, v)))), /*#__PURE__*/React.createElement("div", {
       style: {
-        fontSize: 10,
-        color: "#6b7f95",
+        fontSize: 11,
+        color: "#96a8bb",
         marginTop: 6,
         lineHeight: 1.6
       }
     }, "1\u7740\u306E\u6C7A\u307E\u308A\u624B\u5185\u8A33\uFF1A\u9003\u3052", k.nige, "\u30FB\u5DEE\u3057", k.sashi, "\u30FB\u307E\u304F\u308A", k.makuri, "\u30FB\u307E\u304F\u308A\u5DEE\u3057", k.makurizashi, "\u30FB\u629C\u304D", k.nuki, "\u30FB\u6075\u307E\u308C", k.megumare), /*#__PURE__*/React.createElement("div", {
       style: {
-        fontSize: 10,
-        color: "#6b7f95",
+        fontSize: 11,
+        color: "#96a8bb",
         marginTop: 4,
         lineHeight: 1.6
       }
@@ -3071,13 +3071,13 @@ function App() {
         }
       }, "\u25A0 \u6708\u5225\u6210\u7E3E\u3000", /*#__PURE__*/React.createElement("span", {
         style: {
-          color: "#6b7f95",
+          color: "#96a8bb",
           fontWeight: 400
         }
       }, "\u76F4\u8FD113\u30F6\u6708 / \u516C\u5F0F\u7AF6\u8D70\u6210\u7E3E")), mon === null ? /*#__PURE__*/React.createElement("div", {
         style: {
           fontSize: 11,
-          color: "#6b7f95",
+          color: "#96a8bb",
           background: "#0b1219",
           borderRadius: 8,
           padding: "12px"
@@ -3085,7 +3085,7 @@ function App() {
       }, "\u8AAD\u307F\u8FBC\u307F\u4E2D\u2026") : rows.length === 0 ? /*#__PURE__*/React.createElement("div", {
         style: {
           fontSize: 11,
-          color: "#6b7f95",
+          color: "#96a8bb",
           background: "#0b1219",
           borderRadius: 8,
           padding: "12px"
@@ -3099,8 +3099,8 @@ function App() {
       }, /*#__PURE__*/React.createElement("div", {
         style: {
           display: "flex",
-          fontSize: 10,
-          color: "#6b7f95",
+          fontSize: 11,
+          color: "#96a8bb",
           fontWeight: 700,
           padding: "0 0 6px",
           borderBottom: "1px solid #1a2535"
@@ -3158,7 +3158,7 @@ function App() {
           style: {
             width: 40,
             textAlign: "right",
-            color: r["1着"] > 0 ? "#ffd166" : "#6b7f95",
+            color: r["1着"] > 0 ? "#ffd166" : "#96a8bb",
             fontWeight: 700,
             fontVariantNumeric: "tabular-nums"
           }
@@ -3203,8 +3203,8 @@ function App() {
         }, r["平均ST"] ? r["平均ST"].toFixed(2) : "-"));
       }), /*#__PURE__*/React.createElement("div", {
         style: {
-          fontSize: 10,
-          color: "#6b7f95",
+          fontSize: 11,
+          color: "#96a8bb",
           marginTop: 6,
           lineHeight: 1.5
         }
@@ -3226,13 +3226,13 @@ function App() {
         }
       }, "\u25A0 E30\u8A72\u5F53\u5834\u6210\u7E3E\u3000", /*#__PURE__*/React.createElement("span", {
         style: {
-          color: "#6b7f95",
+          color: "#96a8bb",
           fontWeight: 400
         }
       }, period ? fmtP(period.開始) + "〜" + fmtP(period.終了) : "", " / \u9032\u5165\u30B3\u30FC\u30B9\u5225")), e30 === null ? /*#__PURE__*/React.createElement("div", {
         style: {
           fontSize: 11,
-          color: "#6b7f95",
+          color: "#96a8bb",
           background: "#0b1219",
           borderRadius: 8,
           padding: "12px"
@@ -3240,7 +3240,7 @@ function App() {
       }, "\u8AAD\u307F\u8FBC\u307F\u4E2D\u2026") : !ep ? /*#__PURE__*/React.createElement("div", {
         style: {
           fontSize: 11,
-          color: "#6b7f95",
+          color: "#96a8bb",
           background: "#0b1219",
           borderRadius: 8,
           padding: "12px"
@@ -3282,8 +3282,8 @@ function App() {
       }, e30All ? "N≥10のみ" : "N<10も表示")), /*#__PURE__*/React.createElement("div", {
         style: {
           display: "flex",
-          fontSize: 10,
-          color: "#6b7f95",
+          fontSize: 11,
+          color: "#96a8bb",
           fontWeight: 700,
           padding: "0 0 5px",
           borderBottom: "1px solid #1a2535"
@@ -3320,7 +3320,7 @@ function App() {
       }, "\u6C7A\u307E\u308A\u624B")), shown.length === 0 ? /*#__PURE__*/React.createElement("div", {
         style: {
           fontSize: 11,
-          color: "#6b7f95",
+          color: "#96a8bb",
           padding: "8px 0"
         }
       }, "\u5168\u30B3\u30FC\u30B9N<10\u3002\u300CN<10\u3082\u8868\u793A\u300D\u3067\u78BA\u8A8D\u3067\u304D\u307E\u3059\u3002") : shown.map(c => {
@@ -3359,7 +3359,7 @@ function App() {
           style: {
             width: 36,
             textAlign: "right",
-            color: r["1着数"] > 0 ? "#ffd166" : "#6b7f95",
+            color: r["1着数"] > 0 ? "#ffd166" : "#96a8bb",
             fontWeight: 700,
             fontVariantNumeric: "tabular-nums"
           }
@@ -3388,8 +3388,8 @@ function App() {
         }, tech || "-"));
       }), /*#__PURE__*/React.createElement("div", {
         style: {
-          fontSize: 10,
-          color: "#6b7f95",
+          fontSize: 11,
+          color: "#96a8bb",
           marginTop: 6,
           lineHeight: 1.6
         }
@@ -3398,7 +3398,7 @@ function App() {
   })), filtered.length > 300 && /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 11,
-      color: "#6b7f95",
+      color: "#96a8bb",
       marginTop: 14,
       textAlign: "center"
     }

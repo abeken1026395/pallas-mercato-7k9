@@ -1290,7 +1290,7 @@ function bProfHTML(no, boat){
    <div class="bp-c"><div class="l">優勝</div><div class="v">${p.yusyo}</div></div>
    <div class="bp-c"><div class="l">F数</div><div class="v">${p.f}</div></div>
    <div class="bp-c"><div class="l">アウト戦</div><div class="v">${(p.out||0).toFixed?p.out.toFixed(1):p.out}<span style="font-size:12px">%</span></div></div>
-   <div class="bp-c"><div class="l">複勝率</div><div class="v">${(p.fuku!=null?p.fuku:0).toFixed(2)}</div></div>
+   <div class="bp-c"><div class="l">2連率</div><div class="v">${p.fuku!=null?(p.fuku*10).toFixed(1)+'<span style="font-size:12px">%</span>':'-'}</div></div>
   </div>
   ${kinMotorFact(no)}
   <div class="bp-c1"><div class="t">コース別 1着率（黄=イン／青=アウト）</div>${bars}</div>${yk}`;
