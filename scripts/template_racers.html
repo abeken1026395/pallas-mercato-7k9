@@ -249,7 +249,8 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .ns td { padding:3px 0; text-align:right; border-top:1px solid #16202b; vertical-align:top; }
 .ns td:first-child { text-align:left; }
 .ns-lane { display:inline-block; width:16px; height:16px; line-height:16px; text-align:center; border-radius:3px; font-size:13px; font-weight:700; margin-right:4px; }
-.ns-nm { font-size:13px; }
+.ns-nm { font-size:13px; white-space:nowrap; }
+.ns td + td, .ns th + th { padding-left:4px; }
 .ns-n { font-size:13px; color:#8a94a3; }
 .ns-p { font-size:13px; font-weight:700; color:#e0e6ed; display:block; }
 .ns-k { font-size:13px; color:#96a8bb; display:block; }
@@ -1277,7 +1278,7 @@ function nigeSecondTable(boats){
   var ps=NS.meta.periods||[], i=ps.indexOf(PSEL.ns);
   if(i<0){ i=ps.indexOf("1y"); if(i<0) i=ps.length-1; PSEL.ns=ps[i]; }
   var tot=(NS.meta.races&&NS.meta.races[i])||0;
-  var head='<tr><th>枠・選手</th><th>該当</th>'+[2,3,4,5,6].map(function(x){return '<th>2着'+x+'</th>';}).join("")+'</tr>';
+  var head='<tr><th>枠・選手</th>'+[2,3,4,5,6].map(function(x){return '<th>2着'+x+'</th>';}).join("")+'</tr>';
   var rows=boats.slice().sort(function(a,b){return parseInt(g(a,"枠"))-parseInt(g(b,"枠"));}).map(function(row){
     var lane=parseInt(g(row,"枠")), toban=g(row,"登録番号");
     var nm=g(row,"氏名").replace(/　+/g,"").slice(0,4);
@@ -1290,12 +1291,12 @@ function nigeSecondTable(boats){
       return '<td class="'+(x===lane?"ns-self":"")+(n&&n<20?" ns-thin":"")+'">'
         +'<span class="ns-p">'+pct+'</span><span class="ns-k">'+k+"/"+n+'</span></td>';
     }).join("");
-    return '<tr><td>'+laneChip(lane)+'<span class="ns-nm">'+esc(nm)+'</span></td>'
-      +'<td class="ns-n">'+n+'</td>'+tds+'</tr>';
+    return '<tr><td>'+laneChip(lane)+'<span class="ns-nm">'+esc(nm)+'</span><span class="ns-k">該当'+n+'</span></td>'
+      +tds+'</tr>';
   }).join("");
   var b=NS.base[i]||[0,0,0,0,0];
-  var base='<tr class="ns-base"><td>全体</td><td class="ns-n">'+tot+'</td>'+[2,3,4,5,6].map(function(x){
-    var k=b[x-2]; return '<td><span class="ns-p">'+(tot?Math.round(k/tot*100)+"%":"—")+'</span><span class="ns-k">'+k+"/"+tot+'</span></td>';
+  var base='<tr class="ns-base"><td>全体<span class="ns-k">該当'+tot.toLocaleString("ja-JP")+'</span></td>'+[2,3,4,5,6].map(function(x){
+    var k=b[x-2]; return '<td><span class="ns-p">'+(tot?Math.round(k/tot*100)+"%":"—")+'</span></td>';
   }).join("")+'</tr>';
   return '<details class="ns" data-dk="nige"><summary>'
     +'<span class="ns-badge">逃げ時２着</span>'
@@ -1306,9 +1307,9 @@ function nigeSecondTable(boats){
     +'<details class="ns-help" data-dk="nige-help"><summary>表の読み方</summary><dl>'
     +'<dt>この表は何か</dt><dd>1号艇が逃げて決まったレースだけを集めて、そのとき2着がどのコースだったかを数えたもの。1着の話はしていない。</dd>'
     +'<dt>上段の％</dt><dd>走行数が少ない選手ほど全体平均に近づける補正をかけた値。少ない回数のたまたまを、その選手の特徴として読ませないため。</dd>'
-    +'<dt>下段の分数</dt><dd>回数／該当レース数。補正前の実数。上段と食い違って見えるときは、右の数が小さい。</dd>'
+    +'<dt>下段の分数</dt><dd>回数／該当レース数。補正前の実数。上段と食い違って見えるときは、右の数が小さい。選手名の下の「該当」は、その選手が1号艇の逃げのレースに出た数。</dd>'
     +'<dt>「—」のセル</dt><dd>その期間に該当レースが1つもない。0%ではない。</dd>'
-    +'<dt>いちばん下の全体行</dt><dd>同じ期間の全レースでの2着コース分布。各選手の％をこれと引き算して読む。</dd>'
+    +'<dt>いちばん下の全体行</dt><dd>同じ期間の全レースでの2着コース分布。各選手の％をこれと引き算して読む。母数が数万レースなので分数は省いている。</dd>'
     +'<dt>期間の切り替え</dt><dd>短い期間を選ぶと該当レースが数走まで減り、％はほとんど全体平均のままになる。動かないこと自体が「この期間では材料がない」という意味。</dd>'
     +'<dt>枠番で引いている</dt><dd>出走表の時点では進入が決まっていないため、枠番どおりに進入したものとして引いている。前づけがあれば実際の進入とずれる。</dd>'
     +'<dt>出典</dt><dd>公式競走成績（Kファイル）。</dd>'
