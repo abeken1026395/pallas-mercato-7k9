@@ -21,7 +21,7 @@
 <meta name="theme-color" content="#0c1520">
 <style>
 :root{
-  --bg:#0a1422;--card:#12233a;--card2:#16243449;--line:#24406a;--tx:#e6e8eb;--sub:#a0acb8;--dim:#7a8ba0;
+  --bg:#0a1422;--card:#12233a;--card2:#16243449;--line:#24406a;--tx:#e6e8eb;--sub:#a0acb8;--dim:#9aabbd;
   --are:#f2b155;--kata:#5cc8b0;--base:#6b7280;--accent:#7fb4ff;--mido:#a78bfa;--midoTx:#c4b5fd;
 }
 *{box-sizing:border-box}
@@ -57,6 +57,13 @@ a{color:inherit;text-decoration:none}
 .sec{margin:26px 0 10px;display:flex;align-items:baseline;gap:10px}
 .sec h2{font-size:15px;margin:0;font-weight:700;padding-left:10px;border-left:3px solid #3b6fa8;line-height:1.2}
 .sec .s{font-size:12px;color:var(--dim)}
+/* 読みもの：最新の検証1本（一覧 ./kensho/ の data-new が最も新しいカードを表示。取れないときは下の既定のまま） */
+.kn{display:block;background:linear-gradient(160deg,#16304f 0%,var(--card) 55%);border:1px solid var(--line);border-radius:16px;padding:16px}
+.kn-no{display:block;font-size:12px;color:var(--dim);letter-spacing:.04em}
+.kn-t{display:block;font-size:17px;font-weight:800;line-height:1.45;margin-top:4px}
+.kn-d{display:block;font-size:13.5px;color:var(--sub);line-height:1.7;margin-top:8px}
+.kn-go{display:block;text-align:right;font-size:14px;font-weight:700;color:var(--accent);margin-top:10px}
+.kn-all{display:block;text-align:right;font-size:12px;color:var(--dim);margin-top:8px}
 
 /* 今日 */
 #todayBlock{min-height:506px}
@@ -74,7 +81,7 @@ a{color:inherit;text-decoration:none}
 .venues{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 4px}
 .v{font-size:12px;padding:4px 9px;border-radius:999px;border:1px solid var(--line);color:var(--sub)}
 .v b.gr{font-size:10.5px;font-weight:800;color:var(--midoTx)}
-.v i{font-style:normal;font-size:10.5px;color:var(--dim)}
+.v i{font-style:normal;font-size:11.5px;color:var(--dim)}
 .v i.fin{color:var(--midoTx)}
 .v.g{border-color:color-mix(in srgb,var(--mido) 55%,transparent);color:var(--tx)}
 .grade{font-size:12.5px;color:var(--sub);margin:8px 2px 0;line-height:1.7}
@@ -83,7 +90,7 @@ a{color:inherit;text-decoration:none}
 .grade b{color:var(--midoTx);font-weight:700;margin-right:6px}
 .grade span{color:var(--tx);margin-left:8px;white-space:nowrap}
 .grade .gi{margin:3px 0}
-.grade small{display:block;font-size:11px;color:var(--dim);line-height:1.5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.grade small{display:block;font-size:12px;color:var(--dim);line-height:1.5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .vrest{font-size:12px;color:var(--sub);margin:2px 2px 0}
 .peaks{margin:12px 0 0;padding:0;list-style:none}
 .peaks li{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid #1c2b3c;font-size:14px}
@@ -91,7 +98,7 @@ a{color:inherit;text-decoration:none}
 .peaks .kind{font-size:11px;padding:2px 7px;border-radius:6px;background:color-mix(in srgb,var(--mido) 18%,transparent);color:var(--midoTx);white-space:nowrap}
 .peaks .go{margin-left:auto;color:var(--dim)}
 .peaks a{display:flex;align-items:center;gap:10px;width:100%}
-.ctasub{font-size:11.5px;color:var(--dim);text-align:center;margin-top:6px}
+.ctasub{font-size:12px;color:var(--dim);text-align:center;margin-top:6px}
 .extra{border-top:1px solid #1c2b3c}
 .exh{display:flex;width:100%;align-items:center;gap:8px;padding:12px 0;background:none;border:0;color:var(--sub);font-size:13px;cursor:pointer;min-height:44px}
 .exh .exar{margin-left:auto;font-size:11px;transition:transform .15s}
@@ -104,19 +111,19 @@ a{color:inherit;text-decoration:none}
 .exmore{font-size:12px;color:var(--dim);padding:6px 0 2px}
 .v i.lady{color:var(--sub)}
 .homeHint{margin:10px 0 0;text-align:center;font-size:12.5px;color:var(--sub)}
-.homeHint small{display:block;font-size:11px;color:var(--dim);margin-top:2px}
+.homeHint small{display:block;font-size:12px;color:var(--dim);margin-top:2px}
 .cta{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:12px;padding:12px;border-radius:12px;background:color-mix(in srgb,var(--mido) 22%,transparent);border:1px solid color-mix(in srgb,var(--mido) 50%,transparent);color:var(--tx);font-size:14px;font-weight:700}
 
 /* 答え合わせ */
 .tb{background:linear-gradient(160deg,#16304f 0%,var(--card) 55%);border:1px solid var(--line);border-radius:16px;padding:16px}
 .tbh{display:flex;align-items:center;gap:8px}
 .pill{font-size:11.5px;color:var(--sub);border:1px solid var(--line);border-radius:999px;padding:3px 10px}
-.upd{margin-left:auto;font-size:11.5px;color:var(--dim)}
+.upd{margin-left:auto;font-size:12px;color:var(--dim)}
 .day{margin:10px 0 6px;padding:12px;border-radius:12px;background:#0d1b2e;border:1px solid #1f3656}
 .day[hidden]{display:none}
 .dayh{font-size:13px;color:var(--sub);display:flex;align-items:baseline;gap:6px}
 .dayh b{color:var(--tx);font-size:16px}
-.dayh>span{margin-left:auto;font-size:11.5px;color:var(--dim)}
+.dayh>span{margin-left:auto;font-size:12px;color:var(--dim)}
 .dayr{display:flex;justify-content:space-between;font-size:13.5px;padding:6px 0 0}
 .dayr b{color:var(--tx)}
 .dv{font-weight:700}
@@ -138,7 +145,7 @@ a{color:inherit;text-decoration:none}
 .bar i{position:absolute;left:0;top:0;bottom:0;border-radius:3px}
 .are .bar.me i{background:var(--are)} .kata .bar.me i{background:var(--kata)}
 .bar.base i{background:var(--base)}
-.bl{display:flex;justify-content:space-between;font-size:10.5px;color:var(--dim)}
+.bl{display:flex;justify-content:space-between;font-size:12px;color:var(--dim)}
 .per100{font-size:12px;color:var(--dim);margin-top:4px}
 .note{font-size:12px;color:var(--dim);margin-top:10px}
 .foot{font-size:12px;color:var(--dim);margin-top:6px}
@@ -157,7 +164,7 @@ a{color:inherit;text-decoration:none}
 .pb td b{color:var(--tx)}
 .pb .lnk{color:var(--accent)}
 .home{margin-top:10px;padding:10px;border-radius:10px;background:#0f1a27;font-size:12.5px}
-.age{font-size:11px;color:var(--dim);margin-top:8px}
+.age{font-size:12px;color:var(--dim);margin-top:8px}
 @media (prefers-reduced-motion:reduce){.panel{transition:none}}
 
 /* ナビ：ページごとの色を左の帯とアイコンの下地に */
@@ -168,7 +175,7 @@ a{color:inherit;text-decoration:none}
 .mt small{display:block;font-size:11px;color:var(--sub);font-weight:400;margin-top:2px}
 .nav{display:grid;grid-template-columns:repeat(5,1fr);gap:12px 4px;margin-top:16px}
 .ni{display:flex;flex-direction:column;align-items:center;gap:5px;font-size:11px;color:var(--sub)}
-.ni.ext em{font-style:normal;font-size:9.5px;color:var(--dim);margin-top:-4px}
+.ni.ext em{font-style:normal;font-size:10.5px;color:var(--dim);margin-top:-4px}
 .ic{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:20px;background:color-mix(in srgb,var(--c) 16%,transparent);border:1px solid color-mix(in srgb,var(--c) 40%,transparent)}
 
 .ft{text-align:center;margin-top:34px;font-size:12px;color:var(--dim);line-height:1.8}
@@ -232,6 +239,15 @@ body{position:relative}
 <a class="tdFail" id="tdFail" href="./highlights/" hidden>今日の開催は見どころで確認できます →</a>
 </div>
 <div class="homeHint">ホーム画面に置くと、朝いちばんに開けます<small>iPhone：共有ボタン →「ホーム画面に追加」</small></div>
+
+<div class="sec"><h2>読みもの</h2><span class="s">最新の検証</span></div>
+<a class="kn" id="knCard" href="./kensho/tilt/">
+  <span class="kn-no" id="knNo">検証 09</span>
+  <span class="kn-t" id="knT">チルト3度の7艇に1艇は菅章哉だった</span>
+  <span class="kn-d" id="knD">「チルトを跳ねた艇は伸び勝負。穴の目印」――直前情報のチルトの欄を見て、印を足したくなる話です。跳ねた艇の1着と回収率を、跳ねてきた選手ごとに分けて数えました。</span>
+  <span class="kn-go">読む →</span>
+</a>
+<a class="kn-all" href="./kensho/">検証の一覧へ →</a>
 
 <div class="sec"><h2>朝の見立ては当たっているか</h2></div>
 <section class="tb">
@@ -541,6 +557,28 @@ if("serviceWorker" in navigator){ window.addEventListener("load",function(){ nav
     var b = links[i].querySelector(".qn-new");
     if (b) { b.hidden = false; }
   }
+})();
+</script>
+<script>
+// 読みもの：検証の一覧から、data-new が最も新しいカードを1枚だけ表示する。
+(function(){
+  if (!window.fetch || !window.DOMParser) { return; }
+  fetch("./kensho/index.html").then(function(r){ return r.ok ? r.text() : Promise.reject(); }).then(function(t){
+    var d = new DOMParser().parseFromString(t, "text/html");
+    var cs = d.querySelectorAll("a.card[data-new]"), best = null;
+    for (var i = 0; i < cs.length; i++) {
+      var k = cs[i].getAttribute("data-new") || "";
+      if (/^\d{4}-\d{2}-\d{2}$/.test(k) && (!best || k > best.getAttribute("data-new"))) { best = cs[i]; }
+    }
+    if (!best) { return; }
+    var h = (best.getAttribute("href") || "").replace(/^\.\//, "");
+    var no = best.querySelector(".no"), tt = best.querySelector(".t"), dd = best.querySelector(".d");
+    if (!h || !tt) { return; }
+    document.getElementById("knCard").setAttribute("href", "./kensho/" + h);
+    if (no) { document.getElementById("knNo").textContent = (no.firstChild ? no.firstChild.textContent : "").split("｜")[0].trim(); }
+    document.getElementById("knT").textContent = tt.textContent.trim();
+    document.getElementById("knD").textContent = dd ? dd.textContent.trim() : "";
+  }).catch(function(){ /* HTMLの既定のまま */ });
 })();
 </script>
 <script src="./assets/guard.js" defer></script>
