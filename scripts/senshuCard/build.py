@@ -10,6 +10,7 @@
 全体版の出力フォルダ（指定したときだけ。照合用）
   card.json（実験場 card2D.json と同じ形）・ayumi.json
 最後に検査を走らせ、1つでも外れたら書き出さずに止まる（check.py）。
+環境変数 SENSHU_EXTEND_HIST=1 のときは、検査を通ったあと data/senshuCard/finalsHistory.json を最終日まで延ばす。
 """
 import json
 import os
@@ -19,6 +20,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import buildCard as BC  # noqa: E402
 import check  # noqa: E402
 import facts  # noqa: E402
+import finals  # noqa: E402
 import h2h  # noqa: E402
 import waza  # noqa: E402
 
@@ -57,6 +59,8 @@ def main():
         os.makedirs(fullDir, exist_ok=True)
         json.dump(out, open(os.path.join(fullDir, 'card.json'), 'w'), ensure_ascii=False, separators=(',', ':'))
         json.dump(ay, open(os.path.join(fullDir, 'ayumi.json'), 'w'), ensure_ascii=False, separators=(',', ':'))
+    if os.environ.get('SENSHU_EXTEND_HIST') == '1':   # 週ごとの自動更新：優勝戦の履歴を last まで延ばす
+        print('履歴に足した優勝戦', finals.extendHistory(rawDir, rows, last, os.path.join(BC.ROOT, 'data', 'senshuCard', 'finalsHistory.json')))
     h2h.build(rows, set(out['players']), out['win']['all']['from'], last, os.path.join(outDir, 'h2h'))
     split(out, ay, outDir)
     print('OK', last, '選手', len(out['players']))

@@ -1,0 +1,82 @@
+name: updateSenshuCard
+
+# 選手カード（/players/card.html）の週ごとの更新。
+# PC の週1タスク（scripts/senshuCardKWeekly.ps1）が data/senshuCard/kExtra.csv を push したら走る。
+# 最終日＝kExtra.csv の最後の日（責任の有無が分かる日まで）。検査（check.py）で1つでも外れたら書き出さずに失敗する。
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - data/senshuCard/kExtra.csv
+  schedule:
+    - cron: "10 0 * * 2"   # UTC 火曜 0:10 = JST 火曜 9:10（PC が止まっていて push が無かった週の予備。変わらなければ何もしない）
+  workflow_dispatch:
+
+concurrency:
+  group: updateSenshuCard
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: install
+        run: pip install numpy scipy
+      - name: decide
+        id: d
+        run: |
+          python3 - <<'EOF' >> "$GITHUB_OUTPUT"
+          import csv, json
+          last = '20' + max(r['hd'] for r in csv.DictReader(open('data/senshuCard/kExtra.csv', encoding='utf-8')))
+          cur = json.load(open('docs/players/card/common.json', encoding='utf-8'))['win']['y1']['to']
+          h = json.load(open('data/senshuCard/finalsHistory.json', encoding='utf-8'))['to']
+          print(f"last={last}")
+          print(f"hist={h}")
+          print(f"run={'1' if last.replace('-', '') > cur.replace('-', '') else '0'}")
+          EOF
+          cat "$GITHUB_OUTPUT"
+      - name: avoid JST 11:00-11:40
+        if: steps.d.outputs.run == '1'
+        run: |
+          python3 - <<'EOF'
+          import datetime as dt, time
+          n = dt.datetime.now(dt.timezone(dt.timedelta(hours=9)))
+          if n.hour == 11 and n.minute <= 40:
+              w = (40 - n.minute) * 60 + 60 - n.second
+              print('JST 11:00-11:40 のため待つ', w, '秒')
+              time.sleep(w)
+          EOF
+      - name: fetch programs
+        if: steps.d.outputs.run == '1'
+        run: |
+          NEXT=$(python3 -c "import datetime as d;h='${{ steps.d.outputs.hist }}';print((d.date(int(h[:4]),int(h[4:6]),int(h[6:]))+d.timedelta(1)).strftime('%Y%m%d'))")
+          python3 scripts/senshuCard/fetchPrograms.py "$NEXT" "${{ steps.d.outputs.last }}" /tmp/senshuRaw 20250714 | tail -3
+      - name: build
+        if: steps.d.outputs.run == '1'
+        env:
+          SENSHU_EXTEND_HIST: "1"
+        run: python3 scripts/senshuCard/build.py "${{ steps.d.outputs.last }}" /tmp/senshuRaw docs/players/card
+      - name: commit
+        if: steps.d.outputs.run == '1'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/players/card/common.json docs/players/card/index.json docs/players/card/p docs/players/card/h2h data/senshuCard/finalsHistory.json
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          git commit -m "auto: 選手カード 週ごとの更新 (${{ steps.d.outputs.last }})"
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            sleep 10
+          done
+          exit 1

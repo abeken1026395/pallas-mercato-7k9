@@ -106,6 +106,27 @@ def saveHistory(rawDir, rows, last, histPath):
     return F
 
 
+def extendHistory(rawDir, rows, last, histPath):
+    """履歴の続き（to の翌日〜last）を番組から拾って足し、to を last にする。週ごとの自動更新で使う"""
+    H = json.load(open(histPath, encoding='utf-8'))
+    if last <= H["to"]:
+        return 0
+    nxt = (dt.date(int(H["to"][:4]), int(H["to"][4:6]), int(H["to"][6:])) + dt.timedelta(1)).strftime("%Y%m%d")
+    F2, _ = collect(rawDir, rows, last, first=nxt)
+    for d in days(nxt, last):
+        j = json.load(gzip.open(os.path.join(rawDir, d + ".json.gz")))
+        byVenue = collections.defaultdict(list)
+        for v, r, g, t, s, bs in j.get("pg") or []:
+            byVenue[v].append(bs)
+        n = sum(1 for L in byVenue.values() if all(all(not b[1] for b in bs) for bs in L))
+        if n:
+            H["emptyByDay"][d] = n
+    H["finals"] += F2
+    H["to"] = last
+    json.dump(H, open(histPath, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
+    return len(F2)
+
+
 def tally(F, d0, d1):
     """期間内の 優勝[計,SG,G1,G2,G3,一般,シリーズ]・優出 を選手ごとに"""
     yu = collections.defaultdict(lambda: [0] * 7)
