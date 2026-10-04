@@ -91,6 +91,8 @@ details[open]>summary::after{content:"−"}
   border:1px solid var(--line);border-radius:10px}
 .chart svg{display:block;width:100%;height:auto;font-family:inherit}
 .chart figcaption{margin-top:8px;font-size:11.5px;line-height:1.8;color:var(--dim)}
+.chart .replay{display:block;margin:10px auto 2px;min-height:44px;padding:0 20px;background:none;border:1px solid var(--line);border-radius:22px;color:var(--dim);font-size:13px;cursor:pointer}
+.chart .replay[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -217,7 +219,7 @@ details[open]>summary::after{content:"−"}
 
 <p>跳ねてきた回数が多いほど、差は大きい。常連は、9年半で301人いました。6コースの3度も、1着率は6コースの0.0の艇の6倍で、揃えた差は+9.7ポイントです。ただし、4から6コースの3度の艇3,708艇のうち、1,732艇は常連です。常連と3度は、別々の裏付けにはならない。</p>
 
-<figure class="chart" role="img" aria-label="誰が跳ねたかごとの、0.0の艇との1着率の差。今日だけは境目の2.0に届かず、常連と6コースの3度は大きい。同じ選手の中で比べると、常連と3度は半分近くに縮む"><svg viewBox="0 0 360 286" width="100%" xmlns="http://www.w3.org/2000/svg">
+<figure class="chart" id="tiltFig" role="img" aria-label="誰が跳ねたかごとの、0.0の艇との1着率の差。今日だけは境目の2.0に届かず、常連と6コースの3度は大きい。同じ選手の中で比べると、常連と3度は半分近くに縮む"><svg id="tiltSvg" viewBox="0 0 360 286" width="100%" xmlns="http://www.w3.org/2000/svg">
 <text x="20.0" y="42.0" font-size="12.6" fill="#dde3e9" text-anchor="start" font-weight="700">今日だけ</text>
 <text x="80.0" y="18.0" font-size="12" fill="#dde3e9" text-anchor="middle">境目 2.0</text>
 <line x1="20" y1="26" x2="20" y2="256" stroke="#24406a" stroke-width="0.9"/>
@@ -246,7 +248,7 @@ details[open]>summary::after{content:"−"}
 <text x="179.3" y="249.0" font-size="12" fill="#6f7f93" text-anchor="start">+5.1</text>
 <rect x="20" y="264" width="14" height="11" fill="#e0a070"/><text x="40.0" y="274.0" font-size="12" fill="#6f7f93" text-anchor="start">揃えた差</text>
 <rect x="130.6" y="264.6" width="12.8" height="9.8" fill="none" stroke="#e0a070" stroke-width="1.2"/><text x="150.0" y="274.0" font-size="12" fill="#6f7f93" text-anchor="start">同じ選手の中で比べた差</text>
-</svg><figcaption>単位はポイント。今日だけ・ときどき・常連は4から6コース、3度は6コースの0.0の艇と比べた値。破線はこの連載の境目です。</figcaption></figure>
+</svg><button class="replay" id="tiltRe" type="button" hidden>もう一度見る</button><figcaption>単位はポイント。今日だけ・ときどき・常連は4から6コース、3度は6コースの0.0の艇と比べた値。破線はこの連載の境目です。</figcaption></figure>
 
 <h2 class="sec">選手を揃えると、差は縮む</h2>
 
@@ -356,6 +358,49 @@ details[open]>summary::after{content:"−"}
 
 </div>
 
+<script>
+(function () {
+  var fig = document.getElementById('tiltFig'), g = document.getElementById('tiltSvg'), btn = document.getElementById('tiltRe');
+  if (!fig || !g || !btn || !('IntersectionObserver' in window) || !window.requestAnimationFrame) return;
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var pick = function (sel) {
+    return Array.prototype.filter.call(g.querySelectorAll(sel), function (r) { return r.getAttribute('y') < 260; })
+      .map(function (r) { return { r: r, w: r.getAttribute('width'), lb: r.nextElementSibling }; });
+  };
+  var F = pick('rect[fill="#e0a070"]'), O = pick('rect[fill="none"]');
+  if (F.length !== 4 || O.length !== 4) return;
+  var GROW = 400, GAP = 250, WAIT = 700, SHRINK = 900;
+  var S2 = (F.length - 1) * (GROW + GAP) + GROW + WAIT, TOTAL = S2 + SHRINK;
+  var ease = function (k) { return 1 - Math.pow(1 - k, 3); };
+  var clamp = function (v) { return Math.max(0, Math.min(1, v)); };
+  function paint(ms) {
+    var k2 = clamp((ms - S2) / SHRINK);
+    F.forEach(function (f, i) {
+      var k = clamp((ms - i * (GROW + GAP)) / GROW), o = O[i];
+      f.r.setAttribute('width', k >= 1 ? f.w : +f.w * ease(k));
+      f.lb.style.opacity = k >= 1 ? 1 : 0;
+      o.r.setAttribute('width', k2 >= 1 ? o.w : ms < S2 ? 0 : +f.w + (o.w - f.w) * ease(k2));
+      o.lb.style.opacity = k2 >= 1 ? 1 : 0;
+    });
+  }
+  var busy = false;
+  function run() {
+    if (busy) return; busy = true;
+    var t0 = 0;
+    requestAnimationFrame(function step(t) {
+      if (!t0) t0 = t;
+      if (t - t0 < TOTAL) { paint(t - t0); requestAnimationFrame(step); } else { paint(TOTAL); busy = false; }
+    });
+  }
+  paint(0);
+  btn.hidden = false;
+  btn.onclick = function () { if (!busy) { paint(0); run(); } };
+  var io = new IntersectionObserver(function (es) {
+    es.forEach(function (e) { if (e.isIntersecting) { run(); io.disconnect(); } });
+  }, { threshold: 0.6 });
+  io.observe(fig);
+})();
+</script>
 <script src="../../assets/guard.js" defer></script>
 </body>
 </html>
