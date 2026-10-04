@@ -192,11 +192,11 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .e30-sum { font-size:13px; color:#a9c6dd; }
 .e30-sum b { color:#e0e6ed; }
 .e30-few { font-size:13px; color:#c98; margin-left:2px; }
-.e30-caret { margin-left:auto; font-size:13px; color:#6f8aa3; }
+.e30-caret { margin-left:auto; font-size:13px; color:#96a8bb; }
 .e30d[open] .e30-caret::after { content:"閉じる ▲"; } .e30d:not([open]) .e30-caret::after { content:"内訳 ▼"; }
 .e30-body { padding:2px 10px 9px; }
 .e30-row { display:flex; align-items:center; font-size:13px; padding:4px 0; border-top:1px solid #16273a; }
-.e30-row.hd { color:#6f8aa3; font-weight:bold; border-top:none; }
+.e30-row.hd { color:#96a8bb; font-weight:bold; border-top:none; }
 .e30-row .c { width:40px; color:#c5d2e0; font-weight:bold; }
 .e30-row .n { width:38px; text-align:right; color:#e0e6ed; font-variant-numeric:tabular-nums; }
 .e30-row .w1 { width:30px; text-align:right; color:#e0e6ed; font-weight:bold; font-variant-numeric:tabular-nums; }
@@ -204,7 +204,7 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .e30-row .st { width:46px; text-align:right; color:#e0e6ed; font-variant-numeric:tabular-nums; }
 .e30-row .tk { flex:1; padding-left:8px; color:#8faabe; }
 .e30-row.dim .c, .e30-row.dim .n, .e30-row.dim .w1, .e30-row.dim .w2, .e30-row.dim .st, .e30-row.dim .tk { color:#8a94a3; font-weight:normal; }
-.e30-note { font-size:13px; color:#6f8aa3; margin-top:5px; line-height:1.5; }
+.e30-note { font-size:13px; color:#96a8bb; margin-top:5px; line-height:1.5; }
 
 /* 決まり手構成バー */
 .kmr { margin-top:8px; }
@@ -214,7 +214,7 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .kmr-legend { display:flex; gap:9px; flex-wrap:wrap; margin-top:4px; font-size:13px; color:#9fb0c3; }
 .kmr-legend span { display:flex; align-items:center; gap:3px; }
 .kmr-dot { width:8px; height:8px; border-radius:2px; flex:none; }
-.kmr-def { font-size:13px; color:#6f7d8c; margin-top:3px; }
+.kmr-def { font-size:13px; color:#96a8bb; margin-top:3px; }
 /* 展示タイム別の成績（tenjiStats.json・折りたたみ） */
 .tj { margin-top:8px; border-top:1px solid #1c2a3c; }
 .tj-wait { min-height:41px; }
@@ -239,12 +239,12 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .ns > summary::-webkit-details-marker { display:none; }
 .ns-badge { font-size:13px; font-weight:bold; color:#e0e6ed; background:transparent; border-radius:4px; padding:1px 6px; flex:none; border:1px solid #9fb0c3; }
 .ns-sum { font-size:13px; color:#a9c6dd; }
-.ns-caret { margin-left:auto; font-size:13px; color:#6f8aa3; }
+.ns-caret { margin-left:auto; font-size:13px; color:#96a8bb; }
 .ns[open] .ns-caret::after { content:"\9589\3058\308b \25b2"; } .ns:not([open]) .ns-caret::after { content:"\4e00\89a7 \25bc"; }
 .ns-body { padding:2px 10px 9px; }
-.ns-per { font-size:13px; color:#6b7f95; margin-bottom:5px; }
+.ns-per { font-size:13px; color:#96a8bb; margin-bottom:5px; }
 .ns table { width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums; }
-.ns th { font-size:13px; color:#6b7f95; font-weight:400; padding:2px 0 4px; text-align:right; }
+.ns th { font-size:13px; color:#96a8bb; font-weight:400; padding:2px 0 4px; text-align:right; }
 .ns th:first-child { text-align:left; }
 .ns td { padding:3px 0; text-align:right; border-top:1px solid #16202b; vertical-align:top; }
 .ns td:first-child { text-align:left; }
@@ -252,26 +252,32 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .ns-nm { font-size:13px; }
 .ns-n { font-size:13px; color:#8a94a3; }
 .ns-p { font-size:13px; font-weight:700; color:#e0e6ed; display:block; }
-.ns-k { font-size:13px; color:#6b7f95; display:block; }
+.ns-k { font-size:13px; color:#96a8bb; display:block; }
 .ns-self { background:#182a3d; border-radius:3px; }
 .ns-thin .ns-p { color:#8a94a3; font-weight:400; }
 .ns-base td { border-top:1px solid #2a3947; color:#9fb0c3; }
 .ns-help { margin-top:8px; border-top:1px solid #1b2836; }
-.ns-help > summary { list-style:none; cursor:pointer; font-size:13px; color:#6f8aa3; padding:6px 0 2px; min-height:44px; display:flex; align-items:center; }
+.ns-help > summary { list-style:none; cursor:pointer; font-size:13px; color:#96a8bb; padding:6px 0 2px; min-height:44px; display:flex; align-items:center; }
 .ns-help > summary::-webkit-details-marker { display:none; }
 .ns-help[open] > summary::after { content:" \25b2"; } .ns-help:not([open]) > summary::after { content:" \25bc"; }
 .ns-help dl { margin:4px 0 2px; font-size:13px; line-height:1.6; }
 .ns-help dt { color:#9fb0c3; margin-top:6px; }
-.ns-help dd { color:#6f7d8c; margin:1px 0 0; }
+.ns-help dd { color:#96a8bb; margin:1px 0 0; }
 .ptab { display:flex; gap:4px; margin:2px 0 7px; flex-wrap:wrap; }
 .ptab-b { font-size:13px; line-height:1; padding:5px 8px; border-radius:11px; border:1px solid #2a3b4d; background:#0e1720; color:#8faabe; cursor:pointer; font-family:inherit; min-height:44px; }
 .ptab-b.on { background:#8fb4d6; color:#0b1219; border-color:#8fb4d6; font-weight:700; }
-.ns-avg td { border-top:0; padding:0 0 4px; font-size:13px; color:#6f8aa3; }
+.ns-avg td { border-top:0; padding:0 0 4px; font-size:13px; color:#96a8bb; }
 .ns-avg td:first-child { padding-left:20px; opacity:.85; }
+/* 6艇の比較（並び替えに合わせて並ぶ。太字＝6艇の中の一番。色は付けない） */
+.cmp6 .ns-body { padding:8px 10px 9px; }
+.cmp-h { font-size:13px; font-weight:bold; color:#e0e6ed; margin-bottom:2px; }
+.cmp6 td { font-size:13px; color:#c8d2dc; padding:6px 0; vertical-align:middle; }
+.cmp6 td.cmp-top { color:#fff; font-weight:800; }
+.cmp-note { font-size:13px; color:#96a8bb; margin-top:6px; line-height:1.5; }
 .k1-slot { min-height:34px; margin-top:8px; }
 .k1-slot .k1 { margin:0; }
 .k1 td:first-child { font-size:13px; }
-.k1-b { font-size:13px; color:#6f8aa3; }
+.k1-b { font-size:13px; color:#96a8bb; }
 
 /* コース別直近10走（進入コース別の生データ・二層表示） */
 .cl10 { margin-top:8px; padding-top:7px; border-top:1px solid #1c2a3c; min-height:78px; }
@@ -285,7 +291,7 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .cl10-seq .p2 { color:#cfe3ff; }
 .cl10-seq .p3 { color:#a9c6dd; }
 .cl10 details { margin-top:2px; }
-.cl10 summary { font-size:13px; color:#6f8aa3; cursor:pointer; min-height:44px; display:flex; align-items:center; list-style:none; }
+.cl10 summary { font-size:13px; color:#96a8bb; cursor:pointer; min-height:44px; display:flex; align-items:center; list-style:none; }
 .cl10 summary::-webkit-details-marker { display:none; }
 .cl10 details[open] summary::after { content:"　閉じる ▲"; }
 .cl10 details:not([open]) summary::after { content:"　▼"; }
@@ -293,7 +299,7 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .cl10-dk { font-size:13px; color:#7d8b9b; margin-top:6px; }
 .cl10-dl { font-size:13px; color:#9fb0c3; font-variant-numeric:tabular-nums; }
 .cl10-dl b { color:#e0e6ed; }
-.cl10-note { font-size:13px; color:#6f8aa3; margin-top:6px; line-height:1.5; }
+.cl10-note { font-size:13px; color:#96a8bb; margin-top:6px; line-height:1.5; }
 
 /* 今節成績 */
 .shu-wrap { margin-top:9px; }
@@ -306,7 +312,7 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .shu .rx { color:#8a94a3; }
 
 .empty { text-align:center; color:#8a94a3; font-size:13px; padding:40px 0; }
-.legend-note { font-size:13px; color:#6f7d8c; margin-top:14px; line-height:1.6; }
+.legend-note { font-size:13px; color:#96a8bb; margin-top:14px; line-height:1.6; }
 /* 観戦記（場ごとのレース一覧の下。記事の実体は見どころと同じ docs/data/kansenki/articles） */
 .ksk { margin:14px 0 0; border:1px solid #24344a; border-left:3px solid #7fb4ff; border-radius:8px; background:#0f1a26; overflow:hidden; }
 .ksk > summary { list-style:none; cursor:pointer; padding:10px 12px; min-height:44px; }
@@ -320,7 +326,7 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .ksk-full { padding:0 12px 12px; border-top:1px solid #1f2b3a; }
 .ksk-full p { font-size:15px; line-height:1.9; margin:10px 0 0; color:#e0e6ed; }
 .ksk-link { color:#7cc4ff; text-decoration:none; border-bottom:1px dotted #7cc4ff; }
-.ksk-note { font-size:13px; color:#6f7d8c; margin-top:10px; line-height:1.6; }
+.ksk-note { font-size:13px; color:#96a8bb; margin-top:10px; line-height:1.6; }
 
 /* マイ・パネル（記憶と回収ループ） */
 .my { border-radius:12px; margin:6px 0 4px; overflow:hidden; border:1px solid #1f2b3a; background:#101a26; }
@@ -345,8 +351,8 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .harvest-all { margin-left:auto; font-size:13px; color:#9fb0c3; border:1px solid #2a3a4d; border-radius:6px; padding:6px 10px; min-height:32px; background:none; cursor:pointer; flex:none; }
 .recent-chips { display:flex; gap:6px; flex-wrap:wrap; }
 .rchip { font-size:13px; color:#a9c6dd; background:#0d1622; border:1px solid #24344a; border-radius:14px; padding:3px 10px; cursor:pointer; }
-.my-empty { font-size:13px; color:#6f7d8c; }
-.my-note { font-size:13px; color:#6f7d8c; margin:2px 2px 4px; line-height:1.5; }
+.my-empty { font-size:13px; color:#96a8bb; }
+.my-note { font-size:13px; color:#96a8bb; margin:2px 2px 4px; line-height:1.5; }
 .oshi-result { color:#0b1219; background:#7fb4ff; font-size:13px; font-weight:bold; border-radius:6px; padding:5px 10px; text-decoration:none; white-space:nowrap; flex:none; }
 /* スター（気になる）ボタン */
 .watchbtn { display:inline-flex; align-items:center; gap:5px; font-size:13px; font-weight:bold; border-radius:6px; padding:5px 12px; cursor:pointer; border:1px solid #7fb4ff88; background:#0f1a26; color:#7fb4ff; transition:transform .12s; }
@@ -368,7 +374,7 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .fortune-tag { font-size:13px; color:#7a7192; border:1px solid #2f2a44; border-radius:8px; padding:0 6px; }
 .fortune-inline { font-size:13px; color:#c8b57a; letter-spacing:1px; }
 .fortune-cta { font-size:13px; color:#8a94a3; }
-.fortune-caret { margin-left:auto; color:#6f7d8c; font-size:13px; }
+.fortune-caret { margin-left:auto; color:#96a8bb; font-size:13px; }
 .fortune.open .fortune-bar { border-bottom:1px solid #1b2735; }
 .fortune-body, .fortune-pick, .fortune-nopick { padding:0 12px; }
 .fortune-nopick { font-size:13px; color:#9fb0c3; padding-top:8px; }
@@ -379,7 +385,7 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .zbtn { font-size:13px; color:#a9b4c4; background:#0d1622; border:1px solid #24344a; border-radius:12px; padding:4px 9px; cursor:pointer; }
 .zbtn:active { background:#182535; }
 .fortune-link { display:inline-block; padding:6px 4px; margin:-6px -4px; font-size:13px; color:#9db2c9; text-decoration:none; }
-.fortune-more { font-size:13px; color:#6f7d8c; padding:7px 12px 11px; }
+.fortune-more { font-size:13px; color:#96a8bb; padding:7px 12px 11px; }
 .fortune-reset { font-size:13px; color:#7a828f; cursor:pointer; text-decoration:underline; }
 /* 推し */
 .oshi { border-radius:12px; margin:6px 0 4px; border:1px solid #4a3a10; background:linear-gradient(135deg,#231a0e,#141c26); padding:10px 12px; }
@@ -1196,6 +1202,30 @@ function laneChip(lane){
     +((lane===1||lane===2)?'border:1px solid #445;':'')+'">'+lane+'</span>';
 }
 
+/* ── 6艇の比較 ─────────────────────────────────────────── */
+function cmp6Table(boats){
+  if(!boats||!boats.length) return "";
+  /* [列名, 見出し, 一番の向き(-1=小さいほど上), 小数桁] */
+  var cols=[["平均ST","平均ST",-1,2],["全国勝率","全国勝率",1,2],["当地勝率","当地勝率",1,2],["モーター2連率","モーター",1,1]];
+  var best=cols.map(function(c){
+    var xs=boats.map(function(r){return parseFloat(g(r,c[0]));}).filter(function(x){return !isNaN(x);});
+    return xs.length?(c[2]<0?Math.min.apply(null,xs):Math.max.apply(null,xs)):null;
+  });
+  var head='<tr><th>枠・選手</th><th>級</th>'+cols.map(function(c){return '<th>'+c[1]+'</th>';}).join("")+'</tr>';
+  var rows=boats.map(function(row){
+    var lane=parseInt(g(row,"枠"));
+    var nm=g(row,"氏名").replace(/　+/g,"").slice(0,4);
+    return '<tr><td>'+laneChip(lane)+'<span class="ns-nm">'+esc(nm)+'</span></td><td>'+esc(g(row,"級別"))+'</td>'
+      +cols.map(function(c,j){
+        var x=parseFloat(g(row,c[0]));
+        if(isNaN(x)) return '<td>-</td>';
+        return '<td'+(x===best[j]?' class="cmp-top"':'')+'>'+x.toFixed(c[3])+'</td>';
+      }).join("")+'</tr>';
+  }).join("");
+  return '<div class="ns cmp6"><div class="ns-body"><div class="cmp-h">6艇の比較</div><table>'+head+rows+'</table>'
+    +'<div class="cmp-note">太字は6艇の中の一番（平均STは最も早い艇）。モーターは2連率%。並びは上の並び替えに合わせています。</div></div></div>';
+}
+
 /* ── 枠別成績 ───────────────────────────────────────────── */
 function wakuStatsTable(boats){
   if(!WS||!WS.cells||!WS.base||!WS.meta) return "";
@@ -1668,6 +1698,7 @@ function renderRace(app,crumb,v){
 
   ensureCL10();
   ensureTJ();
+  html+=cmp6Table(boats);
   html+=wakuStatsTable(rc.boats);
   html+=nigeSecondTable(rc.boats);
   html+='<div class="card-legend">札：<span class="sw sw-j">点線</span>数字から出した判定<span class="sw sw-l">丸</span>地元<span class="sw sw-f">太線</span>F持ち</div>';
