@@ -8,6 +8,7 @@
   card.json   … 選手ごとの集計・技（tg）・優勝（yc）。実験場 senshuCardE.html の card2D.json と同じ形
   ayumi.json  … 積み上げた事実
   h2h/0〜63.json・meta.json … 直接対決
+  card/common.json・index.json・p/0〜63.json … ページ用に選手ごとに分けたもの（card.json と ayumi.json の中身）
 最後に検査を走らせ、1つでも外れたら書き出さずに止まる（check.py）。
 """
 import json
@@ -20,6 +21,18 @@ import check  # noqa: E402
 import facts  # noqa: E402
 import h2h  # noqa: E402
 import waza  # noqa: E402
+
+
+def split(out, ay, d):
+    """ページ用に分ける：common.json（窓・技の一覧・優勝の範囲）、index.json（登番→名前。検索用）、p/登番%64.json（選手ごと。ay＝積み上げた事実）"""
+    os.makedirs(os.path.join(d, 'p'), exist_ok=True)
+    json.dump({k: v for k, v in out.items() if k != 'players'}, open(os.path.join(d, 'common.json'), 'w'), ensure_ascii=False, separators=(',', ':'))
+    json.dump({t: P['name'] for t, P in out['players'].items()}, open(os.path.join(d, 'index.json'), 'w'), ensure_ascii=False, separators=(',', ':'))
+    shards = {}
+    for t, P in out['players'].items():
+        shards.setdefault(int(t) % 64, {})[t] = dict(P, ay=ay.get(t, {}))
+    for k in range(64):
+        json.dump(shards.get(k, {}), open(os.path.join(d, 'p', f'{k}.json'), 'w'), ensure_ascii=False, separators=(',', ':'))
 
 
 def main():
@@ -43,6 +56,7 @@ def main():
     json.dump(out, open(os.path.join(outDir, 'card.json'), 'w'), ensure_ascii=False, separators=(',', ':'))
     json.dump(ay, open(os.path.join(outDir, 'ayumi.json'), 'w'), ensure_ascii=False, separators=(',', ':'))
     h2h.build(rows, set(out['players']), out['win']['all']['from'], last, os.path.join(outDir, 'h2h'))
+    split(out, ay, os.path.join(outDir, 'card'))
     print('OK', last, '選手', len(out['players']))
 
 
