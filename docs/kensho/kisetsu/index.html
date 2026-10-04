@@ -90,6 +90,9 @@ details[open]>summary::after{content:"−"}
   border:1px solid var(--line);border-radius:10px}
 .chart svg{display:block;width:100%;height:auto;font-family:inherit}
 .chart figcaption{margin-top:8px;font-size:11.5px;line-height:1.8;color:var(--dim)}
+.chart .replay{display:block;margin:10px auto 2px;min-height:44px;padding:0 20px;background:none;border:1px solid var(--line);border-radius:22px;color:var(--dim);font-size:13px;cursor:pointer}
+.chart .replay[hidden]{display:none}
+.chart .nw{display:inline-block;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -198,8 +201,8 @@ details[open]>summary::after{content:"−"}
 
 <p>たまたま強い冬が何年か混じっていただけ、ということもあり得る。そこで冬と夏を年ごとに分け、12月は翌年の冬に入れて、同じように揃え直しました。</p>
 
-<figure class="chart" role="img" aria-label="年ごとの冬夏差。10年のうち9年で冬が上、2022年だけ夏が上">
-<svg viewBox="0 0 360 246" width="100%" xmlns="http://www.w3.org/2000/svg">
+<figure class="chart" id="yrFig" role="img" aria-label="年ごとの冬夏差。10年のうち9年で冬が上、2022年だけ夏が上">
+<svg id="yrSvg" viewBox="0 0 360 246" width="100%" xmlns="http://www.w3.org/2000/svg">
 <line x1="70.0" y1="14" x2="70.0" y2="222" stroke="#4a627f" stroke-width="0.6"/>
 <text x="70.0" y="238" font-size="10" fill="#8a94a3" text-anchor="middle">−1</text>
 <line x1="127.8" y1="14" x2="127.8" y2="222" stroke="#e0e6ed" stroke-width="1"/>
@@ -251,7 +254,8 @@ details[open]>summary::after{content:"−"}
 <circle cx="214.4" cy="204" r="4.5" fill="#7cc4ff"/>
 <text x="222.4" y="208" font-size="10.5" fill="#e0e6ed" text-anchor="start">+1.5</text>
 </svg>
-<figcaption>季節の年ごとの冬夏差（ポイント）。条件を揃えたあとの冬から夏を引いた差。右が冬の勝ち（青）、左が夏の勝ち（橙）。12月は翌年の冬に入れています。</figcaption>
+<button class="replay" id="yrRe" type="button" hidden>もう一度見る</button>
+<figcaption><span class="nw">季節の年ごとの冬夏差（ポイント）。</span><span class="nw">条件を揃えたあとの</span><span class="nw">冬から夏を引いた差。</span><span class="nw">右が冬の勝ち（青）、</span><span class="nw">左が夏の勝ち（橙）。</span><span class="nw">12月は翌年の冬に</span><span class="nw">入れています。</span></figcaption>
 </figure>
 
 <p>10年のうち9年で、冬が上。2022年だけが夏に負けていて、理由を探して数え直しましたが、2022年は何度数えても2022年のままでした。</p>
@@ -495,6 +499,62 @@ details[open]>summary::after{content:"−"}
 
 </div>
 
+<script>
+(function () {
+  var D = [[2017,0.954],[2018,2.158],[2019,0.905],[2020,0.328],[2021,2.04],[2022,-0.679],[2023,2.977],[2024,0.422],[2025,1.813],[2026,1.494]];
+  var fig = document.getElementById('yrFig'), g = document.getElementById('yrSvg'), btn = document.getElementById('yrRe');
+  if (!fig || !g || !('IntersectionObserver' in window) || !window.requestAnimationFrame) return;
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var NS = 'http://www.w3.org/2000/svg', X0 = 70, U = 63, TOP = 26, ROW = 20;
+  var x = function (v) { return X0 + (v + 1) * U; };
+  var el = function (tag, a, txt) { var e = document.createElementNS(NS, tag); for (var k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; g.appendChild(e); return e; };
+  var yB = TOP + ROW * (D.length - 1) + 14;
+  g.setAttribute('viewBox', '0 0 360 ' + (yB + 24));
+  while (g.firstChild) g.removeChild(g.firstChild);
+  [-1, 0, 1, 2, 3].forEach(function (t) {
+    el('line', { x1: x(t), y1: TOP - 14, x2: x(t), y2: yB, stroke: t ? '#4a627f' : '#e0e6ed', 'stroke-width': t ? .6 : 1 });
+    el('text', { x: x(t), y: yB + 18, 'font-size': 12, fill: '#8a94a3', 'text-anchor': 'middle' }, t < 0 ? '\u22121' : t ? '+' + t : '0');
+  });
+  var R = D.map(function (r, i) {
+    var y = TOP + ROW * i, d = r[1], c = d < 0 ? '#ff9f6b' : '#7cc4ff', v = Math.abs(Math.round(d * 10) / 10).toFixed(1);
+    return {
+      d: d,
+      t: el('text', { x: 12, y: y + 4, 'font-size': 12, fill: '#e0e6ed' }, r[0]),
+      ln: el('line', { x1: x(0), y1: y, x2: x(0), y2: y, stroke: c, 'stroke-width': 2.4, 'stroke-linecap': 'round' }),
+      dot: el('circle', { cx: x(0), cy: y, r: 5, fill: c }),
+      lb: el('text', { x: x(d) + (d < 0 ? -9 : 9), y: y + 4, 'font-size': 12, fill: '#e0e6ed', 'text-anchor': d < 0 ? 'end' : 'start' }, (d < 0 ? '\u2212' : '+') + v)
+    };
+  });
+  var GROW = 380, PER = 520, TOTAL = R.length * PER;
+  var ease = function (k) { return 1 - Math.pow(1 - k, 3); };
+  function paint(ms) {
+    R.forEach(function (r, i) {
+      var k = Math.max(0, Math.min(1, (ms - i * PER) / GROW)), on = ms >= i * PER, xe = x(r.d * ease(k));
+      r.t.style.opacity = on ? 1 : .25;
+      r.ln.style.opacity = r.dot.style.opacity = on ? 1 : 0;
+      r.ln.setAttribute('x2', xe); r.dot.setAttribute('cx', xe);
+      r.lb.style.opacity = k >= 1 ? 1 : 0;
+    });
+  }
+  var busy = false;
+  function run() {
+    if (busy) return; busy = true;
+    var t0 = 0;
+    requestAnimationFrame(function step(t) {
+      if (!t0) t0 = t;
+      paint(t - t0);
+      if (t - t0 < TOTAL) requestAnimationFrame(step); else busy = false;
+    });
+  }
+  paint(0);
+  btn.hidden = false;
+  btn.onclick = function () { if (!busy) { paint(0); run(); } };
+  var io = new IntersectionObserver(function (es) {
+    es.forEach(function (e) { if (e.isIntersecting) { run(); io.disconnect(); } });
+  }, { threshold: 0.6 });
+  io.observe(fig);
+})();
+</script>
 <script src="../../assets/guard.js" defer></script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
