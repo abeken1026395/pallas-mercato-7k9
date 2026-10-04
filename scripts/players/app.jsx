@@ -246,19 +246,19 @@ function BranchPanel({bsort,setBsort,kim,players,hasDetail,detailErr,cstat,csMet
   const {rows,all,hasKim}=stat;
   const key=bsort==="makuri"?"makuriR":bsort==="sashi"?"sashiR":bsort;
   const sorted=[...rows].sort((x,y)=> bsort==="st" ? x.st-y.st : (y[key]-x[key]));
-  const diff=(v,base,inv,suf)=>{const d=v-base;const up=inv?d<0:d>0;return <span style={{fontSize:11,fontWeight:700,color:up?"#ffd166":"#6b7f95",marginLeft:4,fontVariantNumeric:"tabular-nums"}}>{(d>=0?"+":"")+d.toFixed(suf?1:2)+(suf||"")}</span>;};
+  const diff=(v,base,inv,suf)=>{const d=v-base;const up=inv?d<0:d>0;return <span style={{fontSize:11,fontWeight:700,color:up?"#ffd166":"#96a8bb",marginLeft:4,fontVariantNumeric:"tabular-nums"}}>{(d>=0?"+":"")+d.toFixed(suf?1:2)+(suf||"")}</span>;};
   const sk=[["win","勝率"],["out","アウト戦"],["makuri","まくり率"],["sashi","差し率"],["st","平均ST"],["a1","A1率"],["n","人数"]];
   // 平均ST と コース別1着率(2〜6コース) は detail 側の項目。未到着のまま描くと
   // 0.000 や全ゼロのグラフが出て、埋め込み時代と違う数字を見せてしまう。
   // 揃うまでは集計を出さない。
   if(!hasDetail) return (
-   <div style={{fontSize:12,color:"#6b7f95",padding:"18px 2px",lineHeight:1.7}}>
+   <div style={{fontSize:12,color:"#96a8bb",padding:"18px 2px",lineHeight:1.7}}>
     {detailErr ? "選手データを読み込めませんでした。ページを再読込してください。" : "読み込み中…"}
    </div>
   );
   return (
    <div>
-    <div style={{fontSize:11,color:"#6b7f95",margin:"2px 2px 10px",lineHeight:1.5}}>支部所属者の集計。勝率・アウト戦・平均STは期首時点の値（2026後期fan2604）。コース別1着率は進入コース別の実走を合算したもので{csMeta&&csMeta.期間&&csMeta.期間.日数?"（過去"+csMeta.期間.日数+"日）":""}、細い横線は全選手の平均。決まり手は所属選手の1着実数を合算した比率。数値右は全国平均との差分。母数の少ない支部はブレやすく、個々の選手が従うわけではない目安。</div>
+    <div style={{fontSize:11,color:"#96a8bb",margin:"2px 2px 10px",lineHeight:1.5}}>支部所属者の集計。勝率・アウト戦・平均STは期首時点の値（2026後期fan2604）。コース別1着率は進入コース別の実走を合算したもので{csMeta&&csMeta.期間&&csMeta.期間.日数?"（過去"+csMeta.期間.日数+"日）":""}、細い横線は全選手の平均。決まり手は所属選手の1着実数を合算した比率。数値右は全国平均との差分。母数の少ない支部はブレやすく、個々の選手が従うわけではない目安。</div>
     <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}>
      {sk.map(([k,l])=>(
       <button key={k} onClick={()=>setBsort(k)} style={{padding:"6px 13px",fontSize:12,fontWeight:700,borderRadius:8,cursor:"pointer",border:"1px solid "+(bsort===k?"#ffd166":"#1e2d3d"),background:bsort===k?"#ffd166":"#162232",color:bsort===k?"#0b1219":"#8faabe"}}>{l}</button>
@@ -273,12 +273,12 @@ function BranchPanel({bsort,setBsort,kim,players,hasDetail,detailErr,cstat,csMet
        <div style={{display:"flex",alignItems:"baseline",gap:10,marginBottom:10}}>
         <span style={{fontSize:14,fontWeight:900,color:"#ffd166",minWidth:22}}>{idx+1}</span>
         <span style={{fontSize:17,fontWeight:900,color:"#e0e6ed"}}>{r.b}</span>
-        <span style={{fontSize:11,color:"#6b7f95",marginLeft:"auto",fontVariantNumeric:"tabular-nums"}}>{r.n}名 ・ A1 {r.a1.toFixed(0)}%</span>
+        <span style={{fontSize:11,color:"#96a8bb",marginLeft:"auto",fontVariantNumeric:"tabular-nums"}}>{r.n}名 ・ A1 {r.a1.toFixed(0)}%</span>
        </div>
        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"6px 8px",fontSize:13,marginBottom:11}}>
-        <div><span style={{color:"#6b7f95",fontSize:11}}>勝率 </span><b style={{color:"#ffd166",fontVariantNumeric:"tabular-nums"}}>{r.win.toFixed(2)}</b>{diff(r.win,all.win)}</div>
-        <div><span style={{color:"#6b7f95",fontSize:11}}>アウト戦 </span><b style={{color:"#e0e6ed",fontVariantNumeric:"tabular-nums"}}>{r.out.toFixed(1)}</b>{diff(r.out,all.out)}</div>
-        <div><span style={{color:"#6b7f95",fontSize:11}}>平均ST </span><b style={{color:"#e0e6ed",fontVariantNumeric:"tabular-nums"}}>{r.st.toFixed(3)}</b>{diff(r.st,all.st,true)}</div>
+        <div><span style={{color:"#96a8bb",fontSize:11}}>勝率 </span><b style={{color:"#ffd166",fontVariantNumeric:"tabular-nums"}}>{r.win.toFixed(2)}</b>{diff(r.win,all.win)}</div>
+        <div><span style={{color:"#96a8bb",fontSize:11}}>アウト戦 </span><b style={{color:"#e0e6ed",fontVariantNumeric:"tabular-nums"}}>{r.out.toFixed(1)}</b>{diff(r.out,all.out)}</div>
+        <div><span style={{color:"#96a8bb",fontSize:11}}>平均ST </span><b style={{color:"#e0e6ed",fontVariantNumeric:"tabular-nums"}}>{r.st.toFixed(3)}</b>{diff(r.st,all.st,true)}</div>
        </div>
        <div style={{display:"flex",gap:4,alignItems:"flex-end",marginBottom:12}}>
         {r.c1.map((v,i)=>(
@@ -288,14 +288,14 @@ function BranchPanel({bsort,setBsort,kim,players,hasDetail,detailErr,cstat,csMet
            {v.r!==null&&<div style={{position:"absolute",left:"16%",right:"16%",bottom:0,height:Math.max(2,v.r*0.28)+"px",background:i<2?"#ffd166":"#4593e5",borderRadius:"2px 2px 0 0"}}></div>}
            {all.cbase[i]!==null&&<div style={{position:"absolute",left:0,right:0,bottom:Math.max(1,all.cbase[i]*0.28)+"px",height:1,background:"#6b7f95"}}></div>}
           </div>
-          <div style={{fontSize:9,color:"#6b7f95",marginTop:2}}>{i+1}</div>
-          <div style={{fontSize:9,color:"#6b7f95",fontVariantNumeric:"tabular-nums"}}>{v.n?v.n.toLocaleString():"—"}走</div>
+          <div style={{fontSize:11,color:"#96a8bb",marginTop:2}}>{i+1}</div>
+          <div style={{fontSize:11,color:"#96a8bb",fontVariantNumeric:"tabular-nums"}}>{v.n?v.n.toLocaleString():"—"}走</div>
          </div>
         ))}
        </div>
-       {!hasKim ? <div style={{fontSize:11,color:"#6b7f95"}}>決まり手データ読み込み中…</div> : r.kt===0 ? <div style={{fontSize:11,color:"#6b7f95"}}>決まり手データなし</div> : (
+       {!hasKim ? <div style={{fontSize:11,color:"#96a8bb"}}>決まり手データ読み込み中…</div> : r.kt===0 ? <div style={{fontSize:11,color:"#96a8bb"}}>決まり手データなし</div> : (
         <div>
-         <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:"#6b7f95",marginBottom:4}}>
+         <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:"#96a8bb",marginBottom:4}}>
           <span>決まり手（1着 {r.kt}本）</span>
           <span>まくり率 <b style={{color:"#4593e5",fontVariantNumeric:"tabular-nums"}}>{r.makuriR.toFixed(1)}%</b>{diff(r.makuriR,all.makuriR,false,"%")}　差し率 <b style={{color:"#3fb950",fontVariantNumeric:"tabular-nums"}}>{r.sashiR.toFixed(1)}%</b>{diff(r.sashiR,all.sashiR,false,"%")}</span>
          </div>
@@ -490,12 +490,12 @@ function App() {
     const pi = wstPer;
     const avg = (a)=> (a && a[0]>0) ? (a[1]/a[0]/1000).toFixed(2) : null;
     const td = {padding:"6px 0",color:"#e0e6ed",fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap"};
-    const th = {padding:"4px 0",borderBottom:"1px solid #1a2535",color:"#6b7f95",fontSize:10,fontWeight:400,textAlign:"right"};
+    const th = {padding:"4px 0",borderBottom:"1px solid #1a2535",color:"#96a8bb",fontSize:10,fontWeight:400,textAlign:"right"};
     return (
       <details onClick={e=>e.stopPropagation()} style={{marginTop:6}}>
         <summary onClick={e=>e.stopPropagation()} style={{fontSize:12,color:"#8faabe",cursor:"pointer",minHeight:44,display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,listStyle:"none",background:"#0b1219",border:"1px solid #1a2535",borderRadius:8,padding:"0 12px"}}>
           <span>枠別平均ST</span>
-          <span style={{color:"#6b7f95",fontSize:12}}>▸</span>
+          <span style={{color:"#96a8bb",fontSize:12}}>▸</span>
         </summary>
         <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:8}}>
           {WST_PER.map(([k,l],i)=>(
@@ -526,7 +526,7 @@ function App() {
                     <td style={{...td,textAlign:"right"}}>{a[2]}回</td>
                   </tr>
                   <tr>
-                    <td colSpan={4} style={{padding:"0 0 5px",borderBottom:"1px solid #1a2535",color:"#6b7f95",fontSize:10,fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap"}}>
+                    <td colSpan={4} style={{padding:"0 0 5px",borderBottom:"1px solid #1a2535",color:"#96a8bb",fontSize:11,fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap"}}>
                       {"枠"+w+" 全体 "+(all===null?"—":all)}
                     </td>
                   </tr>
@@ -535,7 +535,7 @@ function App() {
             })}
           </tbody>
         </table>
-        <div style={{fontSize:10,color:"#6b7f95",marginTop:8,lineHeight:1.6}}>
+        <div style={{fontSize:11,color:"#96a8bb",marginTop:8,lineHeight:1.6}}>
           その枠で走ったときの本番STの平均。フライングの走は平均から外し回数だけ数える。
           欠場とSTが数値でない走は除外。走数20未満は薄字。出典：公式競走成績
         </div>
@@ -645,11 +645,11 @@ function App() {
       <div style={{minHeight:"100vh",padding:"14px 12px 40px",maxWidth:760,margin:"0 auto"}}>
         <div style={{display:"flex",alignItems:"baseline",gap:10,marginBottom:14}}>
           <span style={{fontSize:24,fontWeight:900,letterSpacing:1,color:"#ffd166"}}>選手図鑑</span>
-          <span style={{fontSize:12,color:"#6b7f95"}}>2026後期　成績＝期首時点（fan2604）</span>
+          <span style={{fontSize:12,color:"#96a8bb"}}>2026後期　成績＝期首時点（fan2604）</span>
         </div>
         <div style={{fontSize:13,color:"#8faabe",lineHeight:1.8,padding:"18px 2px"}}>
           {coreErr ? "選手データを読み込めませんでした。ページを再読込してください。" : "読み込み中…"}
-          {oshi.length>0 && <div style={{fontSize:11,color:"#6b7f95",marginTop:6}}>⭐フォロー{oshi.length}名はこの端末に保存されています（消えていません）。</div>}
+          {oshi.length>0 && <div style={{fontSize:11,color:"#96a8bb",marginTop:6}}>⭐フォロー{oshi.length}名はこの端末に保存されています（消えていません）。</div>}
         </div>
       </div>
     );
@@ -659,7 +659,7 @@ function App() {
     <div style={{minHeight:"100vh",padding:"14px 12px 40px",maxWidth:760,margin:"0 auto"}}>
       <div style={{marginBottom:14}}>
         <div style={{fontSize:24,fontWeight:900,letterSpacing:1,color:"#ffd166"}}>選手図鑑</div>
-        <div style={{fontSize:12,color:"#6b7f95",marginTop:4,lineHeight:1.5}}>2026後期 全{players.length}選手　成績＝期首時点（fan2604）</div>
+        <div style={{fontSize:12,color:"#96a8bb",marginTop:4,lineHeight:1.5}}>2026後期 全{players.length}選手　成績＝期首時点（fan2604）</div>
       </div>
 
       <input placeholder="選手名 / ふりがな / 登番 / 支部で検索..." value={q} onChange={e=>setQ(e.target.value)} style={{width:"100%",padding:"12px 14px",background:"#162232",color:"#e0e6ed",border:"1px solid #1e2d3d",borderRadius:10,fontSize:14,marginBottom:10}}/>
@@ -688,14 +688,14 @@ function App() {
         </select>}
         <button onClick={()=>setFemaleOnly(v=>!v)} style={{padding:"7px 14px",fontSize:13,fontWeight:700,borderRadius:8,cursor:"pointer",border:"1px solid "+(femaleOnly?"#ff7eb6":"#2a3d52"),background:femaleOnly?"#ff7eb622":"#162232",color:femaleOnly?"#ff7eb6":"#8faabe"}}>♥ 女子</button>
         <button onClick={()=>setOshiOnly(v=>!v)} style={{padding:"7px 14px",fontSize:13,fontWeight:700,borderRadius:8,cursor:"pointer",border:"1px solid "+(oshiOnly?"#ffd166":"#2a3d52"),background:oshiOnly?"#ffd16622":"#162232",color:oshiOnly?"#ffd166":"#8faabe"}}>{oshi.length?"⭐":"☆"} 推し{oshi.length?" "+oshi.length:""}</button>
-        <span style={{marginLeft:"auto",fontSize:12,color:"#6b7f95"}}>{(tab==="makuri"||tab==="sashi")&&<span style={{color:"#8faabe"}}>1着10本以上・{tab==="makuri"?"まくり":"差し"}率順　</span>}{tab==="branch"?"18支部":filtered.length+"名"}</span>
+        <span style={{marginLeft:"auto",fontSize:12,color:"#96a8bb"}}>{(tab==="makuri"||tab==="sashi")&&<span style={{color:"#8faabe"}}>1着10本以上・{tab==="makuri"?"まくり":"差し"}率順　</span>}{tab==="branch"?"18支部":filtered.length+"名"}</span>
       </div>
 
-      <div style={{fontSize:11,color:"#6b7f95",lineHeight:1.7,marginBottom:12,padding:"9px 11px",background:"#131e2a",border:"1px solid #1e2d3d",borderRadius:8}}>☆を押すと推しフォロー。フォローした選手は出走表の「⭐ 推しの本日」に出ます。フォローはこの端末にのみ保存され、外部には送信されません。</div>
+      <div style={{fontSize:11,color:"#96a8bb",lineHeight:1.7,marginBottom:12,padding:"9px 11px",background:"#131e2a",border:"1px solid #1e2d3d",borderRadius:8}}>☆を押すと推しフォロー。フォローした選手は出走表の「⭐ 推しの本日」に出ます。フォローはこの端末にのみ保存され、外部には送信されません。</div>
       <details style={{fontSize:12,color:"#8faabe",lineHeight:1.7,marginBottom:12,padding:"9px 11px",background:"#131e2a",border:"1px solid #1e2d3d",borderRadius:8}}>
         <summary style={{cursor:"pointer",minHeight:24}}>📝 メモ {memoCount}名（書き出し・読み込み）</summary>
         <div style={{marginTop:8}}>
-          <div style={{fontSize:11,color:"#6b7f95",marginBottom:8}}>メモは選手の詳細を開いて書けます。この端末のこのブラウザにだけ保存され、外部には送信されません。ブラウザのデータを消すと消えます。機種変更のときは、書き出した文字列を新しい端末で読み込んでください。</div>
+          <div style={{fontSize:11,color:"#96a8bb",marginBottom:8}}>メモは選手の詳細を開いて書けます。この端末のこのブラウザにだけ保存され、外部には送信されません。ブラウザのデータを消すと消えます。機種変更のときは、書き出した文字列を新しい端末で読み込んでください。</div>
           <div style={{display:"flex",gap:8,marginBottom:8}}>
             <button type="button" onClick={exportMemo} disabled={!memoCount} style={{padding:"8px 14px",fontSize:13,fontWeight:700,borderRadius:8,cursor:memoCount?"pointer":"default",border:"1px solid #2a3d52",background:"#162232",color:memoCount?"#e0e6ed":"#56607a"}}>書き出す</button>
             <button type="button" onClick={importMemo} disabled={!memoIO.trim()} style={{padding:"8px 14px",fontSize:13,fontWeight:700,borderRadius:8,cursor:memoIO.trim()?"pointer":"default",border:"1px solid #2a3d52",background:"#162232",color:memoIO.trim()?"#e0e6ed":"#56607a"}}>読み込む</button>
@@ -730,7 +730,7 @@ function App() {
                 <div style={{minWidth:0,flex:1}}>
                   <div style={{display:"flex",alignItems:"baseline",gap:8,flexWrap:"nowrap",minWidth:0}}>
                     <span data-nm="1" style={{fontSize:"clamp(15px, calc((100vw - 360px) * 0.067 + 17px), 19px)",fontWeight:800,color:"#e8edf2",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",minWidth:0}}>{p.name}</span>
-                    <span style={{fontSize:13,color:"#6b7f95",whiteSpace:"nowrap",flexShrink:0}}>{p.branch}</span>
+                    <span style={{fontSize:13,color:"#96a8bb",whiteSpace:"nowrap",flexShrink:0}}>{p.branch}</span>
                     {hasMemo(memo,p.no)&&<span role="img" aria-label="メモあり" title="メモあり" style={{fontSize:13,lineHeight:1,flexShrink:0}}>📝</span>}
                   </div>
                   {p.kana&&<div style={{fontSize:10,color:"#8aa0b4",marginTop:1}}>{p.kana}</div>}
@@ -739,12 +739,12 @@ function App() {
                   {tab!=="list" && k ? [["率",(tab==="makuri"?k.makuriRate:k.sashiRate)||"-",tab==="makuri"?"#ff9e64":"#7ee787",(tab==="makuri"?"まくり率":"差し率")],["数",tab==="makuri"?k.makuri:k.sashi,"#e0e6ed",(tab==="makuri"?"まくり数":"差し数")]].map(([t,v,col,lb],i)=>(
                     <div key={i} style={{textAlign:"center"}}>
                       <div style={{fontSize:22,fontWeight:800,color:col,lineHeight:1,fontVariantNumeric:"tabular-nums"}}>{v}{t==="率"&&v!=="-"&&<span style={{fontSize:12}}>%</span>}</div>
-                      <div style={{fontSize:10,color:"#6b7f95",marginTop:3}}>{lb}</div>
+                      <div style={{fontSize:11,color:"#96a8bb",marginTop:3}}>{lb}</div>
                     </div>
-                  )) : [["勝率",p.win.toFixed(2),"#ffd166"],["複勝率",p.fukusho.toFixed(2),"#3fb1c9"]].map(([lb,v,col],i)=>(
+                  )) : [["勝率",p.win.toFixed(2),"#ffd166"],["2連率%",(p.fukusho*10).toFixed(1),"#3fb1c9"]].map(([lb,v,col],i)=>(
                     <div key={i} style={{textAlign:"center"}}>
                       <div style={{fontSize:22,fontWeight:800,color:col,lineHeight:1,fontVariantNumeric:"tabular-nums"}}>{v}</div>
-                      <div style={{fontSize:10,color:"#6b7f95",marginTop:3}}>{lb}</div>
+                      <div style={{fontSize:11,color:"#96a8bb",marginTop:3}}>{lb}</div>
                     </div>
                   ))}
                 </div>
@@ -756,14 +756,14 @@ function App() {
                   {/* 自分用メモ。detail の到着を待たずに書ける。カードの開閉を誘発しないよう伝播を止める */}
                   {/* 使わない人も多いので畳んでおく。書いてある選手だけ最初から開く */}
                   <details open={hasMemo(memo,p.no)} onClick={e=>e.stopPropagation()} style={{margin:"10px 0"}}>
-                    <summary style={{fontSize:11,color:"#6b7f95",cursor:"pointer",padding:"4px 0",userSelect:"none"}}>📝 自分用メモ{hasMemo(memo,p.no)?"（あり）":""}</summary>
-                    <label htmlFor={"memo-"+p.no} style={{display:"block",fontSize:10,color:"#6b7f95",margin:"4px 0"}}>この端末にだけ保存・{MEMO_MAX}字まで</label>
+                    <summary style={{fontSize:11,color:"#96a8bb",cursor:"pointer",padding:"4px 0",userSelect:"none"}}>📝 自分用メモ{hasMemo(memo,p.no)?"（あり）":""}</summary>
+                    <label htmlFor={"memo-"+p.no} style={{display:"block",fontSize:11,color:"#96a8bb",margin:"4px 0"}}>この端末にだけ保存・{MEMO_MAX}字まで</label>
                     <textarea id={"memo-"+p.no} value={memo[String(p.no)]||""} onChange={e=>saveMemo(p.no,e.target.value)} maxLength={MEMO_MAX} rows={3} style={{width:"100%",boxSizing:"border-box",padding:"8px 10px",background:"#162232",color:"#e0e6ed",border:"1px solid #2a3d52",borderRadius:8,fontSize:16,lineHeight:1.6,fontFamily:"inherit",resize:"vertical"}}/>
                   </details>
                   {/* 基本情報・成績・コース別1着率は detail 側の項目。届くまでは
                       「-」や undefined を並べず、1行だけ状態を出す。 */}
                   {!detail ? (
-                    <div style={{fontSize:11,color:"#6b7f95",margin:"12px 0",lineHeight:1.7}}>
+                    <div style={{fontSize:11,color:"#96a8bb",margin:"12px 0",lineHeight:1.7}}>
                       {detailErr ? "選手データを読み込めませんでした。ページを再読込してください。" : "読み込み中…"}
                     </div>
                   ) : (<>
@@ -771,7 +771,7 @@ function App() {
                   <div style={{display:"flex",gap:14,flexWrap:"wrap",marginBottom:14,background:"#0b1219",borderRadius:8,padding:"10px 12px"}}>
                     {[["登番",p.no],["支部",p.branch],["養成期",p.yousei?p.yousei+"期":"-"],["出身",p.home||"-"],["年齢",p.age+"歳"],["生年月日",p.birth||"-"],["身長",p.height?p.height+"cm":"-"],["体重",p.weight?p.weight+"kg":"-"],["血液",p.blood||"-"],["能力指数",p.power||"-"]].map(([l,v],i)=>(
                       <div key={i} style={{display:"flex",flexDirection:"column",minWidth:60}}>
-                        <span style={{fontSize:10,color:"#6b7f95"}}>{l}</span>
+                        <span style={{fontSize:11,color:"#96a8bb"}}>{l}</span>
                         <span style={{fontSize:13,fontWeight:700,color:(l==="養成期"?"#79c0ff":l==="能力指数"?"#ffd166":"#e0e6ed")}}>{v}</span>
                       </div>
                     ))}
@@ -783,7 +783,7 @@ function App() {
                     return (
                       <div style={{fontSize:12,color:"#c5d2e0",margin:"-4px 0 10px"}}>
                         💰 今年の獲得賞金 <b style={{color:"#ffd166"}}>{x.rank}位</b>　¥{x.prize.toLocaleString("ja-JP")}
-                        <span style={{fontSize:10,color:"#6b7f95",marginLeft:6}}>{md(prize.period.from)}〜{md(prize.period.to)}集計・<a href={prize.source} target="_blank" rel="noopener" onClick={e=>e.stopPropagation()} style={{color:"#6b7f95"}}>公式ベスト50</a></span>
+                        <span style={{fontSize:11,color:"#96a8bb",marginLeft:6}}>{md(prize.period.from)}〜{md(prize.period.to)}集計・<a href={prize.source} target="_blank" rel="noopener" onClick={e=>e.stopPropagation()} style={{color:"#96a8bb"}}>公式ベスト50</a></span>
                       </div>
                     );})()}
                   {pf&&pf.hobby&&<div style={{fontSize:12,color:"#c5d2e0",marginTop:-4}}>🎣 趣味：{pf.hobby}</div>}
@@ -791,7 +791,7 @@ function App() {
                   {pf&&pf.note&&<div style={{fontSize:12,color:"#c5d2e0",marginTop:4,lineHeight:1.6}}>💬 {renderNote(pf.note, jump)}</div>}
                   {(()=>{const rels=relIndex[p.no];if(!rels||!rels.length)return null;return (
                     <div style={{display:"flex",flexWrap:"wrap",gap:6,alignItems:"center",marginTop:8}}>
-                      <span style={{fontSize:10,color:"#6b7f95",fontWeight:700}}>関係</span>
+                      <span style={{fontSize:11,color:"#96a8bb",fontWeight:700}}>関係</span>
                       {rels.map((r,i)=>(
                         <span key={i} onClick={e=>{e.stopPropagation();jump(r.no);}} title={"→ "+r.name} style={{fontSize:11,fontWeight:700,cursor:"pointer",borderRadius:6,padding:"2px 8px",background:r.color+"1e",border:"1px solid "+r.color+"55",color:r.color}}>
                           <span style={{opacity:0.65,marginRight:3,fontWeight:600}}>{r.role}</span>{r.name}
@@ -805,11 +805,11 @@ function App() {
                     if(!others.length) return null;
                     return (
                       <details key={lbl} onClick={e=>e.stopPropagation()} style={{marginTop:8}}>
-                        <summary style={{fontSize:11,color:"#8faabe",fontWeight:700,cursor:"pointer",userSelect:"none"}}>{lbl}の選手　<span style={{color:"#6b7f95",fontWeight:400}}>{sub}・現役{others.length}名</span></summary>
+                        <summary style={{fontSize:11,color:"#8faabe",fontWeight:700,cursor:"pointer",userSelect:"none"}}>{lbl}の選手　<span style={{color:"#96a8bb",fontWeight:400}}>{sub}・現役{others.length}名</span></summary>
                         <div style={{display:"flex",flexWrap:"wrap",gap:6,marginTop:6}}>
                           {others.map(x=>(
                             <span key={x.no} onClick={e=>{e.stopPropagation();jump(x.no);}} title={"→ "+x.name+"（"+x.branch+"・"+x.rank+"）"} style={{fontSize:11,cursor:"pointer",borderRadius:6,padding:"2px 8px",background:"#8faabe14",border:"1px solid #8faabe40",color:"#c5d2e0"}}>
-                              <span style={{color:RANK_TX[x.rank]||"#6b7f95",fontWeight:700,marginRight:4,fontSize:10}}>{x.rank}</span>{x.name}
+                              <span style={{color:RANK_TX[x.rank]||"#96a8bb",fontWeight:700,marginRight:4,fontSize:11}}>{x.rank}</span>{x.name}
                             </span>
                           ))}
                         </div>
@@ -824,13 +824,13 @@ function App() {
                     const es = sched && sched[String(p.no)];
                     return (
                       <div style={{marginBottom:14}}>
-                        <div style={{fontSize:11,color:"#8faabe",fontWeight:700,marginBottom:6}}>■ 出場予定　<span style={{color:"#6b7f95",fontWeight:400}}>公式サイト 選手ページ{scMeta&&scMeta.取得?"／"+scMeta.取得+"時点":""}</span></div>
+                        <div style={{fontSize:11,color:"#8faabe",fontWeight:700,marginBottom:6}}>■ 出場予定　<span style={{color:"#96a8bb",fontWeight:400}}>公式サイト 選手ページ{scMeta&&scMeta.取得?"／"+scMeta.取得+"時点":""}</span></div>
                         {sched===null ? (
-                          <div style={{fontSize:11,color:"#6b7f95",background:"#0b1219",borderRadius:8,padding:"12px"}}>読み込み中…</div>
+                          <div style={{fontSize:11,color:"#96a8bb",background:"#0b1219",borderRadius:8,padding:"12px"}}>読み込み中…</div>
                         ) : !es ? (
-                          <div style={{fontSize:11,color:"#6b7f95",background:"#0b1219",borderRadius:8,padding:"12px"}}>この選手の出場予定は取得できていない。</div>
+                          <div style={{fontSize:11,color:"#96a8bb",background:"#0b1219",borderRadius:8,padding:"12px"}}>この選手の出場予定は取得できていない。</div>
                         ) : es.length===0 ? (
-                          <div style={{fontSize:11,color:"#6b7f95",background:"#0b1219",borderRadius:8,padding:"12px"}}>公式サイトに出場予定が載っていない。</div>
+                          <div style={{fontSize:11,color:"#96a8bb",background:"#0b1219",borderRadius:8,padding:"12px"}}>公式サイトに出場予定が載っていない。</div>
                         ) : (
                           <div style={{background:"#0b1219",borderRadius:8,padding:"8px 10px"}}>
                             {es.map((e,i)=>(
@@ -839,13 +839,13 @@ function App() {
                                 <span style={{width:"4.2em",color:"#79c0ff",fontWeight:700,fontSize:12,whiteSpace:"nowrap"}}>{(scMeta&&scMeta.場&&scMeta.場[String(e.j)])||("場"+e.j)}</span>
                                 <span style={{flex:1,minWidth:0}}>
                                   <span style={{display:"block",fontSize:12,color:"#c5d2e0",lineHeight:1.5}}>{e.n}</span>
-                                  <span style={{display:"block",fontSize:10,color:"#6b7f95",marginTop:1}}>
+                                  <span style={{display:"block",fontSize:11,color:"#96a8bb",marginTop:1}}>
                                     {e.g||"一般"}{e.h?"・"+e.h:""}{e.s&&e.s.length?"・"+e.s.join("・"):""}
                                   </span>
                                 </span>
                               </div>
                             ))}
-                            <div style={{fontSize:10,color:"#6b7f95",marginTop:6,lineHeight:1.5}}>{scMeta&&scMeta.注記?scMeta.注記:""}　あっせんは変わることがある。</div>
+                            <div style={{fontSize:11,color:"#96a8bb",marginTop:6,lineHeight:1.5}}>{scMeta&&scMeta.注記?scMeta.注記:""}　あっせんは変わることがある。</div>
                           </div>
                         )}
                       </div>
@@ -854,13 +854,13 @@ function App() {
                   {/* ■ 級別の推移（初出走から今日まで・公式番組表） */}
                   {(()=>{
                     if(rankHist===null) return (
-                      <div style={{fontSize:11,color:"#6b7f95",margin:"12px 0",lineHeight:1.7}}>読み込み中…</div>
+                      <div style={{fontSize:11,color:"#96a8bb",margin:"12px 0",lineHeight:1.7}}>読み込み中…</div>
                     );
                     const ch = rankHist[String(p.no)];
                     if(!ch || !ch.length) return (
                       <div style={{marginBottom:14}}>
                         <div style={{fontSize:11,color:"#8faabe",fontWeight:700,marginBottom:6}}>■ 級別の推移</div>
-                        <div style={{fontSize:11,color:"#6b7f95",background:"#0b1219",borderRadius:8,padding:"10px 12px",lineHeight:1.7}}>
+                        <div style={{fontSize:11,color:"#96a8bb",background:"#0b1219",borderRadius:8,padding:"10px 12px",lineHeight:1.7}}>
                           この選手の級別の記録がありません。
                         </div>
                       </div>
@@ -872,10 +872,10 @@ function App() {
                     return (
                       <div style={{marginBottom:14}}>
                         <div style={{fontSize:11,color:"#8faabe",fontWeight:700,marginBottom:6}}>
-                          ■ 級別の推移　<span style={{color:"#6b7f95",fontWeight:400}}>初出走から今日まで／公式 番組表</span>
+                          ■ 級別の推移　<span style={{color:"#96a8bb",fontWeight:400}}>初出走から今日まで／公式 番組表</span>
                         </div>
                         <div style={{background:"#0b1219",borderRadius:8,padding:"10px 12px"}}>
-                          <div style={{fontSize:11,color:"#6b7f95",marginBottom:8,lineHeight:1.7}}>
+                          <div style={{fontSize:11,color:"#96a8bb",marginBottom:8,lineHeight:1.7}}>
                             {rhYM(ch[0][0])} に初出走・{rhSpan(b.span)}／級別が変わった回数 {ch.length-1}
                           </div>
                           <div style={{display:"flex",width:"100%",height:30,borderRadius:4,overflow:"hidden"}}>
@@ -892,7 +892,7 @@ function App() {
                               );
                             })}
                           </div>
-                          <div style={{display:"flex",justifyContent:"space-between",fontSize:10,color:"#6b7f95",
+                          <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:"#96a8bb",
                                        fontVariantNumeric:"tabular-nums",margin:"4px 0 10px"}}>
                             <span>{rhYM(ch[0][0])}</span><span>今日</span>
                           </div>
@@ -905,14 +905,14 @@ function App() {
                               </span>
                             ) : null)}
                           </div>
-                          <div style={{fontSize:11,color:"#6b7f95",marginTop:6,lineHeight:1.7}}>
+                          <div style={{fontSize:11,color:"#96a8bb",marginTop:6,lineHeight:1.7}}>
                             今の {cur[1]} は {rhYM(cur[0])} から {rhSpan(curMs)}
                           </div>
                         </div>
                         <details style={{marginTop:6}}>
                           <summary onClick={e=>e.stopPropagation()} style={{fontSize:12,color:"#8faabe",cursor:"pointer",minHeight:44,display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,listStyle:"none",background:"#0b1219",border:"1px solid #1a2535",borderRadius:8,padding:"0 12px"}}>
                             <span>初出走と、級別が変わった日を見る（{ch.length}件）</span>
-                            <span style={{color:"#6b7f95",fontSize:12}}>▸</span>
+                            <span style={{color:"#96a8bb",fontSize:12}}>▸</span>
                           </summary>
                           <table style={{width:"100%",borderCollapse:"collapse",fontSize:12,marginTop:4}}>
                             <tbody>
@@ -924,10 +924,10 @@ function App() {
                                   </td>
                                   <td style={{padding:"5px 0",borderBottom:"1px solid #1a2535",width:"3.4em",
                                               fontWeight:700,color:RANK_TX[s.g]||"#e0e6ed"}}>{s.g}</td>
-                                  <td style={{padding:"5px 0",borderBottom:"1px solid #1a2535",color:"#6b7f95",fontSize:11}}>
+                                  <td style={{padding:"5px 0",borderBottom:"1px solid #1a2535",color:"#96a8bb",fontSize:11}}>
                                     {i===0?"初出走":""}
                                   </td>
-                                  <td style={{padding:"5px 0",borderBottom:"1px solid #1a2535",color:"#6b7f95",fontSize:11,
+                                  <td style={{padding:"5px 0",borderBottom:"1px solid #1a2535",color:"#96a8bb",fontSize:11,
                                               textAlign:"right",fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap"}}>
                                     {rhSpan(s.ms)}
                                   </td>
@@ -935,7 +935,7 @@ function App() {
                               ))}
                             </tbody>
                           </table>
-                          <div style={{fontSize:10,color:"#6b7f95",marginTop:8,lineHeight:1.6}}>
+                          <div style={{fontSize:11,color:"#96a8bb",marginTop:8,lineHeight:1.6}}>
                             級別は公式の番組表に載っている、その日その選手の級別をそのまま拾ったもの。
                             半年ごとの改定日ではなく、改定後にその選手が初めて出走した日が入る。
                             1996年7月19日より前は番組表が配布されていないため、それ以前の級別は分からない。
@@ -948,14 +948,14 @@ function App() {
                   {/* ■ スタートの遅れ（本番ST・results 由来） */}
                   {(()=>{
                     if(slate===null) return (
-                      <div style={{fontSize:11,color:"#6b7f95",margin:"12px 0",lineHeight:1.7}}>読み込み中…</div>
+                      <div style={{fontSize:11,color:"#96a8bb",margin:"12px 0",lineHeight:1.7}}>読み込み中…</div>
                     );
                     if(slate===false) return null;
                     const sl = slate[String(p.no)];
                     if(!sl || !sl.n) return (
                       <div style={{marginBottom:14}}>
                         <div style={{fontSize:11,color:"#8faabe",fontWeight:700,marginBottom:6}}>■ スタート</div>
-                        <div style={{fontSize:11,color:"#6b7f95",background:"#0b1219",borderRadius:8,padding:"10px 12px",lineHeight:1.7}}>
+                        <div style={{fontSize:11,color:"#96a8bb",background:"#0b1219",borderRadius:8,padding:"10px 12px",lineHeight:1.7}}>
                           この選手は集計期間の走数が{slMeta&&slMeta.ガード?slMeta.ガード:20}走に届きません。
                         </div>
                         {wakuStBox(p.no)}
@@ -1004,7 +1004,7 @@ function App() {
                     return (
                       <div style={{marginBottom:14}}>
                         <div style={{fontSize:11,color:"#8faabe",fontWeight:700,marginBottom:6}}>
-                          ■ スタート　<span style={{color:"#6b7f95",fontWeight:400}}>
+                          ■ スタート　<span style={{color:"#96a8bb",fontWeight:400}}>
                             ST0.20より遅い走の割合{slMeta&&slMeta.日数?"／過去"+slMeta.日数+"日":""}
                           </span>
                         </div>
@@ -1014,7 +1014,7 @@ function App() {
                             <span style={{fontSize:11,color:"#8faabe",fontVariantNumeric:"tabular-nums"}}>{sl.n}走中{sl.late}回</span>
                           </div>
                           {allPct!==null&&(
-                            <div style={{fontSize:11,color:"#6b7f95",marginTop:6,lineHeight:1.7,fontVariantNumeric:"tabular-nums"}}>
+                            <div style={{fontSize:11,color:"#96a8bb",marginTop:6,lineHeight:1.7,fontVariantNumeric:"tabular-nums"}}>
                               全選手の平均 {allPct}%（{Number(base.全体.n).toLocaleString()}走）
                             </div>
                           )}
@@ -1023,14 +1023,14 @@ function App() {
                         <details style={{marginTop:6}}>
                           <summary onClick={e=>e.stopPropagation()} style={{fontSize:12,color:"#8faabe",cursor:"pointer",minHeight:44,display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,listStyle:"none",background:"#0b1219",border:"1px solid #1a2535",borderRadius:8,padding:"0 12px"}}>
                             <span>コース別に見る（{rows.length}件）</span>
-                            <span style={{color:"#6b7f95",fontSize:12}}>▸</span>
+                            <span style={{color:"#96a8bb",fontSize:12}}>▸</span>
                           </summary>
                           <table style={{width:"100%",borderCollapse:"collapse",fontSize:12,marginTop:4}}>
                             <thead>
                               <tr>
-                                <th style={{padding:"4px 0",borderBottom:"1px solid #1a2535",color:"#6b7f95",fontSize:10,fontWeight:400,textAlign:"left",width:"5.2em"}}></th>
-                                <th style={{padding:"4px 0",borderBottom:"1px solid #1a2535",color:"#6b7f95",fontSize:10,fontWeight:400,textAlign:"left"}}>遅れ</th>
-                                <th style={{padding:"4px 0",borderBottom:"1px solid #1a2535",color:"#6b7f95",fontSize:10,fontWeight:400,textAlign:"right"}}>スタート順</th>
+                                <th style={{padding:"4px 0",borderBottom:"1px solid #1a2535",color:"#96a8bb",fontSize:11,fontWeight:400,textAlign:"left",width:"5.2em"}}></th>
+                                <th style={{padding:"4px 0",borderBottom:"1px solid #1a2535",color:"#96a8bb",fontSize:11,fontWeight:400,textAlign:"left"}}>遅れ</th>
+                                <th style={{padding:"4px 0",borderBottom:"1px solid #1a2535",color:"#96a8bb",fontSize:11,fontWeight:400,textAlign:"right"}}>スタート順</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -1043,11 +1043,11 @@ function App() {
                                     <div style={{fontWeight:700,color:"#e0e6ed",fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap"}}>
                                       {r.my===null?"—":r.my+"%"}
                                     </div>
-                                    <div style={{color:"#6b7f95",fontSize:10,fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap",marginTop:1}}>
+                                    <div style={{color:"#96a8bb",fontSize:11,fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap",marginTop:1}}>
                                       {r.my===null?r.n+"走":r.n+"走中"+r.late+"回"}
                                     </div>
                                     {r.all!==null&&(
-                                      <div style={{color:"#6b7f95",fontSize:10,fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap"}}>
+                                      <div style={{color:"#96a8bb",fontSize:11,fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap"}}>
                                         全体 {r.all}%
                                       </div>
                                     )}
@@ -1060,10 +1060,10 @@ function App() {
                                       )}
                                     </div>
                                     {/* 遅れて届く値で行の高さが動かないよう、空でも1行ぶん確保する */}
-                                    <div style={{color:"#6b7f95",fontSize:10,fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap",marginTop:1}}>
+                                    <div style={{color:"#96a8bb",fontSize:11,fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap",marginTop:1}}>
                                       {r.sn===null?"\u00a0":r.sn+"走"}
                                     </div>
-                                    <div style={{color:"#6b7f95",fontSize:10,fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap"}}>
+                                    <div style={{color:"#96a8bb",fontSize:11,fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap"}}>
                                       {r.sall===null?"\u00a0":"全体 "+r.sall.toFixed(2)}
                                     </div>
                                   </td>
@@ -1075,14 +1075,14 @@ function App() {
                           <div style={{fontSize:11,color:"#8faabe",marginTop:6,lineHeight:1.7,minHeight:"1.7em",fontVariantNumeric:"tabular-nums"}}>
                             {(m6w&&m6w.n>=guard)?"直近6ヶ月は平均 "+m6w.rank+" 番手（"+m6w.n+"走）":"\u00a0"}
                           </div>
-                          <div style={{fontSize:10,color:"#6b7f95",marginTop:8,lineHeight:1.6}}>
+                          <div style={{fontSize:11,color:"#96a8bb",marginTop:8,lineHeight:1.6}}>
                             ここでの「遅れ」は公式の出遅れ（Ｌ）ではなく、本番のスタートタイミングが
                             0.20より遅かった走のこと。スタート展示ではなく本番の値を数えている。
                             {slMeta&&slMeta.ガード?"　"+slMeta.ガード+"走に満たないコースは割合を出さず走数だけを載せる。":""}
                             {slMeta&&slMeta.期間?"　対象期間 "+slMeta.期間+"。":""}
                             {slMeta&&slMeta.出典?"　出典 "+slMeta.出典:""}
                           </div>
-                          <div style={{fontSize:10,color:"#6b7f95",marginTop:6,lineHeight:1.6}}>
+                          <div style={{fontSize:11,color:"#96a8bb",marginTop:6,lineHeight:1.6}}>
                             「スタート順」は、そのレースを一緒に走った艇を本番STの速い順に並べたときの
                             順位を平均した値。1に近いほど、そのコースで先にスタートを切っている。
                             コースによって出やすい順位が違うので、全選手を合算した「全体」と見比べて読む。
@@ -1099,11 +1099,11 @@ function App() {
                     );
                   })()}
                   {detail && (<>
-                  <div style={{fontSize:11,color:"#8faabe",fontWeight:700,marginBottom:6}}>■ 成績　<span style={{color:"#6b7f95",fontWeight:400}}>期首時点の値（fan2604）</span></div>
+                  <div style={{fontSize:11,color:"#8faabe",fontWeight:700,marginBottom:6}}>■ 成績　<span style={{color:"#96a8bb",fontWeight:400}}>期首時点の値（fan2604）</span></div>
                   <div style={{display:"flex",gap:14,flexWrap:"wrap",marginBottom:14,background:"#0b1219",borderRadius:8,padding:"10px 12px"}}>
                     {[["出走",p.syutsu],["1着",p.win1],["2着",p.win2],["優勝",p.yusyo],["優出",p.yusyutsu],["平均ST",p.avgst],["F数",p.f]].map(([l,v],i)=>(
                       <div key={i} style={{display:"flex",flexDirection:"column",minWidth:54}}>
-                        <span style={{fontSize:10,color:"#6b7f95"}}>{l}</span>
+                        <span style={{fontSize:11,color:"#96a8bb"}}>{l}</span>
                         <span style={{fontSize:13,fontWeight:700,color:(l==="優勝"?"#ffd166":l==="F数"&&p.f>0?"#f85149":"#e0e6ed"),fontVariantNumeric:"tabular-nums"}}>{v}</span>
                       </div>
                     ))}
@@ -1115,7 +1115,7 @@ function App() {
                       1着1本が2.7pt動く。分母つきの実測に差し替える。 */}
                   {(()=>{
                     if(cstat===null) return (
-                      <div style={{fontSize:11,color:"#6b7f95",margin:"12px 0",lineHeight:1.7}}>読み込み中…</div>
+                      <div style={{fontSize:11,color:"#96a8bb",margin:"12px 0",lineHeight:1.7}}>読み込み中…</div>
                     );
                     if(cstat===false) return null;
                     const cs = cstat[String(p.no)];
@@ -1137,13 +1137,13 @@ function App() {
                     const cell = (mine, all, hit, n)=>(
                       <td style={{padding:"6px 0",borderBottom:"1px solid #1a2535",textAlign:"right",verticalAlign:"top"}}>
                         <div style={{fontWeight:700,color:"#e0e6ed",fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap"}}>{mine===null?"—":mine+"%"}</div>
-                        <div style={{color:"#6b7f95",fontSize:10,fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap",marginTop:1}}>{n}走中{hit}回</div>
-                        <div style={{color:"#6b7f95",fontSize:10,fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap"}}>{all===null?"":"全体 "+all+"%"}</div>
+                        <div style={{color:"#96a8bb",fontSize:11,fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap",marginTop:1}}>{n}走中{hit}回</div>
+                        <div style={{color:"#96a8bb",fontSize:11,fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap"}}>{all===null?"":"全体 "+all+"%"}</div>
                       </td>
                     );
                     return (
                       <div style={{marginBottom:14}}>
-                        <div style={{fontSize:11,color:"#8faabe",fontWeight:700,marginBottom:4}}>■ コース別の1着率　<span style={{color:"#6b7f95",fontWeight:400}}>進入コース別{csMeta&&csMeta.期間&&csMeta.期間.日数?"／過去"+csMeta.期間.日数+"日":""}</span></div>
+                        <div style={{fontSize:11,color:"#8faabe",fontWeight:700,marginBottom:4}}>■ コース別の1着率　<span style={{color:"#96a8bb",fontWeight:400}}>進入コース別{csMeta&&csMeta.期間&&csMeta.期間.日数?"／過去"+csMeta.期間.日数+"日":""}</span></div>
                         <div style={{display:"flex",gap:4,alignItems:"flex-end",background:"#0b1219",borderRadius:8,padding:"10px 6px"}}>
                           {rows.map(r=>(
                             <div key={r.c} style={{flex:1,textAlign:"center"}}>
@@ -1152,24 +1152,24 @@ function App() {
                                 {r.a1!==null&&<div style={{position:"absolute",left:0,right:0,bottom:Math.max(1,r.a1*0.42)+"px",height:1,background:"#6b7f95"}}></div>}
                               </div>
                               <div style={{fontSize:11,color:"#c5d2e0",marginTop:3,fontWeight:600,fontVariantNumeric:"tabular-nums"}}>{r.r1!==null?r.r1+"%":"—"}</div>
-                              <div style={{fontSize:10,color:"#6b7f95",fontVariantNumeric:"tabular-nums"}}>{r.n}走</div>
-                              <div style={{fontSize:10,color:"#6b7f95"}}>{r.c}コース</div>
+                              <div style={{fontSize:11,color:"#96a8bb",fontVariantNumeric:"tabular-nums"}}>{r.n}走</div>
+                              <div style={{fontSize:11,color:"#96a8bb"}}>{r.c}コース</div>
                             </div>
                           ))}
                         </div>
-                        <div style={{fontSize:10,color:"#6b7f95",marginTop:6,lineHeight:1.5}}>黄=1・2コース、青=3〜6コース。細い横線は全選手の平均。{guard}走に満たないコースは割合を出さず走数だけを載せる。</div>
+                        <div style={{fontSize:11,color:"#96a8bb",marginTop:6,lineHeight:1.5}}>黄=1・2コース、青=3〜6コース。細い横線は全選手の平均。{guard}走に満たないコースは割合を出さず走数だけを載せる。</div>
                         <details style={{marginTop:6}}>
                           <summary onClick={e=>e.stopPropagation()} style={{fontSize:12,color:"#8faabe",cursor:"pointer",minHeight:44,display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,listStyle:"none",background:"#0b1219",border:"1px solid #1a2535",borderRadius:8,padding:"0 12px"}}>
                             <span>2着・3着まで見る（{rows.length}件）</span>
-                            <span style={{color:"#6b7f95",fontSize:12}}>▸</span>
+                            <span style={{color:"#96a8bb",fontSize:12}}>▸</span>
                           </summary>
                           <table style={{width:"100%",borderCollapse:"collapse",fontSize:12,marginTop:4}}>
                             <thead>
                               <tr>
-                                <th style={{padding:"4px 0",borderBottom:"1px solid #1a2535",color:"#6b7f95",fontSize:10,fontWeight:400,textAlign:"left",width:"5.2em"}}></th>
-                                <th style={{padding:"4px 0",borderBottom:"1px solid #1a2535",color:"#6b7f95",fontSize:10,fontWeight:400,textAlign:"right"}}>1着</th>
-                                <th style={{padding:"4px 0",borderBottom:"1px solid #1a2535",color:"#6b7f95",fontSize:10,fontWeight:400,textAlign:"right"}}>2着まで</th>
-                                <th style={{padding:"4px 0",borderBottom:"1px solid #1a2535",color:"#6b7f95",fontSize:10,fontWeight:400,textAlign:"right"}}>3着まで</th>
+                                <th style={{padding:"4px 0",borderBottom:"1px solid #1a2535",color:"#96a8bb",fontSize:11,fontWeight:400,textAlign:"left",width:"5.2em"}}></th>
+                                <th style={{padding:"4px 0",borderBottom:"1px solid #1a2535",color:"#96a8bb",fontSize:11,fontWeight:400,textAlign:"right"}}>1着</th>
+                                <th style={{padding:"4px 0",borderBottom:"1px solid #1a2535",color:"#96a8bb",fontSize:11,fontWeight:400,textAlign:"right"}}>2着まで</th>
+                                <th style={{padding:"4px 0",borderBottom:"1px solid #1a2535",color:"#96a8bb",fontSize:11,fontWeight:400,textAlign:"right"}}>3着まで</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -1183,7 +1183,7 @@ function App() {
                               ))}
                             </tbody>
                           </table>
-                          <div style={{fontSize:10,color:"#6b7f95",marginTop:6,lineHeight:1.6}}>
+                          <div style={{fontSize:11,color:"#96a8bb",marginTop:6,lineHeight:1.6}}>
                             枠番ではなく実際に進入したコースで数えている。失格・妨害・転覆などは走数に含め、欠場はその1走だけ除いている。
                             {csMeta&&csMeta.期間?"　対象期間 "+csMeta.期間.from+"-"+csMeta.期間.to+"。":""}
                             {csMeta&&csMeta.出典?"　出典 "+csMeta.出典:""}
@@ -1195,17 +1195,17 @@ function App() {
 
                   {k && (
                     <div>
-                      <div style={{fontSize:11,color:"#8faabe",fontWeight:700,margin:"16px 0 6px"}}>■ 決まり手・前づけ　<span style={{color:"#6b7f95",fontWeight:400}}>直近6ヶ月 / 公式競走成績</span></div>
+                      <div style={{fontSize:11,color:"#8faabe",fontWeight:700,margin:"16px 0 6px"}}>■ 決まり手・前づけ　<span style={{color:"#96a8bb",fontWeight:400}}>直近6ヶ月 / 公式競走成績</span></div>
                       <div style={{display:"flex",gap:14,flexWrap:"wrap",background:"#0b1219",borderRadius:8,padding:"10px 12px"}}>
                         {[["まくり率",k.makuriRate!==""?k.makuriRate+"%":"-","#ff9e64"],["差し率",k.sashiRate!==""?k.sashiRate+"%":"-","#7ee787"],["前づけ率",k.mzRate!==""?k.mzRate+"%":"-","#d2a8ff"],["前づけ平均",k.mzAvg!==""?k.mzAvg:"-","#d2a8ff"],["1着数",k.wins,"#e0e6ed"],["出走数",k.races,"#e0e6ed"]].map(([l,v,col],i)=>(
                           <div key={i} style={{display:"flex",flexDirection:"column",minWidth:54}}>
-                            <span style={{fontSize:10,color:"#6b7f95"}}>{l}</span>
+                            <span style={{fontSize:11,color:"#96a8bb"}}>{l}</span>
                             <span style={{fontSize:14,fontWeight:800,color:col,fontVariantNumeric:"tabular-nums"}}>{v}</span>
                           </div>
                         ))}
                       </div>
-                      <div style={{fontSize:10,color:"#6b7f95",marginTop:6,lineHeight:1.6}}>1着の決まり手内訳：逃げ{k.nige}・差し{k.sashi}・まくり{k.makuri}・まくり差し{k.makurizashi}・抜き{k.nuki}・恵まれ{k.megumare}</div>
-                      <div style={{fontSize:10,color:"#6b7f95",marginTop:4,lineHeight:1.6}}>まくり率/差し率＝1着のうちその決まり手の割合。前づけ＝枠より内側への進入度（平均＝枠−進入コース、率＝2枚以上内側に入った割合、進入固定は除外）。出典：公式競走成績。</div>
+                      <div style={{fontSize:11,color:"#96a8bb",marginTop:6,lineHeight:1.6}}>1着の決まり手内訳：逃げ{k.nige}・差し{k.sashi}・まくり{k.makuri}・まくり差し{k.makurizashi}・抜き{k.nuki}・恵まれ{k.megumare}</div>
+                      <div style={{fontSize:11,color:"#96a8bb",marginTop:4,lineHeight:1.6}}>まくり率/差し率＝1着のうちその決まり手の割合。前づけ＝枠より内側への進入度（平均＝枠−進入コース、率＝2枚以上内側に入った割合、進入固定は除外）。出典：公式競走成績。</div>
                     </div>
                   )}
 
@@ -1215,14 +1215,14 @@ function App() {
                     const rows = md ? months.filter(m=>md[m]&&md[m].出走>0).slice().reverse() : [];
                     return (
                       <div>
-                        <div style={{fontSize:11,color:"#8faabe",fontWeight:700,margin:"16px 0 6px"}}>■ 月別成績　<span style={{color:"#6b7f95",fontWeight:400}}>直近13ヶ月 / 公式競走成績</span></div>
+                        <div style={{fontSize:11,color:"#8faabe",fontWeight:700,margin:"16px 0 6px"}}>■ 月別成績　<span style={{color:"#96a8bb",fontWeight:400}}>直近13ヶ月 / 公式競走成績</span></div>
                         {mon===null ? (
-                          <div style={{fontSize:11,color:"#6b7f95",background:"#0b1219",borderRadius:8,padding:"12px"}}>読み込み中…</div>
+                          <div style={{fontSize:11,color:"#96a8bb",background:"#0b1219",borderRadius:8,padding:"12px"}}>読み込み中…</div>
                         ) : rows.length===0 ? (
-                          <div style={{fontSize:11,color:"#6b7f95",background:"#0b1219",borderRadius:8,padding:"12px"}}>この期間の出走データがありません。</div>
+                          <div style={{fontSize:11,color:"#96a8bb",background:"#0b1219",borderRadius:8,padding:"12px"}}>この期間の出走データがありません。</div>
                         ) : (
                           <div style={{background:"#0b1219",borderRadius:8,padding:"8px 10px"}}>
-                            <div style={{display:"flex",fontSize:10,color:"#6b7f95",fontWeight:700,padding:"0 0 6px",borderBottom:"1px solid #1a2535"}}>
+                            <div style={{display:"flex",fontSize:11,color:"#96a8bb",fontWeight:700,padding:"0 0 6px",borderBottom:"1px solid #1a2535"}}>
                               <span style={{width:56}}>月</span><span style={{width:44,textAlign:"right"}}>出走</span><span style={{width:40,textAlign:"right"}}>1着</span><span style={{flex:1,paddingLeft:10}}>2連率</span><span style={{width:56,textAlign:"right"}}>平均ST</span>
                             </div>
                             {rows.map(m=>{
@@ -1231,7 +1231,7 @@ function App() {
                                 <div key={m} style={{display:"flex",alignItems:"center",fontSize:12,padding:"5px 0",borderBottom:"1px solid #131f2e"}}>
                                   <span style={{width:56,color:"#c5d2e0",fontWeight:600}}>{m.replace("-",".")}</span>
                                   <span style={{width:44,textAlign:"right",color:"#e0e6ed",fontVariantNumeric:"tabular-nums"}}>{r.出走}</span>
-                                  <span style={{width:40,textAlign:"right",color:r["1着"]>0?"#ffd166":"#6b7f95",fontWeight:700,fontVariantNumeric:"tabular-nums"}}>{r["1着"]}</span>
+                                  <span style={{width:40,textAlign:"right",color:r["1着"]>0?"#ffd166":"#96a8bb",fontWeight:700,fontVariantNumeric:"tabular-nums"}}>{r["1着"]}</span>
                                   <span style={{flex:1,paddingLeft:10,display:"flex",alignItems:"center",gap:6}}>
                                     <span style={{flex:1,height:6,background:"#1a2535",borderRadius:3,overflow:"hidden"}}><span style={{display:"block",height:"100%",width:Math.min(100,rate)+"%",background:"#3fb1c9"}}></span></span>
                                     <span style={{width:38,textAlign:"right",color:"#3fb1c9",fontWeight:700,fontVariantNumeric:"tabular-nums"}}>{rate.toFixed(0)}%</span>
@@ -1240,7 +1240,7 @@ function App() {
                                 </div>
                               );
                             })}
-                            <div style={{fontSize:10,color:"#6b7f95",marginTop:6,lineHeight:1.5}}>2連率＝2連対数÷出走。平均STはF/L等の非数値を除外。出典：公式競走成績（results/配下）。</div>
+                            <div style={{fontSize:11,color:"#96a8bb",marginTop:6,lineHeight:1.5}}>2連率＝2連対数÷出走。平均STはF/L等の非数値を除外。出典：公式競走成績（results/配下）。</div>
                           </div>
                         )}
                       </div>
@@ -1257,22 +1257,22 @@ function App() {
                     const KTECH=["逃げ","差し","まくり","まくり差し","抜き","恵まれ"];
                     return (
                       <div>
-                        <div style={{fontSize:11,color:"#8faabe",fontWeight:700,margin:"16px 0 6px"}}>■ E30該当場成績　<span style={{color:"#6b7f95",fontWeight:400}}>{period?fmtP(period.開始)+"〜"+fmtP(period.終了):""} / 進入コース別</span></div>
+                        <div style={{fontSize:11,color:"#8faabe",fontWeight:700,margin:"16px 0 6px"}}>■ E30該当場成績　<span style={{color:"#96a8bb",fontWeight:400}}>{period?fmtP(period.開始)+"〜"+fmtP(period.終了):""} / 進入コース別</span></div>
                         {e30===null ? (
-                          <div style={{fontSize:11,color:"#6b7f95",background:"#0b1219",borderRadius:8,padding:"12px"}}>読み込み中…</div>
+                          <div style={{fontSize:11,color:"#96a8bb",background:"#0b1219",borderRadius:8,padding:"12px"}}>読み込み中…</div>
                         ) : !ep ? (
-                          <div style={{fontSize:11,color:"#6b7f95",background:"#0b1219",borderRadius:8,padding:"12px"}}>E30該当場での出走データがありません。</div>
+                          <div style={{fontSize:11,color:"#96a8bb",background:"#0b1219",borderRadius:8,padding:"12px"}}>E30該当場での出走データがありません。</div>
                         ) : (
                           <div style={{background:"#0b1219",borderRadius:8,padding:"8px 10px"}}>
                             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:6}}>
                               <span style={{fontSize:11,color:"#c5d2e0",fontWeight:700}}>総 {ep.総出走数} 走</span>
                               <span onClick={e=>{e.stopPropagation();setE30All(v=>!v);}} style={{fontSize:10,fontWeight:700,cursor:"pointer",borderRadius:6,padding:"3px 9px",border:"1px solid #2a3d52",color:e30All?"#ffd166":"#8faabe",background:e30All?"#ffd16618":"#101a26"}}>{e30All?"N≥10のみ":"N<10も表示"}</span>
                             </div>
-                            <div style={{display:"flex",fontSize:10,color:"#6b7f95",fontWeight:700,padding:"0 0 5px",borderBottom:"1px solid #1a2535"}}>
+                            <div style={{display:"flex",fontSize:11,color:"#96a8bb",fontWeight:700,padding:"0 0 5px",borderBottom:"1px solid #1a2535"}}>
                               <span style={{width:40}}>コース</span><span style={{width:40,textAlign:"right"}}>出走</span><span style={{width:36,textAlign:"right"}}>1着</span><span style={{width:44,textAlign:"right"}}>2連対</span><span style={{width:52,textAlign:"right"}}>平均ST</span><span style={{flex:1,paddingLeft:10}}>決まり手</span>
                             </div>
                             {shown.length===0 ? (
-                              <div style={{fontSize:11,color:"#6b7f95",padding:"8px 0"}}>全コースN&lt;10。「N&lt;10も表示」で確認できます。</div>
+                              <div style={{fontSize:11,color:"#96a8bb",padding:"8px 0"}}>全コースN&lt;10。「N&lt;10も表示」で確認できます。</div>
                             ) : shown.map(c=>{
                               const r=ep.コース別[c]; const few=r.出走数<10;
                               const tech=KTECH.filter(t=>r.決まり手[t]).map(t=>t+r.決まり手[t]).join("・");
@@ -1280,14 +1280,14 @@ function App() {
                                 <div key={c} style={{display:"flex",alignItems:"center",fontSize:12,padding:"5px 0",borderBottom:"1px solid #131f2e",opacity:few?0.55:1}}>
                                   <span style={{width:40,color:"#c5d2e0",fontWeight:700}}>{c}</span>
                                   <span style={{width:40,textAlign:"right",color:"#e0e6ed",fontVariantNumeric:"tabular-nums"}}>{r.出走数}{few&&<span style={{fontSize:9,color:"#c98"}}> 少</span>}</span>
-                                  <span style={{width:36,textAlign:"right",color:r["1着数"]>0?"#ffd166":"#6b7f95",fontWeight:700,fontVariantNumeric:"tabular-nums"}}>{r["1着数"]}</span>
+                                  <span style={{width:36,textAlign:"right",color:r["1着数"]>0?"#ffd166":"#96a8bb",fontWeight:700,fontVariantNumeric:"tabular-nums"}}>{r["1着数"]}</span>
                                   <span style={{width:44,textAlign:"right",color:"#3fb1c9",fontWeight:700,fontVariantNumeric:"tabular-nums"}}>{r["2連対数"]}</span>
                                   <span style={{width:52,textAlign:"right",color:"#e0e6ed",fontVariantNumeric:"tabular-nums"}}>{r.平均ST!=null?r.平均ST.toFixed(2):"-"}</span>
                                   <span style={{flex:1,paddingLeft:10,color:"#8faabe",fontSize:11}}>{tech||"-"}</span>
                                 </div>
                               );
                             })}
-                            <div style={{fontSize:10,color:"#6b7f95",marginTop:6,lineHeight:1.6}}>E30該当場（{venueNames}）での成績。1着数のうちの決まり手内訳を併記。平均STはF/欠場等の非数値を除外。<b>N数の小さいコースは参考値</b>。出典：{e30Meta?e30Meta.出典:"BoatraceOpenAPI/resultsミラー（mbrace由来）"}。</div>
+                            <div style={{fontSize:11,color:"#96a8bb",marginTop:6,lineHeight:1.6}}>E30該当場（{venueNames}）での成績。1着数のうちの決まり手内訳を併記。平均STはF/欠場等の非数値を除外。<b>N数の小さいコースは参考値</b>。出典：{e30Meta?e30Meta.出典:"BoatraceOpenAPI/resultsミラー（mbrace由来）"}。</div>
                           </div>
                         )}
                       </div>
@@ -1299,7 +1299,7 @@ function App() {
           );
         })}
       </div>
-      {filtered.length>300&&<div style={{fontSize:11,color:"#6b7f95",marginTop:14,textAlign:"center"}}>上位300名を表示中。検索や絞り込みで目的の選手が見つかります。</div>}
+      {filtered.length>300&&<div style={{fontSize:11,color:"#96a8bb",marginTop:14,textAlign:"center"}}>上位300名を表示中。検索や絞り込みで目的の選手が見つかります。</div>}
     </div>
   );
 }
