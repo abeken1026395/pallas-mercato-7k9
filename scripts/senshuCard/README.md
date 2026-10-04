@@ -1,6 +1,6 @@
 # 選手カードのデータを作るスクリプト
 
-選手カード（実験場 docs/next/senshuCardE.html）が読む `card2D.json`・`ayumi.json`・`h2h/` を作る。
+選手カード（本番 docs/players/card.html）が読む docs/players/card/ の common.json・index.json・p/・h2h/ を作る。実験場 senshuCardE.html の元データ（card2D.json・ayumi.json）も全体版として出せる。
 決まり（技・段・技名・積み上げ・表示の原則）は Project の `claude/senshuCardLaunch.md` が正。
 
 ## 使い方
@@ -8,7 +8,7 @@
 # 1. 優勝戦の判定に使う公式番組を取る（履歴の最終日より後の日だけでよい。すでにある日は取らない）
 python3 scripts/senshuCard/fetchPrograms.py 20261003 最終日 番組フォルダ
 # 2. 一式を作る（検査を通らなければ書き出さない）
-python3 scripts/senshuCard/build.py 最終日 番組フォルダ 出力フォルダ
+python3 scripts/senshuCard/build.py 最終日 番組フォルダ docs/players/card [照合用の全体版フォルダ]
 ```
 必要なもの：Python 3、numpy、scipy
 

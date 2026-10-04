@@ -2,13 +2,13 @@
 
 使い方:
   python3 scripts/senshuCard/fetchPrograms.py 20170101 最終日 番組フォルダ 20250714   # 番組を取る（すでにある日は取らない）
-  python3 scripts/senshuCard/build.py 最終日 番組フォルダ 出力フォルダ
+  python3 scripts/senshuCard/build.py 最終日 番組フォルダ 出力フォルダ [全体版の出力フォルダ]
 
-出力フォルダ
-  card.json   … 選手ごとの集計・技（tg）・優勝（yc）。実験場 senshuCardE.html の card2D.json と同じ形
-  ayumi.json  … 積み上げた事実
+出力フォルダ（本番は docs/players/card/）
+  common.json・index.json・p/0〜63.json … ページ用に選手ごとに分けたもの（p には積み上げた事実 ay も入る）
   h2h/0〜63.json・meta.json … 直接対決
-  card/common.json・index.json・p/0〜63.json … ページ用に選手ごとに分けたもの（card.json と ayumi.json の中身）
+全体版の出力フォルダ（指定したときだけ。照合用）
+  card.json（実験場 card2D.json と同じ形）・ayumi.json
 最後に検査を走らせ、1つでも外れたら書き出さずに止まる（check.py）。
 """
 import json
@@ -37,6 +37,7 @@ def split(out, ay, d):
 
 def main():
     last, rawDir, outDir = sys.argv[1], sys.argv[2], sys.argv[3]
+    fullDir = sys.argv[4] if len(sys.argv) > 4 else None
     out, rows = BC.build(last, rawDir)
     unk = sum(1 for x in rows if isinstance(x['chaku'], int) and 7 <= x['chaku'] <= 16 and x['src'] == 'r' and x['k'] is None)
     print('責任の有無が分からない行（Kファイルが無い日の着7〜16）', unk)
@@ -52,11 +53,12 @@ def main():
         for p in problems:
             print(' -', p)
         sys.exit(1)
-    os.makedirs(outDir, exist_ok=True)
-    json.dump(out, open(os.path.join(outDir, 'card.json'), 'w'), ensure_ascii=False, separators=(',', ':'))
-    json.dump(ay, open(os.path.join(outDir, 'ayumi.json'), 'w'), ensure_ascii=False, separators=(',', ':'))
+    if fullDir:
+        os.makedirs(fullDir, exist_ok=True)
+        json.dump(out, open(os.path.join(fullDir, 'card.json'), 'w'), ensure_ascii=False, separators=(',', ':'))
+        json.dump(ay, open(os.path.join(fullDir, 'ayumi.json'), 'w'), ensure_ascii=False, separators=(',', ':'))
     h2h.build(rows, set(out['players']), out['win']['all']['from'], last, os.path.join(outDir, 'h2h'))
-    split(out, ay, os.path.join(outDir, 'card'))
+    split(out, ay, outDir)
     print('OK', last, '選手', len(out['players']))
 
 
