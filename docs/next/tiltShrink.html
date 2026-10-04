@@ -1,0 +1,120 @@
+<!-- データ攻め by あべけん https://abeken1026395.github.io/pallas-mercato-7k9/ -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="UTF-8">
+<meta name="author" content="あべけん（データ攻め）">
+<link rel="canonical" href="https://abeken1026395.github.io/pallas-mercato-7k9/next/tiltShrink.html">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>跳ねた人ごとの差が縮む 試作 | データ攻め</title>
+<style>
+:root{
+  --bg:#0a1422; --panel:#12233a; --line:#24406a;
+  --fg:#dde3e9; --dim:#a0acb8; --faint:#8b98a8;
+  --accent:#ffd166; --ok:#7ee08a; --ng:#e07a7a;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif; -webkit-text-size-adjust:100%; padding-bottom:48px; }
+.wrap { max-width:560px; margin:0 auto; padding:18px 16px; }
+.crumb { font-size:12px; color:var(--dim); margin-bottom:10px; }
+.crumb a { color:var(--accent); text-decoration:none; }
+h1 { font-size:22px; line-height:1.4; letter-spacing:.5px; text-align:center; }
+.lead { font-size:13px; color:var(--dim); text-align:center; margin-top:6px; line-height:1.7; }
+.nw { display:inline-block; white-space:nowrap; }
+.note { font-size:12px; color:var(--dim); line-height:1.8; margin-top:18px; }
+.chart{margin:1.6em 0 2em;padding:14px 10px 10px;background:var(--panel);
+  border:1px solid var(--line);border-radius:10px}
+.chart svg{display:block;width:100%;height:auto;font-family:inherit}
+.chart figcaption{margin-top:8px;font-size:11.5px;line-height:1.8;color:var(--dim)}
+.chart .replay{display:block;margin:10px auto 2px;min-height:44px;padding:0 20px;background:none;border:1px solid var(--line);border-radius:22px;color:var(--dim);font-size:13px;cursor:pointer}
+.chart .replay[hidden]{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="crumb"><a href="./">実験場</a> ／ 跳ねた人ごとの差が縮む</div>
+<h1><span class="nw">跳ねた人ごとの差を、</span><br><span class="nw">動かして見る</span></h1>
+<p class="lead"><span class="nw">揃えた差が伸びたあと、</span><span class="nw">同じ選手の中で比べた差へ縮む試作です</span></p>
+
+<figure class="chart" id="tiltFig" role="img" aria-label="誰が跳ねたかごとの、0.0の艇との1着率の差。今日だけは境目の2.0に届かず、常連と6コースの3度は大きい。同じ選手の中で比べると、常連と3度は半分近くに縮む"><svg id="tiltSvg" viewBox="0 0 360 286" width="100%" xmlns="http://www.w3.org/2000/svg">
+<text x="20.0" y="42.0" font-size="12.6" fill="#dde3e9" text-anchor="start" font-weight="700">今日だけ</text>
+<text x="80.0" y="18.0" font-size="12" fill="#dde3e9" text-anchor="middle">境目 2.0</text>
+<line x1="20" y1="26" x2="20" y2="256" stroke="#24406a" stroke-width="0.9"/>
+<line x1="80.0" y1="46" x2="80.0" y2="79" stroke="#dde3e9" stroke-width="0.8" stroke-dasharray="3 3"/>
+<rect x="20" y="48" width="41.4" height="13" fill="#e0a070"/>
+<text x="85.0" y="59.0" font-size="12" fill="#dde3e9" text-anchor="start">+1.4</text>
+<rect x="20.6" y="64.6" width="34.2" height="11.8" fill="none" stroke="#e0a070" stroke-width="1.2"/>
+<text x="85.0" y="75.0" font-size="12" fill="#6f7f93" text-anchor="start">+1.2</text>
+<text x="20.0" y="100.0" font-size="12.6" fill="#dde3e9" text-anchor="start" font-weight="700">ときどき</text>
+<line x1="80.0" y1="104" x2="80.0" y2="137" stroke="#dde3e9" stroke-width="0.8" stroke-dasharray="3 3"/>
+<rect x="20" y="106" width="91.4" height="13" fill="#e0a070"/>
+<text x="116.4" y="117.0" font-size="12" fill="#dde3e9" text-anchor="start">+3.0</text>
+<rect x="20.6" y="122.6" width="60.5" height="11.8" fill="none" stroke="#e0a070" stroke-width="1.2"/>
+<text x="86.7" y="133.0" font-size="12" fill="#6f7f93" text-anchor="start">+2.1</text>
+<text x="20.0" y="158.0" font-size="12.6" fill="#dde3e9" text-anchor="start" font-weight="700">常連</text>
+<line x1="80.0" y1="162" x2="80.0" y2="195" stroke="#dde3e9" stroke-width="0.8" stroke-dasharray="3 3"/>
+<rect x="20" y="164" width="268.4" height="13" fill="#e0a070"/>
+<text x="293.4" y="175.0" font-size="12" fill="#dde3e9" text-anchor="start">+8.9</text>
+<rect x="20.6" y="180.6" width="154.2" height="11.8" fill="none" stroke="#e0a070" stroke-width="1.2"/>
+<text x="180.4" y="191.0" font-size="12" fill="#6f7f93" text-anchor="start">+5.2</text>
+<text x="20.0" y="216.0" font-size="12.6" fill="#dde3e9" text-anchor="start" font-weight="700">6コースの3度</text>
+<line x1="80.0" y1="220" x2="80.0" y2="253" stroke="#dde3e9" stroke-width="0.8" stroke-dasharray="3 3"/>
+<rect x="20" y="222" width="289.7" height="13" fill="#e0a070"/>
+<text x="314.7" y="233.0" font-size="12" fill="#dde3e9" text-anchor="start">+9.7</text>
+<rect x="20.6" y="238.6" width="153.1" height="11.8" fill="none" stroke="#e0a070" stroke-width="1.2"/>
+<text x="179.3" y="249.0" font-size="12" fill="#6f7f93" text-anchor="start">+5.1</text>
+<rect x="20" y="264" width="14" height="11" fill="#e0a070"/><text x="40.0" y="274.0" font-size="12" fill="#6f7f93" text-anchor="start">揃えた差</text>
+<rect x="130.6" y="264.6" width="12.8" height="9.8" fill="none" stroke="#e0a070" stroke-width="1.2"/><text x="150.0" y="274.0" font-size="12" fill="#6f7f93" text-anchor="start">同じ選手の中で比べた差</text>
+</svg><button class="replay" id="tiltRe" type="button" hidden>もう一度見る</button><figcaption>単位はポイント。今日だけ・ときどき・常連は4から6コース、3度は6コースの0.0の艇と比べた値。破線はこの連載の境目です。</figcaption></figure>
+
+<p class="note"><span class="nw">出典：検証09「チルト3度の7艇に1艇は菅章哉だった」の図</span></p>
+</div>
+<footer style="margin:24px auto 8px;max-width:900px;text-align:center;font-size:10px;color:#8a94a3;letter-spacing:.3px;line-height:1.7;">&copy; 2026 データ攻め ── 制作・運営 <a href="https://www.youtube.com/@abe-ken" target="_blank" rel="noopener" style="color:#9aa4b3;text-decoration:underline;">あべけん</a></footer>
+<script>
+(function () {
+  var fig = document.getElementById('tiltFig'), g = document.getElementById('tiltSvg'), btn = document.getElementById('tiltRe');
+  if (!fig || !g || !btn || !('IntersectionObserver' in window) || !window.requestAnimationFrame) return;
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var pick = function (sel) {
+    return Array.prototype.filter.call(g.querySelectorAll(sel), function (r) { return r.getAttribute('y') < 260; })
+      .map(function (r) { return { r: r, w: r.getAttribute('width'), lb: r.nextElementSibling }; });
+  };
+  var F = pick('rect[fill="#e0a070"]'), O = pick('rect[fill="none"]');
+  if (F.length !== 4 || O.length !== 4) return;
+  var GROW = 400, GAP = 250, WAIT = 700, SHRINK = 900;
+  var S2 = (F.length - 1) * (GROW + GAP) + GROW + WAIT, TOTAL = S2 + SHRINK;
+  var ease = function (k) { return 1 - Math.pow(1 - k, 3); };
+  var clamp = function (v) { return Math.max(0, Math.min(1, v)); };
+  function paint(ms) {
+    var k2 = clamp((ms - S2) / SHRINK);
+    F.forEach(function (f, i) {
+      var k = clamp((ms - i * (GROW + GAP)) / GROW), o = O[i];
+      f.r.setAttribute('width', k >= 1 ? f.w : +f.w * ease(k));
+      f.lb.style.opacity = k >= 1 ? 1 : 0;
+      o.r.setAttribute('width', k2 >= 1 ? o.w : ms < S2 ? 0 : +f.w + (o.w - f.w) * ease(k2));
+      o.lb.style.opacity = k2 >= 1 ? 1 : 0;
+    });
+  }
+  var busy = false;
+  function run() {
+    if (busy) return; busy = true;
+    var t0 = 0;
+    requestAnimationFrame(function step(t) {
+      if (!t0) t0 = t;
+      if (t - t0 < TOTAL) { paint(t - t0); requestAnimationFrame(step); } else { paint(TOTAL); busy = false; }
+    });
+  }
+  paint(0);
+  btn.hidden = false;
+  btn.onclick = function () { if (!busy) { paint(0); run(); } };
+  var io = new IntersectionObserver(function (es) {
+    es.forEach(function (e) { if (e.isIntersecting) { run(); io.disconnect(); } });
+  }, { threshold: 0.6 });
+  io.observe(fig);
+})();
+</script>
+<script src="../assets/guard.js" defer></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>
