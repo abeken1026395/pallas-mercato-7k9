@@ -1894,7 +1894,22 @@ function App() {
         padding: "0 16px 16px",
         borderTop: "1px solid #1a2535"
       }
-    }, /*#__PURE__*/React.createElement("details", {
+    }, /*#__PURE__*/React.createElement("a", {
+      href: "card.html?toban=" + p.no,
+      onClick: e => e.stopPropagation(),
+      style: {
+        display: "block",
+        margin: "12px 0 4px",
+        padding: "10px 12px",
+        borderRadius: 8,
+        background: "#0b4a50",
+        color: "#f3fafa",
+        fontSize: 13,
+        fontWeight: 700,
+        textDecoration: "none",
+        textAlign: "center"
+      }
+    }, "\u9078\u624B\u30AB\u30FC\u30C9\u3092\u898B\u308B"), /*#__PURE__*/React.createElement("details", {
       open: hasMemo(memo, p.no),
       onClick: e => e.stopPropagation(),
       style: {

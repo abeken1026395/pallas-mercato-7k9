@@ -753,6 +753,8 @@ function App() {
               {/* 展開：詳細 */}
               {isOpen && (
                 <div style={{padding:"0 16px 16px",borderTop:"1px solid #1a2535"}}>
+                  {/* 選手カード（全選手の中の位置を1枚で）。カードの開閉を誘発しないよう伝播を止める */}
+                  <a href={"card.html?toban="+p.no} onClick={e=>e.stopPropagation()} style={{display:"block",margin:"12px 0 4px",padding:"10px 12px",borderRadius:8,background:"#0b4a50",color:"#f3fafa",fontSize:13,fontWeight:700,textDecoration:"none",textAlign:"center"}}>選手カードを見る</a>
                   {/* 自分用メモ。detail の到着を待たずに書ける。カードの開閉を誘発しないよう伝播を止める */}
                   {/* 使わない人も多いので畳んでおく。書いてある選手だけ最初から開く */}
                   <details open={hasMemo(memo,p.no)} onClick={e=>e.stopPropagation()} style={{margin:"10px 0"}}>
