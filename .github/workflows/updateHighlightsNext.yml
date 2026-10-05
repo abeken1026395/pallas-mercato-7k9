@@ -43,7 +43,7 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add docs/racers/ docs/highlights/highlights_next.json docs/data/venueMeta.json 2>/dev/null || true
+          git add docs/racers/ docs/highlights/highlights_next.json docs/data/venueMeta.json docs/data/motorReplace.json 2>/dev/null || true
           # 鉄則: 当日 highlights.json / predictions/ は add しない（翌日モードは書かないが二重の安全）。
           git reset -q docs/highlights/highlights.json predictions/ 2>/dev/null || true
           if git diff --staged --quiet; then
