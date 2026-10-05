@@ -122,7 +122,7 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           # パスごとに存在を確かめて add する（まとめ add + `|| true` は、1つ欠けると黙って0件 stage になる）。
-          # 6パスとも nightlyPipeline 稼働（2026-07-12）以前から追跡され、削除された履歴も無い。無いこと自体が異常。
+          # 7パスとも追跡済み（motorReplace.json は build_highlights.py が新替を見つけると書く。add しないと rebase が拒否される・2026-10-06）。無いこと自体が異常。
           #   作業ツリーに無い・HEAD に在る   → 消えた（add すると削除が commit される）→ 落とす
           #   作業ツリーにも HEAD にも無い     → 正常か判定できない（未検証）→ 落とす
           #   在るのに add に失敗              → 落とす
@@ -137,7 +137,7 @@ jobs:
             fi
             git add -- "$1" || { echo "::error::git add $1 に失敗"; return 1; }
           }
-          for p in docs/racers/ docs/motor/ docs/data/venueMeta.json docs/data/motorHistory.json docs/highlights/ predictions/; do
+          for p in docs/racers/ docs/motor/ docs/data/venueMeta.json docs/data/motorHistory.json docs/data/motorReplace.json docs/highlights/ predictions/; do
             add_path "$p" || exit 1
           done
           # ディレクトリ内の追跡ファイルが消えていても add は削除を黙って stage する。この run は何も消さないので落とす。
