@@ -63,12 +63,19 @@ h1 { font-size:22px; line-height:1.4; letter-spacing:.5px; text-align:center; }
   <button class="replay" id="re3" type="button" hidden>もう一度見る</button>
 </section>
 
-<p class="note"><span class="nw">出典：検証09「チルト3度の7艇に1艇は菅章哉だった」の</span><span class="nw">図・表・本文の数字</span><span class="nw">（2017年4月8日から2026年9月30日）。</span><span class="nw">数字は公開ページから</span><span class="nw">抜き出して入れています。</span></p>
+<section class="card" id="c4">
+  <div class="ttl"><span class="nw">下げる人が、</span><span class="nw">跳ねる人に変わるまで</span><small>菅章哉の1年ごとのチルト（走数の内訳）</small></div>
+  <svg id="g4" viewBox="0 0 360 330" role="img"></svg>
+  <p class="cap" id="cap4"></p>
+  <button class="replay" id="re4" type="button" hidden>もう一度見る</button>
+</section>
+
+<p class="note"><span class="nw">出典：検証09「チルト3度の7艇に1艇は菅章哉だった」の</span><span class="nw">図・表・本文の数字</span><span class="nw">（4枚目は、検証09と同じ突き合わせ済みのデータから</span><span class="nw">菅章哉の分を数え直したもの。</span><span class="nw">3度の数は本文と一致）</span><span class="nw">（2017年4月8日から2026年9月30日）。</span><span class="nw">数字は公開ページから</span><span class="nw">抜き出して入れています。</span></p>
 </div>
 <footer style="margin:24px auto 8px;max-width:900px;text-align:center;font-size:10px;color:#8a94a3;letter-spacing:.3px;line-height:1.7;">&copy; 2026 データ攻め ── 制作・運営 <a href="https://www.youtube.com/@abe-ken" target="_blank" rel="noopener" style="color:#9aa4b3;text-decoration:underline;">あべけん</a></footer>
 <script>
 (function () {
-  var D = {"angles":["−0.5","0.0","+0.5","+1.0から+2.5","+3.0"],"rates":[[10.2,11.3,14.1,18.5,37.2],[5.5,6.2,8.0,9.8,23.9],[1.6,2.0,3.4,5.6,11.9]],"total":3799,"suga":559,"pct":"14.7","kaishu":[["0.0",58.1,0],["今日だけ",64.5,1],["ときどき",64.6,1],["常連",66.3,1],["0.0",32.8,0],["3度",55.9,1]]};
+  var D = {"angles":["−0.5","0.0","+0.5","+1.0から+2.5","+3.0"],"rates":[[10.2,11.3,14.1,18.5,37.2],[5.5,6.2,8.0,9.8,23.9],[1.6,2.0,3.4,5.6,11.9]],"total":3799,"suga":559,"pct":"14.7","kaishu":[["0.0",58.1,0],["今日だけ",64.5,1],["ときどき",64.6,1],["常連",66.3,1],["0.0",32.8,0],["3度",55.9,1]]}, SUGA = {"years":{"2017":{"runs":213,"tilt":{"-0.5":193,"0.0":20,"0.5":0,"1.0":0,"1.5":0,"2.0":0,"2.5":0,"3.0":0}},"2018":{"runs":287,"tilt":{"-0.5":240,"0.0":40,"0.5":2,"1.0":0,"1.5":1,"2.0":0,"2.5":0,"3.0":4}},"2019":{"runs":275,"tilt":{"-0.5":183,"0.0":49,"0.5":17,"1.0":9,"1.5":1,"2.0":0,"2.5":0,"3.0":16}},"2020":{"runs":81,"tilt":{"-0.5":28,"0.0":18,"0.5":16,"1.0":7,"1.5":4,"2.0":1,"2.5":0,"3.0":7}},"2021":{"runs":234,"tilt":{"-0.5":25,"0.0":80,"0.5":43,"1.0":11,"1.5":20,"2.0":0,"2.5":0,"3.0":55}},"2022":{"runs":241,"tilt":{"-0.5":14,"0.0":96,"0.5":28,"1.0":5,"1.5":20,"2.0":8,"2.5":0,"3.0":70}},"2023":{"runs":236,"tilt":{"-0.5":2,"0.0":85,"0.5":26,"1.0":4,"1.5":6,"2.0":5,"2.5":1,"3.0":107}},"2024":{"runs":257,"tilt":{"-0.5":0,"0.0":111,"0.5":22,"1.0":4,"1.5":6,"2.0":6,"2.5":0,"3.0":108}},"2025":{"runs":223,"tilt":{"-0.5":4,"0.0":63,"0.5":22,"1.0":7,"1.5":11,"2.0":0,"2.5":0,"3.0":116}},"2026":{"runs":159,"tilt":{"-0.5":1,"0.0":58,"0.5":17,"1.0":6,"1.5":1,"2.0":0,"2.5":0,"3.0":76}}}};
   var NS = 'http://www.w3.org/2000/svg', GRAY = '#6f7f93', HANE = '#e0a070', FG = '#dde3e9', LINE = '#24406a';
   var still = !('IntersectionObserver' in window) || !window.requestAnimationFrame ||
     (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -245,6 +252,48 @@ h1 { font-size:22px; line-height:1.4; letter-spacing:.5px; text-align:center; }
         r.lb.textContent = v / 100 * H > 22 ? (k >= 1 ? r.v.toFixed(1) : v.toFixed(1)) + '円' : '';
       });
       foot.style.opacity = ms >= T - 500 ? 1 : 0;
+    });
+  })();
+  // ── 4枚目：菅章哉のチルトの内訳を、1年ずつ積み上げる
+  (function () {
+    var g = document.getElementById('g4'), Y = SUGA.years, yrs = Object.keys(Y).sort();
+    var SEG = [['−0.5', ['-0.5'], '#4a5868'], ['0.0', ['0.0'], GRAY], ['+0.5から+2.5', ['0.5', '1.0', '1.5', '2.0', '2.5'], 'rgba(224,160,112,.5)'], ['+3.0', ['3.0'], HANE]];
+    var t3 = 0; yrs.forEach(function (y) { t3 += Y[y].tilt['3.0']; });
+    var y0 = yrs[0], y1 = yrs[yrs.length - 1];
+    g.setAttribute('aria-label', '菅章哉のチルト。' + y0 + '年は' + num(Y[y0].runs) + '走のうち' + num(Y[y0].tilt['-0.5']) + '走が−0.5。年を追って3度が増え、' + y1 + '年は' + num(Y[y1].runs) + '走のうち' + num(Y[y1].tilt['3.0']) + '走が3度');
+    document.getElementById('cap4').innerHTML = '<span class="nw">右の数字は、その年の3度の走数と全走数。</span><span class="nw">' + y0 + '年は4月8日から、</span><span class="nw">' + y1 + '年は9月30日まで。</span><span class="nw">3度の9年半の合計は' + num(t3) + '走です。</span>';
+    var X0 = 50, BW = 210, TOP = 74, ROW = 25, BH = 15;
+    var head = el(g, 'text', { x: 14, y: 22, 'font-size': 16, 'font-weight': 700, fill: FG, 'font-variant-numeric': 'tabular-nums' }, '');
+    var lx = 14;
+    SEG.forEach(function (sg) {
+      el(g, 'rect', { x: lx, y: 36, width: 11, height: 11, fill: sg[2] });
+      el(g, 'text', { x: lx + 15, y: 46, 'font-size': 11.5, fill: GRAY }, sg[0]);
+      lx += 15 + sg[0].length * 7.4 + 12;
+    });
+    el(g, 'text', { x: 346, y: TOP - 8, 'font-size': 11, fill: GRAY, 'text-anchor': 'end' }, '3度 / 全走');
+    var R = yrs.map(function (y, i) {
+      var v = Y[y], yy = TOP + i * ROW, segs = [];
+      var lab = el(g, 'text', { x: 14, y: yy + 12, 'font-size': 12, fill: FG, 'font-variant-numeric': 'tabular-nums' }, y);
+      SEG.forEach(function (sg) {
+        var n = 0; sg[1].forEach(function (k) { n += v.tilt[k]; });
+        segs.push({ r: el(g, 'rect', { x: X0, y: yy, width: 0, height: BH, fill: sg[2] }), w: n / v.runs * BW });
+      });
+      var rt = el(g, 'text', { x: 346, y: yy + 12, 'font-size': 12, fill: FG, 'text-anchor': 'end', 'font-variant-numeric': 'tabular-nums' }, num(v.tilt['3.0']) + ' / ' + num(v.runs));
+      return { y: y, v: v, lab: lab, segs: segs, rt: rt };
+    });
+    g.setAttribute('viewBox', '0 0 360 ' + (TOP + R.length * ROW + 2));
+    var GROW = 520, GAP = 300, T = (R.length - 1) * GAP + GROW + 300;
+    player(document.getElementById('c4'), document.getElementById('re4'), T, function (ms) {
+      var last = -1;
+      R.forEach(function (r, i) {
+        var k = clamp((ms - i * GAP) / GROW), e = ease(k), on = ms >= i * GAP, x = X0;
+        if (on) last = i;
+        r.lab.style.opacity = on ? 1 : .25;
+        r.segs.forEach(function (sg) { var w = sg.w * e; sg.r.setAttribute('x', x.toFixed(1)); sg.r.setAttribute('width', w.toFixed(1)); x += w; });
+        r.rt.style.opacity = k >= 1 ? 1 : 0;
+      });
+      var r = R[Math.max(last, 0)], v = r.v;
+      head.textContent = last < 0 ? '' : r.y + '年　' + (v.tilt['3.0'] ? '3度 ' + num(v.tilt['3.0']) : '−0.5 ' + num(v.tilt['-0.5'])) + ' / ' + num(v.runs) + '走';
     });
   })();
 })();
