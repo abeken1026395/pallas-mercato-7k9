@@ -12,6 +12,11 @@ on:
   schedule:
     - cron: "10 0 * * 2"   # UTC 火曜 0:10 = JST 火曜 9:10（PC が止まっていて push が無かった週の予備。変わらなければ何もしない）
   workflow_dispatch:
+    inputs:
+      force:
+        description: "最終日が変わらなくても作り直す（集計の決まりを変えたとき）"
+        type: boolean
+        default: false
 
 concurrency:
   group: updateSenshuCard
@@ -35,15 +40,18 @@ jobs:
         run: pip install numpy scipy
       - name: decide
         id: d
+        env:
+          FORCE: ${{ github.event.inputs.force }}
         run: |
           python3 - <<'EOF' >> "$GITHUB_OUTPUT"
-          import csv, json
+          import csv, json, os
           last = '20' + max(r['hd'] for r in csv.DictReader(open('data/senshuCard/kExtra.csv', encoding='utf-8')))
           cur = json.load(open('docs/players/card/common.json', encoding='utf-8'))['win']['y1']['to']
           h = json.load(open('data/senshuCard/finalsHistory.json', encoding='utf-8'))['to']
           print(f"last={last}")
           print(f"hist={h}")
-          print(f"run={'1' if last.replace('-', '') > cur.replace('-', '') else '0'}")
+          force = os.environ.get('FORCE') == 'true'
+          print(f"run={'1' if force or last.replace('-', '') > cur.replace('-', '') else '0'}")
           EOF
           cat "$GITHUB_OUTPUT"
       - name: avoid JST 11:00-11:40
