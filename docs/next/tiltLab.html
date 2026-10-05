@@ -43,9 +43,9 @@ h1 { font-size:22px; line-height:1.4; letter-spacing:.5px; text-align:center; }
 
 <section class="card" id="c1">
   <div class="ttl"><span class="nw">角度を上げると、</span><span class="nw">1着は増えるか</span><small>4から6コースの1着率（揃える前）</small></div>
-  <svg id="g1" viewBox="0 0 360 286" role="img" aria-label="チルトの角度ごとの1着率。どのコースも角度を上げるほど高い"></svg>
+  <svg id="g1" viewBox="0 0 360 354" role="img" aria-label="チルトの角度ごとの1着率。どのコースも角度を上げるほど高い"></svg>
   <div class="steps" id="st1" role="group" aria-label="チルトの角度"></div>
-  <p class="cap"><span class="nw">角度のボタンで切り替えられます。</span><span class="nw">棒の上の細い線は、0.0の艇の1着率。</span><span class="nw">チルトで変わるのは船体ではなく、</span><span class="nw">艇尾に付けたモーターの角度です</span><span class="nw">（破線が0.0の向き、</span><span class="nw">矢印がプロペラの押す向き）。</span><span class="nw">角度は見やすいように大きく描いています。</span></p>
+  <p class="cap"><span class="nw">角度のボタンで切り替えられます。</span><span class="nw">棒の上の細い線は、0.0の艇の1着率。</span><span class="nw">チルトで変わるのは船体ではなく、</span><span class="nw">艇尾に付けたモーターの角度です</span><span class="nw">（橙の線がいまの角度、</span><span class="nw">点線が0.0、目盛りは0.5刻み）。</span><span class="nw">角度は見やすいように大きく描いています。</span><span class="nw">「伸び寄り」「ターン寄り」は、</span><span class="nw">一般に言われる調整の向きです。</span></p>
   <button class="replay" id="re1" type="button" hidden>もう一度見る</button>
 </section>
 
@@ -112,21 +112,35 @@ h1 { font-size:22px; line-height:1.4; letter-spacing:.5px; text-align:center; }
     var X0 = 76, U = 6.4, WL = 96;
     el(g, 'line', { x1: 14, y1: WL, x2: 346, y2: WL, stroke: LINE, 'stroke-width': 1.2 });
     [0, 1, 2].forEach(function (i) { el(g, 'path', { d: 'M' + (40 + i * 110) + ' ' + (WL + 9) + 'q12 -5 24 0t24 0', fill: 'none', stroke: LINE, 'stroke-width': 1 }); });
-    // 舟（横から見た模式図。右が舳先）。船体は動かさず、艇尾に付けたモーターだけを取り付け点のまわりに回す
-    var PX = 118, PY = WL - 14;
-    el(g, 'path', { d: 'M118 ' + WL + 'L262 ' + WL + 'Q286 ' + (WL - 2) + ' 300 ' + (WL - 14) + 'L118 ' + (WL - 14) + 'Z', fill: '#2c4a72', stroke: '#8fb3dd', 'stroke-width': 1.2 });
-    el(g, 'path', { d: 'M168 ' + (WL - 14) + 'q14 -16 34 -16l8 16', fill: '#1a3150', stroke: '#8fb3dd', 'stroke-width': 1.2 });
-    el(g, 'line', { x1: PX - 3, y1: PY - 26, x2: PX - 3, y2: WL + 26, stroke: GRAY, 'stroke-width': 1, 'stroke-dasharray': '2 3' });
+    // 舟（横から見た模式図。右が舳先）。船体は動かさず、艇尾のモーターだけを取り付け点のまわりに回す
+    var PX = 150, PY = WL - 14, QX = PX - 3, DEG = 8, LEN = 60;
+    var dir = function (v, r) { var t = v * DEG * Math.PI / 180; return [QX - r * Math.sin(t), PY + r * Math.cos(t)]; };
+    el(g, 'path', { d: 'M' + PX + ' ' + WL + 'L294 ' + WL + 'Q318 ' + (WL - 2) + ' 332 ' + (WL - 14) + 'L' + PX + ' ' + (WL - 14) + 'Z', fill: '#2c4a72', stroke: '#8fb3dd', 'stroke-width': 1.2 });
+    el(g, 'path', { d: 'M' + (PX + 50) + ' ' + (WL - 14) + 'q14 -16 34 -16l8 16', fill: '#1a3150', stroke: '#8fb3dd', 'stroke-width': 1.2 });
+    // 目盛り：0.5刻み。0.0 は点線で通す
+    [-0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3].forEach(function (v) {
+      var p0 = dir(v, v ? LEN - 7 : 0), p1 = dir(v, LEN);
+      var at = { x1: p0[0].toFixed(1), y1: p0[1].toFixed(1), x2: p1[0].toFixed(1), y2: p1[1].toFixed(1), stroke: v ? GRAY : FG, 'stroke-width': v ? 1.2 : 1 };
+      if (!v) at['stroke-dasharray'] = '2 3';
+      el(g, 'line', at);
+    });
+    var z = dir(0, LEN + 12), h = dir(3, LEN + 12);
+    el(g, 'text', { x: z[0] + 4, y: z[1], 'font-size': 11, fill: FG }, '0.0');
+    el(g, 'text', { x: h[0] - 2, y: h[1], 'font-size': 11, fill: HANE, 'text-anchor': 'end' }, '+3.0');
+    el(g, 'text', { x: 14, y: PY + 92, 'font-size': 12, 'font-weight': 700, fill: HANE }, '← ＋に跳ねる');
+    el(g, 'text', { x: 14, y: PY + 107, 'font-size': 11, fill: GRAY }, '直線の伸び寄り');
+    el(g, 'text', { x: 346, y: PY + 92, 'font-size': 12, 'font-weight': 700, fill: FG, 'text-anchor': 'end' }, '−に下げる →');
+    el(g, 'text', { x: 346, y: PY + 107, 'font-size': 11, fill: GRAY, 'text-anchor': 'end' }, '出足・ターン寄り');
     var boat = el(g, 'g', {});
+    el(boat, 'line', { x1: QX, y1: PY, x2: QX, y2: PY + LEN, stroke: HANE, 'stroke-width': 2, 'stroke-linecap': 'round' });
     el(boat, 'rect', { x: PX - 24, y: PY - 22, width: 20, height: 18, rx: 4, fill: '#3b5f8c', stroke: '#8fb3dd', 'stroke-width': 1.2 });
     el(boat, 'rect', { x: PX - 7, y: PY - 6, width: 5, height: 36, fill: '#3b5f8c', stroke: '#8fb3dd', 'stroke-width': 1 });
     el(boat, 'ellipse', { cx: PX - 4.5, cy: PY + 30, rx: 2.4, ry: 7, fill: '#8fb3dd' });
-    el(boat, 'path', { d: 'M' + (PX + 2) + ' ' + (PY + 30) + 'h22m-6 -4l6 4l-6 4', fill: 'none', stroke: HANE, 'stroke-width': 1.6, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' });
-    el(g, 'circle', { cx: PX - 3, cy: PY, r: 2.4, fill: FG });
+    el(g, 'circle', { cx: QX, cy: PY, r: 2.4, fill: FG });
     el(g, 'text', { x: 14, y: 18, 'font-size': 12, fill: GRAY }, 'チルト');
     var big = el(g, 'text', { x: 14, y: 42, 'font-size': 22, 'font-weight': 700, fill: FG, 'font-variant-numeric': 'tabular-nums' }, '');
     var rows = D.rates.map(function (r, i) {
-      var y = 142 + i * 48;
+      var y = 210 + i * 48;
       el(g, 'text', { x: 14, y: y + 12, 'font-size': 12.6, 'font-weight': 700, fill: FG }, (i + 4) + 'コース');
       el(g, 'rect', { x: X0, y: y, width: 360 - X0 - 14, height: 16, fill: '#0e1d31' });
       var bar = el(g, 'rect', { x: X0, y: y, width: 0, height: 16, fill: GRAY });
@@ -135,8 +149,8 @@ h1 { font-size:22px; line-height:1.4; letter-spacing:.5px; text-align:center; }
       var lb = el(g, 'text', { x: X0, y: y + 12.5, 'font-size': 12, fill: FG, 'font-variant-numeric': 'tabular-nums' }, '');
       return { r: r, bar: bar, lb: lb, w: 0 };
     });
-    el(g, 'text', { x: X0, y: 282, 'font-size': 11, fill: GRAY }, '0%');
-    el(g, 'text', { x: X0 + 40 * U, y: 282, 'font-size': 11, fill: GRAY, 'text-anchor': 'middle' }, '40%');
+    el(g, 'text', { x: X0, y: 350, 'font-size': 11, fill: GRAY }, '0%');
+    el(g, 'text', { x: X0 + 40 * U, y: 350, 'font-size': 11, fill: GRAY, 'text-anchor': 'middle' }, '40%');
     var tilt = [-0.5, 0, 0.5, 1.75, 3];
     var cur = { a: tilt[0], idx: 0 }, anim = null, auto = null;
     var btns = D.angles.map(function (a, i) {
@@ -149,7 +163,7 @@ h1 { font-size:22px; line-height:1.4; letter-spacing:.5px; text-align:center; }
       return b;
     });
     function draw(a, ws, idx) {
-      boat.setAttribute('transform', 'rotate(' + (a * 7).toFixed(2) + ' ' + (PX - 3) + ' ' + PY + ')');
+      boat.setAttribute('transform', 'rotate(' + (a * DEG).toFixed(2) + ' ' + QX + ' ' + PY + ')');
       rows.forEach(function (r, i) {
         r.bar.setAttribute('width', ws[i].toFixed(1));
         r.lb.setAttribute('x', (X0 + ws[i] + 6).toFixed(1));
