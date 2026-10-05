@@ -45,8 +45,9 @@ def main():
     print('責任の有無が分からない行（Kファイルが無い日の着7〜16）', unk)
     wins = {W: (w['from'], w['to']) for W, w in out['win'].items()}
     pri = waza.build(BC.ROOT, rows, wins, out['players'], last)
+    co = waza.course(out)
     for W in pri:
-        out['win'][W]['tagPrior'] = pri[W]
+        out['win'][W]['tagPrior'] = dict(pri[W], **co[W])
     out['tags'] = waza.TAGS
     ay = facts.build(BC.ROOT, rows, wins, out['players'])
     problems = check.run(out, ay)

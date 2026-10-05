@@ -5,6 +5,9 @@ tg[キー] = [率%, 回数, 分母, 上位%, 段]（段 1=得意技 2=持ち味 
 - 段1：採用の基準（前半上位20%の7割以上が後半も上位20%）を満たす技（まくり・前づけ・チルトダッシュ）で、最低回数以上かつ上位20%以内
 - 段2：上位20%以内で段2の最低回数以上
 - 段3：回数1以上（画面では、さらに全選手平均以上・分母20以上・回数3以上のときだけ技名を出す）
+- コース（co1〜co6、2026-10-05 けん裁定）：順位ではなく、その選手の中でいちばん全国平均を上回るコースを1つだけ【持ち味】にする。
+  1コースは1着率、2〜6コースは3着内率。走数の少ないコースは全国平均に寄せてから差（ポイント）で比べ、差がプラスのときだけ出す。
+  最低出走はそのコースで10走（半年5走・2025年7月以降12走）。逃げ・4コース・大外の粘りはこの1枠にまとめた
 """
 import collections
 import json
@@ -18,22 +21,26 @@ from scipy.special import gammaln
 
 SC = {'y1': 1.0, 'h1': 0.5, 'all': 1.25}   # 最低回数の倍率（1年窓が基準）
 T1 = dict(makuri=26, maezuke=8, tiltDash=10)   # 逃げは採用の基準に届かず段1にしない（2026-10-04）
-T2 = dict(nige=5, makuri=13, maezuke=4, tiltDash=5, sashi=14, outKeep=20, nuki=5, c4=15, p23=60)
-KEYS = ['nige', 'makuri', 'maezuke', 'sashi', 'outKeep', 'nuki', 'c4', 'p23', 'geko', 'zst', 'fut', 'kanso']
+T2 = dict(makuri=13, maezuke=4, tiltDash=5, sashi=14, nuki=5, p23=60)
+KEYS = ['makuri', 'maezuke', 'sashi', 'nuki', 'p23', 'geko', 'zst', 'fut', 'kanso']
+CO_MIN = 10   # コースの最低出走（1年窓。SC 倍）
 TAGS = [
-    ['nige', 'イン逃げ', '1コースで逃げて1着', T2['nige']],
     ['makuri', 'まくり一撃', '3〜6コースから、まくりかまくり差しで1着', T1['makuri']],
     ['maezuke', '前づけ', '枠の順番より2つ以上内の1〜3コースに入る', T1['maezuke']],
     ['tiltDash', 'チルトダッシュ', 'チルト+1.0度以上でダッシュ（4〜6コース）進入', T1['tiltDash']],
     ['sashi', '差し', '2〜6コースから差して1着', T2['sashi']],
-    ['outKeep', '大外の粘り', '5・6コースから3着以内', T2['outKeep']],
     ['nuki', '道中の抜き', '1マークの後に抜いて1着', T2['nuki']],
-    ['c4', '4コース', '4コースから3着以内', T2['c4']],
     ['p23', '2・3着の多さ', '2着か3着に入る', T2['p23']],
     ['geko', '着順上げ', '2〜6コースから、進入したコースより上の着順でゴール', 0],
     ['zst', '好スタート', 'スタートタイミング0.09以下（ゼロ台）', 0],
     ['fut', '枠を守る', '枠番より外のコースに出ずに進入', 0],
     ['kanso', '完走', '事故なく6着以内でゴール', 0],
+    ['co1', '1コース', '1コースで1着', CO_MIN],
+    ['co2', '2コース', '2コースから3着以内', CO_MIN],
+    ['co3', '3コース', '3コースから3着以内', CO_MIN],
+    ['co4', '4コース', '4コースから3着以内', CO_MIN],
+    ['co5', '5コース', '5コースから3着以内', CO_MIN],
+    ['co6', '6コース', '6コースから3着以内', CO_MIN],
 ]
 
 
@@ -127,13 +134,10 @@ def build(root, rows, wins, players, last):
                     N[k][t] += 1
                     if hit:
                         K[k][t] += 1
-            add('nige', c == 1, ch == 1 and kim == '逃げ')
             add('makuri', c is not None and 3 <= c <= 6, ch == 1 and kim in ('まくり', 'まくり差し'))
             add('maezuke', wr >= 4, c is not None and c <= 3 and wr - c >= 2)
             add('sashi', c is not None and 2 <= c <= 6, ch == 1 and kim == '差し')
-            add('outKeep', c is not None and 5 <= c <= 6, 1 <= ch <= 3)
             add('nuki', True, ch == 1 and kim == '抜き')
-            add('c4', c == 4, 1 <= ch <= 3)
             add('p23', True, 2 <= ch <= 3)
             add('geko', c is not None and 2 <= c <= 6, ch < c if c else False)
             st = x['st']
@@ -178,4 +182,34 @@ def build(root, rows, wins, players, last):
                 elif kk >= 1 and nn >= 1:
                     tg[k] = val + [3]
             w['tg'] = tg
+    return priors
+
+
+def course(out):
+    """コースの持ち味（co1〜co6）を players の tg に足す。out：build 途中の card（win[窓]['base'] と players[..]['w'][窓]['co'] を使う）。
+    tagPrior に入れる [全国の回数, 全国の外れ] は全国平均（全レースの合計）で、寄せの強さではない（寄せの強さはここで毎回求める）"""
+    priors = {}
+    for W, win in out['win'].items():
+        base = win['base']
+        hit = lambda r, c: r[1] if c == 0 else r[1] + r[2] + r[3]
+        nat = [hit(base[c], c) / base[c][0] for c in range(6)]
+        priors[W] = {f'co{c + 1}': [hit(base[c], c), base[c][0] - hit(base[c], c)] for c in range(6)}
+        rows = {t: P['w'][W]['co'] for t, P in out['players'].items() if P['w'].get(W)}
+        s = []
+        for c in range(6):
+            a, b = betabinFit([hit(r[c], c) for r in rows.values()], [r[c][0] for r in rows.values()])
+            s.append(a + b)
+        mn = max(1, round(CO_MIN * SC[W]))
+        for t, co in rows.items():
+            best = None
+            for c in range(6):
+                n, k = co[c][0], hit(co[c], c)
+                if n < mn:
+                    continue
+                d = (k + s[c] * nat[c]) / (n + s[c]) - nat[c]
+                if d > 1e-12 and (best is None or (d, n, -c) > best[0]):
+                    best = ((d, n, -c), c, k, n)
+            if best:
+                _, c, k, n = best
+                out['players'][t]['w'][W].setdefault('tg', {})[f'co{c + 1}'] = [round(k / n * 100, 1), k, n, 100, 2]
     return priors
