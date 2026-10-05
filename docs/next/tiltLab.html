@@ -1,0 +1,255 @@
+<!-- データ攻め by あべけん https://abeken1026395.github.io/pallas-mercato-7k9/ -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="UTF-8">
+<meta name="author" content="あべけん（データ攻め）">
+<link rel="canonical" href="https://abeken1026395.github.io/pallas-mercato-7k9/next/tiltLab.html">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>検証09を動かす 試作 | データ攻め</title>
+<style>
+:root{
+  --bg:#0a1422; --panel:#12233a; --line:#24406a;
+  --fg:#dde3e9; --dim:#a0acb8; --faint:#6f7f93;
+  --accent:#ffd166; --hane:#e0a070;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif; -webkit-text-size-adjust:100%; padding-bottom:48px; font-feature-settings:"palt" 1; }
+.wrap { max-width:560px; margin:0 auto; padding:18px 16px; }
+.crumb { font-size:12px; color:var(--dim); margin-bottom:10px; }
+.crumb a { color:var(--accent); text-decoration:none; }
+h1 { font-size:22px; line-height:1.4; letter-spacing:.5px; text-align:center; }
+.lead { font-size:13px; color:var(--dim); text-align:center; margin-top:6px; line-height:1.7; }
+.nw { display:inline-block; white-space:nowrap; }
+.card { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:14px 10px 12px; margin-top:20px; }
+.ttl { font-size:15px; font-weight:700; line-height:1.5; padding:0 4px; }
+.ttl small { display:block; font-size:12px; color:var(--dim); font-weight:normal; margin-top:2px; }
+.card svg { display:block; width:100%; height:auto; margin-top:8px; font-family:inherit; }
+.cap { font-size:11.5px; color:var(--dim); line-height:1.8; margin-top:8px; padding:0 4px; }
+.steps { display:flex; gap:6px; margin-top:6px; }
+.steps button { flex:1 1 0; min-width:0; min-height:44px; background:none; border:1px solid var(--line); border-radius:10px; color:var(--dim); font-size:12px; line-height:1.25; cursor:pointer; font-family:inherit; font-variant-numeric:tabular-nums; }
+.steps button[aria-pressed="true"] { border-color:var(--hane); color:var(--fg); background:rgba(224,160,112,.14); }
+.replay { display:block; margin:10px auto 2px; min-height:44px; padding:0 20px; background:none; border:1px solid var(--line); border-radius:22px; color:var(--dim); font-size:13px; cursor:pointer; font-family:inherit; }
+.replay[hidden] { display:none; }
+.note { font-size:12px; color:var(--dim); line-height:1.8; margin-top:20px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="crumb"><a href="./">実験場</a> ／ 検証09を動かす</div>
+<h1><span class="nw">チルトの話を、</span><br><span class="nw">動かして見る</span></h1>
+<p class="lead"><span class="nw">検証09「チルト3度の7艇に1艇は菅章哉だった」の</span><span class="nw">数字を、3枚の動く図にした試作です</span></p>
+
+<section class="card" id="c1">
+  <div class="ttl"><span class="nw">角度を上げると、</span><span class="nw">1着は増えるか</span><small>4から6コースの1着率（揃える前）</small></div>
+  <svg id="g1" viewBox="0 0 360 286" role="img" aria-label="チルトの角度ごとの1着率。どのコースも角度を上げるほど高い"></svg>
+  <div class="steps" id="st1" role="group" aria-label="チルトの角度"></div>
+  <p class="cap"><span class="nw">角度のボタンで切り替えられます。</span><span class="nw">細い線は0.0の艇の位置。</span><span class="nw">舟の傾きは、見やすいように</span><span class="nw">大きく描いています。</span></p>
+  <button class="replay" id="re1" type="button" hidden>もう一度見る</button>
+</section>
+
+<section class="card" id="c2">
+  <div class="ttl"><span class="nw">3度の艇を、</span><span class="nw">1艇1マスで並べる</span><small id="s2"></small></div>
+  <svg id="g2" viewBox="0 0 360 380" role="img"></svg>
+  <p class="cap"><span class="nw">橙が菅章哉。</span><span class="nw">マスの並びは走った順ではなく、</span><span class="nw">割合が見えるように</span><span class="nw">散らして置いています。</span></p>
+  <button class="replay" id="re2" type="button" hidden>もう一度見る</button>
+</section>
+
+<section class="card" id="c3">
+  <div class="ttl"><span class="nw">単勝を100円ずつ</span><span class="nw">買い続けると、いくら戻るか</span><small>揃える前の回収率</small></div>
+  <svg id="g3" viewBox="0 0 360 276" role="img" aria-label="単勝を100円ずつ買い続けた時に戻る額。跳ねた艇は0.0の艇より多く戻るが、どれも払戻率の75円に届かない"></svg>
+  <p class="cap"><span class="nw">灰色が0.0の艇、</span><span class="nw">橙が跳ねた艇。</span><span class="nw">破線は単勝の払戻率（75%）です。</span></p>
+  <button class="replay" id="re3" type="button" hidden>もう一度見る</button>
+</section>
+
+<p class="note"><span class="nw">出典：検証09「チルト3度の7艇に1艇は菅章哉だった」の</span><span class="nw">図・表・本文の数字</span><span class="nw">（2017年4月8日から2026年9月30日）。</span><span class="nw">数字は公開ページから</span><span class="nw">抜き出して入れています。</span></p>
+</div>
+<footer style="margin:24px auto 8px;max-width:900px;text-align:center;font-size:10px;color:#8a94a3;letter-spacing:.3px;line-height:1.7;">&copy; 2026 データ攻め ── 制作・運営 <a href="https://www.youtube.com/@abe-ken" target="_blank" rel="noopener" style="color:#9aa4b3;text-decoration:underline;">あべけん</a></footer>
+<script>
+(function () {
+  var D = {"angles":["−0.5","0.0","+0.5","+1.0から+2.5","+3.0"],"rates":[[10.2,11.3,14.1,18.5,37.2],[5.5,6.2,8.0,9.8,23.9],[1.6,2.0,3.4,5.6,11.9]],"total":3799,"suga":559,"pct":"14.7","kaishu":[["0.0",58.1,0],["今日だけ",64.5,1],["ときどき",64.6,1],["常連",66.3,1],["0.0",32.8,0],["3度",55.9,1]]};
+  var NS = 'http://www.w3.org/2000/svg', GRAY = '#6f7f93', HANE = '#e0a070', FG = '#dde3e9', LINE = '#24406a';
+  var still = !('IntersectionObserver' in window) || !window.requestAnimationFrame ||
+    (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var ease = function (k) { return 1 - Math.pow(1 - k, 3); };
+  var clamp = function (v) { return Math.max(0, Math.min(1, v)); };
+  var el = function (g, tag, a, txt) { var e = document.createElementNS(NS, tag); for (var k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; g.appendChild(e); return e; };
+  var pct = function (v) { return v.toFixed(1) + '%'; };
+  var num = function (v) { return v.toLocaleString('ja-JP'); };
+
+  // 1回だけ動かす仕組み（検証07の作法）：6割見えたら動く。止める時は最後の絵を出す
+  function player(card, btn, total, paint) {
+    var busy = false;
+    function run() {
+      if (busy) return; busy = true;
+      var t0 = 0;
+      requestAnimationFrame(function step(t) {
+        if (!t0) t0 = t;
+        if (t - t0 < total) { paint(t - t0); requestAnimationFrame(step); } else { paint(total); busy = false; }
+      });
+    }
+    if (still) { paint(total); return; }
+    paint(0);
+    btn.hidden = false;
+    btn.onclick = function () { if (!busy) { paint(0); run(); } };
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { run(); io.disconnect(); } });
+    }, { threshold: 0.6 });
+    io.observe(card);
+  }
+
+  // ── 1枚目：角度を切り替えると舟が傾き、3コースの棒が動く
+  (function () {
+    var g = document.getElementById('g1'), box = document.getElementById('st1');
+    var X0 = 76, U = 6.4, WL = 96;
+    el(g, 'line', { x1: 14, y1: WL, x2: 346, y2: WL, stroke: LINE, 'stroke-width': 1.2 });
+    [0, 1, 2].forEach(function (i) { el(g, 'path', { d: 'M' + (40 + i * 110) + ' ' + (WL + 9) + 'q12 -5 24 0t24 0', fill: 'none', stroke: LINE, 'stroke-width': 1 }); });
+    // 舟（横から見た模式図。右が舳先）。艇尾の水面を軸に回す
+    var boat = el(g, 'g', {});
+    el(boat, 'path', { d: 'M96 ' + WL + 'L250 ' + WL + 'Q276 ' + (WL - 2) + ' 290 ' + (WL - 14) + 'L104 ' + (WL - 14) + 'Z', fill: '#2c4a72', stroke: '#8fb3dd', 'stroke-width': 1.2 });
+    el(boat, 'path', { d: 'M150 ' + (WL - 14) + 'q14 -16 34 -16l8 16', fill: '#1a3150', stroke: '#8fb3dd', 'stroke-width': 1.2 });
+    el(boat, 'rect', { x: 84, y: WL - 22, width: 14, height: 30, rx: 3, fill: '#3b5f8c', stroke: '#8fb3dd', 'stroke-width': 1.2 });
+    el(g, 'text', { x: 14, y: 18, 'font-size': 12, fill: GRAY }, 'チルト');
+    var big = el(g, 'text', { x: 14, y: 42, 'font-size': 22, 'font-weight': 700, fill: FG, 'font-variant-numeric': 'tabular-nums' }, '');
+    var rows = D.rates.map(function (r, i) {
+      var y = 142 + i * 48;
+      el(g, 'text', { x: 14, y: y + 12, 'font-size': 12.6, 'font-weight': 700, fill: FG }, (i + 4) + 'コース');
+      el(g, 'rect', { x: X0, y: y, width: 360 - X0 - 14, height: 16, fill: '#0e1d31' });
+      var bar = el(g, 'rect', { x: X0, y: y, width: 0, height: 16, fill: GRAY });
+      var x00 = X0 + r[1] * U;
+      el(g, 'line', { x1: x00, y1: y - 4, x2: x00, y2: y + 20, stroke: FG, 'stroke-width': 1, 'stroke-dasharray': '2 2' });
+      var lb = el(g, 'text', { x: X0, y: y + 12.5, 'font-size': 12, fill: FG, 'font-variant-numeric': 'tabular-nums' }, '');
+      return { r: r, bar: bar, lb: lb, w: 0 };
+    });
+    el(g, 'text', { x: X0, y: 282, 'font-size': 11, fill: GRAY }, '0%');
+    el(g, 'text', { x: X0 + 40 * U, y: 282, 'font-size': 11, fill: GRAY, 'text-anchor': 'middle' }, '40%');
+    var tilt = [-0.5, 0, 0.5, 1.75, 3];
+    var cur = { a: tilt[0], idx: 0 }, anim = null, auto = null;
+    var btns = D.angles.map(function (a, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.innerHTML = a.replace('から', 'から<br>');
+      b.setAttribute('aria-pressed', 'false');
+      b.onclick = function () { stopAuto(); go(i, 520); };
+      box.appendChild(b);
+      return b;
+    });
+    function draw(a, ws, idx) {
+      boat.setAttribute('transform', 'rotate(' + (-a * 4).toFixed(2) + ' 90 ' + WL + ')');
+      rows.forEach(function (r, i) {
+        r.bar.setAttribute('width', ws[i].toFixed(1));
+        r.lb.setAttribute('x', (X0 + ws[i] + 6).toFixed(1));
+      });
+    }
+    function settle(idx) {
+      var hot = idx >= 2;
+      big.textContent = D.angles[idx];
+      rows.forEach(function (r) { r.bar.setAttribute('fill', hot ? HANE : GRAY); r.lb.textContent = pct(r.r[idx]); r.lb.style.opacity = 1; });
+      btns.forEach(function (b, i) { b.setAttribute('aria-pressed', i === idx ? 'true' : 'false'); });
+    }
+    function go(idx, ms) {
+      if (anim) cancelAnimationFrame(anim);
+      var a0 = cur.a, w0 = rows.map(function (r) { return r.w; }), a1 = tilt[idx], w1 = rows.map(function (r) { return r.r[idx] * U; });
+      cur.idx = idx;
+      settle(idx);
+      if (still || !ms) { cur.a = a1; rows.forEach(function (r, i) { r.w = w1[i]; }); draw(a1, w1); return; }
+      var t0 = 0;
+      anim = requestAnimationFrame(function step(t) {
+        if (!t0) t0 = t;
+        var k = ease(clamp((t - t0) / ms));
+        cur.a = a0 + (a1 - a0) * k;
+        var ws = w0.map(function (w, i) { return w + (w1[i] - w) * k; });
+        rows.forEach(function (r, i) { r.w = ws[i]; });
+        draw(cur.a, ws);
+        anim = k < 1 ? requestAnimationFrame(step) : null;
+      });
+    }
+    function stopAuto() { if (auto) { clearTimeout(auto); auto = null; } }
+    function tour() {
+      stopAuto();
+      rows.forEach(function (r) { r.w = 0; });
+      cur.a = 0;
+      var i = 0;
+      (function next() { go(i, 700); i++; if (i < tilt.length) auto = setTimeout(next, 1300); else auto = null; })();
+    }
+    var btn = document.getElementById('re1');
+    if (still) { go(tilt.length - 1, 0); return; }
+    go(0, 0); rows.forEach(function (r) { r.w = 0; }); draw(tilt[0], [0, 0, 0]);
+    rows.forEach(function (r) { r.lb.style.opacity = 0; });
+    btn.hidden = false;
+    btn.onclick = tour;
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { tour(); io.disconnect(); } });
+    }, { threshold: 0.6 });
+    io.observe(document.getElementById('c1'));
+  })();
+
+  // ── 2枚目：3度の艇をマスで並べ、菅章哉の分だけ橙に灯す
+  (function () {
+    var g = document.getElementById('g2'), N = D.total, K = D.suga;
+    document.getElementById('s2').textContent = '2017年4月から9年半、延べ' + num(N) + '艇';
+    g.setAttribute('aria-label', '3度の艇' + num(N) + '艇のうち' + num(K) + '艇が菅章哉。' + D.pct + '%で、7艇に1艇');
+    var COLS = 62, C = 5.2, P = 4.3, X = (360 - COLS * C) / 2, Y = 66;
+    var rows = Math.ceil(N / COLS);
+    g.setAttribute('viewBox', '0 0 360 ' + (Y + rows * C + 8).toFixed(0));
+    var head = el(g, 'text', { x: 180, y: 26, 'font-size': 20, 'font-weight': 700, fill: FG, 'text-anchor': 'middle', 'font-variant-numeric': 'tabular-nums' }, '');
+    var sub = el(g, 'text', { x: 180, y: 48, 'font-size': 12.6, fill: HANE, 'text-anchor': 'middle' }, '');
+    var cells = [];
+    for (var i = 0; i < N; i++) cells.push(el(g, 'rect', { x: (X + (i % COLS) * C).toFixed(1), y: (Y + Math.floor(i / COLS) * C).toFixed(1), width: P, height: P, fill: GRAY }));
+    // 菅の分は、種を固定した乱数で散らす（毎回同じ並び）
+    var order = cells.slice(), seed = 9;
+    var rnd = function () { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; };
+    for (var j = order.length - 1; j > 0; j--) { var r = Math.floor(rnd() * (j + 1)), t = order[j]; order[j] = order[r]; order[r] = t; }
+    var suga = order.slice(0, K);
+    var FILL = 900, LIGHT = 2200, HOLD = 400, T = FILL + HOLD + LIGHT;
+    player(document.getElementById('c2'), document.getElementById('re2'), T, function (ms) {
+      var kf = clamp(ms / FILL), shown = Math.round(N * ease(kf));
+      cells.forEach(function (c, i) { c.style.opacity = i < shown ? .55 : .08; c.setAttribute('fill', GRAY); });
+      var kl = clamp((ms - FILL - HOLD) / LIGHT), lit = Math.round(K * kl);
+      for (var j = 0; j < lit; j++) { suga[j].setAttribute('fill', HANE); suga[j].style.opacity = 1; }
+      head.textContent = ms < FILL + HOLD ? '3度の艇　' + num(shown) + '艇' : '菅章哉　' + num(lit) + ' / ' + num(N) + '艇';
+      sub.textContent = kl >= 1 ? D.pct + '%、7艇に1艇' : '';
+    });
+  })();
+
+  // ── 3枚目：100円が、いくらになって戻るか
+  (function () {
+    var g = document.getElementById('g3');
+    var TOP = 40, H = 160, BOT = TOP + H, W = 42;
+    var xs = [36, 92, 148, 204, 274, 330];
+    var y = function (v) { return BOT - v / 100 * H; };
+    el(g, 'text', { x: 120, y: 16, 'font-size': 12, fill: FG, 'text-anchor': 'middle' }, '4から6コース');
+    el(g, 'text', { x: 302, y: 16, 'font-size': 12, fill: FG, 'text-anchor': 'middle' }, '6コース');
+    el(g, 'line', { x1: 240, y1: 6, x2: 240, y2: BOT + 40, stroke: LINE, 'stroke-width': 1 });
+    var bars = D.kaishu.map(function (k, i) {
+      var x = xs[i] - W / 2;
+      el(g, 'rect', { x: x, y: TOP, width: W, height: H, fill: '#0e1d31', stroke: LINE, 'stroke-width': 1 });
+      var b = el(g, 'rect', { x: x, y: BOT, width: W, height: 0, fill: k[2] ? HANE : GRAY });
+      var lb = el(g, 'text', { x: xs[i], y: BOT - 6, 'font-size': 11.5, 'font-weight': 700, fill: '#0a1422', 'text-anchor': 'middle', 'font-variant-numeric': 'tabular-nums' }, '');
+      el(g, 'text', { x: xs[i], y: BOT + 18, 'font-size': 12, fill: k[2] ? FG : GRAY, 'text-anchor': 'middle' }, k[0]);
+      return { v: k[1], b: b, lb: lb };
+    });
+    el(g, 'text', { x: 6, y: TOP - 6, 'font-size': 11, fill: GRAY }, '100円');
+    var l75 = el(g, 'line', { x1: 12, y1: y(75), x2: 352, y2: y(75), stroke: FG, 'stroke-width': .9, 'stroke-dasharray': '4 3' });
+    var t75 = el(g, 'text', { x: 352, y: y(75) - 5, 'font-size': 11, fill: FG, 'text-anchor': 'end' }, '払戻率75円');
+    var foot = el(g, 'text', { x: 180, y: BOT + 46, 'font-size': 12.6, fill: FG, 'text-anchor': 'middle' }, 'どれも、75円の線に届かない');
+    var LINE_T = 500, GROW = 1100, GAP = 220, n = bars.length, T = LINE_T + (n - 1) * GAP + GROW + 500;
+    player(document.getElementById('c3'), document.getElementById('re3'), T, function (ms) {
+      var kl = clamp(ms / LINE_T);
+      l75.style.opacity = t75.style.opacity = kl;
+      bars.forEach(function (r, i) {
+        var k = clamp((ms - LINE_T - i * GAP) / GROW), v = r.v * ease(k);
+        r.b.setAttribute('y', y(v).toFixed(1)); r.b.setAttribute('height', (v / 100 * H).toFixed(1));
+        r.lb.setAttribute('y', (y(v) + 16).toFixed(1));
+        r.lb.textContent = v / 100 * H > 22 ? (k >= 1 ? r.v.toFixed(1) : v.toFixed(1)) + '円' : '';
+      });
+      foot.style.opacity = ms >= T - 500 ? 1 : 0;
+    });
+  })();
+})();
+</script>
+<script src="../assets/guard.js" defer></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>
