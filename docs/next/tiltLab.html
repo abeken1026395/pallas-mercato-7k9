@@ -45,7 +45,7 @@ h1 { font-size:22px; line-height:1.4; letter-spacing:.5px; text-align:center; }
   <div class="ttl"><span class="nw">角度を上げると、</span><span class="nw">1着は増えるか</span><small>4から6コースの1着率（揃える前）</small></div>
   <svg id="g1" viewBox="0 0 360 286" role="img" aria-label="チルトの角度ごとの1着率。どのコースも角度を上げるほど高い"></svg>
   <div class="steps" id="st1" role="group" aria-label="チルトの角度"></div>
-  <p class="cap"><span class="nw">角度のボタンで切り替えられます。</span><span class="nw">細い線は0.0の艇の位置。</span><span class="nw">舟の傾きは、見やすいように</span><span class="nw">大きく描いています。</span></p>
+  <p class="cap"><span class="nw">角度のボタンで切り替えられます。</span><span class="nw">棒の上の細い線は、0.0の艇の1着率。</span><span class="nw">チルトで変わるのは船体ではなく、</span><span class="nw">艇尾に付けたモーターの角度です</span><span class="nw">（破線が0.0の向き、</span><span class="nw">矢印がプロペラの押す向き）。</span><span class="nw">角度は見やすいように大きく描いています。</span></p>
   <button class="replay" id="re1" type="button" hidden>もう一度見る</button>
 </section>
 
@@ -112,11 +112,17 @@ h1 { font-size:22px; line-height:1.4; letter-spacing:.5px; text-align:center; }
     var X0 = 76, U = 6.4, WL = 96;
     el(g, 'line', { x1: 14, y1: WL, x2: 346, y2: WL, stroke: LINE, 'stroke-width': 1.2 });
     [0, 1, 2].forEach(function (i) { el(g, 'path', { d: 'M' + (40 + i * 110) + ' ' + (WL + 9) + 'q12 -5 24 0t24 0', fill: 'none', stroke: LINE, 'stroke-width': 1 }); });
-    // 舟（横から見た模式図。右が舳先）。艇尾の水面を軸に回す
+    // 舟（横から見た模式図。右が舳先）。船体は動かさず、艇尾に付けたモーターだけを取り付け点のまわりに回す
+    var PX = 118, PY = WL - 14;
+    el(g, 'path', { d: 'M118 ' + WL + 'L262 ' + WL + 'Q286 ' + (WL - 2) + ' 300 ' + (WL - 14) + 'L118 ' + (WL - 14) + 'Z', fill: '#2c4a72', stroke: '#8fb3dd', 'stroke-width': 1.2 });
+    el(g, 'path', { d: 'M168 ' + (WL - 14) + 'q14 -16 34 -16l8 16', fill: '#1a3150', stroke: '#8fb3dd', 'stroke-width': 1.2 });
+    el(g, 'line', { x1: PX - 3, y1: PY - 26, x2: PX - 3, y2: WL + 26, stroke: GRAY, 'stroke-width': 1, 'stroke-dasharray': '2 3' });
     var boat = el(g, 'g', {});
-    el(boat, 'path', { d: 'M96 ' + WL + 'L250 ' + WL + 'Q276 ' + (WL - 2) + ' 290 ' + (WL - 14) + 'L104 ' + (WL - 14) + 'Z', fill: '#2c4a72', stroke: '#8fb3dd', 'stroke-width': 1.2 });
-    el(boat, 'path', { d: 'M150 ' + (WL - 14) + 'q14 -16 34 -16l8 16', fill: '#1a3150', stroke: '#8fb3dd', 'stroke-width': 1.2 });
-    el(boat, 'rect', { x: 84, y: WL - 22, width: 14, height: 30, rx: 3, fill: '#3b5f8c', stroke: '#8fb3dd', 'stroke-width': 1.2 });
+    el(boat, 'rect', { x: PX - 24, y: PY - 22, width: 20, height: 18, rx: 4, fill: '#3b5f8c', stroke: '#8fb3dd', 'stroke-width': 1.2 });
+    el(boat, 'rect', { x: PX - 7, y: PY - 6, width: 5, height: 36, fill: '#3b5f8c', stroke: '#8fb3dd', 'stroke-width': 1 });
+    el(boat, 'ellipse', { cx: PX - 4.5, cy: PY + 30, rx: 2.4, ry: 7, fill: '#8fb3dd' });
+    el(boat, 'path', { d: 'M' + (PX + 2) + ' ' + (PY + 30) + 'h22m-6 -4l6 4l-6 4', fill: 'none', stroke: HANE, 'stroke-width': 1.6, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' });
+    el(g, 'circle', { cx: PX - 3, cy: PY, r: 2.4, fill: FG });
     el(g, 'text', { x: 14, y: 18, 'font-size': 12, fill: GRAY }, 'チルト');
     var big = el(g, 'text', { x: 14, y: 42, 'font-size': 22, 'font-weight': 700, fill: FG, 'font-variant-numeric': 'tabular-nums' }, '');
     var rows = D.rates.map(function (r, i) {
@@ -143,7 +149,7 @@ h1 { font-size:22px; line-height:1.4; letter-spacing:.5px; text-align:center; }
       return b;
     });
     function draw(a, ws, idx) {
-      boat.setAttribute('transform', 'rotate(' + (-a * 4).toFixed(2) + ' 90 ' + WL + ')');
+      boat.setAttribute('transform', 'rotate(' + (a * 7).toFixed(2) + ' ' + (PX - 3) + ' ' + PY + ')');
       rows.forEach(function (r, i) {
         r.bar.setAttribute('width', ws[i].toFixed(1));
         r.lb.setAttribute('x', (X0 + ws[i] + 6).toFixed(1));
