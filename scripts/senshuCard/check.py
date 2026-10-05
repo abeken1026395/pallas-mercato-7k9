@@ -3,17 +3,16 @@
 ページ（senshuCardE.html の tagList・FACTS・WN）と同じ決まりで、選手ごとに出る4つを組み立てて調べる。
 ページの決まりを変えたら、ここも同じに直す。
 """
-PRI = ["makuri", "maezuke", "tiltDash", "nige", "sashi", "c4", "nuki", "outKeep", "p23", "geko", "fut", "zst", "kanso"]
-WN = {"nige": ["鉄壁イン", "イン城塞", "先マイ一閃"], "makuri": ["豪腕まくり", "旋風まくり", "外殻破り"], "maezuke": ["内角強奪", "枠なり破り", "深攻め"],
-      "tiltDash": ["チルトダッシュ", "天翔るダッシュ", "天翔るダッシュ"], "sashi": ["針の穴", "針の穴", "影差し"], "c4": ["四ノ陣", "四ノ陣", "四ノ太刀"],
-      "nuki": ["逆転の舟足", "逆転の舟足", "道中の逆襲"], "outKeep": ["大外の意地", "大外の意地", "夜叉の走り"], "p23": ["食らいつき", "食らいつき", "二の矢"],
-      "geko": ["下剋上"] * 3, "fut": ["不退転"] * 3, "zst": ["ゼロ台の牙"] * 3, "kanso": ["完全走破"] * 3}
+PRI = ["makuri", "maezuke", "tiltDash", "sashi", "nuki", "p23", "geko", "fut", "zst", "kanso", "co1", "co2", "co3", "co4", "co5", "co6"]
+WN = {"makuri": ["豪腕まくり", "旋風まくり", "外殻破り"], "maezuke": ["内角強奪", "枠なり破り", "深攻め"],
+      "tiltDash": ["チルトダッシュ", "天翔るダッシュ", "天翔るダッシュ"], "sashi": ["針の穴", "針の穴", "影差し"],
+      "nuki": ["逆転の舟足", "逆転の舟足", "道中の逆襲"], "p23": ["食らいつき", "食らいつき", "二の矢"],
+      "geko": ["下剋上"] * 3, "fut": ["不退転"] * 3, "zst": ["ゼロ台の牙"] * 3, "kanso": ["完全走破"] * 3,
+      "co1": ["イン巧者"] * 3, "co2": ["2コース巧者"] * 3, "co3": ["3コース巧者"] * 3, "co4": ["カド巧者"] * 3, "co5": ["5コース巧者"] * 3, "co6": ["6コース巧者"] * 3}
 FACT = ["覇者の証", "大舞台", "初白星", "駆け上がり", "勝ち星", "初陣", "閃光スタート", "主戦場", "積み重ね"]
 
 
 def name(k, v):
-    if k == "nige" and v[4] == 2:
-        return "鉄壁イン" if v[3] <= 10 else "イン城塞"
     return WN[k][v[4] - 1]
 
 
@@ -74,7 +73,7 @@ def run(card, ayumi):
                 short[W] += 1
             for _, nm in it:
                 used[W][nm] = used[W].get(nm, 0) + 1
-    allNames = {n for v in WN.values() for n in v} | {"鉄壁イン", "イン城塞"}
+    allNames = {n for v in WN.values() for n in v}
     owner = {}
     for k, v in WN.items():
         for n in v:

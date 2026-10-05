@@ -18,7 +18,7 @@ python3 scripts/senshuCard/build.py 最終日 番組フォルダ docs/players/ca
 | officialRaces.py | 公式の出走の数え方にそろえた艇ごとの表。results/ に、責任の有無（S0/S1・L0/L1・K0/K1）と results に無いレースを Kファイルから足す |
 | buildCard.py | 出走・着・ST・コース別・決まり手・計器（6項目）・総合・優勝（yc・yu・yo）・名前（np・kp） |
 | finals.py | 優勝戦の一覧（2017-01-01〜）。副題の規則で拾う。履歴 data/senshuCard/finalsHistory.json より後の日だけ番組から拾う |
-| waza.py | 技（tg）13系統と段。経験ベイズの事前分布（tagPrior） |
+| waza.py | 技（tg）10系統と段。経験ベイズの事前分布（tagPrior）。コースの持ち味（co1〜co6・course()） |
 | facts.py | 積み上げた事実（ayumi.json） |
 | h2h.py | 直接対決 |
 | check.py | 書き出す前の検査（ページと同じ決まりで4つを組み立て、何もない選手0人・技名がすべて誰かに出る・技名の重複0・数の整合） |
