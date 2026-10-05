@@ -94,6 +94,9 @@ details[open]>summary::after{content:"−"}
 .chart .replay{display:block;margin:10px auto 2px;min-height:44px;padding:0 20px;background:none;border:1px solid var(--line);border-radius:22px;color:var(--dim);font-size:13px;cursor:pointer}
 .chart .replay[hidden]{display:none}
 .chart .nw{display:inline-block;white-space:nowrap}
+.chart .steps{display:flex;gap:6px;margin-top:6px}
+.chart .steps button{flex:1 1 0;min-width:0;min-height:44px;background:none;border:1px solid var(--line);border-radius:10px;color:var(--dim);font-size:11px;line-height:1.25;padding:0 2px;cursor:pointer;font-family:inherit;font-variant-numeric:tabular-nums}
+.chart .steps button[aria-pressed="true"]{border-color:#e0a070;color:var(--fg);background:rgba(224,160,112,.14)}
 </style>
 </head>
 <body>
@@ -115,6 +118,15 @@ details[open]>summary::after{content:"−"}
 <p>「チルトを跳ねた艇は伸び勝負。穴の目印」。直前情報（レースの前に公式が出す展示などの情報）の<a href="../../glossary/?q=%E3%83%81%E3%83%AB%E3%83%88">チルト</a>（モーターの取り付け角度で、上げるのを「跳ねる」、最大の+3.0を「3度」と呼ぶ）の欄に+0.5や+3.0を見付けると、印を1つ足したくなる。こちらは、印を足して当たった日を全て覚えています。外れた日は、1日も覚えていない。</p>
 
 <p>9年半の3度の艇（延べ3,799艇）のうち、559艇が菅章哉（徳島）でした。その菅も、2017年（4月8日から）は213走のうち193走を−0.5で走っています。下げる人が、跳ねる人に変わっていました。</p>
+
+<figure class="chart" id="sevenFig" role="img" aria-label="3度の艇3,799艇を、1艇1マスで並べた図。橙の559マスが菅章哉で、7艇に1艇"><svg id="sevenSvg" viewBox="0 0 360 358.4" width="100%" xmlns="http://www.w3.org/2000/svg">
+<defs><pattern id="sevenSq" x="18.8" y="30" width="5.2" height="5.2" patternUnits="userSpaceOnUse"><rect width="4.3" height="4.3" fill="#6f7f93" fill-opacity="0.55"/></pattern></defs>
+<rect x="20" y="8" width="11" height="11" fill="#e0a070"/><text x="36.0" y="18.0" font-size="12" fill="#dde3e9" text-anchor="start">菅章哉</text>
+<rect x="100" y="8" width="11" height="11" fill="#6f7f93" fill-opacity="0.55"/><text x="116.0" y="18.0" font-size="12" fill="#6f7f93" text-anchor="start">ほかの選手</text>
+<rect x="18.8" y="30" width="322.4" height="317.2" fill="url(#sevenSq)"/>
+<rect x="18.8" y="347.2" width="88.4" height="5.2" fill="url(#sevenSq)"/>
+<path id="sevenSuga" d="M299.6 274.4h4.3v4.3h-4.3zM195.6 290.0h4.3v4.3h-4.3zM102.0 165.2h4.3v4.3h-4.3zM24.0 336.8h4.3v4.3h-4.3zM81.2 316.0h4.3v4.3h-4.3zM273.6 284.8h4.3v4.3h-4.3zM278.8 295.2h4.3v4.3h-4.3zM258.0 113.2h4.3v4.3h-4.3zM211.2 45.6h4.3v4.3h-4.3zM128.0 196.4h4.3v4.3h-4.3zM133.2 321.2h4.3v4.3h-4.3zM216.4 310.8h4.3v4.3h-4.3zM325.6 222.4h4.3v4.3h-4.3zM216.4 206.8h4.3v4.3h-4.3zM122.8 222.4h4.3v4.3h-4.3zM330.8 206.8h4.3v4.3h-4.3zM320.4 180.8h4.3v4.3h-4.3zM29.2 76.8h4.3v4.3h-4.3zM76.0 279.6h4.3v4.3h-4.3zM86.4 310.8h4.3v4.3h-4.3zM278.8 82.0h4.3v4.3h-4.3zM299.6 30.0h4.3v4.3h-4.3zM206.0 269.2h4.3v4.3h-4.3zM299.6 269.2h4.3v4.3h-4.3zM221.6 342.0h4.3v4.3h-4.3zM154.0 76.8h4.3v4.3h-4.3zM24.0 149.6h4.3v4.3h-4.3zM258.0 108.0h4.3v4.3h-4.3zM268.4 61.2h4.3v4.3h-4.3zM206.0 87.2h4.3v4.3h-4.3zM180.0 310.8h4.3v4.3h-4.3zM128.0 186.0h4.3v4.3h-4.3zM24.0 92.4h4.3v4.3h-4.3zM117.6 310.8h4.3v4.3h-4.3zM299.6 180.8h4.3v4.3h-4.3zM310.0 331.6h4.3v4.3h-4.3zM55.2 248.4h4.3v4.3h-4.3zM107.2 222.4h4.3v4.3h-4.3zM148.8 71.6h4.3v4.3h-4.3zM39.6 35.2h4.3v4.3h-4.3zM81.2 305.6h4.3v4.3h-4.3zM44.8 118.4h4.3v4.3h-4.3zM247.6 191.2h4.3v4.3h-4.3zM164.4 300.4h4.3v4.3h-4.3zM91.6 149.6h4.3v4.3h-4.3zM143.6 149.6h4.3v4.3h-4.3zM237.2 269.2h4.3v4.3h-4.3zM65.6 66.4h4.3v4.3h-4.3zM325.6 61.2h4.3v4.3h-4.3zM242.4 217.2h4.3v4.3h-4.3zM143.6 258.8h4.3v4.3h-4.3zM60.4 212.0h4.3v4.3h-4.3zM102.0 269.2h4.3v4.3h-4.3zM60.4 258.8h4.3v4.3h-4.3zM200.8 128.8h4.3v4.3h-4.3zM138.4 165.2h4.3v4.3h-4.3zM289.2 206.8h4.3v4.3h-4.3zM310.0 316.0h4.3v4.3h-4.3zM310.0 92.4h4.3v4.3h-4.3zM65.6 321.2h4.3v4.3h-4.3zM154.0 113.2h4.3v4.3h-4.3zM122.8 196.4h4.3v4.3h-4.3zM180.0 279.6h4.3v4.3h-4.3zM289.2 149.6h4.3v4.3h-4.3zM325.6 128.8h4.3v4.3h-4.3zM60.4 222.4h4.3v4.3h-4.3zM96.8 232.8h4.3v4.3h-4.3zM216.4 238.0h4.3v4.3h-4.3zM247.6 160.0h4.3v4.3h-4.3zM154.0 66.4h4.3v4.3h-4.3zM206.0 316.0h4.3v4.3h-4.3zM237.2 248.4h4.3v4.3h-4.3zM195.6 305.6h4.3v4.3h-4.3zM169.6 284.8h4.3v4.3h-4.3zM221.6 76.8h4.3v4.3h-4.3zM299.6 248.4h4.3v4.3h-4.3zM44.8 336.8h4.3v4.3h-4.3zM164.4 160.0h4.3v4.3h-4.3zM122.8 248.4h4.3v4.3h-4.3zM138.4 258.8h4.3v4.3h-4.3zM273.6 92.4h4.3v4.3h-4.3zM174.8 35.2h4.3v4.3h-4.3zM180.0 97.6h4.3v4.3h-4.3zM299.6 61.2h4.3v4.3h-4.3zM29.2 170.4h4.3v4.3h-4.3zM60.4 232.8h4.3v4.3h-4.3zM86.4 108.0h4.3v4.3h-4.3zM24.0 243.2h4.3v4.3h-4.3zM284.0 253.6h4.3v4.3h-4.3zM154.0 305.6h4.3v4.3h-4.3zM29.2 212.0h4.3v4.3h-4.3zM138.4 113.2h4.3v4.3h-4.3zM195.6 102.8h4.3v4.3h-4.3zM18.8 160.0h4.3v4.3h-4.3zM81.2 66.4h4.3v4.3h-4.3zM143.6 191.2h4.3v4.3h-4.3zM55.2 305.6h4.3v4.3h-4.3zM320.4 336.8h4.3v4.3h-4.3zM169.6 160.0h4.3v4.3h-4.3zM117.6 30.0h4.3v4.3h-4.3zM18.8 238.0h4.3v4.3h-4.3zM247.6 76.8h4.3v4.3h-4.3zM200.8 160.0h4.3v4.3h-4.3zM81.2 331.6h4.3v4.3h-4.3zM50.0 61.2h4.3v4.3h-4.3zM154.0 180.8h4.3v4.3h-4.3zM320.4 134.0h4.3v4.3h-4.3zM200.8 61.2h4.3v4.3h-4.3zM70.8 201.6h4.3v4.3h-4.3zM133.2 305.6h4.3v4.3h-4.3zM86.4 258.8h4.3v4.3h-4.3zM128.0 113.2h4.3v4.3h-4.3zM294.4 305.6h4.3v4.3h-4.3zM242.4 253.6h4.3v4.3h-4.3zM60.4 201.6h4.3v4.3h-4.3zM252.8 186.0h4.3v4.3h-4.3zM60.4 92.4h4.3v4.3h-4.3zM242.4 279.6h4.3v4.3h-4.3zM117.6 258.8h4.3v4.3h-4.3zM86.4 274.4h4.3v4.3h-4.3zM34.4 87.2h4.3v4.3h-4.3zM252.8 284.8h4.3v4.3h-4.3zM154.0 310.8h4.3v4.3h-4.3zM133.2 269.2h4.3v4.3h-4.3zM148.8 160.0h4.3v4.3h-4.3zM34.4 284.8h4.3v4.3h-4.3zM195.6 258.8h4.3v4.3h-4.3zM148.8 305.6h4.3v4.3h-4.3zM278.8 305.6h4.3v4.3h-4.3zM268.4 342.0h4.3v4.3h-4.3zM268.4 191.2h4.3v4.3h-4.3zM273.6 186.0h4.3v4.3h-4.3zM102.0 253.6h4.3v4.3h-4.3zM138.4 290.0h4.3v4.3h-4.3zM148.8 295.2h4.3v4.3h-4.3zM320.4 238.0h4.3v4.3h-4.3zM195.6 186.0h4.3v4.3h-4.3zM237.2 212.0h4.3v4.3h-4.3zM211.2 97.6h4.3v4.3h-4.3zM169.6 113.2h4.3v4.3h-4.3zM81.2 102.8h4.3v4.3h-4.3zM336.0 321.2h4.3v4.3h-4.3zM294.4 149.6h4.3v4.3h-4.3zM91.6 113.2h4.3v4.3h-4.3zM221.6 310.8h4.3v4.3h-4.3zM24.0 102.8h4.3v4.3h-4.3zM330.8 310.8h4.3v4.3h-4.3zM65.6 82.0h4.3v4.3h-4.3zM232.0 290.0h4.3v4.3h-4.3zM128.0 175.6h4.3v4.3h-4.3zM76.0 180.8h4.3v4.3h-4.3zM190.4 264.0h4.3v4.3h-4.3zM133.2 97.6h4.3v4.3h-4.3zM252.8 108.0h4.3v4.3h-4.3zM70.8 342.0h4.3v4.3h-4.3zM148.8 342.0h4.3v4.3h-4.3zM294.4 264.0h4.3v4.3h-4.3zM226.8 300.4h4.3v4.3h-4.3zM174.8 342.0h4.3v4.3h-4.3zM70.8 108.0h4.3v4.3h-4.3zM299.6 123.6h4.3v4.3h-4.3zM242.4 243.2h4.3v4.3h-4.3zM190.4 222.4h4.3v4.3h-4.3zM268.4 300.4h4.3v4.3h-4.3zM190.4 331.6h4.3v4.3h-4.3zM91.6 71.6h4.3v4.3h-4.3zM237.2 61.2h4.3v4.3h-4.3zM258.0 45.6h4.3v4.3h-4.3zM18.8 102.8h4.3v4.3h-4.3zM226.8 269.2h4.3v4.3h-4.3zM29.2 144.4h4.3v4.3h-4.3zM154.0 336.8h4.3v4.3h-4.3zM247.6 45.6h4.3v4.3h-4.3zM60.4 175.6h4.3v4.3h-4.3zM252.8 222.4h4.3v4.3h-4.3zM304.8 118.4h4.3v4.3h-4.3zM180.0 102.8h4.3v4.3h-4.3zM200.8 212.0h4.3v4.3h-4.3zM81.2 154.8h4.3v4.3h-4.3zM320.4 61.2h4.3v4.3h-4.3zM60.4 108.0h4.3v4.3h-4.3zM24.0 170.4h4.3v4.3h-4.3zM70.8 149.6h4.3v4.3h-4.3zM148.8 40.4h4.3v4.3h-4.3zM180.0 196.4h4.3v4.3h-4.3zM258.0 290.0h4.3v4.3h-4.3zM284.0 66.4h4.3v4.3h-4.3zM221.6 170.4h4.3v4.3h-4.3zM70.8 66.4h4.3v4.3h-4.3zM211.2 191.2h4.3v4.3h-4.3zM320.4 149.6h4.3v4.3h-4.3zM148.8 196.4h4.3v4.3h-4.3zM299.6 191.2h4.3v4.3h-4.3zM263.2 128.8h4.3v4.3h-4.3zM112.4 295.2h4.3v4.3h-4.3zM29.2 243.2h4.3v4.3h-4.3zM164.4 212.0h4.3v4.3h-4.3zM39.6 321.2h4.3v4.3h-4.3zM237.2 128.8h4.3v4.3h-4.3zM299.6 206.8h4.3v4.3h-4.3zM86.4 170.4h4.3v4.3h-4.3zM39.6 295.2h4.3v4.3h-4.3zM325.6 206.8h4.3v4.3h-4.3zM221.6 300.4h4.3v4.3h-4.3zM232.0 336.8h4.3v4.3h-4.3zM76.0 170.4h4.3v4.3h-4.3zM232.0 123.6h4.3v4.3h-4.3zM65.6 170.4h4.3v4.3h-4.3zM143.6 108.0h4.3v4.3h-4.3zM148.8 279.6h4.3v4.3h-4.3zM164.4 50.8h4.3v4.3h-4.3zM138.4 186.0h4.3v4.3h-4.3zM50.0 56.0h4.3v4.3h-4.3zM206.0 170.4h4.3v4.3h-4.3zM185.2 264.0h4.3v4.3h-4.3zM320.4 118.4h4.3v4.3h-4.3zM29.2 238.0h4.3v4.3h-4.3zM86.4 217.2h4.3v4.3h-4.3zM133.2 212.0h4.3v4.3h-4.3zM232.0 35.2h4.3v4.3h-4.3zM216.4 212.0h4.3v4.3h-4.3zM258.0 123.6h4.3v4.3h-4.3zM86.4 139.2h4.3v4.3h-4.3zM18.8 40.4h4.3v4.3h-4.3zM133.2 206.8h4.3v4.3h-4.3zM330.8 196.4h4.3v4.3h-4.3zM237.2 232.8h4.3v4.3h-4.3zM206.0 321.2h4.3v4.3h-4.3zM284.0 154.8h4.3v4.3h-4.3zM263.2 232.8h4.3v4.3h-4.3zM169.6 87.2h4.3v4.3h-4.3zM206.0 113.2h4.3v4.3h-4.3zM96.8 128.8h4.3v4.3h-4.3zM226.8 326.4h4.3v4.3h-4.3zM143.6 186.0h4.3v4.3h-4.3zM174.8 108.0h4.3v4.3h-4.3zM221.6 56.0h4.3v4.3h-4.3zM122.8 139.2h4.3v4.3h-4.3zM34.4 274.4h4.3v4.3h-4.3zM138.4 123.6h4.3v4.3h-4.3zM190.4 305.6h4.3v4.3h-4.3zM107.2 310.8h4.3v4.3h-4.3zM174.8 274.4h4.3v4.3h-4.3zM185.2 175.6h4.3v4.3h-4.3zM263.2 217.2h4.3v4.3h-4.3zM252.8 175.6h4.3v4.3h-4.3zM81.2 206.8h4.3v4.3h-4.3zM50.0 305.6h4.3v4.3h-4.3zM200.8 290.0h4.3v4.3h-4.3zM122.8 305.6h4.3v4.3h-4.3zM55.2 227.6h4.3v4.3h-4.3zM81.2 217.2h4.3v4.3h-4.3zM122.8 212.0h4.3v4.3h-4.3zM128.0 321.2h4.3v4.3h-4.3zM258.0 342.0h4.3v4.3h-4.3zM180.0 50.8h4.3v4.3h-4.3zM185.2 76.8h4.3v4.3h-4.3zM133.2 134.0h4.3v4.3h-4.3zM195.6 113.2h4.3v4.3h-4.3zM164.4 290.0h4.3v4.3h-4.3zM50.0 144.4h4.3v4.3h-4.3zM65.6 300.4h4.3v4.3h-4.3zM211.2 206.8h4.3v4.3h-4.3zM76.0 92.4h4.3v4.3h-4.3zM232.0 108.0h4.3v4.3h-4.3zM237.2 87.2h4.3v4.3h-4.3zM268.4 222.4h4.3v4.3h-4.3zM284.0 170.4h4.3v4.3h-4.3zM247.6 175.6h4.3v4.3h-4.3zM107.2 232.8h4.3v4.3h-4.3zM195.6 243.2h4.3v4.3h-4.3zM76.0 342.0h4.3v4.3h-4.3zM325.6 92.4h4.3v4.3h-4.3zM102.0 279.6h4.3v4.3h-4.3zM315.2 326.4h4.3v4.3h-4.3zM206.0 290.0h4.3v4.3h-4.3zM330.8 45.6h4.3v4.3h-4.3zM226.8 264.0h4.3v4.3h-4.3zM336.0 175.6h4.3v4.3h-4.3zM122.8 191.2h4.3v4.3h-4.3zM195.6 40.4h4.3v4.3h-4.3zM263.2 180.8h4.3v4.3h-4.3zM112.4 56.0h4.3v4.3h-4.3zM29.2 264.0h4.3v4.3h-4.3zM200.8 232.8h4.3v4.3h-4.3zM320.4 56.0h4.3v4.3h-4.3zM96.8 253.6h4.3v4.3h-4.3zM258.0 97.6h4.3v4.3h-4.3zM55.2 45.6h4.3v4.3h-4.3zM304.8 82.0h4.3v4.3h-4.3zM39.6 123.6h4.3v4.3h-4.3zM112.4 300.4h4.3v4.3h-4.3zM330.8 186.0h4.3v4.3h-4.3zM55.2 269.2h4.3v4.3h-4.3zM242.4 165.2h4.3v4.3h-4.3zM216.4 300.4h4.3v4.3h-4.3zM258.0 212.0h4.3v4.3h-4.3zM258.0 222.4h4.3v4.3h-4.3zM195.6 82.0h4.3v4.3h-4.3zM263.2 82.0h4.3v4.3h-4.3zM154.0 139.2h4.3v4.3h-4.3zM159.2 326.4h4.3v4.3h-4.3zM289.2 274.4h4.3v4.3h-4.3zM29.2 191.2h4.3v4.3h-4.3zM148.8 102.8h4.3v4.3h-4.3zM81.2 269.2h4.3v4.3h-4.3zM289.2 35.2h4.3v4.3h-4.3zM164.4 71.6h4.3v4.3h-4.3zM232.0 274.4h4.3v4.3h-4.3zM185.2 222.4h4.3v4.3h-4.3zM180.0 284.8h4.3v4.3h-4.3zM289.2 232.8h4.3v4.3h-4.3zM206.0 196.4h4.3v4.3h-4.3zM154.0 196.4h4.3v4.3h-4.3zM185.2 186.0h4.3v4.3h-4.3zM221.6 232.8h4.3v4.3h-4.3zM60.4 295.2h4.3v4.3h-4.3zM18.8 30.0h4.3v4.3h-4.3zM159.2 238.0h4.3v4.3h-4.3zM226.8 144.4h4.3v4.3h-4.3zM289.2 123.6h4.3v4.3h-4.3zM164.4 217.2h4.3v4.3h-4.3zM216.4 258.8h4.3v4.3h-4.3zM122.8 123.6h4.3v4.3h-4.3zM226.8 342.0h4.3v4.3h-4.3zM320.4 76.8h4.3v4.3h-4.3zM310.0 191.2h4.3v4.3h-4.3zM304.8 284.8h4.3v4.3h-4.3zM143.6 295.2h4.3v4.3h-4.3zM195.6 284.8h4.3v4.3h-4.3zM24.0 300.4h4.3v4.3h-4.3zM263.2 61.2h4.3v4.3h-4.3zM268.4 76.8h4.3v4.3h-4.3zM211.2 40.4h4.3v4.3h-4.3zM164.4 134.0h4.3v4.3h-4.3zM304.8 331.6h4.3v4.3h-4.3zM278.8 269.2h4.3v4.3h-4.3zM268.4 154.8h4.3v4.3h-4.3zM39.6 258.8h4.3v4.3h-4.3zM273.6 154.8h4.3v4.3h-4.3zM107.2 175.6h4.3v4.3h-4.3zM70.8 284.8h4.3v4.3h-4.3zM91.6 290.0h4.3v4.3h-4.3zM91.6 243.2h4.3v4.3h-4.3zM299.6 217.2h4.3v4.3h-4.3zM336.0 212.0h4.3v4.3h-4.3zM211.2 196.4h4.3v4.3h-4.3zM148.8 61.2h4.3v4.3h-4.3zM206.0 336.8h4.3v4.3h-4.3zM174.8 232.8h4.3v4.3h-4.3zM122.8 253.6h4.3v4.3h-4.3zM34.4 196.4h4.3v4.3h-4.3zM315.2 123.6h4.3v4.3h-4.3zM112.4 342.0h4.3v4.3h-4.3zM138.4 175.6h4.3v4.3h-4.3zM284.0 134.0h4.3v4.3h-4.3zM117.6 326.4h4.3v4.3h-4.3zM336.0 326.4h4.3v4.3h-4.3zM148.8 170.4h4.3v4.3h-4.3zM65.6 113.2h4.3v4.3h-4.3zM70.8 227.6h4.3v4.3h-4.3zM180.0 201.6h4.3v4.3h-4.3zM325.6 102.8h4.3v4.3h-4.3zM107.2 92.4h4.3v4.3h-4.3zM289.2 227.6h4.3v4.3h-4.3zM34.4 118.4h4.3v4.3h-4.3zM180.0 290.0h4.3v4.3h-4.3zM148.8 66.4h4.3v4.3h-4.3zM299.6 144.4h4.3v4.3h-4.3zM65.6 222.4h4.3v4.3h-4.3zM330.8 71.6h4.3v4.3h-4.3zM81.2 243.2h4.3v4.3h-4.3zM294.4 118.4h4.3v4.3h-4.3zM29.2 113.2h4.3v4.3h-4.3zM258.0 128.8h4.3v4.3h-4.3zM226.8 227.6h4.3v4.3h-4.3zM320.4 30.0h4.3v4.3h-4.3zM294.4 248.4h4.3v4.3h-4.3zM133.2 175.6h4.3v4.3h-4.3zM216.4 56.0h4.3v4.3h-4.3zM325.6 160.0h4.3v4.3h-4.3zM159.2 279.6h4.3v4.3h-4.3zM34.4 108.0h4.3v4.3h-4.3zM91.6 206.8h4.3v4.3h-4.3zM159.2 253.6h4.3v4.3h-4.3zM299.6 102.8h4.3v4.3h-4.3zM294.4 102.8h4.3v4.3h-4.3zM96.8 35.2h4.3v4.3h-4.3zM112.4 118.4h4.3v4.3h-4.3zM226.8 336.8h4.3v4.3h-4.3zM221.6 243.2h4.3v4.3h-4.3zM60.4 253.6h4.3v4.3h-4.3zM86.4 191.2h4.3v4.3h-4.3zM18.8 269.2h4.3v4.3h-4.3zM252.8 290.0h4.3v4.3h-4.3zM138.4 170.4h4.3v4.3h-4.3zM299.6 154.8h4.3v4.3h-4.3zM206.0 222.4h4.3v4.3h-4.3zM325.6 149.6h4.3v4.3h-4.3zM252.8 321.2h4.3v4.3h-4.3zM216.4 66.4h4.3v4.3h-4.3zM237.2 243.2h4.3v4.3h-4.3zM76.0 217.2h4.3v4.3h-4.3zM39.6 87.2h4.3v4.3h-4.3zM232.0 206.8h4.3v4.3h-4.3zM294.4 87.2h4.3v4.3h-4.3zM169.6 180.8h4.3v4.3h-4.3zM232.0 76.8h4.3v4.3h-4.3zM24.0 305.6h4.3v4.3h-4.3zM86.4 66.4h4.3v4.3h-4.3zM330.8 191.2h4.3v4.3h-4.3zM70.8 243.2h4.3v4.3h-4.3zM39.6 326.4h4.3v4.3h-4.3zM195.6 76.8h4.3v4.3h-4.3zM148.8 45.6h4.3v4.3h-4.3zM180.0 331.6h4.3v4.3h-4.3zM128.0 279.6h4.3v4.3h-4.3zM174.8 97.6h4.3v4.3h-4.3zM330.8 92.4h4.3v4.3h-4.3zM336.0 331.6h4.3v4.3h-4.3zM320.4 191.2h4.3v4.3h-4.3zM211.2 238.0h4.3v4.3h-4.3zM174.8 201.6h4.3v4.3h-4.3zM60.4 331.6h4.3v4.3h-4.3zM211.2 212.0h4.3v4.3h-4.3zM206.0 40.4h4.3v4.3h-4.3zM81.2 50.8h4.3v4.3h-4.3zM34.4 170.4h4.3v4.3h-4.3zM164.4 227.6h4.3v4.3h-4.3zM226.8 321.2h4.3v4.3h-4.3zM169.6 217.2h4.3v4.3h-4.3zM200.8 321.2h4.3v4.3h-4.3zM180.0 66.4h4.3v4.3h-4.3zM294.4 71.6h4.3v4.3h-4.3zM180.0 92.4h4.3v4.3h-4.3zM107.2 206.8h4.3v4.3h-4.3zM107.2 180.8h4.3v4.3h-4.3zM34.4 248.4h4.3v4.3h-4.3zM117.6 227.6h4.3v4.3h-4.3zM18.8 123.6h4.3v4.3h-4.3zM237.2 118.4h4.3v4.3h-4.3zM242.4 310.8h4.3v4.3h-4.3zM221.6 139.2h4.3v4.3h-4.3zM278.8 232.8h4.3v4.3h-4.3zM304.8 154.8h4.3v4.3h-4.3zM159.2 186.0h4.3v4.3h-4.3zM200.8 108.0h4.3v4.3h-4.3zM263.2 154.8h4.3v4.3h-4.3zM39.6 30.0h4.3v4.3h-4.3zM29.2 331.6h4.3v4.3h-4.3zM206.0 82.0h4.3v4.3h-4.3zM76.0 264.0h4.3v4.3h-4.3zM91.6 134.0h4.3v4.3h-4.3zM169.6 40.4h4.3v4.3h-4.3zM117.6 165.2h4.3v4.3h-4.3zM148.8 212.0h4.3v4.3h-4.3zM320.4 342.0h4.3v4.3h-4.3zM180.0 87.2h4.3v4.3h-4.3zM91.6 248.4h4.3v4.3h-4.3zM190.4 284.8h4.3v4.3h-4.3zM206.0 175.6h4.3v4.3h-4.3zM18.8 144.4h4.3v4.3h-4.3zM112.4 30.0h4.3v4.3h-4.3zM154.0 50.8h4.3v4.3h-4.3zM143.6 139.2h4.3v4.3h-4.3zM247.6 92.4h4.3v4.3h-4.3zM336.0 222.4h4.3v4.3h-4.3zM190.4 206.8h4.3v4.3h-4.3zM39.6 97.6h4.3v4.3h-4.3zM247.6 342.0h4.3v4.3h-4.3zM258.0 175.6h4.3v4.3h-4.3zM284.0 160.0h4.3v4.3h-4.3zM284.0 279.6h4.3v4.3h-4.3zM330.8 316.0h4.3v4.3h-4.3zM96.8 222.4h4.3v4.3h-4.3zM221.6 40.4h4.3v4.3h-4.3zM81.2 227.6h4.3v4.3h-4.3zM133.2 40.4h4.3v4.3h-4.3zM273.6 279.6h4.3v4.3h-4.3zM55.2 264.0h4.3v4.3h-4.3zM221.6 238.0h4.3v4.3h-4.3zM237.2 40.4h4.3v4.3h-4.3zM96.8 310.8h4.3v4.3h-4.3zM143.6 206.8h4.3v4.3h-4.3zM315.2 316.0h4.3v4.3h-4.3zM258.0 118.4h4.3v4.3h-4.3zM310.0 274.4h4.3v4.3h-4.3zM216.4 154.8h4.3v4.3h-4.3zM50.0 87.2h4.3v4.3h-4.3zM237.2 191.2h4.3v4.3h-4.3zM107.2 56.0h4.3v4.3h-4.3zM232.0 238.0h4.3v4.3h-4.3zM320.4 108.0h4.3v4.3h-4.3zM29.2 50.8h4.3v4.3h-4.3zM76.0 305.6h4.3v4.3h-4.3zM284.0 222.4h4.3v4.3h-4.3zM325.6 227.6h4.3v4.3h-4.3zM185.2 113.2h4.3v4.3h-4.3zM159.2 175.6h4.3v4.3h-4.3zM252.8 310.8h4.3v4.3h-4.3zM148.8 238.0h4.3v4.3h-4.3zM159.2 191.2h4.3v4.3h-4.3zM330.8 258.8h4.3v4.3h-4.3zM185.2 196.4h4.3v4.3h-4.3zM112.4 253.6h4.3v4.3h-4.3zM44.8 186.0h4.3v4.3h-4.3zM304.8 238.0h4.3v4.3h-4.3zM81.2 300.4h4.3v4.3h-4.3zM232.0 40.4h4.3v4.3h-4.3zM304.8 321.2h4.3v4.3h-4.3zM128.0 310.8h4.3v4.3h-4.3zM252.8 128.8h4.3v4.3h-4.3zM185.2 336.8h4.3v4.3h-4.3zM232.0 264.0h4.3v4.3h-4.3zM18.8 61.2h4.3v4.3h-4.3zM29.2 134.0h4.3v4.3h-4.3zM24.0 232.8h4.3v4.3h-4.3zM138.4 300.4h4.3v4.3h-4.3zM310.0 61.2h4.3v4.3h-4.3zM268.4 87.2h4.3v4.3h-4.3zM138.4 134.0h4.3v4.3h-4.3zM242.4 326.4h4.3v4.3h-4.3zM112.4 102.8h4.3v4.3h-4.3zM44.8 45.6h4.3v4.3h-4.3zM294.4 201.6h4.3v4.3h-4.3zM211.2 71.6h4.3v4.3h-4.3zM278.8 342.0h4.3v4.3h-4.3zM258.0 160.0h4.3v4.3h-4.3zM294.4 290.0h4.3v4.3h-4.3zM117.6 248.4h4.3v4.3h-4.3zM278.8 316.0h4.3v4.3h-4.3zM29.2 232.8h4.3v4.3h-4.3zM200.8 258.8h4.3v4.3h-4.3zM164.4 180.8h4.3v4.3h-4.3zM195.6 227.6h4.3v4.3h-4.3zM138.4 149.6h4.3v4.3h-4.3zM24.0 274.4h4.3v4.3h-4.3zM294.4 284.8h4.3v4.3h-4.3zM289.2 264.0h4.3v4.3h-4.3zM102.0 30.0h4.3v4.3h-4.3zM258.0 186.0h4.3v4.3h-4.3zM50.0 238.0h4.3v4.3h-4.3zM185.2 45.6h4.3v4.3h-4.3zM258.0 238.0h4.3v4.3h-4.3zM278.8 279.6h4.3v4.3h-4.3zM299.6 196.4h4.3v4.3h-4.3zM39.6 40.4h4.3v4.3h-4.3zM320.4 186.0h4.3v4.3h-4.3zM226.8 191.2h4.3v4.3h-4.3zM169.6 342.0h4.3v4.3h-4.3zM44.8 82.0h4.3v4.3h-4.3zM195.6 160.0h4.3v4.3h-4.3zM325.6 269.2h4.3v4.3h-4.3zM154.0 35.2h4.3v4.3h-4.3zM242.4 206.8h4.3v4.3h-4.3zM304.8 206.8h4.3v4.3h-4.3zM29.2 128.8h4.3v4.3h-4.3zM128.0 243.2h4.3v4.3h-4.3zM65.6 56.0h4.3v4.3h-4.3z" fill="#e0a070"/>
+</svg><button class="replay" id="sevenRe" type="button" hidden>もう一度見る</button><figcaption><span class="nw">1マスが3度の1艇。</span><span class="nw">マスの並びは走った順ではなく、</span><span class="nw">割合が見えるように散らしています。</span></figcaption></figure>
 
 <p>数えたのは、2017年4月8日から2026年9月30日までの3,463日、52万2,713レース、約314万艇のチルトです。確かめることは3つ。跳ねると伸びるのか、今日だけ跳ねた艇は違うのか。そして、差は角度の欄にあるのか、それとも、その隣の欄にあるのか。直前情報の過去分と、競走成績の着順・進入を、日付と場とレースと枠で突き合わせました。</p>
 
@@ -145,7 +157,7 @@ details[open]>summary::after{content:"−"}
 
 <p>角度を上げるほど、段を踏んで上がっていく。<a href="../../glossary/?q=%E5%B1%95%E7%A4%BA%E3%82%BF%E3%82%A4%E3%83%A0">展示タイム</a>の順位を見ても同じ向きで、6コースの3度は6艇中の平均1.32位（2,521艇）、0.0の艇は3.78位でした。勝ち方も、ほとんどが<a href="../../glossary/?q=%E3%81%BE%E3%81%8F%E3%82%8A">まくり</a>（外から内の艇を抜いて勝つ形）。6コースの3度は、1着率11.9%のうち、まくりでの1着が11.3ポイント分でした。伸びるという話は、少なくとも展示と決まり手の上では数字に出ています。</p>
 
-<figure class="chart" role="img" aria-label="4から6コースで、チルトの角度ごとの1着率。どのコースも角度を上げるほど高い"><svg viewBox="0 0 360 383" width="100%" xmlns="http://www.w3.org/2000/svg">
+<figure class="chart" id="angleFig" role="img" aria-label="4から6コースで、チルトの角度ごとの1着率。どのコースも角度を上げるほど高い"><svg viewBox="0 0 360 383" width="100%" xmlns="http://www.w3.org/2000/svg">
 <line x1="112" y1="4" x2="112" y2="377" stroke="#24406a" stroke-width="0.9"/>
 <text x="10.0" y="22.0" font-size="12.6" fill="#dde3e9" text-anchor="start" font-weight="700">4コース</text>
 <text x="104.0" y="43.0" font-size="12" fill="#6f7f93" text-anchor="end">−0.5</text>
@@ -271,15 +283,18 @@ details[open]>summary::after{content:"−"}
 
 <p>跳ねた艇の回収率と、0.0の艇との揃えた差を並べます。</p>
 
-<table>
-<thead><tr><th>誰が跳ねたか</th><th>艇数</th><th>単勝の回収率</th><th>揃えた差</th></tr></thead>
-<tbody>
-<tr><td>今日だけ</td><td>1万2,713</td><td>64.5%</td><td>+10.2</td></tr>
-<tr><td>ときどき</td><td>4万6,086</td><td>64.6%</td><td>+10.2</td></tr>
-<tr><td>常連</td><td>6,505</td><td>66.3%</td><td>+14.1</td></tr>
-<tr><td>6コースの3度</td><td>2,516</td><td>55.9%</td><td>+17.0</td></tr>
-</tbody>
-</table>
+<figure class="chart" id="kaishuFig" role="img" aria-label="単勝を100円ずつ買い続けた時に戻る額。4から6コースは0.0の艇58.1円、今日だけ64.5円、ときどき64.6円、常連66.3円。6コースは0.0の艇32.8円、3度55.9円。どれも払戻率の75円に届かない"><svg id="kaishuSvg" viewBox="0 0 360 258" width="100%" xmlns="http://www.w3.org/2000/svg">
+<text x="120.0" y="16.0" font-size="12" fill="#dde3e9" text-anchor="middle">4から6コース</text><text x="302.0" y="16.0" font-size="12" fill="#dde3e9" text-anchor="middle">6コース</text>
+<line x1="240" y1="6" x2="240" y2="252" stroke="#24406a" stroke-width="1"/>
+<text x="6.0" y="34.0" font-size="11" fill="#6f7f93" text-anchor="start">100円</text>
+<g class="kc"><rect x="15.0" y="40" width="42" height="160" fill="#0e1d31" stroke="#24406a" stroke-width="1"/><rect class="b" x="15.0" y="107.0" width="42" height="93.0" fill="#6f7f93"/><text class="lb" x="36.0" y="123.0" font-size="11.5" fill="#0a1422" text-anchor="middle" font-weight="700">58.1円</text><text x="36.0" y="218" font-size="12" fill="#6f7f93" text-anchor="middle">0.0</text><text x="36.0" y="234" font-size="11" fill="#6f7f93" text-anchor="middle">基準</text></g>
+<g class="kc"><rect x="71.0" y="40" width="42" height="160" fill="#0e1d31" stroke="#24406a" stroke-width="1"/><rect class="b" x="71.0" y="96.8" width="42" height="103.2" fill="#e0a070"/><text class="lb" x="92.0" y="112.8" font-size="11.5" fill="#0a1422" text-anchor="middle" font-weight="700">64.5円</text><text x="92.0" y="218" font-size="12" fill="#dde3e9" text-anchor="middle">今日だけ</text><text x="92.0" y="234" font-size="11" fill="#e0a070" text-anchor="middle">+10.2</text><text x="92.0" y="249" font-size="11" fill="#6f7f93" text-anchor="middle">1万2,713</text></g>
+<g class="kc"><rect x="127.0" y="40" width="42" height="160" fill="#0e1d31" stroke="#24406a" stroke-width="1"/><rect class="b" x="127.0" y="96.6" width="42" height="103.4" fill="#e0a070"/><text class="lb" x="148.0" y="112.6" font-size="11.5" fill="#0a1422" text-anchor="middle" font-weight="700">64.6円</text><text x="148.0" y="218" font-size="12" fill="#dde3e9" text-anchor="middle">ときどき</text><text x="148.0" y="234" font-size="11" fill="#e0a070" text-anchor="middle">+10.2</text><text x="148.0" y="249" font-size="11" fill="#6f7f93" text-anchor="middle">4万6,086</text></g>
+<g class="kc"><rect x="183.0" y="40" width="42" height="160" fill="#0e1d31" stroke="#24406a" stroke-width="1"/><rect class="b" x="183.0" y="93.9" width="42" height="106.1" fill="#e0a070"/><text class="lb" x="204.0" y="109.9" font-size="11.5" fill="#0a1422" text-anchor="middle" font-weight="700">66.3円</text><text x="204.0" y="218" font-size="12" fill="#dde3e9" text-anchor="middle">常連</text><text x="204.0" y="234" font-size="11" fill="#e0a070" text-anchor="middle">+14.1</text><text x="204.0" y="249" font-size="11" fill="#6f7f93" text-anchor="middle">6,505</text></g>
+<g class="kc"><rect x="253.0" y="40" width="42" height="160" fill="#0e1d31" stroke="#24406a" stroke-width="1"/><rect class="b" x="253.0" y="147.5" width="42" height="52.5" fill="#6f7f93"/><text class="lb" x="274.0" y="163.5" font-size="11.5" fill="#0a1422" text-anchor="middle" font-weight="700">32.8円</text><text x="274.0" y="218" font-size="12" fill="#6f7f93" text-anchor="middle">0.0</text><text x="274.0" y="234" font-size="11" fill="#6f7f93" text-anchor="middle">基準</text></g>
+<g class="kc"><rect x="309.0" y="40" width="42" height="160" fill="#0e1d31" stroke="#24406a" stroke-width="1"/><rect class="b" x="309.0" y="110.6" width="42" height="89.4" fill="#e0a070"/><text class="lb" x="330.0" y="126.6" font-size="11.5" fill="#0a1422" text-anchor="middle" font-weight="700">55.9円</text><text x="330.0" y="218" font-size="12" fill="#dde3e9" text-anchor="middle">3度</text><text x="330.0" y="234" font-size="11" fill="#e0a070" text-anchor="middle">+17.0</text><text x="330.0" y="249" font-size="11" fill="#6f7f93" text-anchor="middle">2,516</text></g>
+<line class="l75" x1="12" y1="80.0" x2="352" y2="80.0" stroke="#dde3e9" stroke-width="0.9" stroke-dasharray="4 3"/><text class="l75" x="352.0" y="75.0" font-size="11" fill="#dde3e9" text-anchor="end">払戻率75円</text>
+</svg><button class="replay" id="kaishuRe" type="button" hidden>もう一度見る</button><figcaption><span class="nw">単勝を100円ずつ買い続けた時に戻る額</span><span class="nw">（揃える前の回収率）。</span><span class="nw">名前の下は、0.0の艇との揃えた差（ポイント）と艇数。</span><span class="nw">3度は6コースの0.0の艇と比べています。</span><span class="nw">灰色が0.0の艇、橙が跳ねた艇。</span><span class="nw">破線は単勝の払戻率（75%）です。</span></figcaption></figure>
 
 <p>外の艇は1着になれば配当が大きいので、1着率の差が小さくても、回収率の差は大きく出る。同じ選手が何度も走っているので、選手ごとのまとまりで揺れを測り直すと、はっきり見分けられるのは「ときどき」で、常連・今日だけ・6コースの3度は、見分けられる最小の差をわずかに超える程度、境目すれすれでした。ときどき跳ねる艇は、外の艇の中では買われ過ぎが小さい。</p>
 
@@ -308,6 +323,24 @@ details[open]>summary::after{content:"−"}
 <p>「住之江の方、チルト3度お願いします。あと特別枠でのグランプリ出場も検討してください」（<a href="https://www.tokyo-sports.co.jp/articles/-/367693" target="_blank" rel="noopener">東京スポーツ</a>）</p>
 
 <p>菅の3度が初めて出るのは2018年で、この年は4走。その後、2021年に55走、2025年には116走と増えていきます。3度の1着率は、4コースで47.6%（103走）、5コースで35.3%（156走）、6コースで21.4%（271走）です。上限1度の桐生で開かれた2026年8月のSGメモリアルでは「6コース一本やりは四国に置いてきました」と話しています（<a href="https://www.tokyo-sports.co.jp/articles/-/400734" target="_blank" rel="noopener">東京スポーツ</a>）。</p>
+
+<figure class="chart" id="henshinFig" role="img" aria-label="菅章哉の1年ごとのチルトの内訳。2017年は213走のうち193走が−0.5。2021年から3度が増え、2025年は223走のうち116走が3度"><svg id="henshinSvg" viewBox="0 0 360 292" width="100%" xmlns="http://www.w3.org/2000/svg">
+<rect x="14.0" y="8" width="11" height="11" fill="#4a5868"/><text x="29.0" y="18.0" font-size="12" fill="#6f7f93" text-anchor="start">−0.5</text>
+<rect x="70.6" y="8" width="11" height="11" fill="#6f7f93"/><text x="85.6" y="18.0" font-size="12" fill="#6f7f93" text-anchor="start">0.0</text>
+<rect x="119.8" y="8" width="11" height="11" fill="#e0a070" fill-opacity="0.5"/><text x="134.8" y="18.0" font-size="12" fill="#6f7f93" text-anchor="start">+0.5から+2.5</text>
+<rect x="220.8" y="8" width="11" height="11" fill="#e0a070"/><text x="235.8" y="18.0" font-size="12" fill="#6f7f93" text-anchor="start">+3.0</text>
+<text x="346.0" y="42.0" font-size="12" fill="#6f7f93" text-anchor="end">3度 / 全走</text>
+<g class="yr"><text x="14.0" y="63.0" font-size="12" fill="#dde3e9" text-anchor="start">2017</text><rect x="50.0" y="52" width="190.3" height="14" fill="#4a5868"/><rect x="240.3" y="52" width="19.7" height="14" fill="#6f7f93"/><text class="v" x="346.0" y="63.0" font-size="12" fill="#dde3e9" text-anchor="end">0 / 213</text></g>
+<g class="yr"><text x="14.0" y="87.0" font-size="12" fill="#dde3e9" text-anchor="start">2018</text><rect x="50.0" y="76" width="175.6" height="14" fill="#4a5868"/><rect x="225.6" y="76" width="29.3" height="14" fill="#6f7f93"/><rect x="254.9" y="76" width="2.2" height="14" fill="#e0a070" fill-opacity="0.5"/><rect x="257.1" y="76" width="2.9" height="14" fill="#e0a070"/><text class="v" x="346.0" y="87.0" font-size="12" fill="#dde3e9" text-anchor="end">4 / 287</text></g>
+<g class="yr"><text x="14.0" y="111.0" font-size="12" fill="#dde3e9" text-anchor="start">2019</text><rect x="50.0" y="100" width="139.7" height="14" fill="#4a5868"/><rect x="189.7" y="100" width="37.4" height="14" fill="#6f7f93"/><rect x="227.2" y="100" width="20.6" height="14" fill="#e0a070" fill-opacity="0.5"/><rect x="247.8" y="100" width="12.2" height="14" fill="#e0a070"/><text class="v" x="346.0" y="111.0" font-size="12" fill="#dde3e9" text-anchor="end">16 / 275</text></g>
+<g class="yr"><text x="14.0" y="135.0" font-size="12" fill="#dde3e9" text-anchor="start">2020</text><rect x="50.0" y="124" width="72.6" height="14" fill="#4a5868"/><rect x="122.6" y="124" width="46.7" height="14" fill="#6f7f93"/><rect x="169.3" y="124" width="72.6" height="14" fill="#e0a070" fill-opacity="0.5"/><rect x="241.9" y="124" width="18.1" height="14" fill="#e0a070"/><text class="v" x="346.0" y="135.0" font-size="12" fill="#dde3e9" text-anchor="end">7 / 81</text></g>
+<g class="yr"><text x="14.0" y="159.0" font-size="12" fill="#dde3e9" text-anchor="start">2021</text><rect x="50.0" y="148" width="22.4" height="14" fill="#4a5868"/><rect x="72.4" y="148" width="71.8" height="14" fill="#6f7f93"/><rect x="144.2" y="148" width="66.4" height="14" fill="#e0a070" fill-opacity="0.5"/><rect x="210.6" y="148" width="49.4" height="14" fill="#e0a070"/><text class="v" x="346.0" y="159.0" font-size="12" fill="#dde3e9" text-anchor="end">55 / 234</text></g>
+<g class="yr"><text x="14.0" y="183.0" font-size="12" fill="#dde3e9" text-anchor="start">2022</text><rect x="50.0" y="172" width="12.2" height="14" fill="#4a5868"/><rect x="62.2" y="172" width="83.7" height="14" fill="#6f7f93"/><rect x="145.9" y="172" width="53.2" height="14" fill="#e0a070" fill-opacity="0.5"/><rect x="199.0" y="172" width="61.0" height="14" fill="#e0a070"/><text class="v" x="346.0" y="183.0" font-size="12" fill="#dde3e9" text-anchor="end">70 / 241</text></g>
+<g class="yr"><text x="14.0" y="207.0" font-size="12" fill="#dde3e9" text-anchor="start">2023</text><rect x="50.0" y="196" width="1.8" height="14" fill="#4a5868"/><rect x="51.8" y="196" width="75.6" height="14" fill="#6f7f93"/><rect x="127.4" y="196" width="37.4" height="14" fill="#e0a070" fill-opacity="0.5"/><rect x="164.8" y="196" width="95.2" height="14" fill="#e0a070"/><text class="v" x="346.0" y="207.0" font-size="12" fill="#dde3e9" text-anchor="end">107 / 236</text></g>
+<g class="yr"><text x="14.0" y="231.0" font-size="12" fill="#dde3e9" text-anchor="start">2024</text><rect x="50.0" y="220" width="90.7" height="14" fill="#6f7f93"/><rect x="140.7" y="220" width="31.1" height="14" fill="#e0a070" fill-opacity="0.5"/><rect x="171.8" y="220" width="88.2" height="14" fill="#e0a070"/><text class="v" x="346.0" y="231.0" font-size="12" fill="#dde3e9" text-anchor="end">108 / 257</text></g>
+<g class="yr"><text x="14.0" y="255.0" font-size="12" fill="#dde3e9" text-anchor="start">2025</text><rect x="50.0" y="244" width="3.8" height="14" fill="#4a5868"/><rect x="53.8" y="244" width="59.3" height="14" fill="#6f7f93"/><rect x="113.1" y="244" width="37.7" height="14" fill="#e0a070" fill-opacity="0.5"/><rect x="150.8" y="244" width="109.2" height="14" fill="#e0a070"/><text class="v" x="346.0" y="255.0" font-size="12" fill="#dde3e9" text-anchor="end">116 / 223</text></g>
+<g class="yr"><text x="14.0" y="279.0" font-size="12" fill="#dde3e9" text-anchor="start">2026</text><rect x="50.0" y="268" width="1.3" height="14" fill="#4a5868"/><rect x="51.3" y="268" width="76.6" height="14" fill="#6f7f93"/><rect x="127.9" y="268" width="31.7" height="14" fill="#e0a070" fill-opacity="0.5"/><rect x="159.6" y="268" width="100.4" height="14" fill="#e0a070"/><text class="v" x="346.0" y="279.0" font-size="12" fill="#dde3e9" text-anchor="end">76 / 159</text></g>
+</svg><button class="replay" id="henshinRe" type="button" hidden>もう一度見る</button><figcaption><span class="nw">菅章哉の1年ごとのチルトを、走数で割った内訳。</span><span class="nw">2017年は4月8日から、</span><span class="nw">2026年は9月30日まで。</span><span class="nw">直前情報と成績を突き合わせられた</span><span class="nw">走だけを数えています。</span></figcaption></figure>
 
 <p>3度は、菅1人のものでもない。6コースの3度で一番多く走ったのは澤大介（三重）の327走で、菅の271走より多い。</p>
 
@@ -400,6 +433,192 @@ details[open]>summary::after{content:"−"}
     es.forEach(function (e) { if (e.isIntersecting) { run(); io.disconnect(); } });
   }, { threshold: 0.6 });
   io.observe(fig);
+})();
+</script>
+<script>
+(function () {
+  if (!('IntersectionObserver' in window) || !window.requestAnimationFrame) return;
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var ease = function (k) { return 1 - Math.pow(1 - k, 3); };
+  var clamp = function (v) { return Math.max(0, Math.min(1, v)); };
+  function player(fig, btn, total, paint) {
+    var busy = false;
+    function run() {
+      if (busy) return; busy = true;
+      var t0 = 0;
+      requestAnimationFrame(function step(t) {
+        if (!t0) t0 = t;
+        if (t - t0 < total) { paint(t - t0); requestAnimationFrame(step); } else { paint(total); busy = false; }
+      });
+    }
+    paint(0);
+    btn.hidden = false;
+    btn.onclick = function () { if (!busy) { paint(0); run(); } };
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { run(); io.disconnect(); } });
+    }, { threshold: 0.6 });
+    io.observe(fig);
+  }
+  // コース×角度：角度のボタンで、モーターの角度と3コースの1着率を切り替える図に入れ替える
+  (function () {
+    var fig = document.getElementById('angleFig');
+    if (!fig) return;
+    var D = {"angles": ["−0.5", "0.0", "+0.5", "+1.0から+2.5", "+3.0"], "rates": [[10.2, 11.3, 14.1, 18.5, 37.2], [5.5, 6.2, 8.0, 9.8, 23.9], [1.6, 2.0, 3.4, 5.6, 11.9]]}, NOTE = "<span class=\"nw\">+3.0は艇数が少なく</span><span class=\"nw\">（4コース360艇・5コース825艇）、</span><span class=\"nw\">1艇ごとの重みが大きい値です。</span>";
+    var g = fig.querySelector('svg'), cap = fig.querySelector('figcaption');
+    var NS = 'http://www.w3.org/2000/svg', GRAY = '#6f7f93', HANE = '#e0a070', FG = '#dde3e9', LINE = '#24406a';
+    var el = function (p, tag, a, txt) { var e = document.createElementNS(NS, tag); for (var k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; p.appendChild(e); return e; };
+    fig.removeAttribute('role');
+    g.setAttribute('role', 'img'); g.setAttribute('aria-label', fig.getAttribute('aria-label')); fig.removeAttribute('aria-label');
+    g.setAttribute('viewBox', '0 0 360 354');
+    while (g.firstChild) g.removeChild(g.firstChild);
+    var box = document.createElement('div'); box.className = 'steps'; box.setAttribute('role', 'group'); box.setAttribute('aria-label', 'チルトの角度');
+    var re = document.createElement('button'); re.className = 'replay'; re.type = 'button'; re.textContent = 'もう一度見る';
+    fig.insertBefore(box, cap); fig.insertBefore(re, cap);
+    var sp = function (t) { return '<span class="nw">' + t + '</span>'; };
+    cap.innerHTML = sp('揃える前の1着率。') + sp('角度のボタンで切り替えられます。') + sp('棒の上の細い線は、0.0の艇の1着率。') +
+      sp('チルトで変わるのは船体ではなく、') + sp('艇尾に付けたモーターの角度です') + sp('（橙の線がいまの角度、') + sp('点線が0.0、目盛りは0.5刻み）。') +
+      sp('角度は見やすいように大きく描いています。') + sp('「伸び寄り」「ターン寄り」は、') + sp('一般に言われる調整の向きです。') + NOTE;
+    var X0 = 76, U = 6.4, WL = 96;
+    el(g, 'line', { x1: 14, y1: WL, x2: 346, y2: WL, stroke: LINE, 'stroke-width': 1.2 });
+    [0, 1, 2].forEach(function (i) { el(g, 'path', { d: 'M' + (40 + i * 110) + ' ' + (WL + 9) + 'q12 -5 24 0t24 0', fill: 'none', stroke: LINE, 'stroke-width': 1 }); });
+    var PX = 150, PY = WL - 14, QX = PX - 3, DEG = 8, LEN = 60;
+    var dir = function (v, r) { var t = v * DEG * Math.PI / 180; return [QX - r * Math.sin(t), PY + r * Math.cos(t)]; };
+    el(g, 'path', { d: 'M' + PX + ' ' + WL + 'L294 ' + WL + 'Q318 ' + (WL - 2) + ' 332 ' + (WL - 14) + 'L' + PX + ' ' + (WL - 14) + 'Z', fill: '#2c4a72', stroke: '#8fb3dd', 'stroke-width': 1.2 });
+    el(g, 'path', { d: 'M' + (PX + 50) + ' ' + (WL - 14) + 'q14 -16 34 -16l8 16', fill: '#1a3150', stroke: '#8fb3dd', 'stroke-width': 1.2 });
+    [-0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3].forEach(function (v) {
+      var p0 = dir(v, v ? LEN - 7 : 0), p1 = dir(v, LEN);
+      var at = { x1: p0[0].toFixed(1), y1: p0[1].toFixed(1), x2: p1[0].toFixed(1), y2: p1[1].toFixed(1), stroke: v ? GRAY : FG, 'stroke-width': v ? 1.2 : 1 };
+      if (!v) at['stroke-dasharray'] = '2 3';
+      el(g, 'line', at);
+    });
+    var z = dir(0, LEN + 12), h = dir(3, LEN + 12);
+    el(g, 'text', { x: z[0] + 4, y: z[1], 'font-size': 11, fill: FG }, '0.0');
+    el(g, 'text', { x: h[0] - 2, y: h[1], 'font-size': 11, fill: HANE, 'text-anchor': 'end' }, '+3.0');
+    el(g, 'text', { x: 14, y: PY + 92, 'font-size': 12, 'font-weight': 700, fill: HANE }, '← ＋に跳ねる');
+    el(g, 'text', { x: 14, y: PY + 107, 'font-size': 11, fill: GRAY }, '直線の伸び寄り');
+    el(g, 'text', { x: 346, y: PY + 92, 'font-size': 12, 'font-weight': 700, fill: FG, 'text-anchor': 'end' }, '−に下げる →');
+    el(g, 'text', { x: 346, y: PY + 107, 'font-size': 11, fill: GRAY, 'text-anchor': 'end' }, '出足・ターン寄り');
+    var boat = el(g, 'g', {});
+    el(boat, 'line', { x1: QX, y1: PY, x2: QX, y2: PY + LEN, stroke: HANE, 'stroke-width': 2, 'stroke-linecap': 'round' });
+    el(boat, 'rect', { x: PX - 24, y: PY - 22, width: 20, height: 18, rx: 4, fill: '#3b5f8c', stroke: '#8fb3dd', 'stroke-width': 1.2 });
+    el(boat, 'rect', { x: PX - 7, y: PY - 6, width: 5, height: 36, fill: '#3b5f8c', stroke: '#8fb3dd', 'stroke-width': 1 });
+    el(boat, 'ellipse', { cx: PX - 4.5, cy: PY + 30, rx: 2.4, ry: 7, fill: '#8fb3dd' });
+    el(g, 'circle', { cx: QX, cy: PY, r: 2.4, fill: FG });
+    el(g, 'text', { x: 14, y: 18, 'font-size': 12, fill: GRAY }, 'チルト');
+    var big = el(g, 'text', { x: 14, y: 42, 'font-size': 22, 'font-weight': 700, fill: FG, 'font-variant-numeric': 'tabular-nums' }, '');
+    var rows = D.rates.map(function (r, i) {
+      var y = 210 + i * 48;
+      el(g, 'text', { x: 14, y: y + 12, 'font-size': 12.6, 'font-weight': 700, fill: FG }, (i + 4) + 'コース');
+      el(g, 'rect', { x: X0, y: y, width: 360 - X0 - 14, height: 16, fill: '#0e1d31' });
+      var bar = el(g, 'rect', { x: X0, y: y, width: 0, height: 16, fill: GRAY });
+      var x00 = X0 + r[1] * U;
+      el(g, 'line', { x1: x00, y1: y - 4, x2: x00, y2: y + 20, stroke: FG, 'stroke-width': 1, 'stroke-dasharray': '2 2' });
+      var lb = el(g, 'text', { x: X0, y: y + 12.5, 'font-size': 12, fill: FG, 'font-variant-numeric': 'tabular-nums' }, '');
+      return { r: r, bar: bar, lb: lb, w: 0 };
+    });
+    el(g, 'text', { x: X0, y: 350, 'font-size': 11, fill: GRAY }, '0%');
+    el(g, 'text', { x: X0 + 40 * U, y: 350, 'font-size': 11, fill: GRAY, 'text-anchor': 'middle' }, '40%');
+    var tilt = [-0.5, 0, 0.5, 1.75, 3], cur = { a: tilt[0] }, anim = null, auto = null;
+    var btns = D.angles.map(function (a, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.innerHTML = a.replace('から', 'から<br>');
+      b.setAttribute('aria-pressed', 'false');
+      b.onclick = function () { stopAuto(); go(i, 520); };
+      box.appendChild(b);
+      return b;
+    });
+    function draw(a, ws) {
+      boat.setAttribute('transform', 'rotate(' + (a * DEG).toFixed(2) + ' ' + QX + ' ' + PY + ')');
+      rows.forEach(function (r, i) { r.bar.setAttribute('width', ws[i].toFixed(1)); r.lb.setAttribute('x', (X0 + ws[i] + 6).toFixed(1)); });
+    }
+    function settle(idx) {
+      big.textContent = D.angles[idx];
+      rows.forEach(function (r) { r.bar.setAttribute('fill', idx >= 2 ? HANE : GRAY); r.lb.textContent = r.r[idx].toFixed(1) + '%'; r.lb.style.opacity = 1; });
+      btns.forEach(function (b, i) { b.setAttribute('aria-pressed', i === idx ? 'true' : 'false'); });
+    }
+    function go(idx, ms) {
+      if (anim) cancelAnimationFrame(anim);
+      var a0 = cur.a, w0 = rows.map(function (r) { return r.w; }), a1 = tilt[idx], w1 = rows.map(function (r) { return r.r[idx] * U; });
+      settle(idx);
+      if (!ms) { cur.a = a1; rows.forEach(function (r, i) { r.w = w1[i]; }); draw(a1, w1); return; }
+      var t0 = 0;
+      anim = requestAnimationFrame(function step(t) {
+        if (!t0) t0 = t;
+        var k = ease(clamp((t - t0) / ms));
+        cur.a = a0 + (a1 - a0) * k;
+        var ws = w0.map(function (w, i) { return w + (w1[i] - w) * k; });
+        rows.forEach(function (r, i) { r.w = ws[i]; });
+        draw(cur.a, ws);
+        anim = k < 1 ? requestAnimationFrame(step) : null;
+      });
+    }
+    function stopAuto() { if (auto) { clearTimeout(auto); auto = null; } }
+    function tour() {
+      stopAuto();
+      rows.forEach(function (r) { r.w = 0; });
+      cur.a = 0;
+      var i = 0;
+      (function next() { go(i, 700); i++; auto = i < tilt.length ? setTimeout(next, 1300) : null; })();
+    }
+    go(tilt.length - 1, 0);
+    re.onclick = tour;
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { tour(); io.disconnect(); } });
+    }, { threshold: 0.6 });
+    io.observe(fig);
+  })();
+  // 回収率：棒を下から伸ばす。最後は元の y と height の文字列に戻す
+  (function () {
+    var fig = document.getElementById('kaishuFig'), g = document.getElementById('kaishuSvg'), btn = document.getElementById('kaishuRe');
+    if (!fig || !g || !btn) return;
+    var L = g.querySelectorAll('.l75');
+    var B = Array.prototype.map.call(g.querySelectorAll('g.kc'), function (c) {
+      var b = c.querySelector('rect.b');
+      return { b: b, lb: c.querySelector('text.lb'), y: b.getAttribute('y'), h: b.getAttribute('height') };
+    });
+    var LT = 500, GROW = 1100, GAP = 220, T = LT + (B.length - 1) * GAP + GROW;
+    player(fig, btn, T, function (ms) {
+      Array.prototype.forEach.call(L, function (l) { l.style.opacity = clamp(ms / LT); });
+      B.forEach(function (o, i) {
+        var k = clamp((ms - LT - i * GAP) / GROW), e = ease(k), bot = +o.y + +o.h;
+        o.b.setAttribute('y', k >= 1 ? o.y : bot - o.h * e);
+        o.b.setAttribute('height', k >= 1 ? o.h : o.h * e);
+        o.lb.style.opacity = k >= 1 ? 1 : 0;
+      });
+    });
+  })();
+  // 7艇に1艇：菅のマスを1つずつ灯す。最後は元の d に戻す
+  (function () {
+    var fig = document.getElementById('sevenFig'), p = document.getElementById('sevenSuga'), btn = document.getElementById('sevenRe');
+    if (!fig || !p || !btn) return;
+    var D = p.getAttribute('d'), parts = D.split('M').slice(1), N = parts.length, T = 2600;
+    player(fig, btn, T, function (ms) {
+      var k = clamp(ms / T);
+      p.setAttribute('d', k >= 1 ? D : 'M0 0' + (Math.round(N * k) ? 'M' + parts.slice(0, Math.round(N * k)).join('M') : ''));
+    });
+  })();
+  // 菅の変身：1年ずつ帯を伸ばす。最後は元の x と width の文字列に戻す
+  (function () {
+    var fig = document.getElementById('henshinFig'), g = document.getElementById('henshinSvg'), btn = document.getElementById('henshinRe');
+    if (!fig || !g || !btn) return;
+    var R = Array.prototype.map.call(g.querySelectorAll('g.yr'), function (row) {
+      var rs = Array.prototype.map.call(row.querySelectorAll('rect'), function (r) { return { r: r, x: r.getAttribute('x'), w: r.getAttribute('width') }; });
+      return { y: row.querySelector('text'), v: row.querySelector('text.v'), rs: rs, x0: rs.length ? +rs[0].x : 0 };
+    });
+    var GROW = 520, GAP = 300, T = (R.length - 1) * GAP + GROW;
+    player(fig, btn, T, function (ms) {
+      R.forEach(function (row, i) {
+        var k = clamp((ms - i * GAP) / GROW), e = ease(k);
+        row.y.style.opacity = ms >= i * GAP ? 1 : .25;
+        row.v.style.opacity = k >= 1 ? 1 : 0;
+        row.rs.forEach(function (o) {
+          o.r.setAttribute('x', k >= 1 ? o.x : row.x0 + (o.x - row.x0) * e);
+          o.r.setAttribute('width', k >= 1 ? o.w : o.w * e);
+        });
+      });
+    });
+  })();
 })();
 </script>
 <script src="../../assets/guard.js" defer></script>
