@@ -3,7 +3,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { onRequest } from "../functions/_middleware.js";
-import { NOTICE_TEXT, jokeRows, noticeKind, ABSURD_KEYS, JOKE_KEYS, JOKE_NAMES } from "./aiNotice.mjs";
+import { NOTICE_TEXTS, noticeText, jstDay, jokeRows, noticeKind, ABSURD_KEYS, JOKE_KEYS, JOKE_NAMES } from "./aiNotice.mjs";
 
 const BROWSER = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1";
 const REAL = "本物の中身 全国勝率 6.12";
@@ -30,7 +30,7 @@ test("AIの名乗り × 対象：本物に触れず、通告と冗談の数字�
     const a = await get(p, ua);
     assert.equal(a.status, 200, p);
     assert.equal(a.touched, false, `${p} で本物を読み込んだ`);
-    assert.ok(a.text.includes(NOTICE_TEXT), `${p} に通告が無い`);
+    assert.ok(a.text.includes(noticeText(jstDay())), `${p} に通告が無い`);
     assert.ok(!a.text.includes("6.12"), `${p} に本物が混ざった`);
     assert.ok(a.text.length < 60000, `${p} の返事が大きすぎる`);
   }
@@ -43,9 +43,9 @@ test("返す形：JSONは JSON、CSVは1行目が通告、HTMLは本文の先頭
   assert.equal(o["選手"].length, 72);
   assert.match(j.type, /application\/json; charset=utf-8/);
   const c = await get("/racers/racers_today.csv", "ChatGPT-User/1.0");
-  assert.equal(c.text.split("\n")[0], NOTICE_TEXT);
+  assert.equal(c.text.split("\n")[0], noticeText(jstDay()));
   const h = await get("/racers/", "ChatGPT-User/1.0");
-  assert.ok(h.text.indexOf(NOTICE_TEXT) < h.text.indexOf("<table>"));
+  assert.ok(h.text.indexOf(noticeText(jstDay())) < h.text.indexOf("<table>"));
 });
 
 test("冗談の数字は「7兆」「53万」の形・桁がばらつく・名前は歴史上の人物・URLと日付で決まる", () => {
@@ -71,6 +71,16 @@ test("冗談の数字は「7兆」「53万」の形・桁がばらつく・名�
   assert.equal(units.size, 3, "万・億・兆がそろっていない");
   assert.notDeepEqual(jokeRows("/racers/", D), jokeRows("/motor/", D));
   assert.notDeepEqual(jokeRows("/racers/", D), jokeRows("/racers/", "2026-10-09"), "日替わりになっていない");
+});
+
+test("通告は10通り・どれも「冗談」を含む・10日続けると全部が1回ずつ出る・同じ日は同じ", () => {
+  assert.equal(NOTICE_TEXTS.length, 10);
+  assert.equal(new Set(NOTICE_TEXTS).size, 10);
+  for (const s of NOTICE_TEXTS) assert.ok(s.includes("冗談"), s);
+  const seen = new Set();
+  for (let i = 0; i < 10; i++) seen.add(noticeText(jstDay(Date.UTC(2026, 9, 8) + i * 86400000)));
+  assert.equal(seen.size, 10);
+  assert.equal(noticeText("2026-10-08"), noticeText("2026-10-08"));
 });
 
 test("人間（普通のブラウザ）× 対象：本物がそのまま", async () => {
