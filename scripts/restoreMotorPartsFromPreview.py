@@ -8,7 +8,7 @@
 #   収集経路（fetchPartsExchange.py）は PR #267 で止血済み。本スクリプトは過去分の復元専用。
 #
 # 設計（安全第一・ハルシネーション防止）:
-#   - 収集経路は一切触らない。本スクリプトは docs/data/motorParts.json に行を追加するだけ。
+#   - 収集経路は一切触らない。本スクリプトは data/motorParts.json に行を追加するだけ。
 #   - preview に無い項目（モーターNo・anteiban）は創作しない。空文字で入れる。
 #     モーターNo は本スクリプトの後に backfillMotorPartsMotorNo.py（Kファイル由来）で埋める。
 #     ★埋めないと buildMotorMaintenance.py の usable() で全行 dropped になり短縮秒に寄与しない。
@@ -38,7 +38,7 @@ VERIFY_DAYS = ["20260815", "20260819"]
 # 期待する追加行数（preview 実測から算出済み）
 EXPECT_ADD = 4307
 
-DEFAULT_PATH = os.path.join("docs", "data", "motorParts.json")
+DEFAULT_PATH = os.path.join("data", "motorParts.json")
 DEFAULT_PREV = "preview"
 DEFAULT_RES = "results"
 

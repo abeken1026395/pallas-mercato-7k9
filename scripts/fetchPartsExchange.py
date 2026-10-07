@@ -2,7 +2,7 @@
 # fetchPartsExchange.py
 # boatrace.jp公式「直前情報(beforeinfo)」から各レース各艇の部品交換・展示タイム・チルト・
 # プロペラ変更・体重に加え、展示ST(tenjiST)・展示進入コース(tenjiCourse)・安定板(anteiban)を
-# 収集し、docs/data/motorParts.json に時系列 append 蓄積する
+# 収集し、data/motorParts.json に時系列 append 蓄積する
 # （モーター整備履歴のカルテ化・前節1位機/motorHistoryと同思想）。
 #
 # 追加3項目（既存フィールドは無改変・追加のみ。現物HTMLで掲載確認済み）:
@@ -50,7 +50,7 @@ JST = datetime.timezone(datetime.timedelta(hours=9))
 
 RACERS_CSV = os.path.join("docs", "racers", "racers_today.csv")
 RESULTS_DIR = "results"
-OUT = os.path.join("docs", "data", "motorParts.json")
+OUT = os.path.join("data", "motorParts.json")
 
 BASE = "https://www.boatrace.jp/owpc/pc/race/beforeinfo?rno={rno}&jcd={jcd}&hd={hd}"
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "

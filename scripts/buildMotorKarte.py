@@ -3,7 +3,7 @@
 """
 モーターページ（docs/motor/）の整備履歴カルテ専用の軽量派生JSONを作る。
 
-  入力: docs/data/motorParts.json （全列・約21MB・ブラウザで丸ごと読むと iPhone が固まる）
+  入力: data/motorParts.json （全列・約21MB・ブラウザで丸ごと読むと iPhone が固まる）
   出力: docs/data/motorKarte.json （描画に使う8列だけ・機ごとに索引済み）
 
 motorParts.json は削除も改変もしない（build_highlights.py が展示偏差の算出に使う）。
@@ -35,7 +35,7 @@ import sys
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(SCRIPT_DIR)
-SRC = os.path.join(ROOT, "docs", "data", "motorParts.json")
+SRC = os.path.join(ROOT, "data", "motorParts.json")
 OUT = os.path.join(ROOT, "docs", "data", "motorKarte.json")
 
 # 描画に使う列だけ。並び順は index.html のカルテ行の使用順に合わせる。

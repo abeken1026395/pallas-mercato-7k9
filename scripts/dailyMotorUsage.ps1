@@ -29,7 +29,7 @@ $LogDir       = Join-Path $Repo 'scripts\logs'
 $LogFile      = Join-Path $LogDir ("dailyMotorUsage_{0}.log" -f (Get-Date -Format 'yyyyMMdd'))
 $LockFile     = Join-Path $LogDir '.dailyMotorUsage.lock'
 $TargetUsage  = 'docs/data/motorUsage.json'
-$TargetParts  = 'docs/data/motorParts.json'
+$TargetParts  = 'data/motorParts.json'
 
 if (-not (Test-Path $LogDir)) { New-Item -ItemType Directory -Path $LogDir -Force | Out-Null }
 
