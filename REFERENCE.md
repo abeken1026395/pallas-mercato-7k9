@@ -235,7 +235,7 @@
 #### e. 1艇の欠損で1日が全損し、9便の failure が4日間気づかれなかった
 - `fetchPartsExchange.py` の `assert_row_sane` が**体重欄の空を、書式不正と同じ FATAL** として
   扱い `sys.exit(1)` していた。保存は全レース処理後の1回だけなので、途中で落ちるとその日は**0行**になる。
-- 実測: 開催日 **20260812 / 20260813 / 20260814 / 20260817** が `docs/data/motorParts.json` に0行。
+- 実測: 開催日 **20260812 / 20260813 / 20260814 / 20260817** が `data/motorParts.json` に0行。
   ワークフロー「beforeinfo部品交換収集」は**9便が failure** だったが、**4日間だれも気づかなかった**。
 - 止血済み（PR #267）。体重が空なら1行 skip、値が入っているのに書式不正なら従来どおり FATAL。
   **体重以外の検査条件は1つも緩めていない。**
@@ -419,7 +419,7 @@ localdata/           Kファイル成果物のローカル保管。**.gitignore 
 |---|---|---|
 | `docs/motor/index.html` | `scrape_motors.py` | **`scripts/template.html`** の `__DATA_PLACEHOLDER__` |
 | `docs/motor/app.js` | `buildMotorApp.mjs`（`node`） | **`scripts/motor/app.jsx`** |
-| `docs/data/motorKarte.json` | `buildMotorKarte.py`（updateBeforeinfo.yml） | **`docs/data/motorParts.json`**（読むだけ） |
+| `docs/data/motorKarte.json` | `buildMotorKarte.py`（updateBeforeinfo.yml） | **`data/motorParts.json`**（読むだけ） |
 | `docs/racers/index.html` | `scrape_racers.py` | **`scripts/template_racers.html`** |
 | `docs/players/app.js` | `buildPlayersApp.mjs`（`node`） | **`scripts/players/app.jsx`** |
 | `docs/probe/beforeinfoProbe.html` | `buildBeforeinfoProbe.py` | 同スクリプト |

@@ -49,7 +49,7 @@ jobs:
           git add docs/
           git add docs/data/venueMeta.json  # 場メタ（節名・日目）をモーターページ用に確実にコミット対象へ
           git add docs/data/motorHistory.json  # モーター節成績の蓄積（前節1位機の元データ）
-          git add docs/data/motorParts.json    # モーター整備履歴（部品交換）の蓄積
+          git add data/motorParts.json    # モーター整備履歴（部品交換）の蓄積
           git add raceRoom/ 2>/dev/null || true  # レース部屋の告知文
           # 変更なし＝push しない（正常）。
           git diff --staged --quiet && echo "no change（push 不要）" && exit 0

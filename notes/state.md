@@ -171,7 +171,7 @@
 - **`buildCourseLast10.py` の `MEDIAN` が固定値**（44行・2025-07-15〜2026-08-06 の実測をハードコード）。`courseLast10.json` の `集計期間` は毎晩伸びるので、全体中央値だけ期間がずれ続ける。現在は内訳の注記に「集計期間とは別」と書いて逃がしている。生成時に中央値もJSONへ書き出す形にすれば解消する
 - **`scrapeKimarite.py` は毎回183日を mbrace から取り直している**（実測1,915秒）。同じKファイルは `data/kfiles/` に全日あるので、在庫を読む形にすれば32分→1分になり mbrace への負荷も消える。`rowdiff.py` が在庫だけで同じ集計（28,088レース）を再現できることを実測済み
 - **新しい公開ページを作ったら `lintGuard.py` の分類リストにも足す。** 実装済みでも台帳に無ければ「未分類のHTML」でFAILし、PR時のコピーガードWFが全PRで赤くなる（`docs/kensho/ninki/index.html` の実例・PR #353で解消）
-- `docs/data/motorParts.json`（15.68MB）・`docs/data/kansenki`（10.7MB）の削減
+- `data/motorParts.json`（15.68MB）・`docs/data/kansenki`（10.7MB）の削減
 - `buildRacerStatsSplit.py` に `--check` モード追加
 - **`racerStatsDetail.json` の `c1`（コース別1着率6値）が未使用になった**。2026-09-05に表示・支部傾向・並び替えのすべてが `racerCourseStats.json` へ移り、`core` の `c1[0]` だけが未着時の暫定値として残っている。detail 側から落とせば遅延fetchが軽くなるが、`split` の可逆性検証（core+detail=racerStats）を作り替える必要がある
 - **選手図鑑の遅延読込まわり3件（すべて実機未確認）**：①並び替え「イン1着率順」を選ぶと、データ到着時に一覧が並び直る（未着の間は fan の暫定値で並ぶ）②支部傾向タブを開いた直後、18支部×6コースに「—」「—走」が一瞬並ぶ ③選手カードを開いた直後の「読み込み中…」から本体への切り替わりで高さが動く。①は「読み込み中は並べ替えない」、②は1行の読み込み中表示、③は高さの先行予約で直せる

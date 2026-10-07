@@ -9,7 +9,7 @@ buildMotorMaintenance.py
 HTMLは作らない。仕様§7「3の時点で立ち止まる」に従い、
 基底テーブルと検証用の統計だけを出す。
 
-入力: docs/data/motorParts.json, docs/data/motorHistory.json,
+入力: data/motorParts.json, docs/data/motorHistory.json,
       docs/players/female.json
 出力: --out（既定 localdata/motor_maintenance_base.json / .csv）
 
@@ -256,7 +256,7 @@ def main():
     D = os.path.join(args.repo, "docs")
     out = args.out or os.path.join(args.repo, "localdata", "motor_maintenance_base")
 
-    mp = json.load(open(os.path.join(D, "data", "motorParts.json"), encoding="utf-8"))
+    mp = json.load(open(os.path.join(args.repo, "data", "motorParts.json"), encoding="utf-8"))
     mh = json.load(open(os.path.join(D, "data", "motorHistory.json"), encoding="utf-8"))
     female = set(json.load(open(os.path.join(D, "players", "female.json"), encoding="utf-8")))
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # buildBeforeinfoProbe.py
-# beforeinfo収集（fetchPartsExchange.py → docs/data/motorParts.json）の「現在地」を
+# beforeinfo収集（fetchPartsExchange.py → data/motorParts.json）の「現在地」を
 # 1枚のHTMLに可視化し、収集が空である原因（A:時刻が早すぎ／B:パーサ列ズレ）を
 # 現物HTMLで切り分けて記録する調査用ページを生成する。
 #
@@ -38,7 +38,7 @@ except Exception as e:  # bs4未導入など
 JST = datetime.timezone(datetime.timedelta(hours=9))
 
 FPE_PATH = os.path.join("scripts", "fetchPartsExchange.py")
-PARTS_JSON = os.path.join("docs", "data", "motorParts.json")
+PARTS_JSON = os.path.join("data", "motorParts.json")
 RACERS_CSV = os.path.join("docs", "racers", "racers_today.csv")
 VENUE_META = os.path.join("docs", "data", "venueMeta.json")
 WF_DIR = os.path.join(".github", "workflows")
