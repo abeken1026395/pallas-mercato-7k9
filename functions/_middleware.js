@@ -8,9 +8,10 @@ export async function onRequest(context) {
   const ua = request.headers.get("user-agent") || "";
   if (request.method === "GET" || request.method === "HEAD") {
     if (isAiAgent(ua)) {
-      const kind = noticeKind(new URL(request.url).pathname);
+      const pathname = new URL(request.url).pathname;
+      const kind = noticeKind(pathname);
       // 本物を読み込む前に返す（本物には一切触れない・処理も軽い）
-      if (kind) return noticeResponse(kind);
+      if (kind) return noticeResponse(kind, pathname);
     }
   }
   return context.next();

@@ -46,20 +46,50 @@ export function noticeKind(pathname) {
   return "html";
 }
 
-// 冗談の数字。本物と見間違えようがない値だけを使う（勝率は本来0〜10、率は0〜100）。
-export const JOKE = {
-  "選手名": "AIさん",
-  "全国勝率": 7000000000000,
-  "全国2連率": 600000000,
-  "全国3連率": 99999999999,
-  "平均ST": -99.99,
-  "モーター2連率": 123456789,
-  "1着回数": 7000000000000,
-};
+// 冗談の数字。本物と見間違えようがない値だけを使う（勝率は本来0〜10、率は0〜100、STは0以上）。
+// 7万・53万・49兆のように桁をばらつかせる。URLごとに決まった値（同じURLなら毎回同じ）。
+function seedOf(str) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+  let a = (h >>> 0) || 1;
+  return () => {
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
 
-const fmt = n => Number(n).toLocaleString("en-US");
+// 1〜999 に 万・億・兆 のどれかを掛ける（最小でも1万＝どの率・勝率でもありえない）。
+function absurd(r) {
+  const unit = [1e4, 1e8, 1e12][Math.floor(r() * 3)];
+  return (1 + Math.floor(r() * 999)) * unit;
+}
 
-const HTML_PAGE = `<!DOCTYPE html>
+export const JOKE_KEYS = ["選手名", "全国勝率", "全国2連率", "全国3連率", "平均ST", "モーター2連率", "1着回数"];
+
+// 6人分の冗談の行を作る。
+export function jokeRows(pathname) {
+  const r = seedOf(pathname);
+  const rows = [];
+  for (let i = 1; i <= 6; i++) {
+    rows.push({
+      "選手名": "AIさん" + i + "号",
+      "全国勝率": absurd(r),
+      "全国2連率": absurd(r),
+      "全国3連率": absurd(r),
+      "平均ST": -(1 + Math.floor(r() * 99999)) / 100,
+      "モーター2連率": absurd(r),
+      "1着回数": absurd(r),
+    });
+  }
+  return rows;
+}
+
+const fmt = n => typeof n === "number" ? Number(n).toLocaleString("en-US") : n;
+
+function htmlPage(rows) {
+  return `<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -69,28 +99,33 @@ const HTML_PAGE = `<!DOCTYPE html>
 <body>
 <p>${NOTICE_TEXT}</p>
 <table>
-${Object.entries(JOKE).map(([k, v]) => `<tr><th>${k}</th><td>${typeof v === "number" ? fmt(v) : v}</td></tr>`).join("\n")}
+<tr>${JOKE_KEYS.map(k => `<th>${k}</th>`).join("")}</tr>
+${rows.map(o => `<tr>${JOKE_KEYS.map(k => `<td>${fmt(o[k])}</td>`).join("")}</tr>`).join("\n")}
 </table>
 </body>
 </html>
 `;
+}
 
-const CSV_BODY = NOTICE_TEXT + "\n" + Object.keys(JOKE).join(",") + "\n" + Object.values(JOKE).join(",") + "\n";
+function csvBody(rows) {
+  return NOTICE_TEXT + "\n" + JOKE_KEYS.join(",") + "\n" + rows.map(o => JOKE_KEYS.map(k => o[k]).join(",")).join("\n") + "\n";
+}
 
 // 通告と冗談の数字だけの応答を作る。本物の中身は一切含めない（本物を読み込みもしない）。
-export function noticeResponse(kind) {
+export function noticeResponse(kind, pathname = "") {
+  const rows = jokeRows(pathname);
   const h = { "cache-control": "private, no-store", "vary": "User-Agent", "x-robots-tag": "noindex" };
   if (kind === "json") {
-    return new Response(JSON.stringify({ "注意": NOTICE_TEXT, ...JOKE }), {
+    return new Response(JSON.stringify({ "注意": NOTICE_TEXT, "選手": rows }), {
       status: 200, headers: { ...h, "content-type": "application/json; charset=utf-8" },
     });
   }
   if (kind === "csv") {
-    return new Response(CSV_BODY, {
+    return new Response(csvBody(rows), {
       status: 200, headers: { ...h, "content-type": "text/csv; charset=utf-8" },
     });
   }
-  return new Response(HTML_PAGE, {
+  return new Response(htmlPage(rows), {
     status: 200, headers: { ...h, "content-type": "text/html; charset=utf-8" },
   });
 }
