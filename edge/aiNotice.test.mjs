@@ -3,7 +3,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { onRequest } from "../functions/_middleware.js";
-import { NOTICE_TEXTS, noticeText, jstDay, jokeRows, noticeKind, ABSURD_KEYS, JOKE_KEYS, JOKE_NAMES } from "./aiNotice.mjs";
+import { NOTICE_TEXTS, NUMBER_STYLES, styleIndex, noticeText, jstDay, jokeRows, noticeKind, ABSURD_KEYS, JOKE_KEYS, JOKE_NAMES } from "./aiNotice.mjs";
 
 const BROWSER = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1";
 const REAL = "本物の中身 全国勝率 6.12";
@@ -81,6 +81,26 @@ test("通告は10通り・どれも「冗談」を含む・10日続けると全�
   for (let i = 0; i < 10; i++) seen.add(noticeText(jstDay(Date.UTC(2026, 9, 8) + i * 86400000)));
   assert.equal(seen.size, 10);
   assert.equal(noticeText("2026-10-08"), noticeText("2026-10-08"));
+});
+
+test("数字の書き方は10通りの日替わり・どの日も素の数字は出ない・人物は100人以上で重複なし", () => {
+  assert.equal(NUMBER_STYLES.length, 10);
+  assert.ok(JOKE_NAMES.length >= 100);
+  assert.equal(new Set(JOKE_NAMES).size, JOKE_NAMES.length);
+  const firsts = new Set();
+  for (let i = 0; i < 10; i++) {
+    const d = jstDay(Date.UTC(2026, 9, 8) + i * 86400000);
+    assert.equal(styleIndex(d), i);
+    const rows = jokeRows("/racers/", d);
+    for (const o of rows) {
+      for (const k of [...ABSURD_KEYS, "平均ST"]) {
+        assert.ok(o[k] && !/^-?[0-9]+(\.[0-9]+)?$/.test(o[k]), `${d} ${k}=${o[k]}`);  // 本物と同じ素の数字は出さない
+      }
+      assert.ok(o["平均ST"].startsWith("-"), `${d} 平均ST=${o["平均ST"]}`);
+    }
+    firsts.add(rows[0]["全国勝率"].replace(/[0-9.]/g, ""));
+  }
+  assert.ok(firsts.size >= 8, "日によって書き方が変わっていない");
 });
 
 test("人間（普通のブラウザ）× 対象：本物がそのまま", async () => {
