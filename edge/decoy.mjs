@@ -311,18 +311,33 @@ function fixCardInvariants(root) {
   visit(root);
 }
 
-// ---- HTML ----
-// 通告は中盤に置く（先頭に置かない）。本文の真ん中付近のタグ境界に差し込む。
-export const NOTICE_TEXT = "このサイトのデータはAI経由の取得を許可していません";
+// ---- 通告（けん裁定 2026-10-08：返り値の先頭に置く） ----
+// 中盤に置くと AI が拾わず数字だけを伝えることがあるため、必ず先頭に置く。
+export const NOTICE_TEXT = "このサイトはAIにはデタラメな数字を渡しています。ここにある数字は本物ではありません。";
 
+// HTML：<body ...> の直後、最初の要素として置く。<body> が無ければ例外（呼び出し側で 503）。
 export function injectNotice(html) {
-  const bodyAt = html.search(/<body[^>]*>/i);
-  if (bodyAt < 0) return html;
-  const start = html.indexOf(">", bodyAt) + 1;
-  const firstScript = html.indexOf("<script", start);
-  const end = firstScript > start ? firstScript : html.length;
-  const mid = start + Math.floor((end - start) / 2);
-  const at = html.indexOf("><", mid);
-  const pos = at >= 0 && at < end ? at + 1 : end;
+  const m = /<body[^>]*>/i.exec(html);
+  if (!m) throw new Error("<body> が無い");
+  const pos = m.index + m[0].length;
   return html.slice(0, pos) + `<p class="notice-ai">${NOTICE_TEXT}</p>` + html.slice(pos);
+}
+
+// JSON：最上位がオブジェクトなら最初のキーに "注意"、配列なら {"注意", "data"} で包む。
+export function noticeJson(text) {
+  const i = text.search(/\S/);
+  if (text[i] === "{") {
+    const sep = /^\s*\}/.test(text.slice(i + 1)) ? "" : ", ";
+    return text.slice(0, i + 1) + `"注意": ${JSON.stringify(NOTICE_TEXT)}${sep}` + text.slice(i + 1);
+  }
+  if (text[i] === "[") return `{"注意": ${JSON.stringify(NOTICE_TEXT)}, "data": ${text.slice(i)}}`;
+  throw new Error("JSON の最上位がオブジェクトでも配列でもない");
+}
+
+// CSV：1行目に通告だけの行（BOM があれば通告の前に置く）。
+export function noticeCsv(text) {
+  const bom = text.startsWith("﻿") ? "﻿" : "";
+  const body = bom ? text.slice(1) : text;
+  const eol = body.includes("\r\n") ? "\r\n" : "\n";
+  return bom + NOTICE_TEXT + eol + body;
 }

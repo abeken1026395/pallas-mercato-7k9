@@ -32,19 +32,30 @@ for (const ua of ["ChatGPT-User/1.0", "Claude-User/1.0"]) {
   });
 }
 
-test("普通のブラウザ：本物がそのまま出る", async () => {
+test("普通のブラウザ：本物がそのまま出る・通告の文字列は0件", async () => {
   for (const p of PATHS) {
     const a = await get(p, BROWSER);
     assert.equal(a.text, a.real, p);
+    assert.equal(a.text.split(NOTICE_TEXT).length - 1, 0, `${p} に通告が混ざった`);
   }
 });
 
-test("通告は中盤（先頭ではない）", async () => {
-  for (const p of ["/racers/", "/players/card.html"]) {
+test("AIには通告が先頭にある（HTMLは body 直後・JSONは最初のキー・CSVは1行目）", async () => {
+  for (const p of PATHS) {
     const a = await get(p, "Claude-User/1.0");
-    const at = a.text.indexOf(NOTICE_TEXT);
-    const body = a.text.search(/<body[^>]*>/i);
-    assert.ok(at > body + 200, `${p} 通告が先頭寄り`);
+    if (p.endsWith("/") || p.endsWith(".html")) {
+      const m = /<body[^>]*>/i.exec(a.text);
+      assert.ok(a.text.startsWith(`<p class="notice-ai">${NOTICE_TEXT}</p>`, m.index + m[0].length), `${p} body 直後に無い`);
+    } else if (p.endsWith(".json")) {
+      // 返す文字列の中で最初のキーであることを確かめる（JSON.parse 後の Object.keys は
+      // 登番のような数字だけのキーを先に並べ替えるため、順序の確認には使えない）。
+      const o = JSON.parse(a.text);
+      assert.ok(a.text.startsWith(`{"注意": ${JSON.stringify(NOTICE_TEXT)}`), `${p} 最初のキーでない`);
+      assert.equal(o["注意"], NOTICE_TEXT);
+    } else if (p.endsWith(".csv")) {
+      assert.equal(a.text.replace(/^﻿/, "").split(/\r?\n/)[0], NOTICE_TEXT, `${p} 1行目でない`);
+      assert.equal(a.text.startsWith("﻿"), a.real.startsWith("﻿"), `${p} BOM の有無が本物と違う`);
+    }
   }
 });
 
@@ -76,7 +87,8 @@ test("出走表CSV：形式と整合", () => {
 
 test("h2h：先着＋後着 ≤ 対戦数", async () => {
   const a = await get("/players/card/h2h/0.json", "GPTBot/1.1");
-  for (const row of Object.values(JSON.parse(a.text)))
+  const { 注意, ...rows } = JSON.parse(a.text);
+  for (const row of Object.values(rows))
     for (const [n, w, l] of Object.values(row)) assert.ok(w + l <= n);
 });
 
@@ -136,7 +148,7 @@ test("出走表HTML：普通のブラウザには本物がバイト単位でそ�
 
 test("出走表：同じ登番・同じ日・同じ場なら、HTMLの囮とCSVの囮の数字が一致する", async () => {
   const html = extractRaw((await get("/racers/", "ChatGPT-User/1.0")).text).raw;
-  const csvLines = (await get("/racers/racers_today.csv", "ChatGPT-User/1.0")).text.replace(/^﻿/, "").trim().split(/\r?\n/);
+  const csvLines = (await get("/racers/racers_today.csv", "ChatGPT-User/1.0")).text.replace(/^﻿/, "").trim().split(/\r?\n/).slice(1);   // 1行目は通告
   const head = csvLines[0].split(",");
   const key = (cols, r) => ["開催日", "場コード", "登録番号", "レース"].map(n => r[cols.indexOf(n)]).join("|");
   const csv = new Map(csvLines.slice(1).map(l => { const r = l.split(","); return [key(head, r), r]; }));

@@ -1,7 +1,8 @@
 // Cloudflare Pages Functions：AIの取得役にだけ囮を返す（第1段 /racers/・/players/card.html）。
 // /racers/ は HTML に埋め込まれた出走表（var RAW）も CSV と同じ囮に置き換える。
 // 人間・判定できない相手には context.next() の本物をそのまま返す。
-import { isAiAgent, decoyKind, decoyRacersCsv, decoyRacersHtml, decoyJson, injectNotice } from "../edge/decoy.mjs";
+// 返り値の先頭には「AIにはデタラメな数字を渡している」と明記する（けん裁定 2026-10-08）。
+import { isAiAgent, decoyKind, decoyRacersCsv, decoyRacersHtml, decoyJson, injectNotice, noticeJson, noticeCsv } from "../edge/decoy.mjs";
 
 export async function onRequest(context) {
   const { request } = context;
@@ -20,8 +21,8 @@ export async function onRequest(context) {
     if (kind === "html") body = injectNotice(text);
     // 出走表 HTML は本物の出走表を var RAW = {...} で丸ごと埋め込んでいるので、それも囮にする。
     else if (kind === "racersHtml") body = injectNotice(decoyRacersHtml(text));
-    else if (kind === "racersCsv") body = decoyRacersCsv(text);
-    else body = JSON.stringify(decoyJson(JSON.parse(text), url.pathname, url.pathname));
+    else if (kind === "racersCsv") body = noticeCsv(decoyRacersCsv(text));
+    else body = noticeJson(JSON.stringify(decoyJson(JSON.parse(text), url.pathname, url.pathname)));
   } catch (e) {
     // 囮を作れないときは何も返さない（本物を渡さない）。
     return new Response("", { status: 503 });
