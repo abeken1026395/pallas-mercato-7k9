@@ -1542,7 +1542,7 @@ function baselineShift() {
   for (var i = 0; i < a.length; i++) {
     h = h * 31 + a.codePointAt(i) >>> 0;
   }
-  var ok = location.hostname === "abeken1026395.github.io" && location.pathname.indexOf("/pallas-mercato-7k9/") === 0 || ["localhost", "127.0.0.1", ""].indexOf(location.hostname) >= 0;
+  var ok = location.hostname === "abeken1026395.github.io" && location.pathname.indexOf("/pallas-mercato-7k9/") === 0 || location.hostname === "datazeme.pages.dev" || /\.datazeme\.pages\.dev$/.test(location.hostname) || ["localhost", "127.0.0.1", ""].indexOf(location.hostname) >= 0;
   if (!ok) {
     spanTicks();
   }

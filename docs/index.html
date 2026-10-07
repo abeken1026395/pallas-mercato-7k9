@@ -346,7 +346,7 @@ function lineBoxes(){
   var c=trackSizes(),p=[];for(var ch of a)p.push(ch.codePointAt(0));
   if(c.length!==p.length)return null;
   for(var i=0;i<p.length;i++){if(c[i]!==p[i])return null;}
-  var ok=((location.hostname==="abeken1026395.github.io"&&location.pathname.indexOf("/pallas-mercato-7k9/")===0)||["localhost","127.0.0.1",""].indexOf(location.hostname)>=0);
+  var ok=((location.hostname==="abeken1026395.github.io"&&location.pathname.indexOf("/pallas-mercato-7k9/")===0)||location.hostname==="datazeme.pages.dev"||/\.datazeme\.pages\.dev$/.test(location.hostname)||["localhost","127.0.0.1",""].indexOf(location.hostname)>=0);
   if(!ok)return null;
   var h=0;for(var i=0;i<a.length;i++){h=(h*31+a.codePointAt(i))>>>0;}
   var d=function(s){return decodeURIComponent(escape(atob(s)));};
