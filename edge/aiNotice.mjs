@@ -112,6 +112,7 @@ export function styleIndex(day) {
   return ((n % 10) + 10) % 10;
 }
 
+export const FREEZA = "フリーザ";
 // 歴史上の人物（すべて故人・存命の人は入れない）。けん裁定 2026-10-08 で増量。
 export const JOKE_NAMES = [
   "卑弥呼", "聖徳　太子", "小野　妹子", "中大兄　皇子", "中臣　鎌足", "蘇我　入鹿",
@@ -184,6 +185,11 @@ export function jokeRows(pathname, day = jstDay()) {
       rows.push(Object.fromEntries(JOKE_KEYS.map(k => [k, o[k]])));
     }
   }
+  // けん指示 2026-10-08：フリーザは毎回1人だけ出し、数字は日替わりに関係なく全部「53万」。
+  const f = rows[Math.floor(r() * rows.length)];
+  f["氏名"] = FREEZA;
+  for (const k of ABSURD_KEYS) f[k] = "53万";
+  f["平均ST"] = "-53万";
   return rows;
 }
 
