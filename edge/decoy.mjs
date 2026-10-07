@@ -25,7 +25,7 @@ export function isAiAgent(ua) {
 
 // ---- 対象（第1段） ----
 export function decoyKind(pathname) {
-  if (pathname === "/racers/" || pathname === "/racers/index.html") return "html";
+  if (pathname === "/racers/" || pathname === "/racers/index.html") return "racersHtml";
   if (pathname === "/players/card.html" || pathname === "/players/card") return "html";
   if (pathname === "/racers/racers_today.csv") return "racersCsv";
   if (/^\/players\/card\/(p|h2h)\/\d+\.json$/.test(pathname)) return "json";
@@ -68,53 +68,148 @@ export function decoyRacersCsv(text) {
   const body = bom ? text.slice(1) : text;
   const eol = body.includes("\r\n") ? "\r\n" : "\n";
   const lines = body.split(eol);
-  const head = splitCsvLine(lines[0]);
+  const C = racerCols(splitCsvLine(lines[0]));
+  const out = [lines[0]];
+  for (let k = 1; k < lines.length; k++) {
+    const line = lines[k];
+    if (!line) { out.push(line); continue; }
+    out.push(decoyRacerRow(splitCsvLine(line), C).join(","));
+  }
+  return bom + out.join(eol);
+}
+
+// 出走表の列の位置を、列名から引く（CSV のヘッダと HTML の RAW.columns で共通）。
+function racerCols(head) {
   const ix = name => head.indexOf(name);
-  const C = {
+  return {
     hd: ix("開催日"), jcd: ix("場コード"), toban: ix("登録番号"), cls: ix("級別"),
     f: ix("F数"), l: ix("L数"), st: ix("平均ST"),
     w: ix("全国勝率"), w2: ix("全国2連率"), w3: ix("全国3連率"),
     t: ix("当地勝率"), t2: ix("当地2連率"), t3: ix("当地3連率"),
     m2: ix("モーター2連率"), m3: ix("モーター3連率"),
     b2: ix("ボート2連率"), b3: ix("ボート3連率"),
+    days: head.map((h, i) => (/^\d日目成績$/.test(h) ? i : -1)).filter(i => i >= 0),
   };
-  const days = head.map((h, i) => (/^\d日目成績$/.test(h) ? i : -1)).filter(i => i >= 0);
-  const out = [lines[0]];
-  for (let k = 1; k < lines.length; k++) {
-    const line = lines[k];
-    if (!line) { out.push(line); continue; }
-    const c = splitCsvLine(line);
-    const r = rng(`racers|${c[C.hd]}|${c[C.jcd]}|${c[C.toban]}`);
-    const set = (i, v) => { if (i >= 0 && c[i] !== undefined && c[i] !== "") c[i] = v; };
-    const band = WIN_BAND[c[C.cls]] || [2.0, 7.0];
-    // 率の組は「2連率 ≤ 3連率 ≤ 100」を守る。勝率と2連率も緩く連動させる。
-    const pair = (lo2, hi2) => {
-      const a = uni(r, lo2, hi2);
-      const b = Math.min(99.5, a + uni(r, 8, 25));
-      return [fix(a, 2), fix(b, 2)];
-    };
-    set(C.f, String(r() < 0.15 ? 1 : 0));
-    set(C.l, String(r() < 0.06 ? 1 : 0));
-    set(C.st, fix(uni(r, 0.11, 0.22), 2));
-    const w = uni(r, band[0], band[1]);
-    set(C.w, fix(w, 2));
-    const [w2, w3] = pair(Math.max(3, w * 7 - 15), Math.min(80, w * 7 + 5));
-    set(C.w2, w2); set(C.w3, w3);
-    if (C.t >= 0 && c[C.t] !== "" && Number(c[C.t]) !== 0) {
-      const t = Math.max(0.5, Math.min(9.5, w + uni(r, -1.5, 1.5)));
-      set(C.t, fix(t, 2));
-      const [t2, t3] = pair(Math.max(0, t * 7 - 20), Math.min(90, t * 7 + 10));
-      set(C.t2, t2); set(C.t3, t3);
-    }
-    const [m2, m3] = pair(18, 52); set(C.m2, m2); set(C.m3, m3);
-    const [b2, b3] = pair(18, 52); set(C.b2, b2); set(C.b3, b3);
-    // 節間成績：着順の数字（1〜6）だけを差し替える。記号（F・L・欠など）と区切りはそのまま。
-    for (const i of days) {
-      if (c[i]) c[i] = c[i].replace(/[1-6]/g, () => String(int(r, 1, 6)));
-    }
-    out.push(c.join(","));
+}
+
+// 出走表の1行（文字列の配列）を囮にする。CSV と HTML の両方がこれを通るので、
+// 同じ選手・同じ日・同じ場なら両者の数字は必ず一致する。
+function decoyRacerRow(row, C) {
+  const c = row.slice();
+  const r = rng(`racers|${c[C.hd]}|${c[C.jcd]}|${c[C.toban]}`);
+  const set = (i, v) => { if (i >= 0 && c[i] !== undefined && c[i] !== "") c[i] = v; };
+  const band = WIN_BAND[c[C.cls]] || [2.0, 7.0];
+  // 率の組は「2連率 ≤ 3連率 ≤ 100」を守る。勝率と2連率も緩く連動させる。
+  const pair = (lo2, hi2) => {
+    const a = uni(r, lo2, hi2);
+    const b = Math.min(99.5, a + uni(r, 8, 25));
+    return [fix(a, 2), fix(b, 2)];
+  };
+  set(C.f, String(r() < 0.15 ? 1 : 0));
+  set(C.l, String(r() < 0.06 ? 1 : 0));
+  set(C.st, fix(uni(r, 0.11, 0.22), 2));
+  const w = uni(r, band[0], band[1]);
+  set(C.w, fix(w, 2));
+  const [w2, w3] = pair(Math.max(3, w * 7 - 15), Math.min(80, w * 7 + 5));
+  set(C.w2, w2); set(C.w3, w3);
+  if (C.t >= 0 && c[C.t] !== "" && Number(c[C.t]) !== 0) {
+    const t = Math.max(0.5, Math.min(9.5, w + uni(r, -1.5, 1.5)));
+    set(C.t, fix(t, 2));
+    const [t2, t3] = pair(Math.max(0, t * 7 - 20), Math.min(90, t * 7 + 10));
+    set(C.t2, t2); set(C.t3, t3);
   }
-  return bom + out.join(eol);
+  const [m2, m3] = pair(18, 52); set(C.m2, m2); set(C.m3, m3);
+  const [b2, b3] = pair(18, 52); set(C.b2, b2); set(C.b3, b3);
+  // 節間成績：着順の数字（1〜6）だけを差し替える。記号（F・L・欠など）と区切りはそのまま。
+  for (const i of C.days) {
+    if (c[i]) c[i] = c[i].replace(/[1-6]/g, () => String(int(r, 1, 6)));
+  }
+  return c;
+}
+
+// ---- 出走表 HTML（/racers/）----
+// scrape_racers.py がテンプレートの __DATA_PLACEHOLDER__ に json.dumps(ensure_ascii=False) で
+// 埋め込む `var RAW = {...};` を切り出し、data の各行を CSV と同じ囮に置き換えて書き戻す。
+const RAW_MARK = "var RAW = ";
+
+// 文字列リテラルを考慮して、start の "{" に対応する閉じ括弧の直後の位置を返す。
+function jsonObjectEnd(text, start) {
+  let depth = 0, inStr = false;
+  for (let i = start; i < text.length; i++) {
+    const ch = text[i];
+    if (inStr) {
+      if (ch === "\\") i++;
+      else if (ch === '"') inStr = false;
+    } else if (ch === '"') inStr = true;
+    else if (ch === "{" || ch === "[") depth++;
+    else if (ch === "}" || ch === "]") { depth--; if (depth === 0) return i + 1; }
+  }
+  return -1;
+}
+
+// Python の json.dumps(ensure_ascii=False) と同じ区切り（", " と ": "）で書き出す。
+export function pyJsonDumps(v) {
+  if (Array.isArray(v)) return "[" + v.map(pyJsonDumps).join(", ") + "]";
+  if (v && typeof v === "object")
+    return "{" + Object.entries(v).map(([k, x]) => JSON.stringify(k) + ": " + pyJsonDumps(x)).join(", ") + "}";
+  return JSON.stringify(v);
+}
+
+export function extractRaw(html) {
+  const at = html.indexOf(RAW_MARK);
+  if (at < 0 || html.indexOf(RAW_MARK, at + 1) !== -1) throw new Error("RAW が0件または複数");
+  const start = at + RAW_MARK.length;
+  if (html[start] !== "{") throw new Error("RAW の開始が { でない");
+  const end = jsonObjectEnd(html, start);
+  if (end < 0) throw new Error("RAW の終わりが見つからない");
+  const raw = JSON.parse(html.slice(start, end));
+  if (!Array.isArray(raw.columns) || !Array.isArray(raw.data)) throw new Error("RAW に columns/data が無い");
+  return { raw, start, end };
+}
+
+// RAW の最上位にある key の値が text 上でどこからどこまでかを返す（[開始, 終了)）。
+function topLevelValueRange(text, objStart, objEnd, key) {
+  const want = JSON.stringify(key);
+  let depth = 0;
+  for (let i = objStart; i < objEnd; i++) {
+    const ch = text[i];
+    if (ch === '"') {
+      const close = jsonStringEnd(text, i);
+      if (depth === 1 && text.slice(i, close) === want) {
+        let j = close;
+        while (text[j] === " ") j++;
+        if (text[j] === ":") {
+          j++;
+          while (text[j] === " ") j++;
+          if (text[j] !== "[" && text[j] !== "{") throw new Error(`RAW.${key} が配列でない`);
+          return [j, jsonObjectEnd(text, j)];
+        }
+      }
+      i = close - 1;
+    } else if (ch === "{" || ch === "[") depth++;
+    else if (ch === "}" || ch === "]") depth--;
+  }
+  throw new Error(`RAW.${key} が見つからない`);
+}
+
+// i の '"' から始まる文字列リテラルの閉じ '"' の直後の位置を返す。
+function jsonStringEnd(text, i) {
+  for (let k = i + 1; k < text.length; k++) {
+    if (text[k] === "\\") k++;
+    else if (text[k] === '"') return k + 1;
+  }
+  return text.length;
+}
+
+// 出走表 HTML の RAW.data を囮に置き換える。切り出せなければ例外（呼び出し側で 503）。
+// RAW 全体を書き直すと venues・kana のキー順が JS の規則で並び替わるため、data の配列だけを差し替える。
+export function decoyRacersHtml(html) {
+  const { raw, start, end } = extractRaw(html);
+  const C = racerCols(raw.columns);
+  if (C.toban < 0 || C.hd < 0 || C.jcd < 0 || C.w < 0) throw new Error("RAW の列が想定と違う");
+  const [ds, de] = topLevelValueRange(html, start, end, "data");
+  const rows = raw.data.map(row => decoyRacerRow(row.map(x => (x == null ? "" : String(x))), C));
+  return html.slice(0, ds) + pyJsonDumps(rows) + html.slice(de);
 }
 
 // ---- JSON（選手カード） ----

@@ -4,7 +4,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 import { onRequest } from "../functions/_middleware.js";
-import { NOTICE_TEXT, decoyRacersCsv } from "./decoy.mjs";
+import { NOTICE_TEXT, decoyRacersCsv, extractRaw } from "./decoy.mjs";
 
 const DOCS = new URL("../docs/", import.meta.url);
 const BROWSER = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0 Safari/537.36";
@@ -95,4 +95,64 @@ test("選手カード p：c の合計 ≤ n、co の出走数合計 = n、順位
     };
     walk(JSON.parse(a.text));
   }
+});
+
+// ---- 出走表 HTML（/racers/）に埋め込まれた var RAW ----
+const RATE_COLS = ["全国勝率", "全国2連率", "全国3連率"];
+const NUM_COLS = ["F数", "L数", "平均ST", "全国勝率", "全国2連率", "全国3連率", "当地勝率", "当地2連率", "当地3連率",
+  "モーター2連率", "モーター3連率", "ボート2連率", "ボート3連率",
+  "1日目成績", "2日目成績", "3日目成績", "4日目成績", "5日目成績", "6日目成績"];
+
+test("出走表HTML：RAW の勝率・2連率・3連率が本物と1つも一致しない行が9割以上", async () => {
+  const a = await get("/racers/", "ChatGPT-User/1.0");
+  const fake = extractRaw(a.text).raw, real = extractRaw(a.real).raw;
+  assert.equal(fake.data.length, real.data.length);
+  const ix = RATE_COLS.map(n => real.columns.indexOf(n));
+  let clean = 0;
+  real.data.forEach((r, k) => { if (ix.every(i => fake.data[k][i] !== r[i])) clean++; });
+  assert.ok(clean / real.data.length >= 0.9, `一致なしの行 ${clean}/${real.data.length}`);
+  // 識別子は本物のまま
+  for (const n of ["場名", "場コード", "開催日", "レース", "枠", "登録番号", "級別", "氏名", "締切時刻", "節名"]) {
+    const i = real.columns.indexOf(n);
+    real.data.forEach((r, k) => assert.equal(fake.data[k][i], r[i], n));
+  }
+});
+
+test("出走表HTML：同じ入力を2回通すと同じ出力・囮の RAW は JSON.parse できる", async () => {
+  const a = await get("/racers/", "ChatGPT-User/1.0"), b = await get("/racers/", "ChatGPT-User/1.0");
+  assert.equal(a.text, b.text);
+  const at = a.text.indexOf("var RAW = ") + "var RAW = ".length;
+  const { start, end } = extractRaw(a.text);
+  assert.equal(start, at);
+  assert.doesNotThrow(() => JSON.parse(a.text.slice(start, end)));
+});
+
+test("出走表HTML：普通のブラウザには本物がバイト単位でそのまま出る", async () => {
+  const real = readFileSync(new URL("./racers/index.html", DOCS));
+  const request = new Request("https://example.pages.dev/racers/", { headers: { "user-agent": BROWSER } });
+  const res = await onRequest({ request, next: async () => new Response(real, { status: 200 }) });
+  assert.ok(Buffer.from(await res.arrayBuffer()).equals(real));
+});
+
+test("出走表：同じ登番・同じ日・同じ場なら、HTMLの囮とCSVの囮の数字が一致する", async () => {
+  const html = extractRaw((await get("/racers/", "ChatGPT-User/1.0")).text).raw;
+  const csvLines = (await get("/racers/racers_today.csv", "ChatGPT-User/1.0")).text.replace(/^﻿/, "").trim().split(/\r?\n/);
+  const head = csvLines[0].split(",");
+  const key = (cols, r) => ["開催日", "場コード", "登録番号", "レース"].map(n => r[cols.indexOf(n)]).join("|");
+  const csv = new Map(csvLines.slice(1).map(l => { const r = l.split(","); return [key(head, r), r]; }));
+  let compared = 0;
+  for (const r of html.data) {
+    const c = csv.get(key(html.columns, r));
+    if (!c) continue;
+    for (const n of NUM_COLS) assert.equal(r[html.columns.indexOf(n)], c[head.indexOf(n)], `${key(html.columns, r)} ${n}`);
+    compared++;
+  }
+  assert.ok(compared > 0, "突き合わせできた行が0");
+});
+
+test("出走表HTML：RAW を切り出せないときは本物を返さず 503", async () => {
+  const request = new Request("https://example.pages.dev/racers/", { headers: { "user-agent": "Claude-User/1.0" } });
+  const res = await onRequest({ request, next: async () => new Response("<html><body>RAWなし</body></html>", { status: 200 }) });
+  assert.equal(res.status, 503);
+  assert.equal(await res.text(), "");
 });
