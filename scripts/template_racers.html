@@ -1041,10 +1041,10 @@ function renderVenues(app,crumb,keys){
 /* 「気になる/最近見た/回収」パネルのHTML */
 function buildMyPanel(){
   pruneOld();
-  var harvest=harvestList();
+  var harvest=[]; /* 履歴（結果を見る）は出さない。公式結果リンクは推しの本日にだけ置く */
   var waiting=WATCH.filter(function(x){ return raceStatus(x.hd,x.deadline)==='pre'; });
   var hset={}; harvest.forEach(function(x){ hset[rkey(x.jcd,x.hd,x.rno)]=1; });
-  var recent=VIEWED.filter(function(x){ return !hset[rkey(x.jcd,x.hd,x.rno)]; }).slice(0,8);
+  var recent=[]; /* 履歴（最近見た）は出さない */
   if(!harvest.length && !waiting.length && !recent.length && !YOMI.length) return "";
   var h='<div class="my">';
   h+=yomiPanel();
