@@ -135,4 +135,4 @@ CI（`pyflakesGuard`）は、`build_highlights.py` に「代入したが使っ�
 |モーター2連率|出走表CSVの当日値（6艇平均は生成時に算出）|`motorFirst`|
 |1着の内訳（1着数・まくり数・差し数）|`docs/players/racerKimarite.csv`|展開の全型|
 |場の①着外率・崩れ方|`docs/data/collapsePattern.json`|展開（`collapseFirst`）・波及・深層|
-|今節の展示タイム|`docs/data/motorParts.json`|展開・深層|
+|今節の展示タイム|`data/motorParts.json`|展開・深層|

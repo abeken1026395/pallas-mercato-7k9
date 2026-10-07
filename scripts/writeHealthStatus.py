@@ -37,7 +37,7 @@ WATCH = {
     "arare": "docs/data/arare.json",
     "racers": "docs/racers/racers_today.csv",
     "highlights": "docs/highlights/highlights.json",
-    "motorParts": "docs/data/motorParts.json",
+    "motorParts": "data/motorParts.json",
     "results": "results",
     "preview": "preview",
 }

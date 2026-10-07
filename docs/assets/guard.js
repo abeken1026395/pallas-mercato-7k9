@@ -2,6 +2,7 @@
 (function () {
   var ok = ((location.hostname === "abeken1026395.github.io"
     && location.pathname.indexOf("/pallas-mercato-7k9/") === 0)
+    || location.hostname === "datazeme.pages.dev"
     || ["localhost", "127.0.0.1", ""].indexOf(location.hostname) >= 0);
   if (ok) return;
   var d = document.createElement("div");

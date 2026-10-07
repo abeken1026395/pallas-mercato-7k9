@@ -332,14 +332,14 @@ def main():
         mot = []
     mkey = {(m['場コード'], m['登録番号']): f(m['モーター2連対率']) for m in mot}
 
-    # 〔今節の展示タイム偏差〕docs/data/motorParts.json から、当日より前の同じ場の展示タイムを拾う。
+    # 〔今節の展示タイム偏差〕data/motorParts.json から、当日より前の同じ場の展示タイムを拾う。
     #   生の秒数は水面・気象で基準が動くため出さない。そのレースの6艇平均からの差だけを使う。
     #   遡る日数は出走表の「1日目成績〜6日目成績」の埋まり本数＝前日までに走った日数で決める。
     #   これにより前節を跨がない（motorParts の「節名」は全行が空のため、節の区切りに使えない）。
     _DAYCOLS = ['1日目成績', '2日目成績', '3日目成績', '4日目成績', '5日目成績', '6日目成績']
     _tenji = {}
     try:
-        with open(os.path.join('docs', 'data', 'motorParts.json'), encoding='utf-8') as _mf:
+        with open(os.path.join('data', 'motorParts.json'), encoding='utf-8') as _mf:
             _mprec = json.load(_mf).get('records', [])
         _byrace = defaultdict(list)
         for _x in _mprec:

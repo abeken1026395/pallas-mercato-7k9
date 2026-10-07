@@ -493,7 +493,7 @@ function calcViewport(){
   if(c.length!==p.length)return null;
   for(var i=0;i<p.length;i++){if(c[i]!==p[i])return null;}
   var h=0;for(var i=0;i<a.length;i++){h=(h*31+a.codePointAt(i))>>>0;}
-  var ok=((location.hostname==="abeken1026395.github.io"&&location.pathname.indexOf("/pallas-mercato-7k9/")===0)||["localhost","127.0.0.1",""].indexOf(location.hostname)>=0);
+  var ok=((location.hostname==="abeken1026395.github.io"&&location.pathname.indexOf("/pallas-mercato-7k9/")===0)||location.hostname==="datazeme.pages.dev"||/\.datazeme\.pages\.dev$/.test(location.hostname)||["localhost","127.0.0.1",""].indexOf(location.hostname)>=0);
   if(!ok){measureText();}
   return {t:a,k:"k"+(h%100000)};
 }
@@ -884,12 +884,13 @@ function buildOshiToday(){
       var st=raceStatus(x.hd,x.deadline);
       var pf=PROF[x.toban]||{}, nick=pf.nickname||pf.tagline||"";
       /* 締切前=ピル、締切後=公式結果リンク（確定は公式が持つ） */
+      var tmr=parseInt(x.hd)>curYmd();
       var right=st==='pre'
-        ? '<span class="pill pill-pre">締切前</span>'
+        ? '<span class="pill pill-pre">'+(tmr?'明日':'締切前')+'</span>'
         : '<a class="oshi-result" href="'+resultUrl(x.jcd,x.hd,x.rno)+'" target="_blank" rel="noopener">🏁 結果 →</a>';
       return '<div class="my-row"><div class="my-rl" data-open="'+esc(rkey(x.jcd,x.hd,x.rno))+'">'
         +'<div class="my-rt">'+esc(x.name)+(nick?' <span class="oshi-nick">“'+esc(nick)+'”</span>':'')+'</div>'
-        +'<div class="my-rs">'+esc(x.venue)+' '+x.rno+'R｜締切 '+esc(x.deadline||"")+'</div></div>'+right+'</div>';
+        +'<div class="my-rs">'+(tmr?'明日 ':'')+esc(x.venue)+' '+x.rno+'R｜締切 '+esc(x.deadline||"")+'</div></div>'+right+'</div>';
     }).join("");
   }
   h+='<div class="oshi-note">フォローはこの端末にのみ保存され、外部には送信されません。</div>';
@@ -1040,10 +1041,10 @@ function renderVenues(app,crumb,keys){
 /* 「気になる/最近見た/回収」パネルのHTML */
 function buildMyPanel(){
   pruneOld();
-  var harvest=harvestList();
+  var harvest=[]; /* 履歴（結果を見る）は出さない。公式結果リンクは推しの本日にだけ置く */
   var waiting=WATCH.filter(function(x){ return raceStatus(x.hd,x.deadline)==='pre'; });
   var hset={}; harvest.forEach(function(x){ hset[rkey(x.jcd,x.hd,x.rno)]=1; });
-  var recent=VIEWED.filter(function(x){ return !hset[rkey(x.jcd,x.hd,x.rno)]; }).slice(0,8);
+  var recent=[]; /* 履歴（最近見た）は出さない */
   if(!harvest.length && !waiting.length && !recent.length && !YOMI.length) return "";
   var h='<div class="my">';
   h+=yomiPanel();

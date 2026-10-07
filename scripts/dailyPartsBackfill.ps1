@@ -38,7 +38,7 @@ $Guard = Join-Path $Repo 'scripts\checkRepoGuard.ps1'
 $LogDir      = Join-Path $Repo 'scripts\logs'
 $LogFile     = Join-Path $LogDir ("dailyPartsBackfill_{0}.log" -f (Get-Date -Format 'yyyyMMdd'))
 $LockFile    = Join-Path $LogDir '.dailyPartsBackfill.lock'
-$TargetParts = 'docs/data/motorParts.json'
+$TargetParts = 'data/motorParts.json'
 
 if (-not (Test-Path $LogDir)) { New-Item -ItemType Directory -Path $LogDir -Force | Out-Null }
 

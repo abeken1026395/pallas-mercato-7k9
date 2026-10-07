@@ -18,7 +18,7 @@
 #     空欄の減少数＝補填数。1つでも崩れたら書かずに異常終了する。
 #
 # 使い方:
-#   python scripts/backfillMotorPartsMotorNo.py                        # docs/data/motorParts.json を補填
+#   python scripts/backfillMotorPartsMotorNo.py                        # data/motorParts.json を補填
 #   python scripts/backfillMotorPartsMotorNo.py --path P --kdir D --dry # テスト（--dryは書き込まない）
 # 終了コード: 0=正常（補填有/無どちらも）, 2=検証失敗（未書込）, 3=入力不備。
 import os
@@ -30,7 +30,7 @@ import json
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import kparser  # 検証済み全項目Kパーサ（re のみ依存）
 
-DEFAULT_PATH = os.path.join("docs", "data", "motorParts.json")
+DEFAULT_PATH = os.path.join("data", "motorParts.json")
 DEFAULT_KDIR = os.environ.get("KFILES_DIR", os.path.join("data", "kfiles"))
 # 空のモーターNoフィールドだけにマッチ（値入りの "..." は非マッチ）
 EMPTY_RE = re.compile(r'("モーターNo":\s*)""')
