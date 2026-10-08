@@ -189,7 +189,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .plate{position:relative;background:#0b0b0b;border-bottom:0!important;padding-bottom:14px;overflow:hidden}
 .plate::after{content:"";position:absolute;left:-20px;right:-20px;bottom:0;height:9px;background:#e2353b;transform:skewY(-1.4deg);transform-origin:left bottom}
 .plate::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,transparent 0 22px,rgba(255,255,255,.025) 22px 23px);pointer-events:none}
-.plate .toban{padding-right:16px;background:#f4f2ea}
+.plate .toban{clip-path:polygon(0 0,100% 0,84% 100%,0 100%);padding-right:22px;background:#f4f2ea}
 .plate .meta{letter-spacing:.06em;font-size:11.5px;color:#9a9a9a}
 .plate .grade{border-width:2px;font-size:20px;padding:0 7px;align-self:flex-start;margin-top:14px}
 .body{padding:18px 16px 16px;gap:22px}
@@ -227,7 +227,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .foot{border-top:1px solid var(--rule)}
 .vsHead{border-bottom:0!important;position:relative;padding-bottom:12px}
 .vsHead::after{content:"";position:absolute;left:-20px;right:-20px;bottom:0;height:9px;background:#e2353b;transform:skewY(-1.4deg);transform-origin:left bottom}
-.vsHead .x{padding:0 18px}
+.vsHead .x{clip-path:polygon(12% 0,100% 0,88% 100%,0 100%);padding:0 18px}
 
 /* 地色の見比べ用 */
 .card[data-pal="kuro"]{--water:#141212;--water2:#1d1a19;--wl:rgba(236,230,218,.13);--wInk:#ece6da;--wSub:#9c948a;--wDim:rgba(236,230,218,.07);--needle:#ece6da;--onNeedle:#141212;--hwG:rgba(217,180,74,.10);--mark:#d8342c;--nameR:#e8322a;--yuC:#dcb84f;--t5:#fffaf0;--t4:#cfc7ba;--t3:#a39b90;--t2:#7a736b;--t1:#4d4844}
@@ -474,8 +474,8 @@ function scFit(s,max,start,min=24){let z=start;while(scKgW(s,z)>max&&z>min)z-=2;
 function scPlate(c,p,no,x0,y0,w,h,s,pal){
   c.fillStyle="#0d0d0d";c.fillRect(x0,y0,w,h);
   c.strokeStyle="rgba(255,255,255,.028)";c.lineWidth=1;
-  
-  const bw=Math.round(210*s);c.fillStyle="#f4f2ea";c.beginPath();c.moveTo(x0,y0);c.lineTo(x0+bw+Math.round(10*s),y0);c.lineTo(x0+bw+Math.round(10*s),y0+h);c.lineTo(x0,y0+h);c.fill();
+  for(let k=-h;k<w;k+=Math.round(26*s)){c.beginPath();c.moveTo(x0+k,y0+h);c.lineTo(x0+k+Math.round(h*0.47),y0);c.stroke();}
+  const bw=Math.round(210*s);c.fillStyle="#f4f2ea";c.beginPath();c.moveTo(x0,y0);c.lineTo(x0+bw+Math.round(26*s),y0);c.lineTo(x0+bw-Math.round(8*s),y0+h);c.lineTo(x0,y0+h);c.fill();
   scKg(c,"登番",x0+bw/2,y0+h/2-Math.round(40*s),Math.round(30*s),"#5a5a5a",{anchor:"mm"});
   let ts=Math.round(70*s);while(scKgW(no,ts)>bw-Math.round(30*s)&&ts>20)ts-=2;
   scKg(c,no,x0+bw/2,y0+h/2+Math.round(26*s),ts,"#0d0d0d",{anchor:"mm"});
@@ -491,7 +491,7 @@ function scPlate(c,p,no,x0,y0,w,h,s,pal){
     scKg(c,n,x,ny,size,pal.NAME,{ls:-size*0.02,stroke:Math.max(2,Math.round(3*s)),sf:"#fff"});x+=wN+gap;});
   if(p.tag){let tz=Math.round(40*s);while(scKgW(p.tag,tz)>w-bw-Math.round(80*s)&&tz>18)tz-=2;
     const ty=Math.min(ny+size+Math.round(20*s),y0+h-tz-Math.round(18*s));scKg(c,p.tag,gx+gw,ty,tz,"#fff",{anchor:"ra"});}
-  const sk=0,t=Math.round(11*s);
+  const sk=Math.round(w*0.024),t=Math.round(11*s);
   c.fillStyle="#e2353b";c.beginPath();c.moveTo(x0,y0+h+sk);c.lineTo(x0+w,y0+h);c.lineTo(x0+w,y0+h+t);c.lineTo(x0,y0+h+sk+t);c.fill();
   c.fillStyle="#0d0d0d";c.beginPath();c.moveTo(x0,y0+h);c.lineTo(x0+w,y0+h);c.lineTo(x0,y0+h+sk);c.fill();
 }
@@ -523,7 +523,7 @@ const AVL=k=>k.startsWith("co")?"全国平均":"全選手平均";
 function tagAvg(k,Wk){const p=(D.win[Wk].tagPrior||{})[k];return p?p[0]/(p[0]+p[1])*100:null;}
 function scPicks(w,P){const t=tagList(w,P,"y1");return [t.wp,...t.rest,...t.sub].filter(Boolean);}
 function scLine(c,x1,y1,x2,y2,col,lw=2){c.strokeStyle=col;c.lineWidth=lw;c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();}
-function scMark(c,y,col="#ffd23f"){c.fillStyle=col;c.beginPath();c.fillRect(36,y+12,12,38);}
+function scMark(c,y,col="#ffd23f"){c.fillStyle=col;c.beginPath();c.moveTo(40,y+12);c.lineTo(52,y+12);c.lineTo(46,y+50);c.lineTo(34,y+50);c.fill();}
 function drawStory(no,kuro){
   const P=D.players[no],w=P.w.y1,Wn=D.win.y1,pal=scPal(kuro),TCp=pal.TC,SUB=pal.SUB,INK=pal.INK,YEL=pal.ACC;
   const cv=document.createElement("canvas");cv.width=1080;cv.height=1350;const c=cv.getContext("2d");
@@ -551,7 +551,7 @@ function drawStory(no,kuro){
    else{const its=Object.entries(w.it||{});if(its.length){const [k,x]=its.sort((a,b)=>b[1][4]-a[1][4])[0];if(x[2]<=30){lab=LAB[k].replace("<br>","");top=x[2];desc=`6項目の中でいちばん上位（偏差値 ${x[4].toFixed(1)}）`;}}}
    if(lab){const col=TCp[tier(top)],rk=rl(top),rkw=scKgW(rk,Math.round(big*0.55)),z=scFit(lab,(x1-x0)-80-rkw,big);
      const ly=y0+18+small+Math.round((big-z)*0.6);scKg(c,lab,x0,ly,z,INK);scKg(c,rk,x1,y0+18+small+Math.round(big*0.32),Math.round(big*0.55),col,{anchor:"ra"});
-     const sy=y0+18+small+big+8,sw=Math.min(x1-x0-10,scKgW(lab,z)+40);c.fillStyle="#e2353b";c.beginPath();c.fillRect(x0,sy,x1-x0,12);
+     const sy=y0+18+small+big+8,sw=Math.min(x1-x0-10,scKgW(lab,z)+40);c.fillStyle="#e2353b";c.beginPath();c.moveTo(x0+6,sy+12);c.lineTo(x1-6,sy+12);c.lineTo(x1,sy);c.lineTo(x0+12,sy);c.fill();
      scFitTxt(c,desc,x0,sy+24,small,SUB,x1-x0);}
    else scTxt(c,"上位20%以内の持ち味は、この期間はなし",x0,y0+60,28,SUB);}
   y+=208;
