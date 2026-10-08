@@ -187,7 +187,8 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 :root{--gap:16px;--rule:rgba(255,255,255,.14);--rule2:rgba(255,255,255,.07)}
 .card{border-radius:2px;box-shadow:0 18px 40px -22px rgba(4,30,34,.95),0 0 0 1px rgba(0,0,0,.25)}
 .plate{position:relative;background:#0b0b0b;border-bottom:0!important;padding-bottom:14px;overflow:hidden}
-.plate::after{content:"";position:absolute;left:-20px;right:-20px;bottom:0;height:9px;background:#e2353b;}
+.plate::after{content:"";position:absolute;left:-20px;right:-20px;bottom:0;height:9px;background:#e2353b;transform:skewY(-1.4deg);transform-origin:left bottom}
+.plate::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,transparent 0 22px,rgba(255,255,255,.025) 22px 23px);pointer-events:none}
 .plate .toban{padding-right:16px;background:#f4f2ea}
 .plate .meta{letter-spacing:.06em;font-size:11.5px;color:#9a9a9a}
 .plate .grade{border-width:2px;font-size:20px;padding:0 7px;align-self:flex-start;margin-top:14px}
@@ -197,7 +198,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .hero>.hT+.hT{border-left:1px solid var(--rule);padding-left:14px}
 .hW{grid-column:1/-1;display:grid!important;grid-template-columns:1fr auto;align-items:end;column-gap:10px;margin-top:18px;padding-bottom:4px!important}
 .hW .wv{color:var(--needle)}
-.hW .slash{grid-column:1/-1;height:9px;background:var(--buoyR);margin:6px 0 4px;width:100%}
+.hW .slash{grid-column:1/-1;height:9px;background:var(--buoyR);transform:skewX(-28deg);transform-origin:left;margin:6px 0 4px 4px;width:calc(100% - 10px)}
 .hW .hk,.hW .hs{grid-column:1/-1}
 .hk{font-size:10.5px;font-weight:900;letter-spacing:.24em;color:var(--wSub)}
 .hv,.wv{line-height:0;display:flex;align-items:flex-end;gap:4px}
@@ -211,7 +212,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .hkS{font-size:11.5px;font-weight:700;letter-spacing:.04em;margin-left:6px;color:var(--wInk)}
 .sec{border-bottom:1px solid var(--rule);padding-bottom:6px;align-items:center}
 .sec b{position:relative;padding-left:12px}
-.sec b::before{content:"";position:absolute;left:0;top:50%;width:6px;height:16px;margin-top:-8px;background:var(--buoyR)}
+.sec b::before{content:"";position:absolute;left:0;top:50%;width:6px;height:16px;margin-top:-8px;background:var(--buoyR);transform:skewX(-14deg)}
 .sec small{margin-left:auto;text-align:right;font-size:10.5px;letter-spacing:.02em}
 .key{gap:4px 14px;font-size:10.5px}
 .mt{padding:9px 0;border-bottom:1px solid var(--rule2)}
@@ -225,7 +226,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .share a:first-child{background:var(--needle);color:#121212}
 .foot{border-top:1px solid var(--rule)}
 .vsHead{border-bottom:0!important;position:relative;padding-bottom:12px}
-.vsHead::after{content:"";position:absolute;left:-20px;right:-20px;bottom:0;height:9px;background:#e2353b}
+.vsHead::after{content:"";position:absolute;left:-20px;right:-20px;bottom:0;height:9px;background:#e2353b;transform:skewY(-1.4deg);transform-origin:left bottom}
 .vsHead .x{padding:0 18px}
 
 /* 地色の見比べ用 */
