@@ -75,12 +75,17 @@ jobs:
         env:
           SENSHU_EXTEND_HIST: "1"
         run: python3 scripts/senshuCard/build.py "${{ steps.d.outputs.last }}" /tmp/senshuRaw docs/players/card
+      - name: share pages
+        if: steps.d.outputs.run == '1'
+        run: |
+          pip install pillow==12.3.0
+          python3 scripts/senshuCard/sharePages.py docs/players/card
       - name: commit
         if: steps.d.outputs.run == '1'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/players/card/common.json docs/players/card/index.json docs/players/card/p docs/players/card/h2h data/senshuCard/finalsHistory.json
+          git add docs/players/card/common.json docs/players/card/index.json docs/players/card/p docs/players/card/h2h docs/players/card/s docs/players/card/og data/senshuCard/finalsHistory.json
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
           git commit -m "auto: 選手カード 週ごとの更新 (${{ steps.d.outputs.last }})"
           for i in 1 2 3; do
