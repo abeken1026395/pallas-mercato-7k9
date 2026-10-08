@@ -471,7 +471,7 @@ function scTxt(c,s,x,y,px,fill,an="la",bold=true){
 }
 function scTw(c,s,px){c.font=`700 ${px}px ${SC_UI}`;return c.measureText(s).width;}
 function scFit(s,max,start,min=24){let z=start;while(scKgW(s,z)>max&&z>min)z-=2;return z;}
-function scPlate(c,p,no,x0,y0,w,h,s,pal){
+function scPlate(c,p,no,x0,y0,w,h,s,pal,oy=0){
   c.fillStyle="#0d0d0d";c.fillRect(x0,y0,w,h);
   c.strokeStyle="rgba(255,255,255,.028)";c.lineWidth=1;
   for(let k=-h;k<w;k+=Math.round(26*s)){c.beginPath();c.moveTo(x0+k,y0+h);c.lineTo(x0+k+Math.round(h*0.47),y0);c.stroke();}
@@ -479,13 +479,13 @@ function scPlate(c,p,no,x0,y0,w,h,s,pal){
   scKg(c,"登番",x0+bw/2,y0+h/2-Math.round(40*s),Math.round(30*s),"#5a5a5a",{anchor:"mm"});
   let ts=Math.round(70*s);while(scKgW(no,ts)>bw-Math.round(30*s)&&ts>20)ts-=2;
   scKg(c,no,x0+bw/2,y0+h/2+Math.round(26*s),ts,"#0d0d0d",{anchor:"mm"});
-  const gpx=Math.round(40*s),gw=scTw(c,p.rank,gpx)+Math.round(24*s),gx=x0+w-gw-Math.round(24*s),gy=y0+Math.round(30*s);
+  const gpx=Math.round(40*s),gw=scTw(c,p.rank,gpx)+Math.round(24*s),gx=x0+w-gw-Math.round(24*s),gy=y0+oy+Math.round(30*s);
   c.strokeStyle="#fff";c.lineWidth=Math.round(4*s);c.strokeRect(gx,gy,gw,Math.round(58*s));
   scTxt(c,p.rank,gx+gw/2,gy+Math.round(29*s)-gpx*0.62,gpx,"#fff","ma");
   const nx=x0+bw+Math.round(34*s),avail=gx-nx-Math.round(20*s),np=p.np||[p.name],kp=p.kp||[""];
   let size=Math.round((p.tag?96:118)*s),gap;
   while(true){gap=Math.round(size*0.28);const tot=np.reduce((a,n)=>a+scKgW(n,size,-size*0.02),0)+gap*(np.length-1);if(tot<=avail||size<40)break;size-=4;}
-  const ny=y0+Math.round(70*s);let x=nx;const rpx=Math.max(18,Math.round(size*0.27));
+  const ny=y0+oy+Math.round(70*s);let x=nx;const rpx=Math.max(18,Math.round(size*0.27));
   np.forEach((n,i)=>{const wN=scKgW(n,size,-size*0.02);
     if(kp[i])scKg(c,kp[i],x+wN/2,ny-Math.round(6*s),rpx,pal.NAME,{anchor:"ms",stroke:Math.max(1,Math.round(2*s)),sf:"#fff"});
     scKg(c,n,x,ny,size,pal.NAME,{ls:-size*0.02,stroke:Math.max(2,Math.round(3*s)),sf:"#fff"});x+=wN+gap;});
