@@ -1,0 +1,1728 @@
+<!-- データ攻め by あべけん https://abeken1026395.github.io/pallas-mercato-7k9/ -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<base href="../../torisetsu/">
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="author" content="あべけん（データ攻め）">
+<link rel="canonical" href="https://abeken1026395.github.io/pallas-mercato-7k9/torisetsu/">
+<meta name="description" content="データ攻めの取扱説明書です。はじめの3分の使い方、記号の意味、おかしく見えるときの読み方、12の画面の見かたを、図と番号で引けます。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="データ攻め トリセツ">
+<meta property="og:description" content="データ攻めの取扱説明書です。はじめの3分の使い方、記号の意味、おかしく見えるときの読み方、12の画面の見かたを、図と番号で引けます。">
+<meta property="og:image" content="https://abeken1026395.github.io/pallas-mercato-7k9/icon512.png">
+<meta property="og:url" content="https://abeken1026395.github.io/pallas-mercato-7k9/torisetsu/">
+<meta property="og:site_name" content="データ攻め">
+<meta name="twitter:card" content="summary">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>トリセツ | データ攻め</title>
+<link rel="preload" href="delaSub.woff2" as="font" type="font/woff2" crossorigin>
+<style>@font-face{font-family:'Dela Gothic One';font-weight:400;font-display:swap;src:url(delaSub.woff2) format('woff2')}</style>
+<style>
+:root{
+  --mizu:#0d2730;      /* 水の底：地 */
+  --mizuU:#143842;     /* 水面：引いた部分 */
+  --sen:#23606a;       /* レーンの線 */
+  --moji:#c3d0d0;
+  --mojiS:#8aa6aa;
+  --kigen:#e4ad4e;     /* 強調はこの1色だけ */
+  --disp:'Dela Gothic One','Hiragino Sans','Noto Sans JP',sans-serif;
+  --w1:#dfe6e6; --w1t:#10222a;
+  --w2:#2b3238; --w2t:#f3f6f6;
+  --w3:#cf4234; --w3t:#fff;
+  --w4:#3579c6; --w4t:#fff;
+  --w5:#ddb244; --w5t:#231c04;
+  --w6:#2f8f5f; --w6t:#fff;
+  --maru:14px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--mizu);color:var(--moji);
+  font-family:"Hiragino Sans","Noto Sans JP","Noto Sans CJK JP","Yu Gothic",sans-serif;
+  font-size:16.5px;line-height:1.88;font-weight:400;
+  letter-spacing:.01em;
+}
+.wrap{max-width:33em;margin:0 auto;padding:0 20px}
+img{max-width:100%;display:block}
+a{color:var(--kigen)}
+
+/* ── 水位：読んだ量 ───────────────────── */
+#gauge{position:fixed;top:0;left:0;height:3px;width:0;z-index:60;
+  background:var(--sen);opacity:.9;transition:width .12s linear}
+
+/* ── ヒーロー：6レーンのスタート ───────── */
+#hero{position:relative;overflow:hidden;padding:0 0 34px;
+  background:
+    radial-gradient(120% 60% at 50% 0%,#153c47 0%,rgba(13,39,48,0) 60%),
+    linear-gradient(180deg,#0a2028 0%,#0d2730 70%)}
+#hero::before{content:"";position:absolute;left:0;right:0;top:0;height:300px;
+  background:repeating-linear-gradient(180deg,rgba(255,255,255,.028) 0 1px,transparent 1px 34px);
+  pointer-events:none}
+#lanes{position:relative;height:246px;margin-bottom:22px;padding-top:30px}
+#lanes .ln{position:absolute;left:0;right:0;height:1px;background:var(--sen);opacity:.45}
+#lanes .st{position:absolute;top:22px;bottom:14px;left:78%;width:2px;
+  background:var(--kigen);opacity:.5}
+#lanes .bt{position:absolute;width:44px;height:27px;
+  clip-path:polygon(0 0,86% 0,100% 50%,86% 100%,0 100%,10% 50%);
+  display:flex;align-items:center;justify-content:center;padding-right:3px;
+  font-family:var(--disp);font-size:15px;line-height:1;
+  transform:translateX(-78px);opacity:0}
+#lanes .wake{position:absolute;height:2px;width:0;
+  background:linear-gradient(90deg,transparent,rgba(160,220,228,.34));opacity:0}
+.go #lanes .bt{animation:dash 1s cubic-bezier(.16,.86,.4,1) forwards}
+.go #lanes .wake{animation:wake 1s cubic-bezier(.16,.86,.4,1) forwards}
+@keyframes dash{from{transform:translateX(-78px);opacity:0}
+  45%{opacity:1}to{transform:translateX(0);opacity:1}}
+@keyframes wake{from{width:0;opacity:0}45%{opacity:.9}to{width:var(--wk);opacity:.55}}
+
+#hero h1{margin:0;font-family:var(--disp);font-weight:400;font-size:58px;color:#eef5f5;
+  letter-spacing:.01em;line-height:1.05;
+  text-shadow:4px 4px 0 rgba(228,173,78,.55)}
+#hero h1 small{display:block;font-family:var(--disp);font-size:15px;letter-spacing:.14em;
+  color:var(--kigen);margin-bottom:10px;text-shadow:none}
+#hero .cre{margin:18px 0 0;font-size:16px;color:var(--mojiS)}
+#hero .cre b{color:var(--moji);font-weight:700}
+#hero .date{margin:20px 0 0;font-size:13px;color:#6b8990}
+#ver{margin-left:10px;opacity:.75}
+
+/* ── 3つの入口 ───────────────────────── */
+.doors{display:grid;gap:10px;margin:24px 0 0}
+.door{position:relative;overflow:hidden;display:block;text-decoration:none;color:var(--moji);
+  background:linear-gradient(90deg,#123a45,#0f313b);
+  padding:16px 18px;border-radius:var(--maru);border:1px solid #1f515b}
+.door b{display:block;font-family:var(--disp);font-weight:400;font-size:19px;letter-spacing:.02em}
+.door span{font-size:14px;color:var(--mojiS)}
+.door i{position:absolute;right:10px;top:-10px;font-family:var(--disp);font-style:normal;
+  font-size:76px;line-height:1;color:rgba(228,173,78,.13);pointer-events:none}
+
+/* ── 部の扉 ──────────────────────────── */
+.partttl{margin:0;padding:64px 0 34px;border-top:1px solid var(--sen);position:relative;overflow:hidden}
+.partttl .no{font-family:var(--disp);font-size:13px;color:var(--kigen);letter-spacing:.16em}
+.partttl .nm{font-family:var(--disp);font-weight:400;font-size:40px;letter-spacing:.01em;
+  line-height:1.15;margin:6px 0 12px;color:#eef5f5}
+.partttl::before{content:attr(data-n);position:absolute;right:-6px;top:22px;
+  font-family:var(--disp);font-size:150px;line-height:1;color:rgba(228,173,78,.07);pointer-events:none}
+.partttl .cap{font-size:15px;color:var(--mojiS);line-height:1.8}
+.bg1 .nm,.bg2 .nm,.bg3 .nm{color:#e6eeee}
+
+/* ── 見出し ──────────────────────────── */
+h3.step,h3.pg{position:sticky;top:0;z-index:30;margin:38px 0 14px;
+  padding:12px 0 10px;background:var(--mizu);
+  font-family:var(--disp);font-weight:400;font-size:21px;letter-spacing:.01em;line-height:1.3;color:#eef5f5;
+  border-bottom:1px solid var(--sen);
+  display:flex;align-items:center;gap:10px}
+h3.step .n{flex:none;width:30px;height:30px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;font-family:var(--disp)}
+h3.pg::before{content:"";flex:none;width:6px;height:25px;border-radius:3px;background:#36808a}
+h3 .tag{flex:none;margin-left:auto;font-size:12px;font-weight:700;letter-spacing:0;
+  font-family:"Hiragino Sans","Noto Sans JP","Noto Sans CJK JP",sans-serif;
+  color:var(--mojiS);border:1px solid var(--sen);border-radius:999px;padding:2px 9px}
+h3 .tag.new{color:var(--kigen);border-color:var(--kigen)}
+h4{margin:30px 0 8px;font-size:17px;font-weight:700;letter-spacing:0;color:#9fc0c4}
+p{margin:0 0 14px}
+.small{font-size:14px;color:var(--mojiS);line-height:1.8}
+
+/* ── 枠色（番号・縁） ────────────────── */
+.k1{background:var(--w1);color:var(--w1t)}.k2{background:var(--w2);color:var(--w2t);box-shadow:inset 0 0 0 1px #6f7c86}
+.k3{background:var(--w3);color:var(--w3t)}.k4{background:var(--w4);color:var(--w4t)}
+.k5{background:var(--w5);color:var(--w5t)}.k6{background:var(--w6);color:var(--w6t)}
+
+/* ── 写真と番号の対応 ────────────────── */
+figure{margin:18px 0}
+figure img{cursor:zoom-in;background:#0d2730;filter:saturate(.92) brightness(.97)}
+figcaption{margin-top:7px;font-size:13.5px;color:var(--mojiS)}
+ol.lg{counter-reset:c;list-style:none;margin:10px 0 18px;padding:0}
+ol.lg>li{counter-increment:c;position:relative;padding:9px 0 9px 40px;cursor:pointer;
+  border-bottom:1px solid rgba(29,90,99,.45);font-size:16px;line-height:1.75}
+ol.lg>li:last-child{border-bottom:0}
+ol.lg>li::before{content:counter(c);position:absolute;left:0;top:10px;
+  width:26px;height:26px;border-radius:50%;box-sizing:border-box;
+  border:2px solid var(--kigen);color:var(--kigen);background:transparent;
+  font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;
+  transition:background-color .15s,color .15s}
+ol.lg>li.on{background:rgba(228,173,78,.07);box-shadow:inset 3px 0 0 var(--kigen)}
+ol.lg>li.on::before{background:var(--kigen);color:#241900;box-shadow:0 0 0 4px rgba(228,173,78,.22)}
+ul{margin:10px 0 16px;padding-left:1.25em}
+li{margin-bottom:6px}
+
+/* ── 囲み ────────────────────────────── */
+.use,.miss{margin:18px 0;padding:14px 16px;font-size:15.5px;line-height:1.8}
+.use{background:rgba(255,255,255,.035);border-left:3px solid #4a8a94}
+.miss{background:rgba(255,255,255,.035);border-left:3px solid var(--kigen)}
+.use b,.miss b{display:block;font-family:var(--disp);font-weight:400;font-size:13px;letter-spacing:.08em;margin-bottom:6px}
+.use b{color:#9fc6cc}.miss b{color:var(--kigen)}
+.sign{margin:22px 0;padding:16px;background:var(--mizuU);border-radius:var(--maru);
+  font-size:15.5px;line-height:1.8}
+.end{margin:34px 0 0;padding:26px 0;border-top:1px solid var(--sen);
+  font-size:15px;color:var(--mojiS)}
+
+/* ── Q&A：押すと開く ─────────────────── */
+.sy{border-bottom:1px solid rgba(29,90,99,.55)}
+.sy .q{margin:0;padding:15px 34px 15px 0;position:relative;cursor:pointer;
+  font-size:17px;font-weight:700;line-height:1.6;list-style:none;transition:padding .2s}
+.sy.open .q{padding-left:14px;box-shadow:inset 3px 0 0 var(--kigen);color:#eef5f5}
+.sy.open .a>div{padding-left:14px}
+.sy .q::after{content:"";position:absolute;right:6px;top:22px;
+  width:9px;height:9px;border-right:2px solid var(--kigen);border-bottom:2px solid var(--kigen);
+  transform:rotate(45deg);transition:transform .22s ease}
+.sy.open .q::after{transform:rotate(-135deg)}
+.sy .a{overflow:hidden;max-height:0;transition:max-height .28s ease}
+.sy .a>div{padding:0 0 15px;font-size:16px;line-height:1.85;color:#b8cacb}
+
+/* ── 記号の表 ────────────────────────── */
+table.sym{width:100%;border-collapse:collapse;margin:10px 0 20px;font-size:15.5px}
+table.sym td{padding:10px 8px;border-bottom:1px solid rgba(29,90,99,.5);vertical-align:top;line-height:1.7}
+table.sym td.k{width:6.4em;white-space:nowrap}
+.chip{display:inline-block;padding:2px 8px;border-radius:4px;color:#fff;
+  font-size:13px;font-weight:700;line-height:1.6}
+.chipo{display:inline-block;padding:2px 8px;border-radius:4px;border:1px solid;
+  font-size:13px;font-weight:700;line-height:1.6}
+.waku{display:inline-block;width:34px;height:34px;line-height:34px;text-align:center;
+  border-radius:5px;font-weight:900;margin:0 3px;font-size:17px}
+.w1{background:var(--w1);color:var(--w1t)}.w2{background:var(--w2);color:var(--w2t);box-shadow:inset 0 0 0 1px #6f7c86}
+.w3{background:var(--w3);color:var(--w3t)}.w4{background:var(--w4);color:var(--w4t)}
+.w5{background:var(--w5);color:var(--w5t)}.w6{background:var(--w6);color:var(--w6t)}
+.kim{display:inline-block;width:46px;height:13px;border-radius:2px}
+
+/* ── もくじ ──────────────────────────── */
+#toc{position:fixed;left:0;right:0;bottom:0;height:90vh;z-index:70;background:#0b222a;
+  border-radius:24px 24px 0 0;border-top:1px solid #2a6470;
+  box-shadow:0 -12px 40px rgba(0,0,0,.5);
+  overflow-y:auto;transform:translateY(100%);transition:transform .3s cubic-bezier(.2,.8,.3,1);
+  -webkit-overflow-scrolling:touch}
+#toc::before{content:"";position:sticky;top:10px;display:block;width:44px;height:5px;
+  margin:0 auto;border-radius:3px;background:#2f6a75;z-index:1}
+#shade{position:fixed;inset:0;z-index:69;background:rgba(3,14,18,.55);
+  opacity:0;pointer-events:none;transition:opacity .3s}
+#shade.on{opacity:1;pointer-events:auto}
+#toc.on{transform:translateY(0)}
+#toc .inr{max-width:33em;margin:0 auto;padding:12px 20px 120px}
+#toc h2{font-family:var(--disp);font-weight:400;font-size:26px;letter-spacing:.02em;margin:0 0 4px}
+#toc .gp{margin:28px 0 8px;font-family:var(--disp);font-size:12px;letter-spacing:.14em;color:var(--kigen)}
+#toc a{display:flex;gap:11px;align-items:center;padding:11px 0;
+  border-bottom:1px solid rgba(29,90,99,.45);color:var(--moji);
+  text-decoration:none;font-size:17px;font-weight:700}
+#toc a i{flex:none;width:24px;height:24px;border-radius:50%;font-style:normal;
+  font-family:var(--disp);font-size:11px;display:flex;align-items:center;justify-content:center}
+#toc a i.dot{width:10px;height:10px;margin:0 7px;background:#2d7b84}
+#toc a i.bar{width:5px;height:19px;border-radius:3px;margin:0 9.5px;background:#2d7b84}
+#toc .gp.hide,#toc a.hide{display:none}
+#srch{width:100%;margin:14px 0 0;padding:13px 14px;font-size:17px;
+  background:var(--mizuU);color:var(--moji);border:1px solid var(--sen);border-radius:10px;
+  font-family:inherit}
+#srch::placeholder{color:#6b8f94}
+#hit{margin:8px 0 0;font-size:13px;color:var(--mojiS);min-height:1.6em}
+
+/* ── 下の帯 ──────────────────────────── */
+#bar{position:fixed;left:16px;right:16px;bottom:calc(14px + env(safe-area-inset-bottom));
+  z-index:65;display:flex;border-radius:999px;overflow:hidden;
+  background:rgba(14,44,53,.92);border:1px solid #2a6470;
+  box-shadow:0 10px 30px rgba(0,0,0,.45);backdrop-filter:blur(10px)}
+#bar button{flex:1;background:none;border:0;color:var(--moji);min-width:0;
+  font-family:inherit;font-size:14.5px;font-weight:700;padding:15px 4px;cursor:pointer;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#bar #bBack{color:var(--kigen)}
+#siteTop{position:absolute;left:12px;top:4px;z-index:2;display:inline-flex;align-items:center;
+  min-height:44px;padding:0 8px;font-size:13px;color:var(--mojiS);
+  text-decoration:underline;text-underline-offset:3px}
+#bar button+button{border-left:1px solid #2a6470}
+#bar button:active{background:rgba(228,173,78,.14)}
+
+/* ── 写真の拡大 ──────────────────────── */
+#zoom{position:fixed;inset:0;z-index:90;background:rgba(9,28,35,.97);
+  display:none;align-items:center;justify-content:center;padding:12px;cursor:zoom-out}
+#zoom.on{display:flex}
+#zoom img{max-width:100%;max-height:92vh;object-fit:contain;border:1px solid var(--sen)}
+
+.sec{position:relative}
+ol.lg>li>b{display:block;color:#dde8e8;font-size:16.5px;margin-bottom:1px}
+
+/* ── 図の順番再生 ───────────────────── */
+.playbtn{display:inline-flex;align-items:center;gap:8px;margin:2px 0 0;
+  background:none;border:1px solid var(--sen);color:var(--moji);
+  font-family:inherit;font-size:14px;font-weight:700;
+  padding:7px 14px;border-radius:999px;cursor:pointer}
+.playbtn::before{content:"";width:0;height:0;border-left:9px solid var(--kigen);
+  border-top:6px solid transparent;border-bottom:6px solid transparent}
+.playbtn.on::before{width:9px;height:11px;border:0;background:var(--kigen);border-radius:1px}
+figure.play{position:sticky;top:54px;z-index:20;
+  background:var(--mizu);padding-bottom:8px;margin-bottom:10px}
+figure.play figcaption{display:none}
+.vp{position:relative;overflow:hidden;border-radius:16px;border:1px solid #2a5c66;
+  box-shadow:0 10px 30px rgba(0,0,0,.35),inset 0 0 0 1px rgba(255,255,255,.04)}
+figure.play .vp{background:#0d2730;border-color:#3d7c87}
+.pan{position:relative;transition:transform .6s cubic-bezier(.3,.85,.3,1)}
+.pan img{display:block;width:100%;border:0}
+.hot{position:absolute;transform:translate(-50%,-50%);border-radius:50%;
+  background:transparent;border:0;padding:0;margin:0;cursor:pointer}
+.hot:focus-visible{outline:2px solid var(--kigen)}
+figure.play .pan img{filter:none}
+.ring{position:absolute;border-radius:50%;pointer-events:none;
+  border:3px solid #fff;opacity:0;transition:opacity .2s;
+  box-shadow:0 0 0 5px rgba(228,173,78,.85),0 0 22px rgba(228,173,78,.55)}
+figure.play .ring{opacity:1;animation:ping 2.4s ease-out infinite}
+@keyframes ping{0%{transform:translate(-50%,-50%) scale(1)}
+  16%{transform:translate(-50%,-50%) scale(1.25)}
+  38%{transform:translate(-50%,-50%) scale(1)}}
+.ring{transform:translate(-50%,-50%)}
+.cue{position:absolute;right:10px;top:10px;width:34px;height:34px;border-radius:50%;
+  background:var(--kigen);color:#241900;font-weight:900;font-size:17px;
+  display:none;align-items:center;justify-content:center;
+  box-shadow:0 0 0 5px rgba(228,173,78,.25)}
+figure.play .cue{display:flex;animation:pop .3s ease}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+figure{position:relative}
+
+/* ── 部の扉：線が引かれる ───────────── */
+.partttl{position:relative}
+.partttl::after{content:"";position:absolute;left:0;bottom:16px;height:2px;width:0;
+  background:linear-gradient(90deg,var(--kigen),transparent);transition:width 1.1s cubic-bezier(.16,.86,.4,1)}
+.partttl.seen::after{width:78%}
+
+/* ── 答えが開いたときの一瞬の光 ─────── */
+@keyframes flash{from{background:rgba(228,173,78,.16)}to{background:transparent}}
+.sy.just .a>div{animation:flash .9s ease-out}
+
+/* ── もくじ：下から順に ─────────────── */
+#toc.on #list>*{animation:rise .34s cubic-bezier(.2,.8,.3,1) backwards}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+#lanes{cursor:pointer}
+
+
+/* ── 送りの残り時間が帯で出る ───────── */
+.playbtn{position:relative;overflow:hidden}
+.playbtn .bar{position:absolute;left:0;top:0;bottom:0;width:0;
+  background:rgba(228,173,78,.22);pointer-events:none}
+.playbtn.on .bar{animation:fill 2.4s linear infinite}
+@keyframes fill{from{width:0}to{width:100%}}
+.nav{display:none;gap:8px;margin:10px 0 0 8px;vertical-align:middle}
+figure .playbtn{margin-top:10px}
+.nav.on{display:inline-flex}
+.nav button{width:38px;height:38px;border-radius:50%;background:none;
+  border:1px solid var(--sen);color:var(--moji);font-size:15px;
+  font-family:inherit;cursor:pointer;position:relative;overflow:hidden}
+
+/* ── 貼りついた見出しは細くなる ─────── */
+h3.step,h3.pg{transition:padding .22s ease,font-size .22s ease}
+h3.stuck{font-size:17px;padding:9px 0 8px;border-bottom-color:var(--kigen)}
+h3.stuck .n{width:24px;height:24px;font-size:13px}
+h3.stuck::before{height:19px}
+figure.play{top:46px}
+
+/* ── 押したときの手ごたえ ──────────── */
+*{-webkit-tap-highlight-color:transparent}
+.playbtn,.nav button,#bar button,.door,#toc a,.sy .q{
+  transition:transform .09s ease,background-color .09s ease,border-color .09s ease}
+.playbtn:active,.nav button:active{transform:scale(.94);border-color:var(--kigen)}
+.door:active{transform:scale(.985);background:#19424d}
+.sy .q:active{color:var(--kigen)}
+figure img:active{opacity:.82}
+
+/* ── 水紋：ポワンと広がって薄く消える ── */
+#ripL{position:fixed;top:0;left:0;right:0;bottom:0;z-index:999;
+  pointer-events:none;overflow:hidden}
+.rip{position:absolute;border-radius:50%;box-sizing:border-box;
+  transform:translate(-50%,-50%);
+  width:14px;height:14px;opacity:0;
+  border:4px solid rgba(228,173,78,.62);
+  box-shadow:0 0 14px rgba(228,173,78,.45),inset 0 0 14px rgba(228,173,78,.35);
+  animation:rip 1.15s linear forwards}
+.rip.r2{animation-delay:.13s;animation-duration:1.3s;border-color:rgba(228,173,78,.45)}
+
+@keyframes rip{
+  0%  {width:14px; height:14px; opacity:0;   border-width:4px}
+  7%  {opacity:1}
+  25% {width:118px;height:118px;border-width:3px}
+  55% {width:184px;height:184px;opacity:.55;border-width:2px}
+  100%{width:238px;height:238px;opacity:0;   border-width:1px}
+}
+
+/* ── 水位の先に艇の点 ───────────────── */
+#gauge{position:fixed;overflow:visible}
+#gauge::after{content:"";position:absolute;right:-2px;top:-2px;
+  width:7px;height:7px;border-radius:50%;background:var(--kigen);
+  box-shadow:0 0 10px rgba(228,173,78,.9)}
+
+/* ── スタートラインの揺らぎ（ヒーローだけ） ── */
+#lanes .st{animation:sway 5.5s ease-in-out infinite}
+@keyframes sway{0%,100%{opacity:.35}50%{opacity:.7}}
+
+main{padding-bottom:112px}
+@media (max-width:380px){
+  body{font-size:16px}#hero h1{font-size:33px}.partttl .nm{font-size:29px}
+  h3.step,h3.pg{font-size:22px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  #lanes .bt{transform:none;opacity:1}
+}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../next/aiNashi2/aiNashi2.css">
+</head>
+<body>
+<div class="aiNashiNote">実験場の試作（AI臭さを消す型・第2案）：トリセツ。<a href="./">本番のこのページ</a>　<a href="../next/aiNashi2/">試作の一覧</a></div>
+<div id="gauge"></div>
+
+<section id="hero">
+  <a id="siteTop" href="../">← データ攻め トップ</a>
+  <div id="lanes"></div>
+  <div class="wrap">
+    <h1><small>データ攻め</small>トリセツ</h1>
+    <p class="cre"><b>材料はそろえた。決めるのは、あなた。</b><br>
+    このサイトの記号と画面の見かたを、ここに全部置いています。</p>
+    <div class="doors">
+      <a class="door d1" href="#p1"><i>1</i><b>はじめの3分</b><span>まずここだけ。5つの手順です</span></a>
+      <a class="door d2" href="#p2"><i>2</i><b>困ったとき</b><span>記号の意味／画面がおかしく見えるとき</span></a>
+      <a class="door d3" href="#p3"><i>3</i><b>画面の辞書</b><span>12の画面を1つずつ。引いてください</span></a>
+    </div>
+    <p class="date">2026年9月30日の画面です（出走表とモーターは10月1日）</p>
+  </div>
+</section>
+
+<main class="wrap">
+
+<section class="sec">
+<div class="partttl bg1" id="p1" data-n="1">
+  <div class="no">第1部</div>
+  <div class="nm">はじめの3分</div>
+  <div class="cap">ここだけ読めば、今日から使えます。<br>あとは、分からない画面が出たときに開いてください。</div>
+</div>
+
+</section>
+<section class="sec">
+<h3 class="step" id="s11"><span class="n k1">1</span>ホーム画面に置く</h3>
+<p>トップページを開きます。iPhone なら共有ボタンを押して「ホーム画面に追加」を選びます。</p>
+<p>アプリと同じように、一回で開けるようになります。毎朝見るなら、これが一番早いです。</p>
+
+<figure>
+  <img src="img/figTopNav.jpg" loading="lazy" alt="">
+  <figcaption>トップページの上のほうです。</figcaption>
+</figure>
+<ol class="lg">
+  <li><b>このサイトの立場</b>材料はそろえた。決めるのは、あなた。買い目と予想は出しません。</li>
+  <li><b>トリセツの入口</b>このページです。迷ったらここへ戻れます。</li>
+  <li><b>よく使う6ページ</b>出走表・見どころ・結果・モーター・選手・24場。ここから一回で飛べます。</li>
+  <li><b>更新のお知らせ</b>今日、何を変えたか。押すと詳しく出ます。</li>
+  <li><b>今日の開催</b>次で説明します。</li>
+  <li><b>日付と数</b>今日は何場で何レースあるか。</li>
+  <li><b>場の札</b>大きな大会（G1・G3）や、優勝戦・初日がひと目で分かります。</li>
+  <li><b>残りの場</b>「ほか」に続けて名前が並びます。</li>
+</ol>
+
+</section>
+<section class="sec">
+<h3 class="step" id="s12"><span class="n k2">2</span>トップで今日の開催を見る</h3>
+<p>トップを開くだけで、今日どこでレースがあるか分かります。毎朝4時ごろに新しくなります。</p>
+
+<figure>
+  <img src="img/figTopKaisai.jpg" loading="lazy" alt="">
+  <figcaption>開催欄の下のほうです。</figcaption>
+</figure>
+<ol class="lg">
+  <li><b>今日の山場</b>優勝戦・準優勝戦などを、締切の早い順に出します。押すとそのレースへ行けます。</li>
+  <li><b>ドリーム戦・女子戦</b>押すと一覧が開きます。</li>
+  <li><b>今日の見どころを読む</b>見どころのページへ行きます。</li>
+  <li><b>ホーム画面に置く案内</b>これです。</li>
+  <li><b>朝の見立ては当たっているか</b>次で説明します。</li>
+  <li><b>前の日の答え合わせ</b>昨日の結果です。</li>
+</ol>
+<p class="small">今週の SG・G1 も、この欄にまとめて出ます。</p>
+
+</section>
+<section class="sec">
+<h3 class="step" id="s13"><span class="n k3">3</span>答え合わせの帯を読む</h3>
+<p>このサイトは毎朝、その日の全部のレースを3つに分けます。「荒れる」「混戦」「堅め」の3つです。</p>
+<p>分け方は機械が決めます。<b>管理人の予想ではありません。</b></p>
+<p>そして夜、実際の結果と比べます。当たった割合をトップに出しています。</p>
+
+<figure>
+  <img src="img/figTopKensho.jpg" loading="lazy" alt="">
+  <figcaption>答え合わせの帯です。</figcaption>
+</figure>
+<ol class="lg">
+  <li><b>いつ採点したか</b>前の日の夜に採点しています。</li>
+  <li><b>前の日の結果</b>その日の全レース数。</li>
+  <li><b>「荒れる」と見た本数と、実際に荒れた本数</b></li>
+  <li><b>「堅め」と見た本数と、実際に堅く決まった本数</b></li>
+  <li><b>その日ぜんたい</b>分けていないレースも入れた数です。見立てと比べられます。</li>
+  <li><b>通して見た結果</b>始めてからの全部です。</li>
+  <li><b>2つの数字</b>上が見立てたレース、下が全レース。<b>上が下より大きければ、見立てが効いています。</b></li>
+</ol>
+
+<h4>3つの言葉の意味</h4>
+<ul>
+  <li><b>荒れる</b>3連単の払戻が5,000円以上になること</li>
+  <li><b>堅め</b>3連単の払戻が5,000円より安いこと</li>
+  <li><b>混戦</b>どちらとも言っていないレース。答え合わせには入りません</li>
+</ul>
+
+<div class="use">
+  <b>ここが大事です</b>
+  「荒れる」と見たレースの約3分の2は、荒れていません。<br>
+  その数字も消さずに出しています。「数え方を見る」を押すと、分母まで全部出ます。
+</div>
+<p class="small">分け方は 2026年9月30日から新しくなりました。前の分け方で判定したものも、結果が出たあとに直すことはしていません。</p>
+
+</section>
+<section class="sec">
+<h3 class="step" id="s14"><span class="n k4">4</span>自分の場と好きな選手を登録する</h3>
+
+<h4>場を登録する</h4>
+<p>「24場のトリセツ」を開いて、よく行く場のピンの印を押します。</p>
+<p>登録すると、<b>出走表・モーター・見どころで、その場が一番上に出ます。</b>毎朝さがす手間がなくなります。</p>
+
+<h4>好きな選手を登録する</h4>
+<p>出走表か選手図鑑を開きます。選手の名前の横に<b>☆</b>があります。押すと⭐に変わります。これで登録できました。</p>
+<p>登録すると、見どころで<b>その選手が出るレースだけ</b>を選べます。</p>
+<p class="small">場も選手も、登録した情報はあなたのスマホの中だけに残ります。外には送りません。</p>
+
+</section>
+<section class="sec">
+<h3 class="step" id="s15"><span class="n k5">5</span>1日の見る順番</h3>
+<p>この順に見れば足ります。</p>
+
+<h4>前の日の夜</h4>
+<ul>
+  <li><b>見どころ</b>を開いて「明日」を押す<br>
+  明日どのレースが荒れそうか、条件が出ています。夜になるほど数が増えます。</li>
+</ul>
+
+<h4>当日の朝</h4>
+<ul>
+  <li><b>トップ</b>今日どこでやっているか、山場はどれか。</li>
+  <li><b>出走表</b>場を選んで、レースの6人を見ます。</li>
+  <li><b>見どころ</b>で「当日」を押す ── 荒れそうなレースが締切の早い順に並びます。</li>
+</ul>
+
+<h4>レースの前</h4>
+<ul>
+  <li><b>出走表のレース画面</b>荒れ具合・イン1着率・風・潮が1つの画面に出ます。</li>
+  <li><b>24場のトリセツ</b>その場の水質と風のクセを見ます。</li>
+</ul>
+
+<h4>レースのあと</h4>
+<ul>
+  <li><b>レース結果</b>着順・決まり手・払戻・そのときの水面が出ます。</li>
+  <li><b>万舟のツボ</b>その場がどのくらい荒れるかが出ます。</li>
+</ul>
+
+<h4>時間があるとき</h4>
+<ul>
+  <li><b>検証</b>よく言われる話を、実際に数えた読み物です。いま8本あります。</li>
+  <li><b>24場のトリセツ</b>の「観戦スポット」 ── その場に行くときに読みます。</li>
+  <li>選手図鑑 ／ 用語辞典 ／ 場の文化 ／ 実況アナ図鑑 ／ 選手占い</li>
+</ul>
+
+<div class="use">
+  <b>ここまでで足ります</b>
+  第2部と第3部は、分からない画面が出たときに開いてください。
+</div>
+
+
+</section>
+<section class="sec">
+<div class="partttl bg2" id="p2" data-n="2">
+  <div class="no">第2部</div>
+  <div class="nm">困ったとき</div>
+  <div class="cap">記号の意味が分からない。画面がおかしく見える。<br>ここから引いてください。</div>
+</div>
+
+</section>
+<section class="sec">
+<h3 class="step" id="s21">記号の見本</h3>
+<p>出走表と見どころで出てくる記号です。これだけ覚えれば読めます。</p>
+<p>見どころのページの上にある「このページの見方・記号」を押すと、同じ説明が画面にも出ます。</p>
+
+<figure>
+  <img src="img/figHlLegend.jpg" loading="lazy" alt="">
+  <figcaption>見どころの「このページの見方・記号」を開いたところ。</figcaption>
+</figure>
+<ol class="lg">
+  <li><b>機の枠の色</b>モーターの番号です。枠の色で、そのレース6艇の平均と比べた位置が分かります。</li>
+  <li><b>色を付けない場合</b>走った数が10より少ない機は、数が足りないので色を付けません。</li>
+  <li><b>地元</b>その選手の支部が、開催している場と同じです。</li>
+  <li><b>F と ST</b>F は今節フライングを持っています。ST は平均スタートが早い人です。</li>
+  <li><b>▲</b>その場での勝率が、全国の勝率より高い人です。その場が得意ということです。</li>
+  <li><b>荒れ・堅め</b>朝の分類です。<b>トップの答え合わせと同じものです。</b></li>
+  <li><b>①着外</b>1号艇が着外になりやすい度合いを、1から6の6段階で出したものです。</li>
+  <li><b>タブと二層</b>表に印、押すと中身。この作りは全部のページで同じです。</li>
+</ol>
+
+<h4>選手に付く印</h4>
+<table class="sym">
+  <tr><td class="k"><span class="chip" style="background:#1971c2">地元</span></td>
+      <td>支部が、開催している場と同じ</td></tr>
+  <tr><td class="k"><span class="chip" style="background:#e03131">F</span></td>
+      <td>今節フライングを持っている</td></tr>
+  <tr><td class="k"><span class="chip" style="background:#0c8599">ST</span></td>
+      <td>平均スタートが早い（0.15より早い人）</td></tr>
+  <tr><td class="k"><span style="color:#f08c00;font-size:16pt;font-weight:900">▲ ↑</span></td>
+      <td>その場での勝率が、全国の勝率より高い</td></tr>
+  <tr><td class="k"><span class="chip" style="background:#e64980">A1</span>
+      <span class="chip" style="background:#495057">B2</span></td>
+      <td>級別。A1・A2・B1・B2 の4つ</td></tr>
+</table>
+
+<h4>出走表とモーターの札の形</h4>
+<p>出走表とモーターでは、<b>札の形</b>で意味を分けています。</p>
+<table class="sym">
+  <tr><td class="k"><span class="chipo" style="color:#cdd6e0;border-color:#cdd6e0;border-style:dashed">最速ST</span></td>
+      <td>点線の札。<b>数字から出した判定</b>です。最速ST・鋭いST・当地得意・機力上位・超抜など</td></tr>
+  <tr><td class="k"><span class="chipo" style="color:#cdd6e0;border-color:#cdd6e0;border-radius:999px">地元</span></td>
+      <td>丸い札。支部が、開催している場と同じ</td></tr>
+  <tr><td class="k"><span class="chipo" style="color:#fff;border-color:#fff;border-width:2px">F</span></td>
+      <td>太い線の札。今期（級別審査の期間）にフライングを持っている。数字は本数</td></tr>
+</table>
+
+<h4>レースに付く印</h4>
+<table class="sym">
+  <tr><td class="k"><span class="chipo" style="color:#c9962a;border-color:#c9962a">荒れ</span></td>
+      <td>朝に「荒れる」と分けたレース</td></tr>
+  <tr><td class="k"><span class="chipo" style="color:#2f9e44;border-color:#2f9e44">堅め</span></td>
+      <td>朝に「堅め」と分けたレース</td></tr>
+  <tr><td class="k"><span class="chipo" style="color:#8a7a52;border-color:#8a7a52">①着外4</span></td>
+      <td><b>1号艇が着外になりやすい度合い</b>。1から6の6段階。<br>
+      数が大きいほど、1号艇が負けやすい形という意味です。<br>
+      <span class="small">確率ではありません。7つの条件から出した目安です。</span></td></tr>
+  <tr><td class="k"><span style="font-size:16pt">⚡</span></td>
+      <td>その場で、いちばん荒れそうなレース</td></tr>
+  <tr><td class="k"><span class="chip" style="background:#7048e8">G1</span></td>
+      <td>大きな大会。SG・G1・G2・G3・マスターズなどが出る</td></tr>
+</table>
+
+<h4>モーターの「機」の色</h4>
+<p>数字はモーターの番号です。<b>枠の色が、そのレース6艇の平均と比べた位置</b>です。</p>
+<table class="sym">
+  <tr><td class="k"><span class="chipo" style="color:#2f9e44;border-color:#2f9e44">機 27</span></td>
+      <td>6艇の平均より上（＋5％より上）</td></tr>
+  <tr><td class="k"><span class="chipo" style="color:#adb5bd;border-color:#adb5bd">機 27</span></td>
+      <td>平均と同じくらい</td></tr>
+  <tr><td class="k"><span class="chipo" style="color:#e03131;border-color:#e03131">機 27</span></td>
+      <td>6艇の平均より下（−5％より下）</td></tr>
+  <tr><td class="k"><span class="chipo" style="color:#868e96;border-color:#868e96;border-style:dashed">機 −</span></td>
+      <td>走った数が10より少ない。<b>色を付けません</b></td></tr>
+</table>
+
+<h4>枠の色</h4>
+<p>公式と同じ色です。全部のページで同じ色を使います。</p>
+<p style="text-align:center;margin:12px 0 16px">
+  <span class="waku w1">1</span>
+  <span class="waku w2">2</span>
+  <span class="waku w3">3</span>
+  <span class="waku w4">4</span>
+  <span class="waku w5">5</span>
+  <span class="waku w6">6</span>
+</p>
+
+<h4>決まり手の色</h4>
+<p>選手が1着になったときの内わけを、この4色の帯で出します。</p>
+<table class="sym">
+  <tr><td class="k"><span class="kim" style="background:#3987e5"></span></td><td>逃げ</td></tr>
+  <tr><td class="k"><span class="kim" style="background:#199e70"></span></td><td>差し</td></tr>
+  <tr><td class="k"><span class="kim" style="background:#c98500"></span></td><td>まくり</td></tr>
+  <tr><td class="k"><span class="kim" style="background:#9085e9"></span></td><td>まくり差し</td></tr>
+</table>
+
+<h4>24場のトリセツで出る印</h4>
+<table class="sym">
+  <tr><td class="k"><span class="chipo" style="color:#2f9e44;border-color:#2f9e44">荒れ度 低</span></td>
+      <td>堅い。インが強い場</td></tr>
+  <tr><td class="k"><span class="chipo" style="color:#d29922;border-color:#d29922">荒れ度 中</span></td>
+      <td>ふつう</td></tr>
+  <tr><td class="k"><span class="chipo" style="color:#f85149;border-color:#f85149">荒れ度 高</span></td>
+      <td>荒れやすい場</td></tr>
+  <tr><td class="k"><span class="chipo" style="color:#8a7a52;border-color:#8a7a52">企</span></td>
+      <td>ふだんは企画レースがある場</td></tr>
+</table>
+
+</section>
+<section class="sec">
+<h3 class="step" id="s22">おかしく見えるとき</h3>
+<p>こわれたように見えて、実は正しい表示です。</p>
+
+<div class="sy">
+  <div class="q">モーターの数字が全部 0.0% になっている</div>
+  <div class="a">節の初日だからです。今節の成績がまだありません。数字が無いので、機力も判定に使いません。2日目から数字が入ります。</div>
+</div>
+
+<div class="sy">
+  <div class="q">「機 −」とだけ出て、番号がない</div>
+  <div class="a">そのとき、公式からモーターの番号が取れていません。1日に数回の取り込みで入ります。推測では入れません。</div>
+</div>
+
+<div class="sy">
+  <div class="q">「N少」と書いてある</div>
+  <div class="a">走った数が少なすぎる、という印です。1回走って1回2連対すると100％になってしまいます。だから注意書きを出します。</div>
+</div>
+
+<div class="sy">
+  <div class="q">コース別の成績に「—」が出ている</div>
+  <div class="a">そのコースを20回も走っていないからです。<b>割合は出さず、走った数だけを出します。</b>少ない数から率を作らない、という決まりです。</div>
+</div>
+
+<div class="sy">
+  <div class="q">日数が「4+」のように「+」が付く</div>
+  <div class="a">データのはしで節が切れています。本当はもっと長いです。数字は「これより少なくない」という意味で読んでください。</div>
+</div>
+
+<div class="sy">
+  <div class="q">「枠」と「コース」の数字がちがう</div>
+  <div class="a">枠は、くじで決まった艇の番号です。コースは、実際に走った位置です。前づけ（スタート前に内側へ動くこと）があると、2つはちがう数字になります。</div>
+</div>
+
+<div class="sy">
+  <div class="q">見どころの「明日」が空、または少ない</div>
+  <div class="a">明日のレースは、決まった場から順に増えます。夜になるほど数が増えます。</div>
+</div>
+
+<div class="sy">
+  <div class="q">整備のページに今日の分が無い</div>
+  <div class="a">直前情報は毎朝、前の日の分をまとめて取り込みます。<b>載るのは前の日までです。</b></div>
+</div>
+
+<div class="sy">
+  <div class="q">着の欄に「転覆」「F」「欠場」と出る</div>
+  <div class="a">最後まで走れなかったレースです。妨害・エンスト・転覆・落水・沈没・不完走・失格・F・出遅・欠場を、そのまま出します。</div>
+</div>
+
+</section>
+<section class="sec">
+<h3 class="step" id="s23">よくある質問</h3>
+
+<div class="sy">
+  <div class="q">Q. 当たりますか</div>
+  <div class="a">わかりません。だから、外した数もトップに出しています。「荒れる」と見たレースの約3分の2は荒れていません。</div>
+</div>
+
+<div class="sy">
+  <div class="q">Q. どのレースを買えばいいですか</div>
+  <div class="a">書きません。条件は全部出します。選ぶのはあなたです。</div>
+</div>
+
+<div class="sy">
+  <div class="q">Q. お金はかかりますか</div>
+  <div class="a">かかりません。全部のページが無料です。登録も広告もありません。</div>
+</div>
+
+<div class="sy">
+  <div class="q">Q. 有料noteとは何がちがいますか</div>
+  <div class="a">このサイトは、レースの分類と数字を出します。有料noteは買い目を出します。<b>仕組みも集計も別です。</b>トップの答え合わせの数字は、有料noteには当てはまりません。</div>
+</div>
+
+<div class="sy">
+  <div class="q">Q. データはどこから取っていますか</div>
+  <div class="a">公式の公開データです。各ページに、出どころと集めた期間と数を書いています。</div>
+</div>
+
+<div class="sy">
+  <div class="q">Q. 数字が前に見たときとちがいます</div>
+  <div class="a">毎朝、数字が新しくなります。集めた期間が画面に出ています。そこを見てください。</div>
+</div>
+
+<div class="sy">
+  <div class="q">Q. 空らんや「―」の欄があります</div>
+  <div class="a">わからないものは、書かずに空けています。推測では書きません。</div>
+</div>
+
+<div class="sy">
+  <div class="q">Q. スマホだけで使えますか</div>
+  <div class="a">使えます。スマホで見ることを考えて作っています。</div>
+</div>
+
+
+
+</section>
+<section class="sec">
+<div class="partttl bg3" id="p3" data-n="3">
+  <div class="no">第3部</div>
+  <div class="nm">画面の辞書</div>
+  <div class="cap">全部を読む必要はありません。<br>気になったページだけ、引いてください。</div>
+</div>
+
+</section>
+<section class="sec">
+<h3 class="pg" id="g01">出走表<span class="tag">毎日</span></h3>
+<div class="use">
+  <b>こんなときに開く</b>
+  今日どこでやっているか知りたい。／このレースの6人の数字を見たい。
+</div>
+
+<h4>1. まず場をえらぶ</h4>
+<figure>
+  <img src="img/figVenueList.jpg" loading="lazy" alt="">
+  <figcaption>今日やっている場が、締切の早い順に出ます。</figcaption>
+</figure>
+<ol class="lg">
+  <li><b>今日の運勢</b>遊びです。押すと占いが出ます。</li>
+  <li><b>日付</b>本日の分です。夜に見ると、翌日の分が下に出ます。</li>
+  <li><b>場の名前</b>押すとレースの一覧が開きます。</li>
+  <li><b>大会の札</b>SG・G1・G2・G3・ルーキー・マスターズ・女子。<b>SG・G1・女子戦は、カードの左に色の帯も付きます。</b>進入固定の場には「進入固定」の札が付きます。</li>
+  <li><b>レースの数と時間</b>「12R」はその日のレース数です。そのあとが、1Rの締切から最後のRの締切までの時間です。</li>
+  <li><b>何日目か</b>初日・2日目・最終日など。</li>
+</ol>
+
+<h4>2. レースをえらぶ</h4>
+<figure>
+  <img src="img/figRaceList.jpg" loading="lazy" alt="">
+  <figcaption>場を押すと、その日のレースが並びます。</figcaption>
+</figure>
+<ol class="lg">
+  <li><b>レースのボタン</b>Rと締切の時刻。押すとそのレースが開きます。右上のドットは荒れ指数です。</li>
+  <li><b>済み</b>締切を過ぎたレースです。</li>
+  <li><b>下振れ要因</b>1号艇が沈みやすい条件が、いくつ当てはまったか。当てはまったレースにだけ付きます。</li>
+  <li><b>ドットの見方</b>荒れ指数の高・中・低です。</li>
+  <li><b>観戦記</b>その場の読み物です。前の日までの確定した数字だけで書いています。</li>
+</ol>
+
+<h4>3. レースを開く</h4>
+<figure>
+  <img src="img/figRaceTop.jpg" loading="lazy" alt="">
+  <figcaption>レース画面のいちばん上です。</figcaption>
+</figure>
+<ol class="lg">
+  <li><b>レースの名前</b>場・R・予選か優勝戦か。</li>
+  <li><b>締切まで</b>あと何分か。<b>締切の15分前から黄色に変わります。</b>締切を過ぎると「締切済み」になります。右は締切の時刻です。</li>
+  <li><b>大会の名前と何日目か</b></li>
+  <li><b>気になる</b>押しておくと、あとで結果を確かめられます。</li>
+  <li><b>公式へ行くボタン</b>公式の出走表と結果に飛びます。<b>この6艇を占う</b>は遊びです。</li>
+</ol>
+
+<figure>
+  <img src="img/figRaceHead.jpg" loading="lazy" alt="">
+  <figcaption>その下に、こういう情報が続きます。</figcaption>
+</figure>
+<ol class="lg">
+  <li><b>3つの数字</b>荒れ／イン1着率／①着外。「荒れ」は荒れる条件の点数（6点中何点）と、その低・中・高。「イン1着率」はその場の1コースの1着率。「①着外」は1号艇が着外になりやすい度合いで、1から6の6段階です。<b>見どころの「①着外」と同じ値です。</b>企画レースや優勝戦などのときは、その札もここに並びます。</li>
+  <li><b>風と、見立てを読む</b>締切の時刻の風の向きと強さです（予報）。「見立てを読む」を押すと、見どころのその場のところへ飛びます。</li>
+  <li><b>見どころ</b>押すと開きます。<b>①の下振れ要因・展開の見どころ・締切時刻の風予報・当日の潮</b>が、ここにまとめて入っています。展開の見どころは、数字を添えて書きます。買い目ではありません。荒れに点があるレースでは、この上に「荒れサイン」の枠も出て、当てはまった条件が並びます。</li>
+  <li><b>並び替え</b>枠順・平均ST・機力・当地勝率の4つ。同じ6人を別の順で見ると、印象が変わります。</li>
+  <li><b>枠別成績</b>その枠に入ったとき、どれだけ来ていたか。押すと一覧が出ます。</li>
+  <li><b>逃げ時2着</b>1号艇が逃げたとき、2着はどのコースだったか。</li>
+  <li><b>札の見本</b>下の6艇に付く札の形の意味です。<b>点線は数字から出した判定、丸は地元、太線はF持ち。</b></li>
+</ol>
+<p class="small">風予報は予報です。潮は事実だけを出し、荒れる予想には使いません。</p>
+
+<h4>4. 6艇を見る</h4>
+<figure>
+  <img src="img/figBoatTop.jpg" loading="lazy" alt="">
+  <figcaption>1号艇のカードです。同じものが6艇ぶん並びます。</figcaption>
+</figure>
+<ol class="lg">
+  <li><b>名前の行</b>枠の番号／級別／名前。名前を押すと選手図鑑へ。右の☆で好きな選手に登録できます。</li>
+  <li><b>選手のこと</b>読み方、支部と出身、年齢、平均ST。異名がある選手は、その行も出ます。</li>
+  <li><b>札</b>最速ST・地元・鋭いST・当地得意・機力上位など。当てはまったものだけ出ます。形の意味は上の見本のとおりです。</li>
+  <li><b>表の見出し</b>全国／当地／モーター／ボート。<b>当地の横の「↑」は、その場の勝率が全国より高いという印です。</b>モーターの番号の横の「整備」を押すと、その機の整備の記録に飛べます。</li>
+  <li><b>表の数字</b>勝率・2連率・3連率を、全国・当地・モーター・ボートで並べています。横に読むと比べられます。モーターとボートには勝率がないので「-」です。</li>
+  <li><b>今節モーター</b>今節ここまで、何回走って何回2連対したか。5走より少ないうちは「N少」が付きます。</li>
+  <li><b>決まり手構成</b>1着になったときの内わけです。<b>％は1着の回数が母数です。</b>かっこの右は、同じ期間（直近183日）に走った数です。</li>
+</ol>
+
+<figure>
+  <img src="img/figBoatBottom.jpg" loading="lazy" alt="">
+  <figcaption>同じカードの、さらに下です。</figcaption>
+</figure>
+<ol class="lg">
+  <li><b>展示タイム別の成績</b>押すと開きます。展示が良かった走・普通の走・悪かった走に分けて、上位に来た割合を、同じコースの平均と並べます。</li>
+  <li><b>コース別の直近10走</b><b>その枠のコースで、最近10回どんな着だったか。</b>右に平均の着と、全選手の真ん中の値が出ます。</li>
+  <li><b>内訳</b>押すともっと細かく出ます。</li>
+  <li><b>1号艇で出たときの決着</b>1号艇のカードにだけ出ます。その選手が1号艇だったとき、どんな決まり方だったか。期間は枠別成績で選んだ期間と同じです。</li>
+  <li><b>今節成績</b>初日から最終日まで、進入したコースと着順。1着は、淡い青の地で目立たせています。</li>
+  <li><b>次の艇</b>同じ形で6艇ぶん続きます。</li>
+</ol>
+<p class="small">E30の場では、カードに「E30該当場」の欄が出ます。押すと、E30の場で走ったコース別の成績が開きます。</p>
+<p class="small">6艇の下の「このレースの自分の読み」では、締切前に「①は残る」「①は崩れる」のどちらかを記録できます。結果が出ると自動で照合されます。買い目は記録しません。記録はこの端末の中だけに残ります。</p>
+<div class="miss">
+  <b>ここでは分からないこと</b>
+  チルト角度と部品交換の中身は、このページには出しません。モーターの番号の横の「整備」から、その機の整備の記録に飛べます。
+</div>
+
+</section>
+<section class="sec">
+<h3 class="pg" id="g02">見どころ<span class="tag">毎日</span></h3>
+<div class="use">
+  <b>こんなときに開く</b>
+  今日どのレースが荒れそうか知りたい。／好きな選手が出るレースだけ見たい。
+</div>
+
+<figure>
+  <img src="img/figHlCards.jpg" loading="lazy" alt="">
+  <figcaption>レースが締切の早い順に並びます。</figcaption>
+</figure>
+<ol class="lg">
+  <li><b>3つのタブ</b>荒れ／堅め／場別。<b>「荒れ」と「堅め」は朝の分類です。</b>トップの答え合わせと同じものです。</li>
+  <li><b>レースの行</b>場とR／節の何日目か／予選か一般か／朝の分類の札。</li>
+  <li><b>①着外の札</b>1号艇が着外になりやすい度合い。1から6の6段階です。</li>
+  <li><b>締切と▼</b>押すと、そのレースの中身が全部開きます。</li>
+  <li><b>見立て</b>一行でまとめたものです。<b>必ず数字と母数を付けます。</b>「42％（40走）」のように。</li>
+</ol>
+
+<h4>カードを開くと出るもの</h4>
+<ul>
+  <li>そのときの水面（天候・風・波・気温・水温）。<b>予報ではなく、実際に測った数字です。</b></li>
+  <li>6艇の一覧。全国勝率とその場の勝率。</li>
+  <li>展開の見どころ。逃げる人・攻める人・死角の順。</li>
+  <li><b>①の下振れ要因</b>。当てはまったときの実際の着外率を、全体の数字と並べて出します。</li>
+  <li><b>逃げ時2着</b>の表。</li>
+</ul>
+
+<h4>4つの日と、観戦記</h4>
+<ul>
+  <li>タブは左から <b>前々日・前日・当日・明日</b>。明日は前の夜のうちに、決まった場から順に増えます。</li>
+  <li><b>観戦記をまとめて読む</b>その日の全部の場の読み物が、一度に並びます。</li>
+</ul>
+<p class="small">観戦記は、前の日までの確定した数字だけで書いています。予想と買い目はありません。</p>
+<div class="miss">
+  <b>ここでは分からないこと</b>
+  展示タイムなど、当日の直前の情報は見立てに入っていません。選手の気持ちも書きません。数字で言えることだけです。
+</div>
+
+</section>
+<section class="sec">
+<h3 class="pg" id="g03">モーター<span class="tag">毎日</span></h3>
+<div class="use">
+  <b>こんなときに開く</b>
+  この場で、どの機がいいのか知りたい。この機に、どこまで手が入っているか知りたい。
+</div>
+<figure>
+  <img src="img/figMotor.jpg" loading="lazy" alt="">
+  <figcaption>場ごとに、2連率の高い順で並びます。</figcaption>
+</figure>
+<ol class="lg">
+  <li><b>題名と件数</b>24場で何機を数えているか。下は最後に新しくした時刻です。</li>
+  <li><b>超抜</b>その場の上位3機だけに付く札です。点線の札は、数字から出した判定という意味です。全体で何機かも出します。</li>
+  <li><b>開いている数</b>各場は上位3機だけ開いています。行を押すと、走った数と整備の記録が出ます。</li>
+  <li><b>このデータの見方</b>押すと、色・棒・走った数の決まりが出ます。</li>
+  <li><b>さがす</b>場をえらぶか、選手名か機番で調べられます。</li>
+  <li><b>場の見出し</b>場の名前／いつの記録か／何機あるか。今日開催していない場には「前節記録」の札が付き、前の節の記録を出します。「E30」の札は、エタノールを30%混ぜた燃料を使っている場です。下の段の前節1位機は、前の節でいちばん2連率が高かった機です。</li>
+  <li><b>各機の行</b>左の帯／機番／乗っている選手／級別／棒／2連率。<b>帯と棒は明るいほど上位です</b>（超抜・上位・普通・下位）。棒の目盛は全場共通なので、場をまたいで長さを比べられます。棒の上の細い縦線は、その場の真ん中の値です。選手名を押すと選手図鑑へ。</li>
+  <li><b>残り◯機を見る</b>その場の全機を出します。</li>
+</ol>
+
+<h4>行を押すと</h4>
+<figure>
+  <img src="img/figMotorRow.jpg" loading="lazy" alt="">
+  <figcaption>1機ぶんの記録が開きます。</figcaption>
+</figure>
+<ol class="lg">
+  <li><b>押した行</b>もう一度押すと閉じます。</li>
+  <li><b>新替からの数</b>モーターを新しくした日からの、走った数・1着・2連対・3連対。日付の横は、その日付の出どころです。</li>
+  <li><b>公式の2連率</b>公式が出している値と、その時点。</li>
+  <li><b>整備履歴</b>記録が取れている期間に、この機が走った回数と、部品の交換があった走の数。</li>
+  <li><b>1走ごとの記録</b>日付・R・何号艇か・乗った選手・整備の中身・展示タイム。<b>部品を交換した走は色が付き、交換の前と後の展示タイムが並びます。</b></li>
+  <li><b>残りもすべて見る</b>古い走まで全部出します。</li>
+  <li><b>出典</b>公式の直前情報と、取り込んだ時刻。</li>
+</ol>
+
+<h4>モーターを新しくしたばかりの場</h4>
+<figure>
+  <img src="img/figMotorShingae.jpg" loading="lazy" alt="">
+  <figcaption>新替から5節までの場は、並び方が変わります。</figcaption>
+</figure>
+<ol class="lg">
+  <li><b>場の見出し</b>場の名前と、いつの記録か。</li>
+  <li><b>大会の名前と何日目か</b></li>
+  <li><b>新替の注記</b>新しくした日と、何節終わったか。<b>新替から5節までは機力が見えにくいので、序列を付けません。</b></li>
+  <li><b>機番の順</b>1号機から順に並べます。上位・下位の色分けもしません。</li>
+  <li><b>◯走</b>新替から何回走ったか。数が少ないうちは、率が大きく振れます。</li>
+</ol>
+<div class="miss">
+  <b>まちがえやすいこと</b>
+  2連率が高い＝速い、とは言えません。乗った選手が強かっただけのこともあります。行を開いて、走った数も一緒に見てください。
+</div>
+<p class="small">走った数は、モーターを新しくした日からの数です。新替の日付が分からなかった場は、走った数を出しません。</p>
+
+</section>
+<section class="sec">
+<h3 class="pg" id="g04">モーター整備<span class="tag new">3つのタブ</span></h3>
+<div class="use">
+  <b>こんなときに開く</b>
+  この機に、今節どこまで手が入っているか知りたい。
+</div>
+<figure>
+  <img src="img/figMaint.jpg" loading="lazy" alt="">
+  <figcaption>ページの上のほうです。</figcaption>
+</figure>
+<ol class="lg">
+  <li><b>期間と更新</b>いつからいつまでの記録か。</li>
+  <li><b>このページの使い方</b>出走表の<b>場と機番</b>から、そのモーターにいつ・何を替えたかをたどれます。</li>
+  <li><b>出どころと限界</b>公式の直前情報です。<b>交換は場の記録で、誰の判断かは分かりません。</b></li>
+  <li><b>載る範囲</b>毎朝、前の日の分をまとめて取り込みます。<b>載るのは前の日までです。</b></li>
+  <li><b>3つのタブ</b>直近の交換／モーターで探す／選手で探す。</li>
+  <li><b>日付</b>「直近の交換」では、日付を選べます。</li>
+  <li><b>その日のまとめ</b>何場で、部品交換が何件あったか。うち大掛かりが何件か。</li>
+</ol>
+
+<div class="use">
+  <b>この表で言えないこと</b>
+  部品の交換は<b>場の記録</b>です。誰が決めて替えたかは、わかりません。<br>
+  言えるのは「この選手が乗った期間に、交換の記録がある」までです。<br>
+  <b>「この選手が替えた」「整備がうまい」とは読めません。</b>だから選手のランキングは作りません。
+</div>
+<div class="miss">
+  <b>場をまたいで比べない</b>
+  交換の多さは、場によって大きくちがいます。場の方針と機の古さのちがいです。場をまたいだ比べには使えません。
+</div>
+<p class="small">「大掛かり」はピストンやシリンダを含むものです。この分け方はデータから機械で決めたもので、公式の分け方ではありません。</p>
+
+
+</section>
+<section class="sec">
+<h3 class="pg" id="g05">24場のトリセツ</h3>
+<div class="use">
+  <b>こんなときに開く</b>
+  この場がどういう水面か知りたい。／その場に行く前に読みたい。
+</div>
+
+<figure>
+  <img src="img/figStadiumList.jpg" loading="lazy" alt="">
+  <figcaption>24場が番号の順で並びます。</figcaption>
+</figure>
+<ol class="lg">
+  <li><b>場の行</b>番号／名前／地方／水質（淡水・海水・汽水）／その場のイン1着率。</li>
+  <li><b>荒れ度</b>低・中・高の3つ。低は堅い、高は荒れやすい。</li>
+  <li><b>企</b>ふだんは企画レースがある場です。ピンの印を押すとフォローできます。</li>
+</ol>
+
+<figure>
+  <img src="img/figStadiumTop.jpg" loading="lazy" alt="">
+  <figcaption>場を押すと開きます。</figcaption>
+</figure>
+<ol class="lg">
+  <li><b>BGMの読み物</b>24場の締切曲を集めた読み物です。押すと開きます。</li>
+  <li><b>場の見出し</b>押すと開いたり閉じたりします。</li>
+  <li><b>荒れ度</b></li>
+  <li><b>水面特性</b>その場の形と風の特徴です。</li>
+  <li><b>過去に最も多く出た3連単</b>組み合わせと、出た回数・全レース数・割合。<b>母数を必ず付けます。</b></li>
+</ol>
+
+<figure>
+  <img src="img/figStadiumDetail.jpg" loading="lazy" alt="">
+  <figcaption>同じカードの、さらに下です。</figcaption>
+</figure>
+<ol class="lg">
+  <li><b>1号艇が1着だったレースの2着内訳</b></li>
+  <li><b>対象</b>何戦を数えたか。1着率も出します。</li>
+  <li><b>2号艇から6号艇まで</b>それぞれの割合と回数。</li>
+  <li><b>優勝戦の出目ランキング</b>優勝戦だけを集めたものです。</li>
+  <li><b>対象期間と出どころ</b></li>
+  <li><b>断り書き</b><b>過去に出た回数の割合であり、次のレースの予想ではありません。</b></li>
+  <li><b>荒れるサイン</b>次で説明します。</li>
+</ol>
+
+<h4>荒れるサインは「言われている話」を数えたもの</h4>
+<p>よく言われる話を、実際に数えた結果が出ます。数えた結果が言い伝えとちがうときも、そのまま出します。</p>
+<p>たとえば桐生では、こう書いてあります。</p>
+<ul>
+  <li>よく言われる話 ──「夜の冷え込みと赤城おろしで荒れる」</li>
+  <li>数えた結果 ──「荒れ方をいちばん動かしていたのは、風でも時間帯でもなく、何レース目かでした」</li>
+  <li>数字 ──「1〜4Rで1号艇が1着になるのは3回に1回（894戦・31.4％）。9〜12Rでは5回に3回（871戦・60.8％）」</li>
+</ul>
+<p class="small">長い文は「続きを読む」で開きます。全部読まなくても、最初の数行で結論が分かります。</p>
+
+<h4>観戦スポット</h4>
+<p>24場すべてにあります。その場に実際に行くときの読み物です。</p>
+<ul>
+  <li>その場でいちばん面白い一点</li>
+  <li>どこから見るといいか</li>
+  <li>行く前に知っておくこと（席の買い方など）</li>
+  <li>最後に、その場の実績の数字</li>
+</ul>
+
+<h4>そのほか、このページで見られるもの</h4>
+<ul>
+  <li>風の向き（向かい風・追い風・横風の意味と、風速の目安）</li>
+  <li>SG と G1 のときに何が変わるか</li>
+  <li>場めぐり（食べもの）／実況アナ／締切のBGM／場内の予想屋</li>
+</ul>
+<div class="use">
+  <b>場を登録すると</b>
+  ピンの印を押すと、出走表・モーター・見どころでも、その場が先頭に来ます。<br>
+  登録はこの端末にだけ残ります。外には送りません。
+</div>
+
+</section>
+<section class="sec">
+<h3 class="pg" id="g06">選手図鑑<span class="tag">期ごと</span></h3>
+<div class="use">
+  <b>こんなときに開く</b>
+  この選手がどんな型か知りたい。／好きな選手を登録したい。
+</div>
+
+<figure>
+  <img src="img/figPlayerInfo.jpg" loading="lazy" alt="">
+  <figcaption>選手を押すと、こういう中身が開きます。</figcaption>
+</figure>
+<ol class="lg">
+  <li><b>基本情報</b>登番・支部・養成期・出身・年齢・生年月日・身長・体重・血液・能力指数。</li>
+  <li><b>今年の獲得賞金</b>順位と金額。公式のベスト50へも行けます。</li>
+  <li><b>趣味</b></li>
+  <li><b>プロフィール</b>経歴です。師匠や弟子の名前は押すとその選手に飛べます。</li>
+  <li><b>関係</b>師匠・弟子・同期が札になって並びます。</li>
+  <li><b>同期と同郷</b>同じ期・同じ出身の選手が何人いるか。押すと一覧が出ます。</li>
+  <li><b>出場予定</b>次で説明します。</li>
+</ol>
+
+<figure>
+  <img src="img/figPlayerRank.jpg" loading="lazy" alt="">
+  <figcaption>さらに下に、出場予定と級別の推移が続きます。</figcaption>
+</figure>
+<ol class="lg">
+  <li><b>出場予定</b>これから走る予定です。日付・場・大会の名前・グレード。</li>
+  <li><b>断り書き</b><b>公式に載っている先の2節だけです。</b>あっせんは変わることがあります。</li>
+  <li><b>級別の推移</b>初めて走った日から今日までの級別を、帯にしたものです。</li>
+  <li><b>帯の読み方</b>初出走の日・何年たったか・級別が変わった回数。</li>
+  <li><b>色ごとの年数</b>A1 が何年、B1 が何年。いまの級がいつからかも出ます。</li>
+  <li><b>変わった日を見る</b>押すと、いつ級が変わったかの一覧が出ます。</li>
+  <li><b>スタート</b>ST 0.20 より遅い走の割合。全選手の平均も横に出ます。</li>
+</ol>
+
+<figure>
+  <img src="img/figPlayerStats.jpg" loading="lazy" alt="">
+  <figcaption>成績とコース別です。</figcaption>
+</figure>
+<ol class="lg">
+  <li><b>成績</b>出走・1着・2着・優勝・優出・平均ST・F数。<b>期のはじめに決まった数字です。期の途中では変わりません。</b></li>
+  <li><b>コース別の1着率</b>実際に進入したコースごとの1着率です。過去418日ぶんを数えています。</li>
+  <li><b>棒グラフ</b>黄はイン（1・2コース）、青はアウト（3〜6コース）。<b>細い横線が全選手の平均です。</b></li>
+  <li><b>20走に満たないコース</b>割合を出さず、走った数だけを出します。</li>
+  <li><b>2着・3着まで見る</b>押すともっと細かく出ます。</li>
+  <li><b>決まり手・前づけ</b>まくり率・差し率・前づけ率・前づけ平均。直近6ヶ月です。</li>
+  <li><b>母数</b>1着数と出走数。<b>率だけを出すことはしません。</b></li>
+</ol>
+
+<h4>そのほか</h4>
+<ul>
+  <li>一覧／まくり屋／差し屋／支部傾向 の4つに切り替えできます</li>
+  <li>級別・支部・並び順で絞り込めます（イン1着率順・ST順もあります）</li>
+  <li>月別の成績と、E30 の場での成績</li>
+</ul>
+<div class="miss">
+  <b>ここでは分からないこと</b>
+  期の成績は半年に一度しか変わりません。「今日の調子」は出ません。それは出走表の今節成績を見てください。
+</div>
+
+</section>
+<section class="sec">
+<h3 class="pg" id="g07">レース結果<span class="tag">毎日</span></h3>
+<div class="use">
+  <b>こんなときに開く</b>
+  終わったレースを確かめたい。／そのとき水面はどうだったか知りたい。
+</div>
+<p>開催日を選んで、場を押すとレースが並びます。直近30日ぶんが見られます。</p>
+
+<figure>
+  <img src="img/figResultBoats.jpg" loading="lazy" alt="">
+  <figcaption>レースの行を押すと、こう開きます。</figcaption>
+</figure>
+<ol class="lg">
+  <li><b>艇別</b>6艇ぶんの記録です。</li>
+  <li><b>列の意味</b>枠／氏名／コース／ST／着。</li>
+  <li><b>枠とコース</b><b>枠はくじで決まった艇の番号、コースは実際に走った位置です。</b>前づけがあると数字がちがいます。名前を押すとその選手の数字が開きます。</li>
+  <li><b>1着の行</b>緑で目立つようになっています。</li>
+  <li><b>次のレース</b>着順・決まり手・3連単の配当が並びます。<b>高い配当は色が変わります。</b></li>
+  <li><b>そのレースの水面</b>天候・風・波・気温・水温。<b>風は「横風」「向かい風」「追い風」まで書きます。</b></li>
+</ol>
+
+<div class="use">
+  <b>この画面から読めること</b>
+  ST が早い＝勝つ、ではありません。<br>
+  この例では、5号艇の ST が 0.09 でいちばん早いのに4着でした。1着は 0.10 の4号艇です。コースと展開のほうが効きます。
+</div>
+<p class="small">払戻は7つの賭け方を全部出します。締切の前の単勝オッズも一緒に出るので、人気だった艇がどれかが分かります。</p>
+<p class="small">出どころは、公開されているデータを集めたものです。公式の発表は boatrace.jp で確かめてください。</p>
+
+</section>
+<section class="sec">
+<h3 class="pg" id="g08">万舟のツボ<span class="tag">毎日</span></h3>
+<div class="use">
+  <b>こんなときに開く</b>
+  この場はどのくらい荒れるか知りたい。／何R台があぶないか知りたい。
+</div>
+
+<figure>
+  <img src="img/figPayTop.jpg" loading="lazy" alt="">
+  <figcaption>総合ページの上のほうです。</figcaption>
+</figure>
+<ol class="lg">
+  <li><b>このページの立場</b>3連単の実績だけで見ます。買い目は出しません。</li>
+  <li><b>2つの軸</b>「荒れ」（どのくらいの回数か）と「一撃」（どのくらい大きいか）を分けて見ます。</li>
+  <li><b>期間と数</b>何日・何場・何レース・万舟が何本か。<b>分母を先に出します。</b></li>
+  <li><b>各場のページ</b>24場それぞれの細かいページに行けます。</li>
+  <li><b>並び順</b>荒れやすい順です。左上ほど荒れます。</li>
+</ol>
+
+<h4>総合ページで見られるもの</h4>
+<ul>
+  <li><b>場ごとの荒れ率</b>3連単が1万円をこえたレースの割合。荒れる回数の多さです。</li>
+  <li><b>場ごとの最高配当</b>一撃の大きさです。</li>
+  <li><b>高配当のレース</b>実際に出た配当と、その日付とR。</li>
+</ul>
+
+<h4>各場のページで見られるもの</h4>
+<ul>
+  <li>万舟が出やすい時間帯 上位3つ</li>
+  <li>いちばん堅いRと、いちばん荒れるR。それぞれの万舟率と平均の配当</li>
+  <li>荒れたとき、どの枠が1着になったかの内わけ</li>
+  <li>1Rから12Rまでの万舟率</li>
+</ul>
+<div class="miss">
+  <b>まちがえやすいこと</b>
+  荒れ率が高い場＝もうかる場、ではありません。荒れる回数が多いというだけです。<br>
+  24場の差は5ポイントほどしかありません。
+</div>
+<p class="small">万舟＝3連単が10,000円をこえたレースです。</p>
+
+</section>
+<section class="sec">
+<h3 class="pg" id="g09">検証<span class="tag new">8本</span></h3>
+<div class="use">
+  <b>こんなときに開く</b>
+  「よく言われるあの話、本当なの？」と思ったとき。
+</div>
+<figure>
+  <img src="img/figKensho.jpg" loading="lazy" alt="">
+  <figcaption>記事の一覧です。</figcaption>
+</figure>
+<ol class="lg">
+  <li><b>やること</b>よく言われる話を、実際のレース結果で数えます。</li>
+  <li><b>約束</b>予想はしません。数えて確かめるだけです。</li>
+  <li><b>番号と状態</b>「毎朝 答え合わせ更新中」の記事は、公開したあとも新しい結果を足して数え続けます。「集計期間 固定」の記事は、決めた期間で数えたものです。</li>
+  <li><b>題名</b>確かめたい話そのものです。</li>
+  <li><b>言われている話</b>その定説を、そのまま書きます。</li>
+  <li><b>数えた数</b>「386日・33,027レースを数えました」。<b>母数が先に出ます。</b></li>
+</ol>
+
+<h4>いまある8本</h4>
+<ul>
+  <li><b>01 勝負駆けは効くのか</b>　崖っぷちの選手は気合いが入る、を数えました</li>
+  <li><b>02 体重を絞ると走るのか</b>　節の中で体重は本当に動いているのか</li>
+  <li><b>03 F持ちのインは遅れるのか</b>　同じ選手のFの前と後を比べました</li>
+  <li><b>04 1番人気はどれだけ来るのか</b>　3連単の1番人気がそのまま入ったレース</li>
+  <li><b>05 流れはあるのか</b>　前のレースが次に何かを残すのか</li>
+  <li><b>06 地元は強いのか</b>　地元が効くのは、どの舟か</li>
+  <li><b>07 冬はインが強いのか</b>　冬と夏を同じ条件にそろえて比べました</li>
+  <li><b>08 4カドに実力者がいると荒れるのか</b>　4コースの級別で分けて数えました</li>
+</ul>
+
+<h4>更新のしかた</h4>
+<ul>
+  <li><b>記事が増えるのは不定期</b>です。だいたい週に1本くらいです。</li>
+  <li><b>毎日のデータで答え合わせができる記事は、毎朝新しくなります。</b></li>
+</ul>
+
+<div class="use">
+  <b>この読み物の約束</b>
+  条件は、結果を見る前に決めます。あとから変えません。<br>
+  <b>「効かなかった」という結果も、そのまま出します。</b><br>
+  数字には、母数と期間を必ず付けます。
+</div>
+
+</section>
+<section class="sec">
+<h3 class="pg" id="g10">場の文化 ／ 占い ／ 実況アナ</h3>
+
+<h4>場の文化</h4>
+<p>数字ではないほうのページです。</p>
+<ul>
+  <li><b>締切のBGM</b>24場の締切曲です。「曲名がわからない」「公式に書いてある」まで分けて出します。公式の音がある場はリンクを付けています。</li>
+  <li><b>場内の予想屋</b>場立ちがあるか。公式に書いてあるか。予想紙か。分けて出します。</li>
+  <li><b>実況アナ</b></li>
+  <li><b>E30 という燃料に切り替えた日</b></li>
+</ul>
+
+<h4>選手占い</h4>
+<p>データ攻めで唯一、データを見ないページです。全国勝率もモーターも展示も無視して、生まれた日と星まわりだけで選手を並べます。</p>
+<figure>
+  <img src="img/figUranai.jpg" loading="lazy" alt="">
+  <figcaption>実力は別売りです。</figcaption>
+</figure>
+<ol class="lg">
+  <li><b>今日の干支盤</b>今日が何の日かを指します。針は毎日0時に1つ進みます。星に休みはありません。</li>
+  <li><b>相性と勝負運</b>相性は「あなた×選手」で、何年たっても変わりません。勝負運は「今日の星×選手」で、毎日入れ替わります。</li>
+  <li><b>あなたの生まれ</b>生年月日と血液型を入れます。保存先はあなたのスマホの中だけ。星にも送りません。</li>
+  <li><b>絞り込み</b>男子／女子／全員／推し。推しは、選手図鑑や出走表で★を付けた選手です。</li>
+  <li><b>点と内訳</b>100点満点です。色の帯は中身の4つ。押すと「星の内訳」と、その下に「ここから先は現実です」（本物の成績）が開きます。</li>
+</ol>
+<h4>動き</h4>
+<p>このページは動きます。星は瞬き、干支盤の針は回り、カードはめくれます。占いの精度は動きません。</p>
+<p>右上の「✦ 動き」で止められます。iPhone の「視差効果を減らす」をオンにしている人は、最初は止まった状態で開きます。押すと動きます。押した設定は、そのスマホに残ります。</p>
+
+<h4>あなたの勝負運</h4>
+<p>勝負運のタブでは、選手と同じ式で、あなた自身の今日の勝負運も出ます。生まれを入れておくだけです。</p>
+<figure>
+  <img src="img/figUranaiMine.jpg" loading="lazy" alt="">
+  <figcaption>選手と同じ物差しで測られます。</figcaption>
+</figure>
+<ol class="lg">
+  <li><b>あなたの点</b>100点満点。毎日0時に変わります。</li>
+  <li><b>内訳の帯</b>選手と同じ4つの色です。体のリズムが谷の日は、だいたい星のせいにして大丈夫です。</li>
+  <li><b>一言</b>10点ごとに変わります。いちばん下の文は、めったに出ません。</li>
+  <li><b>裏を見る</b>カードがめくれて、内訳の点と、全選手と並べた順位が出ます。選手より上でも、モーターは借りられません。</li>
+</ol>
+
+<h4>レースで占う</h4>
+<p>「今日のレースで見る」に切り替えると、1レースの6人だけを占えます。</p>
+<figure>
+  <img src="img/figUranaiRace.jpg" loading="lazy" alt="">
+  <figcaption>枠番は星でも動かせません。</figcaption>
+</figure>
+<ol class="lg">
+  <li><b>切り替え</b>「選手を並べる」と「今日のレースで見る」。</li>
+  <li><b>場</b>今日やっている場から選びます。</li>
+  <li><b>レース</b>1Rから12R。下の数字は締切の時刻です。締切を過ぎたレースは薄くなります。開いたときは、締切がいちばん近いレースです。</li>
+  <li><b>星の推し</b>星の点がいちばん高い1人です。根拠は星だけです。舟券は自分の目で。</li>
+  <li><b>星の◯番</b>6人の中の星の順位です。並びは枠順のまま変えません。</li>
+</ol>
+<p>出走表や見どころの「この6艇を占う」から来ると、そのレースがこの形で開きます。</p>
+
+<h4>星の答え合わせ</h4>
+<p>占いのページの中で、占いの成績を出しています。</p>
+<figure>
+  <img src="img/figUranaiCheck.jpg" loading="lazy" alt="">
+  <figcaption>分母を隠さないのは、占いでも同じです。</figcaption>
+</figure>
+<ol class="lg">
+  <li><b>表</b>終わった日のレースを、その日の勝負運で上・真ん中・下の3つに分け、1着率と3着以内率を並べます。選手の数と出走の数も出します。</li>
+  <li><b>ひとこと</b>上と下の差の大きさで変わります。星が勝つ日もあります。たぶん、たまたまです。</li>
+  <li><b>星の推しの成績</b>レースごとの星の推しが1着になった率を、同じレースの1号艇と並べます。星が枠に勝てるかの勝負です。</li>
+  <li><b>7日分で確かめる</b>1日分だと偶然でも差が出ます。押すと7日分をまとめて数えます。</li>
+  <li><b>星の計算式</b>点の付け方を全部書いています。同じ生年月日なら、誰が計算しても同じ点になります。</li>
+</ol>
+<div class="miss">
+  <b>これは遊びです</b>
+  舟券の理由にはなりません。見立てともつながっていません。上の答え合わせが証拠です。<br>
+  当たれば星のおかげ、外れたら星のせい。舟券代は星から出ません。
+</div>
+
+<h4>実況アナ図鑑</h4>
+<p>全国24場の実況アナウンサーです。名物の実況から探せます。場の順と名前の順で並べかえられます。</p>
+<p class="small">実況は交代することがあります。当サイトで調べたものなので、ここに無い担当の回もあります。</p>
+
+</section>
+<section class="sec">
+<h3 class="pg" id="g11">用語辞典 ／ 更新履歴</h3>
+<div class="use">
+  <b>こんなときに開く</b>
+  言葉の意味がわからない。／何が変わったか知りたい。
+</div>
+<figure>
+  <img src="img/figGlossary.jpg" loading="lazy" alt="">
+  <figcaption>五十音で引けます。</figcaption>
+</figure>
+<ol class="lg">
+  <li><b>題名</b>競艇用語辞典。</li>
+  <li><b>何が入っているか</b>決まり手・進入・番組・水面のことばです。</li>
+  <li><b>語の数</b>284語。</li>
+  <li><b>この辞典の立場</b>意味と仕組みの説明だけです。<b>有利か不利かの判断や、予想や買い目には触れません。</b></li>
+  <li><b>さがす</b>見出し・ふりがな・別の呼び方で調べられます。</li>
+  <li><b>分け方</b>すべて／公式用語／通称／買い方。</li>
+  <li><b>五十音</b>行で絞り込めます。</li>
+</ol>
+<p>観戦記の中の言葉からも、ここに飛んできます。</p>
+
+<h4>更新履歴</h4>
+<p>どのページの何を変えたかの記録です。新しいものが上にあります。</p>
+<p class="small">トップの帯に日付が出ていたら、まだ読んでいない更新があるという意味です。</p>
+
+</section>
+<section class="sec">
+<h3 class="pg" id="g12">やらないこと</h3>
+<p>技術の話ではなく、線引きの話です。</p>
+<ul>
+  <li>買い目を出す</li>
+  <li>当たった率だけを宣伝する（外れも同じ場所に出します）</li>
+  <li>「残りわずか」「あなただけ」のような、あおる言葉</li>
+  <li>ランダムな当たり演出</li>
+  <li>連続ログインの記録で通わせる</li>
+  <li>通知で急かす</li>
+  <li>順位を付けられないものにランキングを作る</li>
+  <li>分母のわからない率を出す</li>
+  <li>選手の気持ちを推測して書く</li>
+</ul>
+<p>また来てもらう理由は、毎朝きまった時間に新しくなることだけです。それで足りると考えています。</p>
+<div class="use">
+  <b>全部のページで同じ基準</b>
+  読む人の判断を助けるものは使います。<br>
+  読む人の反射を利用するものは使いません。
+</div>
+<p class="small">舟券の購入は20歳になってから。無理のない範囲で楽しみましょう。</p>
+
+<div class="end">材料はそろえた。決めるのは、あなた。<br>毎朝、レースが始まる前に数字が新しくなります。</div>
+<div class="sign">データ攻め ── 制作・運営 あべけん</div>
+
+</section>
+</main>
+
+<div id="toc"><div class="inr">
+  <h2>もくじ</h2>
+  <input id="srch" type="search" placeholder="記号や言葉でさがす（例：N少）" autocomplete="off">
+  <p id="hit"></p>
+  <div id="list"><p class="gp">第1部 はじめの3分</p>
+<a href="#s11"><i class="k1">1</i>ホーム画面に置く</a>
+<a href="#s12"><i class="k2">2</i>トップで今日の開催を見る</a>
+<a href="#s13"><i class="k3">3</i>答え合わせの帯を読む</a>
+<a href="#s14"><i class="k4">4</i>自分の場と好きな選手を登録する</a>
+<a href="#s15"><i class="k5">5</i>1日の見る順番</a>
+<p class="gp">第2部 困ったとき</p>
+<a href="#s21"><i class="dot"></i>記号の見本</a>
+<a href="#s22"><i class="dot"></i>おかしく見えるとき</a>
+<a href="#s23"><i class="dot"></i>よくある質問</a>
+<p class="gp">第3部 画面の辞書</p>
+<a href="#g01"><i class="bar"></i>出走表</a>
+<a href="#g02"><i class="bar"></i>見どころ</a>
+<a href="#g03"><i class="bar"></i>モーター</a>
+<a href="#g04"><i class="bar"></i>モーター整備</a>
+<a href="#g05"><i class="bar"></i>24場のトリセツ</a>
+<a href="#g06"><i class="bar"></i>選手図鑑</a>
+<a href="#g07"><i class="bar"></i>レース結果</a>
+<a href="#g08"><i class="bar"></i>万舟のツボ</a>
+<a href="#g09"><i class="bar"></i>検証</a>
+<a href="#g10"><i class="bar"></i>場の文化 ／ 占い ／ 実況アナ</a>
+<a href="#g11"><i class="bar"></i>用語辞典 ／ 更新履歴</a>
+<a href="#g12"><i class="bar"></i>やらないこと</a></div>
+</div></div>
+
+<div id="bar">
+  <button id="bBack">◀ データ攻め</button>
+  <button id="bTop">さいしょへ</button>
+  <button id="bToc">もくじ・さがす</button>
+</div>
+
+<div id="zoom"><img alt=""></div>
+
+<script>
+window.CUE={"figBoatBottom":{"ar":1.1314,"cx":0.04,"r":0.03538,"ys":[0.0866,0.20931,0.33986,0.47824,0.58529,0.91166]},"figBoatTop":{"ar":1.1743,"cx":0.04,"r":0.03538,"ys":[0.09801,0.24435,0.32385,0.41509,0.54968,0.69061,0.86134]},"figGlossary":{"ar":1.0,"cx":0.04,"r":0.03538,"ys":[0.15423,0.26962,0.41962,0.60808,0.80038,0.91577,0.99077]},"figHlCards":{"ar":1.04,"cx":0.04,"r":0.03538,"ys":[0.0964,0.2564,0.3364,0.4164,0.6804]},"figHlLegend":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.13828,0.27621,0.41069,0.46931,0.52448,0.62103,0.73138,0.82793]},"figKensho":{"ar":0.9286,"cx":0.04,"r":0.03538,"ys":[0.14321,0.25036,0.3575,0.57179,0.64321,0.92893]},"figMaint":{"ar":0.9286,"cx":0.04,"r":0.03538,"ys":[0.13607,0.2075,0.34321,0.53607,0.71464,0.83964,0.98786]},"figMotor":{"ar":0.7046,"cx":0.04,"r":0.03538,"ys":[0.03821,0.12873,0.19702,0.28157,0.36612,0.45447,0.5981,0.94607]},"figMotorRow":{"ar":0.7092,"cx":0.04,"r":0.03538,"ys":[0.07338,0.17321,0.25559,0.3036,0.66858,0.86116,0.94408]},"figMotorShingae":{"ar":1.1404,"cx":0.04,"r":0.03538,"ys":[0.05658,0.13377,0.25044,0.46272,0.53991]},"figPayTop":{"ar":1.0,"cx":0.04,"r":0.03538,"ys":[0.19269,0.285,0.39269,0.52346,0.61577]},"figPlayerInfo":{"ar":0.8667,"cx":0.04,"r":0.03538,"ys":[0.01833,0.347,0.427,0.52033,0.747,0.867,0.947]},"figPlayerRank":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.03828,0.18655,0.25552,0.42793,0.57276,0.84862,0.93138]},"figPlayerStats":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.04172,0.30379,0.41414,0.57276,0.6831,0.76241,0.86241]},"figRaceHead":{"ar":1.0943,"cx":0.04,"r":0.03538,"ys":[0.0585,0.16204,0.30598,0.44487,0.60648,0.7984,0.94066]},"figRaceList":{"ar":0.9461,"cx":0.04,"r":0.03538,"ys":[0.0615,0.1401,0.61608,0.73253,0.82933]},"figRaceTop":{"ar":1.8598,"cx":0.04,"r":0.03538,"ys":[0.15093,0.27682,0.40415,0.57582,0.799]},"figResultBoats":{"ar":0.9286,"cx":0.04,"r":0.03538,"ys":[0.02536,0.10036,0.1825,0.44679,0.74679,0.8575]},"figStadiumDetail":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.03241,0.07517,0.13828,0.38655,0.44172,0.52448,0.66241]},"figStadiumList":{"ar":0.8966,"cx":0.04,"r":0.03538,"ys":[0.75897,0.82793,0.8969]},"figStadiumTop":{"ar":1.1304,"cx":0.04,"r":0.03538,"ys":[0.11348,0.47,0.55696,0.6787,0.83522]},"figTopKaisai":{"ar":0.785,"cx":0.04,"r":0.03538,"ys":[0.05465,0.27748,0.37893,0.50936,0.60356,0.85356]},"figTopKensho":{"ar":0.888,"cx":0.04,"r":0.03538,"ys":[0.07548,0.16428,0.22439,0.28449,0.3446,0.46619,0.61646]},"figTopNav":{"ar":0.8497,"cx":0.04,"r":0.03538,"ys":[0.17288,0.27092,0.41209,0.55131,0.66307,0.76438,0.84477,0.96046]},"figTopPages":{"ar":0.7766,"cx":0.04,"r":0.03538,"ys":[0.10544,0.2494,0.47162,0.96983]},"figVenueList":{"ar":0.8737,"cx":0.04,"r":0.03538,"ys":[0.10719,0.19523,0.33367,0.49362,0.57964,0.71741]},"figUranai":{"ar":0.4199,"cx":0.04,"r":0.03538,"ys":[0.24273,0.33253,0.48433,0.66877,0.85417]},"figUranaiCheck":{"ar":0.5732,"cx":0.04,"r":0.03538,"ys":[0.35163,0.54034,0.64308,0.86618,0.95833]},"figUranaiRace":{"ar":0.6363,"cx":0.04,"r":0.03538,"ys":[0.05311,0.13387,0.29393,0.62971,0.80984]},"figUranaiMine":{"ar":1.3374,"cx":0.04,"r":0.03538,"ys":[0.28035,0.40689,0.53241,0.84516]}};
+/* ヒーロー：レーンを描いて、1回だけ走らせる */
+(function(){
+  var L=document.getElementById('lanes');
+  var back=[0,7,13,22,30,41];          /* 助走のちがい：きれいに揃えない */
+  for(var i=0;i<6;i++){
+    var y=30+i*34, dl=(.12+i*.065)+'s', px=back[i];
+    var ln=document.createElement('div');ln.className='ln';
+    ln.style.top=(y+27)+'px';L.appendChild(ln);
+    var w=document.createElement('div');w.className='wake';
+    w.style.top=(y+13)+'px';w.style.right='calc(22% + '+(px+38)+'px)';
+    w.style.setProperty('--wk',(32+i*9)+'%');
+    w.style.animationDelay=dl;L.appendChild(w);
+    var b=document.createElement('div');b.className='bt k'+(i+1);b.textContent=i+1;
+    b.style.top=y+'px';b.style.left='calc(78% - '+(42+px)+'px)';
+    b.style.animationDelay=dl;L.appendChild(b);
+  }
+  var st=document.createElement('div');st.className='st';L.appendChild(st);
+  requestAnimationFrame(function(){document.body.classList.add('go');});
+})();
+
+
+/* 図と説明をつなぐ：行を押すと図がその丸を映す。順番再生もできる */
+(function(){
+  var CUE=window.CUE||{},timer=null,cur=null;
+
+  function leave(){
+    if(timer){clearInterval(timer);timer=null;}
+    if(!cur)return;
+    cur.fig.classList.remove('play');
+    cur.btn.classList.remove('on');
+    cur.btn.label.nodeValue='順番に見る';
+    cur.nav.classList.remove('on');
+    cur.pan.style.transform='';cur.vp.style.height='';
+    cur.lis.forEach(function(x){x.classList.remove('on');});
+    cur=null;
+  }
+
+  document.querySelectorAll('figure').forEach(function(fig){
+    var img=fig.querySelector('img');
+    if(!img)return;
+    var ol=fig.nextElementSibling;
+    while(ol&&ol.tagName!=='OL'&&ol.tagName!=='FIGURE'&&ol.tagName!=='H3'&&ol.tagName!=='H4')
+      ol=ol.nextElementSibling;
+    if(!ol||ol.tagName!=='OL'||!ol.classList.contains('lg'))return;
+    var lis=[].slice.call(ol.querySelectorAll('li'));
+    var key=(img.getAttribute('src')||'').replace(/^.*\/|\.jpg$/g,'');
+    var c=CUE[key];
+    if(!c||c.ys.length!==lis.length||lis.length<3){
+      lis.forEach(function(li){               /* 図と対応が取れない表は印だけ */
+        li.addEventListener('click',function(){
+          var on=li.classList.contains('on');
+          lis.forEach(function(x){x.classList.remove('on');});
+          if(!on)li.classList.add('on');
+        });
+      });
+      return;
+    }
+
+    var vp=document.createElement('div');vp.className='vp';
+    var pan=document.createElement('div');pan.className='pan';
+    img.parentNode.insertBefore(vp,img);
+    pan.appendChild(img);vp.appendChild(pan);
+    var ring=document.createElement('span');ring.className='ring';pan.appendChild(ring);
+    var cue=document.createElement('div');cue.className='cue';fig.appendChild(cue);
+    c.ys.forEach(function(y,i){                 /* 図の中の番号そのものを押せる */
+      var h=document.createElement('button');h.className='hot';h.type='button';
+      h.setAttribute('aria-label','説明 '+(i+1));
+      h.style.left=(c.cx*100)+'%';h.style.top=(y*100)+'%';
+      h.addEventListener('click',function(e){e.stopPropagation();enter(i,false);});
+      pan.appendChild(h);
+    });
+    function sizeHot(){
+      var d=Math.max(44,2*c.r*img.offsetWidth+10)+'px';
+      pan.querySelectorAll('.hot').forEach(function(h){h.style.width=d;h.style.height=d;});
+    }
+    img.addEventListener('load',sizeHot);sizeHot();addEventListener('resize',sizeHot);
+
+    var btn=document.createElement('button');btn.className='playbtn';
+    var bar=document.createElement('span');bar.className='bar';btn.appendChild(bar);
+    var label=document.createTextNode('順番に見る');btn.appendChild(label);btn.label=label;
+    var nav=document.createElement('span');nav.className='nav';
+    var prev=document.createElement('button');prev.textContent='◀';prev.setAttribute('aria-label','前へ');
+    var next=document.createElement('button');next.textContent='▶';next.setAttribute('aria-label','次へ');
+    nav.appendChild(prev);nav.appendChild(next);
+    fig.appendChild(btn);fig.appendChild(nav);
+
+    var at=-1,last=0;
+    function show(i){
+      last=i;
+      var iw=img.offsetWidth,ih=img.offsetHeight;
+      if(!img.complete||ih<60){img.loading='eager';return;}
+      vp.style.height=Math.round(Math.min(innerHeight*0.46,ih))+'px';
+      var vh=vp.clientHeight,d=2*c.r*iw;
+      ring.style.width=d+'px';ring.style.height=d+'px';
+      ring.style.left=(c.cx*100)+'%';ring.style.top=(c.ys[i]*100)+'%';
+      var t=vh*0.42-c.ys[i]*ih;
+      t=Math.max(Math.min(t,0),Math.min(0,vh-ih));
+      pan.style.transform='translateY('+t+'px)';
+      cue.textContent=i+1;
+      cue.style.animation='none';void cue.offsetHeight;cue.style.animation='';
+    }
+    img.addEventListener('load',function(){if(fig.classList.contains('play'))show(last);});
+
+    function enter(i,scroll){
+      if(cur&&cur.fig!==fig)leave();
+      if(!cur){
+        cur={fig:fig,btn:btn,lis:lis,pan:pan,vp:vp,nav:nav};
+        fig.classList.add('play');nav.classList.add('on');
+        img.loading='eager';
+        vp.style.height=Math.round(innerHeight*0.46)+'px';
+      }
+      at=i;
+      lis.forEach(function(x){x.classList.remove('on');});
+      lis[i].classList.add('on');
+      show(i);
+      setTimeout(function(){
+        if(scroll){
+          var r=fig.getBoundingClientRect();
+          if(r.top<40||r.top>innerHeight*0.4)scrollBy({top:r.top-46,behavior:'smooth'});
+          return;
+        }
+        /* 図は上に貼りつくので、貼りついたときの下端で測る */
+        var base=46+fig.offsetHeight+14;
+        var q=lis[i].getBoundingClientRect();
+        if(q.top<base||q.bottom>innerHeight-72)
+          scrollTo({top:scrollY+q.top-base,behavior:'smooth'});
+      },40);
+    }
+
+    lis.forEach(function(li,i){
+      li.addEventListener('click',function(){
+        if(cur&&cur.fig===fig&&at===i&&!timer){leave();return;}
+        if(timer){clearInterval(timer);timer=null;
+          btn.classList.remove('on');btn.label.nodeValue='順番に見る';}
+        enter(i,false);
+      });
+    });
+
+    function tick(){
+      if(at+1>=lis.length){
+        clearInterval(timer);timer=null;
+        btn.classList.remove('on');btn.label.nodeValue='順番に見る';
+        return;
+      }
+      enter(at+1,false);
+    }
+    btn.addEventListener('click',function(){
+      if(timer){clearInterval(timer);timer=null;
+        btn.classList.remove('on');btn.label.nodeValue='順番に見る';return;}
+      enter(cur&&cur.fig===fig&&at>=0?at:0,at<0);
+      btn.classList.add('on');btn.label.nodeValue='とめる';
+      bar.style.animation='none';void bar.offsetHeight;bar.style.animation='';
+      timer=setInterval(tick,2400);
+    });
+    function step(d){
+      var i=Math.max(0,Math.min(lis.length-1,(at<0?0:at)+d));
+      enter(i,false);
+      if(timer){clearInterval(timer);timer=setInterval(tick,2400);
+        bar.style.animation='none';void bar.offsetHeight;bar.style.animation='';}
+    }
+    prev.onclick=function(e){e.stopPropagation();step(-1);};
+    next.onclick=function(e){e.stopPropagation();step(1);};
+  });
+
+  addEventListener('keydown',function(e){if(e.key==='Escape')leave();});
+})();
+
+/* 貼りついた見出しを細くする */
+(function(){
+  var hs=[].slice.call(document.querySelectorAll('h3.step,h3.pg')),tick=false;
+  function upd(){
+    tick=false;
+    hs.forEach(function(h){
+      var t=h.getBoundingClientRect().top;
+      h.classList.toggle('stuck',t<=1&&t>-4);
+    });
+  }
+  addEventListener('scroll',function(){
+    if(!tick){tick=true;requestAnimationFrame(upd);}
+  },{passive:true});
+  upd();
+})();
+
+/* 水紋：画面のどこを押しても出る（スクロールのときは出さない） */
+(function(){
+  var L=document.createElement('div');L.id='ripL';document.body.appendChild(L);
+  var sx=0,sy=0,sv=0,ok=false;
+  function pt(e){var t=(e.changedTouches&&e.changedTouches[0])||(e.touches&&e.touches[0])||e;
+    return {x:t.clientX,y:t.clientY};}
+  function down(e){var p=pt(e);sx=p.x;sy=p.y;sv=window.pageYOffset;ok=true;}
+  function up(e){
+    if(!ok)return;ok=false;
+    var p=pt(e);
+    if(Math.abs(p.x-sx)>12||Math.abs(p.y-sy)>12)return;
+    if(Math.abs(window.pageYOffset-sv)>4)return;
+    ['','r2'].forEach(function(k){
+      var s=document.createElement('span');s.className='rip '+k;
+      s.style.left=p.x+'px';s.style.top=p.y+'px';
+      L.appendChild(s);
+      setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},1900);
+    });
+  }
+  if(window.PointerEvent){
+    addEventListener('pointerdown',down,true);
+    addEventListener('pointerup',up,true);
+    addEventListener('pointercancel',function(){ok=false;},true);
+  }else{
+    addEventListener('touchstart',down,true);
+    addEventListener('touchend',up,true);
+    addEventListener('mousedown',down,true);
+    addEventListener('mouseup',up,true);
+  }
+})();
+
+/* 水位 */
+var g=document.getElementById('gauge');
+function gauge(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  g.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',gauge,{passive:true});gauge();
+
+/* Q&A：押すと開く */
+document.querySelectorAll('.sy').forEach(function(s){
+  var q=s.querySelector('.q'),a=s.querySelector('.a');
+  if(!q||!a)return;
+  var in_=document.createElement('div');
+  while(a.firstChild)in_.appendChild(a.firstChild);
+  a.appendChild(in_);
+  q.setAttribute('tabindex','0');q.setAttribute('role','button');
+  function tg(){
+    var o=s.classList.toggle('open');
+    a.style.maxHeight=o?(in_.scrollHeight+4)+'px':'0px';
+    s.classList.remove('just');
+    if(o){void s.offsetWidth;s.classList.add('just');}
+    q.setAttribute('aria-expanded',o?'true':'false');
+  }
+  q.addEventListener('click',tg);
+  q.addEventListener('keydown',function(e){
+    if(e.key==='Enter'||e.key===' '){e.preventDefault();tg();}
+  });
+});
+
+/* 写真の拡大 */
+var z=document.getElementById('zoom'),zi=z.querySelector('img');
+document.querySelectorAll('figure img').forEach(function(im){
+  im.addEventListener('click',function(){zi.src=im.currentSrc||im.src;z.classList.add('on');});
+});
+z.addEventListener('click',function(){z.classList.remove('on');});
+
+/* もくじ・さがす */
+var toc=document.getElementById('toc');
+var shade=document.createElement('div');shade.id='shade';document.body.appendChild(shade);
+function openToc(o){toc.classList.toggle('on',o);shade.classList.toggle('on',o);
+  document.body.style.overflow=o?'hidden':'';}
+shade.addEventListener('click',function(){openToc(false);});
+document.getElementById('bToc').addEventListener('click',function(){openToc(!toc.classList.contains('on'));});
+document.getElementById('bTop').addEventListener('click',function(){openToc(false);scrollTo({top:0,behavior:'smooth'});});
+toc.addEventListener('click',function(e){if(e.target.closest('a'))openToc(false);});
+
+/* ページ内の移動（もくじ・入口）は履歴に積まない。積むと「戻る」が元のページに戻れなくなる */
+document.addEventListener('click',function(e){
+  var a=e.target.closest('a[href^="#"]'); if(!a)return;
+  var t=document.getElementById(a.getAttribute('href').slice(1)); if(!t)return;
+  e.preventDefault(); t.scrollIntoView();
+  try{history.replaceState(null,'','#'+t.id);}catch(_){}
+});
+
+/* 戻る：来たページの名前を出して、そのページに戻す。外から来たときはトップへ */
+(function(){
+  var NAMES={'':'トップ','racers':'出走表','highlights':'見どころ','motor':'モーター',
+    'motor-maintenance':'モーター整備','stadium':'24場','players':'選手図鑑','results':'レース結果',
+    'payouts':'万舟のツボ','kensho':'検証','fan':'場の文化','uranai':'占い','announcers':'実況アナ',
+    'glossary':'用語辞典','updates':'更新履歴'};
+  var root=location.pathname.replace(/(torisetsu\/(index\.html)?|next\/torisetsu\.html)$/,'');
+  var b=document.getElementById('bBack'), back=false;
+  try{
+    var u=new URL(document.referrer);
+    if(u.origin===location.origin&&u.pathname.indexOf(root)===0&&u.pathname!==location.pathname){
+      var seg=u.pathname.slice(root.length).split('/')[0];
+      if(Object.prototype.hasOwnProperty.call(NAMES,seg)){ b.textContent='◀ '+NAMES[seg]; back=true; }
+    }
+  }catch(_){}
+  b.addEventListener('click',function(){
+    openToc(false);
+    if(back&&history.length>1) history.back(); else location.href=root;
+  });
+})();
+addEventListener('keydown',function(e){if(e.key==='Escape'){openToc(false);z.classList.remove('on');}});
+
+/* 検索：見出しの中を順に当てる */
+var items=[].map.call(document.querySelectorAll('#list a'),function(a){
+  var t=document.getElementById(a.getAttribute('href').slice(1));
+  var sec=[],n=t;
+  while(n&&(n=n.nextElementSibling)){
+    if(/^(H3)$/.test(n.tagName)||n.classList.contains('partttl'))break;
+    sec.push(n.textContent);
+  }
+  return {a:a,txt:(a.textContent+' '+(t?t.textContent:'')+' '+sec.join(' ')).replace(/\s+/g,'')};
+});
+var srch=document.getElementById('srch'),hit=document.getElementById('hit');
+var gps=[].slice.call(document.querySelectorAll('#list .gp'));
+function groups(){
+  gps.forEach(function(g){
+    var any=false,n=g;
+    while((n=n.nextElementSibling)&&n.tagName==='A'){
+      if(!n.classList.contains('hide')){any=true;break;}
+    }
+    g.classList.toggle('hide',!any);
+  });
+}
+srch.addEventListener('input',function(){
+  var q=srch.value.replace(/\s+/g,'');
+  if(!q){
+    items.forEach(function(o){o.a.classList.remove('hide');});
+    groups();hit.textContent='';return;
+  }
+  var n=0;
+  items.forEach(function(o){
+    var ok=o.txt.indexOf(q)>=0;o.a.classList.toggle('hide',!ok);if(ok)n++;
+  });
+  groups();
+  hit.textContent=n?(n+'か所に出てきます'):'見つかりません。ちがう言葉でためしてください';
+});
+</script>
+<script src="../assets/guard.js" defer></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics -->
+<script src="../next/aiNashi2/aiNashi2.js"></script>
+</body>
+</html>

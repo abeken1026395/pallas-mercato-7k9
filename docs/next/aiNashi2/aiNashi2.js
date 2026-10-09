@@ -1,4 +1,6 @@
-/* AI臭さを消す共通の型（実験場の試作・2026-10-09）
+/* AI臭さを消す型 第2案（実験場の試作・2026-10-09）
+   第1案に加えて：箱をやめて線で区切る（日経ビジュアルデータの紙面型）、見出しを極太書体に（F1の書体の効かせ方）、
+   選択中は大時計の針の黄色、背景はトップと同じく上から下へ暗くなる形を全ページに
    描画後のページに、決まりを機械的にかける。本番ではこのスクリプトを使わず、元ファイルを直す。
    1) 箱のグラデーション → 最初の色の単色（文字のグラデーションは最初の色の文字に）
    2) 角丸 → 4px（小さい札は3px、小さい点はそのまま）
@@ -74,9 +76,24 @@
       var state = el.matches("[aria-selected=true],[aria-pressed=true],.active,.on,.sel,.is-active,.cur,.current");
       var violet = hue >= 240 && hue <= 290;
       if (A >= 0.7 && sat >= 0.35 && mx >= 0.45 && h <= 64 && ((state && hue >= 205 && hue <= 290) || violet)) {
-        el.style.setProperty("background-color", "#e8ecef", "important");
-        el.style.setProperty("color", "#0a1422", "important");
-        el.style.setProperty("border-color", "#e8ecef", "important");
+        el.style.setProperty("background-color", "#f2c200", "important");
+        el.style.setProperty("color", "#111111", "important");
+        el.style.setProperty("border-color", "#f2c200", "important");
+      }
+    }
+    // 大きい箱は背景と枠をやめ、下の線1本で区切る（中身の札・ボタン・表の行は対象外）
+    if (!el.matches("input,select,textarea,td,th,tr,thead,tbody,table,img,canvas,[role=tab]") && (el.children.length >= 2 || el.matches("a,button,details,summary")) && h >= 48) {
+      var pw = el.parentElement ? el.parentElement.getBoundingClientRect().width : w;
+      var bgc = cs.backgroundColor.match(/rgba?\(([^)]*)\)/);
+      var al = bgc ? (bgc[1].split(",")[3] == null ? 1 : +bgc[1].split(",")[3]) : 0;
+      if (al > 0.3 && pw > 0 && w >= pw * 0.85 && w >= 240) {
+        el.style.setProperty("background-color", "transparent", "important");
+        el.style.setProperty("border", "0", "important");
+        el.style.setProperty("border-bottom", "1px solid rgba(232,236,239,.16)", "important");
+        el.style.setProperty("border-radius", "0", "important");
+        el.style.setProperty("box-shadow", "none", "important");
+        el.style.setProperty("padding-left", "0", "important");
+        el.style.setProperty("padding-right", "0", "important");
       }
     }
     if (tag !== "H1" && FONT.test(cs.fontFamily)) {
