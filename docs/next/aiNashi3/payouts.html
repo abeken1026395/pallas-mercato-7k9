@@ -1,0 +1,184 @@
+<!-- データ攻め by あべけん https://abeken1026395.github.io/pallas-mercato-7k9/ -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<base href="../../payouts/">
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="author" content="あべけん（データ攻め）">
+<link rel="canonical" href="https://abeken1026395.github.io/pallas-mercato-7k9/payouts/">
+<meta name="description" content="全24場の3連単の実績から、場別の荒れ率、高配当レースTOP10、各場のR別万舟率への入口をまとめた総合ページです。データ期間は2025/07/15〜2026/09/13の64,310レース。買い目は出しません。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="万舟のツボ 総合｜全24場">
+<meta property="og:description" content="全24場の3連単の実績から、場別の荒れ率、高配当レースTOP10、各場のR別万舟率への入口をまとめた総合ページです。データ期間は2025/07/15〜2026/09/13の64,310レース。買い目は出しません。">
+<meta property="og:image" content="https://abeken1026395.github.io/pallas-mercato-7k9/icon512.png">
+<meta property="og:url" content="https://abeken1026395.github.io/pallas-mercato-7k9/payouts/">
+<meta property="og:site_name" content="データ攻め">
+<meta name="twitter:card" content="summary">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>万舟のツボ 総合｜全24場 | データ攻め</title>
+<style>
+  :root{
+    --bg:#0b1219; --panel:#121c26; --panel2:#0f1822;
+    --line:#1e2c3a; --txt:#e6edf3; --sub:#8aa0b2;
+    --acc:#ffd166; --bar:#2b6cb0; --barHi:#e05b4b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--txt);
+    font-family:-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+    line-height:1.6;padding:16px;max-width:760px;margin:0 auto;}
+  a{color:var(--acc);}
+  header{margin-bottom:16px;}
+  h1{font-size:1.3rem;color:var(--acc);}
+  .lead{color:var(--sub);font-size:.85rem;margin-top:4px;}
+  .period{margin-top:6px;font-size:12px;opacity:.75;}
+
+  .secttl{font-size:.95rem;color:var(--acc);margin:22px 0 10px;font-weight:700;
+    border-left:3px solid var(--acc);padding-left:8px;}
+  .note{font-size:.72rem;color:var(--sub);margin-top:8px;}
+
+  /* 高配当TOP10 */
+  .pay{display:flex;align-items:baseline;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);font-size:.85rem;}
+  .pay:last-child{border-bottom:0;}
+  .pay .pos{width:22px;flex:none;color:var(--sub);font-weight:700;text-align:center;}
+  .pay .amt{color:var(--acc);font-weight:800;font-variant-numeric:tabular-nums;width:92px;flex:none;text-align:right;}
+  .pay .body{flex:1;}
+  .pay .combo{font-weight:700;letter-spacing:.05em;}
+  .pay .std{font-weight:700;color:var(--txt);}
+  .pay .meta2{color:var(--sub);font-size:.78rem;}
+
+  /* ランキング（バー） */
+  .rk{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:.85rem;}
+  .rk .pos{width:22px;flex:none;color:var(--sub);text-align:center;font-variant-numeric:tabular-nums;}
+  .rk .std{width:60px;flex:none;font-weight:700;}
+  .rk .std a{text-decoration:none;border-bottom:1px dotted var(--acc);}
+  .rk .barwrap{flex:1;background:var(--panel2);border-radius:5px;height:16px;overflow:hidden;}
+  .rk .barwrap i{display:block;height:100%;background:var(--bar);}
+  .rk.hi .barwrap i{background:var(--barHi);}
+  .rk .v{width:78px;text-align:right;flex:none;font-variant-numeric:tabular-nums;}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;}
+  .links{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+  .links a{font-size:.8rem;background:var(--panel2);border:1px solid var(--line);border-radius:8px;
+    padding:5px 10px;text-decoration:none;color:var(--acc);}
+  footer{margin-top:26px;font-size:.75rem;color:var(--sub);border-top:1px solid var(--line);padding-top:12px;}
+  .err{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;color:var(--sub);font-size:.85rem;}
+.sitelink{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;margin:6px 0 2px;font-size:13px;line-height:1;color:inherit;text-decoration:underline;text-underline-offset:3px}
+.sitelink:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+.siteback{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;margin:6px 0 2px;font-size:13px;line-height:1;color:inherit;text-decoration:underline;text-underline-offset:3px}
+.siteback:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+  /* 読み込み時のレイアウトずれ防止：データで埋まるブロックの高さを先に確保（幅390pxの実測値） */
+  #period{min-height:38px;} #linksBody{min-height:235px;} #topBody{min-height:419px;}
+  #arareBody{min-height:744px;} #maxBody{min-height:744px;}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../next/aiNashi3/aiNashi3.css">
+</head>
+<body>
+<div class="aiNashiNote">実験場の試作（AI臭さを消す型・第3案）：万舟のツボ。<a href="./">本番のこのページ</a>　<a href="../next/aiNashi3/">試作の一覧</a></div>
+<a class="siteback" href="../">← データ攻め トップ</a>
+<a class="sitelink" href="../torisetsu/#g08">📘 トリセツ</a>
+<header>
+  <h1>万舟のツボ 総合</h1>
+  <div class="lead">全24場を横断。データ期間の3連単の実績だけで読む「荒れ」と「一撃」。買い目は出しません。</div>
+  <div class="period" id="period"></div>
+</header>
+
+<div class="secttl">📄 各場のR別ページ</div>
+<div id="linksBody" class="links"></div>
+
+<div class="secttl">🎆 全場 高配当レース TOP10</div>
+<div id="topBody" class="card">読み込み中…</div>
+
+<div class="secttl">🔥 場別 荒れ率ランキング（全24場）</div>
+<div id="arareBody" class="card"></div>
+<div class="note">万舟率＝3連単配当が1万円以上になったレースの割合。高いほど荒れやすい。</div>
+
+<div class="secttl">💰 場別 最高配当ランキング（全24場）</div>
+<div id="maxBody" class="card"></div>
+<div class="note">この期間に実際に出た3連単の最高配当。頻度（荒れ率）とは別軸の“一撃”。</div>
+
+<footer>
+  出典: BOAT RACE オフィシャルウェブサイト 競走成績（BoatraceOpenAPI 経由・データ期間の実績・3連単）。<br>
+  これは過去実績の集計であり、買い目・予想ではありません。将来の結果を保証するものではありません。
+</footer>
+
+<script>
+function yen(n){return n.toLocaleString()+'円';}
+function stdLink(s){ return s.slug ? '<a href="../'+s.slug+'-payouts/">'+s.stadium+'</a>' : s.stadium; }
+
+function glyphRuns(){return [21983, 10015, 12487, 12540, 12479, 25915, 12417, 32, 9472, 9472, 32, 21046, 20316, 12539, 36939, 21942, 32, 12354, 12409, 12369, 12435];}
+function gridOffsets(){var g="44OH44O844K/5pS744KBIOKUgOKUgCDliLbkvZzjg7vpgYvllrYg44GC44G544GR44KT",b=atob(g),a=[];for(var i=0;i<b.length;i++)a.push(b.charCodeAt(i));return new TextDecoder("utf-8").decode(new Uint8Array(a));}
+function spanTicks(){var k=0xba17;return [35536, 35563, 35496, 57132, 35478, 47671, 40727, 40727, 47671, 59425, 62795, 35564, 10844, 61345, 47671, 35413, 35438, 35398, 35460].map(function(x){return x^k;});}
+function emRatio(){
+  var a=String.fromCodePoint.apply(null,glyphRuns().slice(2));
+  var b=gridOffsets(); if(a!==b)return null;
+  var c=spanTicks(),p=[];for(var ch of a)p.push(ch.codePointAt(0));
+  if(c.length!==p.length)return null;
+  for(var i=0;i<p.length;i++){if(c[i]!==p[i])return null;}
+  var ok=((location.hostname==="abeken1026395.github.io"&&location.pathname.indexOf("/pallas-mercato-7k9/")===0)||location.hostname==="datazeme.pages.dev"||/\.datazeme\.pages\.dev$/.test(location.hostname)||["localhost","127.0.0.1",""].indexOf(location.hostname)>=0);
+  if(!ok)return null;
+  var h=0;for(var i=0;i<a.length;i++){h=(h*31+a.codePointAt(i))>>>0;}
+  var d=function(s){return decodeURIComponent(escape(atob(s)));};
+  return {t:a,k:"k"+(h%100000),ids:d("cGVyaW9kfHRvcEJvZHl8YXJhcmVCb2R5fG1heEJvZHl8bGlua3NCb2R5").split("|")};
+}
+
+fetch('./summary.json?_=' + Date.now())
+  .then(function(r){ if(!r.ok) throw new Error('no data'); return r.json(); })
+  .then(function(d){
+    var _s=emRatio(); if(!_s) return; var _I=_s.ids;
+    if(d.period){
+      document.getElementById(_I[0]).textContent =
+        'データ期間: '+d.period.from+'〜'+d.period.to+'（'+d.period.days+'日 / '+d.venueCount+'場 / '+
+        (d.totalRaces||0).toLocaleString()+'レース / 万舟'+(d.manTotal||0).toLocaleString()+'本）';
+    }
+
+    // 全場 高配当TOP10
+    document.getElementById(_I[1]).innerHTML = (d.topPayouts||[]).map(function(p,i){
+      return '<div class="pay"><div class="pos">'+(i+1)+'</div>'+
+        '<div class="amt">'+yen(p.payout)+'</div>'+
+        '<div class="body"><span class="std">'+stdLink(p)+'</span> '+
+        '<span class="combo">'+p.combo+'</span> '+
+        '<span class="meta2">'+p.date+' '+p.rno+'R</span></div></div>';
+    }).join('');
+
+    // 荒れ率ランキング
+    var ar = d.arareRanking||[];
+    var amax = ar.length ? ar[0].manRate||1 : 1;
+    document.getElementById(_I[2]).innerHTML = ar.map(function(s,i){
+      var hi = i < 5;
+      return '<div class="rk'+(hi?' hi':'')+'"><div class="pos">'+(i+1)+'</div>'+
+        '<div class="std">'+stdLink(s)+'</div>'+
+        '<div class="barwrap"><i style="width:'+Math.round(s.manRate/amax*100)+'%"></i></div>'+
+        '<div class="v">'+s.manRate.toFixed(1)+'%</div></div>';
+    }).join('');
+
+    // 最高配当ランキング
+    var mx = d.maxRanking||[];
+    var mmax = mx.length ? mx[0].payout||1 : 1;
+    document.getElementById(_I[3]).innerHTML = mx.map(function(s,i){
+      var hi = i < 5;
+      return '<div class="rk'+(hi?' hi':'')+'"><div class="pos">'+(i+1)+'</div>'+
+        '<div class="std">'+stdLink(s)+'</div>'+
+        '<div class="barwrap"><i style="width:'+Math.round(s.payout/mmax*100)+'%"></i></div>'+
+        '<div class="v">'+yen(s.payout)+'</div></div>';
+    }).join('');
+
+    // 各場ページへのリンク
+    var seen={};
+    var links=(d.arareRanking||[]).filter(function(s){return s.slug && !seen[s.slug] && (seen[s.slug]=1);});
+    document.getElementById(_I[4]).innerHTML = links.map(function(s){
+      return '<a href="../'+s.slug+'-payouts/">'+s.stadium+' →</a>';
+    }).join('');
+  })
+  .catch(function(){
+    document.getElementById('topBody').innerHTML =
+      '<div class="err">まだデータがありません。「update payouts summary」の集計後に表示されます。</div>';
+  });
+</script>
+<footer style="margin:24px auto 8px;max-width:900px;text-align:center;font-size:10px;color:#8a94a3;letter-spacing:.3px;line-height:1.7;">© 2026 データ攻め ── 制作・運営 <a href="https://www.youtube.com/@abe-ken" target="_blank" rel="noopener" style="color:#9aa4b3;text-decoration:underline;">あべけん</a></footer>
+<script src="../assets/guard.js" defer></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics -->
+<script src="../next/aiNashi3/aiNashi3.js"></script>
+</body>
+</html>
