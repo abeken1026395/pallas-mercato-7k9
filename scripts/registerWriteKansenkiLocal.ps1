@@ -1,6 +1,8 @@
 ﻿# registerWriteKansenkiLocal.ps1
-# writeKansenkiLocal.ps1 を「毎日 JST 18:40 から 23:40 まで の毎時（夕方便）と 1:00（本命）と 5:30（予備）」に走らせるタスクを登録する。再実行で上書き更新。
-# 1:00 は 2026-09-30 けん裁定。5:30 の回は、1:00 の回が書き終えていれば pubplan が「執筆済み」と判定して何もしない。
+# writeKansenkiLocal.ps1 を「毎日 JST 18:40 から 23:40 まで の毎時（夕方便）と 1:00（本命）と 2:00・3:00・4:00（取り返し）」に走らせるタスクを登録する。再実行で上書き更新。
+# 1:00 は 2026-09-30 けん裁定。2026-10-09 けん裁定「朝に執筆せず夜中にさせよう」で 5:30 の回をやめ、夜中の取り返しを毎時に足した。
+# 取り返しの回は、それまでの回が書き終えていれば pubplan が「執筆済み」と判定して何もしない。書けなかった場・lint で
+# 落ちた場・claude が起動に失敗した回の分だけを書き直す（9/16・9/27・10/08 の欠けは、取り返す回が無かったのが原因）。
 # 夕方便は 2026-10-02 けん裁定（「出走表が取れた時点で執筆させて表示させたい」）。17時以降の回は翌日分を書き、
 # 翌日の出走表と当日の結果がそろった場だけを書く（そろっていなければ何もせず正常終了）。
 # 1:00 の回が素材待ち（最大 02:30）と執筆で長引くことがあるため、実行時間の上限を 4時間にする。
@@ -29,7 +31,9 @@ $trigger = @(
     (New-ScheduledTaskTrigger -Daily -At '22:40'),
     (New-ScheduledTaskTrigger -Daily -At '23:40'),
     (New-ScheduledTaskTrigger -Daily -At '01:00'),
-    (New-ScheduledTaskTrigger -Daily -At '05:30')
+    (New-ScheduledTaskTrigger -Daily -At '02:00'),
+    (New-ScheduledTaskTrigger -Daily -At '03:00'),
+    (New-ScheduledTaskTrigger -Daily -At '04:00')
 )
 
 $settings = New-ScheduledTaskSettingsSet `

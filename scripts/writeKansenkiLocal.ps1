@@ -1,13 +1,13 @@
 ﻿# writeKansenkiLocal.ps1
 # 観戦記の自走をローカルPCで実行する（認証済み claude CLI＝Maxプラン枠・API課金なし）。
 # GitHub Actions では OAuth/Secret 問題で自走が安定しなかったため、ローカルのタスクスケジューラで毎朝実行する。
-# 登録: scripts/registerWriteKansenkiLocal.ps1（毎日 JST 18:40 から 23:40 まで の毎時＝夕方便・1:00 が本命・5:30 が予備・Interactive＋WakeToRun）。
+# 登録: scripts/registerWriteKansenkiLocal.ps1（毎日 JST 18:40 から 23:40 まで の毎時＝夕方便・1:00 が本命・2:00/3:00/4:00 が取り返し・Interactive＋WakeToRun）。
 #
 # 夕方便（2026-10-02 けん裁定「出走表が取れた時点で執筆させて表示させたい」）:
 #   17時以降に起動された回は、掲載日＝翌日として書く。翌日の出走表が main に入った場のうち、
 #   当日の結果が全レースそろった場（デイの場が先、ナイターの場が後）だけを素材に入れて書く。
 #   素材は buildKansenkiSource.py --pubdate <翌日> --ready-only で作る。既にある場は1バイトも変えず、
-#   そろった場だけを足す。残りの場は後の回（夕方便の次の回・1:00・5:30）が書き足す。
+#   そろった場だけを足す。残りの場は後の回（夕方便の次の回・1:00・2:00/3:00/4:00）が書き足す。
 #   既存の記事は不変のまま残し、未執筆の場だけを書く（旧: 既存記事が1本でもあれば書かずに失敗終了）。
 #
 # 処理順（writeKansenki.yml のローカル移植）:
@@ -261,7 +261,7 @@ try {
         $gap = Get-Prep 'gap'
         if ($gap.need) {
             $hadSource = Test-Path $srcFull
-            # 待つのは 02:30 まで。予備の 5:30 回（締切を過ぎてから始まる回）は待たずに1回だけ試す。
+            # 待つのは 02:30 まで。取り返しの 3:00/4:00 回（締切を過ぎてから始まる回）は待たずに1回だけ試す。
             $deadline = (Get-Date).Date.AddHours(2).AddMinutes(30)
             if ((Get-Date) -gt $deadline) { $deadline = Get-Date }
             Log ("素材 {0} を自前で作る・足す（{1}・待つのは {2:HH:mm} まで）" -f $SourceRel, $gap.why, $deadline)
