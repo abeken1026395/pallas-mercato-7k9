@@ -1,3 +1,7 @@
 # core.autocrlf=true の環境でも、フックのシェルスクリプトは LF で取り出す
 # （CRLF だと bash が壊れ、prepushVerify が全 push をブロックする）。
 .claude/hooks/*.sh text eol=lf
+
+# data/motorParts.json は LF 固定（2026-10-09）。作業ツリーが CRLF になると、PCの定時処理が
+# 「未コミット変更」と判定して全部退避し、観戦記・health などが 10/07 から止まった。
+data/motorParts.json text eol=lf
