@@ -1,0 +1,531 @@
+<!-- データ攻め by あべけん https://abeken1026395.github.io/pallas-mercato-7k9/ -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<base href="../../results/">
+<meta name="robots" content="noindex, nofollow">
+<meta charset="UTF-8">
+<meta name="author" content="あべけん（データ攻め）">
+<link rel="canonical" href="https://abeken1026395.github.io/pallas-mercato-7k9/results/">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>レース結果表 | データ攻め</title>
+<style>
+  :root{
+    --bg:#0b1219; --panel:#121c26; --panel2:#0f1822;
+    --line:#1e2c3a; --txt:#e6edf3; --sub:#8aa0b2;
+    --acc:#ffd166; --win:#3fb56b;
+    /* 枠色: 1白 2黒 3赤 4青 5黄 6緑 */
+    --l1:#ffffff; --l1t:#111; --l2:#222222; --l2t:#fff;
+    --l3:#e05b4b; --l3t:#fff; --l4:#2b6cb0; --l4t:#fff;
+    --l5:#ffd166; --l5t:#111; --l6:#3fb56b; --l6t:#fff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--txt);
+    font-family:-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+    line-height:1.6;padding:16px;max-width:820px;margin:0 auto;}
+  a{color:var(--acc);}
+  header{margin-bottom:14px;}
+  h1{font-size:1.25rem;color:var(--acc);}
+  .lead{color:var(--sub);font-size:1rem;margin-top:6px;line-height:1.7;}
+  .lead + .lead{margin-top:8px;}
+  .bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    margin:14px 0;padding:12px;background:var(--panel);
+    border:1px solid var(--line);border-radius:12px;}
+  .bar label{font-size:.875rem;color:var(--sub);}
+  select{background:var(--panel2);color:var(--txt);border:1px solid var(--line);
+    border-radius:8px;padding:9px 10px;font-size:1rem;min-width:150px;
+    font-family:inherit;}
+  .bar .meta{font-size:.875rem;color:var(--sub);margin-left:auto;
+    font-variant-numeric:tabular-nums;}
+
+  details.venue{background:var(--panel);border:1px solid var(--line);
+    border-radius:12px;margin-bottom:10px;overflow:hidden;}
+  summary.vhead{list-style:none;cursor:pointer;font-size:.95rem;font-weight:700;
+    padding:12px 14px;background:var(--panel2);display:flex;align-items:center;gap:8px;}
+  summary.vhead::-webkit-details-marker{display:none;}
+  summary.vhead:hover{background:#13202c;}
+  .venue[open] > summary.vhead{border-bottom:1px solid var(--line);}
+  .vhead .jcd{font-size:.875rem;color:var(--sub);font-weight:400;}
+  .vhead .rc{font-size:.875rem;color:var(--sub);font-weight:400;margin-left:auto;
+    font-variant-numeric:tabular-nums;}
+  .vhead .chev{color:var(--sub);font-size:.9rem;transition:transform .15s ease;
+    flex:none;width:14px;text-align:center;}
+  .venue[open] > .vhead .chev{transform:rotate(90deg);}
+
+  .grid{display:flex;flex-direction:column;}
+  details.race{border-top:1px solid var(--line);}
+  details.race:first-child{border-top:0;}
+  summary{list-style:none;cursor:pointer;padding:11px 14px;min-height:44px;
+    display:flex;align-items:center;gap:10px;font-size:1rem;}
+  summary::-webkit-details-marker{display:none;}
+  summary:hover{background:var(--panel2);}
+  .race > summary .chev{color:var(--sub);font-size:.9rem;transition:transform .15s ease;
+    flex:none;width:14px;text-align:center;}
+  .race[open] > summary .chev{transform:rotate(90deg);}
+  .rlab{font-weight:700;color:var(--acc);width:40px;flex:none;
+    font-variant-numeric:tabular-nums;}
+  .rorder{display:flex;gap:4px;align-items:center;}
+  .kim{font-size:.875rem;color:var(--sub);}
+  .rpay{margin-left:auto;color:var(--acc);font-weight:700;
+    font-variant-numeric:tabular-nums;font-size:1rem;}
+  .rpay.hi{color:var(--l3);}
+
+  .badge{width:22px;height:22px;border-radius:5px;display:inline-flex;
+    align-items:center;justify-content:center;font-weight:800;font-size:.8rem;
+    flex:none;border:1px solid rgba(255,255,255,.15);}
+  .b1{background:var(--l1);color:var(--l1t);}
+  .b2{background:var(--l2);color:var(--l2t);}
+  .b3{background:var(--l3);color:var(--l3t);}
+  .b4{background:var(--l4);color:var(--l4t);}
+  .b5{background:var(--l5);color:var(--l5t);}
+  .b6{background:var(--l6);color:var(--l6t);}
+  .sep{color:var(--sub);font-weight:700;}
+
+  .body{padding:6px 14px 14px;}
+  .sect{margin-top:10px;}
+  .sect h3{font-size:.875rem;color:var(--acc);letter-spacing:.06em;
+    border-left:3px solid var(--acc);padding-left:7px;margin-bottom:7px;font-weight:700;}
+  .cond{font-size:1rem;line-height:1.8;font-variant-numeric:tabular-nums;}
+  .cond .k{color:var(--sub);}
+  .cond .sp{color:var(--sub);padding:0 6px;}
+  .cond .note{display:block;font-size:.875rem;color:var(--sub);margin-top:2px;}
+
+  table{width:100%;border-collapse:collapse;font-size:1rem;}
+  th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);
+    font-variant-numeric:tabular-nums;}
+  th{color:var(--sub);font-weight:600;font-size:.875rem;}
+  td.pl{white-space:nowrap;}
+  td.num,th.num{text-align:right;}
+  tr.win td{color:var(--win);font-weight:700;}
+  .nm{white-space:nowrap;}
+  /* 氏名から選手図鑑へ。色は行に合わせる（1着行は緑のまま）。
+     出走表の「詳細」バッジは列幅が足りず着が切れるため、ここでは下線で示す */
+  .nm .pname{display:inline-block;min-height:24px;line-height:24px;vertical-align:middle;
+    color:inherit;text-decoration:underline;text-underline-offset:3px;}
+  .nm .pname:focus-visible{outline:2px solid currentColor;outline-offset:2px;}
+
+  /* 級別バッジ。色は出走表（scripts/template_racers.html）と同じ。枠バッジの右に並べる。
+     320px で「着」列が切れないよう padding を落として詰めてある。
+     文字を9pxに下げるのは逆効果（字形が縦に詰まるだけで幅が減らず、はみ出しが増えた）。 */
+  td.lanecell{display:flex;align-items:center;gap:1px;white-space:nowrap;}
+  .klass{font-size:10px;font-weight:bold;color:#fff;border-radius:3px;padding:0;
+    line-height:16px;display:inline-block;vertical-align:middle;flex:none;}
+  .k-A1{background:#c9184a;} .k-B1{background:#1d6fd6;} .k-B2{background:#5c6773;}
+  /* A2 は白文字だと 3.01:1 で 4.5:1 に届かないため、枠バッジと同じ #111 を使う（6.27:1） */
+  .k-A2{background:#e07a1f;color:#111;}
+  /* 幅335px以下では横に並べる余地がない（着が「転覆」等の2文字になる行で列が切れる）。
+     枠バッジの下に積んで幅を増やさない。行は12px高くなる。 */
+  @media (max-width:335px){
+    td.lanecell{display:block;}
+    td.lanecell .klass{display:block;width:22px;margin-top:1px;line-height:12px;text-align:center;}
+  }
+
+  .pays{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;}
+  .pcell{background:var(--panel2);border:1px solid var(--line);border-radius:8px;
+    padding:7px 9px;}
+  .pcell .k{font-size:.875rem;color:var(--sub);}
+  .pcell .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+  .pcell .combo{font-weight:700;letter-spacing:.03em;font-size:1rem;}
+  .pcell .amt{color:var(--acc);font-weight:800;font-variant-numeric:tabular-nums;
+    font-size:1rem;}
+
+  .odds .orow{display:flex;align-items:center;gap:8px;height:28px;}
+  .odds .otrack{flex:1;height:8px;background:var(--panel2);border:1px solid var(--line);
+    border-radius:4px;overflow:hidden;}
+  .odds .ofill{height:100%;background:var(--sub);}
+  .odds .oval{width:72px;text-align:right;font-size:1rem;
+    font-variant-numeric:tabular-nums;}
+  .odds .note{display:block;font-size:.875rem;color:var(--sub);margin-top:4px;}
+
+  .empty{color:var(--sub);font-size:1rem;padding:24px 8px;text-align:center;}
+  footer{color:var(--sub);font-size:.875rem;margin-top:20px;text-align:center;
+    line-height:1.7;}
+.siteback{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;margin:6px 0 2px;font-size:13px;line-height:1;color:inherit;text-decoration:underline;text-underline-offset:3px}
+.siteback:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+.sitelink{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;margin:6px 0 2px;font-size:13px;line-height:1;color:inherit;text-decoration:underline;text-underline-offset:3px}
+.sitelink:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+body::after{content:"データ攻め ／ YouTube あべけん";display:block;margin:18px 0 20px;font-size:11px;color:#8a8f98;letter-spacing:.02em;text-align:center}
+html[data-vr] body::after{content:none;margin:0}
+.vr-note{display:block;margin:18px 0 20px;font-size:11px;color:#8a8f98;letter-spacing:.02em;text-align:center}
+/* 読み込み時のレイアウトずれ防止：日付の選択肢と結果が入る前から高さを確保（.bar は幅390pxの実測値） */
+.bar{min-height:101px}
+#out{min-height:100vh}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../next/aiNashi3/aiNashi3.css">
+</head>
+<body>
+<div class="aiNashiNote">実験場の試作（AI臭さを消す型・第3案）：レース結果。<a href="./">本番のこのページ</a>　<a href="../next/aiNashi3/">試作の一覧</a></div>
+<a class="siteback" href="../">← データ攻め トップ</a>
+<a class="sitelink" href="../glossary/">用語辞典</a>
+<a class="sitelink" href="../kensho/">検証</a>
+<a class="sitelink" href="../torisetsu/#g07">📘 トリセツ</a>
+<header>
+  <h1>レース結果表</h1>
+  <div class="lead">全24場・全レースの着順／決まり手／払戻／艇別。生データのみ・買い目や予想は出しません。</div>
+  <div class="lead">レース行をタップすると、7つの賭式すべての払戻・艇別の記録・そのレースの水面（天候／風／波／気温／水温）、締切前の単勝オッズが開きます。</div>
+  <div class="lead">「枠」は抽選で決まった艇番、「コース」は実際に進入した位置です。ST はスタート合図からの秒数で、小さいほど早い通過。合図より前に出るとフライング（F）になります。</div>
+</header>
+
+<div class="bar">
+  <label for="dsel">開催日</label>
+  <select id="dsel"></select>
+  <span class="meta" id="dmeta"></span>
+</div>
+
+<div id="out"></div>
+
+<footer>
+  出典: 非公式に公開されているデータ（BOATRACE Open API）を取得して集計。<br>
+  公式発表は <a href="https://www.boatrace.jp/" target="_blank" rel="noopener">boatrace.jp</a> を確認してください。欠損や誤りが含まれることがあります。<br>
+  数値は参考情報であり、的中や利益を保証するものではありません。
+</footer>
+
+<script>
+  function rowGutter(v){
+    var c = document.querySelector('link[rel="canonical"]');
+    var ok = !!(c && c.href && location.href.slice(0, c.href.length) === c.href);
+    if(ok){
+      document.documentElement.setAttribute("data-vr", "1");
+    }else if(!document.querySelector(".vr-note")){
+      var n = document.createElement("small");
+      n.className = "vr-note";
+      n.style.cssText = "display:block;margin:18px 0 20px;font-size:11px;color:#8a8f98;text-align:center";
+      n.textContent = "データ攻め ／ YouTube あべけん";
+      document.body.appendChild(n);
+    }
+    return v;
+  }
+
+const KIM_ORDER = rowGutter(['単勝','複勝','2連単','2連複','拡連複','3連複','3連単']);
+
+// 着（1〜6は着順、7以降は完走できなかった場合の記録）
+const PLACE_LABEL = {7:'妨害',8:'エンスト',9:'転覆',10:'落水',11:'沈没',
+  12:'不完走',13:'失格',14:'F',15:'出遅',16:'欠場'};
+// 天候コード（提供元の元表記と1対1で対応）
+const WEATHER_LABEL = {1:'晴',2:'曇り',3:'雨',4:'雪',6:'台風'};
+// 風向コード 1=北、以降時計回りに16方位。17=無風
+const WIND_LABEL = {1:'北',2:'北北東',3:'北東',4:'東北東',5:'東',6:'東南東',
+  7:'南東',8:'南南東',9:'南',10:'南南西',11:'南西',12:'西南西',
+  13:'西',14:'西北西',15:'北西',16:'北北西',17:'無風'};
+
+// 水面の向き（docs/data/stadiumBearing.json）。2M→1Mの方位角・真北0°・時計回り
+let BEARING = null, bearingReq = null;
+function loadBearing(){
+  if(!bearingReq){
+    bearingReq = fetch('../data/stadiumBearing.json',{cache:'no-cache'})
+      .then(res=>res.ok?res.json():null)
+      .then(j=>{ BEARING = (j && j['場']) || null; })
+      .catch(()=>{ BEARING = null; });
+  }
+  return bearingReq;
+}
+// オッズの「取得時刻」は、このサイトが取り込んだ時刻（取得元にスナップショット時刻は無い）。
+// 2026-09-11 まではオフセット無しの UTC（Actions の壁時計）、以降は +09:00 付き。どちらも JST で出す
+function ingestJst(s){
+  if(!s) return '';
+  const iso = /[zZ]$|[+-]\d\d:\d\d$/.test(s) ? s : s+'Z';
+  const t = Date.parse(iso);
+  if(isNaN(t)) return '';
+  const j = new Date(t + 9*3600*1000);
+  return (j.getUTCMonth()+1)+'/'+j.getUTCDate()+' '+j.getUTCHours()+':'+String(j.getUTCMinutes()).padStart(2,'0')+' JST';
+}
+// 締切前の単勝オッズ（docs/results/odds/YYYYMMDD.json）。開いた日ぶんを一度だけ読む
+let oddsHd = null, oddsReq = null;
+function loadOdds(hd){
+  if(oddsHd !== hd){
+    oddsHd = hd;
+    oddsReq = fetch('odds/'+hd+'.json',{cache:'no-cache'})
+      .then(res=>res.ok?res.json():null)
+      .catch(()=>null);
+  }
+  return oddsReq;
+}
+// 風向コードは「風が向かっていく先」。水面の向きとの角度差で追い風／向かい風／横風を出す
+function windRel(jcd, code){
+  if(!BEARING || code==null || code===17) return '';
+  const st = BEARING[String(jcd)];
+  if(!st || typeof st['方位'] !== 'number') return '';
+  const dir = (code-1)*22.5;
+  const diff = Math.abs((((dir - st['方位'] + 180) % 360) + 360) % 360 - 180);
+  if(diff<=45) return '追い風';
+  if(diff>=135) return '向かい風';
+  return '横風';
+}
+
+function badge(n){
+  n = parseInt(n,10);
+  const s = document.createElement('span');
+  s.className = 'badge b'+n;
+  s.textContent = n;
+  return s;
+}
+function orderEls(combo){
+  // "4-1-6" → バッジ列
+  const wrap = document.createElement('span');
+  wrap.className = 'rorder';
+  const parts = String(combo).split('-');
+  parts.forEach((p,i)=>{
+    if(i){const sp=document.createElement('span');sp.className='sep';sp.textContent='›';wrap.appendChild(sp);}
+    wrap.appendChild(badge(p));
+  });
+  return wrap;
+}
+function fmtYen(n){ return Number(n).toLocaleString('ja-JP')+'円'; }
+function fmtDate(hd){
+  return hd.slice(0,4)+'/'+hd.slice(4,6)+'/'+hd.slice(6,8);
+}
+
+function renderRace(r, hd){
+  const d = document.createElement('details');
+  d.className = 'race';
+  const sm = document.createElement('summary');
+
+  const chev = document.createElement('span');
+  chev.className = 'chev';
+  chev.textContent = '›';
+  sm.appendChild(chev);
+
+  const lab = document.createElement('span');
+  lab.className = 'rlab';
+  lab.textContent = r['レース'];
+  sm.appendChild(lab);
+  sm.appendChild(orderEls(r['着順']));
+
+  if(r['決まり手']){
+    const k = document.createElement('span');
+    k.className = 'kim';
+    k.textContent = r['決まり手'];
+    sm.appendChild(k);
+  }
+  const pay = document.createElement('span');
+  const tri = (r['払戻']&&r['払戻']['3連単']&&r['払戻']['3連単'][0]) ? r['払戻']['3連単'][0]['配当'] : r['三連単配当'];
+  pay.className = 'rpay' + (tri>=10000?' hi':'');
+  pay.textContent = fmtYen(tri);
+  sm.appendChild(pay);
+  d.appendChild(sm);
+
+  const body = document.createElement('div');
+  body.className = 'body';
+
+  // そのレースの水面（レース時点の実測値）
+  const cond = [];
+  if(WEATHER_LABEL[r['天候コード']]) cond.push(['天候', WEATHER_LABEL[r['天候コード']]]);
+  if(r['風向コード']===17) cond.push(['風','無風']);
+  else if(WIND_LABEL[r['風向コード']]) cond.push(['風', WIND_LABEL[r['風向コード']] +
+    (r['風速']==null?'':' '+r['風速']+'m'), true]);
+  else if(r['風速']!=null) cond.push(['風速', r['風速']+'m']);
+  if(r['波高']!=null) cond.push(['波高', r['波高']+'cm']);
+  if(r['気温']!=null) cond.push(['気温', r['気温']+'℃']);
+  if(r['水温']!=null) cond.push(['水温', r['水温']+'℃']);
+  let windEl=null, windBase='', noteEl=null;
+  if(cond.length){
+    const sec = document.createElement('div'); sec.className='sect';
+    sec.innerHTML = '<h3>そのレースの水面</h3>';
+    const line = document.createElement('div'); line.className='cond';
+    cond.forEach((c,i)=>{
+      if(i){const sp=document.createElement('span');sp.className='sp';sp.textContent='/';line.appendChild(sp);}
+      const k=document.createElement('span');k.className='k';k.textContent=c[0]+' ';
+      const v=document.createElement('span');v.textContent=c[1];
+      if(c[2]){ windEl=v; windBase=c[1]; }
+      line.appendChild(k);line.appendChild(v);
+    });
+    const nt=document.createElement('span');nt.className='note';
+    nt.textContent='レース時点の実測値。予報ではありません。';
+    noteEl=nt;
+    line.appendChild(nt);
+    sec.appendChild(line); body.appendChild(sec);
+  }
+
+  // 払戻
+  if(r['払戻']){
+    const sec = document.createElement('div'); sec.className='sect';
+    sec.innerHTML = '<h3>払戻金</h3>';
+    const g = document.createElement('div'); g.className='pays';
+    KIM_ORDER.forEach(k=>{
+      const rows = r['払戻'][k]||[];
+      if(!rows.length) return;
+      const c = document.createElement('div'); c.className='pcell';
+      c.innerHTML = '<div class="k">'+k+'</div>';
+      rows.forEach(x=>{
+        const row=document.createElement('div');row.className='row';
+        row.innerHTML='<span class="combo">'+x['組番']+'</span><span class="amt">'+Number(x['配当']).toLocaleString('ja-JP')+'</span>';
+        c.appendChild(row);
+      });
+      g.appendChild(c);
+    });
+    sec.appendChild(g); body.appendChild(sec);
+  }
+
+  // 艇別
+  const boats = r['艇']||[];
+  if(boats.length){
+    const sec = document.createElement('div'); sec.className='sect';
+    sec.innerHTML = '<h3>艇別</h3>';
+    const t = document.createElement('table');
+    t.innerHTML = '<thead><tr><th>枠</th><th class="nm">氏名</th><th class="num">コース</th><th class="num">ST</th><th class="num">着</th></tr></thead>';
+    const tb = document.createElement('tbody');
+    boats.slice().sort((a,b)=>(a['枠']||0)-(b['枠']||0)).forEach(b=>{
+      const tr=document.createElement('tr');
+      if(b['着']===1) tr.className='win';
+      const td0=document.createElement('td');td0.appendChild(badge(b['枠']));
+      // 級別はレース当時の値。取れていない日（2025年分）は出さない（「不明」とも書かない）。
+      // バッジを出す行だけ lanecell にして、出さない行は従来どおりのセルのままにする。
+      const kl=b['級別'];
+      if(kl==='A1'||kl==='A2'||kl==='B1'||kl==='B2'){
+        td0.className='lanecell';
+        const k=document.createElement('span');k.className='klass k-'+kl;k.textContent=kl;
+        td0.appendChild(k);
+      }
+      const st = (b['ST']==null?'—':(b['ST']<0?'F':b['ST'].toFixed(2)));
+      tr.appendChild(td0);
+      const c1=document.createElement('td');c1.className='nm';
+      const nmTxt=b['氏名']||'', toban=b['登番'];
+      if(nmTxt && toban){
+        // 登番があるときだけ選手図鑑へ。受け口は docs/players/ の ?toban=
+        const a=document.createElement('a');a.className='pname';
+        a.href='../players/?toban='+encodeURIComponent(toban);
+        a.textContent=nmTxt;
+        a.title=nmTxt+'の成績を選手図鑑で見る';
+        c1.appendChild(a);
+      }else{
+        c1.textContent=nmTxt;
+      }
+      const c2=document.createElement('td');c2.className='num';c2.textContent=b['コース']==null?'':b['コース'];
+      const c3=document.createElement('td');c3.className='num';c3.textContent=st;
+      const c4=document.createElement('td');c4.className='num pl';
+      const pn=b['着'];
+      c4.textContent = (pn==null) ? '' :
+        ((pn>=1&&pn<=6) ? String(pn) : (PLACE_LABEL[pn]||'—'));
+      tr.appendChild(c1);tr.appendChild(c2);tr.appendChild(c3);tr.appendChild(c4);
+      tb.appendChild(tr);
+    });
+    t.appendChild(tb); sec.appendChild(t); body.appendChild(sec);
+  }
+
+  d.appendChild(body);
+
+  // 開いたときに一度だけ単勝オッズを読む。データが無い日はブロックごと出さない
+  if(hd){
+    d.addEventListener('toggle',()=>{
+      if(!d.open || d.dataset.odds) return;
+      d.dataset.odds = '1';
+      loadOdds(hd).then(o=>{
+        if(!o || !o['単勝']) return;
+        const byV = o['単勝'][r['場コード']];
+        if(!byV) return;
+        const row = byV[String(parseInt(r['レース'],10))];
+        if(!row) return;
+        const vals = row.filter(v=>typeof v === 'number' && v > 0);
+        if(!vals.length) return;
+        const top = Math.max.apply(null, vals.map(v=>1/v));
+        const sec = document.createElement('div'); sec.className='sect odds';
+        sec.innerHTML = '<h3>締切前の単勝オッズ</h3>';
+        row.forEach((v,i)=>{
+          const line = document.createElement('div'); line.className='orow';
+          line.appendChild(badge(i+1));
+          const tr = document.createElement('div'); tr.className='otrack';
+          const fl = document.createElement('div'); fl.className='ofill';
+          fl.style.width = (typeof v === 'number' && v > 0)
+            ? Math.round((1/v)/top*100)+'%' : '0%';
+          tr.appendChild(fl); line.appendChild(tr);
+          const val = document.createElement('div'); val.className='oval';
+          val.textContent = (typeof v === 'number' && v > 0) ? v.toFixed(1)+'倍' : '—';
+          line.appendChild(val);
+          sec.appendChild(line);
+        });
+        const nt = document.createElement('span'); nt.className='note';
+        const ing = ingestJst(o['取得時刻']);
+        nt.textContent = (o['注記']||'') + (ing ? '（このサイトが取り込んだ日時 ' + ing + '）' : '');
+        sec.appendChild(nt);
+        body.appendChild(sec);
+      });
+    });
+  }
+
+  // 開いたときに一度だけ水面の向きを読み、追い風／向かい風／横風を添える
+  if(windEl){
+    d.addEventListener('toggle',()=>{
+      if(!d.open || windEl.dataset.rel) return;
+      loadBearing().then(()=>{
+        const rel = windRel(r['場コード'], r['風向コード']);
+        if(!rel) return;
+        windEl.textContent = windBase+'（'+rel+'）';
+        windEl.dataset.rel = '1';
+        if(noteEl) noteEl.textContent =
+          'レース時点の実測値。予報ではありません。風の向きは、1M↔2Mを結ぶ水面の向きと風向の角度差から算出。';
+      });
+    });
+  }
+  return d;
+}
+
+function renderDay(day){
+  const out = document.getElementById('out');
+  out.innerHTML = '';
+  const meta = document.getElementById('dmeta');
+  meta.textContent = day['場数']+'場 / '+day['レース数']+'レース';
+  if(!day['場'] || !day['場'].length){
+    out.innerHTML = '<div class="empty">この日の結果データはありません。</div>';
+    return;
+  }
+  day['場'].forEach((v,i)=>{
+    const card = document.createElement('details'); card.className='venue';
+    if(i===0) card.open = true; // 先頭場だけ開いておく
+    const h = document.createElement('summary'); h.className='vhead';
+    h.innerHTML = '<span class="chev">›</span><span>'+v['場名']+'</span>'+
+      '<span class="jcd">['+v['場コード']+']</span>'+
+      '<span class="rc">'+v['レース'].length+'R</span>';
+    card.appendChild(h);
+    const grid = document.createElement('div'); grid.className='grid';
+    v['レース'].forEach(r=>grid.appendChild(renderRace(r, day['開催日'])));
+    card.appendChild(grid);
+    out.appendChild(card);
+  });
+}
+
+async function loadDay(hd){
+  const out = document.getElementById('out');
+  out.innerHTML = '<div class="empty">読み込み中…</div>';
+  try{
+    const res = await fetch('data/'+hd+'.json',{cache:'no-cache'});
+    if(!res.ok) throw new Error(res.status);
+    renderDay(await res.json());
+  }catch(e){
+    out.innerHTML = '<div class="empty">データの取得に失敗しました（'+hd+'）。</div>';
+  }
+}
+
+async function init(){
+  const sel = document.getElementById('dsel');
+  try{
+    const res = await fetch('data/index.json',{cache:'no-cache'});
+    const idx = await res.json();
+    const days = idx['日付']||[];
+    if(!days.length){
+      document.getElementById('out').innerHTML='<div class="empty">結果データがまだありません。</div>';
+      return;
+    }
+    days.forEach(d=>{
+      const o=document.createElement('option');
+      o.value=d['開催日'];
+      o.textContent=fmtDate(d['開催日'])+'（'+d['場数']+'場）';
+      sel.appendChild(o);
+    });
+    sel.addEventListener('change',()=>loadDay(sel.value));
+    // レースがある最新日を既定表示(空の日は選ばない)
+    const first = days.find(d=>(d['レース数']||0)>0) || days[0];
+    sel.value = first['開催日'];
+    loadDay(first['開催日']);
+  }catch(e){
+    document.getElementById('out').innerHTML='<div class="empty">日付一覧の取得に失敗しました。</div>';
+  }
+}
+init();
+</script>
+<footer style="margin:24px auto 8px;max-width:900px;text-align:center;font-size:10px;color:#8a94a3;letter-spacing:.3px;line-height:1.7;">© 2026 データ攻め ── 制作・運営 <a href="https://www.youtube.com/@abe-ken" target="_blank" rel="noopener" style="color:#9aa4b3;text-decoration:underline;">あべけん</a></footer>
+<script src="../assets/guard.js" defer></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics -->
+<script src="../next/aiNashi3/aiNashi3.js"></script>
+</body>
+</html>
