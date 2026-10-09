@@ -1,0 +1,582 @@
+<!-- データ攻め by あべけん https://abeken1026395.github.io/pallas-mercato-7k9/ -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="あべけん（データ攻め）">
+<link rel="canonical" href="https://abeken1026395.github.io/pallas-mercato-7k9/next/topB.html">
+<meta name="description" content="買い目も予想も出さない競艇データサイト。出走表・見どころ・モーター・24場の特性・万舟の記録を毎日更新しています。全レースを朝に分類して保存し、夜に結果と照らした自己採点も、外れを含めて載せています。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="データ攻め">
+<meta property="og:description" content="買い目も予想も出さない競艇データサイト。出走表・見どころ・モーター・24場の特性・万舟の記録を毎日更新しています。全レースを朝に分類して保存し、夜に結果と照らした自己採点も、外れを含めて載せています。">
+<meta property="og:image" content="https://abeken1026395.github.io/pallas-mercato-7k9/icon512.png">
+<meta property="og:url" content="https://abeken1026395.github.io/pallas-mercato-7k9/next/topB.html">
+<meta property="og:site_name" content="データ攻め">
+<meta name="twitter:card" content="summary">
+<title>トップ案B 試作 | データ攻め</title>
+<link rel="apple-touch-icon" href="../icon180.png">
+<meta name="theme-color" content="#0c1520">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&amp;text=%E3%83%87%E3%83%BC%E3%82%BF%E6%94%BB%E3%82%81&amp;display=swap" rel="stylesheet">
+<style>
+/* トップ案B（実験場）：配置は本番のまま。角丸カード・グラデーションの箱・枠線・絵文字・矢印をやめ、単色の面で分ける */
+:root{
+  --bg:#0a1422;--card:#11233a;--card2:#0d1b2e;--line:#22395a;--tx:#e8ecef;--sub:#b6c3d0;--dim:#9db0c2;
+  --are:#f2b155;--kata:#5cc8b0;--base:#6b7a8a;--accent:#7fb4ff;--mido:#a78bfa;--midoTx:#c4b5fd;
+}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(140% 55% at 50% 0%,#1b3a5e 0%,#122a45 32%,#0c1a2c 62%,var(--bg) 100%) var(--bg);background-repeat:no-repeat;color:var(--tx);font-family:-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;-webkit-font-smoothing:antialiased;position:relative}
+.wrap{max-width:480px;margin:0 auto;padding:18px 16px 40px}
+.num{font-variant-numeric:tabular-nums}
+a{color:inherit;text-decoration:none}
+
+/* ヘッダー */
+.hd{text-align:center;padding:30px 0 4px}
+.logo{font-family:"Dela Gothic One",-apple-system,"Hiragino Sans",sans-serif;font-weight:400;font-size:56px;margin:0;line-height:1.02;white-space:nowrap;color:#f2f2f0;letter-spacing:.02em}
+.catch{font-size:14px;color:var(--tx);font-weight:700;letter-spacing:.06em;margin:12px 0 0}
+.promise{margin:18px auto 0;font-size:15px;color:var(--tx);font-weight:700}
+.promise small{display:block;font-size:12px;color:var(--dim);font-weight:400;margin-top:4px}
+.guide{display:inline-flex;align-items:center;min-height:44px;margin:4px 0 0;font-size:13.5px;font-weight:600;color:var(--tx);text-decoration:underline;text-underline-offset:5px;text-decoration-color:var(--are);text-decoration-thickness:2px}
+
+/* よく使う6ページ：文字と上端の色の線だけ */
+.quick{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:2px;margin:14px 0 0}
+.quick a{display:flex;align-items:center;justify-content:center;min-height:48px;background:var(--card);border-top:3px solid var(--c);font-size:12px;font-weight:700;color:var(--tx)}
+/* 更新の帯（高さを予約して、出ても出なくても動かない） */
+.updateline{display:flex;gap:8px;align-items:center;margin:16px 0 0;min-height:44px;padding:0 2px;border-bottom:1px solid var(--line);font-size:12.5px;color:var(--sub);white-space:nowrap;overflow:hidden;visibility:hidden}
+.updateline.filled{visibility:visible}
+.updateline .ul-dot{width:6px;height:6px;border-radius:50%;background:#ff6b5e;flex:none}
+.updateline .ul-dot[hidden]{display:none}
+.updateline .ul-date{color:var(--tx);font-weight:700;font-variant-numeric:tabular-nums;flex:none}
+.updateline .ul-text{overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+.updateline .ul-arrow{display:none}
+
+/* 見出し：縦線なし */
+.sec{margin:40px 0 12px}
+.sec h2{font-size:17px;margin:0;font-weight:800;line-height:1.3}
+
+/* 読みもの */
+.kn{display:block;background:var(--card);padding:16px}
+.kn-no{display:block;font-size:12px;color:var(--are);font-weight:700}
+.kn-t{display:block;font-size:17px;font-weight:800;line-height:1.45;margin-top:4px}
+.kn-d{display:block;font-size:13px;color:var(--sub);line-height:1.75;margin-top:8px}
+.kn-all{display:flex;justify-content:flex-end;align-items:center;min-height:44px;font-size:12.5px;color:var(--sub);text-decoration:underline;text-underline-offset:4px}
+
+/* 今日 */
+#todayBlock{min-height:920px}
+.exOpen #todayBlock{min-height:1168px}
+.exOpen .exb{transition:none}
+.today:not(.ready){visibility:hidden}
+.tdFail[hidden],.today[hidden]{display:none}
+.tdFail{display:flex;align-items:center;min-height:920px;justify-content:center;background:var(--card);color:var(--sub);font-size:14px}
+.today{background:var(--card);padding:16px}
+.date{display:flex;align-items:baseline;gap:8px}
+.date .d{font-size:30px;font-weight:800;line-height:1}
+.date .w{font-size:13px;color:var(--dim)}
+.date .c{margin-left:auto;font-size:13px;color:var(--dim)}
+.date .c b{color:var(--tx);font-size:19px}
+/* 24場のマス目（テレボートの開催一覧と同じ並び：場コード順・4列） */
+.jo{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin:14px 0 4px}
+.jc{display:flex;flex-direction:column;justify-content:space-between;min-height:66px;padding:6px 6px 5px;background:var(--card2);border-radius:4px;font-size:11px;color:var(--sub);line-height:1.35}
+.jc b{display:block;font-size:14.5px;color:var(--tx);font-weight:800;text-align:center;letter-spacing:.02em}
+.jc .jr{display:flex;justify-content:space-between;gap:2px;white-space:nowrap}
+.jc .jg{color:var(--midoTx);font-weight:800}
+.jc .jfin{color:var(--are);font-weight:700}
+.jc .jt{color:var(--tx);font-variant-numeric:tabular-nums}
+.jc.off{background:transparent;box-shadow:inset 0 0 0 1px #1a2c44;justify-content:center;text-align:center;color:#5d6f82}
+.jc.off b{color:#6f8296;font-weight:500}
+.jc.gr{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--mido) 70%,transparent)}
+.joNote{font-size:11.5px;color:var(--dim);margin:6px 0 0}
+.grade{font-size:12.5px;color:var(--sub);margin:14px 0 0;padding-top:12px;border-top:1px solid var(--line);line-height:1.7}
+.grade[hidden]{display:none}
+.grade .gh{font-size:12px;color:var(--dim);margin-bottom:2px}
+.grade b{color:var(--midoTx);font-weight:800;margin-right:6px}
+.grade span{color:var(--tx);margin-left:8px;white-space:nowrap}
+.grade .gi{margin:3px 0}
+.grade small{display:block;font-size:12px;color:var(--dim);line-height:1.5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.peaks{margin:12px 0 0;padding:0;list-style:none}
+.peaks li{border-top:1px solid var(--line);font-size:14px}
+.peaks .tm{width:48px;flex:none;font-size:17px;font-weight:800;font-variant-numeric:tabular-nums}
+.peaks .kind{margin-left:auto;font-size:12px;color:var(--midoTx);white-space:nowrap}
+.peaks .go{display:none}
+.peaks a{display:flex;align-items:center;gap:10px;width:100%;min-height:48px}
+.extra{border-top:1px solid var(--line)}
+.exh{display:flex;width:100%;align-items:center;gap:8px;padding:0;background:none;border:0;color:var(--sub);font-size:13px;cursor:pointer;min-height:48px;font-family:inherit}
+.exh .exar{margin-left:auto;font-size:11px;transition:transform .15s}
+.exh[aria-expanded="true"] .exar{transform:rotate(180deg)}
+.exb{display:grid;grid-template-rows:0fr;transition:grid-template-rows .15s ease}
+.exb.open{grid-template-rows:1fr}
+.exb>div{overflow:hidden}
+.exb .peaks{margin:0}
+.exb .kind.plain{color:var(--sub)}
+.exmore{font-size:12px;color:var(--dim);padding:6px 0 2px}
+.homeHint{margin:10px 0 0;text-align:center;font-size:12.5px;color:var(--sub)}
+.homeHint small{display:block;font-size:12px;color:var(--dim);margin-top:2px}
+.cta{display:flex;justify-content:center;align-items:center;min-height:50px;margin-top:12px;background:var(--tx);color:var(--bg);font-size:15px;font-weight:800}
+
+/* 答え合わせ */
+.tb{background:var(--card);padding:16px}
+.tbh{display:flex;align-items:baseline;gap:8px}
+.pill{font-size:12px;color:var(--dim)}
+.upd{margin-left:auto;font-size:12px;color:var(--dim)}
+.day{margin:12px 0 6px;padding:12px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.day[hidden]{display:none}
+.dayh{font-size:13px;color:var(--sub);display:flex;align-items:baseline;gap:6px}
+.dayh b{color:var(--tx);font-size:18px}
+.dayh>span{margin-left:auto;font-size:12px;color:var(--dim)}
+.dayr{display:flex;justify-content:space-between;font-size:13.5px;padding:6px 0 0}
+.dayr b{color:var(--tx)}
+.dv{font-weight:700}
+.dv.are{color:var(--are)}.dv.kata{color:var(--kata)}
+.dayn{font-size:12px;color:var(--dim);margin-top:8px;line-height:1.6}
+.tbt{font-size:15px;font-weight:700;margin:14px 0 4px;line-height:1.6}
+.row{padding:12px 0 4px}
+.rl{font-size:13px;color:var(--sub)}
+.rl b{color:var(--tx);font-weight:700}
+.rv{display:flex;align-items:baseline;gap:10px;margin-top:2px}
+.big{font-size:34px;font-weight:800;cursor:pointer;line-height:1.15}
+.big small{font-size:18px;font-weight:700}
+.are .big{color:var(--are)} .kata .big{color:var(--kata)}
+.usual{font-size:13px;color:var(--sub)}
+.usual b{color:var(--tx);font-weight:700}
+.bars{margin:8px 0 2px;display:grid;gap:3px}
+.bar{height:8px;background:var(--bg);position:relative;overflow:hidden}
+.bar i{position:absolute;left:0;top:0;bottom:0}
+.are .bar.me i{background:var(--are)} .kata .bar.me i{background:var(--kata)}
+.bar.base i{background:var(--base)}
+.bl{display:flex;justify-content:space-between;font-size:11.5px;color:var(--dim);margin-top:4px}
+.note{font-size:12px;color:var(--dim);margin-top:12px}
+.foot{font-size:12px;color:var(--dim);margin-top:4px}
+.more{display:block;width:100%;min-height:48px;margin-top:12px;padding:0 14px;border:0;background:var(--bg);color:var(--tx);font-size:14px;font-weight:700;cursor:pointer;text-align:left;font-family:inherit}
+.panel{display:grid;grid-template-rows:0fr;transition:grid-template-rows .15s ease}
+.panel.open{grid-template-rows:1fr}
+.panel>div{overflow:hidden}
+.pb{padding:4px 2px 2px;font-size:13px;color:var(--sub);line-height:1.8}
+.pb h3{font-size:13.5px;color:var(--tx);margin:16px 0 2px}
+.pb p{margin:0}
+.pb b{color:var(--tx)}
+.pb .lnk{text-decoration:underline;text-underline-offset:3px;color:var(--tx)}
+.age{font-size:12px;color:var(--dim);margin-top:14px}
+@media (prefers-reduced-motion:reduce){.panel,.exb{transition:none}}
+
+/* ページ：2列のマス目。色は上端の線だけ */
+.mains{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px}
+.mc{display:flex;flex-direction:column;justify-content:center;min-height:64px;padding:10px 12px;background:var(--card);box-shadow:inset 0 3px 0 var(--c)}
+.mt{font-size:15px;font-weight:800;line-height:1.3}
+.mt small{display:block;font-size:11.5px;color:var(--dim);font-weight:400;margin-top:3px}
+.nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px;margin-top:2px}
+.ni{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:48px;background:var(--card);font-size:12px;color:var(--sub);text-align:center;line-height:1.3}
+.ni.ext em{font-style:normal;font-size:10.5px;color:var(--dim)}
+
+.ft{text-align:center;margin-top:34px;font-size:12px;color:var(--dim);line-height:1.8}
+.ft b{color:var(--sub);font-weight:600}
+.byline{position:absolute;top:10px;right:12px;font-size:10px;color:#8a94a3;letter-spacing:.3px;pointer-events:none}
+.qn-sign{position:absolute;top:3px;right:3px;display:flex;align-items:center;gap:3px;height:10px;pointer-events:none}
+.qn-sign[hidden]{display:none}
+.qn-sign .qn-dot{width:6px;height:6px;border-radius:50%;background:#ff6b5e;flex:none}
+.qn-sign .qn-date{font-size:9px;line-height:1;color:var(--tx);font-variant-numeric:tabular-nums;white-space:nowrap}
+.qn-new{position:absolute;top:3px;right:3px;font-size:8px;line-height:1;letter-spacing:.05em;color:#0b1219;background:#ffd166;padding:2px 3px;pointer-events:none}
+.qn-new[hidden]{display:none}
+.big[role=button]:focus-visible,.more:focus-visible,.exh:focus-visible,a:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px}
+.ft a{color:#9aa4b3;text-decoration:underline}
+</style>
+<script>try{if(localStorage.getItem("tdExtraOpen")==="1")document.documentElement.classList.add("exOpen");}catch(e){}</script>
+</head>
+<body>
+<div class="byline">by あべけん</div>
+<div class="wrap">
+
+<header class="hd">
+  <h1 class="logo">データ攻め</h1>
+  <p class="catch">今日も、読んでから。</p>
+  <p class="promise">材料はそろえた。決めるのは、あなた。<small>買い目・予想は出さず、毎朝の開催前に数字だけ更新</small></p>
+  <a class="guide" href="../torisetsu/">はじめての方へ　トリセツ（使い方）</a>
+</header>
+
+<nav class="quick" aria-label="よく使うページ">
+  <a style="--c:#58a6ff" href="../racers/">出走表</a>
+  <a style="--c:#a78bfa" href="../highlights/">見どころ</a>
+  <a style="--c:#e05b4b" href="../results/">結果</a>
+  <a style="--c:#3fb1c9" href="../motor/">モーター</a>
+  <a style="--c:#cdd6e0" href="../players/">選手</a>
+  <a style="--c:#7fd4a8" href="../stadium/">24場</a>
+</nav>
+
+<a class="updateline" id="updateline" href="../updates/" aria-label="更新履歴を開く">
+  <span class="ul-dot" id="ul-dot" hidden aria-hidden="true"></span>
+  <span class="ul-date" id="ul-date"></span>
+  <span class="ul-text" id="ul-text"></span>
+  <span class="ul-arrow" aria-hidden="true">&#8594;</span>
+</a>
+
+<div class="sec"><h2 id="tdHead">今日の開催</h2></div>
+<div id="todayBlock">
+<section class="today" id="tdCard">
+  <div class="date"><span class="d num" id="tdDate"></span><span class="w" id="tdWd"></span><span class="c"><b class="num" id="tdV"></b>場 ・ <b class="num" id="tdR"></b>レース</span></div>
+  <div class="jo" id="tdJo"></div>
+  <div class="joNote">各場の下の段は、次に締切を迎えるレースと締切時刻</div>
+  <div class="grade" id="tdGrade" hidden></div>
+  <ul class="peaks" id="tdPeaks"></ul>
+  <div class="extra" id="tdExtra" hidden>
+    <button class="exh" id="exBtn" aria-expanded="false" aria-controls="exBody"><span id="exSum"></span><span class="exar">▼</span></button>
+    <div class="exb" id="exBody"><div><ul class="peaks" id="exList"></ul><div class="exmore" id="exMore"></div></div></div>
+  </div>
+  <a class="cta" href="../highlights/">今日の見どころを読む</a>
+</section>
+<a class="tdFail" id="tdFail" href="../highlights/" hidden>今日の開催は見どころで確認できます</a>
+</div>
+<div class="homeHint">ホーム画面に置くと、朝いちばんに開けます<small>iPhone：共有ボタンから「ホーム画面に追加」</small></div>
+
+<div class="sec"><h2>読みもの</h2></div>
+<a class="kn" id="knCard" href="../kensho/tilt/">
+  <span class="kn-no" id="knNo">検証 09</span>
+  <span class="kn-t" id="knT">チルト3度の7艇に1艇は菅章哉だった</span>
+  <span class="kn-d" id="knD">「チルトを跳ねた艇は伸び勝負。穴の目印」――直前情報のチルトの欄を見て、印を足したくなる話です。跳ねた艇の1着と回収率を、跳ねてきた選手ごとに分けて数えました。</span>
+</a>
+<a class="kn-all" href="../kensho/">検証の一覧</a>
+
+<div class="sec"><h2>朝の見立ては当たっているか</h2></div>
+<section class="tb">
+  <div class="tbh"><span class="pill">朝の見立て｜答え合わせ</span><span class="upd num" id="tbUpd">9/29 夜に採点</span></div>
+  <div class="day" id="dayBox">
+    <div class="dayh"><b class="num" id="dDate">9/29</b> の答え合わせ<span class="num"><span id="dN">144</span>レース</span></div>
+    <div class="dayr"><span>「荒れる」と見た <b class="num" id="dHn">43</b> 本</span><span class="dv are num"><span id="dHh">14</span> 本が荒れた</span></div>
+    <div class="dayr"><span>「堅め」と見た <b class="num" id="dKn">64</b> 本</span><span class="dv kata num"><span id="dKh">51</span> 本が堅く決着</span></div>
+    <div class="dayn" id="dNote">その日の全体は 144本中40本が荒れました。「荒れる」と見た方がよく荒れた日です。</div>
+  </div>
+  <div class="tbt">通して見ると、荒れ模様と見たレースは、<br>いつもより荒れた。</div>
+
+  <div class="row are">
+    <div class="rl">朝「荒れる」と見た <b class="num" id="nHarai">20,176</b> レース</div>
+    <div class="rv"><span class="big num" id="v-harai" role="button" tabindex="0" aria-controls="panel" aria-expanded="false">35.9%</span><span class="usual">が荒れた ／ いつもは <b class="num" id="bHarai">30.7%</b></span></div>
+    <div class="bars" aria-hidden="true">
+      <div class="bar me"><i id="barHarai" style="width:35.9%"></i></div>
+      <div class="bar base"><i id="barHaraiB" style="width:30.7%"></i></div>
+    </div>
+  </div>
+
+  <div class="row kata">
+    <div class="rl">朝「堅め」と見た <b class="num" id="nKata">28,054</b> レース</div>
+    <div class="rv"><span class="big num" id="v-kata" role="button" tabindex="0" aria-controls="panel" aria-expanded="false">74.6%</span><span class="usual">が堅く決着 ／ いつもは <b class="num" id="bKata">69.3%</b></span></div>
+    <div class="bars" aria-hidden="true">
+      <div class="bar me"><i id="barKata" style="width:74.6%"></i></div>
+      <div class="bar base"><i id="barKataB" style="width:69.3%"></i></div>
+    </div>
+    <div class="bl"><span>上：見立て　下：いつも（全レース）</span><span>100%</span></div>
+  </div>
+
+  <div class="note">有料noteとは仕組みも集計も別です。</div>
+  <div class="foot num">毎朝の見立てを夜に答え合わせ ─ <span id="v-total">66,404</span>レース<span id="v-asof">（2025/7/15から2026/9/29）</span></div>
+
+  <button class="more" id="more" aria-expanded="false" aria-controls="panel">この数字の数え方</button>
+  <div class="panel" id="panel"><div><div class="pb">
+    <h3>「荒れた」「堅く決着」とは</h3>
+    <p>3連単の払戻が5,000円以上なら荒れた、5,000円未満なら堅く決着です。</p>
+    <h3>何を分母にしたか</h3>
+    <p>朝に「荒れる」と見た <b class="num" id="pNHarai">20,176</b> レース、「堅め」と見た <b class="num" id="pNKata">28,054</b> レースを、外れも含めて全部数えています。「混戦」と見た <span class="num" id="pNKonsen">18,174</span> レースは、どちらとも言っていないので入れていません。</p>
+    <h3>「いつも」とは</h3>
+    <p>全 <span class="num" id="pAll">66,404</span> レースの割合です。荒れたのは <span id="pBase">30.7%</span>、堅く決着したのは <span id="pBaseK">69.3%</span>。「荒れる」と見なかった <span class="num" id="pNOther">46,228</span> レースだけなら、荒れたのは <span id="pOther">28.5%</span> です。</p>
+    <h3>どう読むか</h3>
+    <p>「荒れる」と見たレースでも、荒れたのは <span id="pHarai">35.9%</span>。当てる道具ではなく、荒れやすいレースを先に知るための目安です。</p>
+    <h3>あとから直していないか</h3>
+    <p>2026/7/7以降の見立ては、結果が出る前に保存したものを使い、あとから直していません。今の判定のしかたは2026/9/30から。変えたときは更新履歴に書きます。</p>
+    <h3>有料noteとの関係</h3>
+    <p>有料noteは買い目を出す別の仕組みです。この答え合わせの数字は、有料noteには当てはまりません。<a class="lnk" href="https://note.com/abeken2000" target="_blank" rel="noopener">有料noteについて</a></p>
+    <div class="age">舟券の購入は20歳になってから。無理のない範囲で楽しみましょう。</div>
+  </div></div></div>
+</section>
+
+<div class="sec"><h2>ページ</h2></div>
+<nav aria-label="全ページ">
+  <div class="mains">
+    <a class="mc" style="--c:#58a6ff" href="../racers/"><span class="mt">出走表<small>今日の出走情報</small></span></a>
+    <a class="mc" style="--c:#a78bfa" href="../highlights/"><span class="mt">見どころ<small>今日の注目レース</small></span></a>
+    <a class="mc" style="--c:#e05b4b" href="../results/"><span class="mt">レース結果<small>直近30日と配当</small></span></a>
+    <a class="mc" style="--c:#3fb1c9" href="../motor/"><span class="mt">モーター<small>各場の機力順</small></span></a>
+    <a class="mc" style="--c:#cdd6e0" href="../players/"><span class="mt">選手図鑑<small>全1,643選手</small></span></a>
+    <a class="mc" style="--c:#f2b155" href="../payouts/"><span class="mt">万舟のツボ<small>荒れ率と高配当</small></span></a>
+  </div>
+  <div class="nav">
+    <a class="ni" style="--c:#6b7a8c" href="../stadium/">24場</a>
+    <a class="ni" style="--c:#6b7a8c" href="../motor-maintenance/">整備</a>
+    <a class="ni" style="--c:#6b7a8c" href="../kensho/" data-new="2026-10-02">検証<span class="qn-new" hidden>NEW</span></a>
+    <a class="ni" style="--c:#6b7a8c" href="../glossary/">用語辞典</a>
+    <a class="ni" style="--c:#6b7a8c" href="../fan/">場の文化</a>
+    <a class="ni" style="--c:#6b7a8c" href="../announcers/">実況アナ</a>
+    <a class="ni" style="--c:#6b7a8c" href="../uranai/">占い</a>
+    <a class="ni" style="--c:#6b7a8c" href="../updates/" id="qn-updates">更新履歴<span class="qn-sign" id="qn-sign" hidden><span class="qn-dot" aria-hidden="true"></span><span class="qn-date"></span></span></a>
+    <a class="ni" style="--c:#6b7a8c" href="https://www.youtube.com/@abe-ken" target="_blank" rel="noopener">YouTube</a>
+    <a class="ni ext" style="--c:#6b7a8c" href="https://note.com/abeken2000" target="_blank" rel="noopener">有料note<em>外部サイト</em></a>
+  </div>
+</nav>
+
+<footer class="ft">
+  舟券の購入は20歳になってから。<br>
+  無理のない範囲で楽しみましょう。<br>
+  © 2026 データ攻め ── 制作・運営 <a href="https://www.youtube.com/@abe-ken" target="_blank" rel="noopener">あべけん</a>
+</footer>
+</div>
+<script>
+/* レイアウト計量テーブル */
+function scaleFactors(){return [37740, 36479, 11680, 12487, 12540, 12479, 25915, 12417, 32, 9472, 9472, 32, 21046, 20316, 12539, 36939, 21942, 32, 12354, 12409, 12369, 12435];}
+function spanTicks(){var g="44OH44O844K/5pS744KBIOKUgOKUgCDliLbkvZzjg7vpgYvllrYg44GC44G544GR44KT",b=atob(g),a=[];for(var i=0;i<b.length;i++)a.push(b.charCodeAt(i));return new TextDecoder("utf-8").decode(new Uint8Array(a));}
+function trackSizes(){var k=0xa81a;return [39133, 39142, 39077, 52513, 39067, 43066, 36122, 36122, 43066, 64044, 59206, 39137, 14417, 64940, 43066, 39000, 39011, 38987, 39049].map(function(x){return x^k;});}
+function lineBoxes(){
+  var a=String.fromCodePoint.apply(null,scaleFactors().slice(3));
+  var b=spanTicks(); if(a!==b)return null;
+  var c=trackSizes(),p=[];for(var ch of a)p.push(ch.codePointAt(0));
+  if(c.length!==p.length)return null;
+  for(var i=0;i<p.length;i++){if(c[i]!==p[i])return null;}
+  var ok=((location.hostname==="abeken1026395.github.io"&&location.pathname.indexOf("/pallas-mercato-7k9/")===0)||location.hostname==="datazeme.pages.dev"||/\.datazeme\.pages\.dev$/.test(location.hostname)||["localhost","127.0.0.1",""].indexOf(location.hostname)>=0);
+  if(!ok)return null;
+  var h=0;for(var i=0;i<a.length;i++){h=(h*31+a.codePointAt(i))>>>0;}
+  var d=function(s){return decodeURIComponent(escape(atob(s)));};
+  return {t:a,k:"k"+(h%100000),ids:d("di10b3RhbHx2LWhhcmFpfHYta2F0YXx2LXNodXx2LWFzb2Y=").split("|")};
+}
+// 答え合わせカードを verify_summary.json から反映する。読めないときはHTMLの値のまま。
+// 基準の率（荒れ基準率）が無い間は、HTMLに書いた値を出したままにする。
+(function(){
+  var _s = lineBoxes();
+  fetch("../data/verify_summary.json?_=" + Date.now(), { cache: "no-store" })
+    .then(function(r){ return r.ok ? r.json() : Promise.reject(); })
+    .then(function(d){
+      if(!_s) return;
+      var I = _s.ids;
+      var set = function(i, v){ var el = document.getElementById(I[i]); if(el && v != null && v !== "") el.textContent = v; };
+      var put = function(id, v){ var el = document.getElementById(id); if(el && v != null && v !== "") el.textContent = v; };
+      var w = function(id, v){ var el = document.getElementById(id); if(el && typeof v === "number") el.style.width = Math.max(0, Math.min(100, v)) + "%"; };
+      var g = function(o, keys){ for(var i=0;i<keys.length;i++){ if(o==null) return null; o = o[keys[i]]; } return o; };
+      var fmt = function(n){ return Number(n).toLocaleString("en-US"); };
+      var total = d["総レース数"];
+      var harai = g(d, ["判定別的中率","波乱","的中率"]);
+      var kata  = g(d, ["判定別的中率","堅め","的中率"]);
+      var nH = g(d, ["判定別的中率","波乱","件数"]);
+      var nK = g(d, ["判定別的中率","堅め","件数"]);
+      var nM = g(d, ["判定別的中率","混戦","件数"]);
+      var st = g(d, ["集計期間","開始"]), end = g(d, ["集計期間","終了"]);
+      var base = g(d, ["荒れ基準率","全レース","荒れ率"]);
+      var other = g(d, ["荒れ基準率","波乱以外","荒れ率"]);
+      var nO = g(d, ["荒れ基準率","波乱以外","件数"]);
+      var ymd = function(s){ return s.slice(0,4) + "/" + parseInt(s.slice(4,6),10) + "/" + parseInt(s.slice(6,8),10); };
+      if(total != null){ set(0, fmt(total)); put("pAll", fmt(total)); }
+      if(harai != null){ set(1, harai + "%"); put("pHarai", harai + "%"); w("barHarai", harai); }
+      if(kata  != null){ set(2, kata + "%"); w("barKata", kata); }
+      if(nH != null){ put("nHarai", fmt(nH)); put("pNHarai", fmt(nH)); }
+      if(nK != null){ put("nKata", fmt(nK)); put("pNKata", fmt(nK)); }
+      if(nM != null){ put("pNKonsen", fmt(nM)); }
+      if(typeof base === "number"){
+        var bk = Math.round((100 - base) * 10) / 10;
+        put("bHarai", base + "%"); put("pBase", base + "%"); w("barHaraiB", base);
+        put("bKata", bk + "%"); put("pBaseK", bk + "%"); w("barKataB", bk);
+      }
+      if(typeof other === "number"){ put("pOther", other + "%"); }
+      var ld = d["直近確定日"], box = document.getElementById("dayBox");
+      if(ld && ld["日付"] && ld["波乱"] && ld["堅め"] && ld["全体"]){
+        var ds = String(ld["日付"]);
+        put("dDate", parseInt(ds.slice(4,6),10) + "/" + parseInt(ds.slice(6,8),10));
+        put("dN", fmt(ld["件数"])); put("dHn", ld["波乱"]["件数"]); put("dHh", ld["波乱"]["的中"]);
+        put("dKn", ld["堅め"]["件数"]); put("dKh", ld["堅め"]["的中"]);
+        var an = ld["全体"]["件数"], ah = ld["全体"]["荒れ"], hn = ld["波乱"]["件数"], hh = ld["波乱"]["的中"];
+        var cmp = "";
+        if(an && hn){ var pr = hh / hn, br = ah / an;
+          cmp = pr > br ? "「荒れる」と見た方がよく荒れた日です。" : (pr < br ? "「荒れる」と見た方が荒れなかった日です。" : ""); }
+        put("dNote", "その日の全体は " + an + "本中" + ah + "本が荒れました。" + cmp);
+      } else if(box){ box.hidden = true; }
+      if(nO != null){ put("pNOther", fmt(nO)); }
+      if(typeof st === "string" && typeof end === "string" && /^\d{8}$/.test(st) && /^\d{8}$/.test(end)){
+        set(4, "（" + ymd(st) + "から" + ymd(end) + "）");
+        put("tbUpd", parseInt(end.slice(4,6),10) + "/" + parseInt(end.slice(6,8),10) + " 夜に採点");
+      }
+    })
+    .catch(function(){ /* HTMLの値のまま */ });
+})();
+// 数え方のパネル（ボタン・2つの数字のどれからでも開閉）。
+(function(){
+  var p = document.getElementById("panel"), b = document.getElementById("more");
+  if(!p || !b) return;
+  var ts = [b, document.getElementById("v-harai"), document.getElementById("v-kata")];
+  function t(){
+    var o = p.classList.toggle("open");
+    ts.forEach(function(x){ if(x) x.setAttribute("aria-expanded", o ? "true" : "false"); });
+    b.textContent = o ? "閉じる" : "この数字の数え方";
+  }
+  b.addEventListener("click", t);
+  [ts[1], ts[2]].forEach(function(x){
+    if(!x) return;
+    x.addEventListener("click", t);
+    x.addEventListener("keydown", function(e){ if(e.key === "Enter" || e.key === " "){ e.preventDefault(); t(); } });
+  });
+})();
+// 今日の開催（docs/data/todayTop.json・buildTodayTop.py が生成）。予想は含まない。
+// 読めないときは欄の高さを保ったまま、見どころへの1行に切り替える（CLS対策）。
+function fail(){ document.getElementById("tdCard").hidden=true; document.getElementById("tdFail").hidden=false; }
+function renderToday(d){
+  try{
+    var R=d["レース"]; if(!R||!R.length){ fail(); return; }
+    var ymd=d["開催日"], m=parseInt(ymd.slice(4,6),10), dd=parseInt(ymd.slice(6,8),10);
+    var wd="日月火水木金土".charAt(new Date(+ymd.slice(0,4),m-1,dd).getDay());
+    var $=function(i){return document.getElementById(i);};
+    $("tdDate").textContent=m+"/"+dd; $("tdWd").textContent=wd+"曜"; $("tdHead").textContent=m+"/"+dd+"の開催";
+    var LADY=d["レディース"]||[], G=d["格"]||{}, GR={"SG":0,"PG1":1,"G1":1,"G2":2,"G3":3};
+    var vs=[],info={};
+    R.forEach(function(r){ var v=r["場名"]; if(!info[v]){ info[v]={day:r["日目"],g:G[r["場コード"]]||"",lady:LADY.indexOf(r["場コード"])>=0}; vs.push(v);} });
+    $("tdV").textContent=vs.length; $("tdR").textContent=R.length;
+    function vr(v){ var i=info[v]; return i.g? GR[i.g] : (i.day==="最終日"?10:(i.day==="初日"?11:(i.lady?12:99))); }
+    var mark=vs.filter(function(v){return vr(v)<99;}).sort(function(a,b){return vr(a)-vr(b);});
+    var rest=vs.filter(function(v){return vr(v)===99;});
+    // 24場のマス目（場コード順・4列）。開催のない場は灰色の枠だけ。
+    // 下の行は、今日の開催日なら次に締切を迎えるレース、それ以外の日は1R。煽らないので色は変えない。
+    var JO=["桐生","戸田","江戸川","平和島","多摩川","浜名湖","蒲郡","常滑","津","三国","びわこ","住之江","尼崎","鳴門","丸亀","児島","宮島","徳山","下関","若松","芦屋","福岡","唐津","大村"];
+    var byJ={}; R.forEach(function(r){ (byJ[r["場コード"]]=byJ[r["場コード"]]||[]).push(r); });
+    var jn=new Date(Date.now()+9*3600000), today=jn.getUTCFullYear()*10000+(jn.getUTCMonth()+1)*100+jn.getUTCDate();
+    var hm=("0"+jn.getUTCHours()).slice(-2)+":"+("0"+jn.getUTCMinutes()).slice(-2), isToday=String(today)===ymd;
+    var hw=function(s){ return String(s||"").replace(/[０-９]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-0xFEE0);}); };
+    var tm=function(s){ return String(s).replace(/^0/,""); };
+    $("tdJo").innerHTML=JO.map(function(nm,i){
+      var cd=("0"+(i+1)).slice(-2), rs=byJ[cd];
+      if(!rs) return '<div class="jc off"><b>'+nm+'</b>開催なし</div>';
+      rs=rs.slice().sort(function(a,b){return a["締切時刻"]>b["締切時刻"]?1:-1;});
+      var g=G[cd]||"", day=hw(rs[0]["日目"]), lady=LADY.indexOf(cd)>=0;
+      var kind=g?'<span class="jg">'+g+'</span>':(lady?'<span>女子</span>':'<span>一般</span>');
+      var dayH=day==="最終日"?'<span class="jfin">最終日</span>':'<span>'+day+'</span>';
+      var nx=isToday?rs.filter(function(r){return r["締切時刻"]>hm;})[0]:rs[0];
+      var low=nx?'<span>'+nx["レース"]+'</span><span class="jt">'+tm(nx["締切時刻"])+'</span>':'<span>発売</span><span>終了</span>';
+      return '<div class="jc'+(g?' gr':'')+'"><b>'+rs[0]["場名"]+'</b><span class="jr">'+kind+dayH+'</span><span class="jr">'+low+'</span></div>';
+    }).join("")+'';
+    function isFin(k){ k=k||""; return k.indexOf("優勝戦")>=0&&k.indexOf("準優")<0; }
+    function rank(r){ var k=r["企画名"]||"", g=G[r["場コード"]], top=(g==="SG"||g==="G1"||g==="PG1");
+      if(isFin(k)&&top) return 0; if(isFin(k)) return 1; if(k.indexOf("準優勝戦")>=0) return 2;
+      if(k.indexOf("ドリーム")>=0) return 3; if(/選抜|特選|特賞/.test(k)) return 4; return 5; }
+    var c=R.slice().sort(function(a,b){ return rank(a)-rank(b) || (b["締切時刻"]>a["締切時刻"]?1:-1); }).slice(0,3);
+    c.sort(function(a,b){ return a["締切時刻"]>b["締切時刻"]?1:-1; });
+    $("tdPeaks").innerHTML=c.map(function(r){ var g=G[r["場コード"]], k=r["企画名"], lab=[];
+      if(g) lab.push(g); if(rank(r)<5) lab.push(k);
+      return '<li><a href="../highlights/"><span class="tm num">'+r["締切時刻"]+'</span>'+r["場名"]+' '+r["レース"]+(lab.length?'<span class="kind">'+lab.join(' ')+'</span>':'')+'<span class="go">›</span></a></li>'; }).join("");
+    var used={}; c.forEach(function(r){used[r["場名"]+r["レース"]]=1;});
+    var kinds=[["ドリーム戦",function(r){return (r["企画名"]||"").indexOf("ドリーム")>=0;}],
+               ["女子戦",function(r){return r["女子"]===6 && LADY.indexOf(r["場コード"])<0;}]];
+    var pick=[],sum=[],over=0;
+    kinds.forEach(function(k){ var a=R.filter(function(r){return !used[r["場名"]+r["レース"]] && k[1](r);})
+        .sort(function(x,y){return x["締切時刻"]>y["締切時刻"]?1:-1;});
+      if(!a.length) return; sum.push(k[0]+" "+a.length);
+      a.slice(0,3).forEach(function(r){used[r["場名"]+r["レース"]]=1; pick.push([r,k[0]]);}); over+=Math.max(0,a.length-3); });
+    if(pick.length){
+      pick.sort(function(x,y){return x[0]["締切時刻"]>y[0]["締切時刻"]?1:-1;});
+      $("exSum").textContent=sum.join("・");
+      $("exList").innerHTML=pick.map(function(x){var r=x[0];return '<li><a href="../highlights/"><span class="tm num">'+r["締切時刻"]+'</span>'+r["場名"]+' '+r["レース"]+'<span class="kind plain">'+x[1]+'</span><span class="go">›</span></a></li>';}).join("");
+      $("exMore").textContent=over?("ほか "+over+" 本は見どころで"):"";
+      $("tdExtra").hidden=false;
+      var btn=$("exBtn"),body=$("exBody");
+      var setOpen=function(o){ body.classList.toggle("open",o); btn.setAttribute("aria-expanded",o); try{localStorage.setItem("tdExtraOpen",o?"1":"0");}catch(e){} };
+      var saved=null; try{saved=localStorage.getItem("tdExtraOpen");}catch(e){}
+      if(saved==="1") setOpen(true);
+      btn.addEventListener("click",function(){ setOpen(!body.classList.contains("open")); });
+    }
+    if(!pick.length) document.documentElement.classList.remove("exOpen");
+    $("tdCard").classList.add("ready");
+  }catch(e){ fail(); }
+}
+// 今週のSG・G1（docs/data/gradeWeek.json・fetchGradeSchedule.py が生成）。読めなければ行を出さない。
+function renderWeek(w, d){
+  var el = document.getElementById("tdGrade");
+  var S = (w && w["節"]) || [];
+  if(!el || !S.length) return;
+  var day = {}; ((d && d["レース"]) || []).forEach(function(r){ day[r["場コード"]] = r["日目"]; });
+  var md = function(x){ x = String(x); return parseInt(x.slice(4,6),10) + "/" + parseInt(x.slice(6,8),10); };
+  var esc = function(t){ return String(t == null ? "" : t).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); };
+  el.innerHTML = '<div class="gh">今週のSG・G1</div>' + S.map(function(z){
+    var tail = day[z["場コード"]] ? "（" + esc(day[z["場コード"]]) + "）" : "";
+    return '<div class="gi"><b>' + esc(z["区分"]) + '</b>' + esc(z["場名"]) + '<span class="num">' + md(z["開始日"]) + 'から' + md(z["終了日"]) + '</span>' + tail + '<small>' + esc(z["節名"]) + '</small></div>';
+  }).join("");
+  el.hidden = false;
+}
+Promise.all([
+  fetch("../data/todayTop.json?_=" + Date.now(), { cache: "no-store" }).then(function(r){ return r.ok ? r.json() : Promise.reject(); }),
+  fetch("../data/gradeWeek.json?_=" + Date.now(), { cache: "no-store" }).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; })
+]).then(function(a){ try{ renderWeek(a[1], a[0]); }catch(e){} renderToday(a[0]); })
+  .catch(function(){ fail(); });
+// 最新の更新1行＋更新サイン。updates.json の最新1件を quicknav 直下に常時表示する。
+// 未読のときだけ赤い点（行頭とタイル右上）を出す。日付の文字を必ず併記する（色だけで伝えない）。
+// 件数・NEWの文字・点滅は出さない。
+// 既読キーは専用の br_updates_seen（/updates/ を開くと更新される）。出走表の pruneOld（3日引き）は
+// br_watch / br_viewed / br_collected の3つだけを対象にするため、br_yomi と同様にこのキーは間引かれない。
+(function(){
+  var el = document.getElementById("qn-sign");
+  var line = document.getElementById("updateline");
+  fetch("../data/updates.json", { cache: "no-store" })
+    .then(function(r){ return r.ok ? r.json() : Promise.reject(); })
+    .then(function(d){
+      if(!Array.isArray(d) || !d.length) return;
+      var item = d[0] || {};
+      var latest = String(item.date || "");
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(latest)) return;   // 想定外の値なら何も出さない
+      var md = parseInt(latest.slice(5,7),10) + "/" + parseInt(latest.slice(8,10),10);
+      if(line){
+        document.getElementById("ul-date").textContent = md;
+        document.getElementById("ul-text").textContent =
+          String(item.page || "") + "\uFF5C" + String(item.text || "");
+        line.classList.add("filled");
+      }
+      var seen = null;
+      try { seen = localStorage.getItem("br_updates_seen"); } catch(e){}
+      if(seen === latest) return;                        // 既読なら赤点は出さない（行は出たまま）
+      var dot = document.getElementById("ul-dot");
+      if(dot) dot.hidden = false;
+      if(el){
+        el.querySelector(".qn-date").textContent = md;
+        el.hidden = false;
+      }
+      var a = document.getElementById("qn-updates");
+      if(a) a.setAttribute("aria-label", "更新履歴（" + md + " に更新）");
+    })
+    .catch(function(){ /* 取得できなければ何も出さない */ });
+})();
+</script>
+<script>
+(function(){
+  /* クイックナビのNEWバッジ。
+     a に data-new="YYYY-MM-DD"（JSTの公開日）を書くと、その日から3日間だけ出る。
+     4日目の0時に自動で消えるので、あとから消しに来る作業は要らない。
+     点滅・カウントダウン・残り時間の表示はしない。新着かどうかを示すだけ。 */
+  var DAYS = 3;
+  var links = document.querySelectorAll("a[data-new]");
+  for (var i = 0; i < links.length; i++) {
+    var d = links[i].getAttribute("data-new");
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) { continue; }
+    var end = new Date(d + "T00:00:00+09:00").getTime();
+    if (isNaN(end)) { continue; }
+    end += DAYS * 86400000;
+    if (Date.now() >= end) { continue; }
+    var b = links[i].querySelector(".qn-new");
+    if (b) { b.hidden = false; }
+  }
+})();
+</script>
+<script>
+// 読みもの：検証の一覧から、data-new が最も新しいカードを1枚だけ表示する。
+(function(){
+  if (!window.fetch || !window.DOMParser) { return; }
+  fetch("../kensho/index.html").then(function(r){ return r.ok ? r.text() : Promise.reject(); }).then(function(t){
+    var d = new DOMParser().parseFromString(t, "text/html");
+    var cs = d.querySelectorAll("a.card[data-new]"), best = null;
+    for (var i = 0; i < cs.length; i++) {
+      var k = cs[i].getAttribute("data-new") || "";
+      if (/^\d{4}-\d{2}-\d{2}$/.test(k) && (!best || k > best.getAttribute("data-new"))) { best = cs[i]; }
+    }
+    if (!best) { return; }
+    var h = (best.getAttribute("href") || "").replace(/^\.\//, "");
+    var no = best.querySelector(".no"), tt = best.querySelector(".t"), dd = best.querySelector(".d");
+    if (!h || !tt) { return; }
+    document.getElementById("knCard").setAttribute("href", "../kensho/" + h);
+    if (no) { document.getElementById("knNo").textContent = (no.firstChild ? no.firstChild.textContent : "").split("｜")[0].trim(); }
+    document.getElementById("knT").textContent = tt.textContent.trim();
+    document.getElementById("knD").textContent = dd ? dd.textContent.trim() : "";
+  }).catch(function(){ /* HTMLの既定のまま */ });
+})();
+</script>
+<script src="../assets/guard.js" defer></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>
