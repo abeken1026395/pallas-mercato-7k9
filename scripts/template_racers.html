@@ -355,6 +355,7 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .my-empty { font-size:13px; color:#96a8bb; }
 .my-note { font-size:13px; color:#96a8bb; margin:2px 2px 4px; line-height:1.5; }
 .oshi-result { color:#0b1219; background:#7fb4ff; font-size:13px; font-weight:bold; border-radius:6px; padding:5px 10px; text-decoration:none; white-space:nowrap; flex:none; }
+.oshi-result.oshi-card { color:#7fb4ff; background:transparent; border:1px solid #3a5a85; }
 /* スター（気になる）ボタン */
 .watchbtn { display:inline-flex; align-items:center; gap:5px; font-size:13px; font-weight:bold; border-radius:6px; padding:5px 12px; cursor:pointer; border:1px solid #7fb4ff88; background:#0f1a26; color:#7fb4ff; transition:transform .12s; }
 .watchbtn.on { background:#12233a; color:#7fb4ff; border-color:#7fb4ff88; }
@@ -667,7 +668,8 @@ function recordViewed(v,rno){
 }
 function isCollected(jcd,hd,rno){ return COLLECTED.indexOf(rkey(jcd,hd,rno))>=0; }
 function markCollected(jcd,hd,rno){ var k=rkey(jcd,hd,rno); if(COLLECTED.indexOf(k)<0){ COLLECTED.push(k); lsSet("br_collected",COLLECTED); } }
-function resultUrl(jcd,hd,rno){ return "https://www.boatrace.jp/owpc/pc/race/raceresult?rno="+rno+"&jcd="+jcd+"&hd="+hd; }
+function raceUrl(kind,jcd,hd,rno){ return "https://www.boatrace.jp/owpc/pc/race/"+kind+"?rno="+rno+"&jcd="+jcd+"&hd="+hd; }
+function resultUrl(jcd,hd,rno){ return raceUrl("raceresult",jcd,hd,rno); }
 /* 回収対象＝結果確定・未回収のレース。
    ソース: 気になる(WATCH) / 最近見た(VIEWED) / 推しの出走(自動)。
    推しが走ったレースはフォローだけで自動的に回収対象になる（明示操作不要）。 */
@@ -883,10 +885,10 @@ function buildOshiToday(){
     h+=ent.map(function(x){
       var st=raceStatus(x.hd,x.deadline);
       var pf=PROF[x.toban]||{}, nick=pf.nickname||pf.tagline||"";
-      /* 締切前=ピル、締切後=公式結果リンク（確定は公式が持つ） */
+      /* 締切前=公式出走表リンク、締切後=公式結果リンク（どの行にも公式ページへの入口を出す。確定は公式が持つ） */
       var tmr=parseInt(x.hd)>curYmd();
       var right=st==='pre'
-        ? '<span class="pill pill-pre">'+(tmr?'明日':'締切前')+'</span>'
+        ? '<a class="oshi-result oshi-card" href="'+raceUrl("racelist",x.jcd,x.hd,x.rno)+'" target="_blank" rel="noopener">公式出走表 →</a>'
         : '<a class="oshi-result" href="'+resultUrl(x.jcd,x.hd,x.rno)+'" target="_blank" rel="noopener">🏁 結果 →</a>';
       return '<div class="my-row"><div class="my-rl" data-open="'+esc(rkey(x.jcd,x.hd,x.rno))+'">'
         +'<div class="my-rt">'+esc(x.name)+(nick?' <span class="oshi-nick">“'+esc(nick)+'”</span>':'')+'</div>'
@@ -1041,10 +1043,10 @@ function renderVenues(app,crumb,keys){
 /* 「気になる/最近見た/回収」パネルのHTML */
 function buildMyPanel(){
   pruneOld();
-  var harvest=[]; /* 履歴（結果を見る）は出さない。公式結果リンクは推しの本日にだけ置く */
+  var harvest=harvestList();
   var waiting=WATCH.filter(function(x){ return raceStatus(x.hd,x.deadline)==='pre'; });
   var hset={}; harvest.forEach(function(x){ hset[rkey(x.jcd,x.hd,x.rno)]=1; });
-  var recent=[]; /* 履歴（最近見た）は出さない */
+  var recent=VIEWED.filter(function(x){ return !hset[rkey(x.jcd,x.hd,x.rno)]; }).slice(0,8);
   if(!harvest.length && !waiting.length && !recent.length && !YOMI.length) return "";
   var h='<div class="my">';
   h+=yomiPanel();
