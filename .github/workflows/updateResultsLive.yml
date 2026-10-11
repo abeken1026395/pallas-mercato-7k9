@@ -53,7 +53,11 @@ jobs:
         run: python scripts/buildResults.py
         env:
           HD: ${{ github.event.inputs.hd }}
-          RESULTS_WINDOW: "1"   # liveは当日のみ(軽量・高頻度)。確定日の窓照合は夜のupdateResultsが担当。
+          # 当日＋前日の2日分。GitHub の schedule は夜に数時間遅れることがあり（2026-10-10 は
+          # JST 19:15〜23:15 の便が日付をまたいでから走った）、当日のみだと日付が変わった時点で
+          # 前日のナイター後半を取りこぼす。前日分は中身が変わらなければ書かない（buildResults）ので
+          # 余計なコミットは出ない。確定日の窓照合（3日分）は夜の updateResults が担当。
+          RESULTS_WINDOW: "2"
 
       - name: build results site data (docs/results/)
         run: python scripts/buildResultsSite.py

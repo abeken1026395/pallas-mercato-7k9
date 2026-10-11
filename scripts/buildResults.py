@@ -164,6 +164,23 @@ def to_races(data):
     return races
 
 
+def _unchanged(outpath, obj):
+    """既存ファイルと「取得時刻」以外が同一ならTrueを返す（＝書き込みを省く）。
+    ファイルが無い・壊れている・JSONとして読めない場合はFalse（＝書き直す）。
+    buildOdds.py と同じ判定。live が前日分も取りに行くようになったため、
+    中身の変わらない前日分を毎回書き直して取得時刻だけのコミットを出さないようにする。"""
+    try:
+        with io.open(outpath, "r", encoding="utf-8") as f:
+            old = json.load(f)
+    except Exception:
+        return False
+    if not isinstance(old, dict):
+        return False
+    a = dict((k, v) for k, v in old.items() if k != "取得時刻")
+    b = dict((k, v) for k, v in obj.items() if k != "取得時刻")
+    return a == b
+
+
 def write_results(data, hd):
     races = to_races(data)
     venues = len(set(x["場コード"] for x in races))
@@ -172,6 +189,9 @@ def write_results(data, hd):
     obj = {"開催日": hd,
            "取得時刻": datetime.datetime.now().isoformat(timespec="seconds"),
            "レース数": len(races), "結果": races}
+    if _unchanged(outpath, obj):
+        print("unchanged", outpath, "races", len(races), "(取得時刻以外に差分なし・書き込みスキップ)")
+        return len(races)
     with io.open(outpath, "w", encoding="utf-8") as f:
         json.dump(obj, f, ensure_ascii=False, indent=1)
     print("wrote", outpath, "races", len(races), "venues", venues)
