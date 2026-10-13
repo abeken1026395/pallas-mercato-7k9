@@ -1,0 +1,66 @@
+name: 遅い場の出走表を取れるまで待つ
+
+# 夜に公式が遅れて出す場（若松・下関などのミッドナイト場）を、そろうまで取り続ける。
+# 理由: update_racers の夜cron(JST22:07〜23:37)は GitHub の遅延で数時間遅れる。夜間パイプラインは
+#       18/20/22時に動いて次は翌0時台で、22:10〜0時台が空白になっていた（2026-10-14 けん承認）。
+# 動き: 起動時にまず現物を判定し、そろっていれば何もしない。そろっていなければ
+#       10分おきに 取得→公開→判定 を繰り返し、そろった回で終了する（＝止まる）。
+# 上限: 4時間。それでもそろわない場（開催中止など）は、エラーにして目に見える形で落とす。
+# 起動: 自前 schedule（JST21:35）と heartbeat からの内部起動（JST21〜23時）。どちらも不発火はありうるので多重発火×冪等。
+on:
+  schedule:
+    - cron: '35 12 * * *'   # JST 21:35
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: wait-late-venues
+  cancel-in-progress: false
+
+jobs:
+  wait:
+    runs-on: ubuntu-latest
+    timeout-minutes: 270
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install requests beautifulsoup4 pandas lxml
+      - name: そろうまで取得
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if python scripts/checkVenuesComplete.py; then
+            echo "すでにそろっている。何もしない"
+            exit 0
+          fi
+          for i in $(seq 1 16); do
+            echo "=== 取得 ${i}/16 ($(TZ=Asia/Tokyo date '+%H:%M JST')) ==="
+            python scripts/scrape_racers.py || echo "::warning::scrape_racers 失敗（次回に再試行）"
+            python scripts/fetchGradeSchedule.py || echo "::warning::fetchGradeSchedule 失敗（既存を保持）"
+            python scripts/buildMotorHistory.py || true
+            python scripts/buildRaceRoom.py || true
+            git add docs/ raceRoom/ 2>/dev/null || true
+            if ! git diff --staged --quiet; then
+              git commit -m "出走表データ自動更新（遅い場待ち） $(date +'%Y-%m-%d %H:%M')"
+              PUSHED=0
+              for j in 1 2 3 4 5; do
+                if git pull --rebase origin main && git push origin main; then PUSHED=1; break; fi
+                git rebase --abort 2>/dev/null || true
+                sleep 5
+              done
+              if [ "$PUSHED" != "1" ]; then echo "::error::push に失敗（5回）"; exit 1; fi
+              echo "pushed"
+            fi
+            if python scripts/checkVenuesComplete.py; then
+              echo "そろった。ここで終了する"
+              exit 0
+            fi
+            sleep 600
+          done
+          echo "::error::4時間待ってもそろわなかった（開催中止や公式の遅れの可能性）。手動で確認すること"
+          python scripts/checkVenuesComplete.py || true
+          exit 1
