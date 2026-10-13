@@ -51,12 +51,16 @@ jobs:
           }
           # 起動マトリクス（JST）:
           #   nightly = 17:00-01:59（H>=17 or H<=1） → それ以外は no-op
+          #   waitLateVenues = 21:00-23:59（H=21〜23）
           # 2026-08-03 writeKansenki の dispatch を停止（観戦記はローカル自走）。
           #            判定用の RW も消費者が無くなったため算出ごと削除した。
           RN=0
           if [ "$H" -ge 17 ] || [ "$H" -le 1 ]; then RN=1; fi
           rc=0
           if [ "$RN" = 1 ]; then dispatch nightlyPipeline.yml || rc=1; fi
+          # 遅い場（若松・下関など）の出走表を、そろうまで待つWF。JST21〜23時帯のみ。
+          # 起動時にそろっていれば何もせず終わる（冪等）。
+          if [ "$H" -ge 21 ] && [ "$H" -le 23 ]; then dispatch waitLateVenues.yml || rc=1; fi
           if [ "$RN" = 0 ]; then echo "no-op帯（JST ${H}時）＝内部起動なし"; fi
           {
             echo "### heartbeat 判定（${NOW}）"
