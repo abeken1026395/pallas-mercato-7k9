@@ -35,6 +35,8 @@ jobs:
       # 期限の根拠: 08-04 以降のローカル自動執筆（05:30）で、漏れた日を除き記事は毎日 05:41〜05:55 に揃う。
       # 前々日より古い0本の日は表示だけ（当日・前日の検査で不合格として出たもの。Issue で追跡）。
       # 過去日の FAIL を持ち越し続けると常時赤になり、警報として死ぬため（REFERENCE.md (8)c）。
+      # 一部の場だけ欠けた日（lint の FAIL）も同じ扱い：前日以降は不合格、それより古い日は表示だけ（2026-10-15）。
+      # 実例: 20260927 の12場欠けが残り、09-29 から 10-14 まで全run が失敗＝警報が効いていなかった。
       - name: coverage check (all days)
         run: |
           set +e
@@ -77,11 +79,17 @@ jobs:
                   bad.append("不合格 %s: source %d場があるのに記事0本（期限後）" % (d, len(venues)))
               else:
                   print("窓外 0本 %s: 過去日（当日・前日の検査で不合格として出たもの）" % d)
+          for d in re.findall(r"^FAIL 網羅 (\d{8})", txt, re.M):
+              if d >= yday:
+                  bad.append("不合格 %s: 一部の場の記事が無い（lint の網羅 FAIL）" % d)
+              else:
+                  print("窓外 一部欠け %s: 過去日（当日・前日の検査で不合格として出たもの）" % d)
           for b in bad:
               print("::error::" + b)
           sys.exit(1 if bad else 0)
           PY
           ZRC=$?
           set -e
-          if [ "$RC" != 0 ]; then echo "::error::網羅性 FAIL（一部の場の記事が無い）"; fi
-          if [ "$RC" != 0 ] || [ "$ZRC" != 0 ]; then exit 1; fi
+          # lint の終了コード（RC）は過去日の FAIL でも1になるため、合否は上の判定（ZRC）だけで決める。
+          echo "lint rc=$RC（参考）"
+          if [ "$ZRC" != 0 ]; then exit 1; fi
