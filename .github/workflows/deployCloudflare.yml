@@ -1,0 +1,71 @@
+# docs/ と AI向けの罠（functions/ + edge/）を Cloudflare Pages に載せる。
+# リポジトリ連携ではなく直接アップロード：自動更新が数分おきに push するため、
+# 連携ビルドだと無料枠（月500回）を1日で使い切る。直接アップロードなら変わったファイルだけが送られる。
+# 罠が動くのは docs/_routes.json に書いた対象パスだけ（それ以外は静的配信のまま・関数の回数を使わない）。
+# 必要な登録（けんが GitHub の Settings → Secrets and variables → Actions で行う）:
+#   Secrets  : CLOUDFLARE_API_TOKEN（権限 Cloudflare Pages:Edit）, CLOUDFLARE_ACCOUNT_ID
+#   Variables: CF_PAGES_PROJECT（省略時 datazeme → URL は datazeme.pages.dev）
+name: Cloudflare Pages 配信
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "functions/**"
+      - "edge/**"
+  workflow_dispatch: {}
+
+# 走っている1本は最後まで走らせ、待ちは最新の1本だけ残す（古い待ちは自動で捨てられる）
+concurrency:
+  group: deployCloudflare
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      PROJECT: ${{ vars.CF_PAGES_PROJECT || 'datazeme' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: 登録の有無を確認（無ければここで赤にして気づけるようにする）
+        run: |
+          test -n "$CLOUDFLARE_API_TOKEN" || { echo "::error::Secrets に CLOUDFLARE_API_TOKEN が無い"; exit 1; }
+          test -n "$CLOUDFLARE_ACCOUNT_ID" || { echo "::error::Secrets に CLOUDFLARE_ACCOUNT_ID が無い"; exit 1; }
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: 罠のテスト
+        run: node --test edge/aiNotice.test.mjs
+
+      - name: Pages プロジェクトが無ければ作る（2回目以降は何もしない）
+        run: |
+          if npx -y wrangler@3 pages project list 2>/dev/null | grep -qw "$PROJECT"; then
+            echo "既存プロジェクト $PROJECT を使う"
+          else
+            npx -y wrangler@3 pages project create "$PROJECT" --production-branch=main
+          fi
+
+      - name: docs と罠をアップロード
+        run: npx -y wrangler@3 pages deploy docs --project-name="$PROJECT" --branch=main --commit-dirty=true
+
+      - name: 配信先の罠が効いているか確認（AIの名乗り→冗談、普通のブラウザ→本物）
+        run: |
+          U="https://$PROJECT.pages.dev/racers/racers_today.csv"
+          sleep 20
+          AI=$(curl -s -A "Mozilla/5.0 (compatible; ChatGPT-User/1.0)" "$U" | head -c 400)
+          HU=$(curl -s -A "Mozilla/5.0 (Windows NT 10.0) Chrome/130.0" "$U" | head -c 400)
+          echo "$AI" | grep -q "冗談" || { echo "::error::AIの名乗りで本物が返っている"; exit 1; }
+          echo "$HU" | grep -q "冗談" && { echo "::error::普通のブラウザに冗談が返っている"; exit 1; }
+          echo "罠OK: AI→冗談 / 人間→本物"
