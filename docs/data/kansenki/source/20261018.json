@@ -9840,6 +9840,1923 @@
       }
     },
     {
+      "jcd": "09",
+      "venue": "津",
+      "series": "スポーツ報知ビクトリーカップ",
+      "grade": null,
+      "dayNum": 3,
+      "dayLabel": "３日目",
+      "asOfDay": 2,
+      "seriesNote": null,
+      "results": [
+        {
+          "rno": 1,
+          "finish": "1-2-4",
+          "payout": 540,
+          "kimarite": "逃げ"
+        },
+        {
+          "rno": 2,
+          "finish": "1-2-5",
+          "payout": 1000,
+          "kimarite": "逃げ"
+        },
+        {
+          "rno": 3,
+          "finish": "4-5-1",
+          "payout": 2070,
+          "kimarite": "差し"
+        },
+        {
+          "rno": 4,
+          "finish": "2-4-5",
+          "payout": 5450,
+          "kimarite": "抜き"
+        },
+        {
+          "rno": 5,
+          "finish": "1-5-4",
+          "payout": 1420,
+          "kimarite": "抜き"
+        },
+        {
+          "rno": 6,
+          "finish": "1-6-4",
+          "payout": 2200,
+          "kimarite": "逃げ"
+        },
+        {
+          "rno": 7,
+          "finish": "6-1-2",
+          "payout": 4890,
+          "kimarite": "まくり"
+        },
+        {
+          "rno": 8,
+          "finish": "1-2-4",
+          "payout": 730,
+          "kimarite": "恵まれ"
+        },
+        {
+          "rno": 9,
+          "finish": "6-2-4",
+          "payout": 4050,
+          "kimarite": "まくり"
+        },
+        {
+          "rno": 10,
+          "finish": "1-3-2",
+          "payout": 580,
+          "kimarite": "逃げ"
+        },
+        {
+          "rno": 11,
+          "finish": "2-5-1",
+          "payout": 11560,
+          "kimarite": "まくり"
+        },
+        {
+          "rno": 12,
+          "finish": "1-4-5",
+          "payout": 1550,
+          "kimarite": "逃げ"
+        }
+      ],
+      "resultsSummary": {
+        "manshuCount": 1,
+        "manshuRaces": [
+          {
+            "rno": 11,
+            "combo": "2-5-1",
+            "payout": 11560
+          }
+        ],
+        "venueManRateBase": {
+          "rate": 15.0,
+          "source": "verify_log当場実績",
+          "n": 2255
+        }
+      },
+      "reference": {
+        "venueYearStats": {
+          "manRate": 15.0,
+          "haranRate": 29.0,
+          "katameRate": 58.2,
+          "n": 2255,
+          "source": "verify_log.csv 当場過去1年（万舟>10000/荒れ>=5000/イン先頭決着）"
+        },
+        "setsuVsYear": {
+          "setsuManshu": 5,
+          "setsuRaces": 24,
+          "note": "今節万舟ペースと年間実績の比較軸（数値のみ・評価語なし）"
+        },
+        "e30": {
+          "applies": false,
+          "since": null,
+          "source": "e30Schedule.json"
+        }
+      },
+      "scoreRank": null,
+      "focusRacers": [
+        {
+          "toban": "4962",
+          "name": "畑　　　竜生",
+          "yomi": null,
+          "grade": "A2",
+          "branch": "三重",
+          "isLocal": true,
+          "finishTrail": [
+            {
+              "day": 1,
+              "rno": 9,
+              "course": 2,
+              "st": 0.24,
+              "finish": 5
+            },
+            {
+              "day": 2,
+              "rno": 1,
+              "course": 1,
+              "st": 0.14,
+              "finish": 1
+            },
+            {
+              "day": 2,
+              "rno": 11,
+              "course": 5,
+              "st": 0.2,
+              "finish": 2
+            }
+          ],
+          "motorNo": 35,
+          "motor2renTsusan": 38.04,
+          "motor2renTsusanAvg": 34.0,
+          "motorSetsu": {
+            "runs": 3,
+            "niren": 2,
+            "rate": 66.7
+          },
+          "zenkokuWinRate": 5.4,
+          "tochiWinRate": 5.8,
+          "tochiHistory": null,
+          "fCount": 0,
+          "stSetsu": [
+            0.24,
+            0.17
+          ],
+          "stCareer": 0.17,
+          "kimariteType": {
+            "type": "逃げ型",
+            "winCount": 29,
+            "runs": 135,
+            "nige": 15,
+            "sashi": 4,
+            "makuri": 4,
+            "makurisashi": 6,
+            "makuriRate": 13.8,
+            "sashiRate": 13.8,
+            "maezukeRate": 0.0,
+            "maezukeAvg": 0.01,
+            "window": "2026-04-16〜2026-10-15",
+            "source": "racerKimarite.csv"
+          },
+          "why": [
+            "地元勢最上位"
+          ],
+          "gap": null
+        },
+        {
+          "toban": "5028",
+          "name": "原田　才一郎",
+          "yomi": null,
+          "grade": "A1",
+          "branch": "福岡",
+          "isLocal": false,
+          "finishTrail": [
+            {
+              "day": 1,
+              "rno": 7,
+              "course": 2,
+              "st": 0.16,
+              "finish": 2
+            },
+            {
+              "day": 1,
+              "rno": 12,
+              "course": 5,
+              "st": 0.32,
+              "finish": 5
+            },
+            {
+              "day": 2,
+              "rno": 5,
+              "course": 1,
+              "st": 0.18,
+              "finish": 1
+            },
+            {
+              "day": 2,
+              "rno": 9,
+              "course": 4,
+              "st": 0.22,
+              "finish": 3
+            }
+          ],
+          "motorNo": 37,
+          "motor2renTsusan": 37.93,
+          "motor2renTsusanAvg": 34.0,
+          "motorSetsu": {
+            "runs": 4,
+            "niren": 2,
+            "rate": 50.0
+          },
+          "zenkokuWinRate": 6.99,
+          "tochiWinRate": 7.55,
+          "tochiHistory": null,
+          "fCount": 1,
+          "stSetsu": [
+            0.24,
+            0.2
+          ],
+          "stCareer": 0.18,
+          "kimariteType": {
+            "type": "逃げ型",
+            "winCount": 48,
+            "runs": 153,
+            "nige": 29,
+            "sashi": 5,
+            "makuri": 7,
+            "makurisashi": 4,
+            "makuriRate": 14.6,
+            "sashiRate": 10.4,
+            "maezukeRate": 2.7,
+            "maezukeAvg": 0.06,
+            "window": "2026-04-16〜2026-10-15",
+            "source": "racerKimarite.csv"
+          },
+          "why": [
+            "全国勝率最上位"
+          ],
+          "gap": null
+        },
+        {
+          "toban": "5455",
+          "name": "澁澤　　周羽",
+          "yomi": null,
+          "grade": "B2",
+          "branch": "群馬",
+          "isLocal": false,
+          "finishTrail": [
+            {
+              "day": 1,
+              "rno": 6,
+              "course": 6,
+              "st": 0.33,
+              "finish": 3
+            },
+            {
+              "day": 2,
+              "rno": 1,
+              "course": 6,
+              "st": 0.12,
+              "finish": 5
+            },
+            {
+              "day": 2,
+              "rno": 7,
+              "course": 6,
+              "st": 0.08,
+              "finish": 6
+            }
+          ],
+          "motorNo": 40,
+          "motor2renTsusan": 43.9,
+          "motor2renTsusanAvg": 34.0,
+          "motorSetsu": {
+            "runs": 3,
+            "niren": 0,
+            "rate": 0.0
+          },
+          "zenkokuWinRate": 1.7,
+          "tochiWinRate": 1.25,
+          "tochiHistory": null,
+          "fCount": 0,
+          "stSetsu": [
+            0.33,
+            0.1
+          ],
+          "stCareer": null,
+          "kimariteType": {
+            "type": null,
+            "winCount": 1,
+            "runs": 83,
+            "nige": 0,
+            "sashi": 0,
+            "makuri": 1,
+            "makurisashi": 0,
+            "makuriRate": 100.0,
+            "sashiRate": 0.0,
+            "maezukeRate": 0.0,
+            "maezukeAvg": -0.44,
+            "window": "2026-04-16〜2026-10-15",
+            "source": "racerKimarite.csv"
+          },
+          "why": [
+            "上位機×低勝率"
+          ],
+          "gap": {
+            "motorRank": 1,
+            "winRank": 43,
+            "n": 45,
+            "motorRuns": 166,
+            "basis": "当日出走者45人の中の順位（通算2連率・全国勝率）"
+          }
+        },
+        {
+          "toban": "5050",
+          "name": "木下　　雄介",
+          "yomi": null,
+          "grade": "A2",
+          "branch": "滋賀",
+          "isLocal": false,
+          "finishTrail": [
+            {
+              "day": 1,
+              "rno": 4,
+              "course": 4,
+              "st": 0.17,
+              "finish": 2
+            },
+            {
+              "day": 1,
+              "rno": 9,
+              "course": 1,
+              "st": 0.23,
+              "finish": 6
+            },
+            {
+              "day": 2,
+              "rno": 9,
+              "course": 2,
+              "st": 0.14,
+              "finish": 2
+            }
+          ],
+          "motorNo": 34,
+          "motor2renTsusan": 25.77,
+          "motor2renTsusanAvg": 34.0,
+          "motorSetsu": {
+            "runs": 3,
+            "niren": 2,
+            "rate": 66.7
+          },
+          "zenkokuWinRate": 5.96,
+          "tochiWinRate": 5.6,
+          "tochiHistory": null,
+          "fCount": 0,
+          "stSetsu": [
+            0.2,
+            0.14
+          ],
+          "stCareer": 0.17,
+          "kimariteType": {
+            "type": "逃げ型",
+            "winCount": 33,
+            "runs": 119,
+            "nige": 14,
+            "sashi": 10,
+            "makuri": 1,
+            "makurisashi": 4,
+            "makuriRate": 3.0,
+            "sashiRate": 30.3,
+            "maezukeRate": 0.0,
+            "maezukeAvg": -0.01,
+            "window": "2026-04-16〜2026-10-15",
+            "source": "racerKimarite.csv"
+          },
+          "why": [
+            "下位機×高勝率"
+          ],
+          "gap": {
+            "motorRank": 45,
+            "winRank": 9,
+            "n": 45,
+            "motorRuns": 165,
+            "basis": "当日出走者45人の中の順位（通算2連率・全国勝率）"
+          }
+        }
+      ],
+      "angles": {
+        "basis": "津の直近365日2267レースでの実測率",
+        "priorityRule": "重要度 = -log10(実測率) x 3（上限10）。レースは最上位の型に、同レースの他の型1つにつき0.5を足す",
+        "pillar": {
+          "scope": "race",
+          "rno": 8,
+          "type": "珍しい決まり手",
+          "priority": 6.0,
+          "note": null
+        },
+        "races": [
+          {
+            "rno": 8,
+            "winner": "占部 一真",
+            "winnerToban": "4899",
+            "course": 1,
+            "priority": 6.0,
+            "tags": [
+              {
+                "type": "珍しい決まり手",
+                "value": "恵まれ",
+                "rate": 1.0,
+                "priority": 6.0
+              }
+            ]
+          },
+          {
+            "rno": 9,
+            "winner": "笠置 博之",
+            "winnerToban": "4538",
+            "course": 6,
+            "priority": 5.3,
+            "tags": [
+              {
+                "type": "外コースの1着",
+                "value": 6,
+                "rate": 1.7,
+                "priority": 5.3
+              }
+            ]
+          },
+          {
+            "rno": 7,
+            "winner": "入海 馨",
+            "winnerToban": "4886",
+            "course": 5,
+            "priority": 3.7,
+            "tags": [
+              {
+                "type": "外コースの1着",
+                "value": 5,
+                "rate": 6.0,
+                "priority": 3.7
+              }
+            ]
+          },
+          {
+            "rno": 11,
+            "winner": "竹井 貴史",
+            "winnerToban": "4737",
+            "course": 2,
+            "priority": 2.5,
+            "tags": [
+              {
+                "type": "万舟",
+                "value": 11560,
+                "threshold": 10000,
+                "rate": 15.1,
+                "priority": 2.5
+              }
+            ]
+          }
+        ],
+        "day": [],
+        "doubleWinners": [
+          {
+            "toban": "4538",
+            "wins": 2
+          }
+        ]
+      },
+      "setsuStreaks": [
+        {
+          "toban": "4886",
+          "name": "入海　　　馨",
+          "type": "連勝中",
+          "streak": 3,
+          "runs": 3
+        }
+      ],
+      "localRacers": [
+        {
+          "toban": "4962",
+          "name": "畑　　　竜生",
+          "branch": "三重",
+          "summary": "A2・全国勝率5.40・当地2連率35.16%"
+        },
+        {
+          "toban": "4618",
+          "name": "乃村　　康友",
+          "branch": "三重",
+          "summary": "B1・全国勝率5.33・当地2連率39.45%"
+        },
+        {
+          "toban": "3852",
+          "name": "澤　　　大介",
+          "branch": "三重",
+          "summary": "B1・全国勝率5.03・当地2連率28.57%"
+        },
+        {
+          "toban": "5399",
+          "name": "長野　　未来",
+          "branch": "三重",
+          "summary": "B2・全国勝率1.30・当地2連率0.00%"
+        }
+      ],
+      "styleHistory": [
+        "データ型",
+        "群像型",
+        "展望型"
+      ],
+      "prevArticle": {
+        "exists": false
+      },
+      "todayProgram": {
+        "asOfCard": "20261018",
+        "races": [
+          {
+            "rno": 1,
+            "kikaku": "ツッキーレース",
+            "deadline": "10:32",
+            "boats": [
+              {
+                "waku": 1,
+                "toban": "4424",
+                "name": "松尾　　昂明",
+                "grade": "A2",
+                "motorNo": 12,
+                "motor2Tsusan": 28.93,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 1,
+                  "rate": 33.3
+                },
+                "tochiWin": 5.82,
+                "stAvg": 0.16,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 2,
+                "toban": "3880",
+                "name": "浅見　　宗孝",
+                "grade": "B1",
+                "motorNo": 56,
+                "motor2Tsusan": 34.21,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 0,
+                  "rate": 0.0
+                },
+                "tochiWin": 5.06,
+                "stAvg": 0.19,
+                "f": 1,
+                "l": 0
+              },
+              {
+                "waku": 3,
+                "toban": "3340",
+                "name": "池田　　雷太",
+                "grade": "B1",
+                "motorNo": 49,
+                "motor2Tsusan": 37.57,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 1,
+                  "rate": 33.3
+                },
+                "tochiWin": 3.65,
+                "stAvg": 0.18,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 4,
+                "toban": "4899",
+                "name": "占部　　一真",
+                "grade": "B1",
+                "motorNo": 53,
+                "motor2Tsusan": 34.73,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 2,
+                  "rate": 66.7
+                },
+                "tochiWin": 3.71,
+                "stAvg": 0.16,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 5,
+                "toban": "3655",
+                "name": "本橋　　克洋",
+                "grade": "B1",
+                "motorNo": 23,
+                "motor2Tsusan": 34.13,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 1,
+                  "rate": 33.3
+                },
+                "tochiWin": 5.19,
+                "stAvg": 0.17,
+                "f": 1,
+                "l": 0
+              },
+              {
+                "waku": 6,
+                "toban": "5444",
+                "name": "林　　　風音",
+                "grade": "B2",
+                "motorNo": 73,
+                "motor2Tsusan": 36.31,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 0,
+                  "rate": 0.0
+                },
+                "tochiWin": 1.17,
+                "stAvg": 0.19,
+                "f": 1,
+                "l": 0
+              }
+            ]
+          },
+          {
+            "rno": 2,
+            "kikaku": "予選",
+            "deadline": "11:01",
+            "boats": [
+              {
+                "waku": 1,
+                "toban": "5006",
+                "name": "久保原　秀人",
+                "grade": "B1",
+                "motorNo": 55,
+                "motor2Tsusan": 28.4,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 0,
+                  "rate": 0.0
+                },
+                "tochiWin": 4.17,
+                "stAvg": 0.2,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 2,
+                "toban": "3796",
+                "name": "長野　　道臣",
+                "grade": "B1",
+                "motorNo": 64,
+                "motor2Tsusan": 30.57,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 0,
+                  "rate": 0.0
+                },
+                "tochiWin": 5.85,
+                "stAvg": 0.17,
+                "f": 1,
+                "l": 0
+              },
+              {
+                "waku": 3,
+                "toban": "3615",
+                "name": "横田　　　茂",
+                "grade": "B1",
+                "motorNo": 54,
+                "motor2Tsusan": 29.56,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 1,
+                  "rate": 33.3
+                },
+                "tochiWin": 4.52,
+                "stAvg": 0.16,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 4,
+                "toban": "5399",
+                "name": "長野　　未来",
+                "grade": "B2",
+                "motorNo": 13,
+                "motor2Tsusan": 35.84,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 0,
+                  "rate": 0.0
+                },
+                "tochiWin": 1.42,
+                "stAvg": 0.25,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 5,
+                "toban": "3831",
+                "name": "安藤　　裕貴",
+                "grade": "B1",
+                "motorNo": 14,
+                "motor2Tsusan": 28.18,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 0,
+                  "rate": 0.0
+                },
+                "tochiWin": 4.61,
+                "stAvg": 0.15,
+                "f": 1,
+                "l": 0
+              },
+              {
+                "waku": 6,
+                "toban": "3519",
+                "name": "冨田　　秀幸",
+                "grade": "B1",
+                "motorNo": 71,
+                "motor2Tsusan": 29.9,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 0,
+                  "rate": 0.0
+                },
+                "tochiWin": 4.82,
+                "stAvg": 0.16,
+                "f": 1,
+                "l": 0
+              }
+            ]
+          },
+          {
+            "rno": 3,
+            "kikaku": "予選",
+            "deadline": "11:30",
+            "boats": [
+              {
+                "waku": 1,
+                "toban": "4400",
+                "name": "加藤　　奈月",
+                "grade": "B1",
+                "motorNo": 28,
+                "motor2Tsusan": 37.71,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 0,
+                  "rate": 0.0
+                },
+                "tochiWin": 4.26,
+                "stAvg": 0.18,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 2,
+                "toban": "5105",
+                "name": "富田　　恕生",
+                "grade": "B1",
+                "motorNo": 67,
+                "motor2Tsusan": 41.36,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 2,
+                  "rate": 66.7
+                },
+                "tochiWin": 4.22,
+                "stAvg": 0.18,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 3,
+                "toban": "5028",
+                "name": "原田　才一郎",
+                "grade": "A1",
+                "motorNo": 37,
+                "motor2Tsusan": 37.93,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 4,
+                  "niren": 2,
+                  "rate": 50.0
+                },
+                "tochiWin": 7.55,
+                "stAvg": 0.18,
+                "f": 1,
+                "l": 0
+              },
+              {
+                "waku": 4,
+                "toban": "3370",
+                "name": "坪内　　　実",
+                "grade": "B1",
+                "motorNo": 16,
+                "motor2Tsusan": 39.18,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 1,
+                  "rate": 33.3
+                },
+                "tochiWin": 2.56,
+                "stAvg": 0.18,
+                "f": 1,
+                "l": 0
+              },
+              {
+                "waku": 5,
+                "toban": "4761",
+                "name": "山田　　晃大",
+                "grade": "A2",
+                "motorNo": 31,
+                "motor2Tsusan": 41.21,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 2,
+                  "rate": 66.7
+                },
+                "tochiWin": 6.61,
+                "stAvg": 0.14,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 6,
+                "toban": "4159",
+                "name": "向後　　龍一",
+                "grade": "A2",
+                "motorNo": 30,
+                "motor2Tsusan": 29.84,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 2,
+                  "rate": 66.7
+                },
+                "tochiWin": 7.15,
+                "stAvg": 0.17,
+                "f": 0,
+                "l": 0
+              }
+            ]
+          },
+          {
+            "rno": 4,
+            "kikaku": "予選",
+            "deadline": "11:59",
+            "boats": [
+              {
+                "waku": 1,
+                "toban": "3614",
+                "name": "谷　　　勝幸",
+                "grade": "B1",
+                "motorNo": 58,
+                "motor2Tsusan": 37.57,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 0,
+                  "rate": 0.0
+                },
+                "tochiWin": 4.91,
+                "stAvg": 0.17,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 2,
+                "toban": "3852",
+                "name": "澤　　　大介",
+                "grade": "B1",
+                "motorNo": 15,
+                "motor2Tsusan": 35.76,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 1,
+                  "rate": 33.3
+                },
+                "tochiWin": 5.08,
+                "stAvg": 0.21,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 3,
+                "toban": "4254",
+                "name": "川島　　圭司",
+                "grade": "A2",
+                "motorNo": 33,
+                "motor2Tsusan": 27.72,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 1,
+                  "rate": 33.3
+                },
+                "tochiWin": 4.93,
+                "stAvg": 0.15,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 4,
+                "toban": "3499",
+                "name": "市川　　哲也",
+                "grade": "A1",
+                "motorNo": 61,
+                "motor2Tsusan": 30.46,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 4,
+                  "niren": 2,
+                  "rate": 50.0
+                },
+                "tochiWin": 6.0,
+                "stAvg": 0.15,
+                "f": 1,
+                "l": 0
+              },
+              {
+                "waku": 5,
+                "toban": "4367",
+                "name": "山口　　修路",
+                "grade": "B1",
+                "motorNo": 26,
+                "motor2Tsusan": 32.14,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 1,
+                  "rate": 33.3
+                },
+                "tochiWin": 5.1,
+                "stAvg": 0.23,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 6,
+                "toban": "5455",
+                "name": "澁澤　　周羽",
+                "grade": "B2",
+                "motorNo": 40,
+                "motor2Tsusan": 43.9,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 0,
+                  "rate": 0.0
+                },
+                "tochiWin": 1.25,
+                "stAvg": null,
+                "f": 0,
+                "l": 0
+              }
+            ]
+          },
+          {
+            "rno": 5,
+            "kikaku": "５ールドレース",
+            "deadline": "12:29",
+            "boats": [
+              {
+                "waku": 1,
+                "toban": "4538",
+                "name": "笠置　　博之",
+                "grade": "A1",
+                "motorNo": 63,
+                "motor2Tsusan": 30.2,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 2,
+                  "rate": 66.7
+                },
+                "tochiWin": 5.82,
+                "stAvg": 0.15,
+                "f": 1,
+                "l": 0
+              },
+              {
+                "waku": 2,
+                "toban": "4618",
+                "name": "乃村　　康友",
+                "grade": "B1",
+                "motorNo": 18,
+                "motor2Tsusan": 33.33,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 3,
+                  "rate": 100.0
+                },
+                "tochiWin": 5.42,
+                "stAvg": 0.17,
+                "f": 1,
+                "l": 0
+              },
+              {
+                "waku": 3,
+                "toban": "4139",
+                "name": "丹下　　　健",
+                "grade": "B1",
+                "motorNo": 68,
+                "motor2Tsusan": 37.69,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 1,
+                  "rate": 33.3
+                },
+                "tochiWin": 5.23,
+                "stAvg": 0.19,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 4,
+                "toban": "4010",
+                "name": "越智　　照浩",
+                "grade": "B1",
+                "motorNo": 39,
+                "motor2Tsusan": 37.97,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 0,
+                  "rate": 0.0
+                },
+                "tochiWin": 3.92,
+                "stAvg": 0.17,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 5,
+                "toban": "4782",
+                "name": "浜崎　　準也",
+                "grade": "B1",
+                "motorNo": 70,
+                "motor2Tsusan": 34.85,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 0,
+                  "rate": 0.0
+                },
+                "tochiWin": 4.67,
+                "stAvg": 0.18,
+                "f": 1,
+                "l": 0
+              },
+              {
+                "waku": 6,
+                "toban": "3993",
+                "name": "永井　　聖美",
+                "grade": "B1",
+                "motorNo": 48,
+                "motor2Tsusan": 35.26,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 1,
+                  "rate": 33.3
+                },
+                "tochiWin": 5.0,
+                "stAvg": 0.16,
+                "f": 0,
+                "l": 0
+              }
+            ]
+          },
+          {
+            "rno": 6,
+            "kikaku": "予選",
+            "deadline": "12:58",
+            "boats": [
+              {
+                "waku": 1,
+                "toban": "4726",
+                "name": "島田　なぎさ",
+                "grade": "B2",
+                "motorNo": 51,
+                "motor2Tsusan": 43.88,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 1,
+                  "rate": 33.3
+                },
+                "tochiWin": 3.6,
+                "stAvg": 0.14,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 2,
+                "toban": "5082",
+                "name": "一色　　凌雅",
+                "grade": "B1",
+                "motorNo": 62,
+                "motor2Tsusan": 28.65,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 1,
+                  "rate": 33.3
+                },
+                "tochiWin": 5.0,
+                "stAvg": 0.18,
+                "f": 1,
+                "l": 0
+              },
+              {
+                "waku": 3,
+                "toban": "5050",
+                "name": "木下　　雄介",
+                "grade": "A2",
+                "motorNo": 34,
+                "motor2Tsusan": 25.77,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 2,
+                  "rate": 66.7
+                },
+                "tochiWin": 5.6,
+                "stAvg": 0.17,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 4,
+                "toban": "4962",
+                "name": "畑　　　竜生",
+                "grade": "A2",
+                "motorNo": 35,
+                "motor2Tsusan": 38.04,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 2,
+                  "rate": 66.7
+                },
+                "tochiWin": 5.8,
+                "stAvg": 0.17,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 5,
+                "toban": "4837",
+                "name": "酒井　　陽祐",
+                "grade": "B1",
+                "motorNo": 66,
+                "motor2Tsusan": 27.68,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 0,
+                  "rate": 0.0
+                },
+                "tochiWin": 4.08,
+                "stAvg": 0.16,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 6,
+                "toban": "4769",
+                "name": "馬場　　　剛",
+                "grade": "A1",
+                "motorNo": 21,
+                "motor2Tsusan": 35.8,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 2,
+                  "niren": 1,
+                  "rate": 50.0
+                },
+                "tochiWin": 6.92,
+                "stAvg": 0.12,
+                "f": 1,
+                "l": 0
+              }
+            ]
+          },
+          {
+            "rno": 7,
+            "kikaku": "予選",
+            "deadline": "13:28",
+            "boats": [
+              {
+                "waku": 1,
+                "toban": "3655",
+                "name": "本橋　　克洋",
+                "grade": "B1",
+                "motorNo": 23,
+                "motor2Tsusan": 34.13,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 1,
+                  "rate": 33.3
+                },
+                "tochiWin": 5.19,
+                "stAvg": 0.17,
+                "f": 1,
+                "l": 0
+              },
+              {
+                "waku": 2,
+                "toban": "3370",
+                "name": "坪内　　　実",
+                "grade": "B1",
+                "motorNo": 16,
+                "motor2Tsusan": 39.18,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 1,
+                  "rate": 33.3
+                },
+                "tochiWin": 2.56,
+                "stAvg": 0.18,
+                "f": 1,
+                "l": 0
+              },
+              {
+                "waku": 3,
+                "toban": "4637",
+                "name": "中田　　友也",
+                "grade": "A2",
+                "motorNo": 27,
+                "motor2Tsusan": 32.58,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 0,
+                  "rate": 0.0
+                },
+                "tochiWin": 5.87,
+                "stAvg": 0.18,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 4,
+                "toban": "3796",
+                "name": "長野　　道臣",
+                "grade": "B1",
+                "motorNo": 64,
+                "motor2Tsusan": 30.57,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 0,
+                  "rate": 0.0
+                },
+                "tochiWin": 5.85,
+                "stAvg": 0.17,
+                "f": 1,
+                "l": 0
+              },
+              {
+                "waku": 5,
+                "toban": "4961",
+                "name": "西橋　　奈未",
+                "grade": "A1",
+                "motorNo": 72,
+                "motor2Tsusan": 32.86,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 1,
+                  "rate": 33.3
+                },
+                "tochiWin": 5.97,
+                "stAvg": 0.15,
+                "f": 1,
+                "l": 0
+              },
+              {
+                "waku": 6,
+                "toban": "5293",
+                "name": "眞崎　　武蔵",
+                "grade": "B1",
+                "motorNo": 43,
+                "motor2Tsusan": 28.65,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 2,
+                  "rate": 66.7
+                },
+                "tochiWin": 3.21,
+                "stAvg": 0.21,
+                "f": 0,
+                "l": 0
+              }
+            ]
+          },
+          {
+            "rno": 8,
+            "kikaku": "予選",
+            "deadline": "14:01",
+            "boats": [
+              {
+                "waku": 1,
+                "toban": "3992",
+                "name": "関口　　智久",
+                "grade": "B1",
+                "motorNo": 20,
+                "motor2Tsusan": 32.76,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 1,
+                  "rate": 33.3
+                },
+                "tochiWin": 5.0,
+                "stAvg": 0.14,
+                "f": 1,
+                "l": 0
+              },
+              {
+                "waku": 2,
+                "toban": "3831",
+                "name": "安藤　　裕貴",
+                "grade": "B1",
+                "motorNo": 14,
+                "motor2Tsusan": 28.18,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 0,
+                  "rate": 0.0
+                },
+                "tochiWin": 4.61,
+                "stAvg": 0.15,
+                "f": 1,
+                "l": 0
+              },
+              {
+                "waku": 3,
+                "toban": "5230",
+                "name": "石原　　凪紗",
+                "grade": "B1",
+                "motorNo": 29,
+                "motor2Tsusan": 30.82,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 0,
+                  "rate": 0.0
+                },
+                "tochiWin": 4.33,
+                "stAvg": 0.2,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 4,
+                "toban": "4886",
+                "name": "入海　　　馨",
+                "grade": "A2",
+                "motorNo": 36,
+                "motor2Tsusan": 40.33,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 3,
+                  "rate": 100.0
+                },
+                "tochiWin": 6.92,
+                "stAvg": 0.14,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 5,
+                "toban": "3880",
+                "name": "浅見　　宗孝",
+                "grade": "B1",
+                "motorNo": 56,
+                "motor2Tsusan": 34.21,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 0,
+                  "rate": 0.0
+                },
+                "tochiWin": 5.06,
+                "stAvg": 0.19,
+                "f": 1,
+                "l": 0
+              },
+              {
+                "waku": 6,
+                "toban": "3499",
+                "name": "市川　　哲也",
+                "grade": "A1",
+                "motorNo": 61,
+                "motor2Tsusan": 30.46,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 4,
+                  "niren": 2,
+                  "rate": 50.0
+                },
+                "tochiWin": 6.0,
+                "stAvg": 0.15,
+                "f": 1,
+                "l": 0
+              }
+            ]
+          },
+          {
+            "rno": 9,
+            "kikaku": "予選特賞",
+            "deadline": "14:34",
+            "boats": [
+              {
+                "waku": 1,
+                "toban": "3340",
+                "name": "池田　　雷太",
+                "grade": "B1",
+                "motorNo": 49,
+                "motor2Tsusan": 37.57,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 1,
+                  "rate": 33.3
+                },
+                "tochiWin": 3.65,
+                "stAvg": 0.18,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 2,
+                "toban": "4761",
+                "name": "山田　　晃大",
+                "grade": "A2",
+                "motorNo": 31,
+                "motor2Tsusan": 41.21,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 2,
+                  "rate": 66.7
+                },
+                "tochiWin": 6.61,
+                "stAvg": 0.14,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 3,
+                "toban": "4460",
+                "name": "後藤　　翔之",
+                "grade": "A2",
+                "motorNo": 47,
+                "motor2Tsusan": 35.71,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 4,
+                  "niren": 3,
+                  "rate": 75.0
+                },
+                "tochiWin": 6.12,
+                "stAvg": 0.14,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 4,
+                "toban": "3519",
+                "name": "冨田　　秀幸",
+                "grade": "B1",
+                "motorNo": 71,
+                "motor2Tsusan": 29.9,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 0,
+                  "rate": 0.0
+                },
+                "tochiWin": 4.82,
+                "stAvg": 0.16,
+                "f": 1,
+                "l": 0
+              },
+              {
+                "waku": 5,
+                "toban": "4737",
+                "name": "竹井　　貴史",
+                "grade": "A1",
+                "motorNo": 24,
+                "motor2Tsusan": 37.42,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 4,
+                  "niren": 4,
+                  "rate": 100.0
+                },
+                "tochiWin": 6.86,
+                "stAvg": 0.16,
+                "f": 1,
+                "l": 0
+              },
+              {
+                "waku": 6,
+                "toban": "4139",
+                "name": "丹下　　　健",
+                "grade": "B1",
+                "motorNo": 68,
+                "motor2Tsusan": 37.69,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 1,
+                  "rate": 33.3
+                },
+                "tochiWin": 5.23,
+                "stAvg": 0.19,
+                "f": 0,
+                "l": 0
+              }
+            ]
+          },
+          {
+            "rno": 10,
+            "kikaku": "予選特賞",
+            "deadline": "15:07",
+            "boats": [
+              {
+                "waku": 1,
+                "toban": "4254",
+                "name": "川島　　圭司",
+                "grade": "A2",
+                "motorNo": 33,
+                "motor2Tsusan": 27.72,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 1,
+                  "rate": 33.3
+                },
+                "tochiWin": 4.93,
+                "stAvg": 0.15,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 2,
+                "toban": "4203",
+                "name": "小倉　　康典",
+                "grade": "B1",
+                "motorNo": 44,
+                "motor2Tsusan": 42.94,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 0,
+                  "rate": 0.0
+                },
+                "tochiWin": 4.71,
+                "stAvg": 0.14,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 3,
+                "toban": "4538",
+                "name": "笠置　　博之",
+                "grade": "A1",
+                "motorNo": 63,
+                "motor2Tsusan": 30.2,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 2,
+                  "rate": 66.7
+                },
+                "tochiWin": 5.82,
+                "stAvg": 0.15,
+                "f": 1,
+                "l": 0
+              },
+              {
+                "waku": 4,
+                "toban": "5105",
+                "name": "富田　　恕生",
+                "grade": "B1",
+                "motorNo": 67,
+                "motor2Tsusan": 41.36,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 2,
+                  "rate": 66.7
+                },
+                "tochiWin": 4.22,
+                "stAvg": 0.18,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 5,
+                "toban": "3615",
+                "name": "横田　　　茂",
+                "grade": "B1",
+                "motorNo": 54,
+                "motor2Tsusan": 29.56,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 1,
+                  "rate": 33.3
+                },
+                "tochiWin": 4.52,
+                "stAvg": 0.16,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 6,
+                "toban": "4962",
+                "name": "畑　　　竜生",
+                "grade": "A2",
+                "motorNo": 35,
+                "motor2Tsusan": 38.04,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 2,
+                  "rate": 66.7
+                },
+                "tochiWin": 5.8,
+                "stAvg": 0.17,
+                "f": 0,
+                "l": 0
+              }
+            ]
+          },
+          {
+            "rno": 11,
+            "kikaku": "予選特選",
+            "deadline": "15:36",
+            "boats": [
+              {
+                "waku": 1,
+                "toban": "4961",
+                "name": "西橋　　奈未",
+                "grade": "A1",
+                "motorNo": 72,
+                "motor2Tsusan": 32.86,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 1,
+                  "rate": 33.3
+                },
+                "tochiWin": 5.97,
+                "stAvg": 0.15,
+                "f": 1,
+                "l": 0
+              },
+              {
+                "waku": 2,
+                "toban": "4899",
+                "name": "占部　　一真",
+                "grade": "B1",
+                "motorNo": 53,
+                "motor2Tsusan": 34.73,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 2,
+                  "rate": 66.7
+                },
+                "tochiWin": 3.71,
+                "stAvg": 0.16,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 3,
+                "toban": "4159",
+                "name": "向後　　龍一",
+                "grade": "A2",
+                "motorNo": 30,
+                "motor2Tsusan": 29.84,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 2,
+                  "rate": 66.7
+                },
+                "tochiWin": 7.15,
+                "stAvg": 0.17,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 4,
+                "toban": "4367",
+                "name": "山口　　修路",
+                "grade": "B1",
+                "motorNo": 26,
+                "motor2Tsusan": 32.14,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 1,
+                  "rate": 33.3
+                },
+                "tochiWin": 5.1,
+                "stAvg": 0.23,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 5,
+                "toban": "3993",
+                "name": "永井　　聖美",
+                "grade": "B1",
+                "motorNo": 48,
+                "motor2Tsusan": 35.26,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 1,
+                  "rate": 33.3
+                },
+                "tochiWin": 5.0,
+                "stAvg": 0.16,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 6,
+                "toban": "5050",
+                "name": "木下　　雄介",
+                "grade": "A2",
+                "motorNo": 34,
+                "motor2Tsusan": 25.77,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 2,
+                  "rate": 66.7
+                },
+                "tochiWin": 5.6,
+                "stAvg": 0.17,
+                "f": 0,
+                "l": 0
+              }
+            ]
+          },
+          {
+            "rno": 12,
+            "kikaku": "ツッキー選抜戦",
+            "deadline": "16:15",
+            "boats": [
+              {
+                "waku": 1,
+                "toban": "5028",
+                "name": "原田　才一郎",
+                "grade": "A1",
+                "motorNo": 37,
+                "motor2Tsusan": 37.93,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 4,
+                  "niren": 2,
+                  "rate": 50.0
+                },
+                "tochiWin": 7.55,
+                "stAvg": 0.18,
+                "f": 1,
+                "l": 0
+              },
+              {
+                "waku": 2,
+                "toban": "4886",
+                "name": "入海　　　馨",
+                "grade": "A2",
+                "motorNo": 36,
+                "motor2Tsusan": 40.33,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 3,
+                  "rate": 100.0
+                },
+                "tochiWin": 6.92,
+                "stAvg": 0.14,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 3,
+                "toban": "4618",
+                "name": "乃村　　康友",
+                "grade": "B1",
+                "motorNo": 18,
+                "motor2Tsusan": 33.33,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 3,
+                  "rate": 100.0
+                },
+                "tochiWin": 5.42,
+                "stAvg": 0.17,
+                "f": 1,
+                "l": 0
+              },
+              {
+                "waku": 4,
+                "toban": "5293",
+                "name": "眞崎　　武蔵",
+                "grade": "B1",
+                "motorNo": 43,
+                "motor2Tsusan": 28.65,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 2,
+                  "rate": 66.7
+                },
+                "tochiWin": 3.21,
+                "stAvg": 0.21,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 5,
+                "toban": "4424",
+                "name": "松尾　　昂明",
+                "grade": "A2",
+                "motorNo": 12,
+                "motor2Tsusan": 28.93,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 1,
+                  "rate": 33.3
+                },
+                "tochiWin": 5.82,
+                "stAvg": 0.16,
+                "f": 0,
+                "l": 0
+              },
+              {
+                "waku": 6,
+                "toban": "5082",
+                "name": "一色　　凌雅",
+                "grade": "B1",
+                "motorNo": 62,
+                "motor2Tsusan": 28.65,
+                "motor2TsusanAvg": 34.0,
+                "motorSetsu": {
+                  "runs": 3,
+                  "niren": 1,
+                  "rate": 33.3
+                },
+                "tochiWin": 5.0,
+                "stAvg": 0.18,
+                "f": 1,
+                "l": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
       "jcd": "10",
       "venue": "三国",
       "series": "日本ＭＢ選手会会長杯第３４回たけふ菊人形賞",
@@ -23400,5 +25317,5 @@
       }
     }
   ],
-  "readyOnlyAt": "2026-10-17T23:40:07.722882+09:00"
+  "supplementedAt": "2026-10-18T01:00:08.042728+09:00"
 }
