@@ -17,12 +17,12 @@ for f in sorted(os.listdir(SRC + "/img")):
 s = open(SRC + "/index.html", encoding="utf-8").read()
 
 head = (
-    '<!-- データ攻め by あべけん https://abeken1026395.github.io/pallas-mercato-7k9/ -->\n'
+    '<!-- データ攻め by あべけん https://datazeme.pages.dev/ -->\n'
     '<!DOCTYPE html>\n<html lang="ja">\n<head>\n'
     '<meta name="robots" content="noindex, nofollow">\n'
     '<meta charset="utf-8">\n'
     '<meta name="author" content="あべけん（データ攻め）">\n'
-    '<link rel="canonical" href="https://abeken1026395.github.io/pallas-mercato-7k9/next/torisetsu.html">\n'
+    '<link rel="canonical" href="https://datazeme.pages.dev/next/torisetsu.html">\n'
     '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
     '<title>トリセツ（実験場）| データ攻め</title>\n'
 )

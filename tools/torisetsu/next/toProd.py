@@ -5,7 +5,7 @@ CF_TAG = '<!-- Cloudflare Web Analytics --><script type=\'module\' src=\'https:/
 SRC = "/home/claude/next"
 REPO = "/home/claude/pallas-mercato-7k9"
 DST = REPO + "/docs/torisetsu"
-URL = "https://abeken1026395.github.io/pallas-mercato-7k9/torisetsu/"
+URL = "https://datazeme.pages.dev/torisetsu/"
 DESC = ("データ攻めの取扱説明書です。はじめの3分の使い方、記号の意味、"
         "おかしく見えるときの読み方、12の画面の見かたを、図と番号で引けます。")
 
@@ -19,7 +19,7 @@ shutil.copy(SRC + "/delaSub.woff2", DST + "/delaSub.woff2")
 shutil.copy(SRC + "/fonts/fontsource-dela-gothic-one-5.3.0/package/LICENSE", DST + "/delaOFL.txt")
 
 head = (
-    '<!-- データ攻め by あべけん https://abeken1026395.github.io/pallas-mercato-7k9/ -->\n'
+    '<!-- データ攻め by あべけん https://datazeme.pages.dev/ -->\n'
     '<!DOCTYPE html>\n<html lang="ja">\n<head>\n'
     '<meta charset="UTF-8">\n'
     '<meta name="robots" content="noindex, nofollow">\n'
@@ -29,7 +29,7 @@ head = (
     '<meta property="og:type" content="article">\n'
     '<meta property="og:title" content="データ攻め トリセツ">\n'
     '<meta property="og:description" content="' + DESC + '">\n'
-    '<meta property="og:image" content="https://abeken1026395.github.io/pallas-mercato-7k9/icon512.png">\n'
+    '<meta property="og:image" content="https://datazeme.pages.dev/icon512.png">\n'
     '<meta property="og:url" content="' + URL + '">\n'
     '<meta property="og:site_name" content="データ攻め">\n'
     '<meta name="twitter:card" content="summary">\n'

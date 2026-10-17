@@ -29,7 +29,7 @@ import tempfile
 
 from PIL import Image
 
-SITE = "https://abeken1026395.github.io/pallas-mercato-7k9/players/card"
+SITE = "https://datazeme.pages.dev/players/card"
 W, H = 1200, 630
 KEYS = "data/senshuCard/ogKeys.json"
 HERE = os.path.dirname(os.path.abspath(__file__))

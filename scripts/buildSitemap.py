@@ -19,7 +19,7 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "docs", "sitemap.xml")
-BASE = "https://abeken1026395.github.io/pallas-mercato-7k9/"
+BASE = "https://datazeme.pages.dev/"
 
 VENUES = [
     "kiryu", "toda", "edogawa", "heiwajima", "tamagawa", "hamanako",
