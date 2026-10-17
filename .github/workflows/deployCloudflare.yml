@@ -5,6 +5,11 @@
 # 必要な登録（けんが GitHub の Settings → Secrets and variables → Actions で行う）:
 #   Secrets  : CLOUDFLARE_API_TOKEN（権限 Cloudflare Pages:Edit）, CLOUDFLARE_ACCOUNT_ID
 #   Variables: CF_PAGES_PROJECT（省略時 datazeme → URL は datazeme.pages.dev）
+#
+# 注意：自動更新WFが GITHUB_TOKEN で push したコミットは、GitHub の決まりで他のWFを起動しない。
+# 1日数十回の自動更新はすべてそれなので、push トリガだけだと配信が止まる
+# （2026-10-17 実測：人の push 3回しか動かず、datazeme は古いままだった）。
+# そのため 10 分おきの定時でも動かし、前回の配信から main が変わっていなければ何もしない。
 name: Cloudflare Pages 配信
 
 on:
@@ -14,6 +19,8 @@ on:
       - "docs/**"
       - "functions/**"
       - "edge/**"
+  schedule:
+    - cron: "*/10 * * * *"
   workflow_dispatch: {}
 
 # 走っている1本は最後まで走らせ、待ちは最新の1本だけ残す（古い待ちは自動で捨てられる）
@@ -23,6 +30,7 @@ concurrency:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   deploy:
@@ -35,21 +43,40 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 1
 
+      - name: 前回の配信から main が変わっていなければ何もしない（定時起動の空回り防止）
+        id: changed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          NOW=$(git rev-parse HEAD)
+          LAST=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/deployCloudflare.yml/runs?status=success&per_page=1" --jq '.workflow_runs[0].head_sha // ""')
+          echo "前回の配信 $LAST / 今の main $NOW"
+          if [ "${{ github.event_name }}" = "schedule" ] && [ "$LAST" = "$NOW" ]; then
+            echo "変更なし。何もしない"; echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: 登録の有無を確認（無ければここで赤にして気づけるようにする）
+        if: steps.changed.outputs.skip == 'false'
         run: |
           test -n "$CLOUDFLARE_API_TOKEN" || { echo "::error::Secrets に CLOUDFLARE_API_TOKEN が無い"; exit 1; }
           test -n "$CLOUDFLARE_ACCOUNT_ID" || { echo "::error::Secrets に CLOUDFLARE_ACCOUNT_ID が無い"; exit 1; }
 
       - uses: actions/setup-node@v4
+        if: steps.changed.outputs.skip == 'false'
         with:
           node-version: 22
 
       - name: 罠のテスト
+        if: steps.changed.outputs.skip == 'false'
         run: node --test edge/aiNotice.test.mjs
 
       - name: Pages プロジェクトが無ければ作る（2回目以降は何もしない）
+        if: steps.changed.outputs.skip == 'false'
         run: |
           if npx -y wrangler@3 pages project list 2>/dev/null | grep -qw "$PROJECT"; then
             echo "既存プロジェクト $PROJECT を使う"
@@ -58,9 +85,11 @@ jobs:
           fi
 
       - name: docs と罠をアップロード
+        if: steps.changed.outputs.skip == 'false'
         run: npx -y wrangler@3 pages deploy docs --project-name="$PROJECT" --branch=main --commit-dirty=true
 
       - name: 配信先の罠が効いているか確認（AIの名乗り→冗談、普通のブラウザ→本物）
+        if: steps.changed.outputs.skip == 'false'
         run: |
           U="https://$PROJECT.pages.dev/racers/racers_today.csv"
           sleep 20
