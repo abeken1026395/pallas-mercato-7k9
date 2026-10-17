@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>データ攻め — 引っ越しました</title>
+<style>
+  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0b1a2b;color:#f2f5f8;font-family:-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;text-align:center;padding:24px}
+  h1{font-size:22px;margin:0 0 12px}
+  p{margin:8px 0;line-height:1.7}
+  a{color:#9fd3ff;font-weight:700;word-break:break-all}
+  small{color:#9fb3c8}
+</style>
+<script>
+(function(){
+  // 旧URL（github.io）→ 新URL（datazeme.pages.dev）。ページの場所・?・# はそのまま引き継ぐ。
+  var base = "https://datazeme.pages.dev";
+  var p = location.pathname.replace(/^\/pallas-mercato-7k9/, "") || "/";
+  var to = base + p + location.search + location.hash;
+  document.addEventListener("DOMContentLoaded", function(){
+    var a = document.getElementById("to"); if (a) { a.href = to; a.textContent = to; }
+  });
+  setTimeout(function(){ location.replace(to); }, 1200);
+})();
+</script>
+</head>
+<body>
+<div>
+  <h1>おかえりなさい。データ攻めは引っ越しました。</h1>
+  <p>新しい住所へ自動で移動します。移動しないときは下を押してください。</p>
+  <p><a id="to" href="https://datazeme.pages.dev/">https://datazeme.pages.dev/</a></p>
+  <p><small>ホーム画面に追加している方は、新しい住所でもう一度追加してください。</small></p>
+</div>
+</body>
+</html>
