@@ -57,6 +57,8 @@ jobs:
           # tail が途中で切れても、残り時間があるあいだは張り直す（初回は即終了した：2026-10-18）
           : > /tmp/tail.jsonl; : > /tmp/tail.err
           END=$(( $(date +%s) + S ))
+          # 対照：記録が本当に取れているかを確かめるため、自分で名乗り付きのアクセスを20回打つ（60秒後から30秒おき）
+          ( sleep 60; for k in $(seq 1 20); do curl -s -o /dev/null -A "datazeme-diag-selfcheck/1.0" "https://$PROJECT.pages.dev/glossary/?k=$k"; sleep 30; done ) &
           while [ "$(date +%s)" -lt "$END" ]; do
             LEFT=$(( END - $(date +%s) ))
             timeout "$LEFT" npx -y wrangler@3 pages deployment tail "$DEP" --project-name="$PROJECT" --format=json >> /tmp/tail.jsonl 2>> /tmp/tail.err || true
@@ -102,9 +104,12 @@ jobs:
               C["ref"][urllib.parse.urlparse(r).netloc or "(なし)"] += 1
               ip = h.get("cf-connecting-ip", "")
               C["ip2"][".".join(ip.split(".")[:2]) + ".*.*" if "." in ip else (ip.split(":")[0] + ":…" if ip else "?")] += 1
+          selfn = sum(c for v, c in C["ua"].items() if "datazeme-diag-selfcheck" in v)
           sec = (t1 - t0) / 1000 if t0 and t1 and t1 > t0 else 0
           out = [f"# datazeme 来訪元の調査（{datetime.datetime.utcnow():%Y-%m-%d %H:%M} UTC）", "",
-                 f"記録件数 {n} 件 / 記録できた幅 {sec:.0f} 秒 / 1秒あたり {n/sec:.2f} 件" if sec else f"記録件数 {n} 件", ""]
+                 f"記録件数 {n} 件 / 記録できた幅 {sec:.0f} 秒 / 1秒あたり {n/sec:.2f} 件" if sec else f"記録件数 {n} 件", "",
+                 f"対照（自分で打った20回のうち記録できた数）: {selfn} / 20 → " + ("記録は正常に取れている" if selfn >= 15 else "記録が取れていない（この結果は信用しない）"),
+                 f"自分以外の来訪: {n - selfn} 件", ""]
           names = {"ua": "名乗り（User-Agent）", "asn": "回線の持ち主（ASN）", "ip2": "IPの上2桁", "country": "国",
                    "path": "パス", "ref": "参照元のドメイン", "method": "メソッド", "colo": "受けたCloudflareの拠点"}
           for k in ["ua", "asn", "ip2", "country", "path", "ref", "method", "colo"]:
