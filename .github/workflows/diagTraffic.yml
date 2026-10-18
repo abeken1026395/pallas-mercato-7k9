@@ -50,8 +50,16 @@ jobs:
         run: |
           S="${{ github.event.inputs.seconds }}"; [ "$S" -gt 900 ] && S=900
           sleep 15
-          timeout "$S" npx -y wrangler@3 pages deployment tail --project-name="$PROJECT" --environment=production --format=json > /tmp/tail.jsonl 2>/tmp/tail.err || true
+          # tail が途中で切れても、残り時間があるあいだは張り直す（初回は即終了した：2026-10-18）
+          : > /tmp/tail.jsonl; : > /tmp/tail.err
+          END=$(( $(date +%s) + S ))
+          while [ "$(date +%s)" -lt "$END" ]; do
+            LEFT=$(( END - $(date +%s) ))
+            timeout "$LEFT" npx -y wrangler@3 pages deployment tail --project-name="$PROJECT" --environment=production --format=json >> /tmp/tail.jsonl 2>> /tmp/tail.err || true
+            sleep 5
+          done
           echo "記録行数: $(wc -l < /tmp/tail.jsonl)"
+          echo "tail のエラー出力（末尾）:"; grep -v -i "token" /tmp/tail.err | tail -15
 
       - name: 必ず普段の版に戻す
         if: always()
@@ -100,6 +108,12 @@ jobs:
               for v, c in C[k].most_common(25):
                   out.append(f"|{c}|{(100*c/n if n else 0):.1f}%|`{str(v).replace('|','/')}`|")
               out.append("")
+          try:
+              err = [l.rstrip() for l in open("/tmp/tail.err", encoding="utf-8", errors="replace") if "token" not in l.lower()][-20:]
+          except Exception:
+              err = []
+          if err:
+              out += ["## tail のエラー出力（末尾20行）", "", "```"] + err + ["```", ""]
           open("diagReport.md", "w", encoding="utf-8").write("\n".join(out))
           print(f"集計 {n} 件")
           PY
