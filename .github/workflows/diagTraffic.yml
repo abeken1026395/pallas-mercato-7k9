@@ -44,7 +44,11 @@ jobs:
           cp docs/_routes.json /tmp/routes.normal.json
           printf '{"version":1,"include":["/*"],"exclude":[]}\n' > docs/_routes.json
           npx -y wrangler@3 pages deploy docs --project-name="$PROJECT" --branch=main --commit-dirty=true > /tmp/deploy1.txt 2>&1 || { tail -5 /tmp/deploy1.txt; exit 1; }
-          echo "配布済み"
+          # tail は CI では配布の指定が必須（2回目の実測：Must specify a deployment in non-interactive mode）
+          DEP=$(grep -oE "https://[a-z0-9]+\.$PROJECT\.pages\.dev" /tmp/deploy1.txt | tail -1)
+          [ -n "$DEP" ] || { echo "::error::配布のURLが取れない"; tail -5 /tmp/deploy1.txt; exit 1; }
+          echo "DEP=$DEP" >> "$GITHUB_ENV"
+          echo "配布済み: $DEP"
 
       - name: 来訪を記録する
         run: |
@@ -55,7 +59,7 @@ jobs:
           END=$(( $(date +%s) + S ))
           while [ "$(date +%s)" -lt "$END" ]; do
             LEFT=$(( END - $(date +%s) ))
-            timeout "$LEFT" npx -y wrangler@3 pages deployment tail --project-name="$PROJECT" --environment=production --format=json >> /tmp/tail.jsonl 2>> /tmp/tail.err || true
+            timeout "$LEFT" npx -y wrangler@3 pages deployment tail "$DEP" --project-name="$PROJECT" --format=json >> /tmp/tail.jsonl 2>> /tmp/tail.err || true
             sleep 5
           done
           echo "記録行数: $(wc -l < /tmp/tail.jsonl)"
