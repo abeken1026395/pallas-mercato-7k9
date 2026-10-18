@@ -1,0 +1,118 @@
+# datazeme.pages.dev に来ている正体を調べる（手動で1回だけ動かす調査用）。
+# 普段は罠の関数が対象ページでしか動かないため、それ以外のアクセスは Cloudflare の記録に残らない。
+# このWFは、一時的に全ページで関数を動かす版を配り、その間の来訪を tail で記録し、
+# 終わったら必ず普段の版に戻す（途中で失敗しても戻す）。
+# 公開リポジトリなので、ログ・結果に個人を特定できる値（IPの全桁）は出さない。
+# 出すのは：名乗り（User-Agent）・回線の持ち主（ASN名）・国・パス・参照元のドメイン・IPの上2桁。
+# 関数の消費は「1秒あたりの来訪 × 記録秒数」。1秒10回 × 600秒 ＝ 約6,000回（無料枠 1日10万回）。
+name: 調査 datazeme の来訪元
+
+on:
+  workflow_dispatch:
+    inputs:
+      seconds:
+        description: "記録する秒数（最大900）"
+        default: "600"
+
+concurrency:
+  group: deployCloudflare
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      PROJECT: ${{ vars.CF_PAGES_PROJECT || 'datazeme' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: 全ページで関数を動かす版を配る（一時的）
+        run: |
+          cp docs/_routes.json /tmp/routes.normal.json
+          printf '{"version":1,"include":["/*"],"exclude":[]}\n' > docs/_routes.json
+          npx -y wrangler@3 pages deploy docs --project-name="$PROJECT" --branch=main --commit-dirty=true > /tmp/deploy1.txt 2>&1 || { tail -5 /tmp/deploy1.txt; exit 1; }
+          echo "配布済み"
+
+      - name: 来訪を記録する
+        run: |
+          S="${{ github.event.inputs.seconds }}"; [ "$S" -gt 900 ] && S=900
+          sleep 15
+          timeout "$S" npx -y wrangler@3 pages deployment tail --project-name="$PROJECT" --environment=production --format=json > /tmp/tail.jsonl 2>/tmp/tail.err || true
+          echo "記録行数: $(wc -l < /tmp/tail.jsonl)"
+
+      - name: 必ず普段の版に戻す
+        if: always()
+        run: |
+          cp /tmp/routes.normal.json docs/_routes.json 2>/dev/null || git checkout -- docs/_routes.json
+          npx -y wrangler@3 pages deploy docs --project-name="$PROJECT" --branch=main --commit-dirty=true > /tmp/deploy2.txt 2>&1 || { tail -5 /tmp/deploy2.txt; exit 1; }
+          echo "普段の版に戻した"
+
+      - name: 集計（個人を特定できる値は出さない）
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import json, collections, urllib.parse, datetime
+          C = {k: collections.Counter() for k in ["ua", "asn", "country", "path", "ref", "ip2", "method", "colo"]}
+          n = 0; t0 = t1 = None
+          for line in open("/tmp/tail.jsonl", encoding="utf-8", errors="replace"):
+              line = line.strip()
+              if not line.startswith("{"): continue
+              try: e = json.loads(line)
+              except Exception: continue
+              req = ((e.get("event") or {}).get("request")) or {}
+              if not req: continue
+              n += 1
+              ts = e.get("eventTimestamp")
+              if ts: t0 = ts if t0 is None else min(t0, ts); t1 = ts if t1 is None else max(t1, ts)
+              h = {k.lower(): v for k, v in (req.get("headers") or {}).items()}
+              cf = req.get("cf") or {}
+              u = urllib.parse.urlparse(req.get("url", ""))
+              C["ua"][h.get("user-agent", "(名乗りなし)")[:160]] += 1
+              C["asn"][f'{cf.get("asOrganization","?")} (AS{cf.get("asn","?")})'] += 1
+              C["country"][cf.get("country", "?")] += 1
+              C["colo"][cf.get("colo", "?")] += 1
+              C["path"][u.path[:120]] += 1
+              C["method"][req.get("method", "?")] += 1
+              r = h.get("referer", "")
+              C["ref"][urllib.parse.urlparse(r).netloc or "(なし)"] += 1
+              ip = h.get("cf-connecting-ip", "")
+              C["ip2"][".".join(ip.split(".")[:2]) + ".*.*" if "." in ip else (ip.split(":")[0] + ":…" if ip else "?")] += 1
+          sec = (t1 - t0) / 1000 if t0 and t1 and t1 > t0 else 0
+          out = [f"# datazeme 来訪元の調査（{datetime.datetime.utcnow():%Y-%m-%d %H:%M} UTC）", "",
+                 f"記録件数 {n} 件 / 記録できた幅 {sec:.0f} 秒 / 1秒あたり {n/sec:.2f} 件" if sec else f"記録件数 {n} 件", ""]
+          names = {"ua": "名乗り（User-Agent）", "asn": "回線の持ち主（ASN）", "ip2": "IPの上2桁", "country": "国",
+                   "path": "パス", "ref": "参照元のドメイン", "method": "メソッド", "colo": "受けたCloudflareの拠点"}
+          for k in ["ua", "asn", "ip2", "country", "path", "ref", "method", "colo"]:
+              out += [f"## {names[k]}", "", "|件数|割合|値|", "|---:|---:|---|"]
+              for v, c in C[k].most_common(25):
+                  out.append(f"|{c}|{(100*c/n if n else 0):.1f}%|`{str(v).replace('|','/')}`|")
+              out.append("")
+          open("diagReport.md", "w", encoding="utf-8").write("\n".join(out))
+          print(f"集計 {n} 件")
+          PY
+          cat diagReport.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: 結果をブランチ diagReport に置く
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          cp diagReport.md /tmp/diagReport.md
+          git fetch origin diagReport 2>/dev/null && git checkout -B diagReport origin/diagReport || git checkout --orphan diagReport
+          git rm -rfq --cached . >/dev/null 2>&1 || true
+          cp /tmp/diagReport.md "diagReport_$(date -u +%Y%m%d_%H%M).md"
+          git add diagReport_*.md
+          git commit -qm "調査結果 datazeme 来訪元" && git push -q origin diagReport
