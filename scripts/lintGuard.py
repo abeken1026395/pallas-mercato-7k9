@@ -174,6 +174,7 @@ CREDIT = {
 # 対象外（けん裁定済み）
 EXEMPT_PREFIX = ("docs/aisho-suminoe/", "docs/shobuun-suminoe/", "docs/probe/", "docs/in/", "docs/players/card/s/")  # docs/in/ は告知用の入口（中身なし・即移動。2026-10-03）／players/card/s/ は選手カードの共有用の入口（OGPだけ・即移動。2026-10-08）
 EXEMPT_SUFFIX = "-payouts/index.html"  # 24場の万舟率ページ（2026-08-08 見送り裁定）
+EXEMPT_FILES = ("docs/404.html",)  # 見つからないページ用（データなし・トップへの案内だけ。2026-10-19）
 
 
 def read(path):
@@ -197,7 +198,7 @@ def main():
         p2 = p.replace(os.sep, "/")
         if p2 in known:
             continue
-        if p2.startswith(EXEMPT_PREFIX) or p2.endswith(EXEMPT_SUFFIX):
+        if p2.startswith(EXEMPT_PREFIX) or p2.endswith(EXEMPT_SUFFIX) or p2 in EXEMPT_FILES:
             continue
         fails.append("未分類のHTML（防御方針が未決）: " + p2)
 
