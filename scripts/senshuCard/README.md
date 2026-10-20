@@ -20,6 +20,7 @@ python3 scripts/senshuCard/build.py 最終日 番組フォルダ docs/players/ca
 | finals.py | 優勝戦の一覧（2017-01-01〜）。副題の規則で拾う。履歴 data/senshuCard/finalsHistory.json より後の日だけ番組から拾う |
 | waza.py | 技（tg）10系統と段。経験ベイズの事前分布（tagPrior）。コースの持ち味（co1〜co6・course()） |
 | facts.py | 積み上げた事実（ayumi.json） |
+| shinnyu.py | 進入実績帳（p の w[窓].sn：枠順→本番コースの6×6・場ごとの[走数, 枠順より内]・展示から本番への変化。common の win[窓].sn：全選手の合計）。回数だけを持つ |
 | h2h.py | 直接対決 |
 | check.py | 書き出す前の検査（ページと同じ決まりで4つを組み立て、何もない選手0人・技名がすべて誰かに出る・技名の重複0・数の整合） |
 | fetchPrograms.py | BoatraceOpenAPI の番組（と2025-07-14以前の結果）を日ごとに小さくして保存 |
