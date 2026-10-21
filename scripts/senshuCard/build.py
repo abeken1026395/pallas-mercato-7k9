@@ -5,7 +5,7 @@
   python3 scripts/senshuCard/build.py 最終日 番組フォルダ 出力フォルダ [全体版の出力フォルダ]
 
 出力フォルダ（本番は docs/players/card/）
-  common.json・index.json・p/0〜63.json … ページ用に選手ごとに分けたもの（p には積み上げた事実 ay も入る）
+  common.json・index.json・p/0〜63.json … ページ用に選手ごとに分けたもの（p には積み上げた事実 ay と、各窓の進入実績帳 sn も入る）
   h2h/0〜63.json・meta.json … 直接対決
 全体版の出力フォルダ（指定したときだけ。照合用）
   card.json（実験場 card2D.json と同じ形）・ayumi.json
@@ -22,6 +22,7 @@ import check  # noqa: E402
 import facts  # noqa: E402
 import finals  # noqa: E402
 import h2h  # noqa: E402
+import shinnyu  # noqa: E402
 import waza  # noqa: E402
 
 
@@ -49,6 +50,8 @@ def main():
     for W in pri:
         out['win'][W]['tagPrior'] = dict(pri[W], **co[W])
     out['tags'] = waza.TAGS
+    for W, T in shinnyu.build(BC.ROOT, rows, wins, out['players'], last).items():   # 進入実績帳（p の w[窓].sn と、全選手の合計 win[窓].sn）
+        out['win'][W]['sn'] = T
     ay = facts.build(BC.ROOT, rows, wins, out['players'])
     problems = check.run(out, ay)
     if problems:
