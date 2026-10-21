@@ -13,7 +13,7 @@ motorParts.json は削除も改変もしない（build_highlights.py が展示�
   {
     "updated": "YYYY-MM-DD HH:MM",          # motorParts.json の updated をそのまま
     "出典":    "boatrace.jp公式 直前情報",   # motorParts.json の source をそのまま
-    "records": {"<jcd>_<モーターNo>": [[開催日,rno,枠,氏名,節名,部品交換,プロペラ,展示タイム], ...]}
+    "records": {"<jcd>_<モーターNo>": [[開催日,rno,枠,氏名,節名,部品交換,プロペラ,展示タイム,着], ...]}
   }
 
 records の各行はキー名を持たない配列にする（辞書のままだと 5.39MB、配列化で約2MB）。
@@ -40,6 +40,27 @@ OUT = os.path.join(ROOT, "docs", "data", "motorKarte.json")
 
 # 描画に使う列だけ。並び順は index.html のカルテ行の使用順に合わせる。
 COLS = ["開催日", "rno", "枠", "氏名", "節名", "部品交換", "プロペラ", "展示タイム"]
+# 9列目に「着」を足す（results/ の公式レース結果を 開催日・場・レース・枠 で引く。1〜6 は数、7以上は記号。無ければ空）
+FINISH_MARK = {7: "妨", 8: "エ", 9: "転", 10: "落", 11: "沈", 12: "不", 13: "失", 14: "F", 15: "L", 16: "欠"}
+
+
+def load_finishes(dates):
+    """{(開催日, jcd2桁, rno, 枠): 着の表記}。dates に含まれる日の results/ だけ読む"""
+    out = {}
+    for d in sorted(dates):
+        f = os.path.join(ROOT, "results", d + ".json")
+        if not os.path.exists(f):
+            continue
+        for r in json.load(open(f, encoding="utf-8")).get("結果") or []:
+            jcd = "%02d" % int(r["場コード"])
+            rno = int(str(r["レース"]).replace("R", ""))
+            for b in r.get("艇") or []:
+                ch, w = b.get("着"), b.get("枠")
+                if isinstance(ch, int) and isinstance(w, int):
+                    mk = ch if 1 <= ch <= 6 else FINISH_MARK.get(ch)
+                    if mk is not None:
+                        out[(d, jcd, rno, w)] = mk
+    return out
 
 
 def norm(v):
@@ -67,11 +88,15 @@ def build(src_path=SRC, out_path=OUT):
         k = str(r.get("jcd") or "").zfill(2) + "_" + no
         m.setdefault(k, []).append(r)
 
+    fin = load_finishes({str(r.get("開催日") or "") for rows in m.values() for r in rows})
     out_recs = {}
     for k, rows in m.items():
         # 開催日 昇順 → rno 昇順（index.html の sort と同じ比較）
         rows.sort(key=lambda r: (str(r.get("開催日") or ""), int(r.get("rno") or 0)))
-        out_recs[k] = [[norm(r.get(c)) for c in COLS] for r in rows]
+        jcd = k.split("_")[0]
+        out_recs[k] = [[norm(r.get(c)) for c in COLS]
+                       + [fin.get((str(r.get("開催日") or ""), jcd, int(r.get("rno") or 0), int(r.get("枠") or 0)), "")]
+                       for r in rows]
 
     out = {
         "updated": d.get("updated", ""),

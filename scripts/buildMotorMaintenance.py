@@ -247,6 +247,44 @@ def parse_parts(s):
     return names, pts, pairs
 
 
+FINISH_MARK = {7: "妨", 8: "エ", 9: "転", 10: "落", 11: "沈", 12: "不", 13: "失", 14: "F", 15: "L", 16: "欠"}
+
+
+def attach_finishes(rows, repo, recs):
+    """rows（公開行）に "着順"（1文字1走の文字列）を足す。
+    数えるのは motorParts の行（recs）にある走だけ（その機に乗った走と分かるもの。走数と同じ数え方）。
+    results/ に着が無い走は飛ばす。1走も無い行には足さない"""
+    if not rows:
+        return
+    ran = {("%02d" % int(r["jcd"]), int(r["登番"]), int(r["モーターNo"]), str(r["開催日"]), int(r["rno"])) for r in recs}
+    d0 = min(r["開始日"] for r in rows)
+    d1 = max(r["終了日"] for r in rows)
+    idx = defaultdict(list)   # (jcd, 登番) -> [(開催日, rno, 記号)]
+    for f in sorted(os.listdir(os.path.join(repo, "results"))):
+        d = f[:8]
+        if not (f.endswith(".json") and d0 <= d <= d1):
+            continue
+        for r in json.load(open(os.path.join(repo, "results", f), encoding="utf-8")).get("結果") or []:
+            jcd = "%02d" % int(r["場コード"])
+            rno = int(str(r["レース"]).replace("R", ""))
+            for b in r.get("艇") or []:
+                ch = b.get("着")
+                if not isinstance(ch, int):
+                    continue
+                mk = str(ch) if 1 <= ch <= 6 else FINISH_MARK.get(ch)
+                if mk:
+                    idx[(jcd, int(b["登番"]))].append((d, rno, mk))
+    # 機番が分かるのは公開行の側なので、行ごとに ran で絞る
+    for L in idx.values():
+        L.sort()
+    for r in rows:
+        j, tb, mn = "%02d" % int(r["jcd"]), int(r["登番"]), int(r["機番"])
+        L = idx.get((j, tb), [])
+        s = "".join(mk for d, rno, mk in L if r["開始日"] <= d <= r["終了日"] and (j, tb, mn, d, rno) in ran)
+        if s:
+            r["着順"] = s
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--repo", default=r"C:\Users\USER\boatrace")
@@ -647,6 +685,9 @@ def main():
                      "欠測あり", "不完全節", "交換点数", "整備規模", "節名_注記"}
     pub_rows = [{k: r[k] for k in PUBLIC
                  if not (k in DROP_IF_EMPTY and not r[k])} for r in table]
+    # 節ごとの着順（results/ の公式レース結果。同じ場・同じ登番・節の開始日〜終了日の走を日付・レース順に並べる）。
+    # 1文字1走。7以上は記号（FINISH_MARK）。results に無い日は無いまま（補完しない）。
+    attach_finishes(pub_rows, args.repo, recs)
     pub = {
         "updated": mp["updated"],
         "source": "boatrace.jp公式 直前情報（部品交換）＋ 節完結時点のモーター2連率",

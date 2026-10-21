@@ -167,7 +167,7 @@ function Bar({v,c,tc,median}){
 function fmtHd(hd){ const h=String(hd||""); return h.length===8?`${+h.slice(4,6)}/${+h.slice(6,8)}`:h; }
 // カルテ1行の列並び。docs/data/motorKarte.json の records の各行と対応する。
 // 変更するときは scripts/buildMotorKarte.py の COLS と必ず揃えること。
-const PK = {hd:0, rno:1, waku:2, name:3, setsu:4, chg:5, pera:6, tenji:7};
+const PK = {hd:0, rno:1, waku:2, name:3, setsu:4, chg:5, pera:6, tenji:7, fin:8};   // fin＝着（公式レース結果。1〜6 は数、7以上は記号。無い行は空）
 
 // カルテ1行。i は parts 内の元の添字（間引いても展示タイムの遡りが崩れないよう元配列で引く）。
 function KarteRow({parts,i,first}){
@@ -176,13 +176,14 @@ function KarteRow({parts,i,first}){
   const nm = dispName(p[PK.name]);  // 表層と同じ規則で畳む（同じ選手が2表記になるのを防ぐ）
   const setsu = String(p[PK.setsu]||"");
   const tenji = String(p[PK.tenji]||"");
+  const fin = p[PK.fin]==null ? "" : String(p[PK.fin]);
   // 交換行のみ：この機のカルテ内で直前(iより前)の、展示タイムが空でない最も近い行を引く。
   // 差の数値・評価語は出さず、前後を矢印で並べるだけ（解釈は読者に委ねる・司令塔裁定）。
   let prevTenji = "";
   if(chg && tenji){ for(let j=i-1;j>=0;j--){ const t=String(parts[j][PK.tenji]||""); if(t){ prevTenji=t; break; } } }
   return (
     <div style={{borderTop:first?"none":"1px solid #16273a",paddingTop:first?0:5,marginTop:first?0:5}}>
-      <b style={{color:C.text}}>{fmtHd(p[PK.hd])}</b> {p[PK.rno]}R{p[PK.waku]?` ${p[PK.waku]}号`:""}{nm?<span style={{color:C.link}}> ・{nm}</span>:null}{setsu?<span style={{color:C.dim}} title={setsu}> ・{truncStr(setsu,15)}</span>:null} ・ {chg
+      <b style={{color:C.text}}>{fmtHd(p[PK.hd])}</b> {p[PK.rno]}R{p[PK.waku]?` ${p[PK.waku]}号`:""}{fin?<span style={{color:fin==="1"?C.text:C.dim,fontWeight:fin==="1"?700:400}}>{/^[1-6]$/.test(fin)?` ${fin}着`:` ${fin}`}</span>:null}{nm?<span style={{color:C.link}}> ・{nm}</span>:null}{setsu?<span style={{color:C.dim}} title={setsu}> ・{truncStr(setsu,15)}</span>:null} ・ {chg
         ? <span style={{color:C.ok,fontWeight:700}}>部品交換 {chg}</span>
         : <span style={{color:C.muted}}>整備なし</span>}{p[PK.pera]?<span style={{color:C.accent}}> ・ペラ新</span>:null}{tenji?<span style={{color:C.dim}}> ・展示{prevTenji?` ${prevTenji} → ${tenji}`:tenji}</span>:null}
     </div>

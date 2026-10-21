@@ -346,8 +346,9 @@ const PK = {
   setsu: 4,
   chg: 5,
   pera: 6,
-  tenji: 7
-};
+  tenji: 7,
+  fin: 8
+}; // fin＝着（公式レース結果。1〜6 は数、7以上は記号。無い行は空）
 
 // カルテ1行。i は parts 内の元の添字（間引いても展示タイムの遡りが崩れないよう元配列で引く）。
 function KarteRow({
@@ -360,6 +361,7 @@ function KarteRow({
   const nm = dispName(p[PK.name]); // 表層と同じ規則で畳む（同じ選手が2表記になるのを防ぐ）
   const setsu = String(p[PK.setsu] || "");
   const tenji = String(p[PK.tenji] || "");
+  const fin = p[PK.fin] == null ? "" : String(p[PK.fin]);
   // 交換行のみ：この機のカルテ内で直前(iより前)の、展示タイムが空でない最も近い行を引く。
   // 差の数値・評価語は出さず、前後を矢印で並べるだけ（解釈は読者に委ねる・司令塔裁定）。
   let prevTenji = "";
@@ -382,7 +384,12 @@ function KarteRow({
     style: {
       color: C.text
     }
-  }, fmtHd(p[PK.hd])), " ", p[PK.rno], "R", p[PK.waku] ? ` ${p[PK.waku]}号` : "", nm ? /*#__PURE__*/React.createElement("span", {
+  }, fmtHd(p[PK.hd])), " ", p[PK.rno], "R", p[PK.waku] ? ` ${p[PK.waku]}号` : "", fin ? /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: fin === "1" ? C.text : C.dim,
+      fontWeight: fin === "1" ? 700 : 400
+    }
+  }, /^[1-6]$/.test(fin) ? ` ${fin}着` : ` ${fin}`) : null, nm ? /*#__PURE__*/React.createElement("span", {
     style: {
       color: C.link
     }
