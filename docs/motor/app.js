@@ -418,6 +418,91 @@ function KarteRow({
   }, " \u30FB\u5C55\u793A", prevTenji ? ` ${prevTenji} → ${tenji}` : tenji) : null);
 }
 
+// 節ごとの着順。カルテの走を、乗り手が変わるか3日以上あいたところで節に区切り、新しい順に最大5節。
+// 着（9列目）が無い古い motorKarte.json では何も描かない。1着だけ枠で囲む。
+function setsuOf(parts) {
+  const out = [];
+  for (const p of parts) {
+    const nm = dispName(p[PK.name]),
+      hd = String(p[PK.hd] || ""),
+      fin = p[PK.fin] == null ? "" : String(p[PK.fin]);
+    const last = out[out.length - 1];
+    const gap = last ? (Date.UTC(+hd.slice(0, 4), +hd.slice(4, 6) - 1, +hd.slice(6, 8)) - Date.UTC(+last.to.slice(0, 4), +last.to.slice(4, 6) - 1, +last.to.slice(6, 8))) / 864e5 : 0;
+    if (!last || last.nm !== nm || gap >= 3) out.push({
+      nm,
+      from: hd,
+      to: hd,
+      fin: []
+    });
+    const g = out[out.length - 1];
+    g.to = hd;
+    if (fin) g.fin.push(fin);
+  }
+  return out.filter(g => g.fin.length);
+}
+function SetsuChaku({
+  parts
+}) {
+  if (!parts || !parts.length) return null;
+  const ss = setsuOf(parts).slice(-5).reverse();
+  if (!ss.length) return null;
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 8
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: F.xs,
+      fontWeight: 700,
+      color: C.label,
+      marginBottom: 4
+    }
+  }, "\u7BC0\u3054\u3068\u306E\u7740\u9806 ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: C.muted,
+      fontWeight: 400
+    }
+  }, "\u65B0\u3057\u3044\u9806\u30FB\u76F4\u8FD1", ss.length, "\u7BC0")), ss.map((g, k) => /*#__PURE__*/React.createElement("div", {
+    key: k,
+    style: {
+      borderTop: k ? "1px solid #16273a" : "none",
+      padding: "5px 0"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: F.sm,
+      color: C.text
+    }
+  }, g.nm || "-", " ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: C.muted,
+      fontSize: F.xs
+    }
+  }, fmtHd(g.from), g.to !== g.from ? `〜${fmtHd(g.to)}` : "", "\u30FB", g.fin.length, "\u8D70")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexWrap: "wrap",
+      gap: 4,
+      marginTop: 3,
+      fontVariantNumeric: "tabular-nums"
+    }
+  }, g.fin.map((f, i) => /*#__PURE__*/React.createElement("span", {
+    key: i,
+    style: {
+      minWidth: 20,
+      height: 22,
+      display: "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: /^[1-6]$/.test(f) ? F.sm : 11.5,
+      fontWeight: 700,
+      color: /^[1-6]$/.test(f) ? C.text : C.muted,
+      border: f === "1" ? "1.5px solid currentColor" : "none",
+      borderRadius: 3
+    }
+  }, f))))));
+}
+
 // 既定は「部品交換のあった走＋直近5走」だけ描く。全走ぶんを常時描くと1機で数十行になり、
 // 読む側は交換の有無だけ見たいのにスクロールが伸びる。実数（出走回数・交換回数）は見出しに出し、
 // 隠した走数も明示して「残り◯走もすべて見る」で開く（深層に置くのは結論ではなく根拠）。
@@ -724,10 +809,12 @@ function MotorRow({
       color: C.muted,
       marginTop: 6
     }
-  }, "\u6574\u5099\u5C65\u6B74\u3092\u8AAD\u307F\u8FBC\u3093\u3067\u3044\u307E\u3059\u2026") : /*#__PURE__*/React.createElement(MotorKarte, {
+  }, "\u6574\u5099\u5C65\u6B74\u3092\u8AAD\u307F\u8FBC\u3093\u3067\u3044\u307E\u3059\u2026") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(SetsuChaku, {
+    parts: parts
+  }), /*#__PURE__*/React.createElement(MotorKarte, {
     parts: parts,
     upd: upd
-  })));
+  }))));
 }
 
 // E30該当場バッジ（生データ・事実提示のみ）。二層：summary=E30／深層=開始日＋出典注記。
