@@ -216,6 +216,8 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .kmr-dot { width:8px; height:8px; border-radius:2px; flex:none; }
 .kmr-def { font-size:13px; color:#96a8bb; margin-top:3px; }
 /* 展示タイム別の成績（tenjiStats.json・折りたたみ） */
+.snLink { display:flex; align-items:center; justify-content:space-between; min-height:44px; margin-top:8px; border-top:1px solid #1c2a3c; font-size:13px; font-weight:bold; color:#c3ccd6; text-decoration:none; }
+.snLink span { font-size:13px; color:#7fb4ff; font-weight:normal; }
 .tj { margin-top:8px; border-top:1px solid #1c2a3c; }
 .tj-wait { min-height:41px; }
 .tj > summary { list-style:none; cursor:pointer; min-height:44px; display:flex; align-items:center; justify-content:space-between; font-size:13px; color:#c3ccd6; font-weight:bold; }
@@ -1791,6 +1793,7 @@ function boatCard(row,v,hl,minST,maxST,maxMotor){
     +kimariteBar(km)
     +tenjiBlock(toban)
     +courseLast10Block(toban,lane)
+    +(toban?'<a class="snLink" href="../players/card.html?toban='+esc(toban)+'#snSec" onclick="event.stopPropagation()">進入実績（枠から入ったコースの回数）<span>選手カード →</span></a>':'')
     +k1Block(toban,lane)
     +e30Block(toban,v.jcd)
     +shuTable(row)
