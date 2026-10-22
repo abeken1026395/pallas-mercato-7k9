@@ -205,6 +205,7 @@ L2 = [
     "docs/stadium/index.html",
     "docs/racers/index.html",       # 生成物。正本 scripts/template_racers.html
     "docs/next/stadiumPreview.html",
+    "docs/next/racersDateTab.html",
 ]
 # ※ docs/index.html と docs/payouts/index.html は guard に加えて L2 も持つ（下で両方検査）
 L2_ALSO = ["docs/index.html", "docs/payouts/index.html"]
