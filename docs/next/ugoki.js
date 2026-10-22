@@ -40,6 +40,13 @@
       b.addEventListener("click", function(ev){ ev.stopPropagation(); haptic(m); mode = m; try { sessionStorage.setItem("ugHapticMode", m); } catch (x) {} });
       bar.appendChild(b);
     });
+    // 方式D：ボタンの上に、ほぼ透明な本物のスイッチを重ねる（指が直接スイッチを押す）
+    var bd = document.createElement("label");
+    bd.style.cssText = "position:relative;flex:1;min-height:44px;display:flex;align-items:center;justify-content:center;font-size:15px;background:#f2c200;color:#111;border-radius:4px;overflow:hidden";
+    bd.textContent = "方式D";
+    var swd = document.createElement("input"); swd.type = "checkbox"; swd.setAttribute("switch", "");
+    swd.style.cssText = "position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:.02";
+    bd.appendChild(swd); bar.appendChild(bd);
     var add = function(){ document.body.appendChild(bar); };
     if (document.body) add(); else document.addEventListener("DOMContentLoaded", add);
   }
@@ -99,8 +106,13 @@
       if (/\d/.test(c)) { finals.push(c); return '<span class="ugC"><span class="ugS">' + c + "</span></span>"; }
       return c.replace(/[&<>]/g, function(x){ return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[x]; });
     }).join("");
+    var bgc = "transparent", p = el;
+    while (p && p !== document.documentElement) { var b = getComputedStyle(p).backgroundColor; if (b && b !== "transparent" && !/rgba\([^)]*,\s*0\)$/.test(b)) { bgc = b; break; } p = p.parentElement; }
+    if (bgc === "transparent") bgc = getComputedStyle(document.body).backgroundColor;
+    el.style.setProperty("--ugBg", bgc);
     el.classList.add("ugBoard");
     var cs = el.querySelectorAll(".ugC"), cur = finals.slice(), n = 0, START = 4;
+    for (var k = 0; k < cs.length; k++) cs[k].style.width = cs[k].getBoundingClientRect().width + "px";
     var timer = setInterval(function(){
       n++;
       for (var i = 0; i < cs.length; i++) {
@@ -111,7 +123,7 @@
       }
       if (n >= START + (cs.length - 1) * 2 + 1) {
         clearInterval(timer);
-        setTimeout(function(){ el.innerHTML = orig; el.classList.remove("ugBoard"); el.__ugFl = 0; }, T * 2 + 60);
+        setTimeout(function(){ el.innerHTML = orig; el.classList.remove("ugBoard"); el.style.removeProperty("--ugBg"); el.__ugFl = 0; }, T * 2 + 60);
       }
     }, T * 2 + 10);
   }
