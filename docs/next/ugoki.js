@@ -6,17 +6,24 @@
   var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
   var PRESS = ".quick a,.mc,.ni,.cta,.more,.exh,.kn,.guide,.big[role=button],details.race>summary,details.venue>summary,.tab,.dsw-btn,button";
 
-  // 振動
-  var lab = null;
+  // 振動（web-haptics と同じ組み方：label の中に switch 付きの input を入れ、両方とも表示しない。label を押すと iOS の触覚が出る）
+  // ?shindo=1 を付けて開くと、本物のスイッチを画面の左下に出す。それを指で押して震えなければ、端末の設定で触覚が切れている
+  var lab = null, test = /[?&]shindo=1/.test(location.search);
   function iosSwitch(){
     if (lab) return lab;
-    var box = document.createElement("div");
-    box.setAttribute("aria-hidden", "true");
-    box.style.cssText = "position:fixed;left:-200px;top:0;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none";
+    lab = document.createElement("label");
+    lab.setAttribute("for", "ugSw");
+    lab.setAttribute("aria-hidden", "true");
     var sw = document.createElement("input");
     sw.type = "checkbox"; sw.setAttribute("switch", ""); sw.id = "ugSw"; sw.tabIndex = -1;
-    lab = document.createElement("label"); lab.htmlFor = "ugSw";
-    box.appendChild(sw); box.appendChild(lab); document.body.appendChild(box);
+    sw.style.all = "initial"; sw.style.appearance = "auto";
+    if (test) {
+      lab.textContent = "振動テスト ";
+      lab.style.cssText = "position:fixed;left:10px;bottom:10px;z-index:9999;padding:8px 12px;background:#000;color:#fff;font-size:14px;border-radius:4px";
+    } else {
+      lab.style.display = "none"; sw.style.display = "none";
+    }
+    lab.appendChild(sw); document.body.appendChild(lab);
     return lab;
   }
   function haptic(){
@@ -25,6 +32,7 @@
       iosSwitch().click();
     } catch (e) {}
   }
+  if (test) { if (document.body) iosSwitch(); else document.addEventListener("DOMContentLoaded", iosSwitch); }
 
   // ② 手ごたえ：押している間だけ沈む
   document.addEventListener("pointerdown", function(e){
