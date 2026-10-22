@@ -47,9 +47,15 @@ jobs:
             if ! git diff --staged --quiet; then
               git commit -m "出走表データ自動更新（遅い場待ち） $(date +'%Y-%m-%d %H:%M')"
               PUSHED=0
+              # 他WF（夜間パイプライン等）が同じ生成物を先に push していると、通常の rebase は衝突して
+              # 5回とも同じ衝突で落ちる（2026-10-21 実測）。この run のコミットが最新の取得なので -X theirs で勝たせる。
               for j in 1 2 3 4 5; do
-                if git pull --rebase origin main && git push origin main; then PUSHED=1; break; fi
-                git rebase --abort 2>/dev/null || true
+                git fetch origin main || true
+                if git rebase -X theirs origin/main; then
+                  if git push origin HEAD:main; then PUSHED=1; break; fi
+                else
+                  git rebase --abort 2>/dev/null || true
+                fi
                 sleep 5
               done
               if [ "$PUSHED" != "1" ]; then echo "::error::push に失敗（5回）"; exit 1; fi
