@@ -72,6 +72,14 @@
   .detail{font-size:12px;color:var(--sub);margin-top:2px}
 
   .foot-note{font-size:11px;color:var(--sub);margin-top:14px}
+
+  .smp-list{border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:6px}
+  .smp{display:block;padding:11px 13px;border-top:1px solid var(--line);text-decoration:none;background:linear-gradient(145deg, var(--card), var(--card2))}
+  .smp:first-child{border-top:none}
+  .smp:hover,.smp:focus-visible{background:var(--card)}
+  .smp-t{display:block;font-size:14px;color:var(--txt);line-height:1.5}
+  .smp-m{display:block;font-size:11px;color:var(--sub);margin-top:2px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .smp.new .smp-t::after{content:"一覧に未登録";margin-left:8px;font-size:10px;color:#0b1219;background:var(--accent);border-radius:999px;padding:1px 7px;font-family:inherit}
 body::after{content:"データ攻め ／ YouTube あべけん";display:block;margin:18px 0 20px;font-size:11px;color:#8a8f98;letter-spacing:.02em;text-align:center}
 html[data-vr] body::after{content:none;margin:0}
 .vr-note{display:block;margin:18px 0 20px;font-size:11px;color:#8a8f98;letter-spacing:.02em;text-align:center}
@@ -93,6 +101,38 @@ html[data-vr] body::after{content:none;margin:0}
     データは本番と同じ <code>../data/</code> を相対参照するだけで、<b>新しい生成物も新しい自動更新も持ちません</b>。
     表示が壊れていても本番側には影響しません。
   </div>
+
+  <h2>サンプル一覧（新しい順）</h2>
+  <div class="smp-list" id="smp-list">
+    <a class="smp" href="ugokiAll/"><span class="smp-t">動きの試作 全ページ</span><span class="smp-m">ugokiAll/　更新 2026-10-22</span></a>
+    <a class="smp" href="topD.html"><span class="smp-t">トップ 動きの試作</span><span class="smp-m">topD.html　更新 2026-10-22</span></a>
+    <a class="smp" href="topC.html"><span class="smp-t">トップ 最小変更案 試作</span><span class="smp-m">topC.html　更新 2026-10-22</span></a>
+    <a class="smp" href="kekkaD.html"><span class="smp-t">レース結果 動きの試作</span><span class="smp-m">kekkaD.html　更新 2026-10-22</span></a>
+    <a class="smp" href="kamimen/"><span class="smp-t">トップ 紙面案 試作</span><span class="smp-m">kamimen/　更新 2026-10-22</span></a>
+    <a class="smp" href="senshuCardSnA.html"><span class="smp-t">進入実績A 選手カード</span><span class="smp-m">senshuCardSnA.html　更新 2026-10-21</span></a>
+    <a class="smp" href="senshuCardSn.html"><span class="smp-t">進入実績 選手カード</span><span class="smp-m">senshuCardSn.html　更新 2026-10-21</span></a>
+    <a class="smp" href="motorKeireki.html"><span class="smp-t">着順つき モーター整備 一覧</span><span class="smp-m">motorKeireki.html　更新 2026-10-21</span></a>
+    <a class="smp" href="keijiban/"><span class="smp-t">トップ 掲示板案 試作</span><span class="smp-m">keijiban/　更新 2026-10-21</span></a>
+    <a class="smp" href="aiNashi5/"><span class="smp-t">AI臭さを消す型 第5案 試作の一覧</span><span class="smp-m">aiNashi5/　更新 2026-10-21</span></a>
+    <a class="smp" href="aiNashi4/"><span class="smp-t">AI臭さを消す型 第4案 試作の一覧</span><span class="smp-m">aiNashi4/　更新 2026-10-21</span></a>
+    <a class="smp" href="kensho10Tenji.html"><span class="smp-t">検証：展示で0.20台に遅れた1号艇は、負けた分より配当が上がっていた</span><span class="smp-m">kensho10Tenji.html　更新 2026-10-20</span></a>
+    <a class="smp" href="torisetsu.html"><span class="smp-t">トリセツ（実験場）</span><span class="smp-m">torisetsu.html　更新 2026-10-13</span></a>
+    <a class="smp" href="topB.html"><span class="smp-t">トップ案B 試作</span><span class="smp-m">topB.html　更新 2026-10-13</span></a>
+    <a class="smp" href="tiltShrink.html"><span class="smp-t">跳ねた人ごとの差が縮む 試作</span><span class="smp-m">tiltShrink.html　更新 2026-10-13</span></a>
+    <a class="smp" href="tiltLab.html"><span class="smp-t">検証09を動かす 試作</span><span class="smp-m">tiltLab.html　更新 2026-10-13</span></a>
+    <a class="smp" href="stadiumPreview.html"><span class="smp-t">BOATRACE 24場 特性＆荒れサイン早見表</span><span class="smp-m">stadiumPreview.html　更新 2026-10-13</span></a>
+    <a class="smp" href="sgKaitsuzuke.html"><span class="smp-t">SGを1年買い続けたら 試作</span><span class="smp-m">sgKaitsuzuke.html　更新 2026-10-13</span></a>
+    <a class="smp" href="senshuCardE.html"><span class="smp-t">選手カード 積み上げサンプル</span><span class="smp-m">senshuCardE.html　更新 2026-10-13</span></a>
+    <a class="smp" href="senshuCardD.html"><span class="smp-t">選手カード 技名サンプル</span><span class="smp-m">senshuCardD.html　更新 2026-10-13</span></a>
+    <a class="smp" href="senshuCardC.html"><span class="smp-t">選手カード C 試作</span><span class="smp-m">senshuCardC.html　更新 2026-10-13</span></a>
+    <a class="smp" href="senshuCard.html"><span class="smp-t">選手カード 試作</span><span class="smp-m">senshuCard.html　更新 2026-10-13</span></a>
+    <a class="smp" href="kisetsuYearly.html"><span class="smp-t">冬夏差を1年ずつ 試作</span><span class="smp-m">kisetsuYearly.html　更新 2026-10-13</span></a>
+    <a class="smp" href="courseLast10Preview.html"><span class="smp-t">コース別直近10走 試作</span><span class="smp-m">courseLast10Preview.html　更新 2026-10-13</span></a>
+    <a class="smp" href="aiNashi3/"><span class="smp-t">AI臭さを消す型 第3案 試作の一覧</span><span class="smp-m">aiNashi3/　更新 2026-10-13</span></a>
+    <a class="smp" href="aiNashi2/"><span class="smp-t">AI臭さを消す型 第2案 試作の一覧</span><span class="smp-m">aiNashi2/　更新 2026-10-13</span></a>
+    <a class="smp" href="aiNashi/"><span class="smp-t">AI臭さを消す型 試作の一覧</span><span class="smp-m">aiNashi/　更新 2026-10-13</span></a>
+  </div>
+  <div class="foot-note">一覧に無い新しいサンプルは、開いたときにリポジトリの中身を確かめて、上に「一覧に未登録」として足します。</div>
 
   <h2>このサイトの前提</h2>
   <div class="creed">
@@ -197,5 +237,31 @@ html[data-vr] body::after{content:none;margin:0}
 <footer style="margin:24px auto 8px;max-width:900px;text-align:center;font-size:10px;color:#8a94a3;letter-spacing:.3px;line-height:1.7;">© 2026 データ攻め ── 制作・運営 <a href="https://www.youtube.com/@abe-ken" target="_blank" rel="noopener" style="color:#9aa4b3;text-decoration:underline;">あべけん</a></footer>
 <script src="../assets/guard.js" defer></script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics -->
+<script>
+(function () {
+  // docs/next/ の中身を GitHub から読み、一覧に無いサンプルを上に足す（読めなければ何もしない）
+  var box = document.getElementById("smp-list");
+  if (!box || !window.fetch) return;
+  var have = {};
+  Array.prototype.forEach.call(box.querySelectorAll("a.smp"), function (a) { have[a.getAttribute("href")] = 1; });
+  fetch("https://api.github.com/repos/abeken1026395/pallas-mercato-7k9/contents/docs/next?ref=main")
+    .then(function (r) { return r.ok ? r.json() : []; })
+    .then(function (list) {
+      (list || []).forEach(function (it) {
+        var n = it && it.name; if (!n) return;
+        var href = null;
+        if (it.type === "file" && /\.html$/.test(n) && n !== "index.html") href = n;
+        if (!href || have[href]) return;
+        var a = document.createElement("a");
+        a.className = "smp new"; a.href = href;
+        var t = document.createElement("span"); t.className = "smp-t"; t.textContent = n;
+        var m = document.createElement("span"); m.className = "smp-m"; m.textContent = href;
+        a.appendChild(t); a.appendChild(m);
+        box.insertBefore(a, box.firstChild);
+      });
+    })
+    .catch(function () {});
+})();
+</script>
 </body>
 </html>
