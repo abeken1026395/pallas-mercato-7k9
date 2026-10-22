@@ -25,17 +25,16 @@ html.ugLeave body{transition:transform .18s ease-in,opacity .18s ease-in;transfo
 html.ugEnter body{animation:ugIn .22s ease-out both}
 @keyframes ugIn{from{transform:translateX(24px);opacity:0}to{transform:none;opacity:1}}
 
-/* ④ パタパタ：数字1字ずつを札にして、上半分が倒れ、下半分が起き上がる */
-.ugBoard{font-variant-numeric:tabular-nums}
-.ugC{position:relative;display:inline-block;min-width:.7em;line-height:1.2;text-align:center;margin:0 .05em;padding:0 .04em;background:#1d2b3b;color:inherit;border-radius:2px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);vertical-align:baseline}
-.ugC::after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(0,0,0,.75);z-index:3}
+/* ④ パタパタ：数字1字ずつが、上半分が倒れ、下半分が起き上がってめくれる。
+   止まったあとの普通の文字と見た目がずれないよう、札の地は周りの背景色（--ugBg）、幅は元の数字の幅、書体と行の高さは元のまま */
+.ugC{position:relative;display:inline-block;text-align:center;line-height:inherit;vertical-align:baseline}
 .ugS{display:block}
-.ugH{position:absolute;left:0;right:0;height:50%;overflow:hidden;background:#1d2b3b;z-index:2;backface-visibility:hidden}
-.ugH i{display:block;font-style:normal;line-height:1.2;height:200%}
-.ugTop{top:0;border-radius:2px 2px 0 0}
-.ugBot{bottom:0;border-radius:0 0 2px 2px}
+.ugH{position:absolute;left:0;right:0;height:50%;overflow:hidden;background:var(--ugBg,transparent);z-index:2;backface-visibility:hidden}
+.ugH i{display:block;font-style:normal;line-height:inherit;height:200%}
+.ugTop{top:0}
+.ugBot{bottom:0}
 .ugBot i{transform:translateY(-50%)}
-.ugFall{transform-origin:center bottom;animation:ugFall 75ms ease-in both;z-index:4}
+.ugFall{transform-origin:center bottom;animation:ugFall 75ms ease-in both;z-index:4;box-shadow:inset 0 -1px 0 rgba(0,0,0,.55)}
 .ugRise{transform-origin:center top;animation:ugRise 75ms ease-out 75ms both;z-index:4}
 @keyframes ugFall{from{transform:perspective(180px) rotateX(0)}to{transform:perspective(180px) rotateX(-90deg)}}
 @keyframes ugRise{from{transform:perspective(180px) rotateX(90deg)}to{transform:perspective(180px) rotateX(0)}}
