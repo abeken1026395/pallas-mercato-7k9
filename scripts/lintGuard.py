@@ -59,6 +59,8 @@ GUARD = [
     "docs/next/torisetsu.html",
     "docs/next/topB.html",
     "docs/next/topC.html",
+    "docs/next/topD.html",
+    "docs/next/kekkaD.html",
     "docs/next/kamimen/index.html",
     "docs/next/keijiban/index.html",
     "docs/next/aiNashi/announcers.html",
