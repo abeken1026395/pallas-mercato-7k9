@@ -2,7 +2,7 @@
    ① スタート：題字の下を枠色の帯が左から右へ走る（開いたとき1回だけ）
    ② 手ごたえ：押すと少し沈む（小さな振動は ugoki.js）
    ③ ページ送り：別のページへ移るとき、画面が左へ流れて消える
-   ④ 裏返し：結果のレースを開いたとき、払戻が表示板のように裏返って出る
+   ④ パタパタ：結果のレースを開いたとき、払戻の数字が表示板のようにめくれてから止まる
    スクロールで順に出る動き・数字のカウントアップ・動き続ける飾りは使わない */
 
 /* ① スタートの帯 */
@@ -25,13 +25,13 @@ html.ugLeave body{transition:transform .18s ease-in,opacity .18s ease-in;transfo
 html.ugEnter body{animation:ugIn .22s ease-out both}
 @keyframes ugIn{from{transform:translateX(24px);opacity:0}to{transform:none;opacity:1}}
 
-/* ④ 裏返し */
-.ugFlipHost{perspective:600px}
-@keyframes ugFlip{0%{transform:rotateX(-90deg);opacity:.15}60%{transform:rotateX(12deg);opacity:1}100%{transform:rotateX(0)}}
-.ugFlip{animation:ugFlip .32s cubic-bezier(.2,.7,.2,1) both;transform-origin:center top;backface-visibility:hidden}
+/* ④ パタパタ（数字が何度かめくれてから止まる） */
+.ugD{display:inline-block;font-variant-numeric:tabular-nums;transform-origin:center 55%;backface-visibility:hidden}
+@keyframes ugTick{0%{transform:rotateX(-80deg);opacity:.35}100%{transform:rotateX(0);opacity:1}}
+.ugTick{animation:ugTick .06s linear both}
 
 @media (prefers-reduced-motion:reduce){
-  .ugBand i,.ugFlip,html.ugEnter body{animation:none !important}
+  .ugBand i,.ugTick,html.ugEnter body{animation:none !important}
   html.ugLeave body{transition:none;transform:none;opacity:1}
   .ugP.ugDown{transform:none}
 }

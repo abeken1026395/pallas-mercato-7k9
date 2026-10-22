@@ -69,19 +69,41 @@
     }
   } catch (x) {}
 
-  // ④ 裏返し：結果のレースを開いたとき、払戻の升を順に裏返す
+  // ④ パタパタ：場内の表示板のように、数字が何度かめくれてから止まる（左の桁から順に止まる）
+  // 押したレースの行の3連単はすぐ。開いた中の払戻（.amt）は画面に入ったときに1回だけ
+  function flap(el){
+    if (!el || el.__ugFl || reduce) return;
+    var orig = el.innerHTML, txt = el.textContent;
+    if (!/\d/.test(txt)) return;
+    el.__ugFl = 1;
+    var finals = [];
+    el.innerHTML = Array.prototype.map.call(txt, function(c){
+      if (/\d/.test(c)) { finals.push(c); return '<span class="ugD">' + c + "</span>"; }
+      return c.replace(/[&<>]/g, function(x){ return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[x]; });
+    }).join("");
+    var ds = el.querySelectorAll(".ugD"), n = 0, START = 5;
+    var timer = setInterval(function(){
+      n++;
+      for (var i = 0; i < ds.length; i++) {
+        var d = ds[i];
+        if (d.__ugDone) continue;
+        if (n >= START + i * 2) { d.__ugDone = 1; d.textContent = finals[i]; }
+        else d.textContent = String(Math.floor(Math.random() * 10));
+        d.classList.remove("ugTick"); void d.offsetWidth; d.classList.add("ugTick");
+      }
+      if (n >= START + (ds.length - 1) * 2 + 2) { clearInterval(timer); el.innerHTML = orig; el.__ugFl = 0; }
+    }, 60);
+  }
+  var io = ("IntersectionObserver" in window) ? new IntersectionObserver(function(es){
+    es.forEach(function(en){ if (en.isIntersecting) { io.unobserve(en.target); flap(en.target); } });
+  }, { threshold: 0.6 }) : null;
   document.addEventListener("toggle", function(e){
     var d = e.target;
     if (!d || !d.matches || !d.matches("details.race") || !d.open || reduce) return;
+    flap(d.querySelector("summary .rpay"));
     setTimeout(function(){
-      var cells = d.querySelectorAll(".pays .pcell");
-      for (var i = 0; i < cells.length; i++) {
-        var c = cells[i];
-        if (c.parentNode) c.parentNode.classList.add("ugFlipHost");
-        c.classList.remove("ugFlip"); void c.offsetWidth;
-        c.style.animationDelay = (i * 45) + "ms";
-        c.classList.add("ugFlip");
-      }
+      var amts = d.querySelectorAll(".pays .amt");
+      for (var i = 0; i < amts.length; i++) { if (io) io.observe(amts[i]); else flap(amts[i]); }
     }, 0);
   }, true);
 })();
