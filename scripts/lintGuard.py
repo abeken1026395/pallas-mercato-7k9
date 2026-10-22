@@ -61,6 +61,7 @@ GUARD = [
     "docs/next/topC.html",
     "docs/next/topD.html",
     "docs/next/kekkaD.html",
+    "docs/next/playersC.html",
     "docs/next/ugokiAll/announcers.html",
     "docs/next/ugokiAll/fan.html",
     "docs/next/ugokiAll/glossary.html",

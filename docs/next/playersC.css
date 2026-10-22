@@ -1,0 +1,26 @@
+/* 選手図鑑 最小変更案（実験場・2026-10-23）
+   配置・大きさ・並びは本番のまま。トップの最小変更案（topC）と同じ決まりで、AIの癖に当たる所だけを差し替える。
+   本番では scripts/players/app.jsx の style を直して app.js を作り直す。ここは見た目を確かめるための上書き。 */
+
+/* 背景：黒に近い1色 → トップと同じ、上から下へ暗くなる紺 */
+html,body{background:linear-gradient(180deg,#1b3a5e 0,#132b46 360px,#0d1c2f 900px,#0a1422 1500px) #0a1422 !important;background-repeat:no-repeat !important}
+/* 書体：Helvetica・Arial → 端末の標準（テレボートと同じ） */
+body{font-family:-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif !important;-webkit-font-smoothing:antialiased}
+/* 題字「選手図鑑」：黄色 → トップと同じ Dela Gothic One の白 */
+[style*="font-size: 24px"][style*="color: rgb(255, 209, 102)"]{font-family:"Dela Gothic One",-apple-system,"Hiragino Sans",sans-serif !important;font-weight:400 !important;color:#f2f2f0 !important;letter-spacing:.02em !important;font-size:28px !important}
+
+/* 選手の札：左の太い色帯と影をやめる（級別は A1・B1 の札で分かる）。角丸を小さく。地は紺に馴染む色に */
+[style*="border-left: 4px solid"]{border-left:0 !important;box-shadow:none !important}
+[style*="border-radius: 12px"]{border-radius:6px !important}
+[style*="background: rgb(15, 25, 35)"]{background:#12233a !important}
+
+/* 二つ名・異名の色付きの札 → 札をやめ、小さな文字に */
+span[style*="font-size: 10px"][style*="border-radius: 5px"]{background:transparent !important;border:0 !important;padding:0 !important;margin-right:10px;color:#c9d3dd !important;letter-spacing:0 !important;font-size:11px !important}
+
+/* 勝率・2連率の黄色と水色の大きな数字 → 白と淡い灰（色を2つ使わない） */
+div[style*="font-size: 22px"][style*="color: rgb(255, 209, 102)"]{color:#f2f2f0 !important}
+div[style*="font-size: 22px"][style*="color: rgb(63, 177, 201)"]{color:#b6c3d0 !important}
+
+/* 級別の札・ボタンの角丸を小さく */
+span[style*="padding: 4px 9px"][style*="border-radius: 8px"]{border-radius:3px !important}
+button[style*="border-radius"]{border-radius:4px !important}
