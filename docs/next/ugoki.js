@@ -6,33 +6,43 @@
   var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
   var PRESS = ".quick a,.mc,.ni,.cta,.more,.exh,.kn,.guide,.big[role=button],details.race>summary,details.venue>summary,.tab,.dsw-btn,button";
 
-  // 振動（web-haptics と同じ組み方：label の中に switch 付きの input を入れ、両方とも表示しない。label を押すと iOS の触覚が出る）
-  // ?shindo=1 を付けて開くと、本物のスイッチを画面の左下に出す。それを指で押して震えなければ、端末の設定で触覚が切れている
-  var lab = null, test = /[?&]shindo=1/.test(location.search);
-  function iosSwitch(){
-    if (lab) return lab;
-    lab = document.createElement("label");
-    lab.setAttribute("for", "ugSw");
-    lab.setAttribute("aria-hidden", "true");
-    var sw = document.createElement("input");
-    sw.type = "checkbox"; sw.setAttribute("switch", ""); sw.id = "ugSw"; sw.tabIndex = -1;
-    sw.style.all = "initial"; sw.style.appearance = "auto";
-    if (test) {
-      lab.textContent = "振動テスト ";
-      lab.style.cssText = "position:fixed;left:10px;bottom:10px;z-index:9999;padding:8px 12px;background:#000;color:#fff;font-size:14px;border-radius:4px";
-    } else {
-      lab.style.display = "none"; sw.style.display = "none";
-    }
-    lab.appendChild(sw); document.body.appendChild(lab);
-    return lab;
+  // 振動。iPhone は標準の振動が使えないので、switch 付きのチェックボックスを押したときの iOS の触覚を借りる。
+  // 呼び出し方で効き方が違うため3通り用意し、?shindo=1 で試し分けられるようにする（既定は A）
+  //   A：押すたびに label＋switch を作って head に入れ、押して、すぐ消す（ios-haptics の方式）
+  //   B：label の中に switch を入れて body に置いたまま、両方を表示しない（web-haptics の方式）
+  //   C：B と同じだが、表示しない代わりに画面の隅に1pxで置く
+  var test = /[?&]shindo=1/.test(location.search), mode = "A", keepB = null, keepC = null;
+  try { mode = sessionStorage.getItem("ugHapticMode") || "A"; } catch (x) {}
+  function mk(hidden){
+    var l = document.createElement("label"); l.setAttribute("aria-hidden", "true");
+    var i = document.createElement("input"); i.type = "checkbox"; i.setAttribute("switch", ""); i.tabIndex = -1;
+    if (hidden === "none") { l.style.display = "none"; }
+    else if (hidden === "px") { l.style.cssText = "position:fixed;left:0;bottom:0;width:1px;height:1px;overflow:hidden;opacity:.01;pointer-events:none"; }
+    l.appendChild(i); return l;
   }
-  function haptic(){
+  function hA(){ var l = mk("none"); document.head.appendChild(l); l.click(); document.head.removeChild(l); }
+  function hB(){ if (!keepB) { keepB = mk("none"); keepB.firstChild.style.all = "initial"; keepB.firstChild.style.appearance = "auto"; keepB.firstChild.style.display = "none"; document.body.appendChild(keepB); } keepB.click(); }
+  function hC(){ if (!keepC) { keepC = mk("px"); document.body.appendChild(keepC); } keepC.click(); }
+  function haptic(m){
     try {
       if (typeof navigator.vibrate === "function") { navigator.vibrate(12); return; }
-      iosSwitch().click();
+      m = m || mode;
+      if (m === "B") hB(); else if (m === "C") hC(); else hA();
     } catch (e) {}
   }
-  if (test) { if (document.body) iosSwitch(); else document.addEventListener("DOMContentLoaded", iosSwitch); }
+  if (test) {
+    var bar = document.createElement("div");
+    bar.style.cssText = "position:fixed;left:8px;right:8px;bottom:8px;z-index:9999;display:flex;gap:6px;flex-wrap:wrap;padding:8px;background:#000;color:#fff;font-size:13px;border-radius:4px";
+    bar.innerHTML = '<span style="width:100%">振動テスト：ボタンを押して震えたものを教えてください（押すと次からその方式を使う）</span>';
+    ["A", "B", "C"].forEach(function(m){
+      var b = document.createElement("button"); b.type = "button"; b.textContent = "方式" + m;
+      b.style.cssText = "flex:1;min-height:44px;font-size:15px;background:#f2c200;color:#111;border:0;border-radius:4px";
+      b.addEventListener("click", function(ev){ ev.stopPropagation(); haptic(m); mode = m; try { sessionStorage.setItem("ugHapticMode", m); } catch (x) {} });
+      bar.appendChild(b);
+    });
+    var add = function(){ document.body.appendChild(bar); };
+    if (document.body) add(); else document.addEventListener("DOMContentLoaded", add);
+  }
 
   // ② 手ごたえ：押している間だけ沈む
   document.addEventListener("pointerdown", function(e){
@@ -44,7 +54,7 @@
 
   // ② の振動＋③ ページ送り
   document.addEventListener("click", function(e){
-    if (e.target.closest && e.target.closest("#ugSw,label[for=ugSw]")) return;
+    if (e.target.closest && e.target.closest("label[aria-hidden=true]")) return;
     var el = e.target.closest && e.target.closest(PRESS);
     if (el) haptic();
     var a = e.target.closest && e.target.closest("a[href]");
@@ -69,8 +79,16 @@
     }
   } catch (x) {}
 
-  // ④ パタパタ：場内の表示板のように、数字が何度かめくれてから止まる（左の桁から順に止まる）
-  // 押したレースの行の3連単はすぐ。開いた中の払戻（.amt）は画面に入ったときに1回だけ
+  // ④ パタパタ：場内の表示板のように、数字の札の上半分が手前に倒れ、新しい下半分が起き上がる。
+  // 何度かめくれてから左の桁から順に止まる。押したレースの行の3連単はすぐ、開いた中の払戻は画面に入ったときに1回だけ
+  var T = 75; // 半分の札が倒れる時間（ミリ秒）。1回のめくりは 2T
+  function half(cls, ch){ var h = document.createElement("span"); h.className = "ugH " + cls; var i = document.createElement("i"); i.textContent = ch; h.appendChild(i); return h; }
+  function turn(cell, from, to){
+    var st = cell.querySelector(".ugS"); st.textContent = to;
+    var ob = half("ugBot", from), ot = half("ugTop ugFall", from), nb = half("ugBot ugRise", to);
+    cell.appendChild(ob); cell.appendChild(ot); cell.appendChild(nb);
+    setTimeout(function(){ ob.remove(); ot.remove(); nb.remove(); }, T * 2 + 20);
+  }
   function flap(el){
     if (!el || el.__ugFl || reduce) return;
     var orig = el.innerHTML, txt = el.textContent;
@@ -78,21 +96,24 @@
     el.__ugFl = 1;
     var finals = [];
     el.innerHTML = Array.prototype.map.call(txt, function(c){
-      if (/\d/.test(c)) { finals.push(c); return '<span class="ugD">' + c + "</span>"; }
+      if (/\d/.test(c)) { finals.push(c); return '<span class="ugC"><span class="ugS">' + c + "</span></span>"; }
       return c.replace(/[&<>]/g, function(x){ return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[x]; });
     }).join("");
-    var ds = el.querySelectorAll(".ugD"), n = 0, START = 5;
+    el.classList.add("ugBoard");
+    var cs = el.querySelectorAll(".ugC"), cur = finals.slice(), n = 0, START = 4;
     var timer = setInterval(function(){
       n++;
-      for (var i = 0; i < ds.length; i++) {
-        var d = ds[i];
-        if (d.__ugDone) continue;
-        if (n >= START + i * 2) { d.__ugDone = 1; d.textContent = finals[i]; }
-        else d.textContent = String(Math.floor(Math.random() * 10));
-        d.classList.remove("ugTick"); void d.offsetWidth; d.classList.add("ugTick");
+      for (var i = 0; i < cs.length; i++) {
+        if (cs[i].__done) continue;
+        var to = n >= START + i * 2 ? finals[i] : String((+cur[i] + 1 + Math.floor(Math.random() * 8)) % 10);
+        if (n >= START + i * 2) cs[i].__done = 1;
+        turn(cs[i], cur[i], to); cur[i] = to;
       }
-      if (n >= START + (ds.length - 1) * 2 + 2) { clearInterval(timer); el.innerHTML = orig; el.__ugFl = 0; }
-    }, 60);
+      if (n >= START + (cs.length - 1) * 2 + 1) {
+        clearInterval(timer);
+        setTimeout(function(){ el.innerHTML = orig; el.classList.remove("ugBoard"); el.__ugFl = 0; }, T * 2 + 60);
+      }
+    }, T * 2 + 10);
   }
   var io = ("IntersectionObserver" in window) ? new IntersectionObserver(function(es){
     es.forEach(function(en){ if (en.isIntersecting) { io.unobserve(en.target); flap(en.target); } });
