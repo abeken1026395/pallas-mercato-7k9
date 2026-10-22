@@ -43,6 +43,11 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .gb-plain { border:1px solid #9fb0c355; color:#9fb0c3; }
 .date-head { font-size:13px; font-weight:bold; color:#e0e6ed; margin:16px 2px 4px; padding-bottom:4px; border-bottom:1px solid #2a3548; }
 .date-head:first-child { margin-top:6px; }
+/* 開催日のタブ（2日分あるときだけ出す）。色は並び替えボタンと同じ「青＝押せる・選択中」 */
+.date-tabs { display:flex; gap:8px; margin:14px 0 2px; }
+.date-tab { flex:1; font-size:15px; font-weight:bold; border:1px solid #24344a; background:#0f1a26; color:#9fb0c3; border-radius:8px; padding:6px 10px; cursor:pointer; min-height:44px; font-family:inherit; }
+.date-tab.on { background:rgba(127,180,255,.16); color:#7fb4ff; border-color:#7fb4ff; font-weight:800; }
+.date-tab:active { background:#182535; }
 
 /* Rグリッド */
 .rgrid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px; }
@@ -613,6 +618,7 @@ function parseHL(j){
 }
 
 var view={page:"venues", key:null, rno:null, sort:"枠"};
+var VDATE="";  /* 場の一覧で選んでいる開催日。レースを開いて戻ったときも同じ日を出す（端末には保存しない） */
 /* 整備ページなどから #v24 で来たとき、その場のレース一覧から始める（本日の開催を優先） */
 (function(){
   var m=/^#v(\d{2})$/.exec(location.hash||""); if(!m) return;
@@ -1000,6 +1006,7 @@ function renderBody(){
   if(view.page==="venues"){ renderVenues(app,crumb,keys); return; }
   var v=venues[view.key];
   if(!v){ view={page:"venues",sort:view.sort}; render(); return; }
+  VDATE=v.hd;  /* 戻ったとき、開いていた場の日のタブを出す */
   if(view.page==="races"){ renderRaces(app,crumb,v); return; }
   renderRace(app,crumb,v);
 }
@@ -1010,7 +1017,21 @@ function renderVenues(app,crumb,keys){
   keys.forEach(function(k){ var v=venues[k]; (byDate[v.hd]=byDate[v.hd]||[]).push(v); });
   var dates=Object.keys(byDate).sort();
   var todayJST=(function(){ var n=nowJST(); return n.getUTCFullYear()+("0"+(n.getUTCMonth()+1)).slice(-2)+("0"+n.getUTCDate()).slice(-2); })();
+  /* 開催日のタブ：今日より前の日は出さない（0時から朝の更新までに残る前日分）。全部が前日なら残す */
+  var fut=dates.filter(function(d){ return d>=todayJST; });
+  if(fut.length) dates=fut;
+  if(dates.indexOf(VDATE)<0) VDATE=dates.indexOf(todayJST)>=0?todayJST:(fut.length?dates[0]:dates[dates.length-1]);
+  var useTabs=dates.length>1;
   var html=buildOshiToday()+buildMyPanel()+buildFortune();
+  if(useTabs){
+    html+='<div class="date-tabs" role="tablist">'+dates.map(function(hd){
+      var mm=hd.slice(4,6),dd=hd.slice(6,8);
+      var dow=["日","月","火","水","木","金","土"][new Date(parseInt(hd.slice(0,4)),parseInt(mm)-1,parseInt(dd)).getDay()];
+      return '<button type="button" class="date-tab'+(hd===VDATE?' on':'')+'" role="tab" aria-selected="'+(hd===VDATE?'true':'false')+'" data-hd="'+esc(hd)+'">'
+        +esc(parseInt(mm,10)+"/"+parseInt(dd,10)+"("+dow+")")+'</button>';
+    }).join("")+'</div>';
+    dates=[VDATE];
+  }
   dates.forEach(function(hd){
     var list=byDate[hd].sort(function(a,b){ var pa=isPin(a.jcd)?0:1, pb=isPin(b.jcd)?0:1; if(pa!==pb) return pa-pb; return a.jcd<b.jcd?-1:1; });
     var mm=hd.slice(4,6),dd=hd.slice(6,8);
@@ -1018,7 +1039,7 @@ function renderVenues(app,crumb,keys){
     var dnum=function(x){ return Date.UTC(parseInt(x.slice(0,4),10),parseInt(x.slice(4,6),10)-1,parseInt(x.slice(6,8),10)); };
     var df=Math.round((dnum(hd)-dnum(todayJST))/86400000);
     var lab=df===0?"本日":df===1?"翌日":df===-1?"前日":(df<0?(-df)+"日前":df+"日後");
-    html+='<div class="date-head">'+esc(lab+" "+mm+"/"+dd+"("+dow+")")+'</div>';
+    if(!useTabs) html+='<div class="date-head">'+esc(lab+" "+mm+"/"+dd+"("+dow+")")+'</div>';
     html+=list.map(function(v){
       var rs=Object.keys(v.races).map(Number).sort(function(a,b){return a-b;});
       var ch=chushiOf(v);
@@ -1035,6 +1056,9 @@ function renderVenues(app,crumb,keys){
     }).join("");
   });
   app.innerHTML=html;
+  Array.prototype.forEach.call(app.querySelectorAll(".date-tab"),function(el){
+    el.onclick=function(){ VDATE=el.getAttribute("data-hd"); render(); };
+  });
   Array.prototype.forEach.call(app.querySelectorAll(".venue-card"),function(el){
     el.onclick=function(){ view={page:"races",key:el.getAttribute("data-k"),rno:null,sort:view.sort}; render(); window.scrollTo(0,0); };
   });
