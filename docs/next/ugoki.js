@@ -23,9 +23,38 @@
   function hA(){ var l = mk("none"); document.head.appendChild(l); l.click(); document.head.removeChild(l); }
   function hB(){ if (!keepB) { keepB = mk("none"); keepB.firstChild.style.all = "initial"; keepB.firstChild.style.appearance = "auto"; keepB.firstChild.style.display = "none"; document.body.appendChild(keepB); } keepB.click(); }
   function hC(){ if (!keepC) { keepC = mk("px"); document.body.appendChild(keepC); } keepC.click(); }
+  // iPhone は、指が本物のスイッチに直接触れたときだけ震える（けんの実機で方式Dだけ震えた・2026-10-23）。
+  // そこで押せる部品の上に、ほぼ透明なスイッチを1枚ずつ重ねる。指はスイッチを押し（ここで震える）、
+  // その押しを下の部品に el.click() で渡す。キーボードや読み上げは下の部品をそのまま使う（スイッチは tabindex=-1・aria-hidden）
+  var IOS_OVERLAY = typeof navigator.vibrate !== "function" && "switch" in HTMLInputElement.prototype;
+  function cover(el){
+    if (el.__ugSw || !el.isConnected) return;
+    el.__ugSw = 1;
+    if (getComputedStyle(el).position === "static") el.style.position = "relative";
+    var sw = document.createElement("input");
+    sw.type = "checkbox"; sw.setAttribute("switch", ""); sw.tabIndex = -1;
+    sw.setAttribute("aria-hidden", "true"); sw.className = "ugSwCover";
+    sw.addEventListener("click", function(ev){ ev.stopPropagation(); el.click(); });
+    el.appendChild(sw);
+  }
+  function coverAll(root){
+    if (!IOS_OVERLAY || !root.querySelectorAll) return;
+    if (root.matches && root.matches(PRESS)) cover(root);
+    var els = root.querySelectorAll(PRESS);
+    for (var i = 0; i < els.length; i++) cover(els[i]);
+  }
+  if (IOS_OVERLAY) {
+    var startCover = function(){
+      coverAll(document.body);
+      new MutationObserver(function(ms){ ms.forEach(function(m){ m.addedNodes.forEach(function(n){ if (n.nodeType === 1 && !n.classList.contains("ugSwCover")) coverAll(n); }); }); })
+        .observe(document.body, { childList: true, subtree: true });
+    };
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", startCover); else startCover();
+  }
   function haptic(m){
     try {
       if (typeof navigator.vibrate === "function") { navigator.vibrate(12); return; }
+      if (IOS_OVERLAY && !m) return; // iPhone は重ねたスイッチで震える
       m = m || mode;
       if (m === "B") hB(); else if (m === "C") hC(); else hA();
     } catch (e) {}
