@@ -4,7 +4,8 @@
    振動は押したときだけ。勝手には震えない。 */
 (function(){
   var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var PRESS = ".quick a,.mc,.ni,.cta,.more,.exh,.kn,.guide,.big[role=button],details.race>summary,details.venue>summary,.tab,.dsw-btn,button";
+  // 押せる部品：トップと結果の部品に加え、どのページでも使えるようにリンク・ボタン・開閉・タブ全般
+  var PRESS = ".quick a,.mc,.ni,.cta,.more,.exh,.kn,.guide,.big[role=button],details.race>summary,details.venue>summary,.tab,.dsw-btn,button,a[href],summary,[role=button],[role=tab],[onclick]";
 
   // 振動。iPhone は標準の振動が使えないので、switch 付きのチェックボックスを押したときの iOS の触覚を借りる。
   // 呼び出し方で効き方が違うため3通り用意し、?shindo=1 で試し分けられるようにする（既定は A）
@@ -29,6 +30,7 @@
   var IOS_OVERLAY = typeof navigator.vibrate !== "function" && "switch" in HTMLInputElement.prototype;
   function cover(el){
     if (el.__ugSw || !el.isConnected) return;
+    if (el.closest("label,select,textarea,[contenteditable]") || el.querySelector("input,select,textarea")) return; // 入力欄を含む部品には重ねない
     el.__ugSw = 1;
     if (getComputedStyle(el).position === "static") el.style.position = "relative";
     var sw = document.createElement("input");
