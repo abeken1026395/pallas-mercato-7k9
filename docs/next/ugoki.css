@@ -1,0 +1,37 @@
+/* 動きの試作（実験場・2026-10-23）
+   ① スタート：題字の下を枠色の帯が左から右へ走る（開いたとき1回だけ）
+   ② 手ごたえ：押すと少し沈む（小さな振動は ugoki.js）
+   ③ ページ送り：別のページへ移るとき、画面が左へ流れて消える
+   ④ 裏返し：結果のレースを開いたとき、払戻が表示板のように裏返って出る
+   スクロールで順に出る動き・数字のカウントアップ・動き続ける飾りは使わない */
+
+/* ① スタートの帯 */
+.ugBand{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));width:min(300px,78%);height:5px;margin:12px auto 0}
+.ugBand i{display:block;transform-origin:left center}
+.ugBand i:nth-child(1){background:#ffffff}.ugBand i:nth-child(2){background:#111111;box-shadow:inset 0 0 0 1px #3a4a5c}.ugBand i:nth-child(3){background:#e2382f}
+.ugBand i:nth-child(4){background:#2a6fd6}.ugBand i:nth-child(5){background:#f2c200}.ugBand i:nth-child(6){background:#1f9a55}
+@keyframes ugRun{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.ugBand i{animation:ugRun .16s cubic-bezier(.2,.7,.2,1) both}
+.ugBand i:nth-child(2){animation-delay:.07s}.ugBand i:nth-child(3){animation-delay:.14s}.ugBand i:nth-child(4){animation-delay:.21s}
+.ugBand i:nth-child(5){animation-delay:.28s}.ugBand i:nth-child(6){animation-delay:.35s}
+
+/* ② 手ごたえ */
+.ugP{transition:transform .09s ease-out,box-shadow .09s ease-out}
+.ugP.ugDown{transform:translateY(1px) scale(.985)}
+.mc.ugDown{box-shadow:inset 0 6px 0 var(--c) !important}
+
+/* ③ ページ送り */
+html.ugLeave body{transition:transform .18s ease-in,opacity .18s ease-in;transform:translateX(-28px);opacity:0}
+html.ugEnter body{animation:ugIn .22s ease-out both}
+@keyframes ugIn{from{transform:translateX(24px);opacity:0}to{transform:none;opacity:1}}
+
+/* ④ 裏返し */
+.ugFlipHost{perspective:600px}
+@keyframes ugFlip{0%{transform:rotateX(-90deg);opacity:.15}60%{transform:rotateX(12deg);opacity:1}100%{transform:rotateX(0)}}
+.ugFlip{animation:ugFlip .32s cubic-bezier(.2,.7,.2,1) both;transform-origin:center top;backface-visibility:hidden}
+
+@media (prefers-reduced-motion:reduce){
+  .ugBand i,.ugFlip,html.ugEnter body{animation:none !important}
+  html.ugLeave body{transition:none;transform:none;opacity:1}
+  .ugP.ugDown{transform:none}
+}
