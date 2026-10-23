@@ -1,0 +1,57 @@
+# 捨てた住所 datazeme.pages.dev を、旧URL（github.io）と同じ「おかえりなさい」の版に差し替える（手動で1回だけ）。
+# datazeme は過去の配布が多すぎて Cloudflare の画面から消せない（2026-10-24）。消す代わりに中身を差し替える（けん裁定 案A）。
+# 配る中身はブランチ ghRedirect（旧URLの配信元）をそのまま使う。新しい住所の名前はどこにも出さない。
+name: datazeme を「おかえりなさい」に差し替え
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: deployCloudflare
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  okaeri:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ghRedirect
+          fetch-depth: 1
+          path: site
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: 中身を確かめる
+        run: |
+          grep -q "おかえりなさい" site/index.html
+          grep -q "おかえりなさい" site/404.html
+          grep -q "Disallow: /" site/robots.txt
+          rm -rf site/.git
+
+      - name: datazeme に配る
+        run: |
+          npx -y wrangler@3 pages deploy site --project-name=datazeme --branch=main --commit-dirty=true > /tmp/deploy.txt 2>&1 || { tail -5 /tmp/deploy.txt; exit 1; }
+          echo "配布済み"
+
+      - name: 差し替わったかを確かめる
+        run: |
+          ok=0
+          for i in $(seq 1 12); do
+            sleep 10
+            a=$(curl -s "https://datazeme.pages.dev/?t=$i")
+            b=$(curl -s "https://datazeme.pages.dev/racers/?t=$i")
+            if echo "$a" | grep -q "おかえりなさい" && echo "$b" | grep -q "おかえりなさい"; then ok=1; break; fi
+          done
+          [ "$ok" = 1 ] || { echo "::error::datazeme がまだ差し替わっていない"; exit 1; }
+          echo "トップ・出走表とも「おかえりなさい」"
+          curl -s "https://datazeme.pages.dev/robots.txt"
