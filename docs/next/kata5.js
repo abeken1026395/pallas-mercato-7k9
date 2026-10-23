@@ -16,6 +16,7 @@
    色で意味を出している札（荒れ・堅め・級別・枠番など）の色はそのまま。 */
 (function(){
   var EMO = /(?:\p{Extended_Pictographic}|[\u{1F1E6}-\u{1F1FF}])️?|️|‍/gu;
+  var FIXCH = /[\u{1F1E6}-\u{1F1FF}\u200D\uFE0F→›»—―─]|\p{Extended_Pictographic}|BOATRACE/u;
   var KEEP = "©®★☆♥♡▶◀▲▼△▽◆◇■□●○◎✓✔✕✖♪™";
   var FONT = /Helvetica|Arial|Inter|Roboto|Segoe/i;
   var SYS = '-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif';
@@ -23,7 +24,12 @@
   // 型が付けた style を部品ごとに覚えておく（元の値も）。タブの切り替えなどで class が変わったら、
   // 覚えた分を元に戻してから型をかけ直す。戻さないと、前の状態の色（選ばれていたタブの金の地など）が残る（けん「見どころ内のタブの動きがおかしい」）
   var KP = new WeakMap(), recording = 0, _sp = CSSStyleDeclaration.prototype.setProperty;
+  // 読みと書きを分ける：塗る途中で書くと、次の部品の色や大きさを読むたびにページ全体の計算がやり直しになり、
+  // 2万個の部品で数秒止まっていた（けん「動きが遅い」）。塗る間の書き込みはためておき、最後にまとめて書く
+  var deferQ = null;
+  function later(f){ if (deferQ) deferQ.push(f); else f(); }
   CSSStyleDeclaration.prototype.setProperty = function(n, v, pr){
+    if (deferQ) { var st = this; deferQ.push(function(){ st.setProperty(n, v, pr); }); return; }
     var m = null;
     if (recording) { m = KP.get(this); if (!m) { m = new Map(); KP.set(this, m); } if (!m.has(n)) m.set(n, [this.getPropertyValue(n), this.getPropertyPriority(n), ""]); }
     var r = _sp.call(this, n, v, pr);
@@ -60,12 +66,36 @@
     return [h, mx ? d / mx : 0, (mx + mn) / 2]; }
   /* 第2版：紫に加えてピンク（赤紫）も黄へ */ function isPurple(c){ if (!c || c[3] === 0) return false; var x = hue(c); return x[0] >= 240 && x[0] <= 345 && x[1] >= 0.3 && x[2] >= 0.3; }
 
-  function styleEl(el){
-    if (done.has(el)) return; done.add(el);
+  // 閉じた開閉（details）の中は画面に出ていないので塗らない。開いたときにその中だけ塗る。
+  // 結果ページなどは要素が2万を超え、見えない中身まで1つずつ計算して読み込みが数秒止まっていた（けん「動きが遅い」）
+  function closedIn(el){
+    var d = el.closest && el.closest("details:not([open])");
+    if (!d) return false;
+    var sm = d.querySelector(":scope > summary");
+    return !(sm && sm.contains(el)) || closedIn(d.parentElement || document.body);
+  }
+  // 部品の一覧を、さわらない枝（skip）と閉じた開閉の中身を丸ごと飛ばしながら集める（1つずつ closest で親をたどらない）
+  function listEls(root, skip){
+    if (!root || root.nodeType !== 1) return [];
+    if (root.closest(skip) || closedIn(root)) return [];
+    var out = [root];
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT, { acceptNode: function(n){
+      if (n.matches(skip)) return NodeFilter.FILTER_REJECT;
+      var pa = n.parentElement;
+      if (pa && pa.tagName === "DETAILS" && !pa.open && n.tagName !== "SUMMARY") return NodeFilter.FILTER_REJECT;
+      return NodeFilter.FILTER_ACCEPT; } });
+    var n; while ((n = w.nextNode())) out.push(n);
+    return out;
+  }
+  function styleEl(el, pre){ // pre＝listEls で集めた部品（さわらない枝・閉じた中身は除いてある）
+    if (done.has(el)) return;
+    if (!pre && closedIn(el)) return;
+    if (el.nodeType === 1 && el !== document.body && !el.getClientRects().length) return; // 見えていない部品（別のタブの中身など）は、見えたときに塗る
+    done.add(el);
     var tag = el.tagName;
-    if (el.closest("[data-kata-skip],[data-kskip]")) return; // ページ側で形を決めている部品・状態が変わる部品はさわらない
+    if (!pre && el.closest("[data-kata-skip],[data-kskip]")) return; // ページ側で形を決めている部品・状態が変わる部品はさわらない
     if (tag === "IMG") { if (parseFloat(getComputedStyle(el).borderTopLeftRadius) > 0) el.style.setProperty("border-radius", "0", "important"); return; }
-    if (tag === "HTML" || tag === "BODY" || tag === "SCRIPT" || tag === "STYLE" || tag === "IMG" || tag === "CANVAS" || el.closest("svg") || el.classList.contains("ugSwCover")) return;
+    if (tag === "HTML" || tag === "BODY" || tag === "SCRIPT" || tag === "STYLE" || tag === "IMG" || tag === "CANVAS" || (!pre && el.closest("svg")) || el.classList.contains("ugSwCover")) return;
     var cs = getComputedStyle(el), r = el.getBoundingClientRect(), w = r.width, h = r.height;
     // 3) グラデーション
     var bi = cs.backgroundImage;
@@ -186,18 +216,20 @@
   }
   function lum(c){ return c.slice(0, 3).reduce(function(acc, v, i){ v /= 255; v = v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); return acc + [0.2126, 0.7152, 0.0722][i] * v; }, 0); }
   function ratio(a, b){ var x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
+  var fixForce = false; // 読み込み後の見直し（again）のときだけ、一度見た部品も見直す（遅れて大きさ・色が決まる飾りの棒のため）
   function fixPass(root){
-    var els = root.querySelectorAll ? [root].concat(Array.prototype.slice.call(root.querySelectorAll("*"))) : []; // かけ直すときは、その部品自身も含める
+    var els = listEls(root, ".kataNote,svg,canvas,.ugSwCover,script,style,.kataTitle,[data-kata-skip],[data-kskip]"); // かけ直すときは、その部品自身も含める
     for (var i = 0; i < els.length; i++) {
       var e = els[i];
-      if (e.closest(".kataNote,svg,canvas,.ugSwCover,script,style,.kataTitle,[data-kata-skip],[data-kskip]")) continue;
+      if (e.__kF && !fixForce) continue;
       var r = e.getBoundingClientRect(); if (!r.width || !r.height) continue;
+      if (!(r.width <= 6 && !e.children.length)) e.__kF = 1; // 細い棒（伸び縮みする音のバーなど）は、伸びたとき・色が決まったときにもう一度見る
       var s = getComputedStyle(e), y = r.top + window.scrollY, b = parseC(s.backgroundColor);
       // 23) 左の細い色の棒（中身の無い細い要素・::before/::after の細い帯）→ 消す
       if (r.width <= 6 && r.height >= 16 && b && b[3] > 0.3 && !e.textContent.trim() && !e.children.length) { e.style.setProperty("display", "none", "important"); continue; }
       ["before", "after"].forEach(function(ps){
         var q = getComputedStyle(e, "::" + ps), qb = parseC(q.backgroundColor), qw = parseFloat(q.width), qh = parseFloat(q.height);
-        if (q.content !== "none" && q.content !== "normal" && qw > 0 && qw <= 6 && qh >= 14 && qb && qb[3] > 0.3) e.classList.add(ps === "before" ? "kataNoBefore" : "kataNoAfter");
+        if (q.content !== "none" && q.content !== "normal" && qw > 0 && qw <= 6 && qh >= 14 && qb && qb[3] > 0.3) later(function(){ e.classList.add(ps === "before" ? "kataNoBefore" : "kataNoAfter"); });
       });
       // 内側の影で描いた左の色帯（inset 4px 0 0 など）→ 消す
       var sh = s.boxShadow.match(/(-?\d+(?:\.\d+)?)px (-?\d+(?:\.\d+)?)px 0px 0px inset/);
@@ -238,17 +270,19 @@
   var GOLD_T = "#dcbd78", GOLD_B = "#c8a45e";
   function isYellow(c){ if (!c || c[3] === 0) return false; var x = hue(c); return x[0] >= 38 && x[0] <= 58 && x[1] >= 0.55 && x[2] >= 0.45; }
   function premiumPass(root){
-    var els = root.querySelectorAll ? [root].concat(Array.prototype.slice.call(root.querySelectorAll("*"))) : []; // かけ直すときは、その部品自身も含める
+    var els = listEls(root, ".kataNote,svg,canvas,.ugSwCover,script,style,[data-kata-skip],[data-kskip],input,select,textarea,option"); // かけ直すときは、その部品自身も含める
     for (var i = 0; i < els.length; i++) {
       var e = els[i];
-      if (e.closest(".kataNote,svg,canvas,.ugSwCover,script,style,[data-kata-skip],[data-kskip],input,select,textarea,option")) continue;
+      if (e.__kP) continue;
+      if (e !== document.body && !e.getClientRects().length) continue; // 見えていない部品（別のタブの中身など）は、見えたときに塗る
+      e.__kP = 1;
       var s = getComputedStyle(e);
       var own = Array.prototype.some.call(e.childNodes, function(n){ return n.nodeType === 3 && n.nodeValue.trim(); });
-      var tx = (e.textContent || "").trim();
-      if (!e.__kNum && own && !e.closest(".kataTitle") && tx.length <= 14 && PNUM.test(tx) && (tx.match(/\d/g) || []).length >= 1) {
+      var tx = own || e.childElementCount <= 2 ? (e.textContent || "").trim() : ""; // 大きな入れ物の中身を毎回つなげて読まない（数字・枠番の判定に要るのは短い部品だけ）
+      if (!e.__kNum && own && tx.length <= 14 && !e.closest(".kataTitle") && PNUM.test(tx) && (tx.match(/\d/g) || []).length >= 1) {
         var fs = parseFloat(s.fontSize) || 0;
         if (fs >= 12) {
-          e.__kNum = 1; e.classList.add("kataNum");
+          e.__kNum = 1; later(function(){ e.classList.add("kataNum"); });
           // style 属性に大きさや太さを書いている部品（React で作るページ）は書き換えない。属性で選んで色を付けている上書き（選手図鑑）が外れるため
           var inl = e.getAttribute("style") || "";
           if (fs >= 15 && inl.indexOf("font-size") < 0) e.style.setProperty("font-size", Math.round(fs * 1.14) + "px", "important");
@@ -275,10 +309,10 @@
 
   // 17) 縦に積んだ同じ形の箱（カードの山）→ 罫線で区切る一覧に。並び・中身はそのまま
   function stackPass(root){
-    var els = root.querySelectorAll ? [root].concat(Array.prototype.slice.call(root.querySelectorAll("*"))) : []; // かけ直すときは、その部品自身も含める
+    var els = listEls(root, ".kataNote,[data-kskip]"); // かけ直すときは、その部品自身も含める
     var seen = new Set();
     for (var i = 0; i < els.length; i++) {
-      var p = els[i]; if (seen.has(p) || p.children.length < 3 || p.closest(".kataNote,[data-kskip]")) continue;
+      var p = els[i]; if (p.__kS || seen.has(p) || p.children.length < 3 || !p.getClientRects().length) continue;
       seen.add(p);
       var kids = Array.prototype.filter.call(p.children, function(c){
         var s = getComputedStyle(c), b = parseC(s.backgroundColor), r = c.getBoundingClientRect();
@@ -286,9 +320,10 @@
       });
       if (kids.length < 3) continue;
       var x0 = Math.round(kids[0].getBoundingClientRect().left), same = kids.every(function(c){ return Math.abs(Math.round(c.getBoundingClientRect().left) - x0) <= 2 && c.tagName === kids[0].tagName; });
-      if (!same) continue; // 横に並ぶ格子は対象外
+      if (!same) { p.__kS = 1; continue; } // 横に並ぶ格子は対象外（決まり。次からは見ない）
       var pw = p.getBoundingClientRect().width;
-      if (kids.some(function(c){ return c.getBoundingClientRect().width < pw * 0.85; })) continue;
+      if (kids.some(function(c){ return c.getBoundingClientRect().width < pw * 0.85; })) { p.__kS = 1; continue; }
+      p.__kS = 1; // 積んだ箱と決まったものだけ印を付ける（中身の大きさが決まる前に見送ったものは、あとでもう一度見る）
       var ps = getComputedStyle(p);
       if (ps.display.indexOf("flex") >= 0 || ps.display.indexOf("grid") >= 0) p.style.setProperty("row-gap", "0", "important");
       kids.forEach(function(c, j){
@@ -307,8 +342,9 @@
     var tw = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null), n, list = [];
     while ((n = tw.nextNode())) list.push(n);
     list.forEach(function(t){
+      var v = t.nodeValue; if (!FIXCH.test(v)) return; // 直す文字（絵文字・矢印・ダッシュ・BOATRACE）が無い文は親をたどらない
       var p = t.parentElement; if (!p || p.closest("script,style,textarea,svg,code,pre")) return;
-      var v = t.nodeValue, nv = v.replace(EMO, function(s){ return KEEP.indexOf(s.charAt(0)) >= 0 ? s.charAt(0) : ""; });
+      var nv = v.replace(EMO, function(s){ return KEEP.indexOf(s.charAt(0)) >= 0 ? s.charAt(0) : ""; });
       if (p.closest("a,button")) nv = nv.replace(/\s*(?:→|›|»)\s*$/, "").replace(/^\s*(?:→|›)\s*/, "");
       // 18) 文章の癖：「——」で文をつなぐ → 句点で切る。題字の頭の英字「BOATRACE」→ 外す
       nv = nv.replace(/[—―─]{2}\s*(?=[」』）)]|$)/g, "").replace(/([。、！？」』])\s*[—―─]{2}\s*/g, "$1").replace(/\s*[—―─]{2}\s*/g, "。");
@@ -359,9 +395,11 @@
   }
   function pass(node){
     if (node.nodeType !== 1) return;
-    recording++;
-    try { passInner(node); } finally { recording--; }
-    markOwn(node);
+    var own = !deferQ; if (own) deferQ = [];
+    try { passInner(node); } finally {
+      if (own) { var qq = deferQ; deferQ = null; recording++; try { for (var k = 0; k < qq.length; k++) qq[k](); } finally { recording--; } }
+    }
+    if (own) markOwn(node);
   }
   // 選んだ状態を持つ部品（タブ・札・日付の切り替えなど）は、最初から型をかけない（ページの色のまま）。
   // 見分け方：class に on／active などがある・aria-selected／aria-pressed がある・class が tab／chip など、
@@ -373,6 +411,7 @@
     c.forEach(function(e){ e.setAttribute("data-kskip", ""); var p = e.parentElement; if (p) Array.prototype.forEach.call(p.children, function(sib){ if (sib.tagName === e.tagName) sib.setAttribute("data-kskip", ""); }); });
     var ps = new Set(); Array.prototype.forEach.call(root.querySelectorAll("button,[role=button],a,span,div"), function(e){ if (e.parentElement) ps.add(e.parentElement); });
     ps.forEach(function(p){
+      if (p.__kM) return; p.__kM = 1;
       var kids = Array.prototype.filter.call(p.children, function(k){ return k.tagName === "BUTTON" || k.getAttribute("role") === "button"; });
       if (kids.length < 2 || kids.length > 14) return;
       var bgs = kids.map(function(k){ return getComputedStyle(k).backgroundColor + getComputedStyle(k).color; });
@@ -384,38 +423,44 @@
   function passInner(node){
     markControls(node);
     textPass(node);
-    styleEl(node);
-    var els = node.querySelectorAll("*");
-    for (var i = 0; i < els.length; i++) styleEl(els[i]);
+    var els = listEls(node, "[data-kata-skip],[data-kskip],svg");
+    for (var i = 0; i < els.length; i++) styleEl(els[i], true);
     stackPass(node);
     fixPass(node);
     premiumPass(node);
     relink(node);
   }
-  // 遅れて大きさや中身が決まる部品があるので、読み込み後・1.5秒後・4秒後に全体をもう一度かける
-  function again(){ done = new WeakSet(); pass(document.body); title(); }
+  // 遅れて大きさや中身が決まる部品があるので、読み込み後に全体をもう一度かける（1回だけ）
+  function again(){ fixForce = true; try { pass(document.body); } finally { fixForce = false; } title(); } // 一度塗った部品は飛ばす（印 done・__kF・__kP）
   var q = [], busy = false;
   function flush(){ busy = false; var a = q; q = []; a.forEach(function(n){ if (n.isConnected) pass(n); }); title(); }
   function start(){
     if (window.KATA_LINK_ONLY) { relink(document.body); new MutationObserver(function(ms){ ms.forEach(function(m){ m.addedNodes.forEach(function(a){ if (a.nodeType === 1) relink(a); }); }); }).observe(document.body, { childList: true, subtree: true }); return; }
     title(); pass(document.body);
-    window.addEventListener("load", function(){ setTimeout(again, 50); }); setTimeout(again, 1500); setTimeout(again, 4000);
+    window.addEventListener("load", function(){ setTimeout(again, 50); setTimeout(again, 1500); setTimeout(again, 4000); }); // 塗った部品は飛ばすので、2回目以降は遅れて決まった部品の分だけ
+    document.addEventListener("toggle", function(e){ var d = e.target; if (d && d.tagName === "DETAILS" && d.open && !d.closest("[data-kskip]")) { pass(d); } }, true);
     // 状態が変わる部品（タブ・札・時刻で class や style が変わる行など）には、型の色を塗らない。
     // 塗った上からページが状態を切り替えると、古い色が残ったり（けん「出走表はタブに古い色」）、
     // 塗り直しとページの切り替えが追いかけ合って色がブレ続けたりする（けん「見どころの場別で場所を選ぶと永遠にぶれ続ける」）。
     // そこで、class・aria・style がページ側で一度でも変わった部品は、その部品と中身から型の塗りを外して元に戻し、以後は塗らない。
     // 新しく足された中身には、その場で（画面に描かれる前に）型をかける
     new MutationObserver(function(ms){
-      var now = [];
+      var now = [], seenT = new Set();
       ms.forEach(function(m){
         if (m.type === "attributes") {
           var tg = m.target;
           if (tg.closest("[data-kskip],.ugBoard,.ugSwCover,.ugTabBar,.kataNote")) return;
           if (m.attributeName === "class" && !meaningful(m.oldValue, tg)) return; // 動き（ug…）や型（kata…）の印だけの変化は見ない
-          if (m.attributeName === "style") { if (tg.getAttribute("style") === tg.__kStyle) return; adoptExternal(tg); } // 型自身が書いた style は見ない
+          if (m.attributeName === "style") {
+            if (tg.getAttribute("style") === tg.__kStyle) return; // 型自身が書いた style は見ない
+            var strip = function(x){ return String(x || "").replace(/position:\s*relative;?\s*/g, "").trim(); };
+            if (strip(m.oldValue) === strip(tg.getAttribute("style"))) return; // 動き（振動の重ね）が付けた position だけの変化は見ない
+            adoptExternal(tg);
+          }
           // 大きな入れ物（場の札・カードの並び・開閉の箱など）の切り替えは、中の色を変えないことが多いので見送る（塗りはそのまま）。
           // 状態で色が変わるのは、タブ・札・行のような小さな部品
-          var tr = tg.getBoundingClientRect(); if (tr.height > 80 || tr.width > window.innerWidth * 0.95 && tr.height > 48) return;
+          if (seenT.has(tg)) return; seenT.add(tg);
+          var tr = tg.getBoundingClientRect(); if (tr.height > 80 || tr.width > window.innerWidth * 0.95 && tr.height > 48) { now.push(tg); return; } // 大きな入れ物は、新しく見えた中身だけ塗る（塗った部品は塗り直さない）
           tg.setAttribute("data-kskip", "");
           var list = [tg].concat(Array.prototype.slice.call(tg.querySelectorAll("*")));
           list.forEach(function(e){ adoptExternal(e); restore(e); e.classList.remove("kataNum"); });
@@ -424,7 +469,13 @@
         if (m.type === "characterData") { if (m.target.parentElement) now.push(m.target.parentElement); }
         else m.addedNodes.forEach(function(a){ if (a.nodeType === 1 && !a.classList.contains("ugSwCover") && !a.classList.contains("ugBoard") && !a.classList.contains("ugTabBar")) now.push(a); else if (a.nodeType === 3 && a.parentElement) now.push(a.parentElement); });
       });
-      now = now.filter(function(n, k){ return n.isConnected && !n.closest("[data-kskip]") && now.indexOf(n) === k && !now.some(function(o){ return o !== n && o.contains(n); }); });
+      // 重なりを除く（祖先が入っていれば子は要らない）。数千件でも重くならないよう、集合で祖先をたどる
+      var set = new Set(now);
+      now = Array.from(set).filter(function(n){
+        if (!n.isConnected || n.closest("[data-kskip]")) return false;
+        for (var a = n.parentElement; a; a = a.parentElement) if (set.has(a)) return false;
+        return true;
+      });
       if (now.length) { now.forEach(pass); title(); }
     }).observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeOldValue: true, attributeFilter: ["class", "aria-selected", "aria-pressed", "style"] });
   }

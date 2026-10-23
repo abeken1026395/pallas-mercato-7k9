@@ -41,12 +41,20 @@
     });
     lab.appendChild(sw); el.appendChild(lab); el.__ugLab = lab;
   }
+  // 重ねる作業は、閉じた開閉の中を飛ばし（開いたときに重ねる）、150個ずつ区切って読み込みを止めないようにする（けん「動きが遅い」）
+  function closedIn(el){ var d = el.closest("details:not([open])"); if (!d) return false; var sm = d.querySelector(":scope > summary"); return !(sm && sm.contains(el)); }
   function coverAll(root){
     if (!IOS_OVERLAY || !root.querySelectorAll) return;
-    if (root.matches && root.matches(PRESS)) cover(root);
-    var els = root.querySelectorAll(PRESS);
-    for (var i = 0; i < els.length; i++) cover(els[i]);
+    var els = Array.prototype.slice.call(root.querySelectorAll(PRESS));
+    if (root.matches && root.matches(PRESS)) els.unshift(root);
+    var i = 0;
+    (function chunk(){
+      var end = Math.min(i + 150, els.length);
+      for (; i < end; i++) { var e = els[i]; if (!e.__ugSw && !closedIn(e)) cover(e); }
+      if (i < els.length) setTimeout(chunk, 0);
+    })();
   }
+  document.addEventListener("toggle", function(e){ if (IOS_OVERLAY && e.target && e.target.tagName === "DETAILS" && e.target.open) coverAll(e.target); }, true);
   if (IOS_OVERLAY) {
     var startCover = function(){
       coverAll(document.body);
@@ -161,18 +169,46 @@
   // ページを開いただけ・スクロールしただけでは動かさない。読み込み後に遅れて出た数字も動かさない。
   var NUM = /^[¥￥]?\d[\d,]*(?:\.\d+)?\s*(?:%|％|円|倍|回|位|本|件|走|勝|機|人|R)?$/;
   var MAXF = 30, seen = new WeakSet();
-  function numLeaves(){
-    var out = [], els = document.body.getElementsByTagName("*");
-    for (var i = 0; i < els.length; i++) {
-      var e = els[i];
-      if (e.children.length) continue;
-      var t = e.textContent; if (!t || t.length > 14) continue;
-      t = t.trim(); if (!NUM.test(t) || (t.match(/\d/g) || []).length < 2) continue;
-      if (e.__ugFl || e.closest("a,button,select,option,textarea,script,style,.kataTitle,.kataNote,.ugBoard,svg")) continue;
-      out.push(e);
-    }
-    return out;
+  // 数字の葉は一度だけ全体を数え、あとは足された部分だけ数え足す（タップのたびに全要素を走査しない）
+  var leaves = null, addQ = [], gone = false;
+  var LSKIP = "a,button,select,option,textarea,script,style,.kataTitle,.kataNote,.ugBoard,svg";
+  var LTAG = { A: 1, BUTTON: 1, SELECT: 1, OPTION: 1, TEXTAREA: 1, SCRIPT: 1, STYLE: 1, svg: 1, SVG: 1 };
+  function skipEl(n){ var c = n.classList; return LTAG[n.tagName] || c.contains("kataTitle") || c.contains("kataNote") || c.contains("ugBoard"); }
+  function isLeaf(e){ // 親の判定（LSKIP）は集めるときに枝ごと済ませてある
+    if (e.firstElementChild || e.__ugFl) return false;
+    var f = e.firstChild; if (!f) return false;
+    var t = f === e.lastChild && f.nodeType === 3 ? f.nodeValue : e.textContent; if (!t || t.length > 14) return false;
+    t = t.trim(); return NUM.test(t) && (t.match(/\d/g) || []).length >= 2;
   }
+  function scanInto(root, out){
+    if (root.nodeType !== 1 || root.closest(LSKIP)) return;
+    if (isLeaf(root)) { out.push(root); return; }
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT, { acceptNode: function(n){
+      if (skipEl(n)) return NodeFilter.FILTER_REJECT;
+      return n.firstElementChild ? NodeFilter.FILTER_SKIP : NodeFilter.FILTER_ACCEPT; } });
+    var n; while ((n = w.nextNode())) if (isLeaf(n)) out.push(n);
+  }
+  function numLeaves(){
+    if (!leaves) { leaves = []; addQ = []; gone = false; scanInto(document.body, leaves); return leaves; }
+    if (addQ.length) {
+      var q = addQ; addQ = [];
+      var roots = q.filter(function(n){ return n.isConnected && !q.some(function(o){ return o !== n && o.contains(n); }); });
+      var got = new Set(leaves);
+      roots.forEach(function(r){ var tmp = []; scanInto(r, tmp); tmp.forEach(function(e){ if (!got.has(e)) { got.add(e); leaves.push(e); } }); });
+    }
+    if (gone) { gone = false; leaves = leaves.filter(function(e){ return e.isConnected; }); }
+    return leaves;
+  }
+  new MutationObserver(function(ms){
+    if (!leaves) return;
+    ms.forEach(function(m){
+      if (m.type === "characterData") { var pe = m.target.parentElement; if (pe) addQ.push(pe); return; }
+      if (m.removedNodes.length) gone = true;
+      m.addedNodes.forEach(function(n){ if (n.nodeType === 1) { if (!n.classList.contains("ugBoard") && !n.classList.contains("ugSwCover")) addQ.push(n); } else if (n.parentElement) addQ.push(n.parentElement); });
+    });
+  }).observe(document.documentElement, { childList: true, subtree: true, characterData: true });
+  // 最初の数え上げは、読み込みが落ち着いて手が空いたときに済ませておく
+  if (!reduce) window.addEventListener("load", function(){ (window.requestIdleCallback || function(f){ setTimeout(f, 1500); })(function(){ numLeaves(); }, { timeout: 4000 }); });
   // 閉じた開閉の中は、大きさが取れても見えていない扱い（Chromium は閉じた details の中身にも大きさを返す）
   function shown(e){
     if (e.checkVisibility && !e.checkVisibility({ visibilityProperty: true })) return false;
@@ -186,7 +222,7 @@
   function flapNew(){
     var l = numLeaves(), n = 0;
     for (var i = 0; i < l.length && n < MAXF; i++) {
-      var e = l[i]; if (seen.has(e) || !shown(e)) continue;
+      var e = l[i]; if (seen.has(e) || !isLeaf(e) || !shown(e)) continue;
       seen.add(e);
       if (!strong(e)) continue;
       n++;
@@ -213,7 +249,8 @@
     function visible(el){ var r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0; }
     // ⑦ 新しく出たバーの塗り（中身なし・高さ8px以下・幅を % で持つ・色付き）
     function growBars(root){
-      var els = [root].concat(Array.prototype.slice.call(root.querySelectorAll("*")));
+      var els = Array.prototype.slice.call(root.querySelectorAll('[style*="width"]')); // 幅を style で持つ部品だけを見る
+      if (root.matches && root.matches('[style*="width"]')) els.unshift(root);
       for (var i = 0; i < els.length; i++) {
         var e = els[i]; if (e.children.length || (e.textContent || "").trim()) continue;
         var st = e.getAttribute("style") || "";
