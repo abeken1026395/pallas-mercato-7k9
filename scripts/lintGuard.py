@@ -89,6 +89,7 @@ GUARD = [
     "docs/next/kansei/updates.html",
     "docs/next/kansei/uranai.html",
     "docs/next/topE.html",
+    "docs/next/shindoTest.html",
     "docs/next/playersD.html",
     "docs/next/kansei2/announcers.html",
     "docs/next/kansei2/fan.html",
