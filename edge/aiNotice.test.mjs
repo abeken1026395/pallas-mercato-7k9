@@ -31,7 +31,8 @@ test("AIの名乗り × 対象：本物に触れず、通告と冗談の数字�
     assert.equal(a.status, 200, p);
     assert.equal(a.touched, false, `${p} で本物を読み込んだ`);
     assert.ok(a.text.includes(noticeText(jstDay())), `${p} に通告が無い`);
-    assert.ok(!a.text.includes("6.12"), `${p} に本物が混ざった`);
+    // 冗談の数字の一部が偶然「6.12」になる日がある（2026-10-24「696.12兆」で誤判定）。本物の文字列全体で見る
+    assert.ok(!a.text.includes(REAL), `${p} に本物が混ざった`);
     assert.ok(a.text.length < 60000, `${p} の返事が大きすぎる`);
   }
 });
