@@ -366,7 +366,7 @@
   // 選んだ状態を持つ部品（タブ・札・日付の切り替えなど）は、最初から型をかけない（ページの色のまま）。
   // 見分け方：class に on／active などがある・aria-selected／aria-pressed がある・class が tab／chip など、
   // または同じ形の兄弟が並び、1つだけ地の色が違う（選ばれている）組
-  var CTL = ".tab,.tabs > *,.chip,.chipbtn,.dsw-btn,[role=tab],[aria-selected],[aria-pressed],.on,.active,.is-active,.sel,.selected,.cur,.current";
+  var CTL = ".rbtn,.cd,.tab,.tabs > *,.chip,.chipbtn,.dsw-btn,[role=tab],[aria-selected],[aria-pressed],.on,.active,.is-active,.sel,.selected,.cur,.current";
   function markControls(root){
     if (!root.querySelectorAll) return;
     var c = [root].concat(Array.prototype.slice.call(root.querySelectorAll(CTL))).filter(function(e){ return e.matches && e.matches(CTL); });
