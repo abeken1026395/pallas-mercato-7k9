@@ -16,6 +16,14 @@
 .siteback{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;margin:6px 0 2px;font-size:13px;line-height:1;color:inherit;text-decoration:underline;text-underline-offset:3px}
 .siteback:focus-visible{outline:2px solid currentColor;outline-offset:2px}
 </style>
+<!-- kata6:head -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&amp;family=Dela+Gothic+One&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/kata/kata.css?v=c853c8e7">
+<link rel="stylesheet" href="../assets/kata/players.css?v=45ffc2be">
+<link rel="stylesheet" href="../assets/ugoki.css?v=a0c08edf">
+<style>*,*::before,*::after{border-radius:0 !important}</style>
+<link rel="stylesheet" href="../assets/kata/players.css?v=45ffc2be">
+<!-- /kata6:head -->
 </head>
 <body>
 <a class="siteback" href="../">← データ攻め トップ</a>
@@ -23,4 +31,21 @@
 <div id="root"></div>
 <script src="app.js"></script><footer style="margin:24px auto 8px;max-width:900px;text-align:center;font-size:10px;color:#8a94a3;letter-spacing:.3px;line-height:1.7;">© 2026 データ攻め ── 制作・運営 <a href="https://www.youtube.com/@abe-ken" target="_blank" rel="noopener" style="color:#9aa4b3;text-decoration:underline;">あべけん</a></footer>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics -->
+<!-- kata6:body -->
+<script src="../assets/kata/players.js?v=e786c60a"></script>
+<script>
+/* 二つ名・異名は了承済みの形（札にせず小さな文字）に保つ */
+(function(){
+  var SEL = 'span[style*="padding: 1px 7px"][style*="white-space: nowrap"], span[data-kata-skip]';
+  function plain(){ document.querySelectorAll(SEL).forEach(function(e){ e.setAttribute("data-kata-skip", "");
+    [["background","transparent"],["background-color","transparent"],["border","0"],["box-shadow","none"],["padding","0"],["font-size","11px"],["letter-spacing","0"],["margin-right","10px"],["color","#c9d3dd"],["-webkit-text-fill-color","#c9d3dd"]].forEach(function(kv){ e.style.setProperty(kv[0], kv[1], "important"); }); }); }
+  var t = null;
+  function soon(){ clearTimeout(t); t = setTimeout(plain, 120); }
+  function start(){ plain(); new MutationObserver(function(){ plain(); soon(); }).observe(document.body, { childList: true, subtree: true }); }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
+})();
+</script>
+<script src="../assets/kata/kata.js?v=ecd47e51"></script>
+<script src="../assets/ugoki.js?v=e40e8a0a"></script>
+<!-- /kata6:body -->
 </body></html>

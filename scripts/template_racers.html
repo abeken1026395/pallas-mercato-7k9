@@ -34,12 +34,12 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 /* 開催中のグレード。色は公式の月間スケジュールに合わせる（G1のみ、既存の黄と衝突するため紫に振替）。
    色だけで伝えないよう、必ず文字バッジと併記する。色を付けるのは SG・G1・女子戦の3種だけ。 */
 .venue-card.g-sg { border-color:#ee3f3d; box-shadow:inset 4px 0 0 #ee3f3d; padding-left:18px; }
-.venue-card.g-g1 { border-color:#b48ef0; box-shadow:inset 4px 0 0 #b48ef0; padding-left:18px; }
-.venue-card.g-lady { border-color:#fa628b; box-shadow:inset 4px 0 0 #fa628b; padding-left:18px; }
+.venue-card.g-g1 { border-color:#dcbd78; box-shadow:inset 4px 0 0 #dcbd78; padding-left:18px; }
+.venue-card.g-lady { border-color:#dcbd78; box-shadow:inset 4px 0 0 #dcbd78; padding-left:18px; }
 .gbadge { display:inline-block; font-size:13px; border-radius:4px; padding:1px 6px; margin-right:6px; }
 .gb-sg { background:#ee3f3d; color:#0b1219; }
-.gb-g1 { background:#b48ef0; color:#0b1219; }
-.gb-lady { background:#fa628b; color:#0b1219; }
+.gb-g1 { background:#dcbd78; color:#0b1219; }
+.gb-lady { background:#dcbd78; color:#0b1219; }
 .gb-plain { border:1px solid #9fb0c355; color:#9fb0c3; }
 .date-head { font-size:13px; font-weight:bold; color:#e0e6ed; margin:16px 2px 4px; padding-bottom:4px; border-bottom:1px solid #2a3548; }
 .date-head:first-child { margin-top:6px; }
@@ -148,7 +148,7 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .boat-top { display:flex; align-items:center; gap:8px; flex-wrap:wrap; position:relative; padding-right:36px; }
 .lane-num { width:24px; height:24px; border-radius:5px; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:14px; flex:none; }
 .klass { font-size:13px; font-weight:bold; border-radius:4px; padding:1px 6px; color:#fff; flex:none; }
-.k-A1 { background:#c9184a; } .k-A2 { background:#e07a1f; color:#0b1219; } .k-B1 { background:#86a6cf; color:#0b1a33; } .k-B2 { background:#5c6773; }
+.k-A1 { background:#c8a45e; } .k-A2 { background:#e07a1f; color:#0b1219; } .k-B1 { background:#86a6cf; color:#0b1a33; } .k-B2 { background:#5c6773; }
 .pname { font-size:16px; font-weight:bold; color:#fff; display:inline-flex; align-items:center; min-height:44px; }
 .badge-local { font-size:13px; color:#e0e6ed; background:transparent; border-radius:999px; padding:0 8px; font-weight:bold; flex:none; border:1px solid #9fb0c3; }
 .badge-f { font-size:13px; color:#e0e6ed; background:transparent; border-radius:3px; padding:1px 5px; font-weight:800; flex:none; border:2px solid #e0e6ed; }
@@ -450,6 +450,28 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .mido > .mido-body { padding:0 10px 10px; }
 .mido-note { font-size:13px; color:#9fb0c3; margin:0 2px 6px; }
 </style>
+<!-- kata6:head -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&amp;family=Dela+Gothic+One&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/kata/kata.css?v=c853c8e7">
+<link rel="stylesheet" href="../assets/kata/racers.css?v=fa127f95">
+<link rel="stylesheet" href="../assets/ugoki.css?v=a0c08edf">
+<style>
+.rbtn{background:#12233a !important;border:1px solid #3d5a80 !important;border-radius:0 !important}
+.rbtn .rno{color:#eef2f5 !important}
+.rbtn .dl{color:#c8d3dd !important}
+.rbtn.closed{background:transparent !important;border:1px dashed #2b4568 !important}
+.rbtn.closed .rno{color:#6f8296 !important}
+.rbtn.closed .dl,.rbtn.closed .rdone{color:#6f8296 !important}
+.rbtn:not(.closed):first-child,.rbtn.closed + .rbtn:not(.closed){background:#c8a45e !important;border-color:#c8a45e !important}
+.rbtn:not(.closed):first-child .rno,.rbtn.closed + .rbtn:not(.closed) .rno,.rbtn:not(.closed):first-child .dl,.rbtn.closed + .rbtn:not(.closed) .dl{color:#10141a !important;font-weight:800 !important}
+.rbtn.chushi,.rbtn.chushi.closed{background:transparent !important;border:1px solid #93a5b6 !important}
+.rbtn.chushi .rno,.rbtn.chushi .dl{color:#c8d3dd !important}
+.cd{border-radius:0 !important}
+.cd-open{background:transparent !important;color:#eef2f5 !important;border:1px solid #3d5a80 !important}
+.cd-soon{background:#c8a45e !important;color:#10141a !important;border:1px solid #c8a45e !important}
+.cd-closed{background:transparent !important;color:#6f8296 !important;border:1px dashed #2b4568 !important}
+</style>
+<!-- /kata6:head -->
 </head>
 <body>
 <a class="siteback" href="../">← データ攻め トップ</a>
@@ -510,7 +532,7 @@ function calcViewport(){
 var HOME_BRANCH = {"01":"群馬","02":"埼玉","03":"東京","04":"東京","05":"東京","06":"静岡","07":"愛知","08":"愛知","09":"三重","10":"福井","11":"滋賀","12":"大阪","13":"兵庫","14":"徳島","15":"香川","16":"岡山","17":"広島","18":"山口","19":"山口","20":"福岡","21":"福岡","22":"福岡","23":"佐賀","24":"長崎"};
 var LANE_COLOR = {1:["#ffffff","#111111"],2:["#15181c","#ffffff"],3:["#e63946","#ffffff"],4:["#1d6fd6","#ffffff"],5:["#f2c94c","#111111"],6:["#27ae60","#0b1219"]};
 /* 決まり手カテゴリ色（dataviz検証済み: CVD ΔE 41+）。その他＝抜き・恵まれ */
-var KMR_COLS = {"逃げ":"#3987e5","差し":"#199e70","まくり":"#d6d6d6","まくり差し":"#9085e9","その他":"#5c6773"};
+var KMR_COLS = {"逃げ":"#3987e5","差し":"#199e70","まくり":"#d6d6d6","まくり差し":"#dcbd78","その他":"#5c6773"};
 
 var col = {}; RAW.columns.forEach(function(c,i){ col[c]=i; });
 function g(row,name){ var i=col[name]; return i===undefined ? "" : String(row[i]==null?"":row[i]); }
@@ -1868,5 +1890,9 @@ setInterval(function(){ if(view.page==="race") render(); }, 30000);
 </script>
 <footer style="margin:24px auto 8px;max-width:900px;text-align:center;font-size:13px;color:#8a94a3;letter-spacing:.3px;line-height:1.7;">© 2026 データ攻め ── 制作・運営 <a href="https://www.youtube.com/@abe-ken" target="_blank" rel="noopener" style="color:#9aa4b3;text-decoration:underline;">あべけん</a></footer>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics -->
+<!-- kata6:body -->
+<script src="../assets/kata/kata.js?v=ecd47e51"></script>
+<script src="../assets/ugoki.js?v=e40e8a0a"></script>
+<!-- /kata6:body -->
 </body>
 </html>

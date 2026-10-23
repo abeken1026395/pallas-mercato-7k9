@@ -6,14 +6,14 @@
 (function(){
   var EMO = /(?:\p{Extended_Pictographic}|[\u{1F1E6}-\u{1F1FF}])️?|️|‍/gu;
   var FIXCH = /[\u{1F1E6}-\u{1F1FF}\u200D\uFE0F→›»—―─]|\p{Extended_Pictographic}|BOATRACE/u;
-  var KEEP = "©®★☆♥♡▶◀▲▼△▽◆◇■□●○◎✓✔✕✖♪™";
+  var KEEP = "⚡📍©®★☆♥♡▶◀▲▼△▽◆◇■□●○◎✓✔✕✖♪™";
   function textPass(root){
     var tw = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null), n, list = [];
     while ((n = tw.nextNode())) list.push(n);
     list.forEach(function(t){
       var v = t.nodeValue; if (!FIXCH.test(v)) return; // 直す文字（絵文字・矢印・ダッシュ・BOATRACE）が無い文は親をたどらない
       var p = t.parentElement; if (!p || p.closest("script,style,textarea,svg,code,pre,footer")) return; // フッター（制作・運営の表記）は書き換えない。ページ側が表記の改変を検知して、2つ目の表記を足してしまう（けん 10-24「フッターが被ってる」）
-      var nv = v.replace(EMO, function(s){ return KEEP.indexOf(s.charAt(0)) >= 0 ? s.charAt(0) : ""; });
+      var nv = v.replace(/\u2B50\uFE0F?/g, "★").replace(EMO, function(s){ var c = Array.from(s)[0]; return KEEP.indexOf(c) >= 0 ? c : ""; }); // ⭐（推しフォロー中）は★に（ボタンの中身が消えてフォローが見えなくなるため）。1文字目を文字単位で見る（📍 のような2単位の文字も残せるように）
       if (p.closest("a,button")) nv = nv.replace(/\s*(?:→|›|»)\s*$/, "").replace(/^\s*(?:→|›)\s*/, "");
       // 18) 文章の癖：「——」で文をつなぐ → 句点で切る。題字の頭の英字「BOATRACE」→ 外す
       nv = nv.replace(/[—―─]{2}\s*(?=[」』）)]|$)/g, "").replace(/([。、！？」』])\s*[—―─]{2}\s*/g, "$1").replace(/\s*[—―─]{2}\s*/g, "。");

@@ -1,3 +1,5 @@
+// モーター成績の読みやすさ改修（2026-10-23 けん「モーターページ非常に見づらい改善しろ」・実験場 docs/next/motorE で作り、10-24 本番へ）。
+// 見た目と並べ方だけを変えた。データの読み方・判定は前と同じ。
 const { useState, useMemo, useEffect } = React;
 const R = window.__D;
 const cols = R.columns;
@@ -7,16 +9,18 @@ const cols = R.columns;
 // 文字色。すべて背景 #0b1219〜#26333f 上でコントラスト 4.5:1 以上（AA・METHOD.md 9節）。
 // 増やさない。1色1意味。
 const C = {
-  text:   "#e0e6ed",  // 本文
-  sub:    "#c5d2e0",  // 補助本文
-  label:  "#9fb0c0",  // 見出し・ラベル
-  muted:  "#88a0b5",  // 注記の下限（最も暗い #26333f 上で 4.76:1）
-  dim:    "#7d94a8",  // 注記（暗い背景専用。バッジ地の上には置かない）
-  accent: "#e0e6ed",  // 見出し（黄はやめた。出走表と同じ辞書）
-  link:   "#8fd0ff",
+  text:   "#eef2f5",  // 本文・数字
+  sub:    "#c8d3dd",  // 補助本文
+  label:  "#a9b8c6",  // 見出し・ラベル
+  muted:  "#93a5b6",  // 注記
+  dim:    "#93a5b6",
+  accent: "#eef2f5",
+  link:   "#eef2f5",  // 選手名（リンクでも色は本文と同じ。下線だけで示す）
   fem:    "#ff9ec9",
   ok:     "#8fd6c0",
-  onLight:"#0b1219",  // 明色バッジ／チップの上に載せる文字
+  onLight:"#0b1219",
+  top:    "#f5d55c",  // 超抜（トップの見どころと同じ黄）
+  line:   "#2b4568",  // 罫線
 };
 
 // 文字サイズ。本文は13px以上、select と input は16px（iOS Safari の自動ズーム回避）。
@@ -84,7 +88,7 @@ const VENUE_MEDIAN = (()=>{
 // 図形と文字で色を分けているのは、図の濃淡の序列を保ったまま文字のコントラストだけ上げるため。
 const RK = {
   na:  {key:"na",  label:"—",   color:"#556579", tcolor:C.muted},
-  top: {key:"top", label:"超抜", color:"#c3ccd6", tcolor:C.text},
+  top: {key:"top", label:"超抜", color:"#f2c200", tcolor:C.top},
   hi:  {key:"hi",  label:"上位", color:"#8fa6bd", tcolor:C.sub},
   mid: {key:"mid", label:"普通", color:"#7c94ab", tcolor:C.label},
   low: {key:"low", label:"下位", color:"#5d7186", tcolor:C.muted},
@@ -128,9 +132,8 @@ function VenueMetaLine({meta}){
   const nichime = String(meta["日目"]||"");
   if(!setsu && !nichime) return null;
   return (
-    <div style={{fontSize:F.xs,color:C.muted,marginTop:3,display:"flex",alignItems:"center",gap:6,flexWrap:"wrap",minWidth:0}}>
-      {setsu && <span style={{color:C.label}} title={setsu}>{truncStr(setsu,18)}</span>}
-      {nichime && <span style={{fontSize:F.xs,fontWeight:700,color:C.onLight,background:C.dim,borderRadius:3,padding:"1px 7px",flex:"none"}}>{nichime}</span>}
+    <div style={{fontSize:F.xs,color:C.sub,marginTop:2,minWidth:0}}>
+      {setsu && <span title={setsu}>{truncStr(setsu,20)}</span>}{setsu && nichime ? "　" : ""}{nichime && <b style={{color:C.text}}>{nichime}</b>}
     </div>
   );
 }
@@ -140,25 +143,22 @@ function VenueMetaLine({meta}){
 function MoreBtn({onClick,children,mt}){
   return (
     <button type="button" onClick={onClick}
-      style={{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,
-        minHeight:44,minWidth:HIT,marginTop:mt||0,padding:"6px 14px",
-        background:"#16232f",color:C.label,border:"1px solid #2a3d52",borderRadius:8,
-        fontSize:F.xs,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>{children}</button>
+      style={{display:"flex",alignItems:"center",justifyContent:"center",width:"100%",
+        minHeight:44,marginTop:mt||0,padding:"8px 14px",
+        background:"transparent",color:C.sub,border:"none",borderTop:"1px solid "+C.line,
+        fontSize:F.sm,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>{children}</button>
   );
 }
 
-function Bar({v,c,tc,median}){
+function Bar({v,c,median}){
   const n = parseFloat(v);
   const pct = isNaN(n) ? 0 : Math.max(0,Math.min(100,(n/BAR_MAX)*100));
   const mp = (isFinite(median) && median>0) ? Math.max(0,Math.min(100,(median/BAR_MAX)*100)) : null;
-  const tip = `目盛 0〜${BAR_MAX}%（全場共通）` + (mp!==null ? ` ／ 縦線＝この場の中央値 ${median.toFixed(1)}%` : "");
+  const tip = `目盛 0〜${BAR_MAX}%（全場共通）` + (mp!==null ? ` ／ 縦の目印＝この場の中央値 ${median.toFixed(1)}%` : "");
   return (
-    <div style={{display:"flex",alignItems:"center",gap:6,flex:1,minWidth:76}}>
-      <div title={tip} style={{position:"relative",height:16,background:"#08111a",border:"1px solid #16222f",borderRadius:8,overflow:"hidden",flex:1}}>
-        <div style={{position:"absolute",left:0,top:0,bottom:0,width:pct+"%",background:c,opacity:.85,borderRadius:8}}/>
-        {mp!==null && <div style={{position:"absolute",left:mp+"%",top:1,bottom:1,width:2,marginLeft:-1,background:C.text,opacity:.6}}/>}
-      </div>
-      <div style={{fontSize:F.md,fontWeight:800,color:tc,minWidth:54,textAlign:"right",fontVariantNumeric:"tabular-nums"}}>{isNaN(n)?"-":n.toFixed(1)+"%"}</div>
+    <div title={tip} style={{position:"relative",height:4,background:"#1d3352",marginTop:7}}>
+      <div style={{position:"absolute",left:0,top:0,bottom:0,width:pct+"%",background:c}}/>
+      {mp!==null && <div style={{position:"absolute",left:mp+"%",top:-3,bottom:-3,width:2,marginLeft:-1,background:"#eef2f5"}}/>}
     </div>
   );
 }
@@ -173,19 +173,25 @@ const PK = {hd:0, rno:1, waku:2, name:3, setsu:4, chg:5, pera:6, tenji:7, fin:8}
 function KarteRow({parts,i,first}){
   const p = parts[i];
   const chg = String(p[PK.chg]||"");
-  const nm = dispName(p[PK.name]);  // 表層と同じ規則で畳む（同じ選手が2表記になるのを防ぐ）
+  const nm = dispName(p[PK.name]);
   const setsu = String(p[PK.setsu]||"");
   const tenji = String(p[PK.tenji]||"");
   const fin = p[PK.fin]==null ? "" : String(p[PK.fin]);
-  // 交換行のみ：この機のカルテ内で直前(iより前)の、展示タイムが空でない最も近い行を引く。
-  // 差の数値・評価語は出さず、前後を矢印で並べるだけ（解釈は読者に委ねる・司令塔裁定）。
   let prevTenji = "";
   if(chg && tenji){ for(let j=i-1;j>=0;j--){ const t=String(parts[j][PK.tenji]||""); if(t){ prevTenji=t; break; } } }
   return (
-    <div style={{borderTop:first?"none":"1px solid #16273a",paddingTop:first?0:5,marginTop:first?0:5}}>
-      <b style={{color:C.text}}>{fmtHd(p[PK.hd])}</b> {p[PK.rno]}R{p[PK.waku]?` ${p[PK.waku]}号`:""}{fin?<span style={{color:fin==="1"?C.text:C.dim,fontWeight:fin==="1"?700:400}}>{/^[1-6]$/.test(fin)?` ${fin}着`:` ${fin}`}</span>:null}{nm?<span style={{color:C.link}}> ・{nm}</span>:null}{setsu?<span style={{color:C.dim}} title={setsu}> ・{truncStr(setsu,15)}</span>:null} ・ {chg
-        ? <span style={{color:C.ok,fontWeight:700}}>部品交換 {chg}</span>
-        : <span style={{color:C.muted}}>整備なし</span>}{p[PK.pera]?<span style={{color:C.accent}}> ・ペラ新</span>:null}{tenji?<span style={{color:C.dim}}> ・展示{prevTenji?` ${prevTenji} → ${tenji}`:tenji}</span>:null}
+    <div style={{borderTop:first?"none":"1px solid "+C.line,padding:"7px 0"}}>
+      <div style={{display:"flex",alignItems:"baseline",gap:10,fontVariantNumeric:"tabular-nums"}}>
+        <b style={{color:C.text,fontSize:F.md,minWidth:44}}>{fmtHd(p[PK.hd])}</b>
+        <span style={{color:C.sub}}>{p[PK.rno]}R{p[PK.waku]?` ${p[PK.waku]}号艇`:""}</span>
+        {fin ? <span style={{marginLeft:"auto",color:fin==="1"?C.top:C.text,fontWeight:700}}>{/^[1-6]$/.test(fin)?`${fin}着`:fin}</span> : null}
+      </div>
+      <div style={{marginTop:2}}>
+        {chg ? <span style={{color:C.ok,fontWeight:700}}>部品交換 {chg}</span> : <span style={{color:C.muted}}>整備なし</span>}
+        {p[PK.pera]?<span style={{color:C.text,fontWeight:700}}>　ペラ新</span>:null}
+        {tenji?<span style={{color:C.sub}}>　展示 {prevTenji?`${prevTenji} → ${tenji}`:tenji}</span>:null}
+      </div>
+      {(nm||setsu) && <div style={{fontSize:F.xs,color:C.muted,marginTop:1}}>{nm}{setsu?<span title={setsu}>　{truncStr(setsu,18)}</span>:null}</div>}
     </div>
   );
 }
@@ -209,12 +215,12 @@ function SetsuChaku({parts}){
   if(!ss.length) return null;
   return (
     <div style={{marginTop:8}}>
-      <div style={{fontSize:F.xs,fontWeight:700,color:C.label,marginBottom:4}}>節ごとの着順 <span style={{color:C.muted,fontWeight:400}}>新しい順・直近{ss.length}節</span></div>
+      <div style={{fontSize:F.sm,fontWeight:800,color:C.text,marginBottom:4}}>節ごとの着順 <span style={{color:C.muted,fontWeight:400,fontSize:F.xs}}>新しい順・直近{ss.length}節</span></div>
       {ss.map((g,k)=>(
-        <div key={k} style={{borderTop:k?"1px solid #16273a":"none",padding:"5px 0"}}>
+        <div key={k} style={{borderTop:k?"1px solid "+C.line:"none",padding:"6px 0"}}>
           <div style={{fontSize:F.sm,color:C.text}}>{g.nm||"-"} <span style={{color:C.muted,fontSize:F.xs}}>{fmtHd(g.from)}{g.to!==g.from?`〜${fmtHd(g.to)}`:""}・{g.fin.length}走</span></div>
           <div style={{display:"flex",flexWrap:"wrap",gap:4,marginTop:3,fontVariantNumeric:"tabular-nums"}}>
-            {g.fin.map((f,i)=><span key={i} style={{minWidth:20,height:22,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:/^[1-6]$/.test(f)?F.sm:11.5,fontWeight:700,color:/^[1-6]$/.test(f)?C.text:C.muted,border:f==="1"?"1.5px solid currentColor":"none",borderRadius:3}}>{f}</span>)}
+            {g.fin.map((f,i)=><span key={i} style={{minWidth:20,height:22,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:/^[1-6]$/.test(f)?F.sm:11.5,fontWeight:700,color:/^[1-6]$/.test(f)?C.text:C.muted,color:f==="1"?C.top:(/^[1-6]$/.test(f)?C.text:C.muted),fontWeight:f==="1"?800:500}}>{f}</span>)}
           </div>
         </div>
       ))}
@@ -236,10 +242,10 @@ function MotorKarte({parts,upd}){
   const hidden = parts.length - idx.length;
   return (
     <div style={{marginTop:8}}>
-      <div style={{fontSize:F.xs,fontWeight:700,color:C.label,marginBottom:4}}>
+      <div style={{fontSize:F.sm,fontWeight:800,color:C.text,marginBottom:2,marginTop:10}}>
         整備履歴 <span style={{color:C.muted,fontWeight:400,fontVariantNumeric:"tabular-nums"}}>出走{parts.length}回・交換{nChg}回</span>
       </div>
-      <div style={{fontSize:F.sm,lineHeight:1.75,color:"#a9c6dd",background:"#0f1a26",border:"1px solid #24344a",borderRadius:6,padding:"8px 10px"}}>
+      <div style={{fontSize:F.sm,lineHeight:1.6,color:C.sub}}>
         {idx.map((i,k)=><KarteRow key={i} parts={parts} i={i} first={k===0}/>)}
         {hidden>0 && <MoreBtn mt={8} onClick={()=>setAll(true)}>残り{hidden}走もすべて見る</MoreBtn>}
         <div style={{fontSize:F.xs,color:C.muted,marginTop:6}}>出典：boatrace.jp 公式 直前情報{upd?`（${upd} 時点）`:""}</div>
@@ -258,16 +264,19 @@ function MotorUsageLine({usage,from,officialAsOf,src}){
   if(!usage || !from) return null;
   const w = usage["走"];
   if(!w) return null;
-  // 公式2連対率は各場の直近の節終了時点で更新され、節間は据え置かれる。
-  // 自前は最新開催日まで数えるので基準日が違う。片方だけ出すと食い違いが誤りに見えるため、
-  // 公式値がある場だけ「公式 M/D時点 ◯◯.◯%」を併記する。無い場は何も出さない。
   const off = usage["公式2連率"];
   const showOff = (typeof off === "number") && officialAsOf;
   return (
-    <div style={{fontSize:F.sm,lineHeight:1.7,color:C.dim,fontVariantNumeric:"tabular-nums"}}
+    <div style={{fontSize:F.sm,lineHeight:1.6,color:C.sub,fontVariantNumeric:"tabular-nums"}}
       title={src?`新替日は${src==="記録"?"手元の記録":src+"の情報"}で確かめた日。窓内初出${fmtHd(usage["窓内初出日"])}・最新${fmtHd(usage["最新日"])}`:`新替日は公式非公開のため、公式のモーター2連対率と突き合わせた推定。窓内初出${fmtHd(usage["窓内初出日"])}・最新${fmtHd(usage["最新日"])}`}>
-      <span style={{color:C.label}}>{src?`モーター新替 ${fmtHdY(from)}（${src==="記録"?"手元の記録":src}）以降`:`モーター新替（推定 ${fmtHdY(from)}）以降`}</span> <b style={{color:"#cdd9e5"}}>{w}走</b> ・勝{usage["勝"]} ・2連{usage["2連"]}<span style={{color:C.ok}}>（{fmtRate(usage["2連率"])}%）</span> ・3連{usage["3連"]}<span style={{color:"#79c0ff"}}>（{fmtRate(usage["3連率"])}%）</span>
-      {showOff && <div style={{marginTop:2,color:C.muted}}
+      <div style={{fontSize:F.sm,fontWeight:800,color:C.text}}>新替からの成績 <span style={{color:C.muted,fontWeight:400,fontSize:F.xs}}>{src?`新替 ${fmtHdY(from)}（${src==="記録"?"手元の記録":src}）`:`新替 推定 ${fmtHdY(from)}`}</span></div>
+      <div style={{display:"flex",gap:14,flexWrap:"wrap",marginTop:3}}>
+        <span><b style={{color:C.text,fontSize:F.md}}>{w}</b> 走</span>
+        <span>1着 <b style={{color:C.text}}>{usage["勝"]}</b></span>
+        <span>2連 <b style={{color:C.text}}>{usage["2連"]}</b>（{fmtRate(usage["2連率"])}%）</span>
+        <span>3連 <b style={{color:C.text}}>{usage["3連"]}</b>（{fmtRate(usage["3連率"])}%）</span>
+      </div>
+      {showOff && <div style={{marginTop:2,color:C.muted,fontSize:F.xs}}
         title="公式のモーター2連対率は各場の直近の節が終わった時点の値。こちらは最新開催日までの実測なので基準日が異なる。">
         公式 {fmtHd(officialAsOf)}時点 {fmtRate(off)}%
       </div>}
@@ -282,43 +291,46 @@ function MotorUsageLine({usage,from,officialAsOf,src}){
 function MotorRow({row,rk,fem,parts,upd,usage,usageFrom,median,officialAsOf,usageSrc,hl,fresh}){
   const [open,setOpen] = useState(false);
   const v=row[CI.rate], g=row[CI.grade];
-  const my=myoumi(g,rk);
+  const n=parseFloat(v);
   const hasDeep = !!(usageFrom && usage && usage["走"]) || parts===undefined || !!(parts && parts.length);
   const heart = fem ? <span style={{color:C.fem,marginLeft:3}}>♥</span> : null;
-  const nameColor = fem ? C.fem : C.link;
   const toggle = ()=>{ if(hasDeep){ if(window.__loadKarte) window.__loadKarte(); setOpen(o=>!o); } };
+  // 1行の並び：機番｜選手名（下に級別・ランク）｜2連率（大きく）｜開閉。その下に細いバー。
   return (
-    <div style={{marginBottom:6}}>
+    <div style={{borderTop:"1px solid "+C.line}}>
       <div role={hasDeep?"button":undefined} tabIndex={hasDeep?0:undefined} aria-expanded={hasDeep?open:undefined}
         data-motor-row="1" data-hl={hl?"1":undefined}
         onClick={toggle}
         onKeyDown={e=>{ if(hasDeep && (e.key==="Enter"||e.key===" ")){ e.preventDefault(); toggle(); } }}
-        style={{display:"flex",alignItems:"center",gap:8,padding:"9px 10px",borderRadius:8,
-          cursor:hasDeep?"pointer":"default",
-          background:"#0f1923",border:hl?"2px solid #7fb4ff":"1px solid #16222f"}}>
-        <div style={{width:4,alignSelf:"stretch",borderRadius:2,background:rk.color,flex:"none"}}/>
-        <div style={{fontSize:F.lg,fontWeight:800,color:"#8faabe",minWidth:32,textAlign:"center",flex:"none",fontVariantNumeric:"tabular-nums"}}>{row[CI.mno]||"-"}</div>
-        <div style={{minWidth:0,flex:"0 0 auto"}}>
-          <div style={{fontSize:F.lg,fontWeight:700,whiteSpace:"nowrap",lineHeight:1.35}}>{
-            row[CI.toban]
-            ? <a href={"../players/?toban="+row[CI.toban]} onClick={e=>e.stopPropagation()}
-                style={{color:nameColor,textDecoration:"underline dotted #4a6a8a",textUnderlineOffset:4,display:"inline-block",padding:"12px 2px",margin:"-9px 0",minHeight:44,boxSizing:"border-box"}}>{dispName(row[CI.name])||"-"}{heart}</a>
-            : <span style={{color:fem?C.fem:C.text}}>{dispName(row[CI.name])||"-"}{heart}</span>
-          }</div>
-          <div style={{display:"flex",gap:5,marginTop:2,alignItems:"center"}}>
-            <span style={{fontSize:F.xs,fontWeight:800,color:C.onLight,background:gradeColor(g),padding:"1px 6px",borderRadius:3}}>{g||"-"}</span>
-            {hl && <span style={{fontSize:F.xs,fontWeight:800,color:"#7fb4ff"}}>選んだ機</span>}
-            {fresh && usage && usage["走"] ? <span style={{fontSize:F.xs,color:C.label,fontVariantNumeric:"tabular-nums"}}>{usage["走"]}走</span> : null}
-            {rk.key==="top"
-              ? <span style={{fontSize:F.xs,fontWeight:800,color:C.text,border:"1.5px dashed #c3ccd6",padding:"0 6px",borderRadius:3}}>超抜</span>
-              : (rk.key==="na" ? null : <span style={{fontSize:F.xs,fontWeight:800,color:rk.tcolor}}>{rk.label}</span>)}
+        style={{padding:"9px 2px 10px",cursor:hasDeep?"pointer":"default",
+          background:hl?"rgba(242,194,0,.10)":"transparent"}}>
+        <div style={{display:"flex",alignItems:"center",gap:10}}>
+          <div style={{flex:"none",width:46,textAlign:"left",fontVariantNumeric:"tabular-nums",lineHeight:1}}>
+            <div style={{fontSize:22,fontWeight:800,color:C.text}}>{row[CI.mno]||"-"}</div>
           </div>
+          <div style={{minWidth:0,flex:1}}>
+            <div style={{fontSize:F.lg,fontWeight:700,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",lineHeight:1.3}}>{
+              row[CI.toban]
+              ? <a href={"../players/?toban="+row[CI.toban]} onClick={e=>e.stopPropagation()}
+                  style={{color:fem?C.fem:C.text,textDecoration:"underline",textDecorationColor:"#55708f",textUnderlineOffset:4}}>{dispName(row[CI.name])||"-"}{heart}</a>
+              : <span style={{color:fem?C.fem:C.text}}>{dispName(row[CI.name])||"-"}{heart}</span>
+            }</div>
+            <div style={{display:"flex",gap:8,marginTop:3,alignItems:"center",fontSize:F.xs,fontWeight:700}}>
+              <span style={{color:C.onLight,background:gradeColor(g),padding:"0 5px"}}>{g||"-"}</span>
+              {rk.key==="na" ? null : <span style={{color:rk.tcolor}}>{rk.label}</span>}
+              {hl && <span style={{color:C.top}}>選んだ機</span>}
+              {fresh && usage && usage["走"] ? <span style={{color:C.label,fontWeight:400,fontVariantNumeric:"tabular-nums"}}>新替から{usage["走"]}走</span> : null}
+            </div>
+          </div>
+          <div style={{flex:"none",textAlign:"right",fontVariantNumeric:"tabular-nums",lineHeight:1}}>
+            <div style={{fontSize:22,fontWeight:800,color:rk.key==="top"?C.top:C.text}}>{isNaN(n)?"-":n.toFixed(1)}<span style={{fontSize:13,fontWeight:700,marginLeft:1}}>%</span></div>
+          </div>
+          {hasDeep && <div aria-hidden="true" style={{flex:"none",width:20,textAlign:"center",fontSize:12,color:C.muted}}>{open?"▲":"▼"}</div>}
         </div>
-        <Bar v={v} c={rk.color} tc={rk.tcolor} median={median}/>
-        {hasDeep && <div aria-hidden="true" style={{flex:"none",width:HIT,minHeight:HIT,display:"flex",alignItems:"center",justifyContent:"center",fontSize:F.xs,color:C.muted}}>{open?"▲":"▼"}</div>}
+        <Bar v={v} c={rk.color} median={median}/>
       </div>
       {open && hasDeep && (
-        <div style={{margin:"6px 0 0 12px",padding:"8px 10px",background:"#0d1622",border:"1px solid #16222f",borderRadius:8}}>
+        <div style={{padding:"4px 2px 12px 56px"}}>
           <MotorUsageLine usage={usage} from={usageFrom} officialAsOf={officialAsOf} src={usageSrc}/>
           {parts===undefined ? <div style={{fontSize:F.sm,color:C.muted,marginTop:6}}>整備履歴を読み込んでいます…</div> : <><SetsuChaku parts={parts}/><MotorKarte parts={parts} upd={upd}/></>}
         </div>
@@ -337,9 +349,9 @@ function E30Badge({info}){
   return (
     <details onClick={stop} style={{display:"inline-block",marginLeft:8,verticalAlign:"middle"}}>
       <summary onClick={stop} style={{listStyle:"none",cursor:"pointer",display:"inline-flex",alignItems:"center",minHeight:44,minWidth:44,margin:"-10px 0",justifyContent:"center"}}>
-        <span style={{fontSize:F.xs,fontWeight:800,color:C.text,border:"1px solid #9fb0c0",borderRadius:3,padding:"0 6px"}}>E30</span>
+        <span style={{fontSize:F.xs,fontWeight:800,color:C.text,border:"1px solid #93a5b6",padding:"0 5px"}}>E30</span>
       </summary>
-      <div style={{marginTop:6,fontSize:F.sm,lineHeight:1.6,color:"#a9c6dd",background:"#0f1a26",border:"1px solid #24344a",borderRadius:6,padding:"7px 10px",fontWeight:400}}>
+      <div style={{marginTop:6,fontSize:F.sm,lineHeight:1.6,color:C.sub,fontWeight:400}}>
         {`この場はE30該当場（開始 ${disp}）。出典：公式。数値は生データのみ。`}
       </div>
     </details>
@@ -358,25 +370,33 @@ function VenueCard({venue,rows,pinned,searching,single,hlMno,e30,meta,prevTop,re
   const median = VENUE_MEDIAN[venue];
   const hd = String(rows[0][CI.hd]||"");
   return (
-    <div style={{marginBottom:14,background:"#0d1622",border:"1px solid #16222f",borderRadius:12,overflow:"hidden"}}>
-      <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:8,padding:"10px 12px",background:"#132030",borderBottom:"1px solid #1e2d3d"}}>
+    <div style={{marginBottom:22}}>
+      <div style={{display:"flex",alignItems:"flex-end",justifyContent:"space-between",gap:8,padding:"8px 2px 8px",borderBottom:"2px solid #eef2f5"}}>
         <div style={{display:"flex",flexDirection:"column",minWidth:0}}>
-          <span style={{fontSize:F.xl,fontWeight:800,color:C.accent}}>{pinned&&<span style={{marginRight:4,fontSize:F.xl}}>📍</span>}{venue}{isPrev&&<span style={{fontSize:F.xs,fontWeight:700,color:C.label,background:"#26333f",border:"1px solid #33475a",borderRadius:3,padding:"1px 7px",marginLeft:6,verticalAlign:"middle"}}>前節記録</span>}<E30Badge info={e30}/><span style={{fontSize:F.xs,fontWeight:600,color:C.dim,marginLeft:8}}>{hd.length===8?`${+hd.slice(4,6)}/${+hd.slice(6,8)}時点`:""}</span></span>
+          <div style={{display:"flex",alignItems:"baseline",flexWrap:"wrap",columnGap:8}}>
+            <span style={{fontSize:20,fontWeight:800,color:C.text}}>{venue}</span>
+            {pinned && <span style={{fontSize:F.xs,fontWeight:700,color:C.top}}>フォロー中</span>}
+            <span style={{fontSize:F.xs,color:C.label,fontVariantNumeric:"tabular-nums"}}>{hd.length===8?`${+hd.slice(4,6)}/${+hd.slice(6,8)}時点`:""}{isPrev?"・前節の記録":""}</span>
+            <E30Badge info={e30}/>
+          </div>
           <VenueMetaLine meta={meta}/>
           {prevTop && (
-            <div style={{fontSize:F.xs,color:C.dim,marginTop:3,fontVariantNumeric:"tabular-nums"}} title={`${prevTop.節名}（${prevTop.開催日}）節内2連率トップ`}>
-              前節1位機 <b style={{color:C.text}}>M{prevTop.no}</b> <span style={{color:C.muted}}>（節内2連率トップ {prevTop.rate}%）</span>
+            <div style={{fontSize:F.xs,color:C.sub,marginTop:3,fontVariantNumeric:"tabular-nums"}} title={`${prevTop.節名}（${prevTop.開催日}）節内2連率トップ`}>
+              前節いちばん出ていた機　<b style={{color:C.text}}>{prevTop.no}号機</b>（{prevTop.rate}%）
             </div>
           )}
           {repl && (
-            <div style={{fontSize:F.xs,color:C.dim,marginTop:3,fontVariantNumeric:"tabular-nums"}}>
-              モーター新替 <b style={{color:"#cdd9e5"}}>{repl}</b> <span style={{color:C.muted}}>（新替から5節は機力が見えにくいため、序列を付けず機番順に並べています。率の横の「◯走」は新替から走った数）</span>
+            <div style={{fontSize:F.xs,color:C.sub,marginTop:3,lineHeight:1.6,fontVariantNumeric:"tabular-nums"}}>
+              モーター新替 <b style={{color:C.text}}>{repl}</b>。新替から5節は機力が見えにくいため、序列を付けず機番順に並べています
             </div>
           )}
         </div>
-        <span style={{fontSize:F.xs,color:C.muted,flex:"none",whiteSpace:"nowrap",paddingTop:2}}>{rows.length}機</span>
+        <span style={{fontSize:F.xs,color:C.label,flex:"none",whiteSpace:"nowrap"}}>{rows.length}機</span>
       </div>
-      <div style={{padding:"10px"}}>
+      <div>
+        <div style={{display:"flex",alignItems:"center",gap:10,padding:"5px 2px",fontSize:11,color:C.muted}}>
+          <span style={{width:46,flex:"none"}}>号機</span><span style={{flex:1}}>選手（級別・機力）</span><span style={{flex:"none",marginRight:30}}>モーター2連率</span>
+        </div>
         {shown.map((r,i)=>(
           <MotorRow key={r[CI.mno]+"_"+i} row={r}
             rk={rankByPos(i+1, rows.length, r[CI.rate], usageFor(r[CI.jcd], r[CI.mno]), !!repl)}
@@ -581,20 +601,13 @@ function App(){
   const searching = !!q;
 
   return (
-    <div style={{minHeight:"100vh",padding:"12px",maxWidth:760,margin:"0 auto"}}>
-      <div style={{display:"flex",alignItems:"baseline",gap:10,marginBottom:4,flexWrap:"wrap"}}>
-        <span style={{fontSize:F.hero,fontWeight:800,color:C.accent}}>BOATRACE モーター成績</span>
-        <span style={{fontSize:F.xs,color:C.muted}}>{allVenues.length}場 / {R.data.length}件</span>
-      </div>
-      <div style={{fontSize:F.xs,color:C.muted,marginBottom:8}}>最終更新: {R.updated||"-"}</div>
-      <div style={{fontSize:F.sm,lineHeight:1.7,color:C.sub,marginBottom:8}}><b style={{color:C.text,border:"1.5px dashed #c3ccd6",padding:"0 6px",borderRadius:3,fontSize:F.xs,fontWeight:800}}>超抜</b> ＝各場の上位3機だけ。本日は全{R.data.length}機中 <b style={{color:C.accent}}>{topCount}機</b>。</div>
-      {/* 目盛と中央値の説明は「このデータの見方」に一本化した（同じ数字を1画面で2回言わない）。
-          ここは操作のしかただけを1行で言う。 */}
-      <div style={{fontSize:F.xs,lineHeight:1.7,color:C.dim,marginBottom:8}}>各場は上位{TOP_N}機だけ開いた状態です。行をタップすると走行数と整備履歴が出ます。</div>
-
-      <button onClick={()=>setShowHelp(s=>!s)} style={{marginBottom:8,minHeight:44,padding:"8px 14px",background:"#1a2738",color:"#8faabe",border:"1px solid #2a3d52",borderRadius:8,fontSize:F.sm,cursor:"pointer",fontWeight:600,fontFamily:"inherit"}}>{showHelp?"▲ 見方を閉じる":"▼ このデータの見方"}</button>
+    <div style={{minHeight:"100vh",padding:"8px 14px 12px",maxWidth:760,margin:"0 auto"}}>
+      <h1 style={{fontSize:24,fontWeight:400,margin:"4px 0 6px",color:C.text}}>モーター成績</h1>
+      <div style={{fontSize:F.sm,lineHeight:1.7,color:C.sub,marginBottom:6}}>各場のモーターを2連率の高い順に並べています。各場の<b style={{color:C.top}}>上位3機は「超抜」</b>（本日 {topCount}機）。最初は上位3機だけ出しています。行を押すと、新替からの成績と整備履歴が開きます。</div>
+      <div style={{fontSize:F.xs,color:C.muted,marginBottom:10,fontVariantNumeric:"tabular-nums"}}>{allVenues.length}場・{R.data.length}機　最終更新 {R.updated||"-"}</div>
+      <button onClick={()=>setShowHelp(s=>!s)} style={{marginBottom:10,minHeight:44,padding:"8px 0",background:"transparent",color:C.sub,border:"none",textDecoration:"underline",textUnderlineOffset:4,fontSize:F.sm,cursor:"pointer",fontWeight:700,fontFamily:"inherit"}}>{showHelp?"▲ 見方を閉じる":"▼ このデータの見方"}</button>
       {showHelp&&(
-        <div style={{background:"#111d2b",border:"1px solid #1e2d3d",borderRadius:8,padding:"12px 14px",marginBottom:10,fontSize:F.md,lineHeight:1.8,color:C.sub}}>
+        <div style={{borderTop:"1px solid "+C.line,borderBottom:"1px solid "+C.line,padding:"12px 2px",marginBottom:12,fontSize:F.md,lineHeight:1.8,color:C.sub}}>
           <div style={{color:C.accent,fontWeight:700,marginBottom:6}}>このデータについて</div>
           <div style={{marginBottom:8}}>各場の<b style={{color:C.text}}>今節のモーター抽選結果</b>です。前検日に確定するため、同じ節の間は使用者は変わりません。</div>
           <div style={{color:"#8faabe",fontWeight:700,marginBottom:4}}>表示のしかた</div>
@@ -607,13 +620,13 @@ function App(){
               「比べられる／比べられない」の言い直しに読める。 */}
           <div style={{color:"#8faabe",fontWeight:700,marginBottom:4}}>機力ランク（色・ラベル）</div>
           <div style={{paddingLeft:4,marginBottom:8}}>
-            <div>その場の2連率の高い順に、<b style={{color:C.text}}>超抜</b>（上位3機）／<b style={{color:C.sub}}>上位</b>（〜40%）／<b style={{color:C.label}}>普通</b>（〜75%）／<b style={{color:C.muted}}>下位</b>。帯とバーは明るいほど上位です。新替から5節の場は序列を付けません。</div>
+            <div>その場の2連率の高い順に、<b style={{color:C.top}}>超抜</b>（上位3機）／<b style={{color:C.sub}}>上位</b>（〜40%）／<b style={{color:C.label}}>普通</b>（〜75%）／<b style={{color:C.muted}}>下位</b>。バーは超抜が黄、ほかは明るいほど上位です。新替から5節の場は序列を付けません。</div>
             <div style={{color:C.muted,marginTop:4}}>※ランクは<b style={{color:C.sub}}>その場の中での相対評価</b>です。他場との比較ではありません。走行数が少ない節は数字が振れやすいので、数字そのものも併せてご確認を。</div>
           </div>
           <div style={{color:"#8faabe",fontWeight:700,marginBottom:4}}>バーの目盛</div>
           <div style={{paddingLeft:4,marginBottom:8}}>
             <div>バーの長さはモーター2連率。目盛は<b style={{color:C.text}}>全場共通で 0〜{BAR_MAX}%</b>（本日データの最大値を10%刻みで切り上げ）なので、<b style={{color:C.text}}>こちらは場をまたいで長さをそのまま比べられます</b>。</div>
-            <div style={{marginTop:4}}>バー上の<b style={{color:C.text}}>細い縦線</b>は、その場の2連率の中央値です。</div>
+            <div style={{marginTop:4}}>バーに付いた<b style={{color:C.text}}>白い縦の目印</b>は、その場の2連率の真ん中（中央値）です。</div>
           </div>
           <div style={{color:"#8faabe",fontWeight:700,marginBottom:4}}>走行数について</div>
           <div style={{paddingLeft:4}}>走行数はモーター<b style={{color:C.text}}>新替以降</b>の実測カウントです。新替日は公式非公開のため、公式のモーター2連対率と突き合わせて推定しています。<b style={{color:C.text}}>推定できなかった場は走行数を表示しません</b>。出典：公式競走成績(K)。</div>
@@ -622,11 +635,11 @@ function App(){
       )}
 
       <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:10}}>
-        <select value={vf} onChange={e=>setVf(e.target.value)} style={{minHeight:44,padding:"8px",background:"#162232",color:C.text,border:"1px solid #1e2d3d",borderRadius:6,fontSize:F.input,fontFamily:"inherit"}}>
+        <select value={vf} onChange={e=>setVf(e.target.value)} style={{minHeight:44,padding:"8px",background:"#0d1c2f",color:C.text,border:"1px solid #55708f",borderRadius:0,fontSize:F.input,fontFamily:"inherit"}}>
           <option value="ALL">全場</option>
           {allVenues.map(v=><option key={v} value={v}>{v}</option>)}
         </select>
-        <input placeholder="選手名・機番で検索" value={q} onChange={e=>setQ(e.target.value)} style={{flex:1,minWidth:120,minHeight:44,padding:"8px 10px",background:"#162232",color:C.text,border:"1px solid #1e2d3d",borderRadius:6,fontSize:F.input,fontFamily:"inherit"}}/>
+        <input placeholder="選手名・機番で検索" value={q} onChange={e=>setQ(e.target.value)} style={{flex:1,minWidth:120,minHeight:44,padding:"8px 10px",background:"#0d1c2f",color:C.text,border:"1px solid #55708f",borderRadius:0,fontSize:F.input,fontFamily:"inherit"}}/>
         <span style={{color:C.muted,fontSize:F.sm,alignSelf:"center"}}>{total}件</span>
       </div>
 
