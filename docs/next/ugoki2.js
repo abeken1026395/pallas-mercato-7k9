@@ -41,20 +41,17 @@
     });
     lab.appendChild(sw); el.appendChild(lab); el.__ugLab = lab;
   }
-  // 重ねる作業は、閉じた開閉の中を飛ばし（開いたときに重ねる）、150個ずつ区切って読み込みを止めないようにする（けん「動きが遅い」）
-  function closedIn(el){ var d = el.closest("details:not([open])"); if (!d) return false; var sm = d.querySelector(":scope > summary"); return !(sm && sm.contains(el)); }
+  // 重ねる作業は、画面の近く（上下 800px）に来た部品にだけ行う。数千の部品へ一度に重ねると、読み込みとタブの切り替えが重い（けん「動きが遅い」）。
+  // 指で押せるのは画面に見えている部品だけなので、押す前には必ず重なっている。閉じた開閉の中身は見えないので、開いて画面に来たときに重なる
+  var coverIO = IOS_OVERLAY && "IntersectionObserver" in window ? new IntersectionObserver(function(es){
+    es.forEach(function(en){ if (en.isIntersecting) { coverIO.unobserve(en.target); cover(en.target); } });
+  }, { rootMargin: "800px 0px" }) : null;
   function coverAll(root){
     if (!IOS_OVERLAY || !root.querySelectorAll) return;
-    var els = Array.prototype.slice.call(root.querySelectorAll(PRESS));
-    if (root.matches && root.matches(PRESS)) els.unshift(root);
-    var i = 0;
-    (function chunk(){
-      var end = Math.min(i + 150, els.length);
-      for (; i < end; i++) { var e = els[i]; if (!e.__ugSw && !closedIn(e)) cover(e); }
-      if (i < els.length) setTimeout(chunk, 0);
-    })();
+    var els = root.querySelectorAll(PRESS);
+    if (root.matches && root.matches(PRESS) && !root.__ugSw) { if (coverIO) coverIO.observe(root); else cover(root); }
+    for (var i = 0; i < els.length; i++) { var e = els[i]; if (e.__ugSw || e.__ugObs) continue; if (coverIO) { e.__ugObs = 1; coverIO.observe(e); } else cover(e); }
   }
-  document.addEventListener("toggle", function(e){ if (IOS_OVERLAY && e.target && e.target.tagName === "DETAILS" && e.target.open) coverAll(e.target); }, true);
   if (IOS_OVERLAY) {
     var startCover = function(){
       coverAll(document.body);
@@ -271,7 +268,9 @@
       if (Date.now() - lastTap > 700) return;
       ms.forEach(function(m){ m.addedNodes.forEach(function(n){ if (n.nodeType === 1 && !n.classList.contains("ugSwCover") && !n.classList.contains("ugBoard") && !n.classList.contains("ugTabBar") && !n.closest(".ugBoard,.kataNote")) pend.push(n); }); });
       if (!t) t = setTimeout(function(){
-        t = null; var list = pend.filter(function(n){ return n.isConnected && visible(n) && !pend.some(function(o){ return o !== n && o.contains(n); }); }); pend = [];
+        t = null; var set = new Set(pend); pend = [];
+        var list = Array.from(set).filter(function(n){ if (!n.isConnected) return false; for (var a = n.parentElement; a; a = a.parentElement) if (set.has(a)) return false; return true; }); // 祖先が入っていれば子は要らない（集合でたどる）
+        list = list.filter(function(n, i){ return i < 200 && visible(n); });
         if (!list.length) return;
         var many = list.length > 8;
         list.slice(0, 60).forEach(function(n){ anim(n, many ? "ugFade" : "ugDrop", many ? 120 : 160); growBars(n); });
