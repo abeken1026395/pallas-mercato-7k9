@@ -21,7 +21,7 @@
 .mc.ugDown{box-shadow:inset 0 6px 0 var(--c) !important}
 
 /* ② iPhone の振動用に、押せる部品の上に重ねるほぼ透明なスイッチ */
-.ugSwCover{position:absolute !important;inset:0 !important;width:100% !important;height:100% !important;margin:0 !important;padding:0 !important;opacity:.02 !important;z-index:50 !important;cursor:pointer}
+.ugSwCover{position:absolute !important;inset:0 !important;width:100% !important;height:100% !important;margin:0 !important;padding:0 !important;opacity:.02 !important;z-index:50 !important;cursor:pointer;touch-action:pan-x pan-y !important}
 
 /* ③ ページ送り */
 html.ugLeave body{transition:transform .18s ease-in,opacity .18s ease-in;transform:translateX(-28px);opacity:0}
