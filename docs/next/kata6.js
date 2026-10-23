@@ -12,7 +12,7 @@
     while ((n = tw.nextNode())) list.push(n);
     list.forEach(function(t){
       var v = t.nodeValue; if (!FIXCH.test(v)) return; // 直す文字（絵文字・矢印・ダッシュ・BOATRACE）が無い文は親をたどらない
-      var p = t.parentElement; if (!p || p.closest("script,style,textarea,svg,code,pre")) return;
+      var p = t.parentElement; if (!p || p.closest("script,style,textarea,svg,code,pre,footer")) return; // フッター（制作・運営の表記）は書き換えない。ページ側が表記の改変を検知して、2つ目の表記を足してしまう（けん 10-24「フッターが被ってる」）
       var nv = v.replace(EMO, function(s){ return KEEP.indexOf(s.charAt(0)) >= 0 ? s.charAt(0) : ""; });
       if (p.closest("a,button")) nv = nv.replace(/\s*(?:→|›|»)\s*$/, "").replace(/^\s*(?:→|›)\s*/, "");
       // 18) 文章の癖：「——」で文をつなぐ → 句点で切る。題字の頭の英字「BOATRACE」→ 外す
