@@ -1,0 +1,101 @@
+/* 第6版：第5版の型が塗った結果を、作るときに写し取ったもの（scratchpad の build6.py が生成。手で直さない） */
+:root a.cta{-webkit-text-fill-color:rgb(16, 20, 26) !important;background-color:rgb(200, 164, 94) !important;border-bottom-color:rgb(200, 164, 94) !important;border-bottom-style:initial !important;border-bottom-width:0px !important;border-image-outset:initial !important;border-image-repeat:initial !important;border-image-slice:initial !important;border-image-source:initial !important;border-image-width:initial !important;border-left-color:rgb(200, 164, 94) !important;border-left-style:initial !important;border-left-width:0px !important;border-right-color:rgb(200, 164, 94) !important;border-right-style:initial !important;border-right-width:0px !important;border-top-color:rgb(200, 164, 94) !important;border-top-style:initial !important;border-top-width:0px !important;color:rgb(16, 20, 26) !important}
+:root a.kn#knCard{background-color:transparent !important;border-bottom-color:rgb(43, 69, 104) !important;border-bottom-style:solid !important;border-bottom-width:1px !important;border-image-outset:initial !important;border-image-repeat:initial !important;border-image-slice:initial !important;border-image-source:initial !important;border-image-width:initial !important;border-left-color:initial !important;border-left-style:initial !important;border-left-width:0px !important;border-right-color:initial !important;border-right-style:initial !important;border-right-width:0px !important;border-top-color:rgb(43, 69, 104) !important;border-top-style:solid !important;border-top-width:1px !important}
+:root a.kn-all{color:rgb(200, 211, 221) !important}
+:root a.lnk{-webkit-text-fill-color:rgb(242, 242, 240) !important;color:rgb(242, 242, 240) !important}
+:root a.mc{border-bottom-color:initial !important;border-bottom-style:initial !important;border-bottom-width:0px !important;border-image-outset:initial !important;border-image-repeat:initial !important;border-image-slice:initial !important;border-image-source:initial !important;border-image-width:initial !important;border-left-color:initial !important;border-left-style:initial !important;border-left-width:0px !important;border-right-color:initial !important;border-right-style:initial !important;border-right-width:0px !important;border-top-color:initial !important;border-top-style:initial !important;border-top-width:0px !important}
+:root a.ni{color:rgb(200, 211, 221) !important;font-size:12px !important}
+:root a.ni#qn-updates{color:rgb(200, 211, 221) !important;font-size:12px !important}
+:root a.ni.ext{color:rgb(200, 211, 221) !important;font-size:12px !important}
+:root a.updateline.filled#updateline{border-radius:0 !important}
+:root b.gr{-webkit-text-fill-color:rgb(220, 189, 120) !important;color:rgb(220, 189, 120) !important;font-size:12px !important}
+:root b.num#bHarai.kataN{font-weight:600 !important}
+:root b.num#bKata.kataN{font-weight:600 !important}
+:root b.num#dHn.kataN{font-weight:600 !important}
+:root b.num#dKn.kataN{font-weight:600 !important}
+:root b.num#nHarai.kataN{font-weight:600 !important}
+:root b.num#nKata.kataN{font-weight:600 !important}
+:root b.num#pNHarai.kataN{color:rgb(227, 233, 238) !important;font-weight:600 !important}
+:root b.num#pNKata.kataN{color:rgb(227, 233, 238) !important;font-weight:600 !important}
+:root button.exh#exBtn{font-family:-apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif !important}
+:root button.more#more{color:rgb(227, 233, 238) !important;font-family:-apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif !important}
+:root div.age{color:rgb(200, 211, 221) !important}
+:root div.bl>span{color:rgb(200, 211, 221) !important}
+:root div.bl>span.kataN{color:rgb(200, 211, 221) !important}
+:root div.byline{-webkit-text-fill-color:rgb(227, 233, 238) !important;color:rgb(227, 233, 238) !important;font-size:12px !important}
+:root div.day#dayBox{background-color:transparent !important;border-bottom-color:rgb(43, 69, 104) !important;border-bottom-style:solid !important;border-bottom-width:1px !important;border-image-outset:initial !important;border-image-repeat:initial !important;border-image-slice:initial !important;border-image-source:initial !important;border-image-width:initial !important;border-left-color:initial !important;border-left-style:initial !important;border-left-width:0px !important;border-right-color:initial !important;border-right-style:initial !important;border-right-width:0px !important;border-top-color:rgb(43, 69, 104) !important;border-top-style:solid !important;border-top-width:1px !important}
+:root div.dayh{color:rgb(227, 233, 238) !important}
+:root div.dayh>span.num{color:rgb(200, 211, 221) !important}
+:root div.dayn#dNote{color:rgb(200, 211, 221) !important}
+:root div.foot.num{color:rgb(200, 211, 221) !important}
+:root div.gh{color:rgb(200, 211, 221) !important;font-size:12px !important}
+:root div.gi{color:rgb(227, 233, 238) !important}
+:root div.gi>b{-webkit-text-fill-color:rgb(220, 189, 120) !important;color:rgb(220, 189, 120) !important}
+:root div.home{background-color:transparent !important;border-bottom-color:rgb(43, 69, 104) !important;border-bottom-style:solid !important;border-bottom-width:1px !important;border-top-color:rgb(43, 69, 104) !important;border-top-style:solid !important;border-top-width:1px !important;color:rgb(227, 233, 238) !important}
+:root div.homeHint{color:rgb(227, 233, 238) !important}
+:root div.note{color:rgb(200, 211, 221) !important}
+:root div.pb>p:nth-of-type(1){color:rgb(227, 233, 238) !important}
+:root div.pb>p:nth-of-type(2){color:rgb(227, 233, 238) !important}
+:root div.rl{color:rgb(227, 233, 238) !important}
+:root div.wrap>div#todayBlock>section.ready#tdCard>div.venues#tdMark>span.v{color:rgb(200, 211, 221) !important}
+:root em{color:rgb(200, 211, 221) !important;font-size:12px !important}
+:root footer.ft{color:rgb(200, 211, 221) !important}
+:root footer.ft>a{font-family:"Barlow Condensed","Hiragino Sans",-apple-system,sans-serif !important;font-variant-numeric:tabular-nums !important;letter-spacing:.01em !important}
+:root footer.ft>a{color:rgb(200, 211, 221) !important}
+:root h1.logo{font-family:"Dela Gothic One",-apple-system,"Hiragino Sans",sans-serif !important;font-weight:400 !important;color:#f2f2f0 !important;-webkit-text-fill-color:#f2f2f0 !important;letter-spacing:.02em !important;background:none !important;padding-bottom:10px !important;border-bottom:1px solid rgba(212,176,106,.6) !important;margin-bottom:12px !important}
+:root header.hd>div>i{font-style:normal !important}
+:root i#barHarai{border-radius:0 !important}
+:root i#barHaraiB{font-style:normal !important}
+:root i#barKata{border-radius:0 !important}
+:root i#barKataB{font-style:normal !important}
+:root i.lady{color:rgb(200, 211, 221) !important;font-size:12px !important}
+:root i:nth-of-type(5){-webkit-text-fill-color:rgb(16, 20, 26) !important;background-color:rgb(200, 164, 94) !important;color:rgb(16, 20, 26) !important}
+:root nav.quick>a{color:rgb(200, 211, 221) !important;font-size:12px !important}
+:root p.promise>small{font-size:12px !important}
+:root p:nth-of-type(3){color:rgb(227, 233, 238) !important}
+:root p:nth-of-type(4){color:rgb(227, 233, 238) !important}
+:root p:nth-of-type(5){color:rgb(227, 233, 238) !important}
+:root section.ready#tdCard{background-color:transparent !important;border-bottom-color:rgb(43, 69, 104) !important;border-bottom-style:solid !important;border-bottom-width:1px !important;border-image-outset:initial !important;border-image-repeat:initial !important;border-image-slice:initial !important;border-image-source:initial !important;border-image-width:initial !important;border-left-color:initial !important;border-left-style:initial !important;border-left-width:0px !important;border-right-color:initial !important;border-right-style:initial !important;border-right-width:0px !important;border-top-color:rgb(43, 69, 104) !important;border-top-style:solid !important;border-top-width:1px !important}
+:root section.tb{background-color:transparent !important;border-bottom-color:rgb(43, 69, 104) !important;border-bottom-style:solid !important;border-bottom-width:1px !important;border-image-outset:initial !important;border-image-repeat:initial !important;border-image-slice:initial !important;border-image-source:initial !important;border-image-width:initial !important;border-left-color:initial !important;border-left-style:initial !important;border-left-width:0px !important;border-right-color:initial !important;border-right-style:initial !important;border-right-width:0px !important;border-top-color:rgb(43, 69, 104) !important;border-top-style:solid !important;border-top-width:1px !important}
+:root small{color:rgb(200, 211, 221) !important}
+:root span#dHh.kataN{font-weight:600 !important}
+:root span#dKh.kataN{font-weight:600 !important}
+:root span#dN.kataN{color:rgb(200, 211, 221) !important}
+:root span#exSum{color:rgb(227, 233, 238) !important;font-family:-apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif !important}
+:root span#pAll.kataN{color:rgb(227, 233, 238) !important}
+:root span#pBase.kataN{color:rgb(227, 233, 238) !important}
+:root span#pBaseK.kataN{color:rgb(227, 233, 238) !important}
+:root span#pHarai.kataN{color:rgb(227, 233, 238) !important}
+:root span#pNKonsen.kataN{color:rgb(227, 233, 238) !important}
+:root span#pNOther.kataN{color:rgb(227, 233, 238) !important}
+:root span#pOther.kataN{color:rgb(227, 233, 238) !important}
+:root span#v-asof{color:rgb(200, 211, 221) !important}
+:root span#v-total.kataN{color:rgb(200, 211, 221) !important}
+:root span.big.num#v-harai.kataN{font-size:34px !important;font-weight:600 !important}
+:root span.big.num#v-kata.kataN{font-size:34px !important;font-weight:600 !important}
+:root span.c{color:rgb(227, 233, 238) !important}
+:root span.exar{color:rgb(200, 211, 221) !important;font-family:-apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif !important;font-size:12px !important}
+:root span.ic.kataN{font-size:19px !important}
+:root span.kind{font-size:12px !important}
+:root span.kind.plain{color:rgb(200, 211, 221) !important;font-size:12px !important}
+:root span.kn-d#knD{color:rgb(227, 233, 238) !important}
+:root span.kn-no#knNo{color:rgb(200, 211, 221) !important}
+:root span.mt>small{font-size:12px !important}
+:root span.pill{color:rgb(200, 211, 221) !important}
+:root span.qn-date{font-size:12px !important}
+:root span.qn-new{-webkit-text-fill-color:rgb(16, 20, 26) !important;background-color:rgb(200, 164, 94) !important;color:rgb(16, 20, 26) !important;font-size:12px !important}
+:root span.s{color:rgb(200, 211, 221) !important}
+:root span.tm.num{color:rgb(227, 233, 238) !important}
+:root span.upd.num#tbUpd{color:rgb(200, 211, 221) !important}
+:root span.usual{color:rgb(227, 233, 238) !important}
+:root span.v.g>i{-webkit-text-fill-color:rgb(220, 189, 120) !important;color:rgb(220, 189, 120) !important;font-size:12px !important}
+:root span.v>i{font-size:12px !important}
+:root td:nth-of-type(2){color:rgb(200, 211, 221) !important}
+:root th:nth-of-type(2){color:rgb(200, 211, 221) !important}
+:root th:nth-of-type(3){color:rgb(200, 211, 221) !important}
+:root tr:nth-of-type(2)>td:nth-of-type(1){color:rgb(200, 211, 221) !important}
+:root tr:nth-of-type(2)>th{color:rgb(200, 211, 221) !important}
+:root tr:nth-of-type(3)>td:nth-of-type(1){color:rgb(200, 211, 221) !important}
+:root tr:nth-of-type(3)>th{color:rgb(200, 211, 221) !important}
+:root tr:nth-of-type(4)>th{color:rgb(200, 211, 221) !important}
+:root ul.peaks#tdPeaks>li>a>span.kind{-webkit-text-fill-color:rgb(220, 189, 120) !important;color:rgb(220, 189, 120) !important}
