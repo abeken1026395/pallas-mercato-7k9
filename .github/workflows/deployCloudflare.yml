@@ -4,7 +4,12 @@
 # 罠が動くのは docs/_routes.json に書いた対象パスだけ（それ以外は静的配信のまま・関数の回数を使わない）。
 # 必要な登録（けんが GitHub の Settings → Secrets and variables → Actions で行う）:
 #   Secrets  : CLOUDFLARE_API_TOKEN（権限 Cloudflare Pages:Edit）, CLOUDFLARE_ACCOUNT_ID
-#   Variables: CF_PAGES_PROJECT（省略時 datazeme → URL は datazeme.pages.dev）
+#   Secrets  : CF_PAGES_PROJECT_SECRET（配信先の Pages プロジェクト名。名前は公開の場所に書かない＝Secrets に置き、ログでも伏せ字になる）
+#
+# 注意：自動更新WFが GITHUB_TOKEN で push したコミットは、GitHub の決まりで他のWFを起動しない。
+# 1日数十回の自動更新はすべてそれなので、push トリガだけだと配信が止まる
+# （2026-10-17 実測：人の push 3回しか動かず、配信先は古いままだった）。
+# そのため 10 分おきの定時でも動かし、前回の配信から main が変わっていなければ何もしない。
 name: Cloudflare Pages 配信
 
 on:
@@ -14,6 +19,8 @@ on:
       - "docs/**"
       - "functions/**"
       - "edge/**"
+  schedule:
+    - cron: "*/10 * * * *"
   workflow_dispatch: {}
 
 # 走っている1本は最後まで走らせ、待ちは最新の1本だけ残す（古い待ちは自動で捨てられる）
@@ -23,6 +30,7 @@ concurrency:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   deploy:
@@ -31,25 +39,45 @@ jobs:
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      PROJECT: ${{ vars.CF_PAGES_PROJECT || 'datazeme' }}
+      PROJECT: ${{ secrets.CF_PAGES_PROJECT_SECRET }}
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 1
 
+      - name: 前回の配信から main が変わっていなければ何もしない（定時起動の空回り防止）
+        id: changed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          NOW=$(git rev-parse HEAD)
+          LAST=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/deployCloudflare.yml/runs?status=success&per_page=1" --jq '.workflow_runs[0].head_sha // ""')
+          echo "前回の配信 $LAST / 今の main $NOW"
+          if [ "${{ github.event_name }}" = "schedule" ] && [ "$LAST" = "$NOW" ]; then
+            echo "変更なし。何もしない"; echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: 登録の有無を確認（無ければここで赤にして気づけるようにする）
+        if: steps.changed.outputs.skip == 'false'
         run: |
           test -n "$CLOUDFLARE_API_TOKEN" || { echo "::error::Secrets に CLOUDFLARE_API_TOKEN が無い"; exit 1; }
           test -n "$CLOUDFLARE_ACCOUNT_ID" || { echo "::error::Secrets に CLOUDFLARE_ACCOUNT_ID が無い"; exit 1; }
+          test -n "$PROJECT" || { echo "::error::Secrets に CF_PAGES_PROJECT_SECRET が無い"; exit 1; }
 
       - uses: actions/setup-node@v4
+        if: steps.changed.outputs.skip == 'false'
         with:
           node-version: 22
 
       - name: 罠のテスト
+        if: steps.changed.outputs.skip == 'false'
         run: node --test edge/aiNotice.test.mjs
 
       - name: Pages プロジェクトが無ければ作る（2回目以降は何もしない）
+        if: steps.changed.outputs.skip == 'false'
         run: |
           if npx -y wrangler@3 pages project list 2>/dev/null | grep -qw "$PROJECT"; then
             echo "既存プロジェクト $PROJECT を使う"
@@ -57,10 +85,45 @@ jobs:
             npx -y wrangler@3 pages project create "$PROJECT" --production-branch=main
           fi
 
+      # 配信先の名前はリポジトリに書かない（Secrets にだけある）。ページ内の自分の住所は、
+      # 旧URLの住所と旧プロジェクト名のまま書いてあり、ここでランナーの中だけ配信先の名前に書き換える。
+      # 書き換えないと、新URLでコピー検知の「本物ではありません」の帯が出る。リポジトリの中身は変えない。
+      - name: 配る直前に、ページ内の自分の住所を配信先に書き換える（ランナーの中だけ）
+        if: steps.changed.outputs.skip == 'false'
+        run: |
+          rm -rf /tmp/site && cp -r docs /tmp/site
+          python3 - <<'PY'
+          import os, pathlib
+          proj = os.environ["PROJECT"]
+          old_base = "https://abeken1026395.github.io/pallas-mercato-7k9/"
+          new_base = "https://" + proj + ".pages.dev/"
+          pairs = [
+              (old_base, new_base),
+              ("datazeme.pages.dev", proj + ".pages.dev"),
+              ("\\.datazeme\\.pages\\.dev", "\\." + proj + "\\.pages\\.dev"),
+          ]
+          n_files = n_hits = 0
+          for p in pathlib.Path("/tmp/site").rglob("*"):
+              if p.suffix not in (".html", ".js", ".xml", ".txt", ".webmanifest") or not p.is_file():
+                  continue
+              s = p.read_text(encoding="utf-8", errors="surrogateescape")
+              t = s
+              for a, b in pairs:
+                  t = t.replace(a, b)
+              if t != s:
+                  n_files += 1
+                  n_hits += sum(s.count(a) for a, _ in pairs)
+                  p.write_text(t, encoding="utf-8", errors="surrogateescape")
+          left = sum(1 for p in pathlib.Path("/tmp/site").rglob("*.html") if "datazeme" in p.read_text(encoding="utf-8", errors="ignore"))
+          print(f"書き換え {n_files} ファイル / {n_hits} 箇所 / datazeme が残った HTML {left} 件")
+          PY
+
       - name: docs と罠をアップロード
-        run: npx -y wrangler@3 pages deploy docs --project-name="$PROJECT" --branch=main --commit-dirty=true
+        if: steps.changed.outputs.skip == 'false'
+        run: npx -y wrangler@3 pages deploy /tmp/site --project-name="$PROJECT" --branch=main --commit-dirty=true
 
       - name: 配信先の罠が効いているか確認（AIの名乗り→冗談、普通のブラウザ→本物）
+        if: steps.changed.outputs.skip == 'false'
         run: |
           U="https://$PROJECT.pages.dev/racers/racers_today.csv"
           sleep 20
@@ -69,3 +132,6 @@ jobs:
           echo "$AI" | grep -q "冗談" || { echo "::error::AIの名乗りで本物が返っている"; exit 1; }
           echo "$HU" | grep -q "冗談" && { echo "::error::普通のブラウザに冗談が返っている"; exit 1; }
           echo "罠OK: AI→冗談 / 人間→本物"
+          G=$(curl -s "https://$PROJECT.pages.dev/assets/guard.js")
+          echo "$G" | grep -q "$PROJECT.pages.dev" || { echo "::error::配信先の guard.js に配信先の名前が入っていない（新URLで偽物の帯が出る）"; exit 1; }
+          echo "コピー検知OK: 配信先を本物として扱う"
