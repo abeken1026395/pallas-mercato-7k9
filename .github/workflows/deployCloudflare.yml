@@ -85,9 +85,42 @@ jobs:
             npx -y wrangler@3 pages project create "$PROJECT" --production-branch=main
           fi
 
+      # 配信先の名前はリポジトリに書かない（Secrets にだけある）。ページ内の自分の住所は、
+      # 旧URLの住所と旧プロジェクト名のまま書いてあり、ここでランナーの中だけ配信先の名前に書き換える。
+      # 書き換えないと、新URLでコピー検知の「本物ではありません」の帯が出る。リポジトリの中身は変えない。
+      - name: 配る直前に、ページ内の自分の住所を配信先に書き換える（ランナーの中だけ）
+        if: steps.changed.outputs.skip == 'false'
+        run: |
+          rm -rf /tmp/site && cp -r docs /tmp/site
+          python3 - <<'PY'
+          import os, pathlib
+          proj = os.environ["PROJECT"]
+          old_base = "https://abeken1026395.github.io/pallas-mercato-7k9/"
+          new_base = "https://" + proj + ".pages.dev/"
+          pairs = [
+              (old_base, new_base),
+              ("datazeme.pages.dev", proj + ".pages.dev"),
+              ("\\.datazeme\\.pages\\.dev", "\\." + proj + "\\.pages\\.dev"),
+          ]
+          n_files = n_hits = 0
+          for p in pathlib.Path("/tmp/site").rglob("*"):
+              if p.suffix not in (".html", ".js", ".xml", ".txt", ".webmanifest") or not p.is_file():
+                  continue
+              s = p.read_text(encoding="utf-8", errors="surrogateescape")
+              t = s
+              for a, b in pairs:
+                  t = t.replace(a, b)
+              if t != s:
+                  n_files += 1
+                  n_hits += sum(s.count(a) for a, _ in pairs)
+                  p.write_text(t, encoding="utf-8", errors="surrogateescape")
+          left = sum(1 for p in pathlib.Path("/tmp/site").rglob("*.html") if "datazeme" in p.read_text(encoding="utf-8", errors="ignore"))
+          print(f"書き換え {n_files} ファイル / {n_hits} 箇所 / datazeme が残った HTML {left} 件")
+          PY
+
       - name: docs と罠をアップロード
         if: steps.changed.outputs.skip == 'false'
-        run: npx -y wrangler@3 pages deploy docs --project-name="$PROJECT" --branch=main --commit-dirty=true
+        run: npx -y wrangler@3 pages deploy /tmp/site --project-name="$PROJECT" --branch=main --commit-dirty=true
 
       - name: 配信先の罠が効いているか確認（AIの名乗り→冗談、普通のブラウザ→本物）
         if: steps.changed.outputs.skip == 'false'
@@ -99,3 +132,6 @@ jobs:
           echo "$AI" | grep -q "冗談" || { echo "::error::AIの名乗りで本物が返っている"; exit 1; }
           echo "$HU" | grep -q "冗談" && { echo "::error::普通のブラウザに冗談が返っている"; exit 1; }
           echo "罠OK: AI→冗談 / 人間→本物"
+          G=$(curl -s "https://$PROJECT.pages.dev/assets/guard.js")
+          echo "$G" | grep -q "$PROJECT.pages.dev" || { echo "::error::配信先の guard.js に配信先の名前が入っていない（新URLで偽物の帯が出る）"; exit 1; }
+          echo "コピー検知OK: 配信先を本物として扱う"
