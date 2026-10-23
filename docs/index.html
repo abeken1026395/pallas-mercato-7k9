@@ -19,31 +19,34 @@
 <link rel="manifest" href="./manifest.json?v=2">
 <link rel="apple-touch-icon" href="./icon180.png">
 <meta name="theme-color" content="#0c1520">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&amp;text=%E3%83%87%E3%83%BC%E3%82%BF%E6%94%BB%E3%82%81%E5%87%BA%E8%A6%8B%E7%B5%90%E3%83%A2%E9%81%B8%E5%A0%B4%E6%95%B4%E6%A4%9C%E8%BE%9E%E6%96%87%E5%AE%9F%E5%8D%A0%E6%9B%B4%E6%9C%8924&amp;display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#0a1422;--card:#12233a;--card2:#16243449;--line:#24406a;--tx:#e6e8eb;--sub:#a0acb8;--dim:#9aabbd;
-  --are:#f2b155;--kata:#5cc8b0;--base:#6b7280;--accent:#7fb4ff;--mido:#a78bfa;--midoTx:#c4b5fd;
+  --are:#f2b155;--kata:#5cc8b0;--base:#6b7280;--accent:#7fb4ff;--mido:#f2c200;--midoTx:#f5d55c;
 }
 *{box-sizing:border-box}
-body{margin:0;background:radial-gradient(140% 55% at 50% 0%,#1b3a5e 0%,#122a45 32%,#0c1a2c 62%,var(--bg) 100%) var(--bg);background-repeat:no-repeat;color:var(--tx);font-family:-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;-webkit-font-smoothing:antialiased}
+body{margin:0;background:linear-gradient(180deg,#1b3a5e 0,#132b46 360px,#0d1c2f 900px,var(--bg) 1500px) var(--bg);background-repeat:no-repeat;color:var(--tx);font-family:-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;-webkit-font-smoothing:antialiased}
 .wrap{max-width:480px;margin:0 auto;padding:18px 16px 40px}
 .num{font-variant-numeric:tabular-nums}
 a{color:inherit;text-decoration:none}
 
 /* ヘッダー */
 .hd{text-align:center;padding:26px 0 6px}
-.logo{font-size:58px;font-weight:900;letter-spacing:.05em;margin:0;line-height:1.02;white-space:nowrap;background:linear-gradient(180deg,#f5f8fb 0%,#c9d6e4 70%,#aebfd2 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.logo{font-family:"Dela Gothic One",-apple-system,"Hiragino Sans",sans-serif;font-size:56px;font-weight:400;letter-spacing:.03em;margin:0;line-height:1.05;white-space:nowrap;color:#f2f2f0}
 .catch{font-size:14px;color:#dfe6ee;font-weight:600;letter-spacing:.08em;margin:10px 0 0}
 .catch span{font-size:11px;color:#8ea3b8;font-weight:400;letter-spacing:.22em;margin-right:6px}
 .promise{margin:16px auto 0;font-size:15px;color:var(--tx);font-weight:700}
 .promise small{display:block;font-size:11.5px;color:#8ea3b8;font-weight:400;margin-top:4px}
-.guide{display:inline-flex;align-items:center;gap:6px;margin:14px 0 0;padding:7px 15px;border-radius:999px;font-size:13px;font-weight:600;color:var(--tx);border:1px solid color-mix(in srgb,#f2b155 50%,transparent);background:color-mix(in srgb,#f2b155 10%,transparent)}
+.guide{display:inline-flex;align-items:center;gap:6px;margin:8px 0 0;min-height:44px;font-size:13.5px;font-weight:600;color:var(--tx);text-decoration:underline;text-underline-offset:5px;text-decoration-color:#f2b155;text-decoration-thickness:2px}
 .guide b{color:#f2b155;font-weight:700}
 
 /* よく使う6ページ */
 .quick{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin:18px 0 0}
 .quick a{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10.5px;color:var(--sub)}
-.quick span{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:19px;background:color-mix(in srgb,var(--c) 18%,transparent);border:1px solid color-mix(in srgb,var(--c) 45%,transparent)}
+.quick span{width:44px;height:44px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:"Dela Gothic One",-apple-system,sans-serif;font-size:19px;color:var(--tx);background:color-mix(in srgb,var(--c) 18%,transparent);border:1px solid color-mix(in srgb,var(--c) 45%,transparent)}
 /* 更新の帯（updates.json の最新1件。高さを予約して、出ても出なくても動かない） */
 .updateline{display:flex;gap:8px;align-items:center;margin:18px 0 0;min-height:44px;padding:0 2px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:13px;color:var(--sub);white-space:nowrap;overflow:hidden;visibility:hidden}
 .updateline.filled{visibility:visible}
@@ -51,14 +54,14 @@ a{color:inherit;text-decoration:none}
 .updateline .ul-dot[hidden]{display:none}
 .updateline .ul-date{color:var(--tx);font-weight:600;font-variant-numeric:tabular-nums;flex:none}
 .updateline .ul-text{overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
-.updateline .ul-arrow{margin-left:auto;color:var(--dim);flex:none}
+.updateline .ul-arrow{display:none}
 
 /* 見出し */
 .sec{margin:26px 0 10px;display:flex;align-items:baseline;gap:10px}
-.sec h2{font-size:15px;margin:0;font-weight:700;padding-left:10px;border-left:3px solid #3b6fa8;line-height:1.2}
+.sec h2{font-size:17px;margin:0;font-weight:800;line-height:1.2}
 .sec .s{font-size:12px;color:var(--dim)}
 /* 読みもの：最新の検証1本（一覧 ./kensho/ の data-new が最も新しいカードを表示。取れないときは下の既定のまま） */
-.kn{display:block;background:linear-gradient(160deg,#16304f 0%,var(--card) 55%);border:1px solid var(--line);border-radius:16px;padding:16px}
+.kn{display:block;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:16px}
 .kn-no{display:block;font-size:12px;color:var(--dim);letter-spacing:.04em}
 .kn-t{display:block;font-size:17px;font-weight:800;line-height:1.45;margin-top:4px}
 .kn-d{display:block;font-size:13.5px;color:var(--sub);line-height:1.7;margin-top:8px}
@@ -71,8 +74,8 @@ a{color:inherit;text-decoration:none}
 .exOpen .exb{transition:none}
 .today:not(.ready){visibility:hidden}
 .tdFail[hidden],.today[hidden]{display:none}
-.tdFail{display:flex;align-items:center;min-height:506px;justify-content:center;border:1px dashed var(--line);border-radius:16px;color:var(--sub);font-size:14px}
-.today{background:linear-gradient(160deg,#16304f 0%,var(--card) 55%);border:1px solid var(--line);border-radius:16px;padding:16px}
+.tdFail{display:flex;align-items:center;min-height:506px;justify-content:center;border:1px dashed var(--line);border-radius:6px;color:var(--sub);font-size:14px}
+.today{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:16px}
 .date{display:flex;align-items:baseline;gap:10px}
 .date .d{font-size:26px;font-weight:800}
 .date .w{font-size:13px;color:var(--sub)}
@@ -95,8 +98,8 @@ a{color:inherit;text-decoration:none}
 .peaks{margin:12px 0 0;padding:0;list-style:none}
 .peaks li{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid #1c2b3c;font-size:14px}
 .peaks .tm{width:44px;color:var(--sub);font-size:13px}
-.peaks .kind{font-size:11px;padding:2px 7px;border-radius:6px;background:color-mix(in srgb,var(--mido) 18%,transparent);color:var(--midoTx);white-space:nowrap}
-.peaks .go{margin-left:auto;color:var(--dim)}
+.peaks .kind{font-size:11px;padding:2px 7px;border-radius:3px;background:color-mix(in srgb,var(--mido) 18%,transparent);color:var(--midoTx);white-space:nowrap}
+.peaks .go{display:none}
 .peaks a{display:flex;align-items:center;gap:10px;width:100%}
 .ctasub{font-size:12px;color:var(--dim);text-align:center;margin-top:6px}
 .extra{border-top:1px solid #1c2b3c}
@@ -112,14 +115,14 @@ a{color:inherit;text-decoration:none}
 .v i.lady{color:var(--sub)}
 .homeHint{margin:10px 0 0;text-align:center;font-size:12.5px;color:var(--sub)}
 .homeHint small{display:block;font-size:12px;color:var(--dim);margin-top:2px}
-.cta{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:12px;padding:12px;border-radius:12px;background:color-mix(in srgb,var(--mido) 22%,transparent);border:1px solid color-mix(in srgb,var(--mido) 50%,transparent);color:var(--tx);font-size:14px;font-weight:700}
+.cta{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:12px;padding:12px;border-radius:4px;background:var(--mido);border:1px solid var(--mido);color:#111;font-size:14px;font-weight:700}
 
 /* 答え合わせ */
-.tb{background:linear-gradient(160deg,#16304f 0%,var(--card) 55%);border:1px solid var(--line);border-radius:16px;padding:16px}
+.tb{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:16px}
 .tbh{display:flex;align-items:center;gap:8px}
-.pill{font-size:11.5px;color:var(--sub);border:1px solid var(--line);border-radius:999px;padding:3px 10px}
+.pill{font-size:12px;color:var(--sub)}
 .upd{margin-left:auto;font-size:12px;color:var(--dim)}
-.day{margin:10px 0 6px;padding:12px;border-radius:12px;background:#0d1b2e;border:1px solid #1f3656}
+.day{margin:10px 0 6px;padding:12px;border-radius:4px;background:#0d1b2e;border:1px solid #1f3656}
 .day[hidden]{display:none}
 .dayh{font-size:13px;color:var(--sub);display:flex;align-items:baseline;gap:6px}
 .dayh b{color:var(--tx);font-size:16px}
@@ -149,7 +152,7 @@ a{color:inherit;text-decoration:none}
 .per100{font-size:12px;color:var(--dim);margin-top:4px}
 .note{font-size:12px;color:var(--dim);margin-top:10px}
 .foot{font-size:12px;color:var(--dim);margin-top:6px}
-.more{display:block;width:100%;margin-top:12px;padding:10px;border-radius:10px;border:1px solid var(--line);background:none;color:var(--sub);font-size:13px;cursor:pointer}
+.more{display:block;width:100%;margin-top:12px;padding:10px;border-radius:4px;border:1px solid var(--line);background:none;color:var(--sub);font-size:13px;cursor:pointer}
 .panel{display:grid;grid-template-rows:0fr;transition:grid-template-rows .15s ease}
 .panel.open{grid-template-rows:1fr}
 .panel>div{overflow:hidden}
@@ -163,20 +166,20 @@ a{color:inherit;text-decoration:none}
 .pb tr th:first-child{white-space:nowrap;width:4.5em}
 .pb td b{color:var(--tx)}
 .pb .lnk{color:var(--accent)}
-.home{margin-top:10px;padding:10px;border-radius:10px;background:#0f1a27;font-size:12.5px}
+.home{margin-top:10px;padding:10px;border-radius:4px;background:#0f1a27;font-size:12.5px}
 .age{font-size:12px;color:var(--dim);margin-top:8px}
 @media (prefers-reduced-motion:reduce){.panel{transition:none}}
 
 /* ナビ：ページごとの色を左の帯とアイコンの下地に */
 .mains{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.mc{display:flex;align-items:center;gap:10px;padding:12px 10px;border-radius:14px;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--c)}
-.mi{width:40px;height:40px;flex:none;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:21px;background:color-mix(in srgb,var(--c) 18%,transparent)}
+.mc{display:flex;align-items:center;gap:10px;padding:12px 10px;border-radius:4px;background:var(--card);border:1px solid var(--line);box-shadow:inset 0 3px 0 var(--c)}
+.mi{width:40px;height:40px;flex:none;border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:"Dela Gothic One",-apple-system,sans-serif;font-size:19px;color:var(--tx);background:color-mix(in srgb,var(--c) 18%,transparent)}
 .mt{font-size:14.5px;font-weight:700;line-height:1.3}
 .mt small{display:block;font-size:11px;color:var(--sub);font-weight:400;margin-top:2px}
 .nav{display:grid;grid-template-columns:repeat(5,1fr);gap:12px 4px;margin-top:16px}
 .ni{display:flex;flex-direction:column;align-items:center;gap:5px;font-size:11px;color:var(--sub)}
 .ni.ext em{font-style:normal;font-size:10.5px;color:var(--dim);margin-top:-4px}
-.ic{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:20px;background:color-mix(in srgb,var(--c) 16%,transparent);border:1px solid color-mix(in srgb,var(--c) 40%,transparent)}
+.ic{width:44px;height:44px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:"Dela Gothic One",-apple-system,sans-serif;font-size:17px;color:var(--tx);background:color-mix(in srgb,var(--c) 16%,transparent);border:1px solid color-mix(in srgb,var(--c) 40%,transparent)}
 
 .ft{text-align:center;margin-top:34px;font-size:12px;color:var(--dim);line-height:1.8}
 .ft b{color:var(--sub);font-weight:600}
@@ -194,6 +197,15 @@ body{position:relative}
 .ft a{color:#9aa4b3;text-decoration:underline}
 </style>
 <script>try{if(localStorage.getItem("tdExtraOpen")==="1")document.documentElement.classList.add("exOpen");}catch(e){}</script>
+<!-- kata6:head -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&amp;family=Dela+Gothic+One&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/kata/kata.css?v=c853c8e7">
+<link rel="stylesheet" href="assets/kata/top.css?v=2e454bc0">
+<link rel="stylesheet" href="assets/ugoki.css?v=a0c08edf">
+<style>html{background:linear-gradient(180deg,#1b3a5e 0,#132b46 360px,#0d1c2f 900px,#0a1422 1500px) #0a1422 !important;background-repeat:no-repeat !important}</style>
+<script>window.KATA_GRAD=1</script>
+<style>*,*::before,*::after{border-radius:0 !important}</style>
+<!-- /kata6:head -->
 </head>
 <body>
 <div class="byline">by あべけん</div>
@@ -201,18 +213,19 @@ body{position:relative}
 
 <header class="hd">
   <h1 class="logo">データ攻め</h1>
-  <p class="catch"><span>BOATRACE DATA</span>今日も、読んでから。</p>
+  <div class="ugBand" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <p class="catch">今日も、読んでから。</p>
   <p class="promise">材料はそろえた。決めるのは、あなた。<small>買い目・予想は出さず、毎朝の開催前に数字だけ更新</small></p>
-  <a class="guide" href="./torisetsu/">📘 はじめての方へ　<b>トリセツ</b>（使い方）</a>
+  <a class="guide" href="./torisetsu/">はじめての方へ　<b>トリセツ</b>（使い方）</a>
 </header>
 
 <nav class="quick" aria-label="よく使うページ">
-  <a style="--c:#58a6ff" href="./racers/"><span>📋</span>出走表</a>
-  <a style="--c:#a78bfa" href="./highlights/"><span>🔍</span>見どころ</a>
-  <a style="--c:#e05b4b" href="./results/"><span>🏁</span>結果</a>
-  <a style="--c:#3fb1c9" href="./motor/"><span>⚙️</span>モーター</a>
-  <a style="--c:#cdd6e0" href="./players/"><span>🏆</span>選手</a>
-  <a style="--c:#7fd4a8" href="./stadium/"><span>🌊</span>24場</a>
+  <a style="--c:#58a6ff" href="./racers/"><span>出</span>出走表</a>
+  <a style="--c:#f2c200" href="./highlights/"><span>見</span>見どころ</a>
+  <a style="--c:#e05b4b" href="./results/"><span>結</span>結果</a>
+  <a style="--c:#3fb1c9" href="./motor/"><span>モ</span>モーター</a>
+  <a style="--c:#cdd6e0" href="./players/"><span>選</span>選手</a>
+  <a style="--c:#7fd4a8" href="./stadium/"><span>場</span>24場</a>
 </nav>
 
 <a class="updateline" id="updateline" href="./updates/" aria-label="更新履歴を開く">
@@ -234,20 +247,19 @@ body{position:relative}
     <button class="exh" id="exBtn" aria-expanded="false" aria-controls="exBody"><span id="exSum"></span><span class="exar">▼</span></button>
     <div class="exb" id="exBody"><div><ul class="peaks" id="exList"></ul><div class="exmore" id="exMore"></div></div></div>
   </div>
-  <a class="cta" href="./highlights/">今日の見どころを読む <span>→</span></a>
+  <a class="cta" href="./highlights/">今日の見どころを読む</a>
 </section>
-<a class="tdFail" id="tdFail" href="./highlights/" hidden>今日の開催は見どころで確認できます →</a>
+<a class="tdFail" id="tdFail" href="./highlights/" hidden>今日の開催は見どころで確認できます</a>
 </div>
-<div class="homeHint">ホーム画面に置くと、朝いちばんに開けます<small>iPhone：共有ボタン →「ホーム画面に追加」</small></div>
+<div class="homeHint">ホーム画面に置くと、朝いちばんに開けます<small>iPhone：共有ボタンから「ホーム画面に追加」</small></div>
 
 <div class="sec"><h2>読みもの</h2><span class="s">最新の検証</span></div>
 <a class="kn" id="knCard" href="./kensho/tilt/">
   <span class="kn-no" id="knNo">検証 09</span>
   <span class="kn-t" id="knT">チルト3度の7艇に1艇は菅章哉だった</span>
   <span class="kn-d" id="knD">「チルトを跳ねた艇は伸び勝負。穴の目印」――直前情報のチルトの欄を見て、印を足したくなる話です。跳ねた艇の1着と回収率を、跳ねてきた選手ごとに分けて数えました。</span>
-  <span class="kn-go">読む →</span>
 </a>
-<a class="kn-all" href="./kensho/">検証の一覧へ →</a>
+<a class="kn-all" href="./kensho/">検証の一覧へ</a>
 
 <div class="sec"><h2>朝の見立ては当たっているか</h2></div>
 <section class="tb">
@@ -299,7 +311,7 @@ body{position:relative}
       <tr><th>この数字</th><td><b>分類の答え合わせ</b></td><td>含まない</td></tr>
     </table>
     <p>仕組みが別なので、上の答え合わせの数字は有料noteには当てはまりません。</p>
-    <p><a class="lnk" href="https://note.com/abeken2000" target="_blank" rel="noopener">有料noteについて →</a></p>
+    <p><a class="lnk" href="https://note.com/abeken2000" target="_blank" rel="noopener">有料noteについて</a></p>
     <div class="home">毎晩採点して、毎朝更新します。ホーム画面に置くと朝すぐ開けます。</div>
     <div class="age">舟券の購入は20歳になってから。無理のない範囲で楽しみましょう。</div>
   </div></div></div>
@@ -308,25 +320,25 @@ body{position:relative}
 <div class="sec"><h2>ページ</h2><span class="s">何があるか</span></div>
 <nav aria-label="全ページ">
   <div class="mains">
-    <a class="mc" style="--c:#58a6ff" href="./racers/"><span class="mi">📋</span><span class="mt">出走表<small>今日の出走情報</small></span></a>
-    <a class="mc" style="--c:#a78bfa" href="./highlights/"><span class="mi">🔍</span><span class="mt">見どころ<small>今日の注目レース</small></span></a>
-    <a class="mc" style="--c:#e05b4b" href="./results/"><span class="mi">🏁</span><span class="mt">レース結果<small>直近30日と配当</small></span></a>
-    <a class="mc" style="--c:#3fb1c9" href="./motor/"><span class="mi">⚙️</span><span class="mt">モーター<small>各場の機力順</small></span></a>
-    <a class="mc" style="--c:#cdd6e0" href="./players/"><span class="mi">🏆</span><span class="mt">選手図鑑<small>全1,643選手</small></span></a>
-    <a class="mc" style="--c:#f2b155" href="./payouts/"><span class="mi">💰</span><span class="mt">万舟のツボ<small>荒れ率と高配当</small></span></a>
+    <a class="mc" style="--c:#58a6ff" href="./racers/"><span class="mi">出</span><span class="mt">出走表<small>今日の出走情報</small></span></a>
+    <a class="mc" style="--c:#f2c200" href="./highlights/"><span class="mi">見</span><span class="mt">見どころ<small>今日の注目レース</small></span></a>
+    <a class="mc" style="--c:#e05b4b" href="./results/"><span class="mi">結</span><span class="mt">レース結果<small>直近30日と配当</small></span></a>
+    <a class="mc" style="--c:#3fb1c9" href="./motor/"><span class="mi">モ</span><span class="mt">モーター<small>各場の機力順</small></span></a>
+    <a class="mc" style="--c:#cdd6e0" href="./players/"><span class="mi">選</span><span class="mt">選手図鑑<small>全1,643選手</small></span></a>
+    <a class="mc" style="--c:#f2b155" href="./payouts/"><span class="mi">万</span><span class="mt">万舟のツボ<small>荒れ率と高配当</small></span></a>
   </div>
   <div class="nav">
-    <a class="ni" style="--c:#6b7a8c" href="./stadium/"><span class="ic">🌊</span>24場</a>
-    <a class="ni" style="--c:#6b7a8c" href="./motor-maintenance/"><span class="ic">🔧</span>整備</a>
-    <a class="ni" style="--c:#6b7a8c" href="./kensho/" data-new="2026-10-02"><span class="ic">🧪</span>検証<span class="qn-new" hidden>NEW</span></a>
-    <a class="ni" style="--c:#6b7a8c" href="./players/card.html" data-new="2026-10-21"><span class="ic">🪪</span>選手カード<span class="qn-new" hidden>NEW</span></a>
-    <a class="ni" style="--c:#6b7a8c" href="./glossary/"><span class="ic">📖</span>用語辞典</a>
-    <a class="ni" style="--c:#6b7a8c" href="./fan/"><span class="ic">🎵</span>場の文化</a>
-    <a class="ni" style="--c:#6b7a8c" href="./announcers/"><span class="ic">🎙️</span>実況アナ</a>
-    <a class="ni" style="--c:#6b7a8c" href="./uranai/"><span class="ic">🔮</span>占い</a>
-    <a class="ni" style="--c:#6b7a8c" href="./updates/" id="qn-updates"><span class="ic">🗒️</span>更新履歴<span class="qn-sign" id="qn-sign" hidden><span class="qn-dot" aria-hidden="true"></span><span class="qn-date"></span></span></a>
-    <a class="ni" style="--c:#6b7a8c" href="https://www.youtube.com/@abe-ken" target="_blank" rel="noopener"><span class="ic">▶️</span>YouTube</a>
-    <a class="ni ext" style="--c:#6b7a8c" href="https://note.com/abeken2000" target="_blank" rel="noopener"><span class="ic">📝</span>有料note<em>外部サイト</em></a>
+    <a class="ni" style="--c:#6b7a8c" href="./stadium/"><span class="ic">24</span>24場</a>
+    <a class="ni" style="--c:#6b7a8c" href="./motor-maintenance/"><span class="ic">整</span>整備</a>
+    <a class="ni" style="--c:#6b7a8c" href="./kensho/" data-new="2026-10-02"><span class="ic">検</span>検証<span class="qn-new" hidden>NEW</span></a>
+    <a class="ni" style="--c:#6b7a8c" href="./players/card.html" data-new="2026-10-21"><span class="ic">札</span>選手カード<span class="qn-new" hidden>NEW</span></a>
+    <a class="ni" style="--c:#6b7a8c" href="./glossary/"><span class="ic">辞</span>用語辞典</a>
+    <a class="ni" style="--c:#6b7a8c" href="./fan/"><span class="ic">文</span>場の文化</a>
+    <a class="ni" style="--c:#6b7a8c" href="./announcers/"><span class="ic">実</span>実況アナ</a>
+    <a class="ni" style="--c:#6b7a8c" href="./uranai/"><span class="ic">占</span>占い</a>
+    <a class="ni" style="--c:#6b7a8c" href="./updates/" id="qn-updates"><span class="ic">更</span>更新履歴<span class="qn-sign" id="qn-sign" hidden><span class="qn-dot" aria-hidden="true"></span><span class="qn-date"></span></span></a>
+    <a class="ni" style="--c:#6b7a8c" href="https://www.youtube.com/@abe-ken" target="_blank" rel="noopener"><span class="ic">▶</span>YouTube</a>
+    <a class="ni ext" style="--c:#6b7a8c" href="https://note.com/abeken2000" target="_blank" rel="noopener"><span class="ic">有</span>有料note<em>外部サイト</em></a>
   </div>
 </nav>
 
@@ -584,5 +596,9 @@ if("serviceWorker" in navigator){ window.addEventListener("load",function(){ nav
 </script>
 <script src="./assets/guard.js" defer></script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics -->
+<!-- kata6:body -->
+<script src="assets/kata/kata.js?v=ecd47e51"></script>
+<script src="assets/ugoki.js?v=e40e8a0a"></script>
+<!-- /kata6:body -->
 </body>
 </html>

@@ -1,4 +1,6 @@
 // 自動生成ファイル。手で編集しないこと。正本は scripts/motor/app.jsx
+// モーター成績の読みやすさ改修（2026-10-23 けん「モーターページ非常に見づらい改善しろ」・実験場 docs/next/motorE で作り、10-24 本番へ）。
+// 見た目と並べ方だけを変えた。データの読み方・判定は前と同じ。
 const {
   useState,
   useMemo,
@@ -12,22 +14,24 @@ const cols = R.columns;
 // 文字色。すべて背景 #0b1219〜#26333f 上でコントラスト 4.5:1 以上（AA・METHOD.md 9節）。
 // 増やさない。1色1意味。
 const C = {
-  text: "#e0e6ed",
-  // 本文
-  sub: "#c5d2e0",
+  text: "#eef2f5",
+  // 本文・数字
+  sub: "#c8d3dd",
   // 補助本文
-  label: "#9fb0c0",
+  label: "#a9b8c6",
   // 見出し・ラベル
-  muted: "#88a0b5",
-  // 注記の下限（最も暗い #26333f 上で 4.76:1）
-  dim: "#7d94a8",
-  // 注記（暗い背景専用。バッジ地の上には置かない）
-  accent: "#e0e6ed",
-  // 見出し（黄はやめた。出走表と同じ辞書）
-  link: "#8fd0ff",
+  muted: "#93a5b6",
+  // 注記
+  dim: "#93a5b6",
+  accent: "#eef2f5",
+  link: "#eef2f5",
+  // 選手名（リンクでも色は本文と同じ。下線だけで示す）
   fem: "#ff9ec9",
   ok: "#8fd6c0",
-  onLight: "#0b1219" // 明色バッジ／チップの上に載せる文字
+  onLight: "#0b1219",
+  top: "#f5d55c",
+  // 超抜（トップの見どころと同じ黄）
+  line: "#2b4568" // 罫線
 };
 
 // 文字サイズ。本文は13px以上、select と input は16px（iOS Safari の自動ズーム回避）。
@@ -138,8 +142,8 @@ const RK = {
   top: {
     key: "top",
     label: "超抜",
-    color: "#c3ccd6",
-    tcolor: C.text
+    color: "#f2c200",
+    tcolor: C.top
   },
   hi: {
     key: "hi",
@@ -212,28 +216,15 @@ function VenueMetaLine({
   return /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: F.xs,
-      color: C.muted,
-      marginTop: 3,
-      display: "flex",
-      alignItems: "center",
-      gap: 6,
-      flexWrap: "wrap",
+      color: C.sub,
+      marginTop: 2,
       minWidth: 0
     }
   }, setsu && /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: C.label
-    },
     title: setsu
-  }, truncStr(setsu, 18)), nichime && /*#__PURE__*/React.createElement("span", {
+  }, truncStr(setsu, 20)), setsu && nichime ? "　" : "", nichime && /*#__PURE__*/React.createElement("b", {
     style: {
-      fontSize: F.xs,
-      fontWeight: 700,
-      color: C.onLight,
-      background: C.dim,
-      borderRadius: 3,
-      padding: "1px 7px",
-      flex: "none"
+      color: C.text
     }
   }, nichime));
 }
@@ -249,19 +240,18 @@ function MoreBtn({
     type: "button",
     onClick: onClick,
     style: {
-      display: "inline-flex",
+      display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      gap: 6,
+      width: "100%",
       minHeight: 44,
-      minWidth: HIT,
       marginTop: mt || 0,
-      padding: "6px 14px",
-      background: "#16232f",
-      color: C.label,
-      border: "1px solid #2a3d52",
-      borderRadius: 8,
-      fontSize: F.xs,
+      padding: "8px 14px",
+      background: "transparent",
+      color: C.sub,
+      border: "none",
+      borderTop: "1px solid " + C.line,
+      fontSize: F.sm,
       fontWeight: 700,
       cursor: "pointer",
       fontFamily: "inherit"
@@ -271,31 +261,19 @@ function MoreBtn({
 function Bar({
   v,
   c,
-  tc,
   median
 }) {
   const n = parseFloat(v);
   const pct = isNaN(n) ? 0 : Math.max(0, Math.min(100, n / BAR_MAX * 100));
   const mp = isFinite(median) && median > 0 ? Math.max(0, Math.min(100, median / BAR_MAX * 100)) : null;
-  const tip = `目盛 0〜${BAR_MAX}%（全場共通）` + (mp !== null ? ` ／ 縦線＝この場の中央値 ${median.toFixed(1)}%` : "");
+  const tip = `目盛 0〜${BAR_MAX}%（全場共通）` + (mp !== null ? ` ／ 縦の目印＝この場の中央値 ${median.toFixed(1)}%` : "");
   return /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      alignItems: "center",
-      gap: 6,
-      flex: 1,
-      minWidth: 76
-    }
-  }, /*#__PURE__*/React.createElement("div", {
     title: tip,
     style: {
       position: "relative",
-      height: 16,
-      background: "#08111a",
-      border: "1px solid #16222f",
-      borderRadius: 8,
-      overflow: "hidden",
-      flex: 1
+      height: 4,
+      background: "#1d3352",
+      marginTop: 7
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -304,31 +282,19 @@ function Bar({
       top: 0,
       bottom: 0,
       width: pct + "%",
-      background: c,
-      opacity: .85,
-      borderRadius: 8
+      background: c
     }
   }), mp !== null && /*#__PURE__*/React.createElement("div", {
     style: {
       position: "absolute",
       left: mp + "%",
-      top: 1,
-      bottom: 1,
+      top: -3,
+      bottom: -3,
       width: 2,
       marginLeft: -1,
-      background: C.text,
-      opacity: .6
+      background: "#eef2f5"
     }
-  })), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: F.md,
-      fontWeight: 800,
-      color: tc,
-      minWidth: 54,
-      textAlign: "right",
-      fontVariantNumeric: "tabular-nums"
-    }
-  }, isNaN(n) ? "-" : n.toFixed(1) + "%"));
+  }));
 }
 
 // 整備履歴カルテ（部品交換の時系列・事実提示のみ・出典明記）。parts が無ければ何も描かない。
@@ -358,12 +324,10 @@ function KarteRow({
 }) {
   const p = parts[i];
   const chg = String(p[PK.chg] || "");
-  const nm = dispName(p[PK.name]); // 表層と同じ規則で畳む（同じ選手が2表記になるのを防ぐ）
+  const nm = dispName(p[PK.name]);
   const setsu = String(p[PK.setsu] || "");
   const tenji = String(p[PK.tenji] || "");
   const fin = p[PK.fin] == null ? "" : String(p[PK.fin]);
-  // 交換行のみ：この機のカルテ内で直前(iより前)の、展示タイムが空でない最も近い行を引く。
-  // 差の数値・評価語は出さず、前後を矢印で並べるだけ（解釈は読者に委ねる・司令塔裁定）。
   let prevTenji = "";
   if (chg && tenji) {
     for (let j = i - 1; j >= 0; j--) {
@@ -376,29 +340,37 @@ function KarteRow({
   }
   return /*#__PURE__*/React.createElement("div", {
     style: {
-      borderTop: first ? "none" : "1px solid #16273a",
-      paddingTop: first ? 0 : 5,
-      marginTop: first ? 0 : 5
+      borderTop: first ? "none" : "1px solid " + C.line,
+      padding: "7px 0"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "baseline",
+      gap: 10,
+      fontVariantNumeric: "tabular-nums"
     }
   }, /*#__PURE__*/React.createElement("b", {
     style: {
-      color: C.text
+      color: C.text,
+      fontSize: F.md,
+      minWidth: 44
     }
-  }, fmtHd(p[PK.hd])), " ", p[PK.rno], "R", p[PK.waku] ? ` ${p[PK.waku]}号` : "", fin ? /*#__PURE__*/React.createElement("span", {
+  }, fmtHd(p[PK.hd])), /*#__PURE__*/React.createElement("span", {
     style: {
-      color: fin === "1" ? C.text : C.dim,
-      fontWeight: fin === "1" ? 700 : 400
+      color: C.sub
     }
-  }, /^[1-6]$/.test(fin) ? ` ${fin}着` : ` ${fin}`) : null, nm ? /*#__PURE__*/React.createElement("span", {
+  }, p[PK.rno], "R", p[PK.waku] ? ` ${p[PK.waku]}号艇` : ""), fin ? /*#__PURE__*/React.createElement("span", {
     style: {
-      color: C.link
+      marginLeft: "auto",
+      color: fin === "1" ? C.top : C.text,
+      fontWeight: 700
     }
-  }, " \u30FB", nm) : null, setsu ? /*#__PURE__*/React.createElement("span", {
+  }, /^[1-6]$/.test(fin) ? `${fin}着` : fin) : null), /*#__PURE__*/React.createElement("div", {
     style: {
-      color: C.dim
-    },
-    title: setsu
-  }, " \u30FB", truncStr(setsu, 15)) : null, " \u30FB ", chg ? /*#__PURE__*/React.createElement("span", {
+      marginTop: 2
+    }
+  }, chg ? /*#__PURE__*/React.createElement("span", {
     style: {
       color: C.ok,
       fontWeight: 700
@@ -409,13 +381,22 @@ function KarteRow({
     }
   }, "\u6574\u5099\u306A\u3057"), p[PK.pera] ? /*#__PURE__*/React.createElement("span", {
     style: {
-      color: C.accent
+      color: C.text,
+      fontWeight: 700
     }
-  }, " \u30FB\u30DA\u30E9\u65B0") : null, tenji ? /*#__PURE__*/React.createElement("span", {
+  }, "\u3000\u30DA\u30E9\u65B0") : null, tenji ? /*#__PURE__*/React.createElement("span", {
     style: {
-      color: C.dim
+      color: C.sub
     }
-  }, " \u30FB\u5C55\u793A", prevTenji ? ` ${prevTenji} → ${tenji}` : tenji) : null);
+  }, "\u3000\u5C55\u793A ", prevTenji ? `${prevTenji} → ${tenji}` : tenji) : null), (nm || setsu) && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: F.xs,
+      color: C.muted,
+      marginTop: 1
+    }
+  }, nm, setsu ? /*#__PURE__*/React.createElement("span", {
+    title: setsu
+  }, "\u3000", truncStr(setsu, 18)) : null));
 }
 
 // 節ごとの着順。カルテの走を、乗り手が変わるか3日以上あいたところで節に区切り、新しい順に最大5節。
@@ -452,21 +433,22 @@ function SetsuChaku({
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: F.xs,
-      fontWeight: 700,
-      color: C.label,
+      fontSize: F.sm,
+      fontWeight: 800,
+      color: C.text,
       marginBottom: 4
     }
   }, "\u7BC0\u3054\u3068\u306E\u7740\u9806 ", /*#__PURE__*/React.createElement("span", {
     style: {
       color: C.muted,
-      fontWeight: 400
+      fontWeight: 400,
+      fontSize: F.xs
     }
   }, "\u65B0\u3057\u3044\u9806\u30FB\u76F4\u8FD1", ss.length, "\u7BC0")), ss.map((g, k) => /*#__PURE__*/React.createElement("div", {
     key: k,
     style: {
-      borderTop: k ? "1px solid #16273a" : "none",
-      padding: "5px 0"
+      borderTop: k ? "1px solid " + C.line : "none",
+      padding: "6px 0"
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -497,8 +479,8 @@ function SetsuChaku({
       fontSize: /^[1-6]$/.test(f) ? F.sm : 11.5,
       fontWeight: 700,
       color: /^[1-6]$/.test(f) ? C.text : C.muted,
-      border: f === "1" ? "1.5px solid currentColor" : "none",
-      borderRadius: 3
+      color: f === "1" ? C.top : /^[1-6]$/.test(f) ? C.text : C.muted,
+      fontWeight: f === "1" ? 800 : 500
     }
   }, f))))));
 }
@@ -524,10 +506,11 @@ function MotorKarte({
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: F.xs,
-      fontWeight: 700,
-      color: C.label,
-      marginBottom: 4
+      fontSize: F.sm,
+      fontWeight: 800,
+      color: C.text,
+      marginBottom: 2,
+      marginTop: 10
     }
   }, "\u6574\u5099\u5C65\u6B74 ", /*#__PURE__*/React.createElement("span", {
     style: {
@@ -538,12 +521,8 @@ function MotorKarte({
   }, "\u51FA\u8D70", parts.length, "\u56DE\u30FB\u4EA4\u63DB", nChg, "\u56DE")), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: F.sm,
-      lineHeight: 1.75,
-      color: "#a9c6dd",
-      background: "#0f1a26",
-      border: "1px solid #24344a",
-      borderRadius: 6,
-      padding: "8px 10px"
+      lineHeight: 1.6,
+      color: C.sub
     }
   }, idx.map((i, k) => /*#__PURE__*/React.createElement(KarteRow, {
     key: i,
@@ -582,39 +561,57 @@ function MotorUsageLine({
   if (!usage || !from) return null;
   const w = usage["走"];
   if (!w) return null;
-  // 公式2連対率は各場の直近の節終了時点で更新され、節間は据え置かれる。
-  // 自前は最新開催日まで数えるので基準日が違う。片方だけ出すと食い違いが誤りに見えるため、
-  // 公式値がある場だけ「公式 M/D時点 ◯◯.◯%」を併記する。無い場は何も出さない。
   const off = usage["公式2連率"];
   const showOff = typeof off === "number" && officialAsOf;
   return /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: F.sm,
-      lineHeight: 1.7,
-      color: C.dim,
+      lineHeight: 1.6,
+      color: C.sub,
       fontVariantNumeric: "tabular-nums"
     },
     title: src ? `新替日は${src === "記録" ? "手元の記録" : src + "の情報"}で確かめた日。窓内初出${fmtHd(usage["窓内初出日"])}・最新${fmtHd(usage["最新日"])}` : `新替日は公式非公開のため、公式のモーター2連対率と突き合わせた推定。窓内初出${fmtHd(usage["窓内初出日"])}・最新${fmtHd(usage["最新日"])}`
-  }, /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement("div", {
     style: {
-      color: C.label
+      fontSize: F.sm,
+      fontWeight: 800,
+      color: C.text
     }
-  }, src ? `モーター新替 ${fmtHdY(from)}（${src === "記録" ? "手元の記録" : src}）以降` : `モーター新替（推定 ${fmtHdY(from)}）以降`), " ", /*#__PURE__*/React.createElement("b", {
+  }, "\u65B0\u66FF\u304B\u3089\u306E\u6210\u7E3E ", /*#__PURE__*/React.createElement("span", {
     style: {
-      color: "#cdd9e5"
+      color: C.muted,
+      fontWeight: 400,
+      fontSize: F.xs
     }
-  }, w, "\u8D70"), " \u30FB\u52DD", usage["勝"], " \u30FB2\u9023", usage["2連"], /*#__PURE__*/React.createElement("span", {
+  }, src ? `新替 ${fmtHdY(from)}（${src === "記録" ? "手元の記録" : src}）` : `新替 推定 ${fmtHdY(from)}`)), /*#__PURE__*/React.createElement("div", {
     style: {
-      color: C.ok
+      display: "flex",
+      gap: 14,
+      flexWrap: "wrap",
+      marginTop: 3
     }
-  }, "\uFF08", fmtRate(usage["2連率"]), "%\uFF09"), " \u30FB3\u9023", usage["3連"], /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("b", {
     style: {
-      color: "#79c0ff"
+      color: C.text,
+      fontSize: F.md
     }
-  }, "\uFF08", fmtRate(usage["3連率"]), "%\uFF09"), showOff && /*#__PURE__*/React.createElement("div", {
+  }, w), " \u8D70"), /*#__PURE__*/React.createElement("span", null, "1\u7740 ", /*#__PURE__*/React.createElement("b", {
+    style: {
+      color: C.text
+    }
+  }, usage["勝"])), /*#__PURE__*/React.createElement("span", null, "2\u9023 ", /*#__PURE__*/React.createElement("b", {
+    style: {
+      color: C.text
+    }
+  }, usage["2連"]), "\uFF08", fmtRate(usage["2連率"]), "%\uFF09"), /*#__PURE__*/React.createElement("span", null, "3\u9023 ", /*#__PURE__*/React.createElement("b", {
+    style: {
+      color: C.text
+    }
+  }, usage["3連"]), "\uFF08", fmtRate(usage["3連率"]), "%\uFF09")), showOff && /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 2,
-      color: C.muted
+      color: C.muted,
+      fontSize: F.xs
     },
     title: "\u516C\u5F0F\u306E\u30E2\u30FC\u30BF\u30FC2\u9023\u5BFE\u7387\u306F\u5404\u5834\u306E\u76F4\u8FD1\u306E\u7BC0\u304C\u7D42\u308F\u3063\u305F\u6642\u70B9\u306E\u5024\u3002\u3053\u3061\u3089\u306F\u6700\u65B0\u958B\u50AC\u65E5\u307E\u3067\u306E\u5B9F\u6E2C\u306A\u306E\u3067\u57FA\u6E96\u65E5\u304C\u7570\u306A\u308B\u3002"
   }, "\u516C\u5F0F ", fmtHd(officialAsOf), "\u6642\u70B9 ", fmtRate(off), "%"));
@@ -641,7 +638,7 @@ function MotorRow({
   const [open, setOpen] = useState(false);
   const v = row[CI.rate],
     g = row[CI.grade];
-  const my = myoumi(g, rk);
+  const n = parseFloat(v);
   const hasDeep = !!(usageFrom && usage && usage["走"]) || parts === undefined || !!(parts && parts.length);
   const heart = fem ? /*#__PURE__*/React.createElement("span", {
     style: {
@@ -649,16 +646,16 @@ function MotorRow({
       marginLeft: 3
     }
   }, "\u2665") : null;
-  const nameColor = fem ? C.fem : C.link;
   const toggle = () => {
     if (hasDeep) {
       if (window.__loadKarte) window.__loadKarte();
       setOpen(o => !o);
     }
   };
+  // 1行の並び：機番｜選手名（下に級別・ランク）｜2連率（大きく）｜開閉。その下に細いバー。
   return /*#__PURE__*/React.createElement("div", {
     style: {
-      marginBottom: 6
+      borderTop: "1px solid " + C.line
     }
   }, /*#__PURE__*/React.createElement("div", {
     role: hasDeep ? "button" : undefined,
@@ -674,57 +671,52 @@ function MotorRow({
       }
     },
     style: {
-      display: "flex",
-      alignItems: "center",
-      gap: 8,
-      padding: "9px 10px",
-      borderRadius: 8,
+      padding: "9px 2px 10px",
       cursor: hasDeep ? "pointer" : "default",
-      background: "#0f1923",
-      border: hl ? "2px solid #7fb4ff" : "1px solid #16222f"
+      background: hl ? "rgba(242,194,0,.10)" : "transparent"
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      width: 4,
-      alignSelf: "stretch",
-      borderRadius: 2,
-      background: rk.color,
-      flex: "none"
+      display: "flex",
+      alignItems: "center",
+      gap: 10
     }
-  }), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: F.lg,
-      fontWeight: 800,
-      color: "#8faabe",
-      minWidth: 32,
-      textAlign: "center",
       flex: "none",
-      fontVariantNumeric: "tabular-nums"
+      width: 46,
+      textAlign: "left",
+      fontVariantNumeric: "tabular-nums",
+      lineHeight: 1
     }
-  }, row[CI.mno] || "-"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 22,
+      fontWeight: 800,
+      color: C.text
+    }
+  }, row[CI.mno] || "-")), /*#__PURE__*/React.createElement("div", {
     style: {
       minWidth: 0,
-      flex: "0 0 auto"
+      flex: 1
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: F.lg,
       fontWeight: 700,
       whiteSpace: "nowrap",
-      lineHeight: 1.35
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      lineHeight: 1.3
     }
   }, row[CI.toban] ? /*#__PURE__*/React.createElement("a", {
     href: "../players/?toban=" + row[CI.toban],
     onClick: e => e.stopPropagation(),
     style: {
-      color: nameColor,
-      textDecoration: "underline dotted #4a6a8a",
-      textUnderlineOffset: 4,
-      display: "inline-block",
-      padding: "12px 2px",
-      margin: "-9px 0",
-      minHeight: 44,
-      boxSizing: "border-box"
+      color: fem ? C.fem : C.text,
+      textDecoration: "underline",
+      textDecorationColor: "#55708f",
+      textUnderlineOffset: 4
     }
   }, dispName(row[CI.name]) || "-", heart) : /*#__PURE__*/React.createElement("span", {
     style: {
@@ -733,70 +725,67 @@ function MotorRow({
   }, dispName(row[CI.name]) || "-", heart)), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
-      gap: 5,
-      marginTop: 2,
-      alignItems: "center"
+      gap: 8,
+      marginTop: 3,
+      alignItems: "center",
+      fontSize: F.xs,
+      fontWeight: 700
     }
   }, /*#__PURE__*/React.createElement("span", {
     style: {
-      fontSize: F.xs,
-      fontWeight: 800,
       color: C.onLight,
       background: gradeColor(g),
-      padding: "1px 6px",
-      borderRadius: 3
+      padding: "0 5px"
     }
-  }, g || "-"), hl && /*#__PURE__*/React.createElement("span", {
+  }, g || "-"), rk.key === "na" ? null : /*#__PURE__*/React.createElement("span", {
     style: {
-      fontSize: F.xs,
-      fontWeight: 800,
-      color: "#7fb4ff"
+      color: rk.tcolor
+    }
+  }, rk.label), hl && /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: C.top
     }
   }, "\u9078\u3093\u3060\u6A5F"), fresh && usage && usage["走"] ? /*#__PURE__*/React.createElement("span", {
     style: {
-      fontSize: F.xs,
       color: C.label,
+      fontWeight: 400,
       fontVariantNumeric: "tabular-nums"
     }
-  }, usage["走"], "\u8D70") : null, rk.key === "top" ? /*#__PURE__*/React.createElement("span", {
+  }, "\u65B0\u66FF\u304B\u3089", usage["走"], "\u8D70") : null)), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: F.xs,
-      fontWeight: 800,
-      color: C.text,
-      border: "1.5px dashed #c3ccd6",
-      padding: "0 6px",
-      borderRadius: 3
+      flex: "none",
+      textAlign: "right",
+      fontVariantNumeric: "tabular-nums",
+      lineHeight: 1
     }
-  }, "\u8D85\u629C") : rk.key === "na" ? null : /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: F.xs,
+      fontSize: 22,
       fontWeight: 800,
-      color: rk.tcolor
+      color: rk.key === "top" ? C.top : C.text
     }
-  }, rk.label))), /*#__PURE__*/React.createElement(Bar, {
-    v: v,
-    c: rk.color,
-    tc: rk.tcolor,
-    median: median
-  }), hasDeep && /*#__PURE__*/React.createElement("div", {
+  }, isNaN(n) ? "-" : n.toFixed(1), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 13,
+      fontWeight: 700,
+      marginLeft: 1
+    }
+  }, "%"))), hasDeep && /*#__PURE__*/React.createElement("div", {
     "aria-hidden": "true",
     style: {
       flex: "none",
-      width: HIT,
-      minHeight: HIT,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      fontSize: F.xs,
+      width: 20,
+      textAlign: "center",
+      fontSize: 12,
       color: C.muted
     }
-  }, open ? "▲" : "▼")), open && hasDeep && /*#__PURE__*/React.createElement("div", {
+  }, open ? "▲" : "▼")), /*#__PURE__*/React.createElement(Bar, {
+    v: v,
+    c: rk.color,
+    median: median
+  })), open && hasDeep && /*#__PURE__*/React.createElement("div", {
     style: {
-      margin: "6px 0 0 12px",
-      padding: "8px 10px",
-      background: "#0d1622",
-      border: "1px solid #16222f",
-      borderRadius: 8
+      padding: "4px 2px 12px 56px"
     }
   }, /*#__PURE__*/React.createElement(MotorUsageLine, {
     usage: usage,
@@ -850,20 +839,15 @@ function E30Badge({
       fontSize: F.xs,
       fontWeight: 800,
       color: C.text,
-      border: "1px solid #9fb0c0",
-      borderRadius: 3,
-      padding: "0 6px"
+      border: "1px solid #93a5b6",
+      padding: "0 5px"
     }
   }, "E30")), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 6,
       fontSize: F.sm,
       lineHeight: 1.6,
-      color: "#a9c6dd",
-      background: "#0f1a26",
-      border: "1px solid #24344a",
-      borderRadius: 6,
-      padding: "7px 10px",
+      color: C.sub,
       fontWeight: 400
     }
   }, `この場はE30該当場（開始 ${disp}）。出典：公式。数値は生データのみ。`));
@@ -901,21 +885,16 @@ function VenueCard({
   const hd = String(rows[0][CI.hd] || "");
   return /*#__PURE__*/React.createElement("div", {
     style: {
-      marginBottom: 14,
-      background: "#0d1622",
-      border: "1px solid #16222f",
-      borderRadius: 12,
-      overflow: "hidden"
+      marginBottom: 22
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
-      alignItems: "flex-start",
+      alignItems: "flex-end",
       justifyContent: "space-between",
       gap: 8,
-      padding: "10px 12px",
-      background: "#132030",
-      borderBottom: "1px solid #1e2d3d"
+      padding: "8px 2px 8px",
+      borderBottom: "2px solid #eef2f5"
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -923,84 +902,90 @@ function VenueCard({
       flexDirection: "column",
       minWidth: 0
     }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "baseline",
+      flexWrap: "wrap",
+      columnGap: 8
+    }
   }, /*#__PURE__*/React.createElement("span", {
     style: {
-      fontSize: F.xl,
+      fontSize: 20,
       fontWeight: 800,
-      color: C.accent
+      color: C.text
     }
-  }, pinned && /*#__PURE__*/React.createElement("span", {
-    style: {
-      marginRight: 4,
-      fontSize: F.xl
-    }
-  }, "\uD83D\uDCCD"), venue, isPrev && /*#__PURE__*/React.createElement("span", {
+  }, venue), pinned && /*#__PURE__*/React.createElement("span", {
     style: {
       fontSize: F.xs,
       fontWeight: 700,
-      color: C.label,
-      background: "#26333f",
-      border: "1px solid #33475a",
-      borderRadius: 3,
-      padding: "1px 7px",
-      marginLeft: 6,
-      verticalAlign: "middle"
+      color: C.top
     }
-  }, "\u524D\u7BC0\u8A18\u9332"), /*#__PURE__*/React.createElement(E30Badge, {
-    info: e30
-  }), /*#__PURE__*/React.createElement("span", {
+  }, "\u30D5\u30A9\u30ED\u30FC\u4E2D"), /*#__PURE__*/React.createElement("span", {
     style: {
       fontSize: F.xs,
-      fontWeight: 600,
-      color: C.dim,
-      marginLeft: 8
+      color: C.label,
+      fontVariantNumeric: "tabular-nums"
     }
-  }, hd.length === 8 ? `${+hd.slice(4, 6)}/${+hd.slice(6, 8)}時点` : "")), /*#__PURE__*/React.createElement(VenueMetaLine, {
+  }, hd.length === 8 ? `${+hd.slice(4, 6)}/${+hd.slice(6, 8)}時点` : "", isPrev ? "・前節の記録" : ""), /*#__PURE__*/React.createElement(E30Badge, {
+    info: e30
+  })), /*#__PURE__*/React.createElement(VenueMetaLine, {
     meta: meta
   }), prevTop && /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: F.xs,
-      color: C.dim,
+      color: C.sub,
       marginTop: 3,
       fontVariantNumeric: "tabular-nums"
     },
     title: `${prevTop.節名}（${prevTop.開催日}）節内2連率トップ`
-  }, "\u524D\u7BC01\u4F4D\u6A5F ", /*#__PURE__*/React.createElement("b", {
+  }, "\u524D\u7BC0\u3044\u3061\u3070\u3093\u51FA\u3066\u3044\u305F\u6A5F\u3000", /*#__PURE__*/React.createElement("b", {
     style: {
       color: C.text
     }
-  }, "M", prevTop.no), " ", /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: C.muted
-    }
-  }, "\uFF08\u7BC0\u51852\u9023\u7387\u30C8\u30C3\u30D7 ", prevTop.rate, "%\uFF09")), repl && /*#__PURE__*/React.createElement("div", {
+  }, prevTop.no, "\u53F7\u6A5F"), "\uFF08", prevTop.rate, "%\uFF09"), repl && /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: F.xs,
-      color: C.dim,
+      color: C.sub,
       marginTop: 3,
+      lineHeight: 1.6,
       fontVariantNumeric: "tabular-nums"
     }
   }, "\u30E2\u30FC\u30BF\u30FC\u65B0\u66FF ", /*#__PURE__*/React.createElement("b", {
     style: {
-      color: "#cdd9e5"
+      color: C.text
     }
-  }, repl), " ", /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: C.muted
-    }
-  }, "\uFF08\u65B0\u66FF\u304B\u30895\u7BC0\u306F\u6A5F\u529B\u304C\u898B\u3048\u306B\u304F\u3044\u305F\u3081\u3001\u5E8F\u5217\u3092\u4ED8\u3051\u305A\u6A5F\u756A\u9806\u306B\u4E26\u3079\u3066\u3044\u307E\u3059\u3002\u7387\u306E\u6A2A\u306E\u300C\u25EF\u8D70\u300D\u306F\u65B0\u66FF\u304B\u3089\u8D70\u3063\u305F\u6570\uFF09"))), /*#__PURE__*/React.createElement("span", {
+  }, repl), "\u3002\u65B0\u66FF\u304B\u30895\u7BC0\u306F\u6A5F\u529B\u304C\u898B\u3048\u306B\u304F\u3044\u305F\u3081\u3001\u5E8F\u5217\u3092\u4ED8\u3051\u305A\u6A5F\u756A\u9806\u306B\u4E26\u3079\u3066\u3044\u307E\u3059")), /*#__PURE__*/React.createElement("span", {
     style: {
       fontSize: F.xs,
-      color: C.muted,
+      color: C.label,
       flex: "none",
-      whiteSpace: "nowrap",
-      paddingTop: 2
+      whiteSpace: "nowrap"
     }
-  }, rows.length, "\u6A5F")), /*#__PURE__*/React.createElement("div", {
+  }, rows.length, "\u6A5F")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
-      padding: "10px"
+      display: "flex",
+      alignItems: "center",
+      gap: 10,
+      padding: "5px 2px",
+      fontSize: 11,
+      color: C.muted
     }
-  }, shown.map((r, i) => /*#__PURE__*/React.createElement(MotorRow, {
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      width: 46,
+      flex: "none"
+    }
+  }, "\u53F7\u6A5F"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      flex: 1
+    }
+  }, "\u9078\u624B\uFF08\u7D1A\u5225\u30FB\u6A5F\u529B\uFF09"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      flex: "none",
+      marginRight: 30
+    }
+  }, "\u30E2\u30FC\u30BF\u30FC2\u9023\u7387")), shown.map((r, i) => /*#__PURE__*/React.createElement(MotorRow, {
     key: r[CI.mno] + "_" + i,
     row: r,
     rk: rankByPos(i + 1, rows.length, r[CI.rate], usageFor(r[CI.jcd], r[CI.mno]), !!repl),
@@ -1306,84 +1291,57 @@ function App() {
   return /*#__PURE__*/React.createElement("div", {
     style: {
       minHeight: "100vh",
-      padding: "12px",
+      padding: "8px 14px 12px",
       maxWidth: 760,
       margin: "0 auto"
     }
-  }, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("h1", {
     style: {
-      display: "flex",
-      alignItems: "baseline",
-      gap: 10,
-      marginBottom: 4,
-      flexWrap: "wrap"
+      fontSize: 24,
+      fontWeight: 400,
+      margin: "4px 0 6px",
+      color: C.text
     }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: F.hero,
-      fontWeight: 800,
-      color: C.accent
-    }
-  }, "BOATRACE \u30E2\u30FC\u30BF\u30FC\u6210\u7E3E"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: F.xs,
-      color: C.muted
-    }
-  }, allVenues.length, "\u5834 / ", R.data.length, "\u4EF6")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: F.xs,
-      color: C.muted,
-      marginBottom: 8
-    }
-  }, "\u6700\u7D42\u66F4\u65B0: ", R.updated || "-"), /*#__PURE__*/React.createElement("div", {
+  }, "\u30E2\u30FC\u30BF\u30FC\u6210\u7E3E"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: F.sm,
       lineHeight: 1.7,
       color: C.sub,
-      marginBottom: 8
+      marginBottom: 6
     }
-  }, /*#__PURE__*/React.createElement("b", {
+  }, "\u5404\u5834\u306E\u30E2\u30FC\u30BF\u30FC\u30922\u9023\u7387\u306E\u9AD8\u3044\u9806\u306B\u4E26\u3079\u3066\u3044\u307E\u3059\u3002\u5404\u5834\u306E", /*#__PURE__*/React.createElement("b", {
     style: {
-      color: C.text,
-      border: "1.5px dashed #c3ccd6",
-      padding: "0 6px",
-      borderRadius: 3,
-      fontSize: F.xs,
-      fontWeight: 800
+      color: C.top
     }
-  }, "\u8D85\u629C"), " \uFF1D\u5404\u5834\u306E\u4E0A\u4F4D3\u6A5F\u3060\u3051\u3002\u672C\u65E5\u306F\u5168", R.data.length, "\u6A5F\u4E2D ", /*#__PURE__*/React.createElement("b", {
-    style: {
-      color: C.accent
-    }
-  }, topCount, "\u6A5F"), "\u3002"), /*#__PURE__*/React.createElement("div", {
+  }, "\u4E0A\u4F4D3\u6A5F\u306F\u300C\u8D85\u629C\u300D"), "\uFF08\u672C\u65E5 ", topCount, "\u6A5F\uFF09\u3002\u6700\u521D\u306F\u4E0A\u4F4D3\u6A5F\u3060\u3051\u51FA\u3057\u3066\u3044\u307E\u3059\u3002\u884C\u3092\u62BC\u3059\u3068\u3001\u65B0\u66FF\u304B\u3089\u306E\u6210\u7E3E\u3068\u6574\u5099\u5C65\u6B74\u304C\u958B\u304D\u307E\u3059\u3002"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: F.xs,
-      lineHeight: 1.7,
-      color: C.dim,
-      marginBottom: 8
+      color: C.muted,
+      marginBottom: 10,
+      fontVariantNumeric: "tabular-nums"
     }
-  }, "\u5404\u5834\u306F\u4E0A\u4F4D", TOP_N, "\u6A5F\u3060\u3051\u958B\u3044\u305F\u72B6\u614B\u3067\u3059\u3002\u884C\u3092\u30BF\u30C3\u30D7\u3059\u308B\u3068\u8D70\u884C\u6570\u3068\u6574\u5099\u5C65\u6B74\u304C\u51FA\u307E\u3059\u3002"), /*#__PURE__*/React.createElement("button", {
+  }, allVenues.length, "\u5834\u30FB", R.data.length, "\u6A5F\u3000\u6700\u7D42\u66F4\u65B0 ", R.updated || "-"), /*#__PURE__*/React.createElement("button", {
     onClick: () => setShowHelp(s => !s),
     style: {
-      marginBottom: 8,
+      marginBottom: 10,
       minHeight: 44,
-      padding: "8px 14px",
-      background: "#1a2738",
-      color: "#8faabe",
-      border: "1px solid #2a3d52",
-      borderRadius: 8,
+      padding: "8px 0",
+      background: "transparent",
+      color: C.sub,
+      border: "none",
+      textDecoration: "underline",
+      textUnderlineOffset: 4,
       fontSize: F.sm,
       cursor: "pointer",
-      fontWeight: 600,
+      fontWeight: 700,
       fontFamily: "inherit"
     }
   }, showHelp ? "▲ 見方を閉じる" : "▼ このデータの見方"), showHelp && /*#__PURE__*/React.createElement("div", {
     style: {
-      background: "#111d2b",
-      border: "1px solid #1e2d3d",
-      borderRadius: 8,
-      padding: "12px 14px",
-      marginBottom: 10,
+      borderTop: "1px solid " + C.line,
+      borderBottom: "1px solid " + C.line,
+      padding: "12px 2px",
+      marginBottom: 12,
       fontSize: F.md,
       lineHeight: 1.8,
       color: C.sub
@@ -1430,7 +1388,7 @@ function App() {
     }
   }, /*#__PURE__*/React.createElement("div", null, "\u305D\u306E\u5834\u306E2\u9023\u7387\u306E\u9AD8\u3044\u9806\u306B\u3001", /*#__PURE__*/React.createElement("b", {
     style: {
-      color: C.text
+      color: C.top
     }
   }, "\u8D85\u629C"), "\uFF08\u4E0A\u4F4D3\u6A5F\uFF09\uFF0F", /*#__PURE__*/React.createElement("b", {
     style: {
@@ -1444,7 +1402,7 @@ function App() {
     style: {
       color: C.muted
     }
-  }, "\u4E0B\u4F4D"), "\u3002\u5E2F\u3068\u30D0\u30FC\u306F\u660E\u308B\u3044\u307B\u3069\u4E0A\u4F4D\u3067\u3059\u3002\u65B0\u66FF\u304B\u30895\u7BC0\u306E\u5834\u306F\u5E8F\u5217\u3092\u4ED8\u3051\u307E\u305B\u3093\u3002"), /*#__PURE__*/React.createElement("div", {
+  }, "\u4E0B\u4F4D"), "\u3002\u30D0\u30FC\u306F\u8D85\u629C\u304C\u9EC4\u3001\u307B\u304B\u306F\u660E\u308B\u3044\u307B\u3069\u4E0A\u4F4D\u3067\u3059\u3002\u65B0\u66FF\u304B\u30895\u7BC0\u306E\u5834\u306F\u5E8F\u5217\u3092\u4ED8\u3051\u307E\u305B\u3093\u3002"), /*#__PURE__*/React.createElement("div", {
     style: {
       color: C.muted,
       marginTop: 4
@@ -1476,11 +1434,11 @@ function App() {
     style: {
       marginTop: 4
     }
-  }, "\u30D0\u30FC\u4E0A\u306E", /*#__PURE__*/React.createElement("b", {
+  }, "\u30D0\u30FC\u306B\u4ED8\u3044\u305F", /*#__PURE__*/React.createElement("b", {
     style: {
       color: C.text
     }
-  }, "\u7D30\u3044\u7E26\u7DDA"), "\u306F\u3001\u305D\u306E\u5834\u306E2\u9023\u7387\u306E\u4E2D\u592E\u5024\u3067\u3059\u3002")), /*#__PURE__*/React.createElement("div", {
+  }, "\u767D\u3044\u7E26\u306E\u76EE\u5370"), "\u306F\u3001\u305D\u306E\u5834\u306E2\u9023\u7387\u306E\u771F\u3093\u4E2D\uFF08\u4E2D\u592E\u5024\uFF09\u3067\u3059\u3002")), /*#__PURE__*/React.createElement("div", {
     style: {
       color: "#8faabe",
       fontWeight: 700,
@@ -1519,10 +1477,10 @@ function App() {
     style: {
       minHeight: 44,
       padding: "8px",
-      background: "#162232",
+      background: "#0d1c2f",
       color: C.text,
-      border: "1px solid #1e2d3d",
-      borderRadius: 6,
+      border: "1px solid #55708f",
+      borderRadius: 0,
       fontSize: F.input,
       fontFamily: "inherit"
     }
@@ -1540,10 +1498,10 @@ function App() {
       minWidth: 120,
       minHeight: 44,
       padding: "8px 10px",
-      background: "#162232",
+      background: "#0d1c2f",
       color: C.text,
-      border: "1px solid #1e2d3d",
-      borderRadius: 6,
+      border: "1px solid #55708f",
+      borderRadius: 0,
       fontSize: F.input,
       fontFamily: "inherit"
     }

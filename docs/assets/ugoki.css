@@ -1,0 +1,77 @@
+/* 動き 第2版（実験場・2026-10-23）。第1版 ugoki.css に ⑤〜⑦ の細かい動きを足したもの。けん「各ページに細かい動きを」→ 案①〜⑦。
+   決まり：押した・開いた・切り替わった瞬間だけ、短く（120〜250ms）。スクロールでは動かさない。視差効果を減らす設定では出さない。 */
+/* 動きの試作（実験場・2026-10-23）
+   ① スタート：題字の下を枠色の帯が左から右へ走る（開いたとき1回だけ）
+   ② 手ごたえ：押すと少し沈む（小さな振動は ugoki.js）
+   ③ ページ送り：別のページへ移るとき、画面が左へ流れて消える
+   ④ パタパタ：結果のレースを開いたとき、払戻の数字が表示板のようにめくれてから止まる
+   スクロールで順に出る動き・数字のカウントアップ・動き続ける飾りは使わない */
+
+/* ① スタートの帯 */
+.ugBand{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));width:min(300px,78%);height:5px;margin:12px auto 0}
+.ugBand i{display:block;transform-origin:left center}
+.ugBand i:nth-child(1){background:#ffffff}.ugBand i:nth-child(2){background:#111111;box-shadow:inset 0 0 0 1px #3a4a5c}.ugBand i:nth-child(3){background:#e2382f}
+.ugBand i:nth-child(4){background:#2a6fd6}.ugBand i:nth-child(5){background:#f2c200}.ugBand i:nth-child(6){background:#1f9a55}
+@keyframes ugRun{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.ugBand i{animation:ugRun .16s cubic-bezier(.2,.7,.2,1) both}
+.ugBand i:nth-child(2){animation-delay:.07s}.ugBand i:nth-child(3){animation-delay:.14s}.ugBand i:nth-child(4){animation-delay:.21s}
+.ugBand i:nth-child(5){animation-delay:.28s}.ugBand i:nth-child(6){animation-delay:.35s}
+
+/* ② 手ごたえ */
+.ugP{transition:transform .09s ease-out,box-shadow .09s ease-out}
+.ugP.ugDown{transform:translateY(1px) scale(.985)}
+.mc.ugDown{box-shadow:inset 0 6px 0 var(--c) !important}
+
+/* ② iPhone の振動用に、押せる部品の上に重ねる透明な label。中のスイッチは指の下に置かない（スクロールを止めないため） */
+.ugSwCover{position:absolute !important;inset:0 !important;display:block !important;margin:0 !important;padding:0 !important;background:none !important;border:0 !important;z-index:50 !important;cursor:inherit;touch-action:manipulation !important;-webkit-tap-highlight-color:transparent}
+.ugSwCover input{position:absolute !important;left:0 !important;top:0 !important;width:1px !important;height:1px !important;margin:0 !important;visibility:hidden !important}
+
+/* ③ ページ送り */
+html.ugLeave body{transition:transform .18s ease-in,opacity .18s ease-in;transform:translateX(-28px);opacity:0}
+html.ugEnter body{animation:ugIn .22s ease-out both}
+@keyframes ugIn{from{transform:translateX(24px);opacity:0}to{transform:none;opacity:1}}
+
+/* ④ パタパタ：数字1字ずつが、上半分が倒れ、下半分が起き上がってめくれる。
+   止まったあとの普通の文字と見た目がずれないよう、札の地は周りの背景色（--ugBg）、幅は元の数字の幅、書体と行の高さは元のまま */
+.ugC{position:relative;display:inline-block;text-align:center;line-height:inherit;vertical-align:baseline}
+.ugS{display:block}
+.ugH{position:absolute;left:0;right:0;height:50%;overflow:hidden;background:var(--ugBg,transparent);z-index:2;backface-visibility:hidden}
+.ugH i{display:block;font-style:normal;line-height:inherit;height:200%}
+.ugTop{top:0}
+.ugBot{bottom:0}
+.ugBot i{transform:translateY(-50%)}
+.ugFall{transform-origin:center bottom;animation:ugFall 75ms ease-in both;z-index:4;box-shadow:inset 0 -1px 0 rgba(0,0,0,.55)}
+.ugRise{transform-origin:center top;animation:ugRise 75ms ease-out 75ms both;z-index:4}
+@keyframes ugFall{from{transform:perspective(180px) rotateX(0)}to{transform:perspective(180px) rotateX(-90deg)}}
+@keyframes ugRise{from{transform:perspective(180px) rotateX(90deg)}to{transform:perspective(180px) rotateX(0)}}
+
+@media (prefers-reduced-motion:reduce){
+  .ugBand i,.ugFall,.ugRise,html.ugEnter body{animation:none !important}
+  html.ugLeave body{transition:none;transform:none;opacity:1}
+  .ugP.ugDown{transform:none}
+}
+
+/* ---- 第2版で足した動き ---- */
+/* ① 開いた中身：少し上から降りながら濃くなる（160ms） */
+@keyframes ugDrop{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.ugDrop{animation:ugDrop .16s cubic-bezier(.2,.7,.2,1) both}
+/* ⑥ 入れ替わった一覧：薄い状態から一瞬で濃く（120ms） */
+@keyframes ugFade{from{opacity:.15}to{opacity:1}}
+.ugFade{animation:ugFade .12s ease-out both}
+/* ② タブの金の線：前の選択から新しい選択へ滑って移る（200ms）。移ったら消える */
+.ugTabBar{position:absolute;height:2px;background:#dcbd78;z-index:40;pointer-events:none;transition:left .2s cubic-bezier(.2,.7,.2,1),width .2s cubic-bezier(.2,.7,.2,1),opacity .15s ease-out}
+/* ③ ★・フォロー：一瞬ふくらんで戻る（180ms） */
+@keyframes ugPop{0%{transform:scale(1)}45%{transform:scale(1.28)}100%{transform:scale(1)}}
+.ugPop{animation:ugPop .18s ease-out both;display:inline-block}
+/* ⑤ パソコンでリンクに乗せたとき：金の下線が左から伸びる（150ms） */
+@keyframes ugLine{from{background-size:0 1px}to{background-size:100% 1px}}
+@media (hover:hover) and (pointer:fine){
+  a.ugTxtLink:hover{text-decoration-color:transparent !important;background-image:linear-gradient(#dcbd78,#dcbd78);background-repeat:no-repeat;background-position:0 100%;background-size:100% 1px;animation:ugLine .15s ease-out both}
+}
+/* ⑦ 新しく出たバー：0から伸びる（250ms） */
+@keyframes ugGrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.ugGrow{transform-origin:left center;animation:ugGrow .25s cubic-bezier(.2,.7,.2,1) both}
+@media (prefers-reduced-motion:reduce){
+  .ugDrop,.ugFade,.ugPop,.ugGrow,a.ugTxtLink:hover{animation:none !important}
+  .ugTabBar{display:none !important}
+}
