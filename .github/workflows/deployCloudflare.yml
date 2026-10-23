@@ -4,11 +4,11 @@
 # 罠が動くのは docs/_routes.json に書いた対象パスだけ（それ以外は静的配信のまま・関数の回数を使わない）。
 # 必要な登録（けんが GitHub の Settings → Secrets and variables → Actions で行う）:
 #   Secrets  : CLOUDFLARE_API_TOKEN（権限 Cloudflare Pages:Edit）, CLOUDFLARE_ACCOUNT_ID
-#   Variables: CF_PAGES_PROJECT（省略時 datazeme → URL は datazeme.pages.dev）
+#   Secrets  : CF_PAGES_PROJECT_SECRET（配信先の Pages プロジェクト名。名前は公開の場所に書かない＝Secrets に置き、ログでも伏せ字になる）
 #
 # 注意：自動更新WFが GITHUB_TOKEN で push したコミットは、GitHub の決まりで他のWFを起動しない。
 # 1日数十回の自動更新はすべてそれなので、push トリガだけだと配信が止まる
-# （2026-10-17 実測：人の push 3回しか動かず、datazeme は古いままだった）。
+# （2026-10-17 実測：人の push 3回しか動かず、配信先は古いままだった）。
 # そのため 10 分おきの定時でも動かし、前回の配信から main が変わっていなければ何もしない。
 name: Cloudflare Pages 配信
 
@@ -39,7 +39,7 @@ jobs:
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      PROJECT: ${{ vars.CF_PAGES_PROJECT || 'datazeme' }}
+      PROJECT: ${{ secrets.CF_PAGES_PROJECT_SECRET }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -65,6 +65,7 @@ jobs:
         run: |
           test -n "$CLOUDFLARE_API_TOKEN" || { echo "::error::Secrets に CLOUDFLARE_API_TOKEN が無い"; exit 1; }
           test -n "$CLOUDFLARE_ACCOUNT_ID" || { echo "::error::Secrets に CLOUDFLARE_ACCOUNT_ID が無い"; exit 1; }
+          test -n "$PROJECT" || { echo "::error::Secrets に CF_PAGES_PROJECT_SECRET が無い"; exit 1; }
 
       - uses: actions/setup-node@v4
         if: steps.changed.outputs.skip == 'false'
