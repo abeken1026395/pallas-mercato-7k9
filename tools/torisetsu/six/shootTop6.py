@@ -3,9 +3,9 @@ import asyncio, sys
 sys.path.insert(0, "/home/claude/six"); sys.path.insert(0, "/home/claude")
 from shootLib import *
 SPECS = [
-    ("figTopNav", ".hd", "#tdRest",
+    ("figTopNav", ".byline", "#tdRest",
      [".promise", ".guide", ".quick", "#updateline", ".sec#0", "#tdCard >> .date", "#tdMark >> *#0", "#tdRest"],
-     {"pad_top": -60}),
+     {"pad_top": 4}),
     ("figTopKaisai", "#tdPeaks >> li#0", ".sec#2",
      ["#tdPeaks >> li#0", "#exBtn", ".cta", ".homeHint", ".sec#1", ".sec#2"],
      {"pad_bot": 16}),

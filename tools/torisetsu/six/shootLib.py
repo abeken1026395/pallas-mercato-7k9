@@ -65,8 +65,21 @@ FIND = r"""
 """
 
 
+FD = "/home/claude/next/fonts/"
+FONTFILES = {"dela.woff2": FD + "fontsource-dela-gothic-one-5.3.0/package/files/dela-gothic-one-japanese-400-normal.woff2"}
+for w in (500, 600, 700):
+    FONTFILES["bc%d.woff2" % w] = FD + "bc/package/files/barlow-condensed-latin-%d-normal.woff2" % w
+# Google Fonts は外に出られないので、同じ書体を手元のファイルで返す（本番の見た目と同じ字で撮る）
+FONTCSS = "@font-face{font-family:'Dela Gothic One';font-weight:400;src:url(https://fontfile.local/dela.woff2) format('woff2')}" + "".join(
+    "@font-face{font-family:'Barlow Condensed';font-weight:%d;src:url(https://fontfile.local/bc%d.woff2) format('woff2')}" % (w, w) for w in (500, 600, 700))
+
+
 async def route(r):
     u = r.request.url
+    if "fonts.googleapis.com" in u:
+        return await r.fulfill(body=FONTCSS, content_type="text/css")
+    if "fontfile.local/" in u:
+        return await r.fulfill(path=FONTFILES[u.rsplit("/", 1)[-1]], content_type="font/woff2")
     for k, v in VEND.items():
         if u.endswith(k):
             return await r.fulfill(path=v, content_type="application/javascript")
@@ -126,7 +139,7 @@ async def openPage(b, path, at=AT):
         PROD = {"topI.html": "/", "playersH.html": "/players/", "racers.html": "/racers/", "highlights.html": "/highlights/",
                 "motor.html": "/motor/", "motorMaintenance.html": "/motor-maintenance/", "stadium.html": "/stadium/",
                 "results.html": "/results/", "payouts.html": "/payouts/", "kensho.html": "/kensho/", "glossary.html": "/glossary/"}
-        url = "http://localhost:8130" + PROD[path]
+        url = BASE + PROD[path]   # 2026-10-24 本番（リポジトリの docs を :8112 で出したもの）
     else:
         url = (BASE + "/next/" + path) if path.startswith(("top", "players")) else (K6 + path)
     await pg.goto(url, wait_until="networkidle")
