@@ -30,3 +30,5 @@ p{line-height:1.85}
 .kataNum{font-family:"Barlow Condensed","Hiragino Sans",-apple-system,sans-serif !important;font-variant-numeric:tabular-nums !important;letter-spacing:.01em !important}
 /* 金の差し色 */
 ::selection{background:rgba(212,176,106,.35)}
+/* 状態が変わる部品（型の色を塗らない部品）も、角だけは四角にそろえる（形は状態で変わらないので） */
+:root [data-kskip][data-kskip]{border-radius:0 !important}

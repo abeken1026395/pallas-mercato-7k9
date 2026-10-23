@@ -28,7 +28,7 @@
 .siteback:focus-visible{outline:2px solid currentColor;outline-offset:2px}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&amp;family=Dela+Gothic+One&amp;display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../next/kata5.css?v=66c79811">
+<link rel="stylesheet" href="../next/kata5.css?v=40f07146">
 <link rel="stylesheet" href="../next/ugoki2.css?v=83cea300">
 </head>
 <body>
@@ -39,11 +39,11 @@
 <script type="text/babel">
 const { useState, useMemo, useEffect } = React;
 
-const PSYCH = { "gap":{label:"射幸心×童謡",c:"#ffd166"}, "nostalgia":{label:"郷愁",c:"#7fe0a0"}, "tension":{label:"緊張・高揚",c:"#f85149"}, "local-pride":{label:"ご当地",c:"#58a6ff"}, "mystery":{label:"ミステリー",c:"#a371f7"}, "class":{label:"格調",c:"#e59ac9"}, "none":{label:"BGMなし",c:"#8faabe"} };
+const PSYCH = { "gap":{label:"射幸心×童謡",c:"#ffd166"}, "nostalgia":{label:"郷愁",c:"#7fe0a0"}, "tension":{label:"緊張・高揚",c:"#f85149"}, "local-pride":{label:"ご当地",c:"#58a6ff"}, "mystery":{label:"ミステリー",c:"#dcbd78"}, "class":{label:"格調",c:"#dcbd78"}, "none":{label:"BGMなし",c:"#8faabe"} };
 // 締切BGMが無い場は、曲の心理分類ではなく「BGMなし」に分類する
 const psychOf = (bg) => bg.status === "none" ? "none" : bg.psych;
 const STATUS_LABEL = { "none":"締切BGMなし", "unknown":"曲名は未特定", "page_exists":"公式ページに記載あり（曲名は未確認）" };
-const PRESENT = { "yes":{label:"場立ちあり",c:"#3fb950"}, "official":{label:"公式記載",c:"#58a6ff"}, "advisor":{label:"解説アドバイザー",c:"#a371f7"}, "paper":{label:"予想紙",c:"#d29922"}, "unknown":{label:"未確認",c:"#9fb0c3"} };
+const PRESENT = { "yes":{label:"場立ちあり",c:"#3fb950"}, "official":{label:"公式記載",c:"#58a6ff"}, "advisor":{label:"解説アドバイザー",c:"#dcbd78"}, "paper":{label:"予想紙",c:"#d29922"}, "unknown":{label:"未確認",c:"#9fb0c3"} };
 // タップ対象を24px以上にする小さなリンク用（WCAG 2.2 / 2.5.8）
 const TAP = {display:"inline-flex",alignItems:"center",minHeight:24,minWidth:24};
 
@@ -72,21 +72,21 @@ function BgmSection({data, e30}) {
       {col && (
       <div style={{marginBottom:12,background:"#1a1222",border:"1px solid #4a2f5a",borderRadius:10,padding:"11px 13px"}}>
         <div onClick={()=>setIntro(!intro)} style={{display:"flex",alignItems:"center",cursor:"pointer",gap:8}}>
-          <span style={{fontSize:14,fontWeight:800,color:"#e59ac9"}}>🎵 {col.title}</span>
-          <span style={{marginLeft:"auto",fontSize:11,color:"#c98fd0"}}>{intro?"▲ 閉じる":"▼ 読む"}</span>
+          <span style={{fontSize:14,fontWeight:800,color:"#dcbd78"}}>🎵 {col.title}</span>
+          <span style={{marginLeft:"auto",fontSize:11,color:"#dcbd78"}}>{intro?"▲ 閉じる":"▼ 読む"}</span>
         </div>
         <div style={{fontSize:12,color:"#d8c5e0",lineHeight:1.7,marginTop:6}}>{col.lead}</div>
         {intro && (
         <div style={{marginTop:8}}>
           {(col.angles||[]).map((a,i)=>(
-            <div key={i} style={{marginBottom:6,paddingLeft:8,borderLeft:"2px solid "+((PSYCH[a.key]&&PSYCH[a.key].c)||"#a371f7")}}>
-              <span style={{fontSize:12,fontWeight:700,color:(PSYCH[a.key]&&PSYCH[a.key].c)||"#c9a8ff"}}>{a.label}</span>
+            <div key={i} style={{marginBottom:6,paddingLeft:8,borderLeft:"2px solid "+((PSYCH[a.key]&&PSYCH[a.key].c)||"#dcbd78")}}>
+              <span style={{fontSize:12,fontWeight:700,color:(PSYCH[a.key]&&PSYCH[a.key].c)||"#dcbd78"}}>{a.label}</span>
               <div style={{fontSize:12,color:"#c5d2e0",lineHeight:1.6}}>{a.text}</div>
             </div>
           ))}
           {data.common && data.common.fanfare && (
           <div style={{marginTop:8,background:"#0f1a26",border:"1px solid #2a3d52",borderRadius:8,padding:"8px 10px"}}>
-            <div style={{fontSize:12,fontWeight:700,color:"#e59ac9",marginBottom:3}}>🎺 ピットアウトのファンファーレ（全国共通）</div>
+            <div style={{fontSize:12,fontWeight:700,color:"#dcbd78",marginBottom:3}}>🎺 ピットアウトのファンファーレ（全国共通）</div>
             {data.common.fanfare.hook && <div style={{fontSize:12,color:"#e6d0ee",lineHeight:1.7,marginBottom:5}}>{data.common.fanfare.hook}</div>}
             <div style={{fontSize:12,color:"#c5d2e0",lineHeight:1.6}}>{data.common.fanfare.note}</div>
             <div style={{fontSize:11,color:"#9a8db0",lineHeight:1.6,marginTop:4}}>作曲：{(data.common.fanfare.composers||[]).join(" ／ ")}</div>
@@ -100,7 +100,7 @@ function BgmSection({data, e30}) {
       )}
 
       <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:10}}>
-        <button onClick={()=>setPf("ALL")} style={{padding:"5px 11px",cursor:"pointer",background:pf==="ALL"?"#e59ac922":"#111d2b",color:pf==="ALL"?"#e59ac9":"#8faabe",border:"1px solid "+(pf==="ALL"?"#e59ac9":"#1e2d3d"),borderRadius:999,fontSize:12,fontWeight:700}}>すべて</button>
+        <button onClick={()=>setPf("ALL")} style={{padding:"5px 11px",cursor:"pointer",background:pf==="ALL"?"#e59ac922":"#111d2b",color:pf==="ALL"?"#dcbd78":"#8faabe",border:"1px solid "+(pf==="ALL"?"#dcbd78":"#1e2d3d"),borderRadius:999,fontSize:12,fontWeight:700}}>すべて</button>
         {psychs.map(k=>(
           <button key={k} onClick={()=>setPf(k)} style={{padding:"5px 11px",cursor:"pointer",background:pf===k?PSYCH[k].c+"22":"#111d2b",color:pf===k?PSYCH[k].c:"#8faabe",border:"1px solid "+(pf===k?PSYCH[k].c:"#1e2d3d"),borderRadius:999,fontSize:12,fontWeight:700}}>{PSYCH[k]?PSYCH[k].label:k}</button>
         ))}
@@ -119,7 +119,7 @@ function BgmSection({data, e30}) {
                 <span style={{fontSize:16,fontWeight:800,color:"#f0d8f6",minWidth:54}}>{bg.name}</span>
                 {ps && <span style={{fontSize:10,fontWeight:700,color:ps.c,background:ps.c+"18",border:"1px solid "+ps.c+"66",borderRadius:5,padding:"1px 6px"}}>{ps.label}</span>}
                 <span style={{fontSize:11,color:"#a880b0"}}>{songs.length?songs.length+"曲":(STATUS_LABEL[bg.status]||"")}</span>
-                <span style={{marginLeft:"auto",fontSize:11,color:"#c98fd0"}}>{isOpen?"▲":"▼"}</span>
+                <span style={{marginLeft:"auto",fontSize:11,color:"#dcbd78"}}>{isOpen?"▲":"▼"}</span>
               </div>
               {e30 && e30[code] && <div style={{fontSize:11,fontWeight:700,color:"#8fd6c0",marginTop:5}}>E30切替：{e30[code]}〜</div>}
               {bg.hook && <div style={{fontSize:12.5,color:"#e6d0ee",lineHeight:1.7,marginTop:6,fontStyle:"italic"}}>{bg.hook}</div>}
@@ -133,7 +133,7 @@ function BgmSection({data, e30}) {
                     {sg.artist && <span style={{fontSize:11,color:"#b090b8"}}>（{sg.artist}）</span>}
                     {sg.type && <span style={{marginLeft:6,fontSize:10,color:"#9fb5c9",background:"#0b1219",border:"1px solid #2a3d52",borderRadius:5,padding:"1px 5px"}}>{sg.type}</span>}
                     <span style={{marginLeft:6,fontSize:10,fontWeight:700,color:off?"#3fb950":"#d29922",background:(off?"#3fb950":"#d29922")+"18",border:"1px solid "+(off?"#3fb950":"#d29922")+"66",borderRadius:5,padding:"1px 6px"}}>{off?"公式確認":"諸説あり"}</span>
-                    {sg.source && <a href={sg.source} target="_blank" rel="noopener" onClick={e=>e.stopPropagation()} style={{...TAP,marginLeft:6,fontSize:11,color:"#c98fd0"}}>出典→</a>}
+                    {sg.source && <a href={sg.source} target="_blank" rel="noopener" onClick={e=>e.stopPropagation()} style={{...TAP,marginLeft:6,fontSize:11,color:"#dcbd78"}}>出典→</a>}
                     {sg.listen && <a href={sg.listen.url} target="_blank" rel="noopener" onClick={e=>e.stopPropagation()} title={sg.listen.kind==="official"?"公式が配信/配布する音源":"原曲そのものの検索（場の音源そのものとは限りません）"} style={{...TAP,marginLeft:6,fontSize:11,fontWeight:700,color:sg.listen.kind==="official"?"#7fe0a0":"#9fb5c9"}}>{sg.listen.kind==="official"?"▶ 公式音源":"🔍 原曲(参考)"}</a>}
                   </div>
                   );
@@ -264,12 +264,12 @@ function App() {
   return (
     <div style={{minHeight:"100vh",padding:"12px",maxWidth:900,margin:"0 auto"}}>
       <div style={{display:"flex",alignItems:"baseline",gap:10,marginBottom:4,flexWrap:"wrap"}}>
-        <span style={{fontSize:20,fontWeight:800,color:"#e59ac9"}}>場文化コレクション</span>
+        <span style={{fontSize:20,fontWeight:800,color:"#dcbd78"}}>場文化コレクション</span>
       </div>
       <div style={{fontSize:11.5,color:"#8faabe",marginBottom:12,lineHeight:1.6}}>締切BGM、場立ち予想屋、実況アナ——数字には出ない“場の文化”を24場横断で。買い目・勝敗・的中は出しません。</div>
 
       <div style={{display:"flex",gap:6,marginBottom:12,flexWrap:"wrap"}}>
-        <Tab id="bgm" cur={tab} set={setTab} c="#e59ac9">🎵 場内BGM・締切曲</Tab>
+        <Tab id="bgm" cur={tab} set={setTab} c="#dcbd78">🎵 場内BGM・締切曲</Tab>
         <Tab id="yosouya" cur={tab} set={setTab} c="#d9b382">🎫 場内予想屋</Tab>
         <a href="../announcers/" style={{flex:1,minWidth:100,padding:"9px 10px",display:"flex",alignItems:"center",justifyContent:"center",textDecoration:"none",background:"#111d2b",color:"#3fb56b",border:"1px solid #1e2d3d",borderRadius:8,fontSize:13,fontWeight:800}}>🎙 実況アナ図鑑 →</a>
       </div>
@@ -344,6 +344,6 @@ if(_s){
 </script><footer style="margin:24px auto 8px;max-width:900px;text-align:center;font-size:10px;color:#8a94a3;letter-spacing:.3px;line-height:1.7;">© 2026 データ攻め ── 制作・運営 <a href="https://www.youtube.com/@abe-ken" target="_blank" rel="noopener" style="color:#9aa4b3;text-decoration:underline;">あべけん</a></footer>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics -->
 <script src="../assets/guard.js" defer></script>
-<script src="../next/kata5.js?v=66c79811"></script>
+<script src="../next/kata5.js?v=40f07146"></script>
 <script src="../next/ugoki2.js?v=83cea300"></script>
 </body></html>
