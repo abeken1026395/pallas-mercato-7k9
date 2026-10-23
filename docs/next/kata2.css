@@ -4,8 +4,9 @@
    本番ではこの上書きを使わず、各ページの元ファイルを直す。 */
 
 /* 背景：トップと同じ、上から下へ暗くなる紺 */
-html{background:#0a1422 !important}
-body{background:linear-gradient(180deg,#1b3a5e 0,#132b46 360px,#0d1c2f 900px,#0a1422 1500px) #0a1422 !important;background-repeat:no-repeat !important}
+/* 紺の段階は html に置く（本文の幅が狭いページでも、左右の余白まで同じ背景になるように） */
+html{background:linear-gradient(180deg,#1b3a5e 0,#132b46 360px,#0d1c2f 900px,#0a1422 1500px) #0a1422 !important;background-repeat:no-repeat !important}
+body{background:transparent !important}
 /* 書体：端末の標準（テレボートと同じ） */
 body{font-family:-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif !important;-webkit-font-smoothing:antialiased}
 /* 各ページの題字：Dela Gothic One の白 */
