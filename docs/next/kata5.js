@@ -63,7 +63,7 @@
   function styleEl(el){
     if (done.has(el)) return; done.add(el);
     var tag = el.tagName;
-    if (el.closest("[data-kata-skip]")) return; // ページ側で形を決めている部品はさわらない
+    if (el.closest("[data-kata-skip],[data-kskip]")) return; // ページ側で形を決めている部品・状態が変わる部品はさわらない
     if (tag === "IMG") { if (parseFloat(getComputedStyle(el).borderTopLeftRadius) > 0) el.style.setProperty("border-radius", "0", "important"); return; }
     if (tag === "HTML" || tag === "BODY" || tag === "SCRIPT" || tag === "STYLE" || tag === "IMG" || tag === "CANVAS" || el.closest("svg") || el.classList.contains("ugSwCover")) return;
     var cs = getComputedStyle(el), r = el.getBoundingClientRect(), w = r.width, h = r.height;
@@ -190,7 +190,7 @@
     var els = root.querySelectorAll ? [root].concat(Array.prototype.slice.call(root.querySelectorAll("*"))) : []; // かけ直すときは、その部品自身も含める
     for (var i = 0; i < els.length; i++) {
       var e = els[i];
-      if (e.closest(".kataNote,svg,canvas,.ugSwCover,script,style,.kataTitle,[data-kata-skip]")) continue;
+      if (e.closest(".kataNote,svg,canvas,.ugSwCover,script,style,.kataTitle,[data-kata-skip],[data-kskip]")) continue;
       var r = e.getBoundingClientRect(); if (!r.width || !r.height) continue;
       var s = getComputedStyle(e), y = r.top + window.scrollY, b = parseC(s.backgroundColor);
       // 23) 左の細い色の棒（中身の無い細い要素・::before/::after の細い帯）→ 消す
@@ -241,7 +241,7 @@
     var els = root.querySelectorAll ? [root].concat(Array.prototype.slice.call(root.querySelectorAll("*"))) : []; // かけ直すときは、その部品自身も含める
     for (var i = 0; i < els.length; i++) {
       var e = els[i];
-      if (e.closest(".kataNote,svg,canvas,.ugSwCover,script,style,[data-kata-skip],input,select,textarea,option")) continue;
+      if (e.closest(".kataNote,svg,canvas,.ugSwCover,script,style,[data-kata-skip],[data-kskip],input,select,textarea,option")) continue;
       var s = getComputedStyle(e);
       var own = Array.prototype.some.call(e.childNodes, function(n){ return n.nodeType === 3 && n.nodeValue.trim(); });
       var tx = (e.textContent || "").trim();
@@ -278,7 +278,7 @@
     var els = root.querySelectorAll ? [root].concat(Array.prototype.slice.call(root.querySelectorAll("*"))) : []; // かけ直すときは、その部品自身も含める
     var seen = new Set();
     for (var i = 0; i < els.length; i++) {
-      var p = els[i]; if (seen.has(p) || p.children.length < 3 || p.closest(".kataNote")) continue;
+      var p = els[i]; if (seen.has(p) || p.children.length < 3 || p.closest(".kataNote,[data-kskip]")) continue;
       seen.add(p);
       var kids = Array.prototype.filter.call(p.children, function(c){
         var s = getComputedStyle(c), b = parseC(s.backgroundColor), r = c.getBoundingClientRect();
@@ -363,7 +363,26 @@
     try { passInner(node); } finally { recording--; }
     markOwn(node);
   }
+  // 選んだ状態を持つ部品（タブ・札・日付の切り替えなど）は、最初から型をかけない（ページの色のまま）。
+  // 見分け方：class に on／active などがある・aria-selected／aria-pressed がある・class が tab／chip など、
+  // または同じ形の兄弟が並び、1つだけ地の色が違う（選ばれている）組
+  var CTL = ".tab,.tabs > *,.chip,.chipbtn,.dsw-btn,[role=tab],[aria-selected],[aria-pressed],.on,.active,.is-active,.sel,.selected,.cur,.current";
+  function markControls(root){
+    if (!root.querySelectorAll) return;
+    var c = [root].concat(Array.prototype.slice.call(root.querySelectorAll(CTL))).filter(function(e){ return e.matches && e.matches(CTL); });
+    c.forEach(function(e){ e.setAttribute("data-kskip", ""); var p = e.parentElement; if (p) Array.prototype.forEach.call(p.children, function(sib){ if (sib.tagName === e.tagName) sib.setAttribute("data-kskip", ""); }); });
+    var ps = new Set(); Array.prototype.forEach.call(root.querySelectorAll("button,[role=button],a,span,div"), function(e){ if (e.parentElement) ps.add(e.parentElement); });
+    ps.forEach(function(p){
+      var kids = Array.prototype.filter.call(p.children, function(k){ return k.tagName === "BUTTON" || k.getAttribute("role") === "button"; });
+      if (kids.length < 2 || kids.length > 14) return;
+      var bgs = kids.map(function(k){ return getComputedStyle(k).backgroundColor + getComputedStyle(k).color; });
+      var cnt = {}; bgs.forEach(function(b){ cnt[b] = (cnt[b] || 0) + 1; });
+      var keys = Object.keys(cnt);
+      if (keys.length === 2 && keys.some(function(k){ return cnt[k] === 1; })) kids.forEach(function(k){ k.setAttribute("data-kskip", ""); });
+    });
+  }
   function passInner(node){
+    markControls(node);
     textPass(node);
     styleEl(node);
     var els = node.querySelectorAll("*");
@@ -381,26 +400,32 @@
     if (window.KATA_LINK_ONLY) { relink(document.body); new MutationObserver(function(ms){ ms.forEach(function(m){ m.addedNodes.forEach(function(a){ if (a.nodeType === 1) relink(a); }); }); }).observe(document.body, { childList: true, subtree: true }); return; }
     title(); pass(document.body);
     window.addEventListener("load", function(){ setTimeout(again, 50); }); setTimeout(again, 1500); setTimeout(again, 4000);
+    // 状態が変わる部品（タブ・札・時刻で class や style が変わる行など）には、型の色を塗らない。
+    // 塗った上からページが状態を切り替えると、古い色が残ったり（けん「出走表はタブに古い色」）、
+    // 塗り直しとページの切り替えが追いかけ合って色がブレ続けたりする（けん「見どころの場別で場所を選ぶと永遠にぶれ続ける」）。
+    // そこで、class・aria・style がページ側で一度でも変わった部品は、その部品と中身から型の塗りを外して元に戻し、以後は塗らない。
+    // 新しく足された中身には、その場で（画面に描かれる前に）型をかける
     new MutationObserver(function(ms){
+      var now = [];
       ms.forEach(function(m){
         if (m.type === "attributes") {
-          if (m.attributeName === "class" && !meaningful(m.oldValue, m.target)) return; // 動き（ug…）や型（kata…）の印だけの変化は見ない
-          if (m.attributeName === "style") {
-            if (m.target.getAttribute("style") === m.target.__kStyle) return; // 型自身が書いた style
-            if (m.target.closest(".ugBoard,.ugSwCover,.ugTabBar")) return;
-            adoptExternal(m.target);
-          }
-          resetTree(m.target);
-          // ページ側の色の切り替えに CSS の transition が付いていると、途中の色で判定してしまう。終わるのを待ってからかけ直す
-          var tg = m.target, td = 0;
-          try { var cs = getComputedStyle(tg); (cs.transitionDuration || "0s").split(",").forEach(function(d, k){ var de = ((cs.transitionDelay || "0s").split(",")[k] || "0s"); td = Math.max(td, (parseFloat(d) * (/ms/.test(d) ? 1 : 1000)) + (parseFloat(de) * (/ms/.test(de) ? 1 : 1000))); }); } catch (x) {}
-          if (td > 0) { setTimeout(function(){ if (tg.isConnected) { resetTree(tg); q.push(tg); if (!busy) { busy = true; setTimeout(flush, 0); } } }, Math.min(td, 1000) + 40); return; }
-          q.push(tg); return;
+          var tg = m.target;
+          if (tg.closest("[data-kskip],.ugBoard,.ugSwCover,.ugTabBar,.kataNote")) return;
+          if (m.attributeName === "class" && !meaningful(m.oldValue, tg)) return; // 動き（ug…）や型（kata…）の印だけの変化は見ない
+          if (m.attributeName === "style") { if (tg.getAttribute("style") === tg.__kStyle) return; adoptExternal(tg); } // 型自身が書いた style は見ない
+          // 大きな入れ物（場の札・カードの並び・開閉の箱など）の切り替えは、中の色を変えないことが多いので見送る（塗りはそのまま）。
+          // 状態で色が変わるのは、タブ・札・行のような小さな部品
+          var tr = tg.getBoundingClientRect(); if (tr.height > 80 || tr.width > window.innerWidth * 0.95 && tr.height > 48) return;
+          tg.setAttribute("data-kskip", "");
+          var list = [tg].concat(Array.prototype.slice.call(tg.querySelectorAll("*")));
+          list.forEach(function(e){ adoptExternal(e); restore(e); e.classList.remove("kataNum"); });
+          return;
         }
-        if (m.type === "characterData") { if (m.target.parentElement) q.push(m.target.parentElement); }
-        else m.addedNodes.forEach(function(a){ if (a.nodeType === 1 && !a.classList.contains("ugSwCover")) q.push(a); else if (a.nodeType === 3 && a.parentElement) q.push(a.parentElement); });
+        if (m.type === "characterData") { if (m.target.parentElement) now.push(m.target.parentElement); }
+        else m.addedNodes.forEach(function(a){ if (a.nodeType === 1 && !a.classList.contains("ugSwCover") && !a.classList.contains("ugBoard") && !a.classList.contains("ugTabBar")) now.push(a); else if (a.nodeType === 3 && a.parentElement) now.push(a.parentElement); });
       });
-      if (!busy && q.length) { busy = true; setTimeout(flush, 50); }
+      now = now.filter(function(n, k){ return n.isConnected && !n.closest("[data-kskip]") && now.indexOf(n) === k && !now.some(function(o){ return o !== n && o.contains(n); }); });
+      if (now.length) { now.forEach(pass); title(); }
     }).observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeOldValue: true, attributeFilter: ["class", "aria-selected", "aria-pressed", "style"] });
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
