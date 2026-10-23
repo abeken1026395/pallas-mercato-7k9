@@ -9,7 +9,7 @@
 # 注意：自動更新WFが GITHUB_TOKEN で push したコミットは、GitHub の決まりで他のWFを起動しない。
 # 1日数十回の自動更新はすべてそれなので、push トリガだけだと配信が止まる
 # （2026-10-17 実測：人の push 3回しか動かず、配信先は古いままだった）。
-# そのため 10 分おきの定時でも動かし、前回の配信から main が変わっていなければ何もしない。
+# そのため自動更新WFの終了（workflow_run）と 10 分おきの定時でも動かし、前回の配信から main が変わっていなければ何もしない。
 name: Cloudflare Pages 配信
 
 on:
@@ -22,6 +22,49 @@ on:
   schedule:
     - cron: "*/10 * * * *"
   workflow_dispatch: {}
+  # 自動更新WFが終わるたびに配る（2026-10-24 けん裁定 案A）。定時起動は #766 のマージから約1時間50分、1回も動かなかったため。
+  # workflow_run は GITHUB_TOKEN の push の制限を受けない。下の一覧は「main に push するWFの name:」。WFを足したり名前を変えたらここも直す。
+  workflow_run:
+    branches: [main]
+    types: [completed]
+    workflows:
+      - "選手フォーム指標 racerFormIndex 更新（日次）"
+      - "トップ「今日の開催」データ生成"
+      - "M8影運用（着外モデル・記録のみ）"
+      - "predictions 昼の監視"
+      - "夜間パイプライン統合（自己判断）"
+      - "観戦記素材 当日朝リカバリ（自己修復）"
+      - "regen predictions (parallel)"
+      - "predictions 欠番台帳スキャン（夜）"
+      - "荒れ指数 更新"
+      - "beforeinfo部品交換収集"
+      - "中止情報の取得"
+      - "締切一覧メッセージ自動生成"
+      - "E30選手別成績 更新"
+      - "見どころ「明日」前夜プレビュー生成"
+      - "検証ページ /kensho/ 更新（勝負駆け・体重・F持ち）"
+      - "update kimarite"
+      - "実況天候（直前気象）更新"
+      - "モーター整備一覧 更新"
+      - "updateNigeSecond"
+      - "オッズ 翌朝取得"
+      - "update payouts summary"
+      - "直前情報 随時更新（日中）"
+      - "選手プロフィール軽量版 更新"
+      - "見立て結果照合（夜）"
+      - "レース結果 随時更新（日中）"
+      - "updateSenshuCard"
+      - "スタート遅れ率の更新"
+      - "updateTenjiStats"
+      - "当日潮汐（事実情報）更新"
+      - "更新履歴 追記"
+      - "updateWakuStats"
+      - "見どころJSON自動生成"
+      - "モーターデータ自動更新"
+      - "出走表データ自動更新"
+      - "気象データ自動更新"
+      - "遅い場の出走表を取れるまで待つ"
+      - "観戦記 執筆起動（headless・前夜便/回収便・場単位・自動公開）"
 
 # 走っている1本は最後まで走らせ、待ちは最新の1本だけ残す（古い待ちは自動で捨てられる）
 concurrency:
@@ -54,7 +97,7 @@ jobs:
           NOW=$(git rev-parse HEAD)
           LAST=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/deployCloudflare.yml/runs?status=success&per_page=1" --jq '.workflow_runs[0].head_sha // ""')
           echo "前回の配信 $LAST / 今の main $NOW"
-          if [ "${{ github.event_name }}" = "schedule" ] && [ "$LAST" = "$NOW" ]; then
+          if { [ "${{ github.event_name }}" = "schedule" ] || [ "${{ github.event_name }}" = "workflow_run" ]; } && [ "$LAST" = "$NOW" ]; then
             echo "変更なし。何もしない"; echo "skip=true" >> "$GITHUB_OUTPUT"
           else
             echo "skip=false" >> "$GITHUB_OUTPUT"
