@@ -31,7 +31,13 @@
   function cover(el){
     if (el.__ugSw || !el.isConnected) return;
     if (el.closest("label,select,textarea,[contenteditable]") || el.querySelector("input,select,textarea")) return; // 入力欄を含む部品には重ねない
+    // 指で画面を送れなくならないよう、小さなボタンだけに重ねる（2026-10-23 けん「判定キツすぎてスライドできない」）。
+    // 行・札・開閉の見出しなど大きな部品と、横に送れる帯の中の部品には重ねない（振動はしないが押す・沈むはそのまま）
+    var r = el.getBoundingClientRect();
+    if (!r.width || !r.height) return; // まだ見えていない部品は、開いたときに見直す
     el.__ugSw = 1;
+    if (r.height > 48 || r.width > 200) return;
+    for (var q = el.parentElement; q && q !== document.body; q = q.parentElement) { var ox = getComputedStyle(q).overflowX; if ((ox === "auto" || ox === "scroll") && q.scrollWidth > q.clientWidth + 2) return; }
     if (getComputedStyle(el).position === "static") el.style.position = "relative";
     var sw = document.createElement("input");
     sw.type = "checkbox"; sw.setAttribute("switch", ""); sw.tabIndex = -1;
@@ -50,6 +56,8 @@
       coverAll(document.body);
       new MutationObserver(function(ms){ ms.forEach(function(m){ m.addedNodes.forEach(function(n){ if (n.nodeType === 1 && !n.classList.contains("ugSwCover")) coverAll(n); }); }); })
         .observe(document.body, { childList: true, subtree: true });
+      document.addEventListener("toggle", function(e){ if (e.target && e.target.open) coverAll(e.target); }, true);
+      document.addEventListener("click", function(){ setTimeout(function(){ coverAll(document.body); }, 300); }, true);
     };
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", startCover); else startCover();
   }
