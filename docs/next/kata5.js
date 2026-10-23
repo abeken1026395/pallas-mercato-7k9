@@ -20,6 +20,38 @@
   var FONT = /Helvetica|Arial|Inter|Roboto|Segoe/i;
   var SYS = '-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif';
   var done = new WeakSet();
+  // 型が付けた style を部品ごとに覚えておく（元の値も）。タブの切り替えなどで class が変わったら、
+  // 覚えた分を元に戻してから型をかけ直す。戻さないと、前の状態の色（選ばれていたタブの金の地など）が残る（けん「見どころ内のタブの動きがおかしい」）
+  var KP = new WeakMap(), recording = 0, _sp = CSSStyleDeclaration.prototype.setProperty;
+  CSSStyleDeclaration.prototype.setProperty = function(n, v, pr){
+    var m = null;
+    if (recording) { m = KP.get(this); if (!m) { m = new Map(); KP.set(this, m); } if (!m.has(n)) m.set(n, [this.getPropertyValue(n), this.getPropertyPriority(n), ""]); }
+    var r = _sp.call(this, n, v, pr);
+    if (m) m.get(n)[2] = this.getPropertyValue(n); // 型が入れた値（読み直した形）
+    return r;
+  };
+  // ページ（React など）が style を書き換えたとき：書き換えられた項目は、その新しい値を「元の値」に置き直す
+  function adoptExternal(el){
+    var m = KP.get(el.style); if (!m) return;
+    m.forEach(function(o, n){ var cur = el.style.getPropertyValue(n); if (cur !== o[2]) { o[0] = cur; o[1] = el.style.getPropertyPriority(n); } });
+  }
+  function markOwn(root){
+    var list = [root].concat(Array.prototype.slice.call(root.querySelectorAll ? root.querySelectorAll("*") : []));
+    for (var i = 0; i < list.length; i++) list[i].__kStyle = list[i].getAttribute ? list[i].getAttribute("style") : null;
+  }
+  function restore(el){
+    var m = KP.get(el.style); if (!m) return;
+    m.forEach(function(o, n){ if (o[0]) _sp.call(el.style, n, o[0], o[1]); else el.style.removeProperty(n); });
+    KP.delete(el.style);
+  }
+  function resetTree(root){
+    var list = [root].concat(Array.prototype.slice.call(root.querySelectorAll("*")));
+    for (var i = 0; i < list.length; i++) { var e = list[i]; adoptExternal(e); restore(e); done.delete(e); e.__kNum = 0; e.classList.remove("kataNum", "kataNoBefore", "kataNoAfter"); }
+  }
+  function meaningful(oldCls, el){
+    var f = function(c){ return String(c || "").split(/\s+/).filter(function(x){ return x && !/^(ug|kata)/.test(x); }).sort().join(" "); };
+    return f(oldCls) !== f(el.getAttribute("class"));
+  }
   function px(v){ return parseFloat(v) || 0; }
   function parseC(s){ var m = s && s.match(/rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s*([\d.]+))?\)/); return m ? [+m[1], +m[2], +m[3], m[4] == null ? 1 : +m[4]] : null; }
   function firstColor(s){ var m = s.match(/rgba?\([^)]*\)/); return m ? m[0] : null; }
@@ -53,7 +85,7 @@
     }
     // 2) 黒に近い箱の地 → 紺
     var bg = parseC(cs.backgroundColor);
-    if (bg && bg[3] >= 0.6 && Math.max(bg[0], bg[1], bg[2]) <= 40 && Math.max(bg[0], bg[1], bg[2]) - Math.min(bg[0], bg[1], bg[2]) <= 22 && h >= 24 && w >= 60) {
+    if (bg && bg[3] >= 0.6 && Math.max(bg[0], bg[1], bg[2]) <= 40 && Math.max(bg[0], bg[1], bg[2]) - Math.min(bg[0], bg[1], bg[2]) <= 22 && h >= 16 && w >= 24) { // 第5版：小さな札も同じ紺に（読み込みの途中で大きさが変わると、札ごとに色がばらついたため）
       el.style.setProperty("background-color", "#12233a", "important");
     }
     // 4) 角丸
@@ -155,7 +187,7 @@
   function lum(c){ return c.slice(0, 3).reduce(function(acc, v, i){ v /= 255; v = v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); return acc + [0.2126, 0.7152, 0.0722][i] * v; }, 0); }
   function ratio(a, b){ var x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
   function fixPass(root){
-    var els = root.querySelectorAll ? root.querySelectorAll("*") : [];
+    var els = root.querySelectorAll ? [root].concat(Array.prototype.slice.call(root.querySelectorAll("*"))) : []; // かけ直すときは、その部品自身も含める
     for (var i = 0; i < els.length; i++) {
       var e = els[i];
       if (e.closest(".kataNote,svg,canvas,.ugSwCover,script,style,.kataTitle,[data-kata-skip]")) continue;
@@ -206,7 +238,7 @@
   var GOLD_T = "#dcbd78", GOLD_B = "#c8a45e";
   function isYellow(c){ if (!c || c[3] === 0) return false; var x = hue(c); return x[0] >= 38 && x[0] <= 58 && x[1] >= 0.55 && x[2] >= 0.45; }
   function premiumPass(root){
-    var els = root.querySelectorAll ? root.querySelectorAll("*") : [];
+    var els = root.querySelectorAll ? [root].concat(Array.prototype.slice.call(root.querySelectorAll("*"))) : []; // かけ直すときは、その部品自身も含める
     for (var i = 0; i < els.length; i++) {
       var e = els[i];
       if (e.closest(".kataNote,svg,canvas,.ugSwCover,script,style,[data-kata-skip],input,select,textarea,option")) continue;
@@ -243,7 +275,7 @@
 
   // 17) 縦に積んだ同じ形の箱（カードの山）→ 罫線で区切る一覧に。並び・中身はそのまま
   function stackPass(root){
-    var els = root.querySelectorAll ? root.querySelectorAll("*") : [];
+    var els = root.querySelectorAll ? [root].concat(Array.prototype.slice.call(root.querySelectorAll("*"))) : []; // かけ直すときは、その部品自身も含める
     var seen = new Set();
     for (var i = 0; i < els.length; i++) {
       var p = els[i]; if (seen.has(p) || p.children.length < 3 || p.closest(".kataNote")) continue;
@@ -327,6 +359,11 @@
   }
   function pass(node){
     if (node.nodeType !== 1) return;
+    recording++;
+    try { passInner(node); } finally { recording--; }
+    markOwn(node);
+  }
+  function passInner(node){
     textPass(node);
     styleEl(node);
     var els = node.querySelectorAll("*");
@@ -346,12 +383,25 @@
     window.addEventListener("load", function(){ setTimeout(again, 50); }); setTimeout(again, 1500); setTimeout(again, 4000);
     new MutationObserver(function(ms){
       ms.forEach(function(m){
-        if (m.type === "attributes") { done.delete(m.target); q.push(m.target); return; }
+        if (m.type === "attributes") {
+          if (m.attributeName === "class" && !meaningful(m.oldValue, m.target)) return; // 動き（ug…）や型（kata…）の印だけの変化は見ない
+          if (m.attributeName === "style") {
+            if (m.target.getAttribute("style") === m.target.__kStyle) return; // 型自身が書いた style
+            if (m.target.closest(".ugBoard,.ugSwCover,.ugTabBar")) return;
+            adoptExternal(m.target);
+          }
+          resetTree(m.target);
+          // ページ側の色の切り替えに CSS の transition が付いていると、途中の色で判定してしまう。終わるのを待ってからかけ直す
+          var tg = m.target, td = 0;
+          try { var cs = getComputedStyle(tg); (cs.transitionDuration || "0s").split(",").forEach(function(d, k){ var de = ((cs.transitionDelay || "0s").split(",")[k] || "0s"); td = Math.max(td, (parseFloat(d) * (/ms/.test(d) ? 1 : 1000)) + (parseFloat(de) * (/ms/.test(de) ? 1 : 1000))); }); } catch (x) {}
+          if (td > 0) { setTimeout(function(){ if (tg.isConnected) { resetTree(tg); q.push(tg); if (!busy) { busy = true; setTimeout(flush, 0); } } }, Math.min(td, 1000) + 40); return; }
+          q.push(tg); return;
+        }
         if (m.type === "characterData") { if (m.target.parentElement) q.push(m.target.parentElement); }
         else m.addedNodes.forEach(function(a){ if (a.nodeType === 1 && !a.classList.contains("ugSwCover")) q.push(a); else if (a.nodeType === 3 && a.parentElement) q.push(a.parentElement); });
       });
       if (!busy && q.length) { busy = true; setTimeout(flush, 50); }
-    }).observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ["class", "aria-selected", "aria-pressed"] });
+    }).observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeOldValue: true, attributeFilter: ["class", "aria-selected", "aria-pressed", "style"] });
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
 })();
