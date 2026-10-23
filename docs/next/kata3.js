@@ -29,6 +29,8 @@
   function styleEl(el){
     if (done.has(el)) return; done.add(el);
     var tag = el.tagName;
+    if (el.closest("[data-kata-skip]")) return; // ページ側で形を決めている部品はさわらない
+    if (tag === "IMG") { if (parseFloat(getComputedStyle(el).borderTopLeftRadius) > 0) el.style.setProperty("border-radius", "0", "important"); return; }
     if (tag === "HTML" || tag === "BODY" || tag === "SCRIPT" || tag === "STYLE" || tag === "IMG" || tag === "CANVAS" || el.closest("svg") || el.classList.contains("ugSwCover")) return;
     var cs = getComputedStyle(el), r = el.getBoundingClientRect(), w = r.width, h = r.height;
     // 3) グラデーション
@@ -125,12 +127,72 @@
     }
     // 22) 紺の上にさらに紺の箱を浮かせない：大きな箱の地を外し、上下の罫線だけで区切る（札・ボタン・入力欄は対象外）
     var bgx = parseC(getComputedStyle(el).backgroundColor);
-    if (bgx && bgx[3] > 0.3 && h > 60 && w > 200 && tag !== "BUTTON" && tag !== "INPUT" && tag !== "SELECT" && tag !== "TEXTAREA" && !el.closest("button,[role=tab]")) {
+    var fixedLike = /sticky|fixed/.test(getComputedStyle(el).position);
+    if (fixedLike && bgx && bgx[3] > 0.3) { /* 上に重なる帯は地を残す（下の文字が透けて重ならないように） */ }
+    else if (bgx && bgx[3] > 0.3 && h > 60 && w > 200 && tag !== "BUTTON" && tag !== "INPUT" && tag !== "SELECT" && tag !== "TEXTAREA" && !el.closest("button,[role=tab]")) {
       var hb = hue(bgx);
       if (hb[1] < 0.8 && hb[2] < 0.22) {
         el.style.setProperty("background-color", "transparent", "important");
         el.style.setProperty("border-top", "1px solid #2b4568", "important");
         el.style.setProperty("border-bottom", "1px solid #2b4568", "important");
+      }
+    }
+  }
+
+  // ---- 第3版の見直しで足した決まり（けん「全て見直せ」・自動の点検で見つかった所） ----
+  function gradAt(y){ var st = [[0, [27, 58, 94]], [360, [19, 43, 70]], [900, [13, 28, 47]], [1500, [10, 20, 34]]]; if (y >= 1500) return [10, 20, 34];
+    for (var i = 0; i < 3; i++) { var a = st[i], b = st[i + 1]; if (y <= b[0]) { var t = (y - a[0]) / (b[0] - a[0]); return a[1].map(function(v, k){ return v + (b[1][k] - v) * t; }); } } }
+  function backOf(e, yDoc){
+    for (var p = e; p && p !== document.documentElement; p = p.parentElement) {
+      var s = getComputedStyle(p), b = parseC(s.backgroundColor);
+      if (b && b[3] > 0.5) return b.slice(0, 3);
+      if (p !== document.body && s.backgroundImage && s.backgroundImage !== "none" && s.backgroundImage.indexOf("gradient") < 0) return null;
+    }
+    return gradAt(yDoc);
+  }
+  function lum(c){ return c.slice(0, 3).reduce(function(acc, v, i){ v /= 255; v = v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); return acc + [0.2126, 0.7152, 0.0722][i] * v; }, 0); }
+  function ratio(a, b){ var x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
+  function fixPass(root){
+    var els = root.querySelectorAll ? root.querySelectorAll("*") : [];
+    for (var i = 0; i < els.length; i++) {
+      var e = els[i];
+      if (e.closest(".kataNote,svg,canvas,.ugSwCover,script,style,.kataTitle,[data-kata-skip]")) continue;
+      var r = e.getBoundingClientRect(); if (!r.width || !r.height) continue;
+      var s = getComputedStyle(e), y = r.top + window.scrollY, b = parseC(s.backgroundColor);
+      // 23) 左の細い色の棒（中身の無い細い要素・::before/::after の細い帯）→ 消す
+      if (r.width <= 6 && r.height >= 16 && b && b[3] > 0.3 && !e.textContent.trim() && !e.children.length) { e.style.setProperty("display", "none", "important"); continue; }
+      ["before", "after"].forEach(function(ps){
+        var q = getComputedStyle(e, "::" + ps), qb = parseC(q.backgroundColor), qw = parseFloat(q.width), qh = parseFloat(q.height);
+        if (q.content !== "none" && q.content !== "normal" && qw > 0 && qw <= 6 && qh >= 14 && qb && qb[3] > 0.3) e.classList.add(ps === "before" ? "kataNoBefore" : "kataNoAfter");
+      });
+      // 内側の影で描いた左の色帯（inset 4px 0 0 など）→ 消す
+      var sh = s.boxShadow.match(/(-?\d+(?:\.\d+)?)px (-?\d+(?:\.\d+)?)px 0px 0px inset/);
+      if (sh && Math.abs(parseFloat(sh[1])) >= 2 && parseFloat(sh[2]) === 0) e.style.setProperty("box-shadow", "none", "important");
+      // 角の残り（遅れて大きさが決まった部品）
+      var rad = parseFloat(s.borderTopLeftRadius) || 0, sm = Math.min(r.width, r.height);
+      if (rad > 0 && !(sm <= 14 && rad >= sm / 2 - 1)) e.style.setProperty("border-radius", "0", "important");
+      // 24) 背景と同じ色に溶けている部品（地の色が後ろとほぼ同じ）→ 小さな部品は 1px の枠、大きな箱は地を外して上下の罫線
+      if (b && b[3] > 0.5 && r.width > 30 && r.height > 16 && e.tagName !== "INPUT" && e.tagName !== "SELECT" && e.tagName !== "TEXTAREA") {
+        var pb = backOf(e.parentElement, y);
+        if (pb && ratio(b, pb) < 1.15) {
+          var wide = r.width > Math.min(window.innerWidth, document.documentElement.clientWidth) * 0.6;
+          if (/sticky|fixed/.test(s.position) || (!wide && r.height <= 60)) { if (!(parseFloat(s.borderTopWidth) > 0)) e.style.setProperty("box-shadow", "inset 0 0 0 1px #3d5a80", "important"); }
+          else { e.style.setProperty("background-color", "transparent", "important"); e.style.setProperty("border-top", "1px solid #2b4568", "important"); e.style.setProperty("border-bottom", "1px solid #2b4568", "important"); }
+        }
+      }
+      // 25) 読みにくい文字（後ろとの差が 4.5 未満）→ 明るく。色で意味を出す札（地が色付き）の中はそのまま
+      var own = Array.prototype.some.call(e.childNodes, function(n){ return n.nodeType === 3 && n.nodeValue.trim(); });
+      if (own) {
+        var fc = parseC(s.color), bk = backOf(e, y);
+        if (fc && fc[3] > 0.5 && bk && ratio(fc, bk) < 4.5) {
+          var bh = hue(bk.concat(1)), fh = hue(fc);
+          var chip = bh[1] > 0.45 && bh[2] > 0.25; // 枠番などの色付きの札
+          if (!chip) {
+            var light = lum(bk) < 0.2, to = light ? (fh[1] > 0.45 ? null : "#e3e9ee") : "#111111";
+            if (to) { e.style.setProperty("color", to, "important"); if (!e.children.length) e.style.setProperty("-webkit-text-fill-color", to, "important"); }
+            else if (fh[1] > 0.45) { e.style.setProperty("filter", "brightness(1.6)", "important"); }
+          }
+        }
       }
     }
   }
@@ -226,13 +288,17 @@
     var els = node.querySelectorAll("*");
     for (var i = 0; i < els.length; i++) styleEl(els[i]);
     stackPass(node);
+    fixPass(node);
     relink(node);
   }
+  // 遅れて大きさや中身が決まる部品があるので、読み込み後・1.5秒後・4秒後に全体をもう一度かける
+  function again(){ done = new WeakSet(); pass(document.body); title(); }
   var q = [], busy = false;
   function flush(){ busy = false; var a = q; q = []; a.forEach(function(n){ if (n.isConnected) pass(n); }); title(); }
   function start(){
     if (window.KATA_LINK_ONLY) { relink(document.body); new MutationObserver(function(ms){ ms.forEach(function(m){ m.addedNodes.forEach(function(a){ if (a.nodeType === 1) relink(a); }); }); }).observe(document.body, { childList: true, subtree: true }); return; }
     title(); pass(document.body);
+    window.addEventListener("load", function(){ setTimeout(again, 50); }); setTimeout(again, 1500); setTimeout(again, 4000);
     new MutationObserver(function(ms){
       ms.forEach(function(m){
         if (m.type === "attributes") { done.delete(m.target); q.push(m.target); return; }
