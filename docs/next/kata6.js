@@ -73,7 +73,11 @@
   }
   function numPass(root){
     var tw = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null), n, seen = new Set();
-    while ((n = tw.nextNode())) { var p = n.parentElement; if (p && !seen.has(p)) { seen.add(p); numMark(p); } }
+    while ((n = tw.nextNode())) {
+      var p = n.parentElement; if (!p || seen.has(p)) continue;
+      var v = n.nodeValue; if ((v.length > 40 || !/\d/.test(v)) && !p.classList.contains("kataN")) continue; // 数字の無い文は、親を調べない（印が付いていた部品だけ外しに行く）
+      seen.add(p); numMark(p);
+    }
     if (root.nodeType === 1) numMark(root);
   }
   function start(){

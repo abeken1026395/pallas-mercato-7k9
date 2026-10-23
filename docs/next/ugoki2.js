@@ -166,46 +166,27 @@
   // ページを開いただけ・スクロールしただけでは動かさない。読み込み後に遅れて出た数字も動かさない。
   var NUM = /^[¥￥]?\d[\d,]*(?:\.\d+)?\s*(?:%|％|円|倍|回|位|本|件|走|勝|機|人|R)?$/;
   var MAXF = 30, seen = new WeakSet();
-  // 数字の葉は一度だけ全体を数え、あとは足された部分だけ数え足す（タップのたびに全要素を走査しない）
-  var leaves = null, addQ = [], gone = false;
+  // 数字の葉は、画面の近くの枝だけを数える（遠い枝は丸ごと飛ばす）。タップのたびに全要素を走査しない（けん「動きが遅い」）
   var LSKIP = "a,button,select,option,textarea,script,style,.kataTitle,.kataNote,.ugBoard,svg";
   var LTAG = { A: 1, BUTTON: 1, SELECT: 1, OPTION: 1, TEXTAREA: 1, SCRIPT: 1, STYLE: 1, svg: 1, SVG: 1 };
   function skipEl(n){ var c = n.classList; return LTAG[n.tagName] || c.contains("kataTitle") || c.contains("kataNote") || c.contains("ugBoard"); }
-  function isLeaf(e){ // 親の判定（LSKIP）は集めるときに枝ごと済ませてある
+  function isLeaf(e){
     if (e.firstElementChild || e.__ugFl) return false;
     var f = e.firstChild; if (!f) return false;
     var t = f === e.lastChild && f.nodeType === 3 ? f.nodeValue : e.textContent; if (!t || t.length > 14) return false;
     t = t.trim(); return NUM.test(t) && (t.match(/\d/g) || []).length >= 2;
   }
-  function scanInto(root, out){
-    if (root.nodeType !== 1 || root.closest(LSKIP)) return;
-    if (isLeaf(root)) { out.push(root); return; }
-    var w = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT, { acceptNode: function(n){
+  function numLeaves(margin){
+    var out = [], H = innerHeight;
+    var w = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT, { acceptNode: function(n){
       if (skipEl(n)) return NodeFilter.FILTER_REJECT;
-      return n.firstElementChild ? NodeFilter.FILTER_SKIP : NodeFilter.FILTER_ACCEPT; } });
+      var pa = n.parentElement; if (pa && pa.tagName === "DETAILS" && !pa.open && n.tagName !== "SUMMARY") return NodeFilter.FILTER_REJECT; // 閉じた開閉の中身は見えない（大きさを測ると、隠れた中身まで組み直しになって重い）
+      if (!n.firstElementChild) return NodeFilter.FILTER_ACCEPT;
+      var r = n.getBoundingClientRect(); if (r.height > 0 && (r.bottom < -margin || r.top > H + margin)) return NodeFilter.FILTER_REJECT;
+      return NodeFilter.FILTER_SKIP; } });
     var n; while ((n = w.nextNode())) if (isLeaf(n)) out.push(n);
+    return out;
   }
-  function numLeaves(){
-    if (!leaves) { leaves = []; addQ = []; gone = false; scanInto(document.body, leaves); return leaves; }
-    if (addQ.length) {
-      var q = addQ; addQ = [];
-      var roots = q.filter(function(n){ return n.isConnected && !q.some(function(o){ return o !== n && o.contains(n); }); });
-      var got = new Set(leaves);
-      roots.forEach(function(r){ var tmp = []; scanInto(r, tmp); tmp.forEach(function(e){ if (!got.has(e)) { got.add(e); leaves.push(e); } }); });
-    }
-    if (gone) { gone = false; leaves = leaves.filter(function(e){ return e.isConnected; }); }
-    return leaves;
-  }
-  new MutationObserver(function(ms){
-    if (!leaves) return;
-    ms.forEach(function(m){
-      if (m.type === "characterData") { var pe = m.target.parentElement; if (pe) addQ.push(pe); return; }
-      if (m.removedNodes.length) gone = true;
-      m.addedNodes.forEach(function(n){ if (n.nodeType === 1) { if (!n.classList.contains("ugBoard") && !n.classList.contains("ugSwCover")) addQ.push(n); } else if (n.parentElement) addQ.push(n.parentElement); });
-    });
-  }).observe(document.documentElement, { childList: true, subtree: true, characterData: true });
-  // 最初の数え上げは、読み込みが落ち着いて手が空いたときに済ませておく
-  if (!reduce) window.addEventListener("load", function(){ (window.requestIdleCallback || function(f){ setTimeout(f, 1500); })(function(){ numLeaves(); }, { timeout: 4000 }); });
   // 閉じた開閉の中は、大きさが取れても見えていない扱い（Chromium は閉じた details の中身にも大きさを返す）
   function shown(e){
     if (e.checkVisibility && !e.checkVisibility({ visibilityProperty: true })) return false;
@@ -215,11 +196,11 @@
     var r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0;
   }
   function strong(e){ var cs = getComputedStyle(e); return (parseInt(cs.fontWeight, 10) >= 600 || parseFloat(cs.fontSize) >= 15) && cs.visibility !== "hidden"; }
-  function markSeen(){ var l = numLeaves(); for (var i = 0; i < l.length; i++) if (shown(l[i])) seen.add(l[i]); }
+  function markSeen(){ var l = numLeaves(1500); for (var i = 0; i < l.length; i++) if (shown(l[i])) seen.add(l[i]); }
   function flapNew(){
-    var l = numLeaves(), n = 0;
+    var l = numLeaves(300), n = 0;
     for (var i = 0; i < l.length && n < MAXF; i++) {
-      var e = l[i]; if (seen.has(e) || !isLeaf(e) || !shown(e)) continue;
+      var e = l[i]; if (seen.has(e) || !shown(e)) continue;
       seen.add(e);
       if (!strong(e)) continue;
       n++;
@@ -325,15 +306,12 @@
     }, true);
     // ④ 保存のボタン：入れない。選手カードの「画像を保存」は、ページ自身が下に結果の文を出すため（二重になる）
     // ⑤ 文章中のリンク（ボタン・札・タイルでないもの）に印を付ける
-    function markLinks(root){
-      var as = root.querySelectorAll ? root.querySelectorAll("a[href]") : [];
-      for (var i = 0; i < as.length; i++) {
-        var a = as[i]; if (a.__ugL) continue; a.__ugL = 1;
-        var s = getComputedStyle(a);
-        if (s.display.indexOf("inline") === 0 && !a.querySelector("img,svg,div") && (a.textContent || "").trim().length > 0 && !(parseFloat(s.paddingTop) > 4)) a.classList.add("ugTxtLink");
-      }
+    // 読み込み時に全リンクを調べると重いので、指（マウス）が乗ったリンクだけをその場で調べる（下線が出るのはマウスを乗せたときだけ）
+    function markLink(a){
+      if (a.__ugL) return; a.__ugL = 1;
+      var s = getComputedStyle(a);
+      if (s.display.indexOf("inline") === 0 && !a.querySelector("img,svg,div") && (a.textContent || "").trim().length > 0 && !(parseFloat(s.paddingTop) > 4)) a.classList.add("ugTxtLink");
     }
-    var startL = function(){ markLinks(document.body); new MutationObserver(function(ms){ ms.forEach(function(m){ m.addedNodes.forEach(function(n){ if (n.nodeType === 1) markLinks(n); }); }); }).observe(document.body, { childList: true, subtree: true }); };
-    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", startL); else startL();
+    document.addEventListener("pointerover", function(e){ var a = e.target.closest && e.target.closest("a[href]"); if (a) markLink(a); }, { passive: true });
   })();
 })();

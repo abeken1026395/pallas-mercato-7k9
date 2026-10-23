@@ -1,9 +1,6 @@
 /* 第6版：第5版の型が塗った結果を、作るときに写し取ったもの（scratchpad の build6.py が生成。手で直さない） */
 :root a.xs{-webkit-text-fill-color:rgb(242, 242, 240) !important;color:rgb(242, 242, 240) !important}
-:root b.kataN{color:rgb(227, 233, 238) !important;font-weight:600 !important}
-:root b.kataN:nth-of-type(1){border-radius:0 !important}
-:root b.kataN:nth-of-type(3){font-weight:600 !important}
-:root b.kataN:nth-of-type(4){font-family:"Barlow Condensed","Hiragino Sans",-apple-system,sans-serif !important;font-variant-numeric:tabular-nums !important;letter-spacing:.01em !important}
+:root b.kataN{font-weight:600 !important}
 :root b.kataN:nth-of-type(4){font-weight:600 !important}
 :root body>div:nth-of-type(1){color:rgb(200, 211, 221) !important}
 :root button.chipbtn{border-radius:0 !important}
@@ -22,13 +19,13 @@
 :root div.date#hdate{color:rgb(227, 233, 238) !important}
 :root div.empty{color:rgb(227, 233, 238) !important}
 :root div.eyebrow{display:none !important}
+:root div.karte#karte>div.card>div.setsu>div.sline>span.nm{color:rgb(227, 233, 238) !important}
 :root div.legend{color:rgb(227, 233, 238) !important}
 :root div.none{color:rgb(227, 233, 238) !important}
 :root div.spark{background-color:transparent !important;border-bottom-color:rgb(43, 69, 104) !important;border-bottom-left-radius:0px !important;border-bottom-right-radius:0px !important;border-bottom-style:solid !important;border-bottom-width:1px !important;border-image-outset:initial !important;border-image-repeat:initial !important;border-image-slice:initial !important;border-image-source:initial !important;border-image-width:initial !important;border-left-color:initial !important;border-left-style:initial !important;border-left-width:0px !important;border-right-color:initial !important;border-right-style:initial !important;border-right-width:0px !important;border-top-color:rgb(43, 69, 104) !important;border-top-left-radius:0px !important;border-top-right-radius:0px !important;border-top-style:solid !important;border-top-width:1px !important}
 :root div.summary#rsum{color:rgb(227, 233, 238) !important}
-:root div.summary#rsum>b.kataN:nth-of-type(2){border-radius:0 !important}
-:root div.summary#rsum>b.kataN:nth-of-type(3){border-radius:0 !important}
 :root div.tabs{background-color:rgb(19, 43, 70) !important;box-shadow:rgb(61, 90, 128) 0px 0px 0px 1px inset !important}
+:root div.tw>table>tbody>tr>td{color:rgb(227, 233, 238) !important}
 :root div.xl>a{background-color:rgb(18, 35, 58) !important;border-bottom-left-radius:0px !important;border-bottom-right-radius:0px !important;border-top-left-radius:0px !important;border-top-right-radius:0px !important}
 :root footer#foot{font-family:"Barlow Condensed","Hiragino Sans",-apple-system,sans-serif !important;font-variant-numeric:tabular-nums !important;letter-spacing:.01em !important}
 :root footer#foot{color:rgb(200, 211, 221) !important}
@@ -44,7 +41,7 @@
 :root p:nth-of-type(6){font-family:"Barlow Condensed","Hiragino Sans",-apple-system,sans-serif !important;font-variant-numeric:tabular-nums !important;letter-spacing:.01em !important}
 :root p:nth-of-type(6){color:rgb(227, 233, 238) !important}
 :root p>b.kataN{color:rgb(227, 233, 238) !important;font-weight:600 !important}
-:root small{color:rgb(200, 211, 221) !important;font-size:12px !important}
+:root small{color:rgb(200, 211, 221) !important}
 :root small.kataN{color:rgb(200, 211, 221) !important;font-weight:600 !important}
 :root span.bar{border-bottom-left-radius:0px !important;border-bottom-right-radius:0px !important;border-top-left-radius:0px !important;border-top-right-radius:0px !important}
 :root span.c1.kataN{border-bottom-left-radius:0px !important;border-bottom-right-radius:0px !important;border-top-left-radius:0px !important;border-top-right-radius:0px !important;font-weight:600 !important}

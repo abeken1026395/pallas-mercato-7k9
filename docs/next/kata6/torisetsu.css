@@ -13,13 +13,16 @@
 :root a.door.d3>i.kataN{-webkit-text-fill-color:rgb(220, 189, 120) !important;color:rgb(220, 189, 120) !important;font-size:87px !important}
 :root a.door.d3>span{color:rgb(227, 233, 238) !important}
 :root body.go>div:nth-of-type(1){color:rgb(200, 211, 221) !important}
+:root body.go>main.wrap>section.sec>ol.lg>li{color:rgb(227, 233, 238) !important}
+:root body.go>main.wrap>section.sec>p{color:rgb(227, 233, 238) !important}
+:root body.go>main.wrap>section.sec>ul>li{color:rgb(227, 233, 238) !important}
 :root button#bBack{border-radius:0 !important}
 :root button#bToc{border-radius:0 !important}
 :root button#bTop{border-radius:0 !important}
 :root button.hot{border-bottom-left-radius:0px !important;border-bottom-right-radius:0px !important;border-top-left-radius:0px !important;border-top-right-radius:0px !important;font-family:-apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif !important}
 :root button.playbtn{border-bottom-left-radius:0px !important;border-bottom-right-radius:0px !important;border-top-left-radius:0px !important;border-top-right-radius:0px !important;color:rgb(227, 233, 238) !important}
 :root div#bar{background-color:rgb(19, 43, 70) !important;border-bottom-color:initial !important;border-bottom-left-radius:0px !important;border-bottom-right-radius:0px !important;border-bottom-style:initial !important;border-bottom-width:0px !important;border-image-outset:initial !important;border-image-repeat:initial !important;border-image-slice:initial !important;border-image-source:initial !important;border-image-width:initial !important;border-left-color:initial !important;border-left-style:initial !important;border-left-width:0px !important;border-right-color:initial !important;border-right-style:initial !important;border-right-width:0px !important;border-top-color:initial !important;border-top-left-radius:0px !important;border-top-right-radius:0px !important;border-top-style:initial !important;border-top-width:0px !important;box-shadow:none !important}
-:root div#gauge{border-radius:0 !important;background-color:rgb(19, 43, 70) !important}
+:root div#gauge{background-color:rgb(19, 43, 70) !important}
 :root div#list>a{color:rgb(227, 233, 238) !important}
 :root div#shade::before{display:none !important}
 :root div#shade{font-family:"Barlow Condensed","Hiragino Sans",-apple-system,sans-serif !important;font-variant-numeric:tabular-nums !important;letter-spacing:.01em !important}
@@ -34,7 +37,6 @@
 :root div.bt.k5.kataN{-webkit-text-fill-color:rgb(16, 20, 26) !important;background-color:rgb(200, 164, 94) !important;color:rgb(16, 20, 26) !important;font-size:17px !important}
 :root div.bt.k6.kataN{font-size:17px !important}
 :root div.cap{color:rgb(227, 233, 238) !important}
-:root div.cue.kataN{-webkit-text-fill-color:rgb(16, 20, 26) !important;border-radius:0 !important;background-color:rgb(200, 164, 94) !important;border-bottom-left-radius:0px !important;border-bottom-right-radius:0px !important;border-top-left-radius:0px !important;border-top-right-radius:0px !important;box-shadow:none !important;color:rgb(16, 20, 26) !important;display:none !important}
 :root div.doors{row-gap:0px !important}
 :root div.end{color:rgb(227, 233, 238) !important}
 :root div.miss{border-left-color:initial !important;border-left-style:initial !important;border-left-width:0px !important;color:rgb(227, 233, 238) !important}
@@ -46,7 +48,6 @@
 :root div.use{border-left-color:initial !important;border-left-style:initial !important;border-left-width:0px !important;color:rgb(227, 233, 238) !important}
 :root div.use>b{color:rgb(227, 233, 238) !important;letter-spacing:0px !important}
 :root figcaption{color:rgb(227, 233, 238) !important}
-:root figure.play>div.vp{border-bottom-left-radius:0px !important;border-bottom-right-radius:0px !important;border-top-left-radius:0px !important;border-top-right-radius:0px !important}
 :root figure.play>div.vp>div.pan>img{background-color:transparent !important;border-bottom-color:rgb(43, 69, 104) !important;border-bottom-style:solid !important;border-bottom-width:1px !important;border-top-color:rgb(43, 69, 104) !important;border-top-style:solid !important;border-top-width:1px !important}
 :root figure.play>div.vp>div.pan>span.ring{border-radius:0 !important}
 :root figure:nth-of-type(2)>div.vp>div.pan>span.ring{border-bottom-color:rgba(212, 176, 106, 0.6) !important;border-bottom-style:solid !important;border-bottom-width:1px !important;box-shadow:none !important}
@@ -57,25 +58,37 @@
 :root h1{font-family:"Dela Gothic One",-apple-system,"Hiragino Sans",sans-serif !important;font-weight:400 !important;color:#f2f2f0 !important;-webkit-text-fill-color:#f2f2f0 !important;letter-spacing:.02em !important;background:none !important;padding-bottom:10px !important;border-bottom:1px solid rgba(212,176,106,.6) !important;margin-bottom:12px !important}
 :root h1{text-shadow:none !important}
 :root h2{color:rgb(227, 233, 238) !important}
+:root h3.pg#g01::before{display:none !important}
 :root h3.pg#g01{background-color:rgb(19, 43, 70) !important;box-shadow:rgb(61, 90, 128) 0px 0px 0px 1px inset !important}
 :root h3.pg#g01>span.tag{color:rgb(200, 211, 221) !important}
+:root h3.pg#g02::before{display:none !important}
 :root h3.pg#g02{background-color:rgb(19, 43, 70) !important;box-shadow:rgb(61, 90, 128) 0px 0px 0px 1px inset !important}
 :root h3.pg#g02>span.tag{color:rgb(200, 211, 221) !important}
+:root h3.pg#g03::before{display:none !important}
 :root h3.pg#g03{background-color:rgb(19, 43, 70) !important;box-shadow:rgb(61, 90, 128) 0px 0px 0px 1px inset !important}
 :root h3.pg#g03>span.tag{color:rgb(200, 211, 221) !important}
+:root h3.pg#g04::before{display:none !important}
 :root h3.pg#g04{background-color:rgb(19, 43, 70) !important;box-shadow:rgb(61, 90, 128) 0px 0px 0px 1px inset !important}
+:root h3.pg#g05::before{display:none !important}
 :root h3.pg#g05{background-color:rgb(19, 43, 70) !important;box-shadow:rgb(61, 90, 128) 0px 0px 0px 1px inset !important}
+:root h3.pg#g06::before{display:none !important}
 :root h3.pg#g06{background-color:rgb(19, 43, 70) !important;box-shadow:rgb(61, 90, 128) 0px 0px 0px 1px inset !important}
 :root h3.pg#g06>span.tag{color:rgb(200, 211, 221) !important}
+:root h3.pg#g07::before{display:none !important}
 :root h3.pg#g07{background-color:rgb(19, 43, 70) !important;box-shadow:rgb(61, 90, 128) 0px 0px 0px 1px inset !important}
 :root h3.pg#g07>span.tag{color:rgb(200, 211, 221) !important}
+:root h3.pg#g08::before{display:none !important}
 :root h3.pg#g08{background-color:rgb(19, 43, 70) !important;box-shadow:rgb(61, 90, 128) 0px 0px 0px 1px inset !important}
 :root h3.pg#g08>span.tag{color:rgb(200, 211, 221) !important}
+:root h3.pg#g09::before{display:none !important}
 :root h3.pg#g09{background-color:rgb(19, 43, 70) !important;box-shadow:rgb(61, 90, 128) 0px 0px 0px 1px inset !important}
+:root h3.pg#g10::before{display:none !important}
 :root h3.pg#g10{background-color:rgb(19, 43, 70) !important;box-shadow:rgb(61, 90, 128) 0px 0px 0px 1px inset !important}
+:root h3.pg#g11::before{display:none !important}
 :root h3.pg#g11{background-color:rgb(19, 43, 70) !important;box-shadow:rgb(61, 90, 128) 0px 0px 0px 1px inset !important}
+:root h3.pg#g12::before{display:none !important}
 :root h3.pg#g12{background-color:rgb(19, 43, 70) !important;box-shadow:rgb(61, 90, 128) 0px 0px 0px 1px inset !important}
-:root h3.step#s11{border-radius:0 !important;background-color:rgb(19, 43, 70) !important;box-shadow:rgb(61, 90, 128) 0px 0px 0px 1px inset !important}
+:root h3.step#s11{background-color:rgb(19, 43, 70) !important;box-shadow:rgb(61, 90, 128) 0px 0px 0px 1px inset !important}
 :root h3.step#s12{background-color:rgb(19, 43, 70) !important;box-shadow:rgb(61, 90, 128) 0px 0px 0px 1px inset !important}
 :root h3.step#s13{background-color:rgb(19, 43, 70) !important;box-shadow:rgb(61, 90, 128) 0px 0px 0px 1px inset !important}
 :root h3.step#s14{background-color:rgb(19, 43, 70) !important;box-shadow:rgb(61, 90, 128) 0px 0px 0px 1px inset !important}

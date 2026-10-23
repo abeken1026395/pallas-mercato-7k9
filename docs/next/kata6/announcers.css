@@ -1,5 +1,6 @@
 /* 第6版：第5版の型が塗った結果を、作るときに写し取ったもの（scratchpad の build6.py が生成。手で直さない） */
 :root body>div:nth-of-type(1){color:rgb(200, 211, 221) !important}
+:root div.anc::before{display:none !important}
 :root div.anc{background-color:transparent !important;border-bottom-color:rgb(43, 69, 104) !important;border-bottom-left-radius:0px !important;border-bottom-right-radius:0px !important;border-bottom-style:solid !important;border-bottom-width:1px !important;border-image-outset:initial !important;border-image-repeat:initial !important;border-image-slice:initial !important;border-image-source:initial !important;border-image-width:initial !important;border-left-color:initial !important;border-left-style:initial !important;border-left-width:0px !important;border-right-color:initial !important;border-right-style:initial !important;border-right-width:0px !important;border-top-color:rgb(43, 69, 104) !important;border-top-left-radius:0px !important;border-top-right-radius:0px !important;border-top-style:solid !important;border-top-width:1px !important}
 :root div.bars>span:nth-of-type(2){background-color:rgb(220, 189, 120) !important;background-image:none !important;display:none !important}
 :root div.bars>span:nth-of-type(3){background-color:rgb(220, 189, 120) !important;background-image:none !important;display:none !important}
@@ -24,7 +25,7 @@
 :root span.chip#nickOnly{border-radius:0 !important}
 :root span.fy{color:rgb(200, 211, 221) !important;font-size:12px !important}
 :root span.nick{border-bottom-left-radius:0px !important;border-bottom-right-radius:0px !important;border-top-left-radius:0px !important;border-top-right-radius:0px !important;font-size:12px !important}
-:root span.rzone{-webkit-text-fill-color:rgb(242, 242, 240) !important;color:rgb(242, 242, 240) !important;font-size:12px !important}
+:root span.rzone{font-size:12px !important}
 :root span.tag{letter-spacing:0px !important}
 :root span.vtag{border-bottom-left-radius:0px !important;border-bottom-right-radius:0px !important;border-top-left-radius:0px !important;border-top-right-radius:0px !important;color:rgb(200, 211, 221) !important;font-size:12px !important}
 :root span.yomi{color:rgb(200, 211, 221) !important;font-size:12px !important}
