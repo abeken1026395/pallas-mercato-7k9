@@ -31,11 +31,38 @@ PAGES = [
     ("kensho/taiju/index.html", "kenshoTaiju"), ("kensho/tilt/index.html", "kenshoTilt"),
     ("glossary/index.html", "glossary"), ("fan/index.html", "fan"), ("announcers/index.html", "announcers"),
     ("updates/index.html", "updates"), ("torisetsu/index.html", "torisetsu"), ("uranai/index.html", "uranai"),
+    # 2026-10-24 追加（けん「第6版の対象に入っていなかったページも進めていこう」）：万舟の24場の各ページ・検証10・占いの住之江版2つ
+    ("amagasaki-payouts/index.html", "payoutsAmagasaki"),
+    ("ashiya-payouts/index.html", "payoutsAshiya"),
+    ("biwako-payouts/index.html", "payoutsBiwako"),
+    ("edogawa-payouts/index.html", "payoutsEdogawa"),
+    ("fukuoka-payouts/index.html", "payoutsFukuoka"),
+    ("gamagori-payouts/index.html", "payoutsGamagori"),
+    ("hamanako-payouts/index.html", "payoutsHamanako"),
+    ("heiwajima-payouts/index.html", "payoutsHeiwajima"),
+    ("karatsu-payouts/index.html", "payoutsKaratsu"),
+    ("kiryu-payouts/index.html", "payoutsKiryu"),
+    ("kojima-payouts/index.html", "payoutsKojima"),
+    ("marugame-payouts/index.html", "payoutsMarugame"),
+    ("mikuni-payouts/index.html", "payoutsMikuni"),
+    ("miyajima-payouts/index.html", "payoutsMiyajima"),
+    ("naruto-payouts/index.html", "payoutsNaruto"),
+    ("omura-payouts/index.html", "payoutsOmura"),
+    ("shimonoseki-payouts/index.html", "payoutsShimonoseki"),
+    ("suminoe-payouts/index.html", "payoutsSuminoe"),
+    ("tamagawa-payouts/index.html", "payoutsTamagawa"),
+    ("toda-payouts/index.html", "payoutsToda"),
+    ("tokoname-payouts/index.html", "payoutsTokoname"),
+    ("tokuyama-payouts/index.html", "payoutsTokuyama"),
+    ("tsu-payouts/index.html", "payoutsTsu"),
+    ("wakamatsu-payouts/index.html", "payoutsWakamatsu"),
+    ("kensho/tenji/index.html", "kenshoTenji"),
+    ("aisho-suminoe/index.html", "aishoSuminoe"), ("shobuun-suminoe/index.html", "shobuunSuminoe"),
 ]
 # 占いは型をかけない（けん 10-23「占いページの見た目は元のページの方が良かった。戻せ」）。動きだけ
-LINK_ONLY = {"uranai"}
+LINK_ONLY = {"uranai", "aishoSuminoe", "shobuunSuminoe"}  # 占いの住之江版も占いと同じ扱い
 # トップと選手図鑑は、試作の段階で手で直した色を使う（紫→金の置き換えはしない）
-NO_PURPLE = {"top", "players", "uranai"}
+NO_PURPLE = {"top", "players", "uranai", "aishoSuminoe", "shobuunSuminoe"}
 GENERATED = {"racers": "scripts/template_racers.html", "motor": "scripts/template.html"}
 
 B0, B1 = "<!-- kata6:head -->", "<!-- /kata6:head -->"
