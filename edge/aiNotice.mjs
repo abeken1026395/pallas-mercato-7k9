@@ -27,6 +27,15 @@ export function isAiAgent(ua) {
   return AI_UA_TOKENS.some(t => u.includes(t.toLowerCase()));
 }
 
+// 名乗りが普通のブラウザでも、回線（AS番号）で分かる取得役。家庭・携帯の回線は入れない。
+// AS11798 Ace Data Centers：X に付いている Grok のページ取得（open_page）の回線
+//   （2026-10-25 実測：Grok に httpbin.org/headers と ipinfo.io/json を開かせた。名乗りは Windows の Chrome/152 と同じ）
+export const AI_ASNS = [11798];
+
+export function isAiNetwork(asn) {
+  return AI_ASNS.includes(Number(asn));
+}
+
 // 対象：予想の材料になるページと、そのページが読むデータ。
 // 天気・潮・結果・検証・払戻・24場などは対象外（事実情報か過去の集計）。
 const TARGETS = [
