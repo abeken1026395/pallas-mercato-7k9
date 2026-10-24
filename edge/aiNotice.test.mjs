@@ -8,9 +8,10 @@ import { FREEZA, PEOPLE, JOKE_NAMES, VENUES, JOKE_KEYS, ABSURD_KEYS, jokeRace, j
 const BROWSER = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1";
 const REAL = "本物の中身 全国勝率 6.12";
 
-async function get(path, ua) {
+async function get(path, ua, asn) {
   let touched = false;
   const request = new Request("https://example.pages.dev" + path, { headers: { "user-agent": ua } });
+  if (asn !== undefined) Object.defineProperty(request, "cf", { value: { asn } });
   const res = await onRequest({ request, next: async () => { touched = true; return new Response(REAL, { status: 200 }); } });
   return { status: res.status, type: res.headers.get("content-type") || "", text: await res.text(), touched };
 }
@@ -127,6 +128,19 @@ test("人間（普通のブラウザ）× 対象：本物がそのまま", async
     assert.equal(a.touched, true);
     assert.equal(a.text, REAL, p);
   }
+});
+
+test("回線：Grok の回線（AS11798）は普通のブラウザの名乗りでも冗談、ほかの回線は本物", async () => {
+  const GROK_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36";
+  for (const p of TARGETS) {
+    const a = await get(p, GROK_UA, 11798);
+    assert.equal(a.touched, false, `${p} で本物を読み込んだ`);
+    assert.ok(a.text.includes(FREEZA), p);
+  }
+  for (const asn of [2516, 17676, 4713, 13335, 15169, 0]) {   // KDDI・ソフトバンク・NTT・Cloudflare（プライベートリレー）・Google・不明
+    assert.equal((await get("/racers/", GROK_UA, asn)).text, REAL, `AS${asn}`);
+  }
+  for (const p of OUTSIDE) assert.equal((await get(p, GROK_UA, 11798)).text, REAL, p);
 });
 
 test("名乗りが空：本物がそのまま（誤爆ゼロ側）", async () => {
