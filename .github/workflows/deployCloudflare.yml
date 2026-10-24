@@ -136,8 +136,13 @@ jobs:
         run: |
           rm -rf /tmp/site && cp -r docs /tmp/site
           python3 - <<'PY'
-          import os, pathlib
+          import os, pathlib, re
           proj = os.environ["PROJECT"]
+          # 作業メモ（.md）は配らない（ページからは読まれていない・リポジトリの手がかりが書いてある）
+          md = [p for p in pathlib.Path("/tmp/site").rglob("*.md") if p.is_file()]
+          for p in md:
+              p.unlink()
+          print(f"作業メモ（.md）を外した {len(md)} 件")
           old_base = "https://abeken1026395.github.io/pallas-mercato-7k9/"
           new_base = "https://" + proj + ".pages.dev/"
           pairs = [
@@ -153,12 +158,34 @@ jobs:
               t = s
               for a, b in pairs:
                   t = t.replace(a, b)
+              # コピー検知の「旧URL（github.io）なら本物」の条件は、配信先では常に偽。
+              # 条件ごと false にして、リポジトリの持ち主名・リポジトリ名をページに残さない（2026-10-24 けん「1塞ごう」）
+              t = re.sub(r'location\.hostname\s*===\s*"abeken1026395\.github\.io"\s*&&\s*location\.pathname\.indexOf\("/pallas-mercato-7k9/"\)\s*===\s*0', "false", t)
+              if p.name == "sw.js":
+                  t = t.replace('"pallas-mercato-7k9-v1"', '"dz-v1"')
+              # 実験場の一覧は GitHub のAPIでサンプルを探す。配信先ではAPIを呼ばない（手書きの一覧はそのまま出る）
+              t = re.sub(r'fetch\("https://api\.github\.com/repos/abeken1026395/pallas-mercato-7k9/[^"]*"\)', 'Promise.reject(new Error("off"))', t)
+              if p.name == "404.html":
+                  t = re.sub(r"<script>[^<]*pallas-mercato-7k9[^<]*</script>\s*", "", t)
               if t != s:
                   n_files += 1
                   n_hits += sum(s.count(a) for a, _ in pairs)
                   p.write_text(t, encoding="utf-8", errors="surrogateescape")
-          left = sum(1 for p in pathlib.Path("/tmp/site").rglob("*.html") if "datazeme" in p.read_text(encoding="utf-8", errors="ignore"))
-          print(f"書き換え {n_files} ファイル / {n_hits} 箇所 / datazeme が残った HTML {left} 件")
+          print(f"書き換え {n_files} ファイル / {n_hits} 箇所")
+          # 門番：配るファイルに旧住所・リポジトリの手がかりが1つでも残っていたら配らない
+          bad = []
+          for p in pathlib.Path("/tmp/site").rglob("*"):
+              if not p.is_file() or p.suffix not in (".html", ".js", ".json", ".csv", ".xml", ".txt", ".webmanifest", ".css"):
+                  continue
+              s = p.read_text(encoding="utf-8", errors="ignore")
+              for k in ("datazeme", "abeken1026395", "pallas-mercato"):
+                  if k in s:
+                      bad.append(f"{p.relative_to('/tmp/site')} : {k} {s.count(k)}")
+          for b in bad[:30]:
+              print("残った:", b)
+          if bad:
+              raise SystemExit(f"::error::旧住所・リポジトリの手がかりが {len(bad)} 件残った")
+          print("旧住所・リポジトリの手がかり 0 件")
           PY
 
       - name: docs と罠をアップロード
@@ -178,3 +205,6 @@ jobs:
           G=$(curl -s "https://$PROJECT.pages.dev/assets/guard.js")
           echo "$G" | grep -q "$PROJECT.pages.dev" || { echo "::error::配信先の guard.js に配信先の名前が入っていない（新URLで偽物の帯が出る）"; exit 1; }
           echo "コピー検知OK: 配信先を本物として扱う"
+          T=$(curl -s -A "Mozilla/5.0 (Windows NT 10.0) Chrome/130.0" "https://$PROJECT.pages.dev/")
+          echo "$T$G" | grep -q "abeken1026395\|pallas-mercato" && { echo "::error::配信先のトップか guard.js にリポジトリの手がかりが残っている"; exit 1; }
+          echo "リポジトリの手がかりOK: トップ・guard.js とも0件"
