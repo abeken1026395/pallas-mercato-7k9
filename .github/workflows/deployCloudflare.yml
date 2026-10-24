@@ -197,10 +197,11 @@ jobs:
         run: |
           U="https://$PROJECT.pages.dev/racers/racers_today.csv"
           sleep 20
-          AI=$(curl -s -A "Mozilla/5.0 (compatible; ChatGPT-User/1.0)" "$U" | head -c 400)
-          HU=$(curl -s -A "Mozilla/5.0 (Windows NT 10.0) Chrome/130.0" "$U" | head -c 400)
-          echo "$AI" | grep -q "冗談" || { echo "::error::AIの名乗りで本物が返っている"; exit 1; }
-          echo "$HU" | grep -q "冗談" && { echo "::error::普通のブラウザに冗談が返っている"; exit 1; }
+          AI=$(curl -s -A "Mozilla/5.0 (compatible; ChatGPT-User/1.0)" "$U" | head -c 8000)
+          HU=$(curl -s -A "Mozilla/5.0 (Windows NT 10.0) Chrome/130.0" "$U" | head -c 8000)
+          # 冗談の出走表には必ずフリーザが1人いて、場名は「ボートレース○○」（2026-10-24 作り直し・通告の文は無い）
+          echo "$AI" | grep -q "フリーザ" || { echo "::error::AIの名乗りで本物が返っている"; exit 1; }
+          echo "$HU" | grep -q "フリーザ" && { echo "::error::普通のブラウザに冗談が返っている"; exit 1; }
           echo "罠OK: AI→冗談 / 人間→本物"
           G=$(curl -s "https://$PROJECT.pages.dev/assets/guard.js")
           echo "$G" | grep -q "$PROJECT.pages.dev" || { echo "::error::配信先の guard.js に配信先の名前が入っていない（新URLで偽物の帯が出る）"; exit 1; }
