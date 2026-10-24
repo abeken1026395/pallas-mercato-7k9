@@ -62,6 +62,15 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .dot-高 { background:#f2b155; } .dot-中 { background:transparent; box-shadow:inset 0 0 0 2px #f2b155; } .dot-低 { background:#5cc8b0; }
 
 /* レースヘッダ */
+.rnav { position:fixed; left:0; right:0; bottom:0; z-index:50; display:flex; gap:6px; padding:8px 10px calc(8px + env(safe-area-inset-bottom)); background:rgba(10,20,34,.97); border-top:1px solid #3d5a80; }
+.rnav-b { flex:1; min-height:48px; display:flex; align-items:center; justify-content:center; gap:6px; background:#12233a; border:1px solid #3d5a80; color:#eef2f5; font:inherit; font-size:14px; line-height:1.2; cursor:pointer; padding:4px 6px; }
+.rnav-b small { display:block; font-size:11px; color:#9fb0c3; font-weight:normal; }
+.rnav-t { display:flex; flex-direction:column; align-items:center; }
+.rnav-t b { font-size:16px; }
+.rnav-ar { font-size:12px; color:#c8a45e; }
+.rnav-list { flex:1.2; text-align:center; flex-direction:column; gap:0; }
+.rnav-off { background:transparent; border:1px dashed #2b4568; cursor:default; }
+#app:has(.rnav) { padding-bottom:76px; }
 .race-head { background:#121c28; border:1px solid #1f2b3a; border-radius:10px; padding:12px 14px; margin-top:10px; }
 .race-head .line1 { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
 .race-head .rt { font-size:18px; font-weight:bold; color:#e0e6ed; }
@@ -650,6 +659,19 @@ var VDATE="";  /* 場の一覧で選んでいる開催日。レースを開い�
   var k=ks.filter(function(x){ return venues[x].hd===t; })[0]||ks[0];
   view={page:"races", key:k, rno:null, sort:"枠"};
 })();
+/* レースの行き来を、端末の「戻る」（iPhone の左端からのスワイプ・Android の戻るボタン）と合わせる。
+   画面を変えるたびに履歴を1つ積み、「戻る」で前の画面（レース→レース一覧→場一覧）に戻す（2026-10-24 けん「各レースから戻りにくい」） */
+function navGo(nv){
+  view=nv;
+  try{ history.pushState({rv:{page:nv.page,key:nv.key||null,rno:nv.rno||null}},""); }catch(e){}
+  render(); window.scrollTo(0,0);
+}
+window.addEventListener("popstate",function(e){
+  var s=e.state&&e.state.rv;
+  view=s?{page:s.page,key:s.key,rno:s.rno,sort:view.sort}:{page:"venues",key:null,rno:null,sort:view.sort};
+  render(); window.scrollTo(0,0);
+});
+try{ history.replaceState({rv:{page:view.page,key:view.key,rno:view.rno}},""); }catch(e){}
 function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 function nowJST(){ return new Date(Date.now()+9*3600*1000); }
 function fmtNum(s){ var f=parseFloat(s); return isNaN(f)?"-":f.toFixed(2); }
@@ -1082,7 +1104,7 @@ function renderVenues(app,crumb,keys){
     el.onclick=function(){ VDATE=el.getAttribute("data-hd"); render(); };
   });
   Array.prototype.forEach.call(app.querySelectorAll(".venue-card"),function(el){
-    el.onclick=function(){ view={page:"races",key:el.getAttribute("data-k"),rno:null,sort:view.sort}; render(); window.scrollTo(0,0); };
+    el.onclick=function(){ navGo({page:"races",key:el.getAttribute("data-k"),rno:null,sort:view.sort}); };
   });
   wireMyPanel(app);
   wireFortune(app);
@@ -1133,7 +1155,7 @@ function buildMyPanel(){
 function myOpen(k){
   var p=String(k).split("_"); if(p.length<3) return;
   var vkey=p[0]+"_"+p[1];
-  if(venues[vkey]){ view={page:"race",key:vkey,rno:parseInt(p[2]),sort:view.sort}; render(); window.scrollTo(0,0); }
+  if(venues[vkey]){ navGo({page:"race",key:vkey,rno:parseInt(p[2]),sort:view.sort}); }
 }
 function wireMyPanel(app){
   Array.prototype.forEach.call(app.querySelectorAll("[data-open]"),function(el){
@@ -1217,9 +1239,9 @@ function renderRaces(app,crumb,v){
     :'<div class="legend-note">荒れ指数は当日分の生成後（毎朝）に各Rへ表示されます。</div>';
   app.innerHTML='<div class="rgrid">'+grid+'</div>'+legend+'<div id="ksk-slot-'+esc(v.key)+'">'+kskHtml(v)+'</div>';
   kskLoad(v);
-  document.getElementById("back").onclick=function(e){e.preventDefault();view={page:"venues",sort:view.sort};render();};
+  document.getElementById("back").onclick=function(e){e.preventDefault();navGo({page:"venues",sort:view.sort});};
   Array.prototype.forEach.call(app.querySelectorAll(".rbtn"),function(el){
-    el.onclick=function(){ view={page:"race",key:view.key,rno:parseInt(el.getAttribute("data-r")),sort:view.sort}; render(); window.scrollTo(0,0); };
+    el.onclick=function(){ navGo({page:"race",key:view.key,rno:parseInt(el.getAttribute("data-r")),sort:view.sort}); };
   });
 }
 
@@ -1636,6 +1658,22 @@ function downFactorPanel(df){
   return '<div class="panel panel-down"><div class="ttl">①の下振れ要因（'+n+'つ）</div>'+list+'</div>';
 }
 
+/* レース画面の下に固定する行き来のバー：前のR／レース一覧／次のR */
+function raceNavBar(v,rno){
+  var rs=Object.keys(v.races).map(Number).sort(function(a,b){return a-b;});
+  var i=rs.indexOf(rno), pv=i>0?rs[i-1]:null, nx=(i>=0&&i<rs.length-1)?rs[i+1]:null;
+  function side(r,dir){
+    if(r===null) return '<span class="rnav-b rnav-off"></span>';
+    var dl=(v.races[r]&&v.races[r].deadline)||"";
+    return '<button type="button" class="rnav-b rnav-'+dir+'" data-go="'+r+'">'
+      +(dir==="prev"?'<span class="rnav-ar">◀</span>':'')
+      +'<span class="rnav-t"><b>'+r+'R</b><small>'+esc(dl)+'</small></span>'
+      +(dir==="next"?'<span class="rnav-ar">▶</span>':'')+'</button>';
+  }
+  return '<nav class="rnav" aria-label="レースの行き来">'+side(pv,"prev")
+    +'<button type="button" class="rnav-b rnav-list" data-go="list">'+esc(v.name)+'<br><small>レース一覧</small></button>'
+    +side(nx,"next")+'</nav>';
+}
 function renderRace(app,crumb,v){
   var rc=v.races[view.rno];
   if(!rc){ view={page:"races",key:view.key,sort:view.sort}; render(); return; }
@@ -1759,9 +1797,15 @@ function renderRace(app,crumb,v){
   html+=yomiBox(v,view.rno);
   html+='<div class="legend-note">出典: BOATRACE公式出走表（勝率・2連率・3連率・モーター・ボート・今節成績。モーターとボートは勝率なし）｜決まり手構成は直近183日集計｜1号艇の決着は枠別成績と同じ期間｜機力評価・展開・荒れ指数は当ポータル生成｜風はOpen-Meteo。<br>本ページは水面傾向・展開の可視化に留め、勝敗の断定・買い目・確率は提示しません。</div>';
 
+  html+=raceNavBar(v,view.rno);
   app.innerHTML=html;
-  document.getElementById("back0").onclick=function(e){e.preventDefault();view={page:"venues",sort:view.sort};render();};
-  document.getElementById("back1").onclick=function(e){e.preventDefault();view={page:"races",key:view.key,sort:view.sort};render();};
+  document.getElementById("back0").onclick=function(e){e.preventDefault();navGo({page:"venues",sort:view.sort});};
+  document.getElementById("back1").onclick=function(e){e.preventDefault();navGo({page:"races",key:view.key,sort:view.sort});};
+  Array.prototype.forEach.call(app.querySelectorAll("[data-go]"),function(el){
+    el.onclick=function(){ var g=el.getAttribute("data-go");
+      if(g==="list") navGo({page:"races",key:view.key,sort:view.sort});
+      else navGo({page:"race",key:view.key,rno:parseInt(g,10),sort:view.sort}); };
+  });
   bindPeriodTabs();
   Array.prototype.forEach.call(app.querySelectorAll(".sortbtn"),function(el){
     el.onclick=function(){ view.sort=el.getAttribute("data-s"); render(); };
