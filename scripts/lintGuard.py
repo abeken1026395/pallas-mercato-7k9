@@ -49,6 +49,7 @@ GUARD = [
     "docs/next/tiltLab.html",
     "docs/next/tiltShrink.html",
     "docs/next/kensho10Tenji.html",
+    "docs/next/kensho11Buhin.html",
     "docs/next/sgKaitsuzuke.html",
     "docs/next/senshuCard.html",
     "docs/next/senshuCardC.html",
