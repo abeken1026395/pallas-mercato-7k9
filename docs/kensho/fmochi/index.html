@@ -19,7 +19,7 @@
 :root{
   --bg:#0b1219; --panel:#0f1a26; --line:#4a627f;
   --fg:#e0e6ed; --dim:#8a94a3; --faint:#8a94a3;
-  --accent:#dcbd78; --ok:#7ee08a; --ng:#e07a7a;
+  --accent:#ffd166; --ok:#7ee08a; --ng:#e07a7a;
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;background:var(--bg);color:var(--fg)}
@@ -107,12 +107,6 @@ details[open]>summary::after{content:"−"}
 .verify > .vsub{font-size:12px;color:var(--dim);line-height:1.9;margin:0 0 18px}
 .verify details{margin:0 0 11px}
 </style>
-<!-- kata6:head -->
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&amp;family=Dela+Gothic+One&amp;display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../assets/kata/kata.css?v=c853c8e7">
-<link rel="stylesheet" href="../../assets/kata/kenshoFmochi.css?v=db9b5e1b">
-<link rel="stylesheet" href="../../assets/ugoki.css?v=a0c08edf">
-<!-- /kata6:head -->
 </head>
 <body>
 <div class="wrap">
@@ -196,7 +190,7 @@ details[open]>summary::after{content:"−"}
 
 <div class="cond">
   この段落は、うちが毎日集めている結果でも「同じ選手の中で遅くなる側が半数を超える」とき成立します。<br>
-  現在 <b>68.9</b>%（<b>540</b>人）──
+  現在 <b>68.6</b>%（<b>542</b>人）──
   <span class="st ok">✓ 成立</span>
 </div>
 
@@ -331,7 +325,7 @@ details[open]>summary::after{content:"−"}
 <li>罰則の区切り：2022年5月1日、2023年4月1日、2025年5月1日で4つに分けています。区間ごとの差は、同じ選手ではなく、区間の中のF0とF1の平均の差です</li>
 <li>揃えていないもの：同じ選手の中でも、時期が違えばモーター・場・相手が変わります。開催の格も揃えていません</li>
 <li>図：すべてこの検証の集計から描いたもので、外部の画像は使っていません</li>
-<li>下の検証データ：このサイトが毎日ためているレース結果だけを使っています（<b>2025/11/1 〜 2026/10/23</b>の分）。記事の数字とは期間もデータ源も別で、同じ向きが出続けているかを見るための欄です。数字そのものは記事と一致しません</li>
+<li>下の検証データ：このサイトが毎日ためているレース結果だけを使っています（<b>2025/11/1 〜 2026/10/24</b>の分）。記事の数字とは期間もデータ源も別で、同じ向きが出続けているかを見るための欄です。数字そのものは記事と一致しません</li>
 </ul>
 </div>
 </details>
@@ -356,7 +350,7 @@ details[open]>summary::after{content:"−"}
 「—」は、判定できる分母に届いていないという意味です。</p>
 <table>
 <thead><tr><th>文</th><th>条件</th><th>現在</th><th></th></tr></thead>
-<tbody><tr><td>F持ちのSTは遅い側にある</td><td>F1の平均STがF0より遅い</td><td>0.1490 / 0.1606</td><td>✓</td></tr><tr><td>同じ選手の中でも遅くなる</td><td>F0→F1で遅くなった選手が半数を超える</td><td>68.9%（540人）</td><td>✓</td></tr><tr><td>Fを切る人は、切る前から速く踏んでいる</td><td>Fありの選手のF0時STが、Fなしの選手より速い</td><td>0.1480 / 0.1562</td><td>✓</td></tr><tr><td>1着率もF0のほうが高い</td><td>F0の1着率がF1を上回る</td><td>55.8% / 53.3%</td><td>✓</td></tr><tr><td>F2は、この欄では判定しない</td><td>F2の枠が200以上、かつ個体内が20人以上</td><td>151枠 / 22人</td><td>—</td></tr></tbody>
+<tbody><tr><td>F持ちのSTは遅い側にある</td><td>F1の平均STがF0より遅い</td><td>0.1490 / 0.1606</td><td>✓</td></tr><tr><td>同じ選手の中でも遅くなる</td><td>F0→F1で遅くなった選手が半数を超える</td><td>68.6%（542人）</td><td>✓</td></tr><tr><td>Fを切る人は、切る前から速く踏んでいる</td><td>Fありの選手のF0時STが、Fなしの選手より速い</td><td>0.1480 / 0.1562</td><td>✓</td></tr><tr><td>1着率もF0のほうが高い</td><td>F0の1着率がF1を上回る</td><td>55.8% / 53.3%</td><td>✓</td></tr><tr><td>F2は、この欄では判定しない</td><td>F2の枠が200以上、かつ個体内が20人以上</td><td>151枠 / 22人</td><td>—</td></tr></tbody>
 </table>
 </div>
 </details>
@@ -367,7 +361,7 @@ details[open]>summary::after{content:"−"}
 <p>この欄の期間だけで数え直した、1コースのスタートタイミングです。</p>
 <table>
 <thead><tr><th></th><th>枠数</th><th>平均ST</th><th>1着率</th></tr></thead>
-<tbody><tr><td>F0</td><td>47,995</td><td>0.1490</td><td>55.8%</td></tr><tr><td>F1</td><td>6,229</td><td>0.1606</td><td>53.3%</td></tr><tr class="hi"><td>F2</td><td>151</td><td>0.1636</td><td>47.0%</td></tr></tbody>
+<tbody><tr><td>F0</td><td>48,116</td><td>0.1490</td><td>55.8%</td></tr><tr><td>F1</td><td>6,272</td><td>0.1606</td><td>53.3%</td></tr><tr class="hi"><td>F2</td><td>151</td><td>0.1636</td><td>47.0%</td></tr></tbody>
 </table>
 </div>
 </details>
@@ -378,13 +372,13 @@ details[open]>summary::after{content:"−"}
 <p>この検証がどれだけのデータで出ているかです。日が経つほど増えます。</p>
 <table>
 <thead><tr><th>項目</th><th>件数</th></tr></thead>
-<tbody><tr><td>数えた日数</td><td>357</td></tr><tr><td>数えたレース</td><td>54,379</td></tr><tr><td>1コースの枠</td><td>54,375</td></tr><tr><td>個体内で比べた選手（F1）</td><td>540</td></tr><tr><td>個体内で比べた選手（F2）</td><td>22</td></tr><tr><td>Fを切った選手</td><td>722</td></tr><tr><td>一度も切っていない選手</td><td>743</td></tr></tbody>
+<tbody><tr><td>数えた日数</td><td>358</td></tr><tr><td>数えたレース</td><td>54,543</td></tr><tr><td>1コースの枠</td><td>54,539</td></tr><tr><td>個体内で比べた選手（F1）</td><td>542</td></tr><tr><td>個体内で比べた選手（F2）</td><td>22</td></tr><tr><td>Fを切った選手</td><td>723</td></tr><tr><td>一度も切っていない選手</td><td>743</td></tr></tbody>
 </table>
 </div>
 </details>
 
   <p class="stamp">
-    集計期間 <span>2025/11/1 〜 2026/10/23</span>　/　最終更新 <span>2026/10/23</span><br>
+    集計期間 <span>2025/11/1 〜 2026/10/24</span>　/　最終更新 <span>2026/10/24</span><br>
     このページは毎日、前日までの結果で自動更新されます。
   </p>
 </div>
@@ -396,9 +390,5 @@ details[open]>summary::after{content:"−"}
 
 <script src="../../assets/guard.js" defer></script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics -->
-<!-- kata6:body -->
-<script src="../../assets/kata/kata.js?v=ecd47e51"></script>
-<script src="../../assets/ugoki.js?v=e40e8a0a"></script>
-<!-- /kata6:body -->
 </body>
 </html>
