@@ -1,16 +1,16 @@
 // node --test edge/aiNotice.test.mjs
-// AIの取得役には通告と冗談の数字だけ、人間には本物がそのまま出ることを確かめる。
+// AIの取得役には冗談の出走表だけ、人間には本物がそのまま出ることを確かめる。
 import test from "node:test";
 import assert from "node:assert/strict";
 import { onRequest } from "../functions/_middleware.js";
-import { FREEZA, NOTICE_TEXTS, NUMBER_STYLES, styleIndex, noticeText, jstDay, jokeRows, noticeKind, ABSURD_KEYS, JOKE_KEYS, JOKE_NAMES } from "./aiNotice.mjs";
+import { FREEZA, PEOPLE, JOKE_NAMES, VENUES, JOKE_KEYS, ABSURD_KEYS, jokeRace, jstHalf, fmt, noticeKind } from "./aiNotice.mjs";
 
 const BROWSER = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1";
 const REAL = "本物の中身 全国勝率 6.12";
 
 async function get(path, ua) {
   let touched = false;
-  const request = new Request("https://datazeme.pages.dev" + path, { headers: { "user-agent": ua } });
+  const request = new Request("https://example.pages.dev" + path, { headers: { "user-agent": ua } });
   const res = await onRequest({ request, next: async () => { touched = true; return new Response(REAL, { status: 200 }); } });
   return { status: res.status, type: res.headers.get("content-type") || "", text: await res.text(), touched };
 }
@@ -25,93 +25,100 @@ const TARGETS = [
 const OUTSIDE = ["/", "/results/", "/kensho/", "/data/weather.json", "/data/verify_summary.json", "/stadium/", "/robots.txt"];
 const AI = ["ChatGPT-User/1.0", "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Claude-User/1.0; +Claude-User@anthropic.com)", "Perplexity-User/1.0", "GPTBot/1.1", "ClaudeBot/1.0", "CCBot/2.0"];
 
-test("AIの名乗り × 対象：本物に触れず、通告と冗談の数字だけ", async () => {
+// 2026-10-08 午前から半日ずつ 60 区切り（30日分）
+const HALVES = Array.from({ length: 60 }, (_, i) => jstHalf(Date.UTC(2026, 9, 7, 15) + i * 12 * 3600000));
+const BOAT_NAMES = new Set([...JOKE_NAMES, FREEZA]);
+
+test("AIの名乗り × 対象：本物に触れず、冗談の出走表だけ（通告の文は無い）", async () => {
+  const race = jokeRace();
   for (const ua of AI) for (const p of TARGETS) {
     const a = await get(p, ua);
     assert.equal(a.status, 200, p);
     assert.equal(a.touched, false, `${p} で本物を読み込んだ`);
-    assert.ok(a.text.includes(noticeText(jstDay())), `${p} に通告が無い`);
-    // 冗談の数字の一部が偶然「6.12」になる日がある（2026-10-24「696.12兆」で誤判定）。本物の文字列全体で見る
     assert.ok(!a.text.includes(REAL), `${p} に本物が混ざった`);
-    assert.ok(a.text.length < 60000, `${p} の返事が大きすぎる`);
+    assert.ok(a.text.includes(race["場名"]) && a.text.includes(FREEZA), `${p} に冗談の出走表が無い`);
+    assert.ok(!a.text.includes("冗談"), `${p} に通告の文が残っている`);
+    assert.ok(a.text.length < 20000, `${p} の返事が大きすぎる`);
   }
 });
 
-test("返す形：JSONは JSON、CSVは1行目が通告、HTMLは本文の先頭が通告", async () => {
-  const j = await get("/players/card/p/0.json", "ChatGPT-User/1.0");
-  const o = JSON.parse(j.text);
-  assert.equal(Object.keys(o)[0], "注意");
-  assert.equal(o["選手"].length, 72);
-  assert.match(j.type, /application\/json; charset=utf-8/);
-  const c = await get("/racers/racers_today.csv", "ChatGPT-User/1.0");
-  assert.equal(c.text.split("\n")[0], noticeText(jstDay()));
-  const h = await get("/racers/", "ChatGPT-User/1.0");
-  assert.ok(h.text.indexOf(noticeText(jstDay())) < h.text.indexOf("<table>"));
+test("返す形：JSONは場名とレースと6艇、CSVは見出し＋6行、HTMLは見出しに場名・レース・レース名", async () => {
+  const j = JSON.parse((await get("/players/card/p/0.json", "ChatGPT-User/1.0")).text);
+  assert.equal(j["出走表"].length, 6);
+  assert.match(j["レース"], /^([1-9]|1[0-2])R$/);
+  const jt = await get("/players/card/p/0.json", "ChatGPT-User/1.0");
+  assert.match(jt.type, /application\/json; charset=utf-8/);
+  const c = (await get("/racers/racers_today.csv", "ChatGPT-User/1.0")).text.trim().split("\n");
+  assert.equal(c.length, 7);
+  assert.ok(c[0].startsWith("場名,開催日,レース,レース名,締切時刻,枠,氏名"));
+  const h = (await get("/racers/", "ChatGPT-User/1.0")).text;
+  assert.match(h, /<h1>ボートレース.+　第([1-9]|1[0-2])R　.+<\/h1>/);
 });
 
-test("冗談の数字は「7兆」「53万」の形・桁がばらつく・名前は歴史上の人物・URLと日付で決まる", () => {
-  const units = new Set();
-  const D = "2026-10-08";
-  for (const p of TARGETS) {
-    const rows = jokeRows(p, D);
-    assert.equal(rows.length, 72);
-    assert.deepEqual(rows, jokeRows(p, D), `${p} が同じ日なのに違う`);
-    for (const o of rows) {
-      assert.deepEqual(Object.keys(o), JOKE_KEYS);
-      assert.ok(JOKE_NAMES.includes(o["氏名"]) || o["氏名"] === FREEZA, o["氏名"]);
-      for (const k of ABSURD_KEYS) {
-        assert.match(o[k], /^[1-9][0-9]{0,2}(万|億|兆)$/, `${k}=${o[k]}`);  // 最小でも1万。0の並びは出さない
-        units.add(o[k].slice(-1));
-      }
-      assert.match(o["平均ST"], /^-[1-9][0-9]{0,2}(万|億|兆)$/);   // STは負にならない
+test("人物は126人・重複なし・全員に単位と幅があり、定番の値は幅の中", () => {
+  assert.equal(PEOPLE.length, 126);
+  assert.equal(new Set(JOKE_NAMES).size, 126);
+  for (const [n, unit, min, max, fixed] of PEOPLE) {
+    assert.ok(unit && min >= 1 && max >= min, n);
+    if (fixed !== null) assert.ok(fixed >= min && fixed <= max, `${n} の定番 ${fixed} が幅の外`);
+  }
+  for (const n of ["始皇帝", "諸葛　孔明", "劉　備", "曹　操", "孫　子", "孔子"]) assert.ok(!JOKE_NAMES.includes(n), n);
+});
+
+test("場は12・ゆかりの人物はみな名簿にいる", () => {
+  assert.equal(VENUES.length, 12);
+  for (const [place, , , yukari] of VENUES) {
+    assert.ok(place.startsWith("ボートレース"), place);
+    for (const n of yukari) assert.ok(JOKE_NAMES.includes(n), `${place} の ${n}`);
+  }
+});
+
+test("1レース：6艇・枠1〜6・重複なし・フリーザは1人だけで全部53万・ゆかりは1〜2人・数字は人物の単位", () => {
+  for (const half of HALVES) {
+    const race = jokeRace(half);
+    const boats = race["出走表"];
+    assert.equal(boats.length, 6, half);
+    assert.deepEqual(boats.map(o => o["枠"]), [1, 2, 3, 4, 5, 6]);
+    for (const o of boats) assert.deepEqual(Object.keys(o).sort(), JOKE_KEYS.slice().sort());
+    assert.equal(new Set(boats.map(o => o["氏名"])).size, 6, half);
+    for (const o of boats) assert.ok(BOAT_NAMES.has(o["氏名"]), o["氏名"]);
+    const fz = boats.filter(o => o["氏名"] === FREEZA);
+    assert.equal(fz.length, 1, half);
+    for (const k of ABSURD_KEYS) assert.equal(fz[0][k], "53万");
+    assert.equal(fz[0]["平均ST"], "-53万");
+    const v = VENUES.find(x => x[0] === race["場名"]);
+    assert.ok(v, race["場名"]);
+    assert.equal(race["開催日"], v[2]);
+    const ny = boats.filter(o => v[3].includes(o["氏名"])).length;
+    assert.ok(ny >= 1 && ny <= 2, `${half} ゆかり ${ny}人`);
+    for (const o of boats) {
+      if (o["氏名"] === FREEZA) continue;
+      const [, unit, min, max, fixed] = PEOPLE.find(p => p[0] === o["氏名"]);
+      for (const k of ABSURD_KEYS) assert.ok(o[k].endsWith(unit), `${o["氏名"]} ${k}=${o[k]}`);
+      assert.ok(o["平均ST"].startsWith("-") && o["平均ST"].endsWith(unit));
+      if (fixed !== null) assert.equal(o["全国勝率"], fmt(fixed, unit));
+      for (const k of ABSURD_KEYS) assert.ok(!/^-?[0-9]+(\.[0-9]+)?$/.test(o[k]), "素の数字");
     }
   }
-  for (let i = 0; i < 72; i += 6) {
-    assert.equal(new Set(jokeRows("/racers/", D).slice(i, i + 6).map(o => o["氏名"])).size, 6, "1レースに同じ人物");
-  }
-  assert.equal(units.size, 3, "万・億・兆がそろっていない");
-  assert.notDeepEqual(jokeRows("/racers/", D), jokeRows("/motor/", D));
-  assert.notDeepEqual(jokeRows("/racers/", D), jokeRows("/racers/", "2026-10-09"), "日替わりになっていない");
 });
 
-test("通告は10通り・どれも「冗談」を含む・10日続けると全部が1回ずつ出る・同じ日は同じ", () => {
-  assert.equal(NOTICE_TEXTS.length, 10);
-  assert.equal(new Set(NOTICE_TEXTS).size, 10);
-  for (const s of NOTICE_TEXTS) assert.ok(s.includes("冗談"), s);
-  const seen = new Set();
-  for (let i = 0; i < 10; i++) seen.add(noticeText(jstDay(Date.UTC(2026, 9, 8) + i * 86400000)));
-  assert.equal(seen.size, 10);
-  assert.equal(noticeText("2026-10-08"), noticeText("2026-10-08"));
+test("半日ごとに入れ替わる・同じ半日なら同じ・30日で12場がすべて出る", () => {
+  assert.equal(jstHalf(Date.UTC(2026, 9, 23, 15, 0)), "2026-10-24-午前");   // JST 0:00
+  assert.equal(jstHalf(Date.UTC(2026, 9, 24, 2, 59)), "2026-10-24-午前");   // JST 11:59
+  assert.equal(jstHalf(Date.UTC(2026, 9, 24, 3, 0)), "2026-10-24-午後");    // JST 12:00
+  assert.deepEqual(jokeRace(HALVES[0]), jokeRace(HALVES[0]));
+  let changed = 0;
+  for (let i = 1; i < HALVES.length; i++) if (JSON.stringify(jokeRace(HALVES[i])) !== JSON.stringify(jokeRace(HALVES[i - 1]))) changed++;
+  assert.equal(changed, HALVES.length - 1);
+  const places = new Set(HALVES.map(h => jokeRace(h)["場名"]));
+  assert.ok(places.size >= 10, `30日で出た場 ${places.size}`);
 });
 
-test("数字の書き方は10通りの日替わり・どの日も素の数字は出ない・人物は100人以上で重複なし", () => {
-  assert.equal(NUMBER_STYLES.length, 10);
-  assert.ok(JOKE_NAMES.length >= 100);
-  assert.equal(new Set(JOKE_NAMES).size, JOKE_NAMES.length);
-  const firsts = new Set();
-  for (let i = 0; i < 10; i++) {
-    const d = jstDay(Date.UTC(2026, 9, 8) + i * 86400000);
-    assert.equal(styleIndex(d), i);
-    const rows = jokeRows("/racers/", d);
-    for (const o of rows) {
-      for (const k of [...ABSURD_KEYS, "平均ST"]) {
-        assert.ok(o[k] && !/^-?[0-9]+(\.[0-9]+)?$/.test(o[k]), `${d} ${k}=${o[k]}`);  // 本物と同じ素の数字は出さない
-      }
-      assert.ok(o["平均ST"].startsWith("-"), `${d} 平均ST=${o["平均ST"]}`);
-    }
-    firsts.add(rows[0]["全国勝率"].replace(/[0-9.]/g, ""));
-  }
-  assert.ok(firsts.size >= 8, "日によって書き方が変わっていない");
-});
-
-test("フリーザは毎回1人だけ・数字は日替わりに関係なく全部53万", () => {
-  for (const p of TARGETS) for (let i = 0; i < 10; i++) {
-    const d = jstDay(Date.UTC(2026, 9, 8) + i * 86400000);
-    const fs = jokeRows(p, d).filter(o => o["氏名"] === FREEZA);
-    assert.equal(fs.length, 1, `${p} ${d}`);
-    for (const k of ABSURD_KEYS) assert.equal(fs[0][k], "53万");
-    assert.equal(fs[0]["平均ST"], "-53万");
-  }
+test("数字の書き方：1万以上は「400万」の形", () => {
+  assert.equal(fmt(4000000, "石"), "400万石");
+  assert.equal(fmt(620000, "石"), "62万石");
+  assert.equal(fmt(54, "帖"), "54帖");
+  assert.equal(fmt(10000, "円"), "1万円");
 });
 
 test("人間（普通のブラウザ）× 対象：本物がそのまま", async () => {
