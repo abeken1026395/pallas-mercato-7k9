@@ -9,9 +9,10 @@ $ErrorActionPreference = 'Stop'
 $TaskName = 'boatrace-dailyBfiles'
 $Script   = 'C:\Users\USER\boatrace\scripts\dailyBfiles.ps1'
 $PwshExe  = "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe"
+$ConhostExe = "$env:SystemRoot\System32\conhost.exe"   # 窓を出さない起動（conhost --headless 経由。2026-10-24 PCのタスクと同じ形）
 
-$action = New-ScheduledTaskAction -Execute $PwshExe `
-    -Argument ('-NoProfile -NonInteractive -ExecutionPolicy Bypass -File "{0}"' -f $Script)
+$action = New-ScheduledTaskAction -Execute $ConhostExe `
+    -Argument ('--headless "{0}" -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "{1}"' -f $PwshExe, $Script)
 
 $trigger = New-ScheduledTaskTrigger -Daily -At '06:40'
 

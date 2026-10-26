@@ -17,13 +17,14 @@ $Home2    = 'C:\Users\USER\codeWatcher'
 $Src      = Join-Path $PSScriptRoot 'codeWatcher.ps1'
 $Script   = Join-Path $Home2 'codeWatcher.ps1'
 $PwshExe  = "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe"
+$ConhostExe = "$env:SystemRoot\System32\conhost.exe"   # 窓を出さない起動（conhost --headless 経由。2026-10-24 PCのタスクと同じ形）
 
 if (-not (Test-Path $Src)) { throw "codeWatcher.ps1 が見つからない: $Src" }
 if (-not (Test-Path $Home2)) { New-Item -ItemType Directory -Path $Home2 -Force | Out-Null }
 Copy-Item -Path $Src -Destination $Script -Force
 
-$action = New-ScheduledTaskAction -Execute $PwshExe `
-    -Argument ('-NoProfile -NonInteractive -WindowStyle Hidden -ExecutionPolicy Bypass -File "{0}"' -f $Script)
+$action = New-ScheduledTaskAction -Execute $ConhostExe `
+    -Argument ('--headless "{0}" -NoProfile -NonInteractive -WindowStyle Hidden -ExecutionPolicy Bypass -File "{1}"' -f $PwshExe, $Script)
 
 $trigger = New-ScheduledTaskTrigger -Once -At (Get-Date).AddMinutes(1) `
     -RepetitionInterval (New-TimeSpan -Minutes 5) `

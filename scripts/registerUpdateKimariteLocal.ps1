@@ -31,6 +31,7 @@ $ErrorActionPreference = 'Stop'
 $TaskName = 'boatrace-updateKimarite'
 $Script   = 'C:\Users\USER\boatrace\scripts\updateKimariteLocal.ps1'
 $PwshExe  = "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe"
+$ConhostExe = "$env:SystemRoot\System32\conhost.exe"   # 窓を出さない起動（conhost --headless 経由。2026-10-24 PCのタスクと同じ形）
 
 $RunDays = @(2, 16)      # 実行する日（毎月）
 $RunTime = '06:30'
@@ -42,7 +43,7 @@ $startBoundary = (Get-Date -Hour ([int]$hh) -Minute ([int]$mm) -Second 0).ToStri
 
 $dayNodes = ($RunDays | ForEach-Object { "          <Day>$_</Day>" }) -join "`n"
 # $args は PowerShell の自動変数なので使わない（$taskArgs にする）
-$taskArgs = '-NoProfile -NonInteractive -ExecutionPolicy Bypass -File "{0}"' -f $Script
+$taskArgs = '--headless "{0}" -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "{1}"' -f $PwshExe, $Script
 $user     = "$env:USERDOMAIN\$env:USERNAME"
 $desc     = 'mbrace Kファイル183日集計 → 検証4項目（行数/列構成/激減/取得率）を通ったものだけ docs/players/racerKimarite.csv へ配置 → 変更があればcommit&push'
 
@@ -53,7 +54,7 @@ function Esc([string]$s) { return [System.Security.SecurityElement]::Escape($s) 
 $descX     = Esc $desc
 $userX     = Esc $user
 $taskArgsX = Esc $taskArgs
-$pwshX     = Esc $PwshExe
+$conhostX  = Esc $ConhostExe
 
 $xml = @"
 <?xml version="1.0" encoding="UTF-16"?>
@@ -104,7 +105,7 @@ $dayNodes
   </Settings>
   <Actions Context="Author">
     <Exec>
-      <Command>$pwshX</Command>
+      <Command>$conhostX</Command>
       <Arguments>$taskArgsX</Arguments>
     </Exec>
   </Actions>

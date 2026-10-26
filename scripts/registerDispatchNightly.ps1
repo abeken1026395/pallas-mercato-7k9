@@ -15,13 +15,14 @@ $Home2    = 'C:\Users\USER\dispatchNightly'
 $Src      = Join-Path $PSScriptRoot 'dispatchNightly.ps1'
 $Script   = Join-Path $Home2 'dispatchNightly.ps1'
 $PwshExe  = "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe"
+$ConhostExe = "$env:SystemRoot\System32\conhost.exe"   # 窓を出さない起動（conhost --headless 経由。2026-10-24 PCのタスクと同じ形）
 
 if (-not (Test-Path $Src)) { throw "dispatchNightly.ps1 が見つからない: $Src" }
 if (-not (Test-Path $Home2)) { New-Item -ItemType Directory -Path $Home2 -Force | Out-Null }
 Copy-Item -Path $Src -Destination $Script -Force
 
-$action = New-ScheduledTaskAction -Execute $PwshExe `
-    -Argument ('-NoProfile -NonInteractive -WindowStyle Hidden -ExecutionPolicy Bypass -File "{0}"' -f $Script)
+$action = New-ScheduledTaskAction -Execute $ConhostExe `
+    -Argument ('--headless "{0}" -NoProfile -NonInteractive -WindowStyle Hidden -ExecutionPolicy Bypass -File "{1}"' -f $PwshExe, $Script)
 
 $triggers = @(
     (New-ScheduledTaskTrigger -Daily -At '18:05'),
