@@ -97,6 +97,9 @@ input[type=search]{width:min(320px,100%)}
 .sline .r2{margin-left:auto;font-size:13px;color:var(--sub);white-space:nowrap}
 .sline .r2 b{color:var(--txt);font-size:15px;font-variant-numeric:tabular-nums}
 .rider{font-size:14px;margin-top:2px}
+.rider a{color:var(--txt);text-decoration:underline;text-decoration-color:#4a6a90;text-underline-offset:3px}
+.gr{display:inline-block;font-size:11px;font-weight:800;line-height:1;padding:2px 4px;margin-left:5px;vertical-align:1px;color:#fff;background:#3b4a5c}
+.gr.gA1{background:#d64545}.gr.gA2{background:#d9822b}.gr.gB1{background:#2f6fd6}.gr.gB2{background:#3b4a5c}
 .evl{font-size:13.5px;color:var(--sub);margin-top:4px}
 .evl .d{color:var(--txt);font-weight:700;margin-right:6px;font-variant-numeric:tabular-nums}
 .none{color:var(--dim);font-size:13px;margin-top:2px}
@@ -203,6 +206,16 @@ var R=D.r;
 var BIG={"ピストン":1,"シリンダ":1,"シャフト":1,"キャリボ":1};
 function $(id){return document.getElementById(id)}
 function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+/* 選手の級（その節の時点の級）。rankHistory.json は級が変わった日だけを持つ（改定後に初めて出走した日）。
+   節の初日以前で最後に記録された級を、その節の級とする。記録の無い選手は出さない（2026-10-26） */
+var RANK=null;
+function gradeAt(tb,d8){
+  var h=RANK&&RANK[String(tb)];if(!h||!d8)return "";
+  var d=d8.slice(0,4)+"-"+d8.slice(4,6)+"-"+d8.slice(6,8),g="";
+  for(var i=0;i<h.length;i++){if(h[i][0]<=d)g=h[i][1];else break}
+  return g;
+}
+function grHtml(tb,d8){var g=gradeAt(tb,d8);return g?'<span class="gr g'+g+'">'+g+"</span>":""}
 function md(s){return (+s.slice(4,6))+"/"+(+s.slice(6,8))}
 function wd(s){return "日月火水木金土"[new Date(+s.slice(0,4),+s.slice(4,6)-1,+s.slice(6,8)).getDay()]}
 function norm(s){return String(s||"").replace(/[\s　]+/g,"")}
@@ -240,7 +253,7 @@ function drawRecent(){
       var r=x.r,w=x.pera?'<span class="p pera">ペラ新</span>':chips(x.parts);
       var when=dayLabel(dayOf(x.r,x.d))+(x.rno?x.rno+"R の直前情報":"");
       return '<button class="ev" data-j="'+r[0]+'" data-m="'+r[8]+'"><span class="mno">'+r[8]+"<small>号機</small></span>"
-        +'<span class="who">'+esc(r[7])+'<span class="tb">'+r[6]+"</span></span>"
+        +'<span class="who">'+esc(r[7])+grHtml(r[6],r[1])+'<span class="tb">'+r[6]+"</span></span>"
         +'<span class="what">'+w+(when?' <span class="note1" style="display:inline">'+esc(when)+"</span>":"")+"</span></button>";
     }).join("")+"</div>";
   }).join("");
@@ -311,7 +324,7 @@ function drawKarte(scroll){
     var body=g.map(function(r){
       var evs=r[15].map(function(e){return '<div class="evl"><span class="d">'+md(e[0])+(e[2]?" "+e[2]+"R":"")+"</span>"+chips(e[3])+(dayOf(r,e[0])!=null?'<span class="note1" style="display:inline">'+dayOf(r,e[0])+"日目</span>":"")+"</div>"}).join("")
         +r[16].map(function(p){return '<div class="evl"><span class="d">'+md(p[0])+'</span><span class="p pera">ペラ新</span></div>'}).join("");
-      return '<div class="rider">'+esc(r[7])+' <span class="tb" style="color:var(--dim);font-size:12px">'+r[6]+" ・ "+r[9]+(r[11]?"+":"")+"走</span></div>"+cjHtml(r[18])+(evs||'<div class="none">交換なし</div>');
+      return '<div class="rider"><a href="../players/?toban='+encodeURIComponent(r[6])+'">'+esc(r[7])+"</a>"+grHtml(r[6],r[1])+' <span class="tb" style="color:var(--dim);font-size:12px">'+r[6]+" ・ "+r[9]+(r[11]?"+":"")+"走</span></div>"+cjHtml(r[18])+(evs||'<div class="none">交換なし</div>');
     }).join("");
     var live=g.some(function(r){return r[2]===LAST});
     var tags=(open?(live?'<span class="tag live">開催中</span>':'<span class="tag">節の記録待ち</span>'):"")+(head?'<span class="tag">7/15より前は記録なし</span>':"")+(g.some(function(r){return r[14]==="大掛かり"})?'<span class="tag big">大掛かり</span>':"");
@@ -339,7 +352,7 @@ function drawRacer(){
     var parts=[];r[15].forEach(function(e){parts=parts.concat(e[3])});
     var w=(parts.length?chips(parts):"")+(r[16].length?'<span class="p pera">ペラ新</span>':"");
     return '<button class="ev" data-j="'+r[0]+'" data-m="'+r[8]+'"><span class="mno">'+r[8]+"<small>"+esc(V[r[0]])+"</small></span>"
-      +'<span class="who">'+esc(r[7])+'<span class="tb">'+md(r[1])+"〜"+md(r[2])+"</span></span>"
+      +'<span class="who">'+esc(r[7])+grHtml(r[6],r[1])+'<span class="tb">'+md(r[1])+"〜"+md(r[2])+"</span></span>"
       +'<span class="what">'+(w||'<span class="note1" style="display:inline">交換なし</span>')+"</span></button>";
   }).join("")+"</div>"+(hit.length>60?'<div class="note1 more">新しい順に60節まで表示しています。</div>':"");
   $("rres").innerHTML=h;
@@ -391,6 +404,12 @@ drawDays();drawRecent();
   if(v&&V[v[1]]){curJ=v[1];curM=null;show("motor");drawGrid();}
 })();
 
+fetch("../data/rankHistory.json").then(function(r){return r.ok?r.json():null}).catch(function(){return null}).then(function(j){
+  if(!j||!j["選手"])return;RANK=j["選手"];
+  if(curM!=null)drawKarte(false);
+  drawRecent();
+  if($("r-q").value)drawRacer();
+});
 // 新替日と新替後の走行数（motorUsage.json）、新替後の節数（motorHistory.json）。
 // 届かなくても本体は壊さない（経歴に新替の区切りと走行数が出ないだけ）。
 Promise.all([
