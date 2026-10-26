@@ -800,6 +800,8 @@ function App() {
   const [rankHist, setRankHist] = useState(null);
   const [rhMeta, setRhMeta] = useState(null);
   const [slate, setSlate] = useState(null);
+  const [mz, setMz] = useState(null); // 前づけ実績（maezuke.json）。null=未取得 / false=取得失敗
+  const [mzMeta, setMzMeta] = useState(null);
   const [slMeta, setSlMeta] = useState(null);
   const [sord, setSord] = useState(null);
   const [soMeta, setSoMeta] = useState(null);
@@ -979,6 +981,22 @@ function App() {
       }
     }).catch(() => {
       setRankHist({});
+    });
+  }, [open]);
+  // 前づけ実績（出走表の「前づけしたとき」の詳しい版）も詳細を開いた時だけ読む（2026-10-26）
+  useEffect(() => {
+    if (!open || mz !== null) return;
+    fetch("../data/maezuke.json").then(r => r.ok ? r.json() : Promise.reject()).then(j => {
+      if (j && j.選手) {
+        setMz(j.選手);
+        setMzMeta({
+          期間: j.期間 || [],
+          定義: j.定義,
+          出典: j.出典
+        });
+      }
+    }).catch(() => {
+      setMz(false);
     });
   }, [open]);
   // スタートの遅れも詳細を開いた時だけ遅延読込（一覧を重くしない）
@@ -1234,13 +1252,35 @@ function App() {
     if (!t) return;
     setQ(t);
     setOpen(t);
-    setTimeout(() => {
+    // #mz 付き（出走表の「前づけしたとき 詳しく」から）は、前づけの節まで送る。節は読込後に出るので少し待つ
+    const toMz = location.hash === "#mz";
+    let tries = 0;
+    const go = () => {
+      const m = toMz ? document.getElementById("mz-" + t) : null;
+      if (m) {
+        // ほかの節もあとから読み込まれて上が伸びるので、少し間をおいて2回合わせ直す
+        const fit = () => {
+          const x = document.getElementById("mz-" + t);
+          if (x) x.scrollIntoView({
+            block: "start"
+          });
+        };
+        fit();
+        setTimeout(fit, 700);
+        setTimeout(fit, 1600);
+        return;
+      }
+      if (toMz && ++tries < 15) {
+        setTimeout(go, 300);
+        return;
+      }
       const el = document.getElementById("p-" + t);
       if (el) el.scrollIntoView({
         behavior: "smooth",
         block: "center"
       });
-    }, 400);
+    };
+    setTimeout(go, 400);
   }, []);
 
   // note内リンクから別選手カードへジャンプ（絞り込みを解除して確実に表示）
@@ -3073,7 +3113,118 @@ function App() {
         marginTop: 4,
         lineHeight: 1.6
       }
-    }, "\u307E\u304F\u308A\u7387/\u5DEE\u3057\u7387\uFF1D1\u7740\u306E\u3046\u3061\u305D\u306E\u6C7A\u307E\u308A\u624B\u306E\u5272\u5408\u3002\u524D\u3065\u3051\uFF1D\u67A0\u3088\u308A\u5185\u5074\u3078\u306E\u9032\u5165\u5EA6\uFF08\u5E73\u5747\uFF1D\u67A0\u2212\u9032\u5165\u30B3\u30FC\u30B9\u3001\u7387\uFF1D2\u679A\u4EE5\u4E0A\u5185\u5074\u306B\u5165\u3063\u305F\u5272\u5408\u3001\u9032\u5165\u56FA\u5B9A\u306F\u9664\u5916\uFF09\u3002\u51FA\u5178\uFF1A\u516C\u5F0F\u7AF6\u8D70\u6210\u7E3E\u3002")), (() => {
+    }, "\u307E\u304F\u308A\u7387/\u5DEE\u3057\u7387\uFF1D1\u7740\u306E\u3046\u3061\u305D\u306E\u6C7A\u307E\u308A\u624B\u306E\u5272\u5408\u3002\u524D\u3065\u3051\uFF1D\u67A0\u3088\u308A\u5185\u5074\u3078\u306E\u9032\u5165\u5EA6\uFF08\u5E73\u5747\uFF1D\u67A0\u2212\u9032\u5165\u30B3\u30FC\u30B9\u3001\u7387\uFF1D2\u679A\u4EE5\u4E0A\u5185\u5074\u306B\u5165\u3063\u305F\u5272\u5408\u3001\u9032\u5165\u56FA\u5B9A\u306F\u9664\u5916\uFF09\u3002\u51FA\u5178\uFF1A\u516C\u5F0F\u7AF6\u8D70\u6210\u7E3E\u3002")), mz && (() => {
+      const m = mz[p.no];
+      const fy = s => {
+        s = String(s || "");
+        return s.length === 8 ? s.slice(0, 4) + "/" + +s.slice(4, 6) + "/" + +s.slice(6, 8) : s;
+      };
+      const per = mzMeta && mzMeta.期間 && mzMeta.期間[0] ? fy(mzMeta.期間[0]) + "〜" + fy(mzMeta.期間[1]) : "";
+      const pc = (a, b) => b >= 20 ? (a / b * 100).toFixed(1) + "%" : "—";
+      const th = {
+        fontSize: 11,
+        color: "#96a8bb",
+        fontWeight: 400,
+        padding: "4px 4px",
+        textAlign: "right"
+      };
+      const td = {
+        fontSize: 13,
+        padding: "5px 4px",
+        textAlign: "right",
+        fontVariantNumeric: "tabular-nums",
+        borderTop: "1px solid #1c2a3c"
+      };
+      const row = (label, x, bold) => /*#__PURE__*/React.createElement("tr", {
+        key: label,
+        style: x[0] < 20 ? {
+          color: "#8a94a3"
+        } : {
+          color: "#e0e6ed"
+        }
+      }, /*#__PURE__*/React.createElement("td", {
+        style: {
+          ...td,
+          textAlign: "left",
+          fontWeight: bold ? 800 : 400
+        }
+      }, label), /*#__PURE__*/React.createElement("td", {
+        style: td
+      }, x[0]), /*#__PURE__*/React.createElement("td", {
+        style: td
+      }, x[1]), /*#__PURE__*/React.createElement("td", {
+        style: td
+      }, x[2]), /*#__PURE__*/React.createElement("td", {
+        style: td
+      }, x[3]), /*#__PURE__*/React.createElement("td", {
+        style: td
+      }, x[0] - x[1] - x[2] - x[3]), /*#__PURE__*/React.createElement("td", {
+        style: td
+      }, pc(x[1], x[0])), /*#__PURE__*/React.createElement("td", {
+        style: td
+      }, pc(x[1] + x[2] + x[3], x[0])));
+      return /*#__PURE__*/React.createElement("div", {
+        id: "mz-" + p.no
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 11,
+          color: "#8faabe",
+          fontWeight: 700,
+          margin: "16px 0 6px"
+        }
+      }, "\u25A0 \u524D\u3065\u3051\u3057\u305F\u3068\u304D\u3000", /*#__PURE__*/React.createElement("span", {
+        style: {
+          color: "#96a8bb",
+          fontWeight: 400
+        }
+      }, "\u81EA\u5206\u304B\u3089\u67A0\u3088\u308A\u5185\u306E\u30B3\u30FC\u30B9\u306B\u5165\u3063\u305F\u8D70", per ? " / " + per : "")), !m || !m[0] ? /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 13,
+          color: "#96a8bb",
+          background: "#0b1219",
+          borderRadius: 8,
+          padding: "10px 12px"
+        }
+      }, "\u3053\u306E\u671F\u9593\u306B\u524D\u3065\u3051\u3057\u305F\u8D70\u306F\u3042\u308A\u307E\u305B\u3093\u3002") : /*#__PURE__*/React.createElement("div", {
+        style: {
+          background: "#0b1219",
+          borderRadius: 8,
+          padding: "6px 10px",
+          overflowX: "auto"
+        }
+      }, /*#__PURE__*/React.createElement("table", {
+        style: {
+          width: "100%",
+          borderCollapse: "collapse"
+        }
+      }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", {
+        style: {
+          ...th,
+          textAlign: "left"
+        }
+      }, "\u5165\u3063\u305F\u30B3\u30FC\u30B9"), /*#__PURE__*/React.createElement("th", {
+        style: th
+      }, "\u8D70"), /*#__PURE__*/React.createElement("th", {
+        style: th
+      }, "1\u7740"), /*#__PURE__*/React.createElement("th", {
+        style: th
+      }, "2\u7740"), /*#__PURE__*/React.createElement("th", {
+        style: th
+      }, "3\u7740"), /*#__PURE__*/React.createElement("th", {
+        style: th
+      }, "\u7740\u5916"), /*#__PURE__*/React.createElement("th", {
+        style: th
+      }, "1\u7740\u7387"), /*#__PURE__*/React.createElement("th", {
+        style: th
+      }, "3\u7740\u5185"))), /*#__PURE__*/React.createElement("tbody", null, Object.keys(m[4]).map(Number).sort((a, b) => a - b).map(c => row(c + "コース", m[4][c], false)), row("合計", m, true)))), /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 11,
+          color: "#96a8bb",
+          marginTop: 6,
+          lineHeight: 1.6
+        }
+      }, "\u307B\u304B\u306E\u8247\u304C\u5916\u3078\u56DE\u3063\u3066\u5185\u3078\u305A\u308C\u305F\u3060\u3051\u306E\u8D70\u306F\u6570\u3048\u307E\u305B\u3093\u3002\u7387\u306F20\u8D70\u4EE5\u4E0A\u306E\u3068\u304D\u3060\u3051\u51FA\u3057\u300120\u8D70\u672A\u6E80\u306E\u884C\u306F\u8584\u5B57\u3067\u3059\u3002\u7740\u5916\u306F4\u301C6\u7740\u3068\u3001\u8EE2\u8986\u30FB\u5931\u683C\u306A\u3069\u3092\u542B\u307F\u307E\u3059\uFF08\u6B20\u5834\u306F\u9664\u304F\uFF09\u3002\u4E0A\u306E\u300C\u524D\u3065\u3051\u7387\u300D\uFF08\u76F4\u8FD16\u30F6\u6708\u30FB2\u679A\u4EE5\u4E0A\u5185\u5074\uFF09\u3068\u306F\u6570\u3048\u65B9\u304C\u9055\u3044\u307E\u3059\u3002\u51FA\u5178\uFF1A", mzMeta && mzMeta.出典 || "公式競走成績"));
+    })(), (() => {
       const md = mon && mon[p.no] ? mon[p.no].月別 : null;
       const months = monMeta ? monMeta.months : [];
       const rows = md ? months.filter(m => md[m] && md[m].出走 > 0).slice().reverse() : [];
