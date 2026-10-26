@@ -39,6 +39,14 @@ jobs:
         # 描画に使う8列だけを機ごとに索引した派生ファイルを毎回作り直す（motorParts.json は読むだけ）。
         if: always()
         run: python scripts/buildMotorKarte.py
+      - name: build docs/next/buhinTsuzuki.html (実験場「部品交換のつづき」)
+        # 前の日までに部品を替えた選手の一覧。取り込みの直後に作らないと「翌日」の選手が載らない（2026-10-27 けん裁定 A）。
+        # 実験場のページなので、失敗しても部品交換のコミットは止めない。ただし警告は必ず出す（無言で古いページを残さない）。
+        if: always()
+        run: |
+          if ! python scripts/buildBuhinTsuzuki.py; then
+            echo "::warning::buhinTsuzuki.html を作り直せなかった。実験場のページは前回のまま"
+          fi
       - name: commit and push
         if: always()
         run: |
@@ -46,6 +54,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/motorParts.json
           git add docs/data/motorKarte.json
+          git add docs/next/buhinTsuzuki.html
           # 変更なし＝push しない（正常）。
           git diff --staged --quiet && echo "no change（push 不要）" && exit 0
           git commit -m "beforeinfo部品交換収集 $(date +'%Y-%m-%d %H:%M')"
