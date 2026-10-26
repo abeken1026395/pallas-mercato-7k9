@@ -334,6 +334,8 @@ function App() {
   const [rankHist, setRankHist] = useState(null);
   const [rhMeta, setRhMeta] = useState(null);
   const [slate, setSlate] = useState(null);
+  const [mz, setMz] = useState(null);         // 前づけ実績（maezuke.json）。null=未取得 / false=取得失敗
+  const [mzMeta, setMzMeta] = useState(null);
   const [slMeta, setSlMeta] = useState(null);
   const [sord, setSord] = useState(null);
   const [soMeta, setSoMeta] = useState(null);
@@ -437,6 +439,13 @@ function App() {
     fetch("../data/rankHistory.json").then(r=>r.ok?r.json():Promise.reject()).then(j=>{
       if(j && j.選手){ setRankHist(j.選手); setRhMeta({期間:j.期間, 出典:j.出典, 注記:j.注記}); }
     }).catch(()=>{ setRankHist({}); });
+  },[open]);
+  // 前づけ実績（出走表の「前づけしたとき」の詳しい版）も詳細を開いた時だけ読む（2026-10-26）
+  useEffect(()=>{
+    if(!open || mz!==null) return;
+    fetch("../data/maezuke.json").then(r=>r.ok?r.json():Promise.reject()).then(j=>{
+      if(j && j.選手){ setMz(j.選手); setMzMeta({期間:j.期間||[], 定義:j.定義, 出典:j.出典}); }
+    }).catch(()=>{ setMz(false); });
   },[open]);
   // スタートの遅れも詳細を開いた時だけ遅延読込（一覧を重くしない）
   useEffect(()=>{
@@ -547,10 +556,21 @@ function App() {
     const t=new URLSearchParams(location.search).get("toban");
     if(!t) return;
     setQ(t); setOpen(t);
-    setTimeout(()=>{
+    // #mz 付き（出走表の「前づけしたとき 詳しく」から）は、前づけの節まで送る。節は読込後に出るので少し待つ
+    const toMz=location.hash==="#mz";
+    let tries=0;
+    const go=()=>{
+      const m=toMz?document.getElementById("mz-"+t):null;
+      if(m){
+        // ほかの節もあとから読み込まれて上が伸びるので、少し間をおいて2回合わせ直す
+        const fit=()=>{ const x=document.getElementById("mz-"+t); if(x) x.scrollIntoView({block:"start"}); };
+        fit(); setTimeout(fit,700); setTimeout(fit,1600); return;
+      }
+      if(toMz && ++tries<15){ setTimeout(go,300); return; }
       const el=document.getElementById("p-"+t);
       if(el) el.scrollIntoView({behavior:"smooth",block:"center"});
-    },400);
+    };
+    setTimeout(go,400);
   },[]);
 
   // note内リンクから別選手カードへジャンプ（絞り込みを解除して確実に表示）
@@ -1210,6 +1230,41 @@ function App() {
                       <div style={{fontSize:11,color:"#96a8bb",marginTop:4,lineHeight:1.6}}>まくり率/差し率＝1着のうちその決まり手の割合。前づけ＝枠より内側への進入度（平均＝枠−進入コース、率＝2枚以上内側に入った割合、進入固定は除外）。出典：公式競走成績。</div>
                     </div>
                   )}
+
+                  {mz && (()=>{
+                    const m = mz[p.no];
+                    const fy = s=>{ s=String(s||""); return s.length===8?s.slice(0,4)+"/"+(+s.slice(4,6))+"/"+(+s.slice(6,8)):s; };
+                    const per = mzMeta&&mzMeta.期間&&mzMeta.期間[0] ? fy(mzMeta.期間[0])+"〜"+fy(mzMeta.期間[1]) : "";
+                    const pc = (a,b)=> b>=20 ? (a/b*100).toFixed(1)+"%" : "—";
+                    const th = {fontSize:11,color:"#96a8bb",fontWeight:400,padding:"4px 4px",textAlign:"right"};
+                    const td = {fontSize:13,padding:"5px 4px",textAlign:"right",fontVariantNumeric:"tabular-nums",borderTop:"1px solid #1c2a3c"};
+                    const row = (label,x,bold)=>(
+                      <tr key={label} style={x[0]<20?{color:"#8a94a3"}:{color:"#e0e6ed"}}>
+                        <td style={{...td,textAlign:"left",fontWeight:bold?800:400}}>{label}</td>
+                        <td style={td}>{x[0]}</td><td style={td}>{x[1]}</td><td style={td}>{x[2]}</td><td style={td}>{x[3]}</td>
+                        <td style={td}>{x[0]-x[1]-x[2]-x[3]}</td>
+                        <td style={td}>{pc(x[1],x[0])}</td><td style={td}>{pc(x[1]+x[2]+x[3],x[0])}</td>
+                      </tr>);
+                    return (
+                      <div id={"mz-"+p.no}>
+                        <div style={{fontSize:11,color:"#8faabe",fontWeight:700,margin:"16px 0 6px"}}>■ 前づけしたとき　<span style={{color:"#96a8bb",fontWeight:400}}>自分から枠より内のコースに入った走{per?" / "+per:""}</span></div>
+                        {!m||!m[0] ? (
+                          <div style={{fontSize:13,color:"#96a8bb",background:"#0b1219",borderRadius:8,padding:"10px 12px"}}>この期間に前づけした走はありません。</div>
+                        ) : (
+                          <div style={{background:"#0b1219",borderRadius:8,padding:"6px 10px",overflowX:"auto"}}>
+                            <table style={{width:"100%",borderCollapse:"collapse"}}>
+                              <thead><tr><th style={{...th,textAlign:"left"}}>入ったコース</th><th style={th}>走</th><th style={th}>1着</th><th style={th}>2着</th><th style={th}>3着</th><th style={th}>着外</th><th style={th}>1着率</th><th style={th}>3着内</th></tr></thead>
+                              <tbody>
+                                {Object.keys(m[4]).map(Number).sort((a,b)=>a-b).map(c=>row(c+"コース",m[4][c],false))}
+                                {row("合計",m,true)}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                        <div style={{fontSize:11,color:"#96a8bb",marginTop:6,lineHeight:1.6}}>ほかの艇が外へ回って内へずれただけの走は数えません。率は20走以上のときだけ出し、20走未満の行は薄字です。着外は4〜6着と、転覆・失格などを含みます（欠場は除く）。上の「前づけ率」（直近6ヶ月・2枚以上内側）とは数え方が違います。出典：{(mzMeta&&mzMeta.出典)||"公式競走成績"}</div>
+                      </div>
+                    );
+                  })()}
 
                   {(()=>{
                     const md = mon && mon[p.no] ? mon[p.no].月別 : null;
