@@ -10,6 +10,11 @@
   h1{font-size:24px;margin:0 0 20px;letter-spacing:.05em}
   p.msg{margin:0 0 12px;line-height:1.9;font-size:15px}
   p.last{margin-bottom:24px}
+  .hk{margin:8px auto 24px;max-width:420px;padding:14px;border:1px solid rgba(255,255,255,.25);text-align:left}
+  .hk-t{font-weight:700;margin:0 0 6px;text-align:center}
+  .hk-d{font-size:13px;line-height:1.8;margin:0 0 8px}
+  .hk textarea{width:100%;box-sizing:border-box;font-size:12px;padding:8px;background:transparent;color:#f2f5f8;border:1px solid rgba(255,255,255,.3)}
+  .hk button{min-height:44px;padding:0 20px;font-weight:700;font-size:15px;border:0;border-radius:999px;background:#f2f5f8;color:#0b1a2b}
   a{display:inline-block;color:#fff;background:#c4302b;font-weight:700;text-decoration:none;padding:12px 22px;border-radius:999px}
 </style>
 </head>
@@ -19,7 +24,30 @@
   <p class="msg">データ攻めは、<br>2026年10月24日に住所が変わりました。</p>
   <p class="msg">新しい住所は、<br>オープンチャットのノートでご案内しています。</p>
   <p class="msg last">オープンチャットを抜けた方は、<br>公式LINEから入り直してください。</p>
+  <div class="hk" id="hk" hidden>
+    <p class="hk-t">フォローの引き継ぎ</p>
+    <p class="hk-d">この端末には、前の住所で付けた☆推し・📍場・メモが残っています。<br>新しい住所のトップの「前の住所からフォローを引き継ぐ」に、このコードを貼ってください。</p>
+    <textarea id="hk-code" rows="3" readonly aria-label="引き継ぎコード"></textarea>
+    <p><button type="button" id="hk-copy">コードをコピー</button></p>
+    <p class="hk-d" id="hk-msg" role="status"></p>
+  </div>
   <p><a href="https://www.youtube.com/@abe-ken" target="_blank" rel="noopener">YouTube「あべけん」</a></p>
 </div>
+<script>
+/* 前の住所に残っている保存内容を「DZ1.」＋base64 のコードにする（新しい住所は書かない・2026-10-26）。 */
+(function(){
+  var OK=/^(br_|uranai_|aisho_|senshuCard|tdExtraOpen$)/, data={}, n=0;
+  try{ for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i); if(OK.test(k)){ data[k]=localStorage.getItem(k); n++; } } }catch(e){ return; }
+  if(!n) return;
+  var u=new TextEncoder().encode(JSON.stringify(data)), bin=""; for(var j=0;j<u.length;j++) bin+=String.fromCharCode(u[j]);
+  var code="DZ1."+btoa(bin), box=document.getElementById("hk-code"), msg=document.getElementById("hk-msg");
+  box.value=code; document.getElementById("hk").hidden=false;
+  document.getElementById("hk-copy").addEventListener("click", function(){
+    function done(){ msg.textContent="コピーしました。新しい住所のトップで貼ってください。"; }
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(code).then(done,function(){ box.select(); document.execCommand("copy"); done(); }); }
+    else { box.select(); document.execCommand("copy"); done(); }
+  });
+})();
+</script>
 </body>
 </html>
