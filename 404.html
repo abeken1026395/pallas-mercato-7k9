@@ -32,12 +32,16 @@
     <p class="hk-d" id="hk-msg" role="status"></p>
   </div>
   <p><a href="https://www.youtube.com/@abe-ken" target="_blank" rel="noopener">YouTube「あべけん」</a></p>
+  <p id="hk-diag" style="margin-top:28px;font-size:11px;color:#6b7a8c;word-break:break-all"></p>
 </div>
 <script>
 /* 前の住所に残っている保存内容を「DZ1.」＋base64 のコードにする（新しい住所は書かない・2026-10-26）。 */
 (function(){
-  var OK=/^(br_|uranai_|aisho_|senshuCard|tdExtraOpen$)/, data={}, n=0;
-  try{ for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i); if(OK.test(k)){ data[k]=localStorage.getItem(k); n++; } } }catch(e){ return; }
+  var OK=/^(br_|uranai_|aisho_|senshuCard|tdExtraOpen$)/, data={}, n=0, all=[], err="";
+  try{ for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i); all.push(k); if(OK.test(k)){ data[k]=localStorage.getItem(k); n++; } } }catch(e){ err="保存を読めません"; }
+  /* 点検用の小さな表示（保存の名前と件数だけ・中身は出さない） */
+  var dg=document.getElementById("hk-diag");
+  if(dg) dg.textContent="点検 v2 ／ この端末の保存 "+all.length+"件"+(all.length?"："+all.join("・"):"")+(err?" ／ "+err:"");
   if(!n) return;
   var u=new TextEncoder().encode(JSON.stringify(data)), bin=""; for(var j=0;j<u.length;j++) bin+=String.fromCharCode(u[j]);
   var code="DZ1."+btoa(bin), box=document.getElementById("hk-code"), msg=document.getElementById("hk-msg");
