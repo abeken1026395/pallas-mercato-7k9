@@ -342,6 +342,77 @@ body{position:relative}
   </div>
 </nav>
 
+<details class="hk" id="hikitsugi">
+  <summary>フォローの控え（引き継ぎ・機種変更）</summary>
+  <p>☆推し・📍場・気になるレース・選手メモは、この端末の中にだけ保存されています。アイコンを消したり機種を変えたりすると消えるので、控えのコードを LINE の Keep やメモに残しておくと戻せます。</p>
+  <p class="hk-h">控えを取る</p>
+  <button type="button" id="hk-out">控えのコードを出す</button>
+  <textarea id="hk-outcode" rows="3" readonly aria-label="控えのコード" hidden></textarea>
+  <p id="hk-outmsg" role="status"></p>
+  <p class="hk-h">控えから戻す</p>
+  <textarea id="hk-code" rows="3" placeholder="DZ1. から始まるコードを貼る" aria-label="控えのコード（貼る）"></textarea>
+  <button type="button" id="hk-go">戻す</button>
+  <p id="hk-msg" role="status"></p>
+  <p class="hk-n">前の住所（github.io）のフォローは、前と同じ開き方（同じブラウザ、またはホーム画面の同じアイコン）で前の住所を開くと、「おかえりなさい」の下にコードが出ます。それをここに貼ってください。</p>
+</details>
+<style>
+  .hk{margin:16px auto 8px;max-width:640px;padding:12px 14px;border:1px solid rgba(255,255,255,.18);font-size:14px;line-height:1.8}
+  .hk summary{cursor:pointer;font-weight:700}
+  .hk ol{margin:6px 0 10px;padding-left:1.4em}
+  .hk textarea{width:100%;box-sizing:border-box;font-size:13px;padding:8px;background:transparent;color:inherit;border:1px solid rgba(255,255,255,.3)}
+  .hk button{margin-top:8px;min-height:44px;padding:0 18px;font-weight:700;font-size:15px;background:#f2f5f8;color:#0b1a2b;border:0;cursor:pointer}
+  .hk #hk-msg,.hk #hk-outmsg{margin:8px 0 0;font-weight:700}
+  .hk .hk-h{margin:14px 0 4px;font-weight:700}
+  .hk .hk-n{margin:14px 0 0;font-size:12px;opacity:.8}
+  .hk #hk-outcode{margin-top:8px}
+</style>
+<script>
+/* フォローの控えと引き継ぎ（2026-10-26 けん裁定）。コードは「DZ1.」＋保存内容のJSONを base64 にしたもの。
+   今ある値は消さない：一覧は足し合わせ、メモなどは今ある方を残し、無いものだけ足す。 */
+(function(){
+  var go=document.getElementById("hk-go"), box=document.getElementById("hk-code"), msg=document.getElementById("hk-msg");
+  if(!go) return;
+  var OK=/^(br_|uranai_|aisho_|senshuCard|tdExtraOpen$)/;
+  /* 控えを取る：この端末の保存を同じ形のコードにする（2026-10-26 けん「進めてよい」） */
+  var out=document.getElementById("hk-out"), oc=document.getElementById("hk-outcode"), om=document.getElementById("hk-outmsg");
+  out.addEventListener("click", function(){
+    var data={}, n=0;
+    try{ for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i); if(OK.test(k)){ data[k]=localStorage.getItem(k); n++; } } }catch(e){}
+    if(!n){ om.textContent="この端末には、まだ控えるフォローがありません。"; oc.hidden=true; return; }
+    var u=new TextEncoder().encode(JSON.stringify(data)), bin=""; for(var j=0;j<u.length;j++) bin+=String.fromCharCode(u[j]);
+    var code="DZ1."+btoa(bin); oc.value=code; oc.hidden=false;
+    function done(){ om.textContent="コピーしました。LINE の Keep やメモに貼って残してください。"; }
+    function sel(){ oc.focus(); oc.select(); try{ document.execCommand("copy"); done(); }catch(e){ om.textContent="上のコードを長押しして、全部コピーしてください。"; } }
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(code).then(done,sel); } else sel();
+  });
+  function dec(s){ s=s.replace(/\s+/g,""); if(s.indexOf("DZ1.")!==0) throw 0;
+    var bin=atob(s.slice(4)), u=new Uint8Array(bin.length); for(var i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
+    return JSON.parse(new TextDecoder().decode(u)); }
+  function pj(v){ try{ return JSON.parse(v); }catch(e){ return undefined; } }
+  go.addEventListener("click", function(){
+    var data; try{ data=dec(box.value); }catch(e){ msg.textContent="コードが読めませんでした。「DZ1.」から最後まで、全部貼ってください。"; return; }
+    var n=0;
+    Object.keys(data).forEach(function(k){
+      if(!OK.test(k) || typeof data[k]!=="string") return;
+      var cur=null; try{ cur=localStorage.getItem(k); }catch(e){}
+      var next=data[k];
+      if(cur!==null){
+        var a=pj(cur), b=pj(data[k]);
+        if(Array.isArray(a) && Array.isArray(b)){
+          var seen={}, out=[]; a.concat(b).forEach(function(x){ var key=JSON.stringify(x); if(!seen[key]){ seen[key]=1; out.push(x); } });
+          next=JSON.stringify(out);
+        } else if(a && b && typeof a==="object" && typeof b==="object"){
+          next=JSON.stringify(Object.assign({}, b, a));
+        } else { return; }
+      }
+      try{ localStorage.setItem(k,next); n++; }catch(e){}
+    });
+    msg.textContent = n ? "戻しました（"+n+"件）。各ページを開くと反映されています。" : "戻すものが見つかりませんでした（すでに同じ内容があります）。";
+    if(n) box.value="";
+  });
+})();
+</script>
+
 <footer class="ft">
   舟券の購入は20歳になってから。<br>
   無理のない範囲で楽しみましょう。<br>

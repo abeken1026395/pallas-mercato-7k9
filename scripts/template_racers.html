@@ -69,7 +69,8 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .rnav-t b { font-size:16px; }
 .rnav-ar { font-size:12px; color:#c8a45e; }
 .rnav-list { flex:1.2; text-align:center; flex-direction:column; gap:0; }
-.rnav-off { background:transparent; border:1px dashed #2b4568; cursor:default; }
+.rnav-off { background:#0a1422 !important; border:1px dashed #2b4568; cursor:default; }
+.rnav { background:#0a1422 !important; }
 #app:has(.rnav) { padding-bottom:76px; }
 .race-head { background:#121c28; border:1px solid #1f2b3a; border-radius:10px; padding:12px 14px; margin-top:10px; }
 .race-head .line1 { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
@@ -232,6 +233,12 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 /* 展示タイム別の成績（tenjiStats.json・折りたたみ） */
 .snLink { display:flex; align-items:center; justify-content:space-between; min-height:44px; margin-top:8px; border-top:1px solid #1c2a3c; font-size:13px; font-weight:bold; color:#c3ccd6; text-decoration:none; }
 .snLink span { font-size:13px; color:#7fb4ff; font-weight:normal; }
+.mzBox { margin-top:6px; padding:8px 0 2px; border-top:1px solid #1c2a3c; font-size:13px; color:#c3ccd6; }
+.mzBox .mzH { font-weight:bold; }
+.mzBox .mzN { color:#e0e6ed; font-weight:bold; }
+.mzBox { display:block; text-decoration:none; min-height:44px; }
+.mzBox .mzRow { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.mzBox .mzGo { font-size:13px; color:#7fb4ff; white-space:nowrap; }
 .tj { margin-top:8px; border-top:1px solid #1c2a3c; }
 .tj-wait { min-height:41px; }
 .tj > summary { list-style:none; cursor:pointer; min-height:44px; display:flex; align-items:center; justify-content:space-between; font-size:13px; color:#c3ccd6; font-weight:bold; }
@@ -572,6 +579,7 @@ var E30=null, E30META=null;  /* E30該当場成績（生データ・事実提示
 var tide=null;               /* 当日干満（tideToday.json・潮汐場のみ・事実提示のみ） */
 var NS=null;                 /* 1号艇逃げ時の2着コース分布（nigeSecond.json・直近730日・回数のみ） */
 var GRADE=null;              /* 開催グレード（gradeSchedule.json・公式の月間スケジュール由来） */
+var MZ=null, MZMETA=null;   /* 前づけ実績（maezuke.json・選手別・回数のみ。率は20走以上だけ出す） */
 var CL10=null, CL10_STATE="idle";  /* コース別直近10走。レース画面を開いたときだけ取得する */
 
 function loadJSON(u){ return fetch(u).then(function(r){return r.json();}); }
@@ -584,6 +592,7 @@ loadJSON("../players/profile.json").then(function(j){PROF=j||{};rerender();}).ca
 loadText("../players/racerKimarite.csv").then(function(t){ parseKimarite(t); rerender(); }).catch(function(){});
 loadJSON("../highlights/highlights.json").then(function(j){ parseHL(j); rerender(); }).catch(function(){});
 loadJSON("../data/tideToday.json").then(function(j){ tide=j||null; rerender(); }).catch(function(){});
+loadJSON("../data/maezuke.json").then(function(j){ if(j&&j["選手"]){MZ=j["選手"];MZMETA={期間:j["期間"]||[]};} rerender(); }).catch(function(){});
 loadJSON("../data/nigeSecond.json").then(function(j){ NS=j||null; rerender(); }).catch(function(){});
 loadJSON("../data/wakuStats.json").then(function(j){ WS=j||null; rerender(); }).catch(function(){});
 loadJSON("../data/gradeSchedule.json").then(function(j){ GRADE=j||null; rerender(); }).catch(function(){});
@@ -1594,6 +1603,20 @@ function kikakuChips(kikaku, venueIsFix){
 
 /* E30該当場成績（この場がE30該当場のときのみ・事実の生データ・二層表示） */
 var E30_TECH=["逃げ","差し","まくり","まくり差し","抜き","恵まれ"];
+/* 前づけ実績：その選手が前づけして枠より内のコースに入った走の着順（2026-10-26 けん裁定・読者の依頼から）。
+   予想ではなく過去の回数。20走に満たないうちは率を出さず回数だけ。前づけが1走も無い選手は出さない */
+function maezukeBlock(toban){
+  if(!MZ||!toban) return "";
+  var m=MZ[String(toban)]; if(!m||!m[0]) return "";
+  var n=m[0];
+  function pc(a,b){ return (a/b*100).toFixed(1)+"%"; }
+  var head='<span class="mzN">'+n+'走</span>：1着'+m[1]+'・2着'+m[2]+'・3着'+m[3]
+    +(n<20?'':'（3着以内 '+pc(m[1]+m[2]+m[3],n)+'）');
+  /* 入ったコースごとの内訳は選手図鑑の「前づけしたとき」に出す（2026-10-26 けん「詳細は選手図鑑に」） */
+  return '<a class="mzBox" href="../players/?toban='+encodeURIComponent(toban)+'#mz" onclick="event.stopPropagation()">'
+    +'<div class="mzRow"><span><span class="mzH">前づけしたとき</span>　'+head+'</span><span class="mzGo">詳しく →</span></div></a>';
+}
+function fmtYmd(s){ s=String(s||""); return s.length===8?s.slice(0,4)+"/"+(+s.slice(4,6))+"/"+(+s.slice(6,8)):s; }
 function e30Block(toban,jcd){
   if(!E30||!E30META) return "";
   if(!E30META.対象場||!E30META.対象場[jcd]) return "";   /* 該当場のみ */
@@ -1884,6 +1907,7 @@ function boatCard(row,v,hl,minST,maxST,maxMotor){
     +tenjiBlock(toban)
     +courseLast10Block(toban,lane)
     +(toban?'<a class="snLink" href="../players/card.html?toban='+esc(toban)+'#snSec" onclick="event.stopPropagation()">進入実績（枠から入ったコースの回数）<span>選手カード →</span></a>':'')
+    +maezukeBlock(toban)
     +k1Block(toban,lane)
     +e30Block(toban,v.jcd)
     +shuTable(row)

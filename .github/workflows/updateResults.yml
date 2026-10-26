@@ -74,6 +74,11 @@ jobs:
       - name: build course last10
         run: python scripts/buildCourseLast10.py
 
+      # 選手別の前づけ実績（results/ 全走査の再集計）。所要は実測で約4秒。
+      # 2026-10-26 けん裁定（選手別・出走表に出す・毎日更新）。毎回全再計算で冪等。
+      - name: build maezuke
+        run: python scripts/buildMaezuke.py
+
       # 観戦記素材JSON（翌朝執筆の唯一の入力）。buildResults の後段で前日結果を取り込む。
       # optional設計: pointrank失敗・素材欠でもジョブは落とさない（always + continue-on-error）。
       # scoreRank は自己検知確定まで shadow mode（BKS_SCORERANK_WRITE 未設定＝書き込み保留）。
@@ -98,6 +103,7 @@ jobs:
           git add docs/data/racerInRate.json 2>/dev/null || true
           git add docs/data/racerStartOrder.json 2>/dev/null || true
           git add docs/data/courseLast10.json 2>/dev/null || true
+          git add docs/data/maezuke.json 2>/dev/null || true
           git add docs/data/kansenki/source/ 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "no changes"; exit 0

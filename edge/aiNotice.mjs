@@ -36,6 +36,13 @@ export function isAiNetwork(asn) {
   return AI_ASNS.includes(Number(asn));
 }
 
+// 言語の設定（Accept-Language）に日本語（ja）が無い相手。けん裁定 2026-10-25「A」。
+// Grok は会話ごとに名乗り・回線を変えるが、2回とも "en-US,en;q=0.9" だった（2026-10-25・26 実測）。
+// 日本の読者のブラウザは ja を送る。言語の設定を送らない相手（スクリプト等）も含める。
+export function lacksJapanese(acceptLanguage) {
+  return !/(^|[,\s])ja\b/i.test(acceptLanguage || "");
+}
+
 // 対象：予想の材料になるページと、そのページが読むデータ。
 // 天気・潮・結果・検証・払戻・24場などは対象外（事実情報か過去の集計）。
 const TARGETS = [
