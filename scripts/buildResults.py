@@ -27,6 +27,16 @@
 #
 # 本番: 環境変数なしで当日(JST)分を取得。
 # 複数日: 環境変数 HD にカンマ区切りで日付(YYYYMMDD)を渡すと全日ぶん取得(過去分の穴埋め用)。
+#
+# 欠けレースの補完(2026-10-28 追加):
+#   v1 はレース枠(result)を持っていても中身が空(着順・払戻すべて null/空)のまま
+#   当日中ずっと埋まらないことがある。2026-10-27 は v1 の最終版(11:56 UTC)で
+#   13レースが空(デイ6場の12R・福岡11R・ナイター場の2〜3R等)で、v1 の更新は
+#   その後止まり、翌日まで埋まらなかった。一方、旧取得元 v2 は数時間おきの一括更新で
+#   同日 09:45 UTC 版にデイ場の全レースを持っていた。
+#   そこで v1 で3連単が取れないレースだけ v2 から補う。v1 にあるレースは v1 を優先し、
+#   v2 で上書きしない。v2 が取れない(404・廃止)ときは従来どおり v1 だけで書く。
+#   級別は v2 に無いので、補ったレースも v1 の番組表側から枠番で引く。
 import io
 import os
 import json
@@ -35,6 +45,7 @@ import datetime
 import urllib.request
 
 BASE = "https://raw.githubusercontent.com/boatraceopenapi/api/gh-pages/docs/v1/"
+BASE_V2 = "https://raw.githubusercontent.com/BoatraceOpenAPI/results/HEAD/docs/v2/"
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) boatrace-data-collector"
 
 # 決まり手コード(technique_number) → 表記
@@ -73,10 +84,10 @@ def _payouts(payouts):
     return out
 
 
-def fetch_json(hd):
+def fetch_json(hd, base=BASE):
     """指定日(YYYYMMDD)の結果JSONを取得してdictで返す。404/失敗はNone。"""
     y = hd[:4]
-    url = "{0}{1}/{2}.json".format(BASE, y, hd)
+    url = "{0}{1}/{2}.json".format(base, y, hd)
     req = urllib.request.Request(url, headers={"User-Agent": UA})
     try:
         with urllib.request.urlopen(req, timeout=15) as r:
@@ -91,14 +102,78 @@ def fetch_json(hd):
         return None
 
 
-def to_races(data):
-    """後継API(v1)のprograms/stadiums/racesを、既存results形式のレース配列に変換。"""
+def _has_trifecta(res):
+    """resultに3連単の組番と配当があるか(=確定結果として使えるか)。"""
+    tri = ((res or {}).get("payouts") or {}).get("trifecta") or []
+    return bool(tri) and bool(tri[0].get("combination")) and tri[0].get("amount") not in (None, 0)
+
+
+def v2_results(data2):
+    """旧取得元v2の結果を、v1のresultと同じ形に直して {(場番号,R番号): result} で返す。
+    v2はキー名が違うだけで値は同じ(2026-10-27分の重複レースで全項目一致を確認)。"""
+    out = {}
+    for r in (data2 or {}).get("results") or []:
+        try:
+            key = (int(r["race_stadium_number"]), int(r["race_number"]))
+        except Exception:
+            continue
+        racers = {}
+        for b in r.get("boats") or []:
+            en = b.get("racer_boat_number")
+            if en is None:
+                continue
+            racers[str(en)] = {
+                "entry_number": en,
+                "course_number": b.get("racer_course_number"),
+                "start_timing": b.get("racer_start_timing"),
+                "place_number": b.get("racer_place_number"),
+                "number": b.get("racer_number"),
+                "name": b.get("racer_name"),
+            }
+        payouts = {}
+        for k, rows in (r.get("payouts") or {}).items():
+            payouts[k] = [{"combination": e.get("combination"), "amount": e.get("payout")}
+                          for e in (rows or []) if isinstance(e, dict)]
+        out[key] = {
+            "date": r.get("race_date"),
+            "stadium_number": key[0],
+            "race_number": key[1],
+            "wind_speed": r.get("race_wind"),
+            "wind_direction_number": r.get("race_wind_direction_number"),
+            "wave_height": r.get("race_wave"),
+            "weather_number": r.get("race_weather_number"),
+            "air_temperature": r.get("race_temperature"),
+            "water_temperature": r.get("race_water_temperature"),
+            "technique_number": r.get("race_technique_number"),
+            "racers": racers,
+            "payouts": payouts,
+        }
+    return out
+
+
+def missing_races(data):
+    """v1の番組表にあるのに3連単が取れないレースの (場番号,R番号) を返す。"""
+    miss = []
+    stadiums = ((data.get("programs") or {}).get("stadiums") or {})
+    for sn in stadiums:
+        for rn in ((stadiums[sn] or {}).get("races") or {}):
+            if not _has_trifecta(((stadiums[sn] or {}).get("races") or {}).get(rn, {}).get("result")):
+                miss.append((int(sn), int(rn)))
+    return sorted(miss)
+
+
+def to_races(data, fallback=None):
+    """後継API(v1)のprograms/stadiums/racesを、既存results形式のレース配列に変換。
+    fallback({(場番号,R番号): v1形のresult})があれば、v1で3連単が取れないレースだけそれで補う。"""
     races = []
+    fallback = fallback or {}
     stadiums = ((data.get("programs") or {}).get("stadiums") or {})
     for sn in sorted(stadiums, key=lambda x: int(x)):
         rmap = (stadiums[sn] or {}).get("races") or {}
         for rn in sorted(rmap, key=lambda x: int(x)):
             res = (rmap[rn] or {}).get("result")
+            if not _has_trifecta(res):
+                res = fallback.get((int(sn), int(rn))) or res
             if not res:
                 continue
             payouts = res.get("payouts") or {}
@@ -164,8 +239,24 @@ def to_races(data):
     return races
 
 
+def v2_fallback(data, hd):
+    """v1で欠けたレースがあるときだけv2を取りに行き、補えるレースを返す。"""
+    miss = missing_races(data)
+    if not miss:
+        return {}
+    data2 = fetch_json(hd, BASE_V2)
+    if not data2:
+        print("v2 fallback: no data for", hd, "/ v1 missing", len(miss))
+        return {}
+    cand = v2_results(data2)
+    fb = {k: cand[k] for k in miss if k in cand and _has_trifecta(cand[k])}
+    print("v2 fallback:", hd, "v1 missing", len(miss), "filled", len(fb),
+          " ".join("%02d-%dR" % k for k in sorted(fb)))
+    return fb
+
+
 def write_results(data, hd):
-    races = to_races(data)
+    races = to_races(data, v2_fallback(data, hd))
     venues = len(set(x["場コード"] for x in races))
     os.makedirs("results", exist_ok=True)
     outpath = os.path.join("results", "%s.json" % hd)
