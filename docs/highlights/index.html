@@ -879,12 +879,12 @@ function kskToggle(jcd){
 }
 // 観戦記まとめバー: その日の全開催場の記事を1か所で通読する。
 // 記事は場別タブ内と同じ KANSENKI をそのまま使う（追加fetchなし）。
-// 明日タブ（ISNEXT）は記事が存在しないため、バーごと出さない。
+// 明日タブ（ISNEXT）でも、前の晩に書き上がった場の記事があれば出す（2026-10-27 けん裁定）。記事が0本ならバーごと出さない。
 function kskAllRender(){
   const bar=document.getElementById('kskAllBar'), wrap=document.getElementById('kskAllWrap');
   if(!bar||!wrap) return;
   const codes=Object.keys(KANSENKI||{}).sort();
-  if(ISNEXT || !codes.length){
+  if(!codes.length){
     bar.style.display='none'; wrap.style.display='none'; wrap.innerHTML='';
     bar.setAttribute('aria-expanded','false');
     bar.textContent='📝 観戦記をまとめて読む ▼';
