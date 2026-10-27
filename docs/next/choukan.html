@@ -1,0 +1,93 @@
+<!-- データ攻め by あべけん https://abeken1026395.github.io/pallas-mercato-7k9/ -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="canonical" href="https://abeken1026395.github.io/pallas-mercato-7k9/next/choukan.html">
+<title>場の朝刊｜データ攻め</title>
+<meta name="theme-color" content="#0c1520">
+<link rel="apple-touch-icon" href="../icon180.png">
+<style>
+/* 場の朝刊（実験場の見本）：1場1本の記事を読むページ。記事は docs/data/kansenki/articles の既存データ */
+:root{--bg:#0a1422;--card:#12233a;--line:#24406a;--tx:#e6e8eb;--sub:#a0acb8;--dim:#9aabbd;--accent:#7fb4ff;--mido:#f2c200;--midoTx:#f5d55c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;-webkit-text-size-adjust:100%}
+a{color:inherit}
+.wrap{max-width:640px;margin:0 auto;padding:0 16px 48px}
+.siteback{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;margin:6px 0 2px;font-size:13px;line-height:1;color:inherit;text-decoration:underline;text-underline-offset:3px}
+.siteback:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+.mast{border-bottom:3px solid var(--mido);padding:10px 0 10px;margin-bottom:14px;display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.mast h1{margin:0;font-size:20px;font-weight:800;letter-spacing:.06em}
+.mast .dt{font-size:13px;color:var(--dim)}
+.vtabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:12px;scrollbar-width:none}
+.vtabs::-webkit-scrollbar{display:none}
+.vtab{flex:0 0 auto;min-height:40px;display:inline-flex;align-items:center;padding:0 12px;border:1px solid var(--line);border-radius:4px;font-size:13px;color:var(--sub);text-decoration:none;background:var(--card)}
+.vtab.on{background:var(--mido);border-color:var(--mido);color:#111;font-weight:800}
+.kicker{font-size:12px;color:var(--midoTx);font-weight:800;letter-spacing:.06em}
+.kicker span{color:var(--dim);font-weight:400;margin-left:8px}
+h2.t{font-size:22px;line-height:1.45;margin:6px 0 14px;font-weight:800}
+.body p{font-size:16px;line-height:1.9;color:#d9e0e7;margin:0 0 1.1em;letter-spacing:.02em}
+.body p:first-child{color:#eef1f4;font-weight:700}
+.body a{color:var(--accent);text-decoration:none;border-bottom:1px dotted var(--accent)}
+.watch{margin:18px 0 0;padding:12px 14px;background:var(--card);border:1px solid var(--line);border-left:3px solid var(--mido);border-radius:6px}
+.watch b{display:block;font-size:12px;color:var(--midoTx);letter-spacing:.04em;margin-bottom:4px}
+.watch p{margin:0;font-size:14.5px;line-height:1.8}
+.note{margin-top:16px;font-size:12px;color:var(--dim);line-height:1.6}
+.pager{display:flex;justify-content:space-between;gap:10px;margin-top:22px}
+.pager a{flex:1;min-height:48px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:4px;text-decoration:none;font-size:14px;background:var(--card)}
+.pager a[aria-disabled="true"]{visibility:hidden}
+.empty{padding:40px 0;text-align:center;color:var(--sub);font-size:14px;line-height:1.8}
+</style>
+</head>
+<body>
+<div class="wrap">
+<a class="siteback" href="./choukanTop.html">← データ攻め トップ</a>
+<div class="mast"><h1>場の朝刊</h1><span class="dt" id="dt"></span></div>
+<nav class="vtabs" id="vtabs" aria-label="場を選ぶ"></nav>
+<article id="art"><div class="empty">読み込み中です</div></article>
+<div class="pager" id="pager" hidden><a id="prev" href="#">← 前の場</a><a id="next" href="#">次の場 →</a></div>
+</div>
+<script>
+(function(){
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function jst(add){ var t=new Date(Date.now()+9*3600000+(add||0)*86400000); return t.toISOString().slice(0,10).replace(/-/g,''); }
+  var d=(location.search.match(/[?&]d=(\d{8})/)||[])[1]||jst(0);
+  var j=(location.search.match(/[?&]j=(\d{2})/)||[])[1]||'';
+  document.getElementById('dt').textContent=(+d.slice(4,6))+'月'+(+d.slice(6,8))+'日 掲載';
+  var art=document.getElementById('art');
+  fetch('../data/kansenki/source/'+d+'.json?_='+Date.now()).then(function(r){return r.ok?r.json():Promise.reject();}).then(function(src){
+    var vs=src.venues||[];
+    return Promise.all(vs.map(function(v){
+      return fetch('../data/kansenki/articles/'+d+'-'+v.jcd+'.json?_='+Date.now()).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});
+    }));
+  }).then(function(as){
+    var list=as.filter(Boolean);
+    if(!list.length){ art.innerHTML='<div class="empty">この日の場の朝刊はまだありません。<br>前の晩の18時40分から、書き上がった場の順に出ます。</div>'; return; }
+    var idx=0; list.forEach(function(a,i){ if(a.jcd===j) idx=i; });
+    var url=function(a){ return 'choukan.html?d='+d+'&j='+a.jcd; };
+    document.getElementById('vtabs').innerHTML=list.map(function(a,i){
+      return '<a class="vtab'+(i===idx?' on':'')+'" href="'+url(a)+'"'+(i===idx?' aria-current="page"':'')+'>'+esc(a.venue)+'</a>';
+    }).join('');
+    var a=list[idx], body=esc(a.body||'');
+    (a.racersMentioned||[]).forEach(function(rm){
+      var nm=esc(rm.name||''), tb=esc(String(rm.toban||''));
+      if(nm&&tb) body=body.split(nm).join('<a href="../players/?toban='+tb+'">'+nm+'</a>');
+    });
+    art.innerHTML='<div class="kicker">'+esc(a.venue)+'<span>'+esc(a.styleType||'')+'</span></div>'+
+      '<h2 class="t">'+esc(a.title)+'</h2>'+
+      '<div class="body">'+body.split(/\n+/).filter(function(x){return x.trim();}).map(function(x){return '<p>'+x+'</p>';}).join('')+'</div>'+
+      (a.watchPoint?'<div class="watch"><b>きょう見るところ</b><p>'+esc(a.watchPoint)+'</p></div>':'')+
+      '<div class="note">前日までの確定データだけで書いています。予想・買い目は扱いません。</div>';
+    var pv=document.getElementById('prev'), nx=document.getElementById('next');
+    if(idx>0) pv.href=url(list[idx-1]); else pv.setAttribute('aria-disabled','true');
+    if(idx<list.length-1) nx.href=url(list[idx+1]); else nx.setAttribute('aria-disabled','true');
+    document.getElementById('pager').hidden=false;
+    var on=document.querySelector('.vtab.on'); if(on) on.scrollIntoView({inline:'center',block:'nearest'});
+  }).catch(function(){ art.innerHTML='<div class="empty">この日の場の朝刊はまだありません。</div>'; });
+})();
+</script>
+<script src="../assets/guard.js" defer></script>
+</body>
+</html>
