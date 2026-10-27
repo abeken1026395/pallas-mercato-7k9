@@ -716,7 +716,7 @@ if("serviceWorker" in navigator){ window.addEventListener("load",function(){ nav
     document.getElementById('chSub').textContent=(+d.slice(4,6))+'/'+(+d.slice(6,8))+' 掲載・'+res.list.length+'場';
     document.getElementById('chRail').innerHTML=res.list.map(function(a){
       var body=String(a.body||''), lead=body.split('\n').filter(function(x){return x.trim();}).slice(0,2).join('');
-      return '<a class="ch-card" role="listitem" href="next/choukan.html?d='+d+'&amp;j='+esc(a.jcd)+'">'+
+      return '<a class="ch-card" role="listitem" href="next/choukanB.html?d='+d+'&amp;j='+esc(a.jcd)+'">'+
         '<span class="ch-v"><b>'+esc(a.venue)+'</b>'+esc(a.styleType||'')+'</span>'+
         '<span class="ch-t">'+esc(a.title)+'</span>'+
         '<span class="ch-l">'+esc(lead)+'</span>'+
