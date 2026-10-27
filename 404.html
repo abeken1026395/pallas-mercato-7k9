@@ -38,7 +38,12 @@
 (function(){
   var OK=/^(br_|uranai_|aisho_|senshuCard|tdExtraOpen$)/, data={}, n=0;
   try{ for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i); if(OK.test(k)){ data[k]=localStorage.getItem(k); n++; } } }catch(e){ return; }
-  if(!n) return;
+  if(!n){
+    var hk=document.getElementById("hk");
+    hk.querySelector(".hk-d").innerHTML="この開き方（このアイコン、またはこのブラウザ）には、前の住所で付けたフォローは残っていません。<br>iPhone は Safari とホーム画面のアイコンで保存場所が別です。フォローを付けていた方の開き方で、もう一度開いてください。<br>アイコンを消したり置き直したりした場合は、前のフォローは戻せません。";
+    hk.querySelector("textarea").hidden=true; document.getElementById("hk-copy").hidden=true;
+    hk.hidden=false; return;
+  }
   var u=new TextEncoder().encode(JSON.stringify(data)), bin=""; for(var j=0;j<u.length;j++) bin+=String.fromCharCode(u[j]);
   var code="DZ1."+btoa(bin), box=document.getElementById("hk-code"), msg=document.getElementById("hk-msg");
   box.value=code; document.getElementById("hk").hidden=false;
