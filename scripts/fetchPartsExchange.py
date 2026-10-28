@@ -50,6 +50,7 @@ JST = datetime.timezone(datetime.timedelta(hours=9))
 
 RACERS_CSV = os.path.join("docs", "racers", "racers_today.csv")
 RESULTS_DIR = "results"
+PROGRAMS_DIR = os.path.join("pv2", "programs")
 OUT = os.path.join("data", "motorParts.json")
 
 BASE = "https://www.boatrace.jp/owpc/pc/race/beforeinfo?rno={rno}&jcd={jcd}&hd={hd}"
@@ -294,6 +295,48 @@ def load_racer_map():
     return m
 
 
+def load_program_motor_map(hd):
+    """pv2/programs/{hd}.json.gz（その日の番組表）から (jcd, 登番)→モーターNo を作る。無ければ空。
+    racers_today.csv は「今日」の出走表なので、前日を取る朝の回では、前日で節が終わった場の番号が引けない
+    （2026-10-28 に津・三国・福岡の216行が空になった）。番組表はその日そのものの公式データ。"""
+    path = os.path.join(PROGRAMS_DIR, "{}.json.gz".format(hd))
+    m = {}
+    if not os.path.exists(path):
+        return m
+    import gzip
+    try:
+        with gzip.open(path, "rt", encoding="utf-8") as f:
+            doc = json.load(f)
+    except (OSError, ValueError):
+        print("番組表が読めない: {}".format(path))
+        return m
+    for g in doc.get("programs", []):
+        jcd = "%02d" % int(g.get("race_stadium_number") or 0)
+        for b in g.get("boats", []):
+            no, mo = b.get("racer_number"), b.get("racer_assigned_motor_number")
+            if no and mo:
+                m[(jcd, str(no))] = str(mo)
+    return m
+
+
+def fill_motor_numbers(records):
+    """モーターNo が空の行を、その日の番組表の番号で埋める（公式の値だけ。番組表に無ければ空のまま）。"""
+    cache, filled, left = {}, 0, 0
+    for r in records:
+        if str(r.get("モーターNo") or "").strip():
+            continue
+        hd = str(r.get("開催日") or "")
+        if hd not in cache:
+            cache[hd] = load_program_motor_map(hd)
+        mo = cache[hd].get((str(r.get("jcd", "")).zfill(2), str(r.get("登番", "")).strip()))
+        if mo:
+            r["モーターNo"] = mo
+            filled += 1
+        else:
+            left += 1
+    return filled, left
+
+
 def load_name_map_from_results(results_doc):
     """results/{hd}.json の「艇」配列から (jcd, 登番)→氏名 を作る（対象日そのものの実データ）。"""
     m = {}
@@ -348,6 +391,8 @@ def main():
     print("対象hd={} 対象場数={} 対象レース数={}".format(hd, len(jcds), len(races)))
 
     racer_map = load_racer_map()
+    prog_map = load_program_motor_map(hd)
+    print("番組表のモーター番号: {}艇分（{}）".format(len(prog_map), hd))
     name_map = load_name_map_from_results(results_doc)
 
     # --- 疎通確認：先頭レースの取得可否のみ見る（ネットワーク到達不可なら全体中止・既存維持） ---
@@ -427,7 +472,7 @@ def main():
                 "枠": row["枠"],
                 "登番": row["登番"],
                 "氏名": name,
-                "モーターNo": info.get("モーターNo", ""),
+                "モーターNo": prog_map.get((jcd, row["登番"])) or info.get("モーターNo", ""),
                 "節名": "",
                 "部品交換": row["部品交換"],
                 "展示タイム": row["展示タイム"],
@@ -443,6 +488,9 @@ def main():
             hist["records"].append(rec)
             seen.add(key)
             added += 1
+
+    filled, left = fill_motor_numbers(hist["records"])
+    print("モーターNo を番組表で埋めた行: {} / 番組表にも無く空のままの行: {}".format(filled, left))
 
     hist["updated"] = datetime.datetime.now(JST).strftime("%Y-%m-%d %H:%M")
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
