@@ -5,6 +5,8 @@
 
 ## 入力
 - 素材：`docs/data/kansenki/source/{掲載日}.json`（唯一の事実源。ここに無い情報は存在しない）
+- 選手コメント（ある日だけ）：起動時の指示に `scripts/logs/commentsFor_{掲載日}.json` が示されたら、その場の出走表の
+  「選手コメント」欄に限って使ってよい（素材の外の唯一の例外。使い方は kansenkiRules.md §5.10）。印・予想・記者の評は使わない。
 - 執筆対象場：起動時に渡される `jcd` リスト（**未執筆かつ書ける場のみ**）。指定が無い場合は
   `python scripts/kansenki_pubplan.py` の `toWrite` を対象にする（掲載日＝CSV最大開催日）。
 - 型・主役の決定：`scripts/assign_styles.py` の出力（後述。styleType と 主役は原則これに従う）

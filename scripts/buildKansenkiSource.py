@@ -1293,8 +1293,16 @@ def ready_venues(pub8, by_jcd, results_map, pred_prev, prev_days):
       1) 掲載日の出走表が1Rから最終Rまで欠けずにあり（各6艇）、12R以上
       2) 前日の予測ファイルがあり、前日結果のレース数が max(その場の予測レース数, 12) 以上
          その場の前日予測が0件なら、前日結果も0件で、かつ初日か中止明け（前日素材と日目が同じ）
+      3) 選手コメント欄のある場は、掲載日の出走表（コメント付き）がPCに取れている（2026-10-28 けん裁定）
+         デイの場は早い回、ナイターの場は遅い回に自然に分かれる。夕方便だけの条件で、1時以降の回はかけない。
+         コメントの置き場が無い環境（Actions 等）・コメント欄の無い場には条件をかけない（senshuCommentIndex.py）
     戻り: (入れる場のリスト, {場: 入れない理由})"""
     ok, why = [], {}
+    try:
+        import senshuCommentIndex as sci
+        sci_rows = sci._rows(sci.ROOT) if sci.available() else None
+    except Exception:
+        sci, sci_rows = None, None
     if pred_prev is None:
         for jcd in sorted(by_jcd):
             why[jcd] = "前日の予測ファイルが無い"
@@ -1332,6 +1340,9 @@ def ready_venues(pub8, by_jcd, results_map, pred_prev, prev_days):
             if not (day_num == 1 or (pd is not None and pd == day_num)):
                 why[jcd] = "前日の予測・結果とも0件で、初日でも中止明けでもない"
                 continue
+        if sci is not None and sci_rows is not None and sci.missing(jcd, pub8, rows=sci_rows):
+            why[jcd] = "選手コメント（掲載日の出走表）がまだ取れていない"
+            continue
         ok.append(jcd)
     return ok, why
 
