@@ -351,6 +351,17 @@ try {
     #   生成済みの記事を丸ごと捨てていた）。生成済み分を活かし、不足場のみを対象に
     #   再実行する（初回＋再試行2回＝最大3試行）。既に生成済みの場は対象から外す＝再執筆しない。
     $runbook = Get-Content $RunbookPath -Raw -Encoding utf8
+    # 選手コメント（2026-10-28 けん裁定）：掲載日の出走表の文字を scripts/logs/ に書き出して書き手に渡す。
+    # scripts/logs/ は .gitignore 済み（原文はリポジトリにも公開ページにも入れない）。取れなくても執筆は止めない。
+    $commentsRel = "scripts/logs/commentsFor_$Pubdate.json"
+    $commentsNote = ''
+    try {
+        $ct = Invoke-Native { & $Py scripts\senshuCommentIndex.py $Pubdate --out $commentsRel }
+        Log ("選手コメント: {0}" -f $ct.Trim())
+        if ($LASTEXITCODE -eq 0 -and (Test-Path (Join-Path $Repo ($commentsRel -replace '/', '\')))) {
+            $commentsNote = "選手コメント: $($commentsRel)（場コードごとの出走表の原文。kansenkiRules §5.10 に従い、選手コメント欄だけを使う。その場が無ければ使わない）。"
+        }
+    } catch { Log ("選手コメントの書き出しに失敗（コメントなしで書く）: {0}" -f $_.Exception.Message) }
     $maxAttempts = 3
     $claudeRc = 0
     $noProgressRetried = $false   # 「rc=0 なのに0本」は1回だけ待ってやり直す（2026-10-03）
@@ -359,7 +370,7 @@ try {
         $remaining = @($toWrite | Where-Object { $_ -notin $done })
         if ($remaining.Count -eq 0) { Log "全対象が生成済み → claude実行不要"; break }
         $targetStr = ($remaining -join ' ')
-        $header = "掲載日=$Pubdate。執筆対象の場コード(jcd)は次のみ: $targetStr。この対象場だけを執筆し、既存記事のある場は絶対に上書きしない。PR作成・push・mergeは行わない（公開はスクリプトが行う）。以下のランブックに厳密に従うこと。"
+        $header = "掲載日=$Pubdate。執筆対象の場コード(jcd)は次のみ: $targetStr。この対象場だけを執筆し、既存記事のある場は絶対に上書きしない。PR作成・push・mergeは行わない（公開はスクリプトが行う）。$($commentsNote)以下のランブックに厳密に従うこと。"
         $prompt = $header + "`r`n`r`n" + $runbook   # runbook はデータとして連結（再解釈させない）
         # 出力は試行ごとに別ファイルで残す（旧: 掲載日ごとに1つで、次の回に上書きされ原因を追えなかった。2026-10-03）
         $claudeOut = Join-Path $LogDir ("claudeOut_{0}_{1}_{2}.json" -f $Pubdate, (Get-Date -Format 'yyyyMMdd-HHmmss'), $attempt)
