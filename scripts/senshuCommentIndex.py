@@ -81,6 +81,21 @@ def _texts(root, site, pub8, rows, per_race):
     return out
 
 
+def _trim_race_page(t):
+    """レースごとのページから「選手コメント」の表だけを切り出す（ページ全体は数十KBあり、書き手に渡すには大きすぎる）。"""
+    best = -1
+    for m in re.finditer("選手コメント", t):
+        if "No." in t[m.end():m.end() + 80]:
+            best = m.start()
+    if best < 0:
+        best = t.rfind("選手コメント")
+    if best < 0:
+        return ""
+    end = t.find("モーターの2連対率上位", best)
+    end = end if end > 0 else best + 4000
+    return t[best:min(end, best + 4000)]
+
+
 def comment_for(jcd, pub8, root=ROOT, rows=None):
     """掲載日 pub8 の、その場の出走表（コメント付き）を返す。無ければ None。
     1日1ファイルの場：PDF を優先し、新しく取ったものを使う。
@@ -137,7 +152,7 @@ def main():
             for i, tp in enumerate(paths):
                 with io.open(tp, "r", encoding="utf-8", errors="replace") as f:
                     t = f.read()
-                parts.append(("【%dR】\n" % c["races"][i] + t) if "races" in c else t)
+                parts.append(("【%dR】\n" % c["races"][i] + _trim_race_page(t)) if "races" in c else t)
             doc["venues"][jcd] = {"source": c["url"], "fetchedAt": c["fetchedAt"], "text": "\n\n".join(parts)}
     body = json.dumps(doc, ensure_ascii=False, indent=1)
     if out_path:
