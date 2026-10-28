@@ -345,7 +345,7 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .ksk-title { display:block; font-size:15px; font-weight:bold; color:#fff; margin:4px 0 3px; line-height:1.45; }
 .ksk-lead { display:block; font-size:13px; color:#a9b4c0; line-height:1.7; }
 .ksk-caret { display:block; margin-top:6px; font-size:13px; font-weight:bold; color:#7fb4ff; }
-.ksk[open] .ksk-caret::after { content:"閉じる ▲"; } .ksk:not([open]) .ksk-caret::after { content:"観戦記を読む ▼"; }
+.ksk[open] .ksk-caret::after { content:"閉じる ▲"; } .ksk:not([open]) .ksk-caret::after { content:"場の朝刊を読む ▼"; }
 .ksk[open] .ksk-lead { display:none; }
 .ksk-full { padding:0 12px 12px; border-top:1px solid #1f2b3a; }
 .ksk-full p { font-size:15px; line-height:1.9; margin:10px 0 0; color:#e0e6ed; }
@@ -1219,7 +1219,7 @@ function kskHtml(v){
     return "<p>"+h+"</p>";
   }).join("");
   return '<details class="ksk" data-dk="ksk-'+esc(v.key)+'"><summary>'
-    +'<span class="ksk-tag">📝 観戦記</span>'
+    +'<span class="ksk-tag">📝 場の朝刊</span>'
     +'<span class="ksk-title">'+esc(a.title||"")+'</span>'
     +'<span class="ksk-lead">'+lead+'</span>'
     +'<span class="ksk-caret"></span></summary>'

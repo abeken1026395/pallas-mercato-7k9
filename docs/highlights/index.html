@@ -423,7 +423,7 @@ html[data-vr] body::after{content:none;margin:0}
 
 
 <div class="daysw"><button class="dsw-btn" data-d="2" onclick="setDay(2)">前々日</button><button class="dsw-btn" data-d="1" onclick="setDay(1)">前日</button><button class="dsw-btn on" data-d="0" onclick="setDay(0)">当日</button><button class="dsw-btn" data-d="3" onclick="setDay(3)">明日</button></div>
-<button class="kskall-bar" id="kskAllBar" aria-expanded="false" aria-controls="kskAllWrap" onclick="kskAllToggle()">📝 観戦記をまとめて読む ▼</button>
+<button class="kskall-bar" id="kskAllBar" aria-expanded="false" aria-controls="kskAllWrap" onclick="kskAllToggle()">📝 場の朝刊をまとめて読む ▼</button>
 <div class="kskall-wrap" id="kskAllWrap"></div>
 <div class="tabs">
   <div class="tab on" data-v="hot" onclick="sw('hot')">荒れ</div>
@@ -860,22 +860,22 @@ function renderKansenki(a, jcd){
   }).join('');
   const terms=chips?`<div class="ksk-terms">用語　${chips}</div>`:'';
   return `<div class="ksk">
-    <div class="ksk-tag">観戦記${a['styleType']?`｜${kEsc(a['styleType'])}`:''}</div>
+    <div class="ksk-tag">場の朝刊</div>
     <div class="ksk-title">${kEsc(a['title']||'')}</div>
     <div class="ksk-lead">${lead}</div>
-    <button class="ksk-btn" id="kskb-${jcd}" onclick="kskToggle('${jcd}')">観戦記を読む ▼</button>
+    <button class="ksk-btn" id="kskb-${jcd}" onclick="kskToggle('${jcd}')">場の朝刊を読む ▼</button>
     <div class="ksk-full" id="kskf-${jcd}" style="display:none">
       <div class="ksk-body">${full.split(/\n+/).filter(x=>x.trim()).map(x=>'<p>'+x+'</p>').join('')}</div>
       ${terms}
     </div>
-    <div class="ksk-note">観戦記｜前日までの確定データのみで書いています。予想・買い目は扱いません。</div>
+    <div class="ksk-note">場の朝刊｜前日までの確定データのみで書いています。予想・買い目は扱いません。<a class="ksk-link" href="../choukan/?d=${KAISAI}&j=${String(a.jcd||'').replace(/[^0-9]/g,'')}">1ページで読む →</a></div>
   </div>`;
 }
 function kskToggle(jcd){
   const f=document.getElementById('kskf-'+jcd), b=document.getElementById('kskb-'+jcd);
   if(!f) return; const show=(f.style.display==='none');
   f.style.display=show?'block':'none';
-  if(b) b.textContent=show?'観戦記を閉じる ▲':'観戦記を読む ▼';
+  if(b) b.textContent=show?'場の朝刊を閉じる ▲':'場の朝刊を読む ▼';
 }
 // 観戦記まとめバー: その日の全開催場の記事を1か所で通読する。
 // 記事は場別タブ内と同じ KANSENKI をそのまま使う（追加fetchなし）。
@@ -887,7 +887,7 @@ function kskAllRender(){
   if(!codes.length){
     bar.style.display='none'; wrap.style.display='none'; wrap.innerHTML='';
     bar.setAttribute('aria-expanded','false');
-    bar.textContent='📝 観戦記をまとめて読む ▼';
+    bar.textContent='📝 場の朝刊をまとめて読む ▼';
     return;
   }
   const md=(/^\d{8}$/.test(KAISAI))?`${+KAISAI.slice(4,6)}/${+KAISAI.slice(6,8)}分の`:'';
@@ -900,7 +900,7 @@ function kskAllRender(){
   bar.style.display='block';
   wrap.style.display='none';
   bar.setAttribute('aria-expanded','false');
-  bar.textContent=`📝 ${md}観戦記をまとめて読む ▼`;
+  bar.textContent=`📝 ${md}場の朝刊をまとめて読む ▼`;
 }
 function kskAllToggle(){
   const bar=document.getElementById('kskAllBar'), wrap=document.getElementById('kskAllWrap');
@@ -909,7 +909,7 @@ function kskAllToggle(){
   wrap.style.display=show?'block':'none';
   bar.setAttribute('aria-expanded',show?'true':'false');
   const md=(/^\d{8}$/.test(KAISAI))?`${+KAISAI.slice(4,6)}/${+KAISAI.slice(6,8)}分の`:'';
-  bar.textContent=show?`📝 ${md}観戦記を閉じる ▲`:`📝 ${md}観戦記をまとめて読む ▼`;
+  bar.textContent=show?`📝 ${md}場の朝刊を閉じる ▲`:`📝 ${md}場の朝刊をまとめて読む ▼`;
 }
 // 用語チップのタップ解説。チップごとに独立トグル（複数開いても干渉しない）。
 function kskTerm(cid){
