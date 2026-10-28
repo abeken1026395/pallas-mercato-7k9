@@ -74,11 +74,25 @@ def exRank(j, d, rno, t):
 
 
 DC = ['%d日目成績' % i for i in range(1, 7)]
-vday, dname = {}, {}
+# 節の何日目か。「日目」の欄（初日・２日目…・最終日）を正とし、数字の無い最終日だけ日ごとの成績の欄の数から出す。
+# 夕方以降の出走表には今日の成績も入るので、数字のある場で「成績の欄の数＝日目」になっていれば、その分を引く
+maxFilled, dname = {}, {}
 for r in rows:
     filled = max([i + 1 for i, c in enumerate(DC) if (r.get(c) or '').strip()] or [0])
-    vday[r['場コード']] = max(vday.get(r['場コード'], 1), filled + 1)
+    maxFilled[r['場コード']] = max(maxFilled.get(r['場コード'], 0), filled)
     dname[r['場コード']] = r['日目']
+
+
+def dayNum(t):
+    t = (t or '').translate(zen)
+    if '初日' in t:
+        return 1
+    m = re.search(r'\d+', t)
+    return int(m.group()) if m else None
+
+
+evening = any(dayNum(dname[j]) and maxFilled[j] >= dayNum(dname[j]) for j in dname)
+vday = {j: dayNum(dname[j]) or (maxFilled[j] + 1 - (1 if evening else 0)) for j in dname}
 
 people = {}
 for r in rows:
@@ -205,7 +219,6 @@ h1{font-size:23px;font-weight:800;margin:10px 0 2px}
 .sa{font-size:13px;color:var(--sub);margin-left:auto}
 .flt{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 4px}.flt button{font:inherit;font-size:14px;color:var(--txt);background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:2px 12px}.flt button[aria-pressed="true"]{border-color:#8fd0ff;color:#8fd0ff}
 .rg{font-size:14px;color:var(--sub);margin:6px 2px}.rg b{color:var(--txt)}
-.rg{font-size:14px;color:var(--dim);margin:6px 2px}
 details.rec{margin:6px 0 0}
 details.rec summary{cursor:pointer;color:var(--sub);font-size:14px}
 .c{border-left:4px solid var(--g1);padding:6px 10px;margin:8px 0;background:var(--panel);border-radius:6px}
