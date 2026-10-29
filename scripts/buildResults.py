@@ -330,7 +330,8 @@ def fetch_official(hd, jcd, rno):
 
 def official_targets(data, miss, now_jst=None):
     """欠けレースのうち、公式を見に行くもの。v1 に着順が1つも無く、締切から10分以上たったレースだけ。"""
-    now_jst = now_jst or (datetime.datetime.utcnow() + datetime.timedelta(hours=9))
+    now_jst = now_jst or (datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
+                          + datetime.timedelta(hours=9))
     stadiums = ((data.get("programs") or {}).get("stadiums") or {})
     out = []
     for sn, rn in miss:
