@@ -324,6 +324,16 @@ def check_rules2(art, venue, ymd, jcd):
         first = re.split(r"(?<=。)", first)[0]
         if norm(title) and norm(first).startswith(norm(title)):
             fails.append(("見出しと1文目", "1文目が見出しの繰り返し: %s" % first[:30]))
+    # きょうの注目レース（§4.9・2026-10-30 けん裁定）：最後の■小見出しと watchPoint に、きょうのレース番号を入れる
+    rnos = {int(r.get("rno")) for r in ((venue.get("todayProgram") or {}).get("races") or []) if str(r.get("rno", "")).isdigit()}
+    if ymd >= TITLE_LEAD_FROM and rnos:
+        def has_rno(s):
+            return any(int(x) in rnos for x in re.findall(r"(?<!\d)(\d{1,2})R", s or ""))
+        heads = [x.strip() for x in body.split("\n") if x.strip().startswith("■")]
+        if not heads or not has_rno(heads[-1]):
+            fails.append(("注目レース", "最後の■小見出しにきょうのレース番号がない: %s" % (heads[-1][:20] if heads else "■なし")))
+        if not has_rno(art.get("watchPoint")):
+            fails.append(("注目レース", "watchPoint にきょうのレース番号がない"))
     return fails
 
 
