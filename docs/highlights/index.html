@@ -207,6 +207,7 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .ksk-btn{margin-top:9px;font-size:12px;font-weight:800;color:#04121f;background:var(--acc);border:none;border-radius:8px;padding:7px 12px;cursor:pointer}
 .ksk-full{margin-top:10px;border-top:1px solid var(--line);padding-top:10px}
 .ksk-body{font-size:13.5px;color:var(--txt);line-height:1.95;margin:0}
+.ksk-body .ksk-sh{font-weight:800;margin:1.1em 0 .3em}
 .ksk-link{color:var(--acc2);text-decoration:none;border-bottom:1px dotted var(--acc2)}
 .ksk-terms{margin-top:10px;font-size:12px;color:var(--sub)}
 .ksk-chip{display:inline-block;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:2px 9px;margin:0 4px 4px 0;font-size:12px;color:var(--txt)}
@@ -865,7 +866,7 @@ function renderKansenki(a, jcd){
     <div class="ksk-lead">${lead}</div>
     <button class="ksk-btn" id="kskb-${jcd}" onclick="kskToggle('${jcd}')">場の朝刊を読む ▼</button>
     <div class="ksk-full" id="kskf-${jcd}" style="display:none">
-      <div class="ksk-body">${full.split(/\n+/).filter(x=>x.trim()).map(x=>'<p>'+x+'</p>').join('')}</div>
+      <div class="ksk-body">${full.split(/\n+/).filter(x=>x.trim()).map(x=>{const m=x.match(/^■\s*(.+)$/);return m?'<p class="ksk-sh">'+m[1]+'</p>':'<p>'+x+'</p>';}).join('')}</div>
       ${terms}
     </div>
     <div class="ksk-note">場の朝刊｜前日までの確定データのみで書いています。予想・買い目は扱いません。<a class="ksk-link" href="../choukan/?d=${KAISAI}&j=${String(a.jcd||'').replace(/[^0-9]/g,'')}">1ページで読む →</a></div>
