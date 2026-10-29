@@ -65,13 +65,17 @@ a{color:inherit;text-decoration:none}
 .ch{margin:0}
 .ch-rail{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:2px 2px 10px;scrollbar-width:none}
 .ch-rail::-webkit-scrollbar{display:none}
-.ch-card{flex:0 0 78%;max-width:320px;scroll-snap-align:start;display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-top:3px solid var(--mido);border-radius:6px;padding:14px 14px 12px;color:var(--tx);text-decoration:none;min-height:150px}
+.ch-card{flex:0 0 78%;max-width:320px;scroll-snap-align:start;display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-top:3px solid var(--line);border-radius:6px;padding:14px 14px 12px;color:var(--tx);text-decoration:none;min-height:150px}
 .ch-v{font-size:12px;color:var(--dim);letter-spacing:.04em}
 .ch-v b{color:var(--midoTx);font-weight:800;margin-right:6px}
 .ch-t{font-size:16px;font-weight:800;line-height:1.45;margin-top:5px}
 .ch-l{font-size:13px;color:var(--sub);line-height:1.7;margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .ch-go{margin-top:auto;padding-top:8px;text-align:right;font-size:13px;font-weight:700;color:var(--accent)}
 .ch-note{font-size:12px;color:var(--dim);line-height:1.6}
+/* 場の朝刊のカード：格の色（見どころ・出走表と同じ色の辞書。SG赤・G1金・G2銀・女子戦は淡いピンク） */
+.ch-card.g-sg{border-top-color:#ee3f3d}.ch-card.g-g1{border-top-color:#dcbd78}.ch-card.g-g2{border-top-color:#b8c4d2}.ch-card.g-lady{border-top-color:#f4c2d0}
+.ch-gb{display:inline-block;font-size:11px;font-weight:700;border-radius:4px;padding:0 6px;margin-right:6px;line-height:18px;color:#0b1219;vertical-align:1px}
+.ch-gb.sg{background:#ee3f3d}.ch-gb.g1{background:#dcbd78}.ch-gb.g2{background:#b8c4d2}.ch-gb.lady{background:#f4c2d0}
 .kn{display:block;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:16px}
 .kn-no{display:block;font-size:12px;color:var(--dim);letter-spacing:.04em}
 .kn-t{display:block;font-size:17px;font-weight:800;line-height:1.45;margin-top:4px}
@@ -705,18 +709,37 @@ if("serviceWorker" in navigator){ window.addEventListener("load",function(){ nav
       })).then(function(as){ return {d:d, list:as.filter(Boolean)}; });
     });
   }
+  // 格（docs/data/gradeSchedule.json）。その日の分が無い日（あすの朝刊）は、前の日の節が続く場だけ前の日の格を使う。
+  var GS=fetch('data/gradeSchedule.json?_='+Date.now()).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});
+  function gradeOf(gs, d, jcd){
+    var days=(gs&&gs.days)||{};
+    if(days[d]) return days[d][jcd]||null;
+    var ks=Object.keys(days).filter(function(k){return k<d;}).sort();
+    for(var i=ks.length-1;i>=0;i--){ var g=days[ks[i]][jcd]; if(g) return (String(g['終了日']||'')>=d)?g:null; }
+    return null;
+  }
+  function gradeMark(g){
+    if(!g) return {cls:'', html:''};
+    var k=String(g['区分']||''), lady=(g['レディース']===true)||k==='オールレディース'||k==='ヴィーナスシリーズ', cls='', b='';
+    if(k==='SG'){ cls=' g-sg'; b='<span class="ch-gb sg">SG</span>'; }
+    else if(k==='G1'||k==='PG1'){ cls=' g-g1'; b='<span class="ch-gb g1">'+k+'</span>'; }
+    else if(k==='G2'){ cls=' g-g2'; b='<span class="ch-gb g2">G2</span>'; }
+    if(lady){ b+='<span class="ch-gb lady">女子</span>'; if(!cls) cls=' g-lady'; }
+    return {cls:cls, html:b};
+  }
   function tryNext(i){
     if(i>=cands.length) return;
-    load(cands[i]).then(function(res){ if(res.list.length) show(res); else tryNext(i+1); }).catch(function(){ tryNext(i+1); });
+    load(cands[i]).then(function(res){ if(!res.list.length) return tryNext(i+1); return GS.then(function(gs){ res.gs=gs; show(res); }); }).catch(function(){ tryNext(i+1); });
   }
   function show(res){
     var d=res.d, isTomorrow=(d===jst(1));
     document.getElementById('chH2').textContent=isTomorrow?'あすの朝刊':'場の朝刊';
     document.getElementById('chSub').textContent=(+d.slice(4,6))+'/'+(+d.slice(6,8))+' 掲載・'+res.list.length+'場';
     document.getElementById('chRail').innerHTML=res.list.map(function(a){
-      var body=String(a.body||''), lead=body.split('\n').filter(function(x){return x.trim();}).slice(0,2).join('');
-      return '<a class="ch-card" role="listitem" href="choukan/?d='+d+'&amp;j='+esc(a.jcd)+'">'+
-        '<span class="ch-v"><b>'+esc(a.venue)+'</b></span>'+
+      var body=String(a.body||''), lead=body.split('\n').filter(function(x){return x.trim() && x.trim().charAt(0)!=='■';}).slice(0,2).join('');
+      var gm=gradeMark(gradeOf(res.gs, d, a.jcd));
+      return '<a class="ch-card'+gm.cls+'" role="listitem" href="choukan/?d='+d+'&amp;j='+esc(a.jcd)+'">'+
+        '<span class="ch-v"><b>'+esc(a.venue)+'</b>'+gm.html+'</span>'+
         '<span class="ch-t">'+esc(a.title)+'</span>'+
         '<span class="ch-l">'+esc(lead)+'</span>'+
         '<span class="ch-go">読む →</span></a>';
