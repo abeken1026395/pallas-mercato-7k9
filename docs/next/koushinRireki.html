@@ -30,6 +30,15 @@ a{color:inherit}
 .nrow .m{display:flex;gap:8px;align-items:center;font-size:12.5px;color:var(--sub)}
 .nrow .go{justify-self:end;font-size:13px;color:var(--hi);font-weight:700}
 
+/* 見本1b：小さくした形 */
+.news.sm{padding:10px 12px 4px;border-radius:12px}
+.news.sm .news-h{margin-bottom:2px}.news.sm .news-h p{font-size:15px}
+.srow{display:flex;gap:8px;align-items:center;min-height:40px;padding:6px 0;border-top:1px solid var(--line);text-decoration:none;font-size:14px}
+.srow:first-of-type{border-top:none}
+.srow .tx{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.srow.full{align-items:flex-start;flex-wrap:wrap}
+.srow.full .tx{flex-basis:100%;white-space:normal;font-size:15px;line-height:1.6}
+.srow .dt{font-size:12px;color:var(--sub);flex:none}
 /* ページの札：色はページの種類ごとに固定。文字でもページ名を書く */
 .chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--tx);padding:1px 9px 1px 7px;border-radius:99px;background:color-mix(in srgb,var(--c) 22%,transparent);border:1px solid color-mix(in srgb,var(--c) 55%,transparent);white-space:nowrap}
 .chip:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--c)}
@@ -63,6 +72,12 @@ h1{font-size:24px;font-weight:800;margin:6px 0 4px}
 <section class="news" aria-label="最近の更新">
   <div class="news-h"><p>最近、新しくなったこと</p><a href="#rireki">すべて見る</a></div>
   <div id="top3"></div>
+</section>
+
+<p class="lab"><b>見本 1b</b>　小さくした形（1件だけ全文、残りは1行）</p>
+<section class="news sm" aria-label="最近の更新（小さくした形）">
+  <div class="news-h"><p>最近、新しくなったこと</p><a href="#rireki">すべて見る</a></div>
+  <div id="top3s"></div>
 </section>
 
 <p class="lab" id="rireki"><b>見本 2</b>　更新履歴のページ</p>
@@ -114,6 +129,18 @@ h1{font-size:24px;font-weight:800;margin:6px 0 4px}
       a.appendChild(m); a.appendChild(el('span', 'go', h ? '開く →' : ''));
       a.appendChild(el('span', 't', String(x.text || '')));
       top.appendChild(a);
+    });
+
+    // 見本1b：最新1件は全文、残り2件は1行（はみ出しは…）
+    var tops = document.getElementById('top3s');
+    d.slice(0, 3).forEach(function (x, i) {
+      var k = kind(String(x.page || '')), h = href(String(x.page || ''), k);
+      var a = el(h ? 'a' : 'div', 'srow' + (i === 0 ? ' full' : '')); if (h) a.href = h;
+      a.appendChild(chip(String(x.page || ''), k));
+      a.appendChild(el('span', 'dt', x.date.slice(5).replace('-', '/').replace(/^0/, '').replace('/0', '/')));
+      if (seen && x.date > seen) a.appendChild(el('span', 'new', '新しい'));
+      a.appendChild(el('span', 'tx', String(x.text || '')));
+      tops.appendChild(a);
     });
 
     // 見本2：日ごとに束ね、種類で絞れる
