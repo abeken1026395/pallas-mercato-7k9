@@ -44,6 +44,7 @@ GUARD = [
     "docs/kensho/tilt/index.html",
     "docs/kensho/tenji/index.html",
     "docs/kensho/buhin/index.html",
+    "docs/next/kenshoSg/index.html",  # 実験場：検証12（SGの1号艇）。guard.js を読み込む（2026-10-30）
     "docs/motor-maintenance/index.html",
     "docs/next/courseLast10Preview.html",
     "docs/next/kisetsuYearly.html",
