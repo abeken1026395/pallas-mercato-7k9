@@ -28,6 +28,8 @@ md = lambda d: '%d/%d' % (int(d[4:6]), int(d[6:]))
 E = html.escape
 u = karte.get('updated', '')
 built = ('%d月%d日 %s' % (int(u[5:7]), int(u[8:10]), u[11:16])) if len(u) >= 16 else '不明'
+# 作った時刻を、朝に読んで分かる言い方にする（このページは記録の更新の直後に作り直される）
+builtWhen = ('前日の夜（%s）に作成' % built) if len(u) >= 16 and u[:10].replace('-', '') < today else ('%s に作成' % built)
 
 
 def group(parts):
@@ -46,7 +48,7 @@ def group(parts):
 SA = {(3, 1): 6, (3, 2): 5, (3, 3): 4, (2, 1): 5, (2, 2): 4, (2, 3): 3, (1, 1): 3, (1, 2): 2, (1, 3): 1}
 GN = {3: '大物', 2: '電気・キャブ・下回り', 1: 'リングだけ'}
 GS = {3: '大物', 2: '電気', 1: 'リング'}
-DN = {1: '翌日', 2: '3日目', 3: '4日目より後'}
+DN = {1: '翌日', 2: '3日目', 3: '4日目以降'}
 
 # 記録の最新日は場ごとに取る（1場だけ取得が欠けても分かるように）
 jcds = sorted({r['場コード'] for r in rows})
@@ -120,7 +122,7 @@ for r in rows:
             trail.append('<li><span class="td">%s %dR</span> %s・<b>%s</b>%s</li>' % (
                 md(x[0]), int(x[1]), ('展示%d番手' % rk) if rk else '展示なし', E(str(x[8]) + ('着' if isinstance(x[8], int) else '')),
                 ('<span class="px">「%s」</span>' % E(x[5])) if x[5] else ''))
-        people[pk] = {'jcd': j, 'jo': r['場名'], 'name': nm(r['氏名']), 'cls': r['級別'], 'mno': r['モーターNo'],
+        people[pk] = {'pid': 'p%s%s' % (j, r['登録番号']), 'jcd': j, 'jo': r['場名'], 'name': nm(r['氏名']), 'cls': r['級別'], 'mno': r['モーターNo'],
                       'm2': r.get('モーター2連率', ''), 'g': g, 'k': k, 'trail': trail, 'races': []}
     if people[pk]:
         people[pk]['races'].append((int(re.sub(r'\D', '', r['レース'])), r['枠'], r['締切時刻']))
@@ -129,17 +131,23 @@ out = [p for p in people.values() if p]
 cnt = {g: sum(1 for p in out if p['g'] == g) for g in (3, 2, 1)}
 
 
-def chip(p, w):
-    return ('<li class="g%d"><span class="w w%s">%s</span><span class="nm">%s</span><span class="bd b%d">%s</span>'
-            '<span class="dy">替えて%s</span><span class="sa">100回で%d回少ない群</span></li>' % (
-                p['g'], E(w), E(w), E(p['name']), p['g'], GN[p['g']], DN[p['k']], SA[(p['g'], p['k'])]))
+def chip(p, w, no):
+    other = [x for x, _, _ in sorted(p['races']) if x != no]
+    ot = ('<span class="ot">今日はほかに%s</span>' % '・'.join('%dR' % x for x in other)) if other else ''
+    return ('<li class="g%d"><span class="w w%s">%s</span><a class="nm" href="#%s">%s</a><span class="bd b%d">%s</span>'
+            '<span class="dy">替えて%s</span>%s<span class="sa">100回で%d回少ない群</span></li>' % (
+                p['g'], E(w), E(w), p['pid'], E(p['name']), p['g'], GN[p['g']], DN[p['k']], ot, SA[(p['g'], p['k'])]))
 
 
 def card(p):
     rc = '・'.join('%dR %s号艇' % (no, E(w)) for no, w, sh in sorted(p['races']))
-    m2 = ('（2連率%s%%）' % E(p['m2'])) if p['m2'] else ''
-    return ('<article class="c g%d" data-j="%s"><p class="ch"><b>%s</b> %s ／ %s %s ／ モーター%s号%s</p><ul class="tr">%s</ul></article>'
-            % (p['g'], p['jcd'], E(p['name']), E(p['cls']), E(p['jo']), rc, E(p['mno']), m2, ''.join(p['trail'])))
+    try:
+        m2v = float(p['m2'])
+    except (TypeError, ValueError):
+        m2v = None
+    m2 = ('（2連率%s%%）' % E(p['m2'])) if m2v else '（2連率の記録なし）'
+    return ('<article class="c g%d" id="%s" data-j="%s"><p class="ch"><b>%s</b> %s ／ %s %s ／ モーター%s号%s</p><ul class="tr">%s</ul></article>'
+            % (p['g'], p['pid'], p['jcd'], E(p['name']), E(p['cls']), E(p['jo']), rc, E(p['mno']), m2, ''.join(p['trail'])))
 
 
 # 本体：大物と電気・キャブ・下回りの選手を、全場を通して締切の早い順に
@@ -152,8 +160,8 @@ for p in heavy:
 body = []
 for (sh, j, no) in sorted(races):
     rr = races[(sh, j, no)]
-    body.append('<div class="race" data-j="%s"><p class="rh"><b>%s %dR</b><span>締切 %s</span><a href="https://www.boatrace.jp/owpc/pc/race/beforeinfo?rno=%d&amp;jcd=%s&amp;hd=%s">直前情報</a></p><ul>%s</ul></div>'
-                % (j, E(rr['jo']), no, E(sh), no, j, today, ''.join(chip(p, w) for _, p, w in sorted(rr['b'], key=lambda t: t[0]))))
+    body.append('<div class="race" data-j="%s" data-sh="%s"><p class="rh"><b>%s %dR</b><span>締切 %s</span><a href="https://www.boatrace.jp/owpc/pc/race/beforeinfo?rno=%d&amp;jcd=%s&amp;hd=%s">直前情報</a></p><ul>%s</ul></div>'
+                % (j, E(sh), E(rr['jo']), no, E(sh), no, j, today, ''.join(chip(p, w, no) for _, p, w in sorted(rr['b'], key=lambda t: t[0]))))
 if not heavy:
     body.append('<p class="none">今日の出走表に、この節で前の日までに大物か電気・キャブ・下回りを替えた選手はいません。</p>')
 jos = []
@@ -217,6 +225,10 @@ h1{font-size:23px;font-weight:800;margin:10px 0 2px}
 .b3{background:var(--g3)}.b2{background:var(--g2)}.b1{background:var(--g1)}
 .dy{font-size:14px}
 .sa{font-size:13px;color:var(--sub);margin-left:auto}
+.race .nm{color:var(--txt);text-decoration:none;border-bottom:1px dotted var(--dim)}
+.ot{font-size:13px;color:var(--dim)}
+.race.past{opacity:.45}.race.past .rh span:after{content:"（締切済み）"}
+.c:target{outline:2px solid #8fd0ff}
 .flt{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 4px}.flt button{font:inherit;font-size:14px;color:var(--txt);background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:2px 12px}.flt button[aria-pressed="true"]{border-color:#8fd0ff;color:#8fd0ff}
 .rg{font-size:14px;color:var(--sub);margin:6px 2px}.rg b{color:var(--txt)}
 details.rec{margin:6px 0 0}
@@ -238,7 +250,7 @@ details.how ul{padding-left:1.2em}
 <div class="wrap">
 <nav class="crumb"><a href="../">実験場の一覧</a></nav>
 <h1>部品交換のつづき</h1>
-<p class="date">%(date)s の出走表と、%(latest)s までの部品交換の記録から（記録の更新 %(built)s）</p>
+<p class="date" data-d="%(today)s">%(date)s の出走表と、%(latest)s までの部品交換の記録から ／ %(builtWhen)s（いまは見本です）</p>
 <div class="lead"><p>替えた次の日は、替え直さない限り部品交換の欄は空きます。けれど10年分では、部品を替えた艇は翌日も3日目も、同じ条件の艇より3着以内を外していました（<a href="kensho11Buhin.html">検証11</a>）。今日走る選手のうち、この節で前の日までに部品を替えている選手を、締切の早い順に並べました。</p>
 <p>%(lag)s</p>
 <div class="cnt"><span>大物 %(c3)d人</span><span>電気・キャブ・下回り %(c2)d人</span><span>（リングだけ %(c1)d人は下に分けています）</span></div>
@@ -251,7 +263,8 @@ details.how ul{padding-left:1.2em}
 <ul>
 <li>今日の出走表の各選手について、同じ場・同じモーター・同じ選手の、この節の前の日までの直前情報を見ています。節の初日の選手と、今日はじめて替えた選手は入りません（今日の欄は、各レースの直前情報で見られます）</li>
 <li>群は、この節でそれまでに替えた一番大きい部品で決めています。ピストン・シリンダ・シャフトのどれかなら大物、電気・キャブ・ギヤ・キャリボのどれかなら電気・キャブ・下回り、リングしかなければリングだけです。何日目かは、その部品を最初に替えた日を1日目として暦の日で数えています（節の中は毎日走る前提。順延があるとずれます）</li>
-<li>選手の記録の「展示○番手」は、同じレースの展示タイムの速い順です（同じタイムは同じ順位）</li>
+<li>選手の記録の「展示○番手」は、同じレースの展示タイムの速い順です（同じタイムは同じ順位）。着の欄の文字は、F＝フライング、L＝出遅れ、転＝転覆、落＝落水、沈＝沈没、エ＝エンスト、不＝不完走、妨＝妨害失格、失＝失格です</li>
+<li>締切を過ぎたレースは、この端末の時計で薄く表示します</li>
 <li>部品交換の記録は %(latest)s までです。%(behind)s</li>
 <li>出典：公式サイトの直前情報と出走表。買い目や予想ではありません</li>
 </ul>
@@ -259,6 +272,18 @@ details.how ul{padding-left:1.2em}
 </div>
 <script>
 (function () {
+  // 締切を過ぎたレースを薄くする（日本時間で、今日の出走表のときだけ）
+  try {
+    var dEl = document.querySelector('.date[data-d]');
+    var now = new Date(Date.now() + 9 * 3600 * 1000);
+    var ymd = now.toISOString().slice(0, 10).replace(/-/g, '');
+    var hm = now.toISOString().slice(11, 16);
+    if (dEl && dEl.getAttribute('data-d') === ymd) {
+      Array.prototype.forEach.call(document.querySelectorAll('.race[data-sh]'), function (e) {
+        if (e.getAttribute('data-sh') < hm) e.classList.add('past');
+      });
+    }
+  } catch (e) {}
   var f = document.querySelector('.flt'); if (!f) return;
   f.hidden = false;
   var K = 'buhinTsuzukiJo';
@@ -276,7 +301,7 @@ details.how ul{padding-left:1.2em}
 <script src="../assets/guard.js" defer></script>
 </body>
 </html>
-''' % {'date': '%d年%d月%d日' % (T.year, T.month, T.day), 'built': built, 'c3': cnt[3], 'c2': cnt[2], 'c1': cnt[1], 'key': key,
+''' % {'date': '%d年%d月%d日' % (T.year, T.month, T.day), 'built': built, 'builtWhen': builtWhen, 'today': today, 'c3': cnt[3], 'c2': cnt[2], 'c1': cnt[1], 'key': key,
        'body': '\n'.join(body), 'filt': filt, 'lag': lagNote or '昨日までの部品交換が入っています。',
        'latest': '%d月%d日' % (int(latest[4:6]), int(latest[6:])),
        'behind': ('記録が遅れている場：' + '、'.join(E(next(r['場名'] for r in rows if r['場コード'] == j)) for j in behind)) if behind else ''}
