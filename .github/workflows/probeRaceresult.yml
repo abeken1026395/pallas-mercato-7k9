@@ -1,0 +1,41 @@
+name: probe raceresult (temporary)
+
+on:
+  workflow_dispatch:
+    inputs:
+      targets:
+        description: "hd:jcd:rno をスペース区切り"
+        required: true
+        default: "20261028:03:12 20261028:01:12 20261028:03:06 20261028:01:11 20261028:03:05 20261028:24:12"
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: fetch html
+        env:
+          TARGETS: ${{ github.event.inputs.targets }}
+        run: |
+          mkdir -p probe
+          for t in $TARGETS; do
+            IFS=: read hd jcd rno <<< "$t"
+            curl -sS -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" \
+              -o "probe/${hd}_${jcd}_${rno}.html" -w "%{http_code} ${t}\n" \
+              "https://www.boatrace.jp/owpc/pc/race/raceresult?rno=${rno}&jcd=${jcd}&hd=${hd}"
+            sleep 1.5
+          done
+          ls -la probe
+      - name: parse
+        run: |
+          if [ -f scripts/probeParse.py ]; then python scripts/probeParse.py probe/*.html; fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: probe-html
+          path: probe/
