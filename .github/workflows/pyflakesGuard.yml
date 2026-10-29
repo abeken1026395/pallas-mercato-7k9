@@ -32,16 +32,15 @@ jobs:
             sleep 1.5
           done
           ls -la probe
-      - name: parse
-        run: |
-          if [ -f scripts/probeParse.py ]; then python scripts/probeParse.py probe/*.html; fi
       - name: commit html to branch (temporary)
         env:
           BR: ${{ github.ref_name }}
         run: |
           mkdir -p tmpProbe
           cp probe/*.html tmpProbe/
-          python scripts/probeParse.py probe/*.html > tmpProbe/parsed.txt 2>&1 || true
+          python -c "import sys,json;sys.path.insert(0,'scripts');import buildResults as b;json.dump(b.fetch_json('20261028'),open('v1.json','w'),ensure_ascii=False)"
+          python scripts/probeParse.py scripts v1.json probe > tmpProbe/parsed.txt 2>&1 || true
+          python scripts/probeE2e.py 20261028 1:11 3:5 23:9 8:9 8:5 1:9 7:2 > tmpProbe/e2e.txt 2>&1 || true
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add tmpProbe
