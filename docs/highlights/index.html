@@ -183,12 +183,14 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
    .vhead.open より前に置き、開いている場ではアクセント色の枠を勝たせる（現在地の表示を壊さない）。 */
 .vhead.g-sg{border-color:#ee3f3d;box-shadow:inset 4px 0 0 #ee3f3d;padding-left:18px}
 .vhead.g-g1{border-color:#dcbd78;box-shadow:inset 4px 0 0 #dcbd78;padding-left:18px}
-.vhead.g-lady{border-color:#dcbd78;box-shadow:inset 4px 0 0 #dcbd78;padding-left:18px}
+.vhead.g-lady{border-color:#f4c2d0;box-shadow:inset 4px 0 0 #f4c2d0;padding-left:18px}
+.vhead.g-g2{border-color:#b8c4d2;box-shadow:inset 4px 0 0 #b8c4d2;padding-left:18px}
 .vhead.open{border-color:#dcbd78;background:#16222e}
 .gbadge{display:inline-block;font-size:12px;border-radius:4px;padding:1px 6px;margin-right:6px}
 .gb-sg{background:#ee3f3d;color:#0b1219}
 .gb-g1{background:#dcbd78;color:#0b1219}
-.gb-lady{background:#dcbd78;color:#0b1219}
+.gb-lady{background:#f4c2d0;color:#0b1219}
+.gb-g2{background:#b8c4d2;color:#0b1219}
 .gb-plain{border:1px solid #9fb0c355;color:#9fb0c3}
 .vname{font-weight:800;font-size:15px}
 .pin-mk{margin-right:4px;font-size:15px}
@@ -940,7 +942,8 @@ function gradeBadges(g){
   let cls='', b=[];
   if(k==='SG'){ b.push('<span class="gbadge gb-sg">SG</span>'); cls=' g-sg'; }
   else if(k==='G1'){ b.push('<span class="gbadge gb-g1">G1</span>'); cls=' g-g1'; }
-  else if(k==='G2'||k==='G3'){ b.push('<span class="gbadge gb-plain">'+k+'</span>'); }
+  else if(k==='G2'){ b.push('<span class="gbadge gb-g2">G2</span>'); cls=' g-g2'; }
+  else if(k==='G3'){ b.push('<span class="gbadge gb-plain">G3</span>'); }
   else if(k==='ルーキーシリーズ'){ b.push('<span class="gbadge gb-plain">ルーキー</span>'); }
   else if(k==='マスターズリーグ'){ b.push('<span class="gbadge gb-plain">マスターズ</span>'); }
   if(lady){ b.push('<span class="gbadge gb-lady">女子</span>'); if(!cls) cls=' g-lady'; }
