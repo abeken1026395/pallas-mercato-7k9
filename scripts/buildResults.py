@@ -37,16 +37,46 @@
 #   そこで v1 で3連単が取れないレースだけ v2 から補う。v1 にあるレースは v1 を優先し、
 #   v2 で上書きしない。v2 が取れない(404・廃止)ときは従来どおり v1 だけで書く。
 #   級別は v2 に無いので、補ったレースも v1 の番組表側から枠番で引く。
+#
+# 公式サイトからの第2の予備(2026-10-29 追加):
+#   v1・v2 とも更新が数時間止まることがある(2026-10-28 22:42 JST に v1 で26レースが空、
+#   v2 でも1レースしか補えなかった)。そこで v1 で欠け、v2 でも補えなかったレースだけ、
+#   公式の結果ページ(boatrace.jp raceresult)を1レースずつ読んで補う。
+#   ・対象は「v1 の結果側に着順が1つも無い」かつ「締切(closed_at)から10分以上たった」レース。
+#     v1 に着順があるのに3連単が無いレースは 3連単不成立(例: 2026-10-28 桐生12R)なので取りに行かない。
+#   ・3連単の組番と配当が読めないページ(未確定・レース中止・データなし)は補わない。
+#   ・1リクエストごとに1秒以上あける。1日あたり最大 OFFICIAL_MAX 件。失敗は黙って飛ばす。
+#   ・GitHub Actions からは届く(scrapeLiveWeather.py の beforeinfo と同じ作法)。
+#     届かない環境(プロキシで403等)では何も補わず、従来どおり v1・v2 だけで書く。
+#   ・ページの値は v1 の _source 系と同じ表記(着の「転」「F」等、ST の「F.01」)なので、
+#     コードへの直し方も v1 に合わせる(着 7=妨〜16=欠、F の ST は負の値)。
 import io
 import os
+import re
+import ssl
+import html as htmllib
 import json
 import time
 import datetime
+import unicodedata
 import urllib.request
 
 BASE = "https://raw.githubusercontent.com/boatraceopenapi/api/gh-pages/docs/v1/"
 BASE_V2 = "https://raw.githubusercontent.com/BoatraceOpenAPI/results/HEAD/docs/v2/"
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) boatrace-data-collector"
+OFFICIAL_URL = "https://www.boatrace.jp/owpc/pc/race/raceresult?rno={rno}&jcd={jcd:02d}&hd={hd}"
+OFFICIAL_HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                    "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
+OFFICIAL_SLEEP = 1.2
+OFFICIAL_MAX = int(os.environ.get("OFFICIAL_MAX", "60"))
+OFFICIAL_AFTER_MIN = 10   # 締切からこの分数がたったレースだけ取りに行く
+
+# 公式ページの着の表記 → v1 の place_number(facts.md の着コード表と同じ)
+PLACE_CODE = {"妨": 7, "エ": 8, "転": 9, "落": 10, "沈": 11, "不": 12,
+              "失": 13, "F": 14, "L": 15, "欠": 16}
+# 公式ページの勝式 → v1 の payouts キー
+BET_KEY = {"3連単": "trifecta", "3連複": "trio", "2連単": "exacta", "2連複": "quinella",
+           "拡連複": "quinella_place", "単勝": "win", "複勝": "place"}
 
 # 決まり手コード(technique_number) → 表記
 TECHNIQUE = {
@@ -149,6 +179,191 @@ def v2_results(data2):
             "payouts": payouts,
         }
     return out
+
+
+def _text(s):
+    """タグを除き、実体参照を戻し、全角英数をNFKCで半角にして空白を1つに詰める。"""
+    s = htmllib.unescape(re.sub(r"<[^>]+>", " ", s or ""))
+    s = unicodedata.normalize("NFKC", s)
+    return re.sub(r"\s+", " ", s).strip()
+
+
+def _num(s):
+    """'9.0℃' '9m' '8cm' → 数値。整数なら int(v1 と同じ)。読めなければ None。"""
+    m = re.search(r"-?\d+(?:\.\d+)?", s or "")
+    if not m:
+        return None
+    v = float(m.group(0))
+    return int(v) if v.is_integer() else v
+
+
+def _section(h, head):
+    """<th>head</th> から次の </table> までの HTML。無ければ空文字。"""
+    i = h.find("<th>%s</th>" % head)
+    if i < 0:
+        return ""
+    j = h.find("</table>", i)
+    return h[i:j if j > 0 else len(h)]
+
+
+def _st(src):
+    """'.18' → 0.18、'F.01' → -0.01(v1 と同じ)。それ以外(L・空)は None。"""
+    m = re.match(r"^(F)?\s*(\d*\.\d+)$", src or "")
+    if not m:
+        return None
+    v = float(m.group(2))
+    return -v if m.group(1) else v
+
+
+def parse_official(page, hd, jcd, rno):
+    """公式 raceresult ページの HTML を、v1 の result と同じ形の dict にして返す。
+    3連単の組番と配当が読めないとき(未確定・レース中止・不成立・データなし)は None。"""
+    if not page or "<th>勝式</th>" not in page:
+        return None
+    # 払戻
+    payouts = {}
+    for body in _section(page, "勝式").split("<tbody")[1:]:
+        lab = re.search(r'<td rowspan="\d+">\s*([^<]+?)\s*</td>', body)
+        key = BET_KEY.get(_text(lab.group(1))) if lab else None
+        if not key:
+            continue
+        rows = []
+        for tr in body.split("<tr")[1:]:
+            parts = re.findall(r'class="numberSet1_(?:number|text)[^"]*"[^>]*>([^<]*)<', tr)
+            combo = "".join(_text(p) for p in parts)
+            am = re.search(r'class="is-payout1">\s*&yen;\s*([\d,]+)', tr)
+            if not combo or not am:
+                continue
+            rows.append({"combination": combo, "amount": int(am.group(1).replace(",", "")),
+                         "label": None})
+        payouts[key] = rows
+    tri = payouts.get("trifecta") or []
+    if not tri or not re.fullmatch(r"[1-6]-[1-6]-[1-6]", tri[0]["combination"]):
+        return None
+    # 着順(着・枠・登番・氏名)
+    racers = {}
+    for body in _section(page, "着").split("<tbody")[1:]:
+        tds = re.findall(r"<td[^>]*>(.*?)</td>", body, re.S)
+        if len(tds) < 3:
+            continue
+        place_src = _text(tds[0])
+        en = _text(tds[1])
+        if not en.isdigit():
+            continue
+        tou = re.search(r'class="is-fs12">\s*(\d{4})\s*<', tds[2])
+        name = re.search(r'class="is-fs18[^"]*">([^<]*)<', tds[2])
+        if place_src.isdigit():
+            place = int(place_src)
+        else:
+            place = PLACE_CODE.get(place_src[:1]) if place_src else None
+        racers[en] = {
+            "entry_number": int(en),
+            "course_number": None,
+            "start_timing_source": None,
+            "start_timing": None,
+            "place_number_source": place_src or None,
+            "place_number": place,
+            "number_source": tou.group(1) if tou else None,
+            "number": int(tou.group(1)) if tou else None,
+            "name": _text(name.group(1)) if name else None,
+        }
+    if len(racers) < 3:
+        return None
+    # スタート情報(上から1コース・2コース…の順。数字は枠番、続く値がST)
+    st_sec = _section(page, "スタート情報")
+    nums = re.findall(r'class="table1_boatImage1Number[^"]*">\s*(\d)\s*<', st_sec)
+    times = re.findall(r'class="table1_boatImage1TimeInner[^"]*">([^<]*)<', st_sec)
+    for course, (en, tm) in enumerate(zip(nums, times), start=1):
+        r = racers.get(en)
+        if not r:
+            continue
+        src = (_text(tm).split(" ") or [""])[0]
+        r["course_number"] = course
+        r["start_timing_source"] = src or None
+        r["start_timing"] = _st(src)
+    # 決まり手
+    tech_src = _text(re.sub(r"<th>決まり手</th>", "", _section(page, "決まり手")))
+    tech_no = {v: k for k, v in TECHNIQUE.items()}.get(tech_src)
+
+    # 水面気象(ラベルの直後の値。天候・風向はアイコンのクラス番号 = v1 のコード)
+    def _wx(label):
+        m = re.search(r'weather1_bodyUnitLabelTitle">%s</span>\s*<span class="weather1_bodyUnitLabelData">([^<]*)<' % label, page)
+        return _text(m.group(1)) if m else None
+    wnum = re.search(r'weather1_bodyUnitImage is-weather(\d+)', page)
+    wdir = re.search(r'weather1_bodyUnitImage is-wind(\d+)', page)
+    wname = re.search(r'weather1_bodyUnit is-weather">.*?weather1_bodyUnitLabelTitle">([^<]*)<', page, re.S)
+    out = {
+        "date": "%s-%s-%s" % (hd[:4], hd[4:6], hd[6:8]),
+        "stadium_number": int(jcd),
+        "race_number": int(rno),
+        "wind_speed_source": _wx("風速"),
+        "wind_speed": _num(_wx("風速")),
+        "wind_direction_number_source": None,   # ページは矢印画像だけで文字が無い
+        "wind_direction_number": int(wdir.group(1)) if wdir else None,
+        "wave_height_source": _wx("波高"),
+        "wave_height": _num(_wx("波高")),
+        "weather_number_source": _text(wname.group(1)) if wname else None,
+        "weather_number": int(wnum.group(1)) if wnum else None,
+        "air_temperature_source": _wx("気温"),
+        "air_temperature": _num(_wx("気温")),
+        "water_temperature_source": _wx("水温"),
+        "water_temperature": _num(_wx("水温")),
+        "technique_number_source": tech_src or None,
+        "technique_number": tech_no,
+        "racers": racers,
+        "payouts": payouts,
+        "source": "boatrace.jp raceresult",
+    }
+    return out
+
+
+def fetch_official(hd, jcd, rno):
+    """公式の結果ページを取得して HTML を返す。失敗は None。"""
+    url = OFFICIAL_URL.format(hd=hd, jcd=int(jcd), rno=int(rno))
+    req = urllib.request.Request(url, headers=OFFICIAL_HEADERS)
+    try:
+        with urllib.request.urlopen(req, timeout=15, context=ssl.create_default_context()) as r:
+            return r.read().decode("utf-8", "replace")
+    except Exception:
+        return None
+
+
+def official_targets(data, miss, now_jst=None):
+    """欠けレースのうち、公式を見に行くもの。v1 に着順が1つも無く、締切から10分以上たったレースだけ。"""
+    now_jst = now_jst or (datetime.datetime.utcnow() + datetime.timedelta(hours=9))
+    stadiums = ((data.get("programs") or {}).get("stadiums") or {})
+    out = []
+    for sn, rn in miss:
+        race = (((stadiums.get(str(sn)) or {}).get("races") or {}).get(str(rn))) or {}
+        res = race.get("result") or {}
+        if any((b or {}).get("place_number") is not None for b in (res.get("racers") or {}).values()):
+            continue   # 着順はあるのに3連単が無い = 不成立。公式にも3連単は無い
+        try:
+            closed = datetime.datetime.strptime(race.get("closed_at") or "", "%Y-%m-%d %H:%M:%S")
+        except Exception:
+            continue
+        if now_jst < closed + datetime.timedelta(minutes=OFFICIAL_AFTER_MIN):
+            continue
+        out.append((sn, rn))
+    return out[:OFFICIAL_MAX]
+
+
+def official_fallback(data, hd, filled):
+    """v1 で欠け、v2 でも補えなかったレースを公式の結果ページから補う。"""
+    miss = [k for k in missing_races(data) if k not in filled]
+    targets = official_targets(data, miss)
+    if not targets:
+        return {}
+    fb = {}
+    for i, (sn, rn) in enumerate(targets):
+        if i:
+            time.sleep(OFFICIAL_SLEEP)
+        res = parse_official(fetch_official(hd, sn, rn), hd, sn, rn)
+        if res and _has_trifecta(res):
+            fb[(sn, rn)] = res
+    print("official fallback:", hd, "missing", len(miss), "tried", len(targets), "filled", len(fb),
+          " ".join("%02d-%dR" % k for k in sorted(fb)))
+    return fb
 
 
 def missing_races(data):
@@ -256,7 +471,10 @@ def v2_fallback(data, hd):
 
 
 def write_results(data, hd):
-    races = to_races(data, v2_fallback(data, hd))
+    fb = v2_fallback(data, hd)
+    for k, v in official_fallback(data, hd, fb).items():
+        fb.setdefault(k, v)   # v2 で補えたレースは上書きしない
+    races = to_races(data, fb)
     venues = len(set(x["場コード"] for x in races))
     os.makedirs("results", exist_ok=True)
     outpath = os.path.join("results", "%s.json" % hd)
