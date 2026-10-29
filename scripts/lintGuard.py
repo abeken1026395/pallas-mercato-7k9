@@ -43,6 +43,7 @@ GUARD = [
     "docs/kensho/taiju/index.html",
     "docs/kensho/tilt/index.html",
     "docs/kensho/tenji/index.html",
+    "docs/kensho/buhin/index.html",
     "docs/motor-maintenance/index.html",
     "docs/next/courseLast10Preview.html",
     "docs/next/kisetsuYearly.html",
