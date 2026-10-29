@@ -1286,7 +1286,7 @@ def _opt(name):
     return None
 
 
-def ready_venues(pub8, by_jcd, results_map, pred_prev, prev_days):
+def ready_venues(pub8, by_jcd, results_map, pred_prev, prev_days, void_map=None):
     """夕方便で素材に入れてよい場を選ぶ。
     前日結果が途中までの場を入れると、補完マージ（非null不変）で途中の結果が素材に固定され、
     後の便で直らない。そこで次を全部満たす場だけを入れ、残りは夜の便に任せる。
@@ -1325,7 +1325,8 @@ def ready_venues(pub8, by_jcd, results_map, pred_prev, prev_days):
             why[jcd] = "掲載日の出走表が欠けている（%dレース・%d行）" % (len(races), len(rows))
             continue
         e = len(exp.get(jcd, ()))
-        got = len({rno_to_int(r.get("レース")) for r in results_map.get(jcd, [])})
+        got = len({rno_to_int(r.get("レース")) for r in results_map.get(jcd, [])}
+                  | {rno_to_int(r.get("レース")) for r in (void_map or {}).get(jcd, [])})  # 中止・不成立はそろった側に数える
         day_num, _ = day_num_and_label(rows)
         if e > 0:
             need = max(e, READY_MIN_RACES)
@@ -1395,6 +1396,9 @@ def main():
 
     results_data, results_path = load_results(results_date8)
     results_map = results_by_jcd(results_data)
+    void_map = {}
+    for row in ((results_data or {}).get("成立せず") or []) if isinstance(results_data, dict) else []:
+        void_map.setdefault(str(row.get("場コード", "")).zfill(2), []).append(row)
     vstats = load_verify_venue_stats(results_date8)
     kimarite_map = load_kimarite()
     profile = load_profile()
@@ -1418,7 +1422,7 @@ def main():
     ready = None
     if ready_only:
         prev_days = {v.get("jcd"): v.get("dayNum") for v in (prev_src_doc.get("venues") or [])}
-        ok_jcds, why = ready_venues(csv_hd8, by_jcd, results_map, pred_prev_raw, prev_days)
+        ok_jcds, why = ready_venues(csv_hd8, by_jcd, results_map, pred_prev_raw, prev_days, void_map)
         ready = set(ok_jcds)
         print("[夕方便] 掲載日={} 入れる場={}".format(csv_hd8, " ".join(ok_jcds) or "なし"))
         for jcd in sorted(why):
