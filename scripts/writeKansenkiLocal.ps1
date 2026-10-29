@@ -153,7 +153,8 @@ rc = subprocess.run([sys.executable, "scripts/buildResults.py"], env=env,
 got = 0
 try:
     with io.open("results/%s.json" % prev, "r", encoding="utf-8") as f:
-        got = len(json.load(f).get("結果") or [])
+        _rd = json.load(f)
+        got = len(_rd.get("結果") or []) + len(_rd.get("成立せず") or [])  # 中止・不成立はそろった側に数える
 except Exception:
     got = 0
 expect = -1

@@ -328,8 +328,9 @@ def fetch_official(hd, jcd, rno):
         return None
 
 
-def official_targets(data, miss, now_jst=None):
-    """欠けレースのうち、公式を見に行くもの。v1 に着順が1つも無く、締切から10分以上たったレースだけ。"""
+def official_targets(data, miss, now_jst=None, void=None):
+    """欠けレースのうち、公式を見に行くもの。v1 に着順が1つも無く、締切から10分以上たったレースだけ。
+    void(dict)を渡すと、着順はあるのに3連単が無いレース（不成立）を {(場,R): "不成立"} で書き足す。"""
     now_jst = now_jst or (datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
                           + datetime.timedelta(hours=9))
     stadiums = ((data.get("programs") or {}).get("stadiums") or {})
@@ -338,6 +339,8 @@ def official_targets(data, miss, now_jst=None):
         race = (((stadiums.get(str(sn)) or {}).get("races") or {}).get(str(rn))) or {}
         res = race.get("result") or {}
         if any((b or {}).get("place_number") is not None for b in (res.get("racers") or {}).values()):
+            if void is not None:
+                void[(sn, rn)] = "不成立"
             continue   # 着順はあるのに3連単が無い = 不成立。公式にも3連単は無い
         try:
             closed = datetime.datetime.strptime(race.get("closed_at") or "", "%Y-%m-%d %H:%M:%S")
@@ -349,19 +352,26 @@ def official_targets(data, miss, now_jst=None):
     return out[:OFFICIAL_MAX]
 
 
-def official_fallback(data, hd, filled):
-    """v1 で欠け、v2 でも補えなかったレースを公式の結果ページから補う。"""
+def official_fallback(data, hd, filled, void=None):
+    """v1 で欠け、v2 でも補えなかったレースを公式の結果ページから補う。
+    void(dict)を渡すと、結果が出ないことが確定したレース（中止・不成立）を {(場,R): 理由} で書き足す。"""
     miss = [k for k in missing_races(data) if k not in filled]
-    targets = official_targets(data, miss)
+    targets = official_targets(data, miss, void=void)
     if not targets:
         return {}
     fb = {}
     for i, (sn, rn) in enumerate(targets):
         if i:
             time.sleep(OFFICIAL_SLEEP)
-        res = parse_official(fetch_official(hd, sn, rn), hd, sn, rn)
+        page = fetch_official(hd, sn, rn)
+        res = parse_official(page, hd, sn, rn)
         if res and _has_trifecta(res):
             fb[(sn, rn)] = res
+        elif void is not None and page:
+            if "レース中止" in page:
+                void[(sn, rn)] = "中止"
+            elif "不成立" in page:
+                void[(sn, rn)] = "不成立"
     print("official fallback:", hd, "missing", len(miss), "tried", len(targets), "filled", len(fb),
           " ".join("%02d-%dR" % k for k in sorted(fb)))
     return fb
@@ -473,15 +483,20 @@ def v2_fallback(data, hd):
 
 def write_results(data, hd):
     fb = v2_fallback(data, hd)
-    for k, v in official_fallback(data, hd, fb).items():
+    void = {}
+    for k, v in official_fallback(data, hd, fb, void).items():
         fb.setdefault(k, v)   # v2 で補えたレースは上書きしない
     races = to_races(data, fb)
+    have = {(int(x["場コード"]), int(str(x["レース"]).rstrip("R"))) for x in races}
+    # 結果が出ないことが確定したレース（中止・不成立）。「全レースそろった」の判定で、そろった側に数える（2026-10-29 けん）
+    seiritsu = [{"場コード": "%02d" % k[0], "レース": "%dR" % k[1], "理由": void[k]}
+                for k in sorted(void) if k not in have]
     venues = len(set(x["場コード"] for x in races))
     os.makedirs("results", exist_ok=True)
     outpath = os.path.join("results", "%s.json" % hd)
     obj = {"開催日": hd,
            "取得時刻": datetime.datetime.now().isoformat(timespec="seconds"),
-           "レース数": len(races), "結果": races}
+           "レース数": len(races), "結果": races, "成立せず": seiritsu}
     with io.open(outpath, "w", encoding="utf-8") as f:
         json.dump(obj, f, ensure_ascii=False, indent=1)
     print("wrote", outpath, "races", len(races), "venues", venues)
