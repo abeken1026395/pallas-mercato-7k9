@@ -7,45 +7,51 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="canonical" href="https://abeken1026395.github.io/pallas-mercato-7k9/choukan/">
 <title>場の朝刊｜データ攻め</title>
-<meta name="theme-color" content="#0a1422">
+<meta name="theme-color" content="#f6f2e9" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#1b1a17" media="(prefers-color-scheme: dark)">
 <link rel="apple-touch-icon" href="../icon180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&amp;text=%E3%81%82%E3%81%93%E3%81%99%E3%81%AE%E3%81%B3%E3%82%8F%E4%B8%89%E4%B8%8B%E4%B8%B8%E4%B9%8B%E4%BA%80%E4%BD%8F%E5%85%90%E5%88%8A%E5%90%8D%E5%92%8C%E5%94%90%E5%9B%BD%E5%A0%B4%E5%A4%9A%E5%A4%A7%E5%AE%AE%E5%B0%BC%E5%B1%8B%E5%B1%B1%E5%B2%A1%E5%B3%B6%E5%B4%8E%E5%B7%9D%E5%B8%B8%E5%B9%B3%E5%BE%B3%E6%88%B8%E6%91%A9%E6%9C%9D%E6%9D%91%E6%9D%BE%E6%A1%90%E6%B1%9F%E6%B4%A5%E6%B5%9C%E6%B9%96%E6%BB%91%E7%94%9F%E7%94%B0%E7%A6%8F%E8%8A%A6%E8%8B%A5%E8%92%B2%E9%83%A1%E9%96%80%E9%96%A2%E9%B3%B4&amp;display=swap" rel="stylesheet">
 <style>
-/* 場の朝刊：1場1本を読むページ（2026-10-28 本番化・旧称 観戦記）。新聞の1面の組み方に寄せる。枠・角丸・色帯を使わず、罫と字の大きさで組む */
-:root{--bg:#0a1422;--tx:#e9ecef;--body:#d3dae1;--sub:#97a6b5;--rule:#2a3d55;--rule2:#41566f;--ink:#f4f1e8}
+/* 場の朝刊：1場1本を読むページ（2026-10-28 本番化・旧称 観戦記）。
+   2026-10-29 読みやすさの作り直し（けん「目に優しく読みやすい様に」）。根拠は webCraftModel（JLReq・WCAG）:
+   - 地と字：真っ白×真っ黒（21:1）はまぶしいので、生成りの紙色に墨色。本文 11.6:1・補足 5.1:1（WCAG AAA/AA）
+   - 夜：端末がダークモードなら、紺ではなく暖かい暗色に切り替える（本文 11.3:1）。青白い光を減らす
+   - 本文：17px・行間1.9・字間.03em・段落間1.2em。スマホで1行およそ20字（日本語の読みやすい幅）。約物詰め（palt）は本文に使わない
+   - 禁則：line-break:strict。数字が多い文なので等幅にせず、比例のまま
+   - 強い色・枠・角丸・太い帯は使わない。見出しの書体は題字だけ。場の切り替えは本文と同じ書体で軽く */
+:root{color-scheme:light dark;--bg:#f6f2e9;--ink:#24221e;--body:#34312b;--sub:#6b665d;--rule:#ddd5c6;--rule2:#c9bfab;--soft:#eee8da;--on:#24221e}
+@media (prefers-color-scheme:dark){:root{--bg:#1b1a17;--ink:#ece6d8;--body:#d6d0c3;--sub:#a39d90;--rule:#38352f;--rule2:#4a463e;--soft:#24221e;--on:#ece6d8}}
 *{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;-webkit-font-smoothing:antialiased}
+html{-webkit-text-size-adjust:100%;background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--body);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;-webkit-font-smoothing:antialiased;line-break:strict;overflow-wrap:anywhere}
 a{color:inherit}
-.wrap{max-width:620px;margin:0 auto;padding:0 18px 56px}
+.wrap{max-width:36em;margin:0 auto;padding:0 20px 64px}
 .siteback{display:inline-flex;align-items:center;min-height:44px;font-size:13px;color:var(--sub);text-decoration:none}
-.siteback:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+.siteback:focus-visible,.idx a:focus-visible,.pager a:focus-visible{outline:2px solid var(--on);outline-offset:2px}
 .dela{font-family:"Dela Gothic One",-apple-system,"Hiragino Sans",sans-serif;font-weight:400}
-.mast{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:6px 0 10px;border-bottom:4px double var(--rule2)}
-.mast h1{margin:0;font-size:34px;line-height:1;letter-spacing:.04em;color:var(--ink)}
-.mast .dt{font-size:13px;color:var(--sub);text-align:right;line-height:1.5;font-variant-numeric:tabular-nums}
-.idx{display:flex;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--rule);margin:0 -18px;padding:0 18px}
+.mast{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:4px 0 12px;border-bottom:1px solid var(--rule2)}
+.mast h1{margin:0;font-size:24px;line-height:1;letter-spacing:.08em;color:var(--ink)}
+.mast .dt{font-size:12.5px;color:var(--sub);text-align:right;line-height:1.5;font-variant-numeric:tabular-nums}
+.idx{display:flex;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--rule);margin:0 -20px;padding:0 20px;-webkit-overflow-scrolling:touch}
 .idx::-webkit-scrollbar{display:none}
-.idx a{flex:0 0 auto;min-height:44px;display:flex;align-items:center;padding:0 11px;font-size:14px;color:var(--sub);text-decoration:none;border-bottom:2px solid transparent;margin-bottom:-1px}
+.idx a{flex:0 0 auto;min-height:46px;display:flex;align-items:center;padding:0 12px;font-size:14px;color:var(--sub);text-decoration:none;border-bottom:2px solid transparent;margin-bottom:-1px;letter-spacing:.04em}
 .idx a:first-child{padding-left:0}
-.idx a.on{color:var(--ink);font-weight:800;border-bottom-color:var(--ink)}
-.dl{display:flex;align-items:baseline;gap:10px;margin:22px 0 0;flex-wrap:wrap}
-.dl .v{font-size:22px;color:var(--ink);letter-spacing:.04em}
-.dl .s{font-size:13px;color:var(--sub);line-height:1.5}
-h2.t{font-size:25px;line-height:1.38;margin:10px 0 18px;font-weight:800;letter-spacing:-.005em;color:var(--ink);font-feature-settings:"palt"}
-.body p{font-size:16.5px;line-height:1.95;color:var(--body);margin:0 0 1.15em;font-feature-settings:"palt";letter-spacing:.02em}
-.body p:first-child{font-size:18px;line-height:1.75;color:var(--ink);font-weight:700}
-.body a{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px;text-decoration-color:var(--rule2)}
-.watch{margin:26px 0 0;border-top:1px solid var(--rule2);border-bottom:1px solid var(--rule2);padding:14px 0 15px}
-.watch h3{margin:0 0 6px;font-size:13px;font-weight:800;letter-spacing:.12em;color:var(--sub)}
-.watch p{margin:0;font-size:16px;line-height:1.85;color:var(--ink)}
-.note{margin-top:14px;font-size:12px;color:var(--sub);line-height:1.7}
-.pager{display:flex;justify-content:space-between;margin-top:28px;border-top:1px solid var(--rule)}
-.pager a{min-height:52px;display:flex;align-items:center;font-size:14px;text-decoration:none;color:var(--tx)}
-.pager a span{color:var(--sub);font-size:12px;margin:0 6px}
+.idx a.on{color:var(--ink);font-weight:700;border-bottom-color:var(--ink)}
+.dl{margin:30px 0 0;font-size:13px;color:var(--sub);line-height:1.6;letter-spacing:.03em}
+.dl .v{color:var(--ink);font-weight:700;margin-right:.8em}
+h2.t{font-size:24px;line-height:1.45;margin:8px 0 22px;font-weight:700;letter-spacing:.01em;color:var(--ink)}
+.body p{font-size:17px;line-height:1.9;color:var(--body);margin:0 0 1.2em;letter-spacing:.03em}
+.body p:first-child{font-size:18px;line-height:1.8;color:var(--ink);font-weight:600}
+.body a{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:.3em;text-decoration-color:var(--rule2)}
+.watch{margin:32px 0 0;padding:16px 18px 18px;background:var(--soft);border-radius:2px}
+.watch h3{margin:0 0 8px;font-size:12.5px;font-weight:700;letter-spacing:.12em;color:var(--sub)}
+.watch p{margin:0;font-size:16.5px;line-height:1.85;color:var(--ink);letter-spacing:.03em}
+.note{margin-top:18px;font-size:12.5px;color:var(--sub);line-height:1.7}
+.pager{display:flex;justify-content:space-between;margin-top:36px;border-top:1px solid var(--rule)}
+.pager a{min-height:56px;display:flex;align-items:center;font-size:15px;text-decoration:none;color:var(--ink)}
+.pager a span{color:var(--sub);font-size:12px;margin:0 8px}
 .pager a[aria-disabled="true"]{visibility:hidden}
-.empty{padding:48px 0;color:var(--sub);font-size:14px;line-height:1.9}
+.empty{padding:56px 0;color:var(--sub);font-size:15px;line-height:1.9}
 </style>
 </head>
 <body>
@@ -77,7 +83,7 @@ h2.t{font-size:25px;line-height:1.38;margin:10px 0 18px;font-weight:800;letter-s
     var idx=0; list.forEach(function(a,i){ if(a.jcd===j) idx=i; });
     var url=function(a){ return './?d='+d+'&j='+a.jcd; };
     document.getElementById('idx').innerHTML=list.map(function(a,i){
-      return '<a class="dela'+(i===idx?' on':'')+'" href="'+url(a)+'"'+(i===idx?' aria-current="page"':'')+'>'+esc(a.venue)+'</a>';
+      return '<a class="'+(i===idx?'on':'')+'" href="'+url(a)+'"'+(i===idx?' aria-current="page"':'')+'>'+esc(a.venue)+'</a>';
     }).join('');
     var a=list[idx], m=meta[a.jcd]||{}, body=esc(a.body||'');
     (a.racersMentioned||[]).forEach(function(rm){
@@ -85,7 +91,7 @@ h2.t{font-size:25px;line-height:1.38;margin:10px 0 18px;font-weight:800;letter-s
       if(nm&&tb) body=body.split(nm).join('<a href="../players/?toban='+tb+'">'+nm+'</a>');
     });
     var sub=[m.dayLabel, m.series].filter(Boolean).map(esc).join('｜');
-    art.innerHTML='<div class="dl"><span class="v dela">'+esc(a.venue)+'</span><span class="s">'+sub+'</span></div>'+
+    art.innerHTML='<div class="dl"><span class="v">'+esc(a.venue)+'</span>'+sub+'</div>'+
       '<h2 class="t">'+esc(a.title)+'</h2>'+
       '<div class="body">'+body.split(/\n+/).filter(function(x){return x.trim();}).map(function(x){return '<p>'+x+'</p>';}).join('')+'</div>'+
       (a.watchPoint?'<section class="watch"><h3>きょうはここを見る</h3><p>'+esc(a.watchPoint)+'</p></section>':'')+
