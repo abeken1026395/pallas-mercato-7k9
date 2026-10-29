@@ -42,6 +42,7 @@ a{color:inherit}
 h2.t{font-size:24px;line-height:1.45;margin:8px 0 22px;font-weight:700;letter-spacing:.01em;color:var(--ink)}
 .body p{font-size:17px;line-height:1.9;color:var(--body);margin:0 0 1.2em;letter-spacing:.03em}
 .body p:first-child{font-size:18px;line-height:1.8;color:var(--ink);font-weight:600}
+.body h3.sh{margin:2em 0 .7em;padding-top:.9em;border-top:1px solid var(--rule);font-size:17px;line-height:1.5;font-weight:700;color:var(--ink);letter-spacing:.03em}
 .body a{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:.3em;text-decoration-color:var(--rule2)}
 .watch{margin:32px 0 0;padding:16px 18px 18px;background:var(--soft);border-radius:2px}
 .watch h3{margin:0 0 8px;font-size:12.5px;font-weight:700;letter-spacing:.12em;color:var(--sub)}
@@ -93,7 +94,7 @@ h2.t{font-size:24px;line-height:1.45;margin:8px 0 22px;font-weight:700;letter-sp
     var sub=[m.dayLabel, m.series].filter(Boolean).map(esc).join('｜');
     art.innerHTML='<div class="dl"><span class="v">'+esc(a.venue)+'</span>'+sub+'</div>'+
       '<h2 class="t">'+esc(a.title)+'</h2>'+
-      '<div class="body">'+body.split(/\n+/).filter(function(x){return x.trim();}).map(function(x){return '<p>'+x+'</p>';}).join('')+'</div>'+
+      '<div class="body">'+body.split(/\n+/).filter(function(x){return x.trim();}).map(function(x){var m=x.match(/^■\s*(.+)$/);return m?'<h3 class="sh">'+m[1]+'</h3>':'<p>'+x+'</p>';}).join('')+'</div>'+
       (a.watchPoint?'<section class="watch"><h3>きょうはここを見る</h3><p>'+esc(a.watchPoint)+'</p></section>':'')+
       '<p class="note">前日までの確定データだけで書いています。予想や買い目は載せていません。</p>';
     var pv=document.getElementById('prev'), nx=document.getElementById('next');

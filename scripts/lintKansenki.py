@@ -57,7 +57,8 @@ TITLE_HEAD = 4               # 見出しの書き出しの重複判定に使う�
 TITLE_LOOKBACK = 7           # 同じ場の直近何日と比べるか
 DAY_WORD = re.compile(r"^(初日|[0-9０-９]+日目|最終日|準優)")
 FOCUS_MIN = 3                # 注目選手（focusRacers）から最低何人を書くか（素材がそれ未満なら全員）
-NORACE_WRITE_FROM = "20260922"  # この日以降、中止明け（前日と日目が同じ場）は網羅の除外にしない
+NORACE_WRITE_FROM = "20260922"
+TITLE_LEAD_FROM = "20261031"  # この日以降、見出しと本文の1文目が同じ（句読点を除いて一致・1文目が見出しで始まる）なら FAIL  # この日以降、中止明け（前日と日目が同じ場）は網羅の除外にしない
 DUP_FROM = "20260922"        # この日以降、同日の他場と「数字と名前を除くと同じ形の文」を共有したら FAIL
 DUP_MIN = 12                 # 照合する文の最小字数（短い定型「決まり手は逃げ。」などは除く）
 COVERAGE_DUE = (7, 30)       # 網羅の期限＝掲載日のこの時刻(JST)。前夜の夕方便から書き足すため、期限前の未執筆は持ち越し（2026-10-02）
@@ -317,6 +318,12 @@ def check_rules2(art, venue, ymd, jcd):
             nm = re.sub(r"[\s　]", "", r.get("winner") or "")
             if (nm and nm in body.replace("　", "")) or str(r.get("winnerToban")) in mentioned:
                 fails.append(("万舟の勝者名", "%sR の1着 %s" % (r.get("rno"), nm)))
+    if ymd >= TITLE_LEAD_FROM and title:
+        norm = lambda x: re.sub(r"[\s　、。，．,.・「」『』（）()!！?？]", "", x)
+        first = next((x for x in body.split("\n") if x.strip() and not x.strip().startswith("■")), "")
+        first = re.split(r"(?<=。)", first)[0]
+        if norm(title) and norm(first).startswith(norm(title)):
+            fails.append(("見出しと1文目", "1文目が見出しの繰り返し: %s" % first[:30]))
     return fails
 
 
