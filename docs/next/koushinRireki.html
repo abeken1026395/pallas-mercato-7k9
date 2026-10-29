@@ -1,0 +1,153 @@
+<!-- データ攻め by あべけん https://abeken1026395.github.io/pallas-mercato-7k9/ -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>【実験場】更新履歴の見せ方</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1219;--card:#111c27;--card2:#152331;--line:#1f2e3c;--tx:#eef3f8;--sub:#a3b5c6;--dim:#7f93a6;--hi:#f2b155;
+--c-race:#e05b4b;--c-mido:#f2b155;--c-ken:#9b8cf0;--c-sen:#cdd6e0;--c-mo:#3fb1c9;--c-jo:#7fd4a8;--c-etc:#8a9bb0}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;line-height:1.7;-webkit-text-size-adjust:100%;padding-bottom:60px}
+a{color:inherit}
+[hidden]{display:none!important}
+.wrap{max-width:680px;margin:0 auto;padding:10px 16px 0}
+.crumb{font-size:13px;color:var(--sub)}
+.crumb a{display:inline-block;padding:10px 0}
+.lab{margin:18px 0 8px;font-size:12px;letter-spacing:.12em;color:var(--dim)}
+.lab b{color:var(--hi);font-weight:700;letter-spacing:.04em}
+
+/* ── 1. トップに置く形 ── */
+.news{border:1px solid color-mix(in srgb,var(--hi) 45%,var(--line));border-radius:16px;background:linear-gradient(160deg,#1b2a3a 0%,#121d29 70%);padding:14px 14px 6px;box-shadow:0 10px 28px rgba(0,0,0,.25)}
+.news-h{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}
+.news-h p{font-size:17px;font-weight:800}
+.news-h a{margin-left:auto;font-size:13px;color:var(--sub);text-decoration:underline;text-underline-offset:4px;padding:8px 0}
+.nrow{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;padding:11px 0;border-top:1px solid var(--line);text-decoration:none}
+.nrow:first-of-type{border-top:none}
+.nrow .t{grid-column:1/-1;font-size:15.5px;line-height:1.65;color:var(--tx)}
+.nrow .m{display:flex;gap:8px;align-items:center;font-size:12.5px;color:var(--sub)}
+.nrow .go{justify-self:end;font-size:13px;color:var(--hi);font-weight:700}
+
+/* ページの札：色はページの種類ごとに固定。文字でもページ名を書く */
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--tx);padding:1px 9px 1px 7px;border-radius:99px;background:color-mix(in srgb,var(--c) 22%,transparent);border:1px solid color-mix(in srgb,var(--c) 55%,transparent);white-space:nowrap}
+.chip:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--c)}
+.new{font-size:11px;font-weight:800;color:#0b1219;background:var(--hi);border-radius:4px;padding:0 6px}
+
+/* ── 2. 更新履歴のページ ── */
+h1{font-size:24px;font-weight:800;margin:6px 0 4px}
+.lead{font-size:14px;color:var(--sub)}
+.flt{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 4px}
+.flt button{font:inherit;font-size:13.5px;color:var(--tx);background:var(--card);border:1px solid var(--line);border-radius:99px;padding:5px 13px;min-height:36px;cursor:pointer}
+.flt button[aria-pressed="true"]{border-color:var(--hi);color:var(--hi);font-weight:700}
+.day{margin:22px 0 6px;display:flex;align-items:baseline;gap:10px}
+.day b{font-size:16px;font-weight:800;font-variant-numeric:tabular-nums}
+.day span{font-size:12.5px;color:var(--dim)}
+.seen{display:flex;align-items:center;gap:10px;margin:22px 0 0;font-size:12.5px;color:var(--dim)}
+.seen:before,.seen:after{content:"";flex:1;height:1px;background:var(--line)}
+.it{display:block;text-decoration:none;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--c);border-radius:12px;padding:11px 13px 10px;margin:8px 0}
+.it .t{font-size:16px;line-height:1.7;margin-top:5px}
+.it .go{display:block;margin-top:4px;font-size:13px;color:var(--hi);font-weight:700}
+.it.nolink .go{display:none}
+.it.fresh{background:var(--card2)}
+.more{display:block;width:100%;margin:16px 0 0;min-height:48px;font:inherit;font-size:15px;color:var(--tx);background:var(--card);border:1px solid var(--line);border-radius:12px;cursor:pointer}
+.note{margin:16px 0;font-size:13px;color:var(--dim)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="crumb"><a href="./">実験場の一覧</a></nav>
+
+<p class="lab"><b>見本 1</b>　トップに置く形（いまの1行の帯の代わり）</p>
+<section class="news" aria-label="最近の更新">
+  <div class="news-h"><p>最近、新しくなったこと</p><a href="#rireki">すべて見る</a></div>
+  <div id="top3"></div>
+</section>
+
+<p class="lab" id="rireki"><b>見本 2</b>　更新履歴のページ</p>
+<h1>更新履歴</h1>
+<p class="lead">どのページの何が変わったか。押すと、そのページが開きます。</p>
+<div class="flt" id="flt"></div>
+<div id="list"><p class="note">読み込み中</p></div>
+<button type="button" class="more" id="more" hidden>もっと前の更新を見る</button>
+<p class="note">この見本は実験場のページです。並びと色の見え方を確かめるためのもので、本番の更新履歴とトップはまだ変えていません。</p>
+</div>
+<script>
+(function () {
+  // ページ名 → 種類（色）と開く先。ページ名に含まれる語で決める（先に当たったもの）
+  var KINDS = [
+    { k: 'race', nm: '出走表', c: '--c-race', re: /出走表/, href: '../racers/' },
+    { k: 'mido', nm: '見どころ・朝刊', c: '--c-mido', re: /見どころ|朝刊|観戦記/, href: '../highlights/' },
+    { k: 'ken',  nm: '検証', c: '--c-ken', re: /検証/, href: '../kensho/' },
+    { k: 'sen',  nm: '選手', c: '--c-sen', re: /選手|占い|アナ/, href: '../players/' },
+    { k: 'mo',   nm: 'モーター', c: '--c-mo', re: /モーター/, href: '../motor/' },
+    { k: 'jo',   nm: '24場・結果', c: '--c-jo', re: /24場|場|結果|万舟/, href: '../stadium/' },
+    { k: 'etc',  nm: 'そのほか', c: '--c-etc', re: /./, href: '' }
+  ];
+  var HREF = [ [/朝刊/, '../choukan/'], [/観戦記/, '../choukan/'], [/選手占い|^占い/, '../uranai/'], [/選手カード/, '../players/card.html'],
+               [/モーター整備/, '../motor-maintenance/'], [/結果/, '../results/'], [/トリセツ/, '../torisetsu/'], [/用語/, '../glossary/'],
+               [/^トップ$/, '../'], [/更新履歴/, ''], [/全ページ/, ''] ];
+  function kind(p) { for (var i = 0; i < KINDS.length; i++) if (KINDS[i].re.test(p)) return KINDS[i]; return KINDS[KINDS.length - 1]; }
+  function href(p, k) { for (var i = 0; i < HREF.length; i++) if (HREF[i][0].test(p)) return HREF[i][1]; return k.href; }
+  var WD = '日月火水木金土';
+  // 日付の文字列をそのまま読む（端末の時間帯で1日ずれないように）
+  function md(d) { var y = +d.slice(0, 4), m = +d.slice(5, 7), dd = +d.slice(8, 10); return m + '月' + dd + '日（' + WD[new Date(Date.UTC(y, m - 1, dd)).getUTCDay()] + '）'; }
+  function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
+  function chip(p, k) { var c = el('span', 'chip', p); c.style.setProperty('--c', 'var(' + k.c + ')'); return c; }
+
+  var seen = '';
+  try { seen = localStorage.getItem('br_updates_seen') || ''; } catch (e) {}
+
+  fetch('../data/updates.json', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : Promise.reject(); }).then(function (d) {
+    if (!Array.isArray(d) || !d.length) throw 0;
+    d = d.filter(function (x) { return /^\d{4}-\d{2}-\d{2}$/.test(String(x.date || '')); });
+
+    // 見本1：最新3件
+    var top = document.getElementById('top3');
+    d.slice(0, 3).forEach(function (x) {
+      var k = kind(String(x.page || '')), h = href(String(x.page || ''), k);
+      var a = el(h ? 'a' : 'div', 'nrow'); if (h) a.href = h;
+      var m = el('span', 'm'); m.appendChild(chip(String(x.page || ''), k));
+      m.appendChild(el('span', '', md(x.date)));
+      if (seen && x.date > seen) m.appendChild(el('span', 'new', '新しい'));
+      a.appendChild(m); a.appendChild(el('span', 'go', h ? '開く →' : ''));
+      a.appendChild(el('span', 't', String(x.text || '')));
+      top.appendChild(a);
+    });
+
+    // 見本2：日ごとに束ね、種類で絞れる
+    var used = {}; d.forEach(function (x) { used[kind(String(x.page || '')).k] = 1; });
+    var flt = document.getElementById('flt'), cur = '';
+    [{ k: '', nm: 'すべて' }].concat(KINDS.filter(function (k) { return used[k.k]; })).forEach(function (k) {
+      var b = el('button', '', k.nm); b.type = 'button'; b.setAttribute('aria-pressed', k.k === '' ? 'true' : 'false');
+      b.onclick = function () { cur = k.k; Array.prototype.forEach.call(flt.children, function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); }); limit = 20; draw(); };
+      flt.appendChild(b);
+    });
+    var list = document.getElementById('list'), more = document.getElementById('more'), limit = 20;
+    function draw() {
+      list.innerHTML = '';
+      var rows = d.filter(function (x) { return !cur || kind(String(x.page || '')).k === cur; });
+      var lastDay = '', putSeen = false;
+      rows.slice(0, limit).forEach(function (x) {
+        if (seen && !putSeen && x.date <= seen) { list.appendChild(el('p', 'seen', 'ここから下は、前に見たときにもあった更新')); putSeen = true; lastDay = ''; }
+        if (x.date !== lastDay) { var h = el('p', 'day'); h.appendChild(el('b', '', md(x.date))); list.appendChild(h); lastDay = x.date; }
+        var k = kind(String(x.page || '')), u = href(String(x.page || ''), k);
+        var a = el(u ? 'a' : 'div', 'it' + (u ? '' : ' nolink') + (seen && x.date > seen ? ' fresh' : ''));
+        if (u) a.href = u;
+        a.style.setProperty('--c', 'var(' + k.c + ')');
+        a.appendChild(chip(String(x.page || ''), k));
+        a.appendChild(el('p', 't', String(x.text || '')));
+        a.appendChild(el('span', 'go', 'このページを開く →'));
+        list.appendChild(a);
+      });
+      more.hidden = rows.length <= limit;
+    }
+    more.onclick = function () { limit += 30; draw(); };
+    draw();
+  }).catch(function () { document.getElementById('list').innerHTML = '<p class="note">更新履歴を読み込めませんでした。</p>'; });
+})();
+</script>
+<script src="../assets/guard.js" defer></script>
+</body>
+</html>
