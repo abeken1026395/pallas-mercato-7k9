@@ -65,6 +65,7 @@ GUARD = [
     "docs/next/motorKeireki.html",
     "docs/next/kansenNote.html",
     "docs/next/ichimark.html",
+    "docs/next/tenjiWatch.html",  # 実験場：展示の届く時刻の計測（2026-10-30）
     "docs/next/torisetsu.html",
     "docs/next/topI.html",
     "docs/next/choukanTop.html",
