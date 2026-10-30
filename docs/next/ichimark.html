@@ -64,7 +64,7 @@ svg{display:block;width:100%;height:auto}
 .tel b small{font-size:12px;color:var(--faint)}
 .why{margin:4px 0 0;border-top:1px solid var(--line);padding-top:8px;font-size:13.5px;color:var(--dim);line-height:1.7}
 .why .wh{font-size:12px;color:var(--faint);margin-bottom:2px}
-.why .wr{display:grid;grid-template-columns:40px 1fr;align-items:baseline;gap:8px}
+.why .wr{display:grid;grid-template-columns:48px 1fr;align-items:baseline;gap:12px}
 .why .wr.o{color:var(--faint)}
 .why .pt{text-align:right}
 .aw{margin:8px 0 0;font-size:13.5px;color:var(--dim);line-height:1.75}
@@ -103,7 +103,7 @@ svg{display:block;width:100%;height:auto}
 .fm{color:#f0a9a0;font-weight:700}
 .sn{margin:6px 0 0;font-size:12.5px;color:var(--faint);line-height:1.6}
 .legend i{display:inline-block;width:22px;height:0;border-top:3px solid #f2f2f0;vertical-align:middle;margin-right:5px}
-.legend i.g{border-top-color:#c9a96e}
+.legend i.g{border-top-color:#c9a96e}.legend i.d{border-top:2px dashed #7f8fa3}.legend i.m{width:12px;height:12px;border:1.6px solid #dcbd78;vertical-align:-1px}
 .legend i.s{border-top-style:solid;border-top-color:var(--mute)}
 .sec{margin-top:4px}
 .cmb{display:grid;grid-template-columns:1fr 92px 44px;gap:10px;align-items:center}
@@ -213,7 +213,7 @@ function telop(bs,a1,a2,pj){
   return one(a1,1)+(a2&&pj[a2]>=THIN?one(a2,.6):'');
 }
 function windRel(r){var wd=r.wind||{};if(wd.code===17||wd.ms===0)return {t:"無風"};if(wd.code==null||r.bearing==null)return null;
-  var a=((wd.code-1)*22.5-r.bearing+360)%360,df=Math.min(a,360-a);return {t:df<=45?"追い風":df>=135?"向かい風":"横風",a:a,ms:wd.ms}}
+  var a=((wd.code-1)*22.5-r.bearing+360)%360,df=Math.min(a,360-a);return {t:df<=45?"追い風":df>=135?"向かい風":(a<180?"左からの横風":"右からの横風"),a:a,ms:wd.ms}}
 function windIcon(w){if(!w||w.a==null)return "";return '<svg viewBox="0 0 22 22" aria-hidden="true"><g transform="rotate('+w.a.toFixed(0)+' 11 11)"><line x1="11" y1="20" x2="11" y2="7" stroke="#dcbd78" stroke-width="2.4"/><path d="M5.5 9 L11 1.5 L16.5 9 Z" fill="#dcbd78"/></g></svg>'}
 function chip(w){return '<span class="c C'+w+'">'+w+'</span>'}
 /* 攻め筋の艇の根拠（画面の材料だけで言える事実を、効きそうな順に2つまで） */
@@ -237,10 +237,10 @@ function race(r){
   var diff=vn?pn*100-vn.rate*100:null;
   var html='<div class="rh"><div class="t">'+esc(r.venue)+" "+R+'R</div><div class="dl">'+(r.deadline?'締切<b>'+esc(r.deadline)+'</b>':'')+'</div><div class="s">'+esc([r.title,r.day].filter(Boolean).join("・"))+'</div></div>'
     +'<div class="hero"><div class="big">'+pct(pn)+'<small>%</small></div><div class="lab"><b>1コースが逃げる見立て</b>'
-    +(vn?'<span class="df'+(diff<0?' dn':'')+'">'+(diff>=0?"+":"−")+Math.abs(diff).toFixed(0)+'</span>'+esc(r.venue)+'の平均 <span class="n">'+(vn.rate*100).toFixed(0)+'</span>%（<span class="n">'+vn.n.toLocaleString()+'</span>レース）':"")+'</div></div>';
+    +(vn?'<span class="df'+(diff<0?' dn':'')+'">'+(diff>=0?"+":"−")+Math.abs(diff).toFixed(0)+'</span>'+esc(r.venue)+'の逃げの平均 <span class="n">'+(vn.rate*100).toFixed(0)+'</span>%（<span class="n">'+vn.n.toLocaleString()+'</span>レース）':"")+'</div></div>';
   // 見立ての根拠：場の平均から動かした要素（最大4つ）＋そのほか（合計が見出しの差と合う）
   var rs=(r.reasons||[]).slice();
-  if(rs.length&&diff!=null){if(r.rest!=null&&Math.abs(r.rest)>=.5)rs.push({label:'そのほかの要素の合計',pt:r.rest,o:1});if(r.venueGap!=null&&Math.abs(r.venueGap)>=.5)rs.push({label:'この場の集計と実績の差',pt:r.venueGap,o:1})}
+  if(rs.length&&diff!=null){if(r.rest!=null&&Math.abs(r.rest)>=.5)rs.push({label:'そのほかの要素の合計',pt:r.rest,o:1});if(r.venueGap!=null&&Math.abs(r.venueGap)>=.5)rs.push({label:'集計期間の違いによるずれ',pt:r.venueGap,o:1})}
   var c1=r.c1||{};
   if(rs.length||c1.all){html+='<div class="why"><div class="wh">場の平均からの動き</div>'+rs.map(function(x){var up=x.pt>=0;return '<div class="wr'+(x.o?' o':'')+'"><span class="pt '+(up?"up":"dn")+'">'+(up?"+":"−")+Math.abs(x.pt).toFixed(0)+'</span><span>'+esc(shortLab(x.label))+'</span></div>'}).join("")
     +(c1.all&&c1.all.n?'<div class="c1">'+(b1?esc(b1.name)+'の':'')+'1コースの1着率　全国 <span class="n">'+(c1.all.w/c1.all.n*100).toFixed(0)+'</span>%（'+c1.all.w+'/'+c1.all.n+'走）'
@@ -251,10 +251,10 @@ function race(r){
     +'</div>';}
   html+='<div class="cap"><h2>スリット</h2><span>スタート展示ST・右ほど早い</span></div>'+slit(bs,dn);
   if(dn){var nx=boatAt(bs,dn.course+1),mk=Object.keys(pj).filter(function(k){return k.indexOf((dn.course+1)+'まくり')===0}).reduce(function(s,k){return s+pj[k]},0);
-    if(nx)html+='<div class="sn">'+dn.course+'コースが凹むと、外の'+(dn.course+1)+'コースから見て内の壁がなくなる形。この見立てでは'+(dn.course+1)+'コースのまくり・まくり差しが合わせて <span class="n">'+pct(mk)+'</span>%。</div>'}
+    if(nx)html+='<div class="sn">スタート展示では'+dn.course+'コースが凹んだ並び（1回の展示で、本番は変わることがあります）。本番も凹めば、外の'+(dn.course+1)+'コースから見て内の壁がない形。この見立てでは'+(dn.course+1)+'コースのまくり・まくり差しが合わせて <span class="n">'+pct(mk)+'</span>%。</div>'}
   html+=''
     +'<div class="cap"><h2>1マーク</h2><span>'+windIcon(w)+(w?esc(w.t)+(w.ms?'<span class="n wv">'+w.ms+'</span>m':''):'')+(r.wave!=null?'・波<span class="n wv">'+r.wave+'</span>cm':'')+'</span></div>'
-    +'<div class="legend"><span><i class="w"></i>逃げ</span><span><i class="g"></i>攻め筋</span><span><i class="s"></i>スタートライン</span></div>'
+    +'<div class="legend"><span><i class="w"></i>逃げ</span>'+(on?'<span><i class="g"></i>攻め筋</span>':'<span><i class="d"></i>攻め筋の候補</span>')+(bs.some(function(b){return b.waku>b.course})?'<span><i class="m"></i>前づけ</span>':'')+'<span><i class="s"></i>スタートライン</span></div>'
     +'<div class="panel">'+'<div class="tels">'+telop(bs,a1,a2,pj)+'</div>'+course(bs,pn,a1,a2,pj,att)+'</div>';
   if(on){var ws=attWhy(bs,a1,dn);if(ws.length)html+='<div class="aw"><span>'+split(a1).c+'コースの攻め筋の材料</span>'+ws.map(function(x){return '<div>'+esc(x)+'</div>'}).join('')+'</div>'}
   // 前づけ：選手の実績と、前づけがあったレースの逃げ率（実測）
@@ -266,7 +266,7 @@ function race(r){
   // 逃げ以外の見立て（形を描ける組み合わせ）｜6コース・そのほか（中身の上位2つ）。1コースの抜き・恵まれは上の欄に出すので重ねない
   var shown=att.slice(0,4),six=Object.keys(pj).filter(function(k){return /^6/.test(k)}).reduce(function(s,k){return s+pj[k]},0);
   var othK=keys.filter(function(k){return k!=="1逃げ"&&k!=="1その他"&&!/^6/.test(k)&&shown.indexOf(k)<0}),oth=othK.reduce(function(s,k){return s+pj[k]},0);
-  var rows=shown.map(function(k){var s=split(k),b=boatAt(bs,s.c);return {k:k,lab:s.c+'コース '+esc(s.t)+(b&&b.waku!==s.c?'<small>'+b.waku+'号艇</small>':''),v:pj[k]}});
+  var rows=shown.map(function(k){var s=split(k),b=boatAt(bs,s.c);return {k:k,lab:chip(b?b.waku:s.c)+' '+s.c+'コース '+esc(s.t),v:pj[k]}});
   var rest2=[{lab:'1コース 抜き・恵まれ',v:p1o},{lab:'6コース（すべて）',v:six},{lab:'そのほか<small>'+othK.slice(0,2).map(function(k){var s=split(k);return '<span class="nb">'+s.c+'コース'+(s.t||'')+' '+pct(pj[k])+'%</span>'}).join('・')+'</small>',v:oth}];
   rest2[2].nobar=1;var mx=Math.max.apply(null,rows.concat(rest2.slice(0,2)).map(function(x){return x.v}))||1;
   var line=function(x,o){return '<span class="k'+(o?' oth':'')+'">'+x.lab+'</span>'+(x.nobar?'<span></span>':'<span class="t"><i class="'+(x.k&&x.k===a1&&on?"top":"")+'" style="width:'+Math.min(100,x.v/mx*100).toFixed(1)+'%"></i></span>')+'<span class="v'+(o?' oth':'')+'">'+pct(x.v)+'<small>%</small></span>'};
@@ -284,8 +284,8 @@ function race(r){
   // スタート展示の表（列幅固定・選手名の下に2行目）
   html+='<div class="cap"><h2>スタート展示</h2><span></span></div><table><colgroup><col class="c0"><col><col class="c2"><col class="c3"><col class="c4"><col class="c5"></colgroup><tr><th>枠</th><th>選手</th><th>ST</th><th>ふだん比</th><th>展示</th><th>機</th></tr>'
     +bs.map(function(b){var f=isF(b),d=(!f&&b.st!=null&&b.tenjiAvgSt!=null)?b.st-b.tenjiAvgSt:null;
-      return '<tr><td>'+chip(b.waku)+'</td><td class="nm">'+esc(b.name||"")+'<small><span class="nb">'+b.course+'コース・'+esc(b.cls||"")+'</span>'+(b.fcount?'・<span class="nb fm">F'+b.fcount+'</span>':'')+(b.tilt?'・<span class="nb">チルト'+(b.tilt>0?"+":"−")+Math.abs(b.tilt).toFixed(1)+'</span>':'')+'</small></td><td class="n'+(f?' F':'')+'">'+(f?'F':stTxt(b))+'</td><td class="n">'+(d==null?"—":(d>0?"+":"")+d.toFixed(2))+'</td><td class="n">'+(b.tenji?b.tenji.toFixed(2):"—")+(b.tenjiRank?"<sup>"+b.tenjiRank+"</sup>":"")+'</td><td class="n">'+(b.motor!=null?b.motor.toFixed(0):'—')+"</td></tr>"}).join("")
-    +'</table><div class="tnote">ふだん比＝スタート展示のSTから、その選手のふだんの展示ST（2026年1月から前日まで）を引いた差。マイナスはふだんより早い。展示の右上の小さな数字はレース内の順位。機＝モーター2連率（%）。F1・F2＝フライングを持っている本数。</div>';
+      return '<tr><td>'+chip(b.waku)+'</td><td class="nm">'+esc(b.name||"")+'<small><span class="nb">'+b.course+'コース・'+esc(b.cls||"")+'</span>'+(b.fcount?'・<span class="nb fm">F'+b.fcount+'</span>':'')+(b.avgSt!=null?'・<span class="nb">平均ST '+b.avgSt.toFixed(2).replace(/^0/,'')+'</span>':'')+(b.tilt?'・<span class="nb">チルト'+(b.tilt>0?"+":"−")+Math.abs(b.tilt).toFixed(1)+'</span>':'')+'</small></td><td class="n'+(f?' F':'')+'">'+(f?'F':stTxt(b))+'</td><td class="n">'+(d==null?"—":(d>0?"+":"")+d.toFixed(2))+'</td><td class="n">'+(b.tenji?b.tenji.toFixed(2):"—")+(b.tenjiRank?"<sup>"+b.tenjiRank+"</sup>":"")+'</td><td class="n">'+(b.motor!=null?b.motor.toFixed(0):'—')+"</td></tr>"}).join("")
+    +'</table><div class="tnote">ふだん比＝スタート展示のSTから、その選手のふだんの展示ST（2026年1月から前日まで）を引いた差。マイナスはふだんより早い。展示の右上の小さな数字はレース内の順位。機＝モーター2連率（%）。平均ST＝本番の平均スタートタイミング。F1・F2＝フライングを持っている本数。</div>';
   $("main").innerHTML=html;
 }
 /* スリット：行＝進入コース（上が1）、旗＝艇番。横＝スタート展示ST（.40〜0）。展示Fの艇がいるときだけ、線の右に帯 */
@@ -356,7 +356,7 @@ function course(bs,pn,a1,a2,pj,att){
       +'<path d="M-4 16 L-15 46 M4 16 L15 46" stroke="url(#wk)" stroke-width="1.6" fill="none"/>'
       +(f?'<path d="'+hull+'" fill="#0b2a3d" stroke="'+(w===2?'#8a96a3':LC[w])+'" stroke-width="2" stroke-dasharray="3 2"/><text x="0" y="9" text-anchor="middle" font-size="13" font-weight="700" font-family="Barlow Condensed,sans-serif" fill="'+(w===2?'#cdd7e0':LC[w])+'">'+w+'</text>'
          :'<path d="'+hull+'" fill="'+LC[w]+'"'+(w===2?' stroke="#8a96a3" stroke-width="1"':"")+'/><text x="0" y="9" text-anchor="middle" font-size="13" font-weight="700" font-family="Barlow Condensed,sans-serif" fill="'+LT[w]+'">'+w+'</text>')
-      +(b.waku>b.course?'<rect x="-15" y="20" width="30" height="12" fill="#0d1c2f" stroke="#dcbd78" stroke-width=".8"/><text x="0" y="29.3" text-anchor="middle" font-size="8.5" font-weight="800" fill="#dcbd78">前づけ</text>':'')
+      +(b.waku>b.course?'<path d="M0 -25 C5 -19 9 -10 9 0 L9 19 L-9 19 L-9 0 C-9 -10 -5 -19 0 -25 Z" fill="none" stroke="#dcbd78" stroke-width="1.6"/>':'')
       +'</g>';});
   return s+'</svg>';
 }
