@@ -353,6 +353,11 @@ function slit(bs,dn){
 }
 /* 1マーク：ブイを中心に寄せた描き方。スタートの瞬間の隊形（横一線＋ST差。展示Fの艇は本番の平均STの位置に輪郭だけで）と、決まり手の型で描いた航跡。
    航跡はブイの外を回り、ブイとの間をあける。攻め筋が絞れないときは、候補の上位3つを細い灰の線で重ねる */
+function tipTag(q,w,txt,used,lc){   // 札は線の上に載せる（どの線の札か取り違えない）。重なるときは線をさかのぼってずらす
+  function back(d){for(var i=q.length-1;i>0;i--){var dx=q[i][0]-q[i-1][0],dy=q[i][1]-q[i-1][1],l=Math.hypot(dx,dy);if(d<=l){var f=d/l;return [q[i][0]-dx*f,q[i][1]-dy*f]}d-=l}return q[0]}
+  var d=14,p=back(d);for(var g=0;g<6&&used.some(function(u){return Math.hypot(u[0]-p[0],u[1]-p[1])<15});g++){d+=14;p=back(d)}used.push(p);
+  return '<g transform="translate('+p[0].toFixed(1)+' '+p[1].toFixed(1)+')"><rect x="-6.5" y="-6.5" width="13" height="13" fill="'+LC[w]+'" stroke="'+(lc||'#0b2a3d')+'" stroke-width="1.2"/><text x="0" y="4" text-anchor="middle" font-size="10" font-weight="700" font-family="Barlow Condensed,sans-serif" fill="'+LT[w]+'">'+w+'</text>'
+    +(txt?'<text x="'+(txt.side>0?10:-10)+'" y="3.5" text-anchor="'+(txt.side>0?'start':'end')+'" font-size="9" font-weight="700" fill="'+(lc||'#cdd7e0')+'">'+txt.t+'</text>':'')+'</g>'}
 function course(bs,pn,a1,a2,pj,att){
   /* 1マーク：真上から見た図。航跡は「進入の直線 → ブイのまわりのらせん（半径を角度ごとに変える）→ 抜けの直線」。
      決まり手ごとの形は元A1級の解説者役の目安（2026-10-31・2回目）：
@@ -414,18 +419,20 @@ function course(bs,pn,a1,a2,pj,att){
   s+='<path d="M'+E.q.slice(E.k,E.e).map(function(p){return p[0].toFixed(1)+" "+p[1].toFixed(1)}).join(" L")+'" fill="none" stroke="#fff" stroke-opacity=".06" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>';
   var cands=on?[a1].concat(a2&&pj[a2]>=THIN?[a2]:[]):(att||[]).slice(0,3);
   // 次の候補：回り終わりからの抜けだけを点線と矢じりで。根元に艇番
-  var A0=cands.length?attP(cands[0],on):null,taken=[E.q[E.q.length-1][0]].concat(A0?[A0.q[A0.q.length-1][0]]:[]);
+  var tags=[],A0=cands.length?attP(cands[0],on):null,taken=[E.q[E.q.length-1][0]].concat(A0?[A0.q[A0.q.length-1][0]]:[]);
   cands.slice(1).forEach(function(k,ci){var A=attP(k,false);if(!A)return;var o=split(k),dir=o.t==="まくり"?-1:1,tl0=A.q.slice(Math.max(A.k,A.e-9)),ex0=tl0[tl0.length-1][0],dx=0;
     for(var g=0;g<6&&taken.some(function(x){return Math.abs(ex0+dx-x)<14});g++)dx+=dir*14;taken.push(ex0+dx);
     var tail=tl0.map(function(p){return [p[0]+dx,p[1]]}),b=boatAt(bs,o.c),w=b?b.waku:o.c;
     s+='<circle cx="'+tail[0][0].toFixed(1)+'" cy="'+tail[0][1].toFixed(1)+'" r="1.6" fill="#8fa0b3"/><path d="M'+tail.map(function(p){return p[0].toFixed(1)+" "+p[1].toFixed(1)}).join(" L")+'" fill="none" stroke="#8fa0b3" stroke-width="1.2" stroke-dasharray="2 5" stroke-linecap="round"/>'+head(tail,"#8fa0b3",.85)
-      +'<text x="'+(tail[tail.length-1][0]-2).toFixed(1)+'" y="'+(tail[tail.length-1][1]+16).toFixed(1)+'" text-anchor="middle" font-size="10" font-weight="700" font-family="Barlow Condensed,sans-serif" fill="#8fa0b3">'+w+'</text>'});
+      ;tags.push([tail,w,{t:o.t,side:o.t==="まくり"?-1:1},"#8fa0b3"])});
   // まくり差しの見立てでは、壁になる内側のまくり艇を淡く添える
   var A=cands.length?attP(cands[0],on):null;
   if(on&&t1==="まくり差し"){var c0=split(a1).c,wb=boatAt(bs,c0-1);if(wb&&c0-1>=2){var y0=ly(wb)-22,Wl=pts(lx(c0-1),y0,attO("まくり",c0-1,y0,false));s+=ribbon(Wl,"#8fa0b3",4,.1)}}
   // 金（主の攻め筋）→ 白（逃げ）を最前面に
   if(A)s+=ribbon(A,"#c9a96e",on?8:6,1,true)+ribbon(A,"#c9a96e",on?8:6,on?1:.85)+head(A.q,"#c9a96e",on?1:.85);
   s+=ribbon(E,"#f2f2f0",6,1,true)+ribbon(E,"#f2f2f0",6,mk1?.7:1)+head(E.q,"#f2f2f0",mk1?.75:1);
+  if(b1)tags.unshift([E.q,b1.waku,null,"#f2f2f0"]);
+  if(A){var oa=split(cands[0]),ba=boatAt(bs,oa.c);tags.splice(1,0,[A.q,ba?ba.waku:oa.c,{t:oa.t,side:oa.t==="まくり"?-1:1},"#c9a96e"])}
   // しぶき：主の線の、出口側の外。後ろへ倒し、長さをばらつかせ、点を混ぜる
   var so=A&&on?attO(t1,split(a1).c,0,true):escO,sp="",Lr=[6,3,9,4,10,2,7];
   var Rk=function(ks,a){for(var j=1;j<ks.length;j++){if(a>=ks[j][0]){var f=(a-ks[j-1][0])/(ks[j][0]-ks[j-1][0]);return ks[j-1][1]+(ks[j][1]-ks[j-1][1])*f}}return ks[ks.length-1][1]};
@@ -446,6 +453,7 @@ function course(bs,pn,a1,a2,pj,att){
          :'<path d="'+hull+'" fill="'+LC[w]+'"'+(w===2?' stroke="#8a96a3" stroke-width="1"':"")+'/><text x="0" y="9" text-anchor="middle" font-size="13" font-weight="700" font-family="Barlow Condensed,sans-serif" fill="'+LT[w]+'">'+w+'</text>')
       +(b.waku>b.course?'<path d="M0 -25 C5 -19 9 -10 9 0 L9 19 L-9 19 L-9 0 C-9 -10 -5 -19 0 -25 Z" fill="none" stroke="#dcbd78" stroke-width="1.6"/>':'')
       +'</g>';});
+  var used=[];tags.forEach(function(g){s+=tipTag(g[0],g[1],g[2],used,g[3])});
   return s+'</svg>';
 }
 })();
