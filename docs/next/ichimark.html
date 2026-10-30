@@ -224,7 +224,7 @@ function shortLab(s){return fixLab(s).replace(/（(?!\d号艇）)(?!前づけ）
 function attWhy(bs,k,dn){var o=split(k),b=boatAt(bs,o.c);if(!b)return [];var out=[],inn=boatAt(bs,o.c-1);
   if(dn&&inn&&dn===inn){var ud=inn.tenjiAvgSt!=null?inn.st-inn.tenjiAvgSt:null;if(ud==null||ud>=.04)out.push(inn.course+'コースが凹み（展示ST '+stTxt(inn)+(ud!=null?'・ふだんの展示より+'+ud.toFixed(2).replace(/^0/,''):'')+'）で、内の壁が手薄')}
   var od=(!isF(b)&&b.st!=null&&b.tenjiAvgSt!=null)?b.st-b.tenjiAvgSt:null;
-  if(od!=null&&od<=-.04)out.push('本人の展示ST '+stTxt(b)+'（ふだんの展示より'+Math.abs(od).toFixed(2).replace(/^0/,'')+'早い）');
+  if(od!=null&&od<=-.04)out.push('本人のスタート展示ST '+stTxt(b)+'（ふだんの展示より'+Math.abs(od).toFixed(2).replace(/^0/,'')+'早い）');
   if(b.fcount)out.push('本人はF'+b.fcount+'を持っていて、本番は踏み込みにくい');
   if(/^A/.test(b.cls||'')&&inn&&/^B/.test(inn.cls||''))out.push('本人は'+b.cls+'、内の'+inn.course+'コースは'+inn.cls);
   if(b.tenjiRank&&b.tenjiRank<=2)out.push('展示タイム '+b.tenji.toFixed(2)+'（レース内'+b.tenjiRank+'位）');
@@ -242,9 +242,11 @@ function race(r){
     +(vn?esc(r.venue)+'の逃げの平均 <span class="n">'+(vn.rate*100).toFixed(0)+'</span>%<span class="nb">（<span class="n">'+vn.n.toLocaleString()+'</span>レース）</span>より <span class="df'+(diff<0?' dn':'')+'">'+(diff>=0?"+":"−")+Math.abs(diff).toFixed(0)+'</span>':"")+'</div></div>';
   // 見立ての根拠：場の平均から動かした要素（最大4つ）＋そのほか（合計が見出しの差と合う）
   var rs=(r.reasons||[]).slice();
-  if(rs.length&&diff!=null){if(r.rest!=null&&Math.abs(r.rest)>=.5)rs.push({label:'そのほかの要素の合計',pt:r.rest,o:1});if(r.venueGap!=null&&Math.abs(r.venueGap)>=.5)rs.push({label:'集計期間の違いによるずれ',pt:r.venueGap,o:1})}
+  if(rs.length&&diff!=null){var rr=(r.rest||0)+(r.venueGap||0);if(Math.abs(rr)>=.5)rs.push({label:'そのほかの要素の合計',pt:rr,o:1})}
+  // 1コース自身の展示FとF持ちは、寄与の大きさにかかわらず書く
+  if(b1&&(isF(b1)||b1.fcount))rs.push({label:'1コース'+(b1.waku!==1?'（'+b1.waku+'号艇）':'')+'：'+[isF(b1)?'スタート展示でF（本番のSTは平均'+(b1.avgSt!=null?' '+b1.avgSt.toFixed(2).replace(/^0/,''):'')+'で代用）':'',b1.fcount?'F'+b1.fcount+'持ち':''].filter(Boolean).join('・'),pt:null,o:1})
   var c1=r.c1||{};
-  if(rs.length||c1.all){html+='<div class="why"><div class="wh">場の平均からの動き</div>'+rs.map(function(x){var up=x.pt>=0;return '<div class="wr'+(x.o?' o':'')+'"><span class="pt '+(up?"up":"dn")+'">'+(up?"+":"−")+Math.abs(x.pt).toFixed(0)+'</span><span>'+esc(shortLab(x.label))+'</span></div>'}).join("")
+  if(rs.length||c1.all){html+='<div class="why"><div class="wh">場の平均からの動き</div>'+rs.map(function(x){var up=x.pt>=0;return '<div class="wr'+(x.o?' o':'')+'"><span class="pt '+(up?"up":"dn")+'">'+(x.pt==null?'':(up?"+":"−")+Math.abs(x.pt).toFixed(0))+'</span><span>'+esc(shortLab(x.label))+'</span></div>'}).join("")
     +(c1.all&&c1.all.n?'<div class="c1">'+(b1?esc(b1.name)+'の':'')+'1コースの1着率　全国 <span class="n">'+(c1.all.w/c1.all.n*100).toFixed(0)+'</span>%（'+c1.all.w+'/'+c1.all.n+'走）'
       +(c1.local&&c1.local.n?'・'+esc(r.venue)+' <span class="n">'+(c1.local.w/c1.local.n*100).toFixed(0)+'</span>%（'+c1.local.w+'/'+c1.local.n+'走）':'・'+esc(r.venue)+'は直近1年の1コースなし')
       +'</div>':'')
@@ -253,7 +255,11 @@ function race(r){
     +'</div>';}
   html+='<div class="cap"><h2>スリット</h2><span>スタート展示ST・右ほど早い</span></div>'+(bs.filter(isF).length>=4?'<div class="sn fa">スタート展示で'+bs.filter(isF).length+'艇がF（フライング）。展示の並びは本番の目安にならないため、図を省きます。'+(bs.filter(function(b){return !isF(b)}).map(function(b){return chip(b.waku)+' '+b.course+'コース <span class="n">'+stTxt(b)+'</span>'}).join('　'))+'</div>':slit(bs,dn));
   if(dn){var nx=boatAt(bs,dn.course+1),mk=Object.keys(pj).filter(function(k){return k.indexOf((dn.course+1)+'まくり')===0}).reduce(function(s,k){return s+pj[k]},0);
-    if(nx)html+='<div class="sn">スタート展示では'+dn.course+'コースが凹んだ並び（1回の展示で、本番は変わることがあります）。本番も凹めば、外の'+(dn.course+1)+'コースから見て内の壁がない形。この見立てでは'+(dn.course+1)+'コースのまくり・まくり差しが合わせて <span class="n">'+pct(mk)+'</span>%。</div>'}
+    var ud=dn.tenjiAvgSt!=null&&dn.st!=null?dn.st-dn.tenjiAvgSt:null,gs=(r.groups||[]).filter(function(g){return g.key==='s'+dn.course})[0];
+    if(nx)html+='<div class="sn">スタート展示では'+dn.course+'コースが凹んだ並び（1回の展示で、本番は変わることがあります）。'
+      +(ud!=null&&ud>.15?'ふだんの展示より <span class="n">+'+ud.toFixed(2).replace(/^0/,'')+'</span> 遅く、本番の早さの目安にはなりにくい数字です。':'')
+      +'本番も凹めば、外の'+(dn.course+1)+'コースから見て内の壁がない形。この見立てでは'+(dn.course+1)+'コースのまくり・まくり差しが合わせて <span class="n">'+pct(mk)+'</span>%'
+      +(gs?'。'+dn.course+'コースのスタートが逃げの見立てに与えた分は <span class="n">'+(gs.pt>=0?'+':'−')+Math.abs(gs.pt).toFixed(1)+'</span>':'')+'。</div>'}
   html+=''
     +'<div class="cap"><h2>1マーク</h2><span>'+windIcon(w)+(w?esc(w.t)+(w.ms?'<span class="n wv">'+w.ms+'</span>m':''):'')+(r.wave!=null?'・波<span class="n wv">'+r.wave+'</span>cm':'')+'</span></div>'
     +'<div class="legend"><span><i class="w"></i>逃げ</span>'+(on?'<span><i class="g"></i>攻め筋</span>':'<span><i class="d"></i>攻め筋の候補</span>')+(bs.some(function(b){return b.waku>b.course})?'<span><i class="m"></i>前づけ</span>':'')+'<span><i class="s"></i>スタートライン</span></div>'
@@ -262,8 +268,8 @@ function race(r){
   // 前づけ：選手の実績と、前づけがあったレースの逃げ率（実測）
   var ms=D.maezukeStats||{};
   bs.filter(function(b){return b.waku>b.course}).forEach(function(b){html+='<div class="note">'+chip(b.waku)+' '+esc(b.name)+'がスタート展示で'+b.course+'コースへ。'+(b.mz?'直近1年に'+b.waku+'枠から'+b.course+'コースに入ったのは <span class="n">'+b.mz[0]+'/'+b.mz[1]+'</span>走。':'')
-    +(b.course===2&&ms.to2?'2コースへの前づけがあったレースの逃げは <span class="n">'+(ms.to2.nige*100).toFixed(0)+'</span>%（<span class="n">'+ms.to2.n.toLocaleString()+'</span>レース）、枠なりは <span class="n">'+(ms.waku.nige*100).toFixed(0)+'</span>%。':'')
-    +(b.course===1&&ms.c1taken?'1コースを取られたレースの逃げは <span class="n">'+(ms.c1taken.nige*100).toFixed(0)+'</span>%（<span class="n">'+ms.c1taken.n.toLocaleString()+'</span>レース）。':'')
+    +(b.course===2&&ms.to2?'全国で、2コースへの前づけがあったレースの逃げは <span class="n">'+(ms.to2.nige*100).toFixed(0)+'</span>%（<span class="n">'+ms.to2.n.toLocaleString()+'</span>レース）、枠なりは <span class="n">'+(ms.waku.nige*100).toFixed(0)+'</span>%（<span class="n">'+ms.waku.n.toLocaleString()+'</span>レース）。':'')
+    +(b.course===1&&ms.c1taken?'全国で、1コースを取られたレースの逃げは <span class="n">'+(ms.c1taken.nige*100).toFixed(0)+'</span>%（<span class="n">'+ms.c1taken.n.toLocaleString()+'</span>レース）。':'')
     +'本番で進入が変わると見立ても変わります。</div>'});
   // 逃げ以外の見立て（形を描ける組み合わせ）｜6コース・そのほか（中身の上位2つ）。1コースの抜き・恵まれは上の欄に出すので重ねない
   var shown=att.slice(0,4),six=Object.keys(pj).filter(function(k){return /^6/.test(k)}).reduce(function(s,k){return s+pj[k]},0);
@@ -287,7 +293,7 @@ function race(r){
   html+='<div class="cap"><h2>スタート展示</h2><span></span></div><table><colgroup><col class="c0"><col><col class="c2"><col class="c3"><col class="c4"><col class="c5"></colgroup><tr><th>枠</th><th>選手</th><th>ST</th><th>ふだん比</th><th>展示</th><th>機</th></tr>'
     +bs.map(function(b){var f=isF(b),d=(!f&&b.st!=null&&b.tenjiAvgSt!=null)?b.st-b.tenjiAvgSt:null;
       return '<tr><td>'+chip(b.waku)+'</td><td class="nm">'+esc(b.name||"")+'<small><span class="nb">'+(b.waku!==b.course?b.course+'コース・':'')+esc(b.cls||"")+'</span>'+(b.fcount?'・<span class="nb fm">F'+b.fcount+'</span>':'')+(b.avgSt!=null?'・<span class="nb">平均'+b.avgSt.toFixed(2).replace(/^0/,'')+'</span>':'')+'</small></td><td class="n'+(f?' F':'')+'">'+(f?'F':stTxt(b))+'</td><td class="n">'+(d==null?"—":(d>0?"+":"")+d.toFixed(2))+'</td><td class="n">'+(b.tenji?b.tenji.toFixed(2):"—")+(b.tenjiRank?"<sup>"+b.tenjiRank+"</sup>":"")+(b.tilt?'<small class="tl">チルト'+(b.tilt>0?"+":"−")+Math.abs(b.tilt).toFixed(1)+'</small>':'')+'</td><td class="n">'+(b.motor!=null?b.motor.toFixed(0):'—')+"</td></tr>"}).join("")
-    +'</table><div class="tnote">ふだん比＝スタート展示のSTから、その選手のふだんの展示ST（2026年1月から前日まで）を引いた差。マイナスはふだんより早い。展示の右上の小さな数字はレース内の順位。機＝モーター2連率（%）。平均＝本番の平均スタートタイミング。コースは枠番と違うときだけ書いています。F1・F2＝フライングを持っている本数。</div>';
+    +'</table><div class="tnote">ふだん比＝スタート展示のSTから、その選手のふだんのスタート展示ST（2026年1月から前日まで）を引いた差。マイナスはふだんより早い。展示の右上の小さな数字はレース内の順位。機＝モーター2連率（%）。平均＝本番の平均スタートタイミング。コースは枠番と違うときだけ書いています。F1・F2＝フライングを持っている本数。</div>';
   $("main").innerHTML=html;
 }
 /* スリット：行＝進入コース（上が1）、旗＝艇番。横＝スタート展示ST（.40〜0）。展示Fの艇がいるときだけ、線の右に帯 */
