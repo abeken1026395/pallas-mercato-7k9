@@ -114,6 +114,7 @@ function init(){
   $("how").innerHTML="上が1マーク、下がスタートラインです。艇は下から上へ進み、1マークを左に回ります。<br>"
     +"白い線は1コースが逃げる形で、太いほど見立ての確率が高い。黄色の線は、逃げなかったときに勝つ見込みが最も高いコースの攻め筋（外を大きく回る形＝まくり筋、内に切り込む形＝差し筋）です。<br>"
     +"右の矢印は直前情報の風で、この場の水面の向き（2マークから1マークへの方位。航空写真から実測）に合わせて回しています。上向きが追い風、下向きが向かい風です。<br>"
+    +"艇の並びはスタート展示の進入です。枠番より内のコースに入った艇には「前づけ」の札を付けています（本番の進入はスタート展示と変わることがあります）。<br>"
     +"艇の前後はスタート展示のSTの差、4コースより外はダッシュとして後ろから描いています。1マークでの実際の位置は公式データに無いため、図は確率から描いた模式図です。<br>"
     +(e.acc4!=null?"当たり方（学習に使っていない2026年8月以降のレース）：決まり方の正解率 "+(e.acc4*100).toFixed(1)+"%（毎回「逃げ」と答えると "+(e.base4*100).toFixed(1)+"%）。逃げなかったときに勝つコースの正解率 "+(e.accCourse*100).toFixed(1)+"%（毎回2コースと答えると "+(e.baseCourse*100).toFixed(1)+"%）。":"");
   draw();
@@ -214,7 +215,8 @@ function svg(bs,p,att,out,r){
   // 艇：船首が上。後ろに引き波（V字）。1コースと攻めの艇は航跡に沿って進む
   bs.forEach(function(b,i){var cx=lx(b.course),cy=ly(b),w=b.waku,q=P(cx,cy),k=sc(cy)*1.05;
     var hull='<path d="M-11 14 L-11 -3 L0 -18 L11 -3 L11 14 Z" fill="'+LC[w]+'"'+(w===2?' stroke="#8a96a3" stroke-width="1.2"':"")+'/>'
-      +'<text x="0" y="8" text-anchor="middle" font-size="15" font-weight="700" font-family="Barlow Condensed,Hiragino Sans,sans-serif" fill="'+LT[w]+'">'+w+'</text>';
+      +'<text x="0" y="8" text-anchor="middle" font-size="15" font-weight="700" font-family="Barlow Condensed,Hiragino Sans,sans-serif" fill="'+LT[w]+'">'+w+'</text>'
+      +(b.waku>b.course?'<rect x="-23" y="19" width="46" height="17" fill="#0d1c2f" stroke="#dcbd78" stroke-width="1"/><text x="0" y="31.5" text-anchor="middle" font-size="11" font-weight="800" fill="#dcbd78">前づけ</text>':'');   // スタート展示で枠番より内のコースに入った艇（艇と一緒に動く）
     var wake='<path d="M-9 14 L-26 52 M9 14 L26 52" stroke="url(#wk)" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M0 14 L0 46" stroke="url(#wk)" stroke-width="5" opacity=".5"/>';
     var path=b.course===1?dEsc:(b.course===att&&dAtt?dAtt:null);
     if(path){
