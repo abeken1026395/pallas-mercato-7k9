@@ -34,11 +34,12 @@ header .sub{margin:0;font-size:15px;line-height:1.85;color:var(--dim)}
 .tabs::-webkit-scrollbar{display:none}
 .tabs button{flex:none;min-height:46px;padding:0 14px;background:none;border:none;border-bottom:2px solid transparent;color:var(--faint);font:700 15px -apple-system,"Hiragino Sans",sans-serif;cursor:pointer}
 .tabs button[aria-pressed="true"]{color:#fff;border-bottom-color:var(--gold)}
-.rs{display:grid;grid-template-columns:repeat(6,1fr);margin-top:10px;border-top:1px solid var(--line);border-left:1px solid var(--line)}
-.rs button{min-height:46px;border:none;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:none;color:var(--dim);font:600 18px var(--num);cursor:pointer;line-height:1.1}
-.rs button small{display:block;font:400 10px -apple-system,"Hiragino Sans",sans-serif;color:var(--mute)}
-.rs button[aria-pressed="true"]{background:var(--goldBg);color:#111}
-.rs button:disabled{color:#5b6b7c;cursor:default}
+.rs{display:flex;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--line)}
+.rs::-webkit-scrollbar{display:none}
+.rs button{flex:none;width:44px;min-height:44px;border:none;border-bottom:3px solid transparent;background:none;color:var(--dim);font:600 19px var(--num);cursor:pointer;line-height:1}
+.rs button small{display:none}
+.rs button[aria-pressed="true"]{color:var(--gold);border-bottom-color:var(--gold)}
+.rs button:disabled{color:#5a6b80;cursor:default}
 /* レースの見出し（中継のヘッダ） */
 .rh{margin-top:20px;padding-bottom:8px;border-bottom:.5px solid var(--rule);display:grid;grid-template-columns:1fr auto;align-items:end;gap:2px 10px}
 .rh .t{font:400 24px/1.3 var(--dg);color:#fff}
@@ -61,20 +62,43 @@ svg{display:block;width:100%;height:auto}
 .tel span{font-size:13px;font-weight:800;color:var(--gold)}
 .tel b{font:700 19px var(--num);color:#fff}
 .tel b small{font-size:12px;color:var(--faint)}
+.why{margin:4px 0 0;border-top:1px solid var(--line);padding-top:8px;font-size:13.5px;color:var(--dim);line-height:1.7}
+.why .pt{display:inline-block;min-width:34px;font:700 17px var(--num);margin-right:6px}
+.why .pt.up{color:var(--gold)}.why .pt.dn{color:#cdd7e0}
+.why .c1{margin-top:4px;font-size:12.5px;color:var(--faint)}
+.why .c1 .n{font-size:15px;color:#fff}
+.wv{font-size:17px;color:#fff;margin-left:2px}
+.panel{position:relative}
+.panel .tels{position:absolute;left:8px;top:8px;z-index:1;display:flex;flex-direction:column;gap:4px;margin:0}
+.tel{display:flex;height:32px;border:none;padding:0}
+.tel .l{background:var(--goldBg);color:#0d1c2f;font-size:13px;font-weight:800;padding:0 10px;display:flex;align-items:center}
+.tel .r{background:#0d1c2f;color:var(--gold);font:700 20px var(--num);padding:0 10px;display:flex;align-items:center}
+.tel .r small{font-size:12px;margin-left:1px}
+.tel.off .l{background:#2a3d52;color:#cdd7e0}.tel.off .r{font:700 13px -apple-system,"Hiragino Sans",sans-serif;color:#cdd7e0}
+.note{margin-top:8px;font-size:13px;color:var(--dim);line-height:1.7}
+.note .c{width:20px;height:20px;font-size:14px}
+.fol{display:grid;grid-template-columns:34px repeat(3,1fr);gap:0;border-top:1px solid var(--line)}
+.fol .rk{display:flex;align-items:center;font-size:13px;color:var(--faint);border-bottom:1px solid var(--line)}
+.fol .cell{display:flex;align-items:center;gap:6px;min-height:44px;border-bottom:1px solid var(--line);padding:0 2px}
+.fol .cell em{font-style:normal;font-size:12px;color:var(--faint)}
+.fol .cell b{margin-left:auto;font:700 21px var(--num);color:#fff}
+.fol .cell b small{font-size:11px;color:var(--faint)}
+.fol .cell.best b{text-decoration:underline;text-decoration-color:var(--gold);text-decoration-thickness:2px;text-underline-offset:4px}
+.fol .c{width:20px;height:20px;font-size:14px}
 .legend{display:flex;flex-wrap:wrap;gap:4px 14px;margin:6px 0 0;font-size:12.5px;color:var(--faint)}
-.legend i{display:inline-block;width:22px;height:0;border-top:2px dashed #f2f2f0;vertical-align:middle;margin-right:5px}
-.legend i.g{border-top-color:var(--gold)}
+.legend i{display:inline-block;width:22px;height:0;border-top:3px solid #f2f2f0;vertical-align:middle;margin-right:5px}
+.legend i.g{border-top-color:#c9a96e}
 .legend i.s{border-top-style:solid;border-top-color:var(--mute)}
 .sec{margin-top:4px}
 .cmb{display:grid;grid-template-columns:1fr 92px 44px;gap:10px;align-items:center}
 .cmb .k{font-size:15px}
 .cmb .k small{color:var(--faint);font-size:12.5px;margin-left:4px}
-.cmb .t{height:8px;background:rgba(255,255,255,.08)}
+.cmb .t{height:6px;background:rgba(255,255,255,.06)}
 .cmb .t i{display:block;height:100%;background:#5b6b7c}
 .cmb .t i.top{background:var(--goldBg)}
 .cmb .v{font:700 21px var(--num);text-align:right}
 .cmb .v small{font-size:12px;color:var(--faint)}
-.cmb .oth .k,.cmb .oth .v{color:var(--faint)}
+.cmb .k.oth,.cmb .v.oth{color:var(--faint)}
 .rel{margin-top:14px;padding-top:10px;border-top:1px solid var(--line);font-size:14px;color:var(--dim);line-height:1.9}
 .rel b{color:#fff;font-weight:700}
 .rel .n{font-size:17px;color:#fff}
@@ -82,7 +106,8 @@ svg{display:block;width:100%;height:auto}
 table{width:100%;border-collapse:collapse;font-size:14px}
 th,td{padding:8px 3px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
 th:first-child,td:first-child,th:nth-child(2),td:nth-child(2){text-align:left}
-th{color:var(--faint);font-weight:700;font-size:12px}
+th{color:#9fb0c4;font-weight:700;font-size:11px}
+td{height:44px}
 td.n{font-size:18px;font-weight:600}
 td.F{color:var(--gold)}
 td small{color:var(--faint);margin-left:3px;font-size:12px}
@@ -110,10 +135,9 @@ details[open]>summary::after{content:"\2212"}
 <header>
   <p class="no" id="d">1マーク</p>
   <h1 class="kataTitle">1マークの見立て</h1>
-  <p class="sub">スタート展示の隊形と、過去のレースの集計にもとづく見立てから、1マークの形を描きました。</p>
 </header>
-<div class="tabsW"><div class="tabs" id="pick"></div></div>
-<div class="rs" id="rs"></div>
+<div class="tabsW"><div class="tabs" id="pick"></div><div class="rs" id="rs"></div></div>
+
 <div id="main"><div class="err">読み込んでいます…</div></div>
 <details><summary>この図の読み方と、当たり方</summary><div class="dbody" id="how"></div></details>
 <p class="stamp">過去のレースの集計にもとづく見立てです（実験）。舟券の購入は20歳になってから。</p>
@@ -128,7 +152,7 @@ function pct(x){return Math.round(x*100)}
 function isF(b){return b.tenjiF===1||(b.st!=null&&b.st<0)}
 function stTxt(b){return b.st==null?"—":(isF(b)?"F":b.st.toFixed(2).slice(1))}
 var q=new URLSearchParams(location.search),day=q.get("d")||"20261030";
-fetch("ichimark/v5_"+day+".json").then(function(r){return r.ok?r.json():Promise.reject()}).then(function(d){D=d;init()}).catch(function(){$("main").innerHTML='<div class="err">この日のデータがありません。</div>'});
+fetch("ichimark/v6_"+day+".json").then(function(r){return r.ok?r.json():Promise.reject()}).then(function(d){D=d;init()}).catch(function(){$("main").innerHTML='<div class="err">この日のデータがありません。</div>'});
 
 /* 組み合わせ（例 "3まくり差し"）→ コースと決まり手。「その他」と「6〜」は形を描けないのでまとめる */
 function split(k){var m=/^(\d)(.*)$/.exec(k);return m?{c:+m[1],t:m[2]}:{c:0,t:k}}
@@ -144,7 +168,7 @@ function init(){
 }
 function how(){
   var e=D.eval||{},cal=(D.calib||[]).filter(function(c){return c.n>=100}),ed=D.edge;
-  $("how").innerHTML="<b>スリット</b>：スタート展示のSTで6艇を並べたもの。縦の線がスタートラインで、右にあるほど早い。展示でF（フライング）だった艇は、線の右の帯に「F」と出します。展示のFは本番の早さの目安にならないため、凹みの判定と平均比には使いません。隣の艇より0.05以上遅い艇1つに「凹み」の印を付けます。<br>"
+  $("how").innerHTML="スタート展示の隊形と、過去のレースの集計にもとづく見立てから、1マークの形を描いています。<br><b>スリット</b>：スタート展示のSTで6艇を並べたもの。縦の線がスタートラインで、右にあるほど早い。展示でF（フライング）だった艇は、線の右の帯に「F」と出します。展示のFは本番の早さの目安にならないため、凹みの判定と平均比には使いません。隣の艇より0.05以上遅い艇1つに「凹み」の印を付けます。<br>"
    +"<b>1マーク</b>：上が1マーク、下がスタートライン。艇は下から上へ進み、1マークを左に回ります。艇の並びはスタート展示の進入、前後はスタート展示STの差です。白の点線は1コースの逃げ、金の点線は「逃げ以外」でいちばん高い見立ての航跡です。航跡は決まり手の型（まくり＝1コースの前を絞って外を回る／まくり差し＝外を回ってから内へ切り返す／差し＝1コースが回ったあとに内へ入る）で描いた模式で、実際の位置や距離は表していません。<br>"
    +"<b>見立て</b>：過去のレースの集計から、1着の「コース×決まり手」の確率を出しています。展示のFは、その選手の本番の平均STに置き換えて使っています。<br>"
    +(e.top1!=null?"<b>当たり方</b>（集計に使っていない "+esc(e.span||"2026年8月以降")+"・"+(e.nEval||0).toLocaleString()+"レース）：いちばん高い見立てが当たった割合は "+(e.top1*100).toFixed(1)+"%で、毎回「1コース逃げ」と答えた場合（"+(e.baseTop1*100).toFixed(1)+"%）とほとんど変わりません。この見立ての強みは、確率の大きさが実際の割合とよく合うことです（下の表）。":"")
@@ -160,97 +184,116 @@ function draw(){
   race(have[R]);
 }
 function boatAt(bs,c){return bs.filter(function(b){return b.course===c})[0]}
-/* 凹み：展示Fでない艇のうち、展示Fでない隣（片側でもよい）より0.05以上遅い、いちばん差の大きい1艇 */
-function dent(bs){var best=null,bd=0;bs.forEach(function(b){if(b.st==null||isF(b))return;var ns=[boatAt(bs,b.course-1),boatAt(bs,b.course+1)].filter(function(x){return x&&x.st!=null&&!isF(x)});if(!ns.length)return;var d=Math.min.apply(null,ns.map(function(x){return b.st-x.st}));if(d>=.05&&d>bd){bd=d;best=b}});return best}
-function telop(bs,a1,a2,pj){function one(k,op){if(!k)return '';var o=split(k),b=boatAt(bs,o.c);return '<div class="tel" style="opacity:'+op+'"><span>'+o.c+'コース'+(b&&b.waku!==o.c?'（'+b.waku+'号艇）':'')+' '+esc(o.t)+'</span><b>'+pct(pj[k])+'<small>%</small></b></div>'}return a1?'<div class="tels">'+one(a1,1)+one(a2,.55)+'</div>':''}
+/* 凹み：2〜5コース（壁として効く艇）だけを見る。展示Fでない隣（片側でもよい）より0.05以上遅い、いちばん差の大きい1艇 */
+function dent(bs){var best=null,bd=0;bs.forEach(function(b){if(b.course<2||b.course>5||b.st==null||isF(b))return;var ns=[boatAt(bs,b.course-1),boatAt(bs,b.course+1)].filter(function(x){return x&&x.st!=null&&!isF(x)});if(!ns.length)return;var d=Math.min.apply(null,ns.map(function(x){return b.st-x.st}));if(d>=.05&&d>bd){bd=d;best=b}});return best}
+var THIN=.12;   // 攻め筋の見立てがこれ未満なら「絞れない」として線を引かない
+function telop(bs,a1,a2,pj){
+  if(!a1||pj[a1]<THIN)return '<div class="tel off"><span class="l">逃げ以外の攻め筋</span><span class="r">絞れない</span></div>';
+  function one(k,op){var o=split(k),b=boatAt(bs,o.c);return '<div class="tel" style="opacity:'+op+'"><span class="l">'+o.c+'コース'+(b&&b.waku!==o.c?'（'+b.waku+'号艇）':'')+' '+esc(o.t)+'</span><span class="r">'+pct(pj[k])+'<small>%</small></span></div>'}
+  return one(a1,1)+(a2&&pj[a2]>=THIN?one(a2,.6):'');
+}
 function windRel(r){var wd=r.wind||{};if(wd.code===17||wd.ms===0)return {t:"無風"};if(wd.code==null||r.bearing==null)return null;
   var a=((wd.code-1)*22.5-r.bearing+360)%360,df=Math.min(a,360-a);return {t:df<=45?"追い風":df>=135?"向かい風":"横風",a:a,ms:wd.ms}}
-function windIcon(w){if(!w||w.a==null)return "";return '<svg viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="10" fill="none" stroke="rgba(232,236,239,.35)"/><g transform="rotate('+w.a.toFixed(0)+' 11 11)"><line x1="11" y1="17" x2="11" y2="6" stroke="#dcbd78" stroke-width="2"/><path d="M7 8 L11 3 L15 8 Z" fill="#dcbd78"/></g></svg>'}
+function windIcon(w){if(!w||w.a==null)return "";return '<svg viewBox="0 0 22 22" aria-hidden="true"><g transform="rotate('+w.a.toFixed(0)+' 11 11)"><line x1="11" y1="20" x2="11" y2="7" stroke="#dcbd78" stroke-width="2.4"/><path d="M5.5 9 L11 1.5 L16.5 9 Z" fill="#dcbd78"/></g></svg>'}
+function chip(w){return '<span class="c C'+w+'">'+w+'</span>'}
 function race(r){
   var bs=r.boats.slice().sort(function(a,b){return a.course-b.course});
   var pj=r.pj,keys=Object.keys(pj).sort(function(a,b){return pj[b]-pj[a]});
-  var pn=pj["1逃げ"]||0,vn=(D.venueNige||{})[r.jcd];
+  var pn=pj["1逃げ"]||0,p1o=pj["1その他"]||0,vn=(D.venueNige||{})[r.jcd];
   var att=keys.filter(drawable),a1=att[0],a2=att[1]&&pj[att[1]]>=pj[a1]*.7?att[1]:null;
-  var dn=dent(bs),w=windRel(r),irr=bs.some(function(b){return b.waku!==b.course||isF(b)});
+  var dn=dent(bs),w=windRel(r),irr=bs.some(function(b){return b.waku!==b.course||isF(b)}),b1=boatAt(bs,1);
   var html='<div class="rh"><div class="t">'+esc(r.venue)+" "+R+'R</div><div class="dl">'+(r.deadline?'締切<b>'+esc(r.deadline)+'</b>':'')+'</div><div class="s">'+esc([r.title,r.day].filter(Boolean).join("・"))+'</div></div>'
     +'<div class="hero"><div class="big">'+pct(pn)+'<small>%</small></div><div class="lab"><b>1コースが逃げる見立て</b>'
-    +(vn?'<span class="df">'+(pn*100-vn.rate*100>=0?"+":"")+(pn*100-vn.rate*100).toFixed(0)+'</span>'+esc(r.venue)+'の平均 <span class="n">'+(vn.rate*100).toFixed(0)+'</span>%（<span class="n">'+vn.n.toLocaleString()+'</span>レース）':"")+'</div></div>'
-    +'<div class="cap"><h2>スリット</h2><span>スタート展示ST・右ほど早い</span></div>'+slit(bs,dn)
-    +'<div class="cap"><h2>1マーク</h2><span>'+windIcon(w)+(w?esc(w.t)+(w.ms?' <span class="n" style="font-size:17px;color:#fff">'+w.ms+'</span>m':''):'')+(r.wave!=null?'・波 <span class="n" style="font-size:17px;color:#fff">'+r.wave+'</span>cm':'')+'</span></div>'+telop(bs,a1,a2,pj)+course(bs,pn,a1,a2,pj)
-    +'<div class="legend"><span><i></i>逃げの見立て</span><span><i class="g"></i>逃げ以外の見立て</span><span><i class="s"></i>スタートライン</span></div>';
-  // 逃げ以外の見立て（形を描ける組み合わせ）＋その他の合計
-  var shown=att.slice(0,4),oth=keys.filter(function(k){return k!=="1逃げ"&&shown.indexOf(k)<0}).reduce(function(s,k){return s+pj[k]},0),mx=pj[shown[0]]||1;
-  html+='<div class="cap"><h2>逃げ以外の見立て</h2><span>全体の中の割合</span></div><div class="sec"><div class="cmb">'
-    +shown.map(function(k){var s=split(k),b=boatAt(bs,s.c);return '<span class="k">'+s.c+'コース '+esc(s.t)+(b&&b.waku!==s.c?'<small>'+b.waku+'号艇</small>':"")+'</span><span class="t"><i class="'+(k===a1?"top":"")+'" style="width:'+(pj[k]/mx*100).toFixed(1)+'%"></i></span><span class="v">'+pct(pj[k])+'<small>%</small></span>'}).join("")
-    +'<span class="k oth">そのほか（抜き・恵まれ・6コースなど）</span><span></span><span class="v oth">'+pct(oth)+'<small>%</small></span></div>';
+    +(vn?'<span class="df">'+(pn*100-vn.rate*100>=0?"+":"")+(pn*100-vn.rate*100).toFixed(0)+'</span>'+esc(r.venue)+'の平均 <span class="n">'+(vn.rate*100).toFixed(0)+'</span>%（<span class="n">'+vn.n.toLocaleString()+'</span>レース）':"")+'</div></div>';
+  // 見立ての根拠（場の平均から動かした要素・大きい順）と、1号艇の選手の1コース1着率
+  var rs=r.reasons||[];
+  if(rs.length||r.c1){html+='<div class="why">'+rs.map(function(x){var up=x.pt>=0;return '<div><span class="pt '+(up?"up":"dn")+'">'+(up?"+":"−")+Math.abs(x.pt).toFixed(0)+'</span>'+esc(x.label)+'</div>'}).join("")
+    +(r.c1&&r.c1.n?'<div class="c1">'+(b1?esc(b1.name)+'の':'')+'1コース1着率 <span class="n">'+(r.c1.w/r.c1.n*100).toFixed(0)+'</span>%（<span class="n">'+r.c1.w+'/'+r.c1.n+'</span>走・直近1年）'+(p1o>=.03?'<br>逃げ以外で1コースが1着（抜き・恵まれ）<span class="n">'+pct(p1o)+'</span>%':'')+'</div>':'')
+    +'</div>';}
+  html+='<div class="cap"><h2>スリット</h2><span>スタート展示ST・右ほど早い</span></div>'+slit(bs,dn)
+    +'<div class="cap"><h2>1マーク</h2><span>'+windIcon(w)+(w?esc(w.t)+(w.ms?'<span class="n wv">'+w.ms+'</span>m':''):'')+(r.wave!=null?'・波<span class="n wv">'+r.wave+'</span>cm':'')+'</span></div>'
+    +'<div class="panel">'+'<div class="tels">'+telop(bs,a1,a2,pj)+'</div>'+course(bs,pn,a1,a2,pj)+'</div>'
+    +'<div class="legend"><span><i class="w"></i>逃げの見立て</span><span><i class="g"></i>攻め筋の見立て</span><span><i class="s"></i>スタートライン</span></div>';
+  // 前づけの艇：この選手がその枠からそのコースに入った実績（選手カードの進入実績帳）
+  bs.filter(function(b){return b.waku>b.course&&b.mz}).forEach(function(b){html+='<div class="note">'+chip(b.waku)+' '+esc(b.name)+'がスタート展示で'+b.course+'コースへ。直近1年に'+b.waku+'枠から'+b.course+'コースに入ったのは <span class="n">'+b.mz[0]+'/'+b.mz[1]+'</span>走。本番で進入が変わると見立ても変わります。</div>'});
+  // 逃げ以外の見立て（形を描ける組み合わせ）＋6コース＋そのほか
+  var shown=att.slice(0,4),six=Object.keys(pj).filter(function(k){return /^6/.test(k)}).reduce(function(s,k){return s+pj[k]},0);
+  var oth=keys.filter(function(k){return k!=="1逃げ"&&k!=="1その他"&&!/^6/.test(k)&&shown.indexOf(k)<0}).reduce(function(s,k){return s+pj[k]},0);
+  var rows=shown.map(function(k){var s=split(k),b=boatAt(bs,s.c);return {k:k,lab:s.c+'コース '+esc(s.t)+(b&&b.waku!==s.c?'<small>'+b.waku+'号艇</small>':''),v:pj[k]}});
+  if(p1o>0)rows.push({lab:'1コース 抜き・恵まれ',v:p1o,o:1});rows.push({lab:'6コース（すべて）',v:six,o:1});rows.push({lab:'そのほか',v:oth,o:1});
+  var mx=Math.max.apply(null,rows.map(function(x){return x.v}))||1;
+  html+='<div class="cap"><h2>逃げ以外の見立て</h2><span>全体の中の割合</span></div><div class="cmb">'
+    +rows.map(function(x){return '<span class="k'+(x.o?' oth':'')+'">'+x.lab+'</span><span class="t"><i class="'+(x.k&&x.k===a1&&pj[a1]>=THIN?"top":"")+'" style="width:'+(x.v/mx*100).toFixed(1)+'%"></i></span><span class="v'+(x.o?' oth':'')+'">'+pct(x.v)+'<small>%</small></span>'}).join("")+'</div>';
   // 2着・3着の連動（場別。少なければ全国）
-  if(a1){var S=D.second||{},vs=(S[r.jcd]||{})[a1],al=(S.all||{})[a1],use=null,lab="";
+  if(a1&&pj[a1]>=THIN){var S=D.second||{},vs=(S[r.jcd]||{})[a1],al=(S.all||{})[a1],use=null,lab="";
     function tot(o){return o?Object.keys(o).reduce(function(s,c){return s+o[c]},0):0}
     if(vs&&tot(vs["2"])>=30){use=vs;lab=esc(r.venue)}else if(al){use=al;lab="全国"}
-    if(use){var line=function(o){var t=tot(o);return Object.keys(o).map(function(c){return [c,o[c]]}).sort(function(a,b){return b[1]-a[1]}).slice(0,3).map(function(x){return x[0]+'コース <span class="n">'+(x[1]/t*100).toFixed(0)+'</span>%'}).join("・")};
-      var s1=split(a1);
-      html+='<div class="rel"><b>'+s1.c+'コースの'+esc(s1.t)+'が決まったとき</b>（過去の実績・'+lab+'・<span class="n">'+tot(use["2"]).toLocaleString()+'</span>レース）<br>2着　'+line(use["2"])+(use["3"]?'<br>3着　'+line(use["3"]):'')
-        +(irr?'<br><span class="nt">このレースは前づけや展示のFがあり、隊形がふだんと違うので参考程度です。</span>':'')+'</div>';}}
-  html+='</div>';
+    if(use){var s1=split(a1),best=0,cells=function(o){var t=tot(o);return Object.keys(o).map(function(c){return [c,o[c]/t]}).sort(function(a,b){return b[1]-a[1]}).slice(0,3)};
+      var c2=cells(use["2"]),c3=use["3"]?cells(use["3"]):[];best=Math.max.apply(null,c2.concat(c3).map(function(x){return x[1]}));
+      var row=function(name,cs){return '<span class="rk">'+name+'</span>'+cs.map(function(x){var bb=boatAt(bs,+x[0]);return '<span class="cell'+(x[1]===best?' best':'')+'">'+chip(bb?bb.waku:+x[0])+'<em>'+x[0]+'コース</em><b>'+(x[1]*100).toFixed(0)+'<small>%</small></b></span>'}).join("")};
+      html+='<div class="cap"><h2>'+s1.c+'コースの'+esc(s1.t)+'が決まったら</h2><span>'+lab+'・<span class="n">'+tot(use["2"]).toLocaleString()+'</span>レース</span></div><div class="fol">'+row('2着',c2)+(c3.length?row('3着',c3):'')+'</div>'
+        +(irr?'<div class="tnote">前づけや展示のFがあり、隊形がふだんと違うので参考程度です。</div>':'');}}
   // スタート展示の表
   html+='<div class="cap"><h2>スタート展示</h2><span></span></div><table><tr><th>枠</th><th>選手</th><th>ST</th><th>平均比</th><th>展示</th><th>チルト</th></tr>'
-    +bs.map(function(b){var f=isF(b);return '<tr><td><span class="c C'+b.waku+'">'+b.waku+'</span></td><td>'+esc(b.name||"")+"<small>"+b.course+"コース・"+esc(b.cls||"")+'</small></td><td class="n'+(f?' F':'')+'">'+stTxt(b)+'</td><td class="n">'+(f||b.stDiff==null?"—":(b.stDiff>0?"+":"")+b.stDiff.toFixed(2))+'</td><td class="n">'+(b.tenji?b.tenji.toFixed(2):"—")+(b.tenjiRank?"<small>"+b.tenjiRank+"位</small>":"")+'</td><td class="n">'+(b.tilt==null?"—":b.tilt.toFixed(1))+"</td></tr>"}).join("")
+    +bs.map(function(b){var f=isF(b);return '<tr><td>'+chip(b.waku)+'</td><td>'+esc(b.name||"")+"<small>"+b.course+"コース・"+esc(b.cls||"")+'</small></td><td class="n'+(f?' F':'')+'">'+stTxt(b)+'</td><td class="n">'+(f||b.stDiff==null?"—":(b.stDiff>0?"+":"")+b.stDiff.toFixed(2))+'</td><td class="n">'+(b.tenji?b.tenji.toFixed(2):"—")+(b.tenjiRank?"<small>"+b.tenjiRank+"位</small>":"")+'</td><td class="n">'+(b.tilt==null?"—":b.tilt.toFixed(1))+"</td></tr>"}).join("")
     +'</table><div class="tnote">平均比＝スタート展示のSTから、その選手の本番の平均ST（前日まで）を引いた差。マイナスはふだんより早い。展示でFの艇は出しません。</div>';
   $("main").innerHTML=html;
 }
-/* スリット：行＝コース（上が1）。横＝スタート展示ST（.00〜.35の等間隔）。縦の線＝スタートライン、その右の帯＝展示F */
+/* スリット：行＝コース（上が1）。横＝スタート展示ST（.00〜.35の等間隔）。展示Fの艇がいるときだけ、線の右に帯を出す */
 function slit(bs,dn){
-  var W=340,RH=26,H=RH*6+22,SX=W-60,K=(SX-72)/.35;
-  var s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="スタート展示STの並び">'
-    +'<rect x="'+SX+'" y="4" width="'+(W-SX)+'" height="'+(H-18)+'" fill="rgba(220,189,120,.10)"/>'
-    +'<text x="'+(SX+(W-SX)/2)+'" y="'+(H-2)+'" text-anchor="middle" font-size="11" fill="#dcbd78">展示F</text>';
-  for(var c=1;c<=6;c++){var y=6+(c-1)*RH;s+='<line x1="24" y1="'+(y+RH)+'" x2="'+SX+'" y2="'+(y+RH)+'" stroke="rgba(232,236,239,.08)"/><text x="6" y="'+(y+RH/2+5)+'" font-size="13" font-family="Barlow Condensed,sans-serif" fill="#8a96a3">'+c+'</text>'}
-  [0,.1,.2,.3].forEach(function(v){var x=SX-v*K;s+=(v?'<line x1="'+x+'" y1="4" x2="'+x+'" y2="'+(H-18)+'" stroke="rgba(232,236,239,.07)"/>':'')+'<text x="'+x+'" y="'+(H-2)+'" text-anchor="middle" font-size="11" font-family="Barlow Condensed,sans-serif" fill="#8a96a3">'+(v?'.'+(v*10)+'0':'0')+'</text>'});
+  var anyF=bs.some(isF),W=340,RH=26,H=RH*6+22,SX=anyF?W-58:W-14,K=(SX-72)/.35;
+  var s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="スタート展示STの並び">';
+  if(anyF)s+='<rect x="'+SX+'" y="4" width="'+(W-SX)+'" height="'+(H-18)+'" fill="#e0464620"/><text x="'+(SX+(W-SX)/2)+'" y="'+(H-2)+'" text-anchor="middle" font-size="11" fill="#f0a9a0">展示F</text>';
+  for(var c=1;c<=6;c++){var y=6+(c-1)*RH;s+='<line x1="24" y1="'+(y+RH)+'" x2="'+SX+'" y2="'+(y+RH)+'" stroke="rgba(232,236,239,.08)"/><text x="6" y="'+(y+RH/2+5)+'" font-size="14" font-weight="600" font-family="Barlow Condensed,sans-serif" fill="#cdd7e0">'+c+'</text>'}
+  [0,.1,.2,.3].forEach(function(v){var x=SX-v*K;s+=(v?'<line x1="'+x+'" y1="4" x2="'+x+'" y2="'+(H-18)+'" stroke="rgba(232,236,239,.07)"/>':'')+'<text x="'+x+'" y="'+(H-2)+'" text-anchor="'+(v?'middle':'end')+'" font-size="11" font-family="Barlow Condensed,sans-serif" fill="#8a96a3">'+(v?'.'+(v*10)+'0':'0')+'</text>'});
   s+='<line x1="'+SX+'" y1="2" x2="'+SX+'" y2="'+(H-16)+'" stroke="#cdd7e0" stroke-width="1.5"/>';
   bs.forEach(function(b){var y=6+(b.course-1)*RH+RH/2,f=isF(b),st=b.st==null?.3:b.st,x=f?SX+44:SX-Math.max(0,Math.min(.35,st))*K,w=b.waku;
     s+='<path d="M'+(x-26)+' '+(y-6)+' L'+(x-8)+' '+(y-6)+' L'+x+' '+y+' L'+(x-8)+' '+(y+6)+' L'+(x-26)+' '+(y+6)+' Z" fill="'+LC[w]+'"'+(w===2?' stroke="#8a96a3"':"")+'/>'
       +'<text x="'+(x-15)+'" y="'+(y+4.5)+'" text-anchor="middle" font-size="12" font-weight="700" font-family="Barlow Condensed,sans-serif" fill="'+LT[w]+'">'+w+'</text>'
       +(f?'':'<text x="'+(x-31)+'" y="'+(y+5)+'" text-anchor="end" font-size="14" font-weight="600" font-family="Barlow Condensed,sans-serif" fill="#f2f2f0">'+stTxt(b)+'</text>');
-    if(dn&&dn===b)s+='<rect x="'+(x+5)+'" y="'+(y-9)+'" width="34" height="18" fill="#0d1c2f" stroke="#dcbd78"/><text x="'+(x+22)+'" y="'+(y+4.5)+'" text-anchor="middle" font-size="11.5" font-weight="800" fill="#dcbd78">凹み</text>';
+    if(dn&&dn===b)s+='<path d="M'+(x+6)+' '+(y-5)+' L'+(x+16)+' '+(y-5)+' L'+(x+11)+' '+(y+3)+' Z" fill="#dcbd78"/><text x="'+(x+19)+'" y="'+(y+4.5)+'" font-size="12" font-weight="800" fill="#dcbd78">凹み</text>';
   });
   return s+'</svg>';
 }
-/* 1マーク：上が1マーク（図の左から1/3）。スタートの瞬間の隊形（横一線＋ST差。展示Fは線上）と、決まり手の型で描いた航跡 */
+/* 1マーク：ブイを中心に寄せた描き方。スタートの瞬間の隊形（横一線＋ST差。展示Fの艇は本番の平均STの位置に、輪郭だけで）と、決まり手の型で描いた航跡。
+   攻め筋が「差し」「まくり差し」のときは、1コースが流れる形（白線を外へふくらませる）で描く */
 function course(bs,pn,a1,a2,pj){
-  var W=340,H=300,CX=170,TOP=10,BX=104,BY=58,SY=220;
-  var sc=function(y){return .66+.34*Math.max(0,Math.min(1,(y-TOP)/(H-TOP)))};
+  var W=340,H=318,CX=170,TOP=6,BX=112,BY=96,SY=236;   // 上の44pxはテロップの定位置
+  var sc=function(y){return .7+.3*Math.max(0,Math.min(1,(y-TOP)/(H-TOP)))};
   var P=function(x,y){return [CX+(x-CX)*sc(y),y]};
   var pt=function(x,y){var q=P(x,y);return q[0].toFixed(1)+" "+q[1].toFixed(1)};
-  var lx=function(c){return 112+(c-1)*38};
-  var ly=function(b){var st=(b.st==null||isF(b))?0:b.st;return SY+14+Math.min(.3,st)*120};   // 0.10秒 = 12px
+  var lx=function(c){return 120+(c-1)*36};
+  var stOf=function(b){return isF(b)?(b.avgSt!=null?b.avgSt:.15):(b.st==null?.15:b.st)};
+  var ly=function(b){return SY+16+Math.min(.3,stOf(b))*130};   // 0.10秒 = 13px
+  var on=a1&&pj[a1]>=THIN,sashi=on&&/差し/.test(split(a1).t);
   var s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="1マークの見立ての図">'
-    +'<defs><pattern id="rp" width="24" height="10" patternUnits="userSpaceOnUse"><path d="M0 6 Q6 2 12 6 T24 6" fill="none" stroke="#0e3a52" stroke-width="1" opacity=".5"/></pattern></defs>'
+    +'<defs><pattern id="rp" width="24" height="10" patternUnits="userSpaceOnUse"><path d="M0 6 Q6 2 12 6 T24 6" fill="none" stroke="#0e3a52" stroke-width="1" opacity=".5"/></pattern>'
+    +'<marker id="ah" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#c9a96e"/></marker>'
+    +'<marker id="aw" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#f2f2f0"/></marker></defs>'
     +'<rect width="'+W+'" height="'+H+'" fill="#0b2a3d"/><rect width="'+W+'" height="'+H+'" fill="url(#rp)"/>'
-    +'<path d="M'+pt(14,SY)+' L'+pt(W-14,SY)+'" stroke="#8a96a3" stroke-width="1.5"/>';
-  var b1=boatAt(bs,1),e0=[lx(1),b1?ly(b1)-16:SY-2];
-  var dEsc='M'+pt(e0[0],e0[1])+' C '+pt(e0[0],e0[1]-100)+', '+pt(BX+34,BY+56)+', '+pt(BX+24,BY+4)+' S '+pt(BX+2,BY-40)+', '+pt(BX-40,BY-10);
-  s+='<path class="ln" d="'+dEsc+'" fill="none" stroke="#f2f2f0" stroke-width="'+(2+pn*4).toFixed(1)+'" stroke-dasharray="7 6" stroke-linecap="round"/>';
-  function attPath(k){var o=split(k),b=boatAt(bs,o.c);if(!b)return "";var x0=lx(o.c),y0=ly(b)-16;
-    if(o.t==="まくり") return 'M'+pt(x0,y0)+' L'+pt(BX+46,BY+30)+' C '+pt(BX+38,BY+6)+', '+pt(BX+30,BY-56)+', '+pt(BX-44,BY-44);   // 1の前を絞る直線→外を大きく回る
-    if(o.t==="まくり差し") return 'M'+pt(x0,y0)+' L'+pt(x0+6,BY+58)+' C '+pt(x0+4,BY+20)+', '+pt(BX+42,BY+2)+', '+pt(BX+22,BY-12)+' C '+pt(BX+8,BY-22)+', '+pt(BX-10,BY-14)+', '+pt(BX-20,BY+8);   // 外を回ってから内へ切り返す（くの字）
-    return 'M'+pt(x0,y0)+' C '+pt(x0-6,y0-100)+', '+pt(BX+54,BY+76)+', '+pt(BX+36,BY+26)+' C '+pt(BX+26,BY-4)+', '+pt(BX+2,BY-26)+', '+pt(BX-18,BY+2);   // 差し：1の後ろを横切り、1が回ったあとに内へ
+    +'<path d="M'+pt(10,SY)+' L'+pt(W-10,SY)+'" stroke="#8a96a3" stroke-width="1.5"/>';
+  var b1=boatAt(bs,1),e0=[lx(1),b1?ly(b1)-18:SY-2];
+  var dEsc=sashi
+    ?'M'+pt(e0[0],e0[1])+' C '+pt(e0[0],e0[1]-96)+', '+pt(BX+30,BY+50)+', '+pt(BX+20,BY+2)+' S '+pt(BX-6,BY-40)+', '+pt(BX-58,BY-34)   // 1が回って外へ流れる
+    :'M'+pt(e0[0],e0[1])+' C '+pt(e0[0],e0[1]-96)+', '+pt(BX+30,BY+50)+', '+pt(BX+20,BY+2)+' S '+pt(BX+2,BY-34)+', '+pt(BX-40,BY-8);
+  s+='<path class="ln" d="'+dEsc+'" fill="none" stroke="#f2f2f0" stroke-opacity=".9" stroke-width="'+(1.5+pn*3.5).toFixed(1)+'" stroke-linecap="round" marker-end="url(#aw)"/>';
+  function attPath(k){var o=split(k),b=boatAt(bs,o.c);if(!b)return "";var x0=lx(o.c),y0=ly(b)-18;
+    if(o.t==="まくり") return 'M'+pt(x0,y0)+' L'+pt(BX+44,BY+28)+' C '+pt(BX+38,BY+4)+', '+pt(BX+26,BY-50)+', '+pt(BX-44,BY-44);
+    if(o.t==="まくり差し") return 'M'+pt(x0,y0)+' L'+pt(x0+6,BY+54)+' C '+pt(x0+4,BY+18)+', '+pt(BX+40,BY+2)+', '+pt(BX+20,BY-12)+' C '+pt(BX+8,BY-26)+', '+pt(BX-12,BY-22)+', '+pt(BX-26,BY+10);
+    return 'M'+pt(x0,y0)+' C '+pt(x0-6,y0-96)+', '+pt(BX+50,BY+70)+', '+pt(BX+32,BY+24)+' C '+pt(BX+24,BY-8)+', '+pt(BX+2,BY-30)+', '+pt(BX-24,BY+8);
   }
-  if(a2) s+='<path class="ln" d="'+attPath(a2)+'" fill="none" stroke="#dcbd78" stroke-opacity=".4" stroke-width="1.5" stroke-dasharray="5 6" stroke-linecap="round"/>';
-  if(a1) s+='<path class="ln" d="'+attPath(a1)+'" fill="none" stroke="#dcbd78" stroke-width="3" stroke-dasharray="7 6" stroke-linecap="round"/>';
+  if(on&&a2&&pj[a2]>=THIN) s+='<path class="ln" d="'+attPath(a2)+'" fill="none" stroke="#7f8fa3" stroke-width="1.5" stroke-dasharray="5 5" stroke-linecap="round"/>';
+  if(on) s+='<path class="ln" d="'+attPath(a1)+'" fill="none" stroke="#c9a96e" stroke-width="'+(2+Math.min(.3,pj[a1])*10).toFixed(1)+'" stroke-linecap="round" marker-end="url(#ah)"/>';
   // 1マーク（公式の橙・大きく）
-  var bq=P(BX,BY),k=sc(BY)*1.7;
-  s+='<g><rect x="'+(bq[0]-7*k)+'" y="'+(bq[1]-12*k)+'" width="'+(14*k)+'" height="'+(19*k)+'" fill="#ff7a2e"/><rect x="'+(bq[0]-7*k)+'" y="'+(bq[1]-4*k)+'" width="'+(14*k)+'" height="'+(4*k)+'" fill="#f2f2f0"/><path d="M'+(bq[0]-7*k)+' '+(bq[1]-12*k)+' L'+bq[0]+' '+(bq[1]-19*k)+' L'+(bq[0]+7*k)+' '+(bq[1]-12*k)+' Z" fill="#ff9a55"/></g>'
-    +'<text x="'+(bq[0]-14)+'" y="'+(bq[1]+28)+'" text-anchor="end" font-size="13" font-weight="700" fill="#cdd7e0">1マーク</text>';
-  // 名札（右側・金の枠。2本目は弱く）
-  function tag(k2,y,op){if(!k2)return "";var o=split(k2),b=boatAt(bs,o.c),t=o.c+'コース'+(b&&b.waku!==o.c?'（'+b.waku+'号艇）':'')+' '+o.t,w=t.length*12.5+46,x=W-10-w;
-    return '<g opacity="'+op+'"><rect x="'+x+'" y="'+y+'" width="'+w+'" height="24" fill="#0d1c2f" stroke="#dcbd78"/><text x="'+(x+10)+'" y="'+(y+16.5)+'" font-size="12.5" font-weight="800" fill="#dcbd78">'+t+'</text><text x="'+(x+w-8)+'" y="'+(y+17.5)+'" text-anchor="end" font-size="17" font-weight="700" font-family="Barlow Condensed,sans-serif" fill="#f2f2f0">'+pct(pj[k2])+'%</text></g>';}
-  // 艇（上から見た細長い船形）と細い引き波
-  bs.forEach(function(b){var q=P(lx(b.course),ly(b)),kk=sc(ly(b))*1.1,w=b.waku;
+  var bq=P(BX,BY),k=sc(BY)*1.5;
+  s+='<g><rect x="'+(bq[0]-7*k)+'" y="'+(bq[1]-12*k)+'" width="'+(14*k)+'" height="'+(19*k)+'" fill="#ff7a2e"/><rect x="'+(bq[0]-7*k)+'" y="'+(bq[1]-4*k)+'" width="'+(14*k)+'" height="'+(4*k)+'" fill="#f2f2f0"/><path d="M'+(bq[0]-7*k)+' '+(bq[1]-12*k)+' L'+bq[0]+' '+(bq[1]-19*k)+' L'+(bq[0]+7*k)+' '+(bq[1]-12*k)+' Z" fill="#ff9a55"/></g>';
+  // 艇（上から見た細長い船形・1.3倍）と、後ろの短い引き波2本
+  bs.forEach(function(b){var q=P(lx(b.course),ly(b)),kk=sc(ly(b))*1.35,w=b.waku,f=isF(b);
     s+='<g transform="translate('+q[0].toFixed(1)+' '+q[1].toFixed(1)+') scale('+kk.toFixed(3)+')">'
-      +'<path d="M-5 14 L-15 46 M5 14 L15 46" stroke="rgba(255,255,255,.15)" stroke-width="1.5" fill="none"/>'
-      +'<path d="M0 -16 L7 -7 L7 14 L-7 14 L-7 -7 Z" fill="'+LC[w]+'"'+(w===2?' stroke="#8a96a3" stroke-width="1"':"")+'/>'
-      +'<text x="0" y="8" text-anchor="middle" font-size="13" font-weight="700" font-family="Barlow Condensed,sans-serif" fill="'+LT[w]+'">'+w+'</text>'
-      +(b.waku>b.course?'<rect x="-22" y="17" width="44" height="16" fill="#0d1c2f" stroke="#dcbd78"/><text x="0" y="29" text-anchor="middle" font-size="10.5" font-weight="800" fill="#dcbd78">前づけ</text>':(isF(b)?'<text x="0" y="31" text-anchor="middle" font-size="12" font-weight="800" fill="#dcbd78">F</text>':''))
+      +'<path d="M-4 15 L-9 34 M4 15 L9 34" stroke="#fff" stroke-opacity=".25" stroke-width="1.6" fill="none"/>'
+      +(f?'<path d="M0 -16 L7 -7 L7 14 L-7 14 L-7 -7 Z" fill="#0b2a3d" stroke="'+(w===2?'#8a96a3':LC[w])+'" stroke-width="2" stroke-dasharray="3 2"/><text x="0" y="8" text-anchor="middle" font-size="13" font-weight="700" font-family="Barlow Condensed,sans-serif" fill="'+(w===2?'#cdd7e0':LC[w])+'">'+w+'</text>'
+         :'<path d="M0 -16 L7 -7 L7 14 L-7 14 L-7 -7 Z" fill="'+LC[w]+'"'+(w===2?' stroke="#8a96a3" stroke-width="1"':"")+'/><text x="0" y="8" text-anchor="middle" font-size="13" font-weight="700" font-family="Barlow Condensed,sans-serif" fill="'+LT[w]+'">'+w+'</text>')
+      +(b.waku>b.course?'<rect x="-21" y="17" width="42" height="15" fill="#0d1c2f" stroke="#dcbd78"/><text x="0" y="28.5" text-anchor="middle" font-size="10" font-weight="800" fill="#dcbd78">前づけ</text>':'')
       +'</g>';});
   return s+'</svg>';
 }
