@@ -38,10 +38,19 @@ h1{font-family:"Dela Gothic One",var(--font);font-weight:400;font-size:26px;line
 h2{font-size:16px;font-weight:800;margin-bottom:6px;color:#fff}
 label{display:block;font-size:13px;color:var(--sub);margin:10px 0 4px}
 input,select,textarea{width:100%;min-height:46px;background:#132b46;color:var(--fg);border:1px solid var(--line2);border-radius:0;padding:8px 10px;font:16px var(--font)}
+input,select,textarea{min-width:0;max-width:100%}
+input,textarea{-webkit-appearance:none;appearance:none}
+/* iPhone の日付欄は既定で横幅と高さを持ち、隣の欄に重なる。ほかの欄と同じ箱にそろえる */
+input[type=date]{display:block;height:46px;line-height:28px;text-align:left}
+input[type=date]::-webkit-date-and-time-value{text-align:left;margin:0}
+input[type=date]::-webkit-calendar-picker-indicator{margin:0}
+input[type=search]::-webkit-search-decoration{-webkit-appearance:none}
+.fileIn{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold)}
 textarea{min-height:96px;resize:vertical;line-height:1.7}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.row3{display:grid;grid-template-columns:1.3fr 1fr .8fr;gap:8px}
+.row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+.row3{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,.8fr);gap:8px}
+.row>div,.row3>div{min-width:0}
 .btn{min-height:46px;padding:0 18px;border-radius:0;border:1px solid var(--goldBg);background:var(--goldBg);color:#111;font:700 15px var(--font);cursor:pointer;margin-top:12px}
 .btn.sub{background:none;border-color:var(--line2);color:var(--sub);font-weight:600}
 .btn.small{min-height:38px;padding:0 12px;font-size:13px;margin-top:0}
@@ -148,7 +157,7 @@ footer{margin-top:24px;font-size:13px;color:var(--dim);line-height:1.85}
     <p class="note" style="margin-top:0">ブラウザの履歴やサイトのデータを消すと、ここに書いたものも消えます。機種変更のときは書き出したファイルを読み込んでください。</p>
     <button class="btn sub" type="button" id="x-out">書き出す（ファイル）</button>
     <label class="btn sub" style="display:inline-flex;align-items:center;width:auto;margin:10px 0 0" for="x-in">読み込む</label>
-    <input id="x-in" type="file" accept="application/json,.json" hidden>
+    <input id="x-in" class="fileIn" type="file" accept="application/json,.json">
     <div><button class="btn sub danger" type="button" id="x-del">支出の記録をすべて消す</button></div>
     <div class="confirm" id="x-confirm" hidden>支出の記録をすべて消します。元に戻せません。<br><button class="btn small danger" type="button" id="x-yes">消す</button><button class="btn small sub" type="button" id="x-no">やめる</button></div>
     <div class="note" id="x-msg"></div>
@@ -177,7 +186,7 @@ $("t-memo").onclick=function(){show("memo")};
 $("t-money").onclick=function(){show("money");drawMoney()};
 
 /* ---------- 選手メモ ---------- */
-fetch("../players/card/index.json").then(function(r){return r.ok?r.json():null}).then(function(j){IDX=j;fromQuery()}).catch(function(){});
+fetch("../players/card/index.json").then(function(r){return r.ok?r.json():null}).then(function(j){IDX=j;fromQuery()}).catch(function(){fromQuery()});
 function norm(s){return String(s||"").replace(/[\s　]/g,"")}
 function setPick(no){pick=no?{no:String(no),name:(IDX&&IDX[no])||""}:null;$("m-picked").innerHTML=pick?"選手："+esc(pick.name||"")+" <small>"+esc(pick.no)+'</small> <button class="btn small sub" type="button" id="m-unpick">外す</button>':"";
   if(pick)$("m-unpick").onclick=function(){setPick(null)};$("m-hits").innerHTML="";$("m-q").value=""}
@@ -242,7 +251,7 @@ $("log").addEventListener("click",function(e){var b=e.target.closest("button");i
 /* ---------- データの管理 ---------- */
 $("x-out").onclick=function(){
   var blob=new Blob([JSON.stringify({kind:"dzKansenNote",v:1,at:new Date().toISOString(),memo:memos,money:money},null,1)],{type:"application/json"});
-  var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="kansenNote"+today().replace(/-/g,"")+".json";document.body.appendChild(a);a.click();a.remove();
+  var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="kansenNote"+today().replace(/-/g,"")+".json";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},4000);
   $("x-msg").textContent="メモ"+memos.length+"件・支出"+money.length+"件を書き出しました。";
 };
 $("x-in").addEventListener("change",function(){
