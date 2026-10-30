@@ -9,87 +9,97 @@
 <title>【実験場】1マークの見立て</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&amp;display=swap">
 <style>
-/* 中継のグラフィックの作法：太い数字・艇の色は塗りの札で・斜めの切り込み・飾りの角丸や影は使わない */
-:root{
-  color-scheme:dark;
-  --bg:#070c12; --water:#0a1824; --water2:#0d2030; --line:#1b2b3a; --txt:#eef3f7; --sub:#93a7b8; --dim:#5f7486;
-  --hot:#ff5a36; --buoy:#ff6a2a;
-  --l1:#f4f4f0; --l2:#151515; --l3:#e2353b; --l4:#2f6fe0; --l5:#f2cf1d; --l6:#1f9d55;
-  --num:"Barlow Condensed","DIN Condensed","Arial Narrow",sans-serif;
-  --font:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--txt);font-family:var(--font);-webkit-text-size-adjust:100%}
-.wrap{max-width:720px;margin:0 auto;padding:8px 16px 56px}
-a{color:#8fd0ff}
-.nav a{display:inline-flex;align-items:center;min-height:44px;font-size:13px;color:var(--sub)}
-.mast{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:2px solid var(--txt);padding:6px 0 8px}
-.mast h1{font:800 30px/1 var(--num);letter-spacing:.02em}
-.mast h1 i{font-style:normal;color:var(--hot)}
-.mast .d{font:600 15px var(--num);color:var(--sub);letter-spacing:.06em}
-.pick{display:flex;gap:0;overflow-x:auto;scrollbar-width:none;margin-top:10px;border-bottom:1px solid var(--line)}
-.pick::-webkit-scrollbar{display:none}
-.pick button{flex:none;min-height:44px;padding:0 12px;background:none;border:none;border-bottom:3px solid transparent;color:var(--sub);font:700 14px var(--font);cursor:pointer}
-.pick button[aria-pressed="true"]{color:var(--txt);border-bottom-color:var(--hot)}
-.rs{display:grid;grid-template-columns:repeat(12,1fr);gap:2px;margin-top:8px}
-.rs button{min-height:40px;background:#0f1b27;border:none;color:var(--sub);font:700 15px var(--num);cursor:pointer}
-.rs button[aria-pressed="true"]{background:var(--txt);color:var(--bg)}
-.rs button:disabled{background:transparent;color:#2c3e4f;cursor:default}
-.board{margin-top:14px;background:var(--water);position:relative;overflow:hidden}
-.board::before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 0 62%,rgba(255,90,54,.08) 62% 64%,transparent 64%);pointer-events:none}
-.head{display:grid;grid-template-columns:1fr auto;align-items:end;padding:12px 14px 0}
-.head .r{font:800 40px/1 var(--num)}
-.head .r small{font:700 15px var(--font);margin-left:6px;color:var(--sub)}
-.head .k{text-align:right}
-.head .k .lab{font:700 11px var(--font);letter-spacing:.2em;color:var(--sub)}
-.head .k .v{font:800 46px/1 var(--num)}
-.head .k .v span{font-size:22px;margin-left:1px}
-.head .k .t{font:700 13px var(--font);color:var(--sub)}
-svg.course{display:block;width:100%;height:auto}
-.leg{display:flex;justify-content:space-between;padding:0 14px 10px;font:600 11px var(--font);color:var(--dim);letter-spacing:.08em}
-.sec{padding:12px 14px;border-top:1px solid var(--line)}
-.sec h2{font:700 11px var(--font);letter-spacing:.2em;color:var(--sub);margin-bottom:8px}
-.cb{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;align-items:end;height:92px}
-.cb div{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
-.cb b{font:800 18px var(--num)}
-.cb i{display:block;width:100%;background:#203546}
-.cb i.top{background:var(--hot)}
-.cb span{margin-top:4px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font:800 16px var(--num)}
-.ty{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-.ty div{border-left:3px solid #203546;padding:2px 0 2px 8px}
-.ty div.top{border-left-color:var(--hot)}
-.ty .n{font:700 11px var(--font);color:var(--sub);white-space:nowrap}
-.ty .p{font:800 26px/1.1 var(--num)}
-.ty .p span{font-size:14px}
-.boats{display:grid;grid-template-columns:auto 1fr auto auto;gap:6px 10px;align-items:center;font-size:13px}
-.boats .c{width:26px;height:26px;display:flex;align-items:center;justify-content:center;font:800 16px var(--num)}
-.boats .nm{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.boats .nm small{color:var(--sub);font-weight:400;margin-left:6px}
-.boats .st,.boats .tj{font:700 16px var(--num);text-align:right;min-width:44px}
-.boats .hd{font:700 11px var(--font);color:var(--dim)}
-.foot{margin-top:14px;font-size:12px;color:var(--dim);line-height:1.8}
-.foot b{color:var(--sub)}
-.err{padding:30px 0;color:var(--sub)}
-/* 艇の色の札 */
-.L1{background:var(--l1);color:#111}.L2{background:var(--l2);color:#fff;box-shadow:inset 0 0 0 1px #6b7a88}.L3{background:var(--l3);color:#fff}
-.L4{background:var(--l4);color:#fff}.L5{background:var(--l5);color:#111}.L6{background:var(--l6);color:#fff}
-@media (prefers-reduced-motion:reduce){svg.course *{animation:none!important;transition:none!important}}
+/* 検証11（/kensho/buhin/）と同じ見た目：紺のグラデーション・枠色の帯・Dela Gothic One の見出し・黄の強調・図の枠 */
+:root{--fg:#f2f5f7;--dim:#cdd7e0;--faint:#a9b7c5;--line:rgba(232,236,239,.18);--hi:#f2c200;
+  --l1:#f2f2f0;--l2:#1b1b1b;--l3:#e2382f;--l4:#2a6fd6;--l5:#f2c200;--l6:#1f9a55}
+*{box-sizing:border-box}
+html{background:#10233a}
+body{margin:0;color:var(--fg);background:linear-gradient(180deg,#1d3d62 0,#16304f 520px,#122a45 1400px,#10243b 3200px,#0e2034 100%) #10233a;background-repeat:no-repeat;min-height:100vh;
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;-webkit-text-size-adjust:100%;text-rendering:optimizeLegibility}
+.waku{display:grid;grid-template-columns:repeat(6,1fr);height:6px}
+.waku i:nth-child(1){background:#f2f2f0}.waku i:nth-child(2){background:#1b1b1b}.waku i:nth-child(3){background:#e2382f}
+.waku i:nth-child(4){background:#2a6fd6}.waku i:nth-child(5){background:#f2c200}.waku i:nth-child(6){background:#1f9a55}
+.wrap{max-width:640px;margin:0 auto;padding:0 16px 56px}
+.crumb{display:flex;align-items:center;gap:8px;min-height:48px;font-size:14px;color:var(--faint)}
+.crumb a{color:var(--dim);text-decoration:none;padding:12px 0}
+header{padding:14px 0 16px;border-bottom:1px solid var(--line)}
+header .no{margin:0 0 8px;font-size:14px;color:var(--hi);font-weight:700;font-variant-numeric:tabular-nums}
+h1,.dg{font-family:"Dela Gothic One",-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;font-weight:400}
+h1{font-size:26px;line-height:1.4;margin:0 0 8px;color:#fff}
+header .sub{margin:0;font-size:15px;line-height:1.8;color:var(--dim)}
+.tabs{display:flex;overflow-x:auto;scrollbar-width:none;margin-top:14px;border-bottom:1px solid var(--line)}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:none;min-height:46px;padding:0 13px;background:none;border:none;border-bottom:3px solid transparent;color:var(--faint);font:700 15px inherit;font-family:inherit;cursor:pointer}
+.tabs button[aria-pressed="true"]{color:#fff;border-bottom-color:var(--hi)}
+.rs{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:10px}
+.rs button{min-height:44px;border:1px solid var(--line);border-radius:4px;background:rgba(255,255,255,.04);color:var(--dim);font:700 16px inherit;font-family:inherit;font-variant-numeric:tabular-nums;cursor:pointer}
+.rs button[aria-pressed="true"]{background:var(--hi);border-color:var(--hi);color:#10233a}
+.rs button:disabled{opacity:.28;cursor:default}
+.chart{margin:16px -4px 0;padding:16px 14px 12px;border:1px solid rgba(232,236,239,.12);border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.02));box-shadow:0 10px 30px rgba(0,0,0,.18)}
+.chart .ft{margin:0;font-size:20px;line-height:1.4;color:#fff}
+.chart .fs{margin:2px 0 0;font-size:13.5px;line-height:1.6;color:var(--faint)}
+.hero{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin:12px 0 4px}
+.hero .big{font-size:52px;line-height:1;color:#fff}
+.hero .big small{font-size:22px;margin-left:2px}
+.hero .lab{font-size:14px;color:var(--dim);line-height:1.5}
+.hero .lab b{display:block;color:var(--hi);font-size:16px}
+.chart svg{display:block;width:100%;height:auto;font-variant-numeric:tabular-nums}
+.chart .replay{display:block;margin:6px 0 2px;min-height:44px;padding:0 18px;background:none;border:1px solid var(--line);border-radius:4px;color:var(--dim);font-size:15px;cursor:pointer;font-family:inherit}
+.sec{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+.sec h2{margin:0 0 10px;font-size:17px;color:#fff;font-weight:800}
+.bars{display:grid;grid-template-columns:30px 1fr 46px;gap:8px 10px;align-items:center}
+.bars .c{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px}
+.bars .t{height:12px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
+.bars .t i{display:block;height:100%;background:rgba(232,236,239,.45);transform-origin:left;transition:transform .8s cubic-bezier(.2,.7,.2,1)}
+.bars .t i.top{background:var(--hi)}
+.bars .v{font-size:17px;font-weight:800;text-align:right;font-variant-numeric:tabular-nums}
+.bars .v small{font-size:12px;font-weight:400;color:var(--faint)}
+table{width:100%;border-collapse:collapse;font-size:15px;font-variant-numeric:tabular-nums}
+th,td{padding:9px 4px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child,th:nth-child(2),td:nth-child(2){text-align:left}
+th{color:#fff;font-weight:700;font-size:13px;border-bottom-color:rgba(232,236,239,.5)}
+td .c{display:inline-flex;width:26px;height:26px;border-radius:50%;align-items:center;justify-content:center;font-weight:800}
+td small{color:var(--faint);margin-left:4px}
+details{margin:18px 0 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+details>summary{display:flex;align-items:center;min-height:48px;font-size:16px;color:var(--fg);cursor:pointer;list-style:none;font-weight:700}
+details>summary::-webkit-details-marker{display:none}
+details>summary::after{content:"+";margin-left:auto;color:var(--dim);font-weight:400;font-size:18px}
+details[open]>summary::after{content:"\2212"}
+.dbody{padding:0 0 14px;font-size:15px;line-height:1.9;color:var(--dim)}
+.stamp{margin:1.6em 0 0;font-size:14px;line-height:1.9;color:var(--faint)}
+.C1{background:var(--l1);color:#111}.C2{background:var(--l2);color:#fff;box-shadow:inset 0 0 0 1.5px #8a96a3}.C3{background:var(--l3);color:#fff}
+.C4{background:var(--l4);color:#fff}.C5{background:var(--l5);color:#111}.C6{background:var(--l6);color:#fff}
+.err{padding:30px 0;color:var(--faint)}
+/* 図の動き（入ったときに1回だけ。「もう一度見る」で再生） */
+.mv{transition:transform .9s cubic-bezier(.2,.7,.2,1) var(--d,0ms)}
+.chart:not(.on) .mv{transform:translateY(46px)}
+.ln{stroke-dasharray:1;stroke-dashoffset:0;transition:stroke-dashoffset 1.1s ease var(--d,0ms)}
+.chart:not(.on) .ln{stroke-dashoffset:1}
+.fd{transition:opacity .5s ease var(--d,0ms)}
+.chart:not(.on) .fd{opacity:0}
+@media (prefers-reduced-motion:reduce){.mv,.ln,.fd,.bars .t i{transition:none!important}}
 </style>
 </head>
 <body>
+<div class="waku" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
 <div class="wrap">
-<div class="nav"><a href="../">← データ攻め トップ</a></div>
-<div class="mast"><h1>1ST TURN <i>/</i> 見立て</h1><div class="d" id="d"></div></div>
-<div class="pick" id="pick"></div>
+<nav class="crumb"><a href="../">データ攻め</a></nav>
+<header>
+  <p class="no" id="d">1マーク</p>
+  <h1>1マークの見立て</h1>
+  <p class="sub">スタート展示の隊形と、過去のレースで学習したモデルの見立てから、1マークの形を1枚の図にしました。</p>
+</header>
+<div class="tabs" id="pick"></div>
 <div class="rs" id="rs"></div>
 <div id="main"><div class="err">読み込んでいます…</div></div>
-<div class="foot" id="foot"></div>
+<details><summary>この図の読み方と、当たり方</summary><div class="dbody" id="how"></div></details>
+<p class="stamp">AIの見立て（実験）です。舟券の購入は20歳になってから。</p>
 </div>
 <script>
 (function(){
-var LC=["","#f4f4f0","#151515","#e2353b","#2f6fe0","#f2cf1d","#1f9d55"],LT=["","#111","#fff","#fff","#fff","#111","#fff"];
+var LC=["","#f2f2f0","#1b1b1b","#e2382f","#2a6fd6","#f2c200","#1f9a55"],LT=["","#111","#fff","#fff","#fff","#111","#fff"];
 var TYPES=["逃げ","差し","まくり","まくり差し"];
 var D=null,J=null,R=null;
 function $(id){return document.getElementById(id)}
@@ -99,69 +109,81 @@ var q=new URLSearchParams(location.search),day=q.get("d")||"20261030";
 fetch("ichimark/data"+day+".json").then(function(r){return r.ok?r.json():Promise.reject()}).then(function(d){D=d;init()}).catch(function(){$("main").innerHTML='<div class="err">この日のデータがありません。</div>'});
 
 function init(){
-  $("d").textContent=day.slice(0,4)+"."+day.slice(4,6)+"."+day.slice(6,8);
+  $("d").textContent=(+day.slice(4,6))+"月"+(+day.slice(6,8))+"日";
   var vs=[];D.races.forEach(function(r){if(vs.indexOf(r.jcd)<0)vs.push(r.jcd)});vs.sort();
   J=q.get("j")&&vs.indexOf(q.get("j"))>=0?q.get("j"):vs[0];
   $("pick").innerHTML=vs.map(function(j){var r=D.races.filter(function(x){return x.jcd===j})[0];return '<button type="button" data-j="'+j+'">'+esc(r.venue)+"</button>"}).join("");
   $("pick").onclick=function(e){var b=e.target.closest("button");if(!b)return;J=b.dataset.j;R=null;draw()};
   $("rs").onclick=function(e){var b=e.target.closest("button");if(!b||b.disabled)return;R=+b.dataset.r;draw()};
   var e=D.eval||{};
-  $("foot").innerHTML="<b>AIの見立て（実験）</b>。展示の値・級別・選手の過去の成績などから、過去のレースで学習したモデルが出した確率です。1マークの実際の位置は公式データに無いため、図の位置は確率から描いた模式図です。"
-    +(e.acc4!=null?"<br>当たり方（学習に使っていない 2026年8月以降のレース）：4つの型の正解率 "+(e.acc4*100).toFixed(1)+"%（毎回「逃げ」と答えると "+(e.base4*100).toFixed(1)+"%）。逃げ以外のときに勝つコースの正解率 "+(e.accCourse*100).toFixed(1)+"%（毎回2コースと答えると "+(e.baseCourse*100).toFixed(1)+"%）。":"");
+  $("how").innerHTML="上が1マーク、下がスタートラインです。艇は下から上へ進み、1マークを左に回ります。<br>"
+    +"白い線は1コースが逃げる形で、太いほど見立ての確率が高い。黄色の線は、逃げなかったときに勝つ見込みが最も高いコースの攻め筋（外を大きく回る形＝まくり筋、内に切り込む形＝差し筋）です。<br>"
+    +"艇の前後はスタート展示のSTの差、4コースより外はダッシュとして後ろから描いています。1マークでの実際の位置は公式データに無いため、図は確率から描いた模式図です。<br>"
+    +(e.acc4!=null?"当たり方（学習に使っていない2026年8月以降のレース）：決まり方の正解率 "+(e.acc4*100).toFixed(1)+"%（毎回「逃げ」と答えると "+(e.base4*100).toFixed(1)+"%）。逃げなかったときに勝つコースの正解率 "+(e.accCourse*100).toFixed(1)+"%（毎回2コースと答えると "+(e.baseCourse*100).toFixed(1)+"%）。":"");
   draw();
 }
 function draw(){
   [].forEach.call($("pick").children,function(b){b.setAttribute("aria-pressed",b.dataset.j===J)});
   var rr=D.races.filter(function(x){return x.jcd===J}),have={};rr.forEach(function(x){have[x.rno]=x});
   if(R==null||!have[R])R=rr[0].rno;
-  var h="";for(var i=1;i<=12;i++)h+='<button type="button" data-r="'+i+'" aria-pressed="'+(i===R)+'"'+(have[i]?"":" disabled")+">"+i+"</button>";
+  var h="";for(var i=1;i<=12;i++)h+='<button type="button" data-r="'+i+'" aria-pressed="'+(i===R)+'"'+(have[i]?"":" disabled")+">"+i+"R</button>";
   $("rs").innerHTML=h;
   race(have[R]);
 }
-function race(r){
-  var p=r.p,top=TYPES.slice().sort(function(a,b){return p[b]-p[a]})[0];
-  var pc=r.pc,att=[1,2,3,4,5].reduce(function(a,c){return pc[c]>pc[a]?c:a},1)+1;   // 逃げ以外のときに勝つ見込みの高いコース（2〜6）
-  var bs=r.boats.slice().sort(function(a,b){return a.course-b.course});
-  $("main").innerHTML='<div class="board"><div class="head"><div class="r">'+R+'R<small>'+esc(r.venue)+'</small></div>'
-    +'<div class="k"><div class="lab">ESCAPE</div><div class="v">'+pct(p["逃げ"])+'<span>%</span></div><div class="t">1コースが逃げる見立て</div></div></div>'
-    +svg(bs,p,att,pc)+'<div class="leg"><span>スタート展示の隊形</span><span>1マーク</span></div></div>'
-    +'<div class="board" style="margin-top:2px"><div class="sec"><h2>逃げなかったとき、勝つのは何コースか</h2><div class="cb">'
-    +[1,2,3,4,5,6].map(function(c){var v=pc[c-1],mx=Math.max.apply(null,pc);return '<div><b>'+pct(v)+'</b><i class="'+(c===att?"top":"")+'" style="height:'+Math.max(2,v/mx*54)+'px"></i><span class="L'+laneOf(bs,c)+'">'+c+"</span></div>"}).join("")
-    +'</div></div><div class="sec"><h2>1マークの決まり方</h2><div class="ty">'
-    +TYPES.map(function(t){return '<div class="'+(t===top?"top":"")+'"><div class="n">'+t+'</div><div class="p">'+pct(p[t])+'<span>%</span></div></div>'}).join("")
-    +'</div></div><div class="sec"><h2>スタート展示</h2><div class="boats"><span></span><span></span><span class="hd" style="text-align:right">ST</span><span class="hd" style="text-align:right">展示</span>'
-    +bs.map(function(b){return '<span class="c L'+b.waku+'">'+b.waku+'</span><span class="nm">'+esc(b.name||"")+"<small>"+b.course+"コース"+(b.cls?"・"+esc(b.cls):"")+'</small></span><span class="st">'+(b.st==null?"—":(b.st<0?"F"+Math.abs(b.st).toFixed(2).slice(1):b.st.toFixed(2).slice(1)))+'</span><span class="tj">'+(b.tenji?b.tenji.toFixed(2):"—")+"</span>"}).join("")
-    +"</div></div></div>";
-}
 function laneOf(bs,c){var b=bs.filter(function(x){return x.course===c})[0];return b?b.waku:c}
-/* 水面の模式図。左＝スタートライン（スタート展示STの差だけ前後にずらす）、右＝1マーク。
-   1コースの艇から1マークへの線の太さ＝逃げの確率、攻めの線＝逃げなかったときに勝つ見込みが最も高いコース */
-function svg(bs,p,att,pc){
-  var W=360,H=210,X0=34,BX=300,BY=40,lane=function(c){return 46+(c-1)*27};
+function race(r){
+  var p=r.p,pc=r.pc;
+  var att=[1,2,3,4,5].reduce(function(a,c){return pc[c]>pc[a]?c:a},1)+1;   // 逃げなかったときに勝つ見込みが最も高いコース（2〜6）
+  var out=(p["まくり"]+p["まくり差し"])>=p["差し"];
+  var bs=r.boats.slice().sort(function(a,b){return a.course-b.course});
+  var rest=[2,3,4,5,6].map(function(c){return pc[c-1]}),sum=rest.reduce(function(a,b){return a+b},0)||1,mx=Math.max.apply(null,rest);
+  var aw=laneOf(bs,att);
+  $("main").innerHTML='<figure class="chart" id="ch" style="margin-left:-4px;margin-right:-4px"><p class="ft dg">'+esc(r.venue)+" "+R+'R</p><p class="fs">スタート展示の隊形から1マークまで（模式図）</p>'
+    +'<div class="hero"><div class="big dg">'+pct(p["逃げ"])+'<small>%</small></div><div class="lab">1コースが<br>逃げる見立て</div></div>'
+    +svg(bs,p,att,out)
+    +'<button type="button" class="replay" id="rp">もう一度見る</button></figure>'
+    +'<div class="sec"><h2>逃げなかったら、勝つのは何コースか</h2><div class="bars">'
+    +[2,3,4,5,6].map(function(c,i){var v=rest[i]/sum;return '<span class="c C'+laneOf(bs,c)+'">'+c+'</span><span class="t"><i class="'+(c===att?"top":"")+'" style="transform:scaleX('+(rest[i]/mx).toFixed(3)+')"></i></span><span class="v">'+pct(v)+'<small>%</small></span>'}).join("")
+    +'</div></div>'
+    +'<div class="sec"><h2>スタート展示</h2><table><tr><th>枠</th><th>選手</th><th>ST</th><th>展示</th></tr>'
+    +bs.map(function(b){return '<tr><td><span class="c C'+b.waku+'">'+b.waku+'</span></td><td>'+esc(b.name||"")+"<small>"+b.course+"コース"+(b.cls?"・"+esc(b.cls):"")+'</small></td><td>'+(b.st==null?"—":(b.st<0?"F"+Math.abs(b.st).toFixed(2).slice(1):b.st.toFixed(2).slice(1)))+"</td><td>"+(b.tenji?b.tenji.toFixed(2):"—")+"</td></tr>"}).join("")
+    +'</table></div>'
+    +'<details style="margin-top:14px"><summary>1マークの決まり方の見立て</summary><div class="dbody">'+TYPES.map(function(t){return t+" "+pct(p[t])+"%"}).join("・")+'</div></details>';
+  var ch=$("ch");requestAnimationFrame(function(){requestAnimationFrame(function(){ch.classList.add("on")})});
+  $("rp").onclick=function(){ch.classList.remove("on");void ch.offsetWidth;setTimeout(function(){ch.classList.add("on")},60)};
+}
+/* 縦の模式図。上＝1マーク（左に回る）、下＝スタートライン。1コースが左（内）。
+   艇の縦位置＝スタート展示STの差（早いほど前）。4コースより外はダッシュとして後ろから助走してくる形 */
+function svg(bs,p,att,out){
+  var W=340,H=360,BX=80,BY=70,SY=262;
+  var x=function(c){return 88+(c-1)*44};
   var sts=bs.map(function(b){return b.st==null||b.st<0?null:b.st}).filter(function(v){return v!=null}),mn=sts.length?Math.min.apply(null,sts):0;
-  var s='<svg class="course" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="スタート展示の隊形と1マークの見立ての模式図">'
-    +'<defs><pattern id="wv" width="18" height="6" patternUnits="userSpaceOnUse"><path d="M0 3 Q4.5 0 9 3 T18 3" fill="none" stroke="rgba(255,255,255,.035)" stroke-width="1"/></pattern></defs>'
-    +'<rect width="'+W+'" height="'+H+'" fill="url(#wv)"/>'
-    +'<line x1="'+(X0+44)+'" y1="20" x2="'+(X0+44)+'" y2="'+(H-14)+'" stroke="rgba(255,255,255,.22)" stroke-width="1" stroke-dasharray="2 4"/>'
-    +'<text x="'+(X0+48)+'" y="'+(H-16)+'" fill="rgba(255,255,255,.35)" font-size="8" font-family="var(--num)" letter-spacing="1.5">START</text>';
-  // 逃げの線
-  var b1=bs.filter(function(b){return b.course===1})[0],y1=lane(1);
-  var xOf=function(b){return X0+44-(b.st==null||b.st<0?12:Math.min(28,(b.st-mn)*160))};
-  if(b1){var x1=xOf(b1)+16;s+='<path d="M'+x1+' '+y1+' C '+(x1+90)+' '+(y1-4)+', '+(BX-60)+' '+(BY-6)+', '+(BX-12)+' '+(BY-2)+'" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width="'+(1+p["逃げ"]*6).toFixed(1)+'" stroke-linecap="round" class="ln" style="--len:300"/>'}
-  // 攻めの線
+  var y=function(b){var d=b.st==null||b.st<0?.1:Math.min(.25,b.st-mn);return SY+6+d*120+(b.course>=4?20:0)};
+  var s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="スタート展示の隊形と1マークの見立ての模式図">'
+    // 水面の目印
+    +'<line x1="20" y1="'+SY+'" x2="'+(W-14)+'" y2="'+SY+'" stroke="rgba(232,236,239,.35)" stroke-width="1" stroke-dasharray="3 5"/>'
+    +'<text x="'+(W-14)+'" y="'+(SY-6)+'" text-anchor="end" font-size="11" fill="rgba(232,236,239,.55)">スタートライン</text>'
+    +'<line x1="'+((x(3)+x(4))/2)+'" y1="'+(SY+12)+'" x2="'+((x(3)+x(4))/2)+'" y2="'+(H-6)+'" stroke="rgba(232,236,239,.14)" stroke-width="1"/>'
+    +'<text x="'+((x(3)+x(4))/2+6)+'" y="'+(H-10)+'" font-size="10.5" fill="rgba(232,236,239,.45)">ダッシュ</text>'
+    +'<text x="'+((x(3)+x(4))/2-6)+'" y="'+(H-10)+'" text-anchor="end" font-size="10.5" fill="rgba(232,236,239,.45)">スロー</text>';
+  // 逃げの線：1コースから1マークへ、マークを左に巻く
+  var x1=x(1),b1=bs.filter(function(b){return b.course===1})[0],y1=b1?y(b1)-14:SY;
+  s+='<path class="ln" pathLength="1" style="--d:500ms" d="M'+x1+' '+y1+' C '+x1+' '+(y1-90)+', '+(BX+26)+' '+(BY+70)+', '+(BX+16)+' '+(BY+8)+' S '+(BX-6)+' '+(BY-22)+', '+(BX-12)+' '+(BY-10)+'" fill="none" stroke="#fff" stroke-width="'+(1.5+p["逃げ"]*6).toFixed(1)+'" stroke-linecap="round"/>';
+  // 攻め筋
   var ba=bs.filter(function(b){return b.course===att})[0];
-  if(ba){var xa=xOf(ba)+16,ya=lane(att),out=(p["まくり"]+p["まくり差し"])>=p["差し"];
-    var d=out?'M'+xa+' '+ya+' C '+(xa+80)+' '+(ya-20)+', '+(BX-40)+' '+(BY+70)+', '+(BX+18)+' '+(BY+10):'M'+xa+' '+ya+' C '+(xa+110)+' '+(ya+6)+', '+(BX-30)+' '+(BY+40)+', '+(BX-4)+' '+(BY+16);
-    s+='<path d="'+d+'" fill="none" stroke="var(--hot)" stroke-width="2.5" stroke-dasharray="5 5" class="ln dash"/>'
-      +'<text x="'+(W-8)+'" y="'+(BY+86)+'" text-anchor="end" fill="var(--hot)" font-size="12" font-weight="800" font-family="var(--num)">'+att+'コース '+(out?"まくり筋":"差し筋")+' '+pct(pc[att-1])+'%</text>';}
+  if(ba){var xa=x(att),ya=y(ba)-14,d;
+    if(out) d='M'+xa+' '+ya+' C '+(xa+6)+' '+(ya-110)+', '+(BX+110)+' '+(BY+30)+', '+(BX+60)+' '+(BY-14)+' S '+(BX+8)+' '+(BY-44)+', '+(BX-14)+' '+(BY-30);
+    else d='M'+xa+' '+ya+' C '+(xa-4)+' '+(ya-90)+', '+(BX+70)+' '+(BY+96)+', '+(BX+30)+' '+(BY+30)+' S '+(BX+4)+' '+(BY+8)+', '+(BX-2)+' '+(BY+14);
+    s+='<path class="ln" pathLength="1" style="--d:900ms" d="'+d+'" fill="none" stroke="var(--hi)" stroke-width="3.5" stroke-linecap="round"/>'
+      +'<g class="fd" style="--d:1700ms"><text x="'+(W-10)+'" y="'+(BY+6)+'" text-anchor="end" font-size="14" font-weight="800" fill="var(--hi)">'+att+'コース '+(out?"まくり筋":"差し筋")+'</text></g>';}
   // 1マーク
-  s+='<circle cx="'+BX+'" cy="'+BY+'" r="9" fill="var(--buoy)"/><circle cx="'+BX+'" cy="'+BY+'" r="14" fill="none" stroke="var(--buoy)" stroke-opacity=".35"/>'
-    +'<text x="'+BX+'" y="'+(BY-20)+'" text-anchor="middle" fill="var(--buoy)" font-size="11" font-weight="800" font-family="var(--num)" letter-spacing="1">1M</text>';
-  // 艇（船首が右を向いた形）
-  bs.forEach(function(b,i){var x=xOf(b),y=lane(b.course),w=b.waku;
-    s+='<g class="bt" style="--dx:'+(-x+6)+'px;animation-delay:'+(i*40)+'ms"><path d="M'+x+' '+(y-8)+' L'+(x+20)+' '+(y-8)+' L'+(x+30)+' '+y+' L'+(x+20)+' '+(y+8)+' L'+x+' '+(y+8)+' Z" fill="'+LC[w]+'"'+(w===2?' stroke="#6b7a88" stroke-width="1"':"")+'/>'
-      +'<text x="'+(x+11)+'" y="'+(y+4.5)+'" text-anchor="middle" font-size="13" font-weight="800" font-family="var(--num)" fill="'+LT[w]+'">'+w+'</text></g>';});
-  return s+'<style>.bt{animation:in .55s cubic-bezier(.2,.8,.2,1) both}@keyframes in{from{transform:translateX(var(--dx));opacity:0}}.ln{stroke-dasharray:var(--len,400);stroke-dashoffset:var(--len,400);animation:dr .7s .45s ease-out forwards}.ln.dash{stroke-dasharray:5 5;stroke-dashoffset:0;opacity:0;animation:fd .4s .9s forwards}@keyframes dr{to{stroke-dashoffset:0}}@keyframes fd{to{opacity:1}}</style></svg>';
+  s+='<circle cx="'+BX+'" cy="'+BY+'" r="10" fill="#ff7a2e"/><circle cx="'+BX+'" cy="'+BY+'" r="16" fill="none" stroke="#ff7a2e" stroke-opacity=".35"/>'
+    +'<text x="'+(BX-22)+'" y="'+(BY+5)+'" text-anchor="end" font-size="13" font-weight="800" fill="#ffb27e">1マーク</text>';
+  // 艇（船首が上）
+  bs.forEach(function(b,i){var cx=x(b.course),cy=y(b),w=b.waku;
+    s+='<g class="mv" style="--d:'+(i*50)+'ms"><path d="M'+(cx-11)+' '+(cy+14)+' L'+(cx-11)+' '+(cy-4)+' L'+cx+' '+(cy-18)+' L'+(cx+11)+' '+(cy-4)+' L'+(cx+11)+' '+(cy+14)+' Z" fill="'+LC[w]+'"'+(w===2?' stroke="#8a96a3" stroke-width="1.2"':"")+'/>'
+      +'<text x="'+cx+'" y="'+(cy+8)+'" text-anchor="middle" font-size="15" font-weight="800" fill="'+LT[w]+'">'+w+'</text></g>';});
+  return s+'</svg>';
 }
 })();
 </script>
