@@ -14,9 +14,9 @@
 <!-- /kata6:head -->
 <style>
 /* 本番の新しい型（assets/kata/kata.css・第6版）にそろえる：平らな紺・角は四角・差し色は金1色・数字は Barlow Condensed・光る線や影の箱は使わない
-   図の作り（プロの評価と調査を受けた第4版）：上段＝スリット（スタート展示STの凹凸）、下段＝1マーク。事実は実線、見立ては点線 */
+   第5版：デザイナー役68点・競艇のプロ役62点の指摘を受けて直した版 */
 :root{--fg:#f2f2f0;--dim:#cdd7e0;--faint:#aebccb;--mute:#8a96a3;--line:rgba(232,236,239,.18);--gold:#dcbd78;--goldBg:#c8a45e;--rule:rgba(212,176,106,.6);
-  --l1:#f2f2f0;--l2:#1b1b1b;--l3:#e2382f;--l4:#2a6fd6;--l5:#f2c200;--l6:#1f9a55;--num:"Barlow Condensed","Hiragino Sans",-apple-system,sans-serif}
+  --l1:#f2f2f0;--l2:#1b1b1b;--l3:#e2382f;--l4:#2a6fd6;--l5:#f2c200;--l6:#1f9a55;--num:"Barlow Condensed","Hiragino Sans",-apple-system,sans-serif;--dg:"Dela Gothic One",-apple-system,"Hiragino Sans",sans-serif}
 *{box-sizing:border-box}
 html{background:#0d1c2f}
 body{margin:0;color:var(--fg);font-family:-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;-webkit-text-size-adjust:100%;letter-spacing:.02em}
@@ -26,7 +26,7 @@ body{margin:0;color:var(--fg);font-family:-apple-system,"Hiragino Sans","Noto Sa
 .crumb a{color:var(--dim);text-decoration:none;padding:12px 0}
 header{padding:10px 0 4px}
 header .no{margin:0 0 6px;font-size:14px;color:var(--gold);font-weight:700}
-h1{font-family:"Dela Gothic One",-apple-system,"Hiragino Sans",sans-serif;font-weight:400;font-size:26px;line-height:1.4;margin:0 0 12px;color:#f2f2f0;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+h1{font-family:var(--dg);font-weight:400;font-size:26px;line-height:1.4;margin:0 0 12px;color:#f2f2f0;padding-bottom:10px;border-bottom:1px solid var(--rule)}
 header .sub{margin:0;font-size:15px;line-height:1.85;color:var(--dim)}
 .tabsW{position:sticky;top:0;z-index:5;background:#132b46;margin-top:16px}
 .tabsW::after{content:"";position:absolute;right:0;top:0;bottom:1px;width:28px;background:linear-gradient(90deg,rgba(19,43,70,0),#132b46);pointer-events:none}
@@ -39,41 +39,55 @@ header .sub{margin:0;font-size:15px;line-height:1.85;color:var(--dim)}
 .rs button small{display:block;font:400 10px -apple-system,"Hiragino Sans",sans-serif;color:var(--mute)}
 .rs button[aria-pressed="true"]{background:var(--goldBg);color:#111}
 .rs button:disabled{color:#5b6b7c;cursor:default}
-.fig{margin:18px 0 0;padding:14px 0 6px;border-top:1px solid var(--rule)}
-.fig .ft{margin:0;font-size:22px;line-height:1.4;color:#fff;font-family:"Dela Gothic One",-apple-system,"Hiragino Sans",sans-serif;font-weight:400}
-.hero{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:end;margin:10px 0 6px}
+/* レースの見出し（中継のヘッダ） */
+.rh{margin-top:20px;padding-bottom:8px;border-bottom:.5px solid var(--rule);display:grid;grid-template-columns:1fr auto;align-items:end;gap:2px 10px}
+.rh .t{font:400 24px/1.3 var(--dg);color:#fff}
+.rh .dl{text-align:right;font-size:12px;color:var(--faint);line-height:1.2}
+.rh .dl b{display:block;font:700 28px/1 var(--num);color:#fff}
+.rh .s{grid-column:1/-1;font-size:13px;color:var(--faint)}
+.hero{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:end;margin:12px 0 4px}
 .hero .big{font:700 64px/.95 var(--num);color:#fff;font-variant-numeric:tabular-nums}
 .hero .big small{font-size:26px;margin-left:2px}
 .hero .lab{font-size:14px;color:var(--dim);line-height:1.55;padding-bottom:4px}
 .hero .lab b{display:block;font-size:15px;color:#fff}
 .hero .lab .df{font:700 20px var(--num);color:var(--gold);margin-right:4px}
-.cap{display:flex;justify-content:space-between;align-items:baseline;margin:14px 0 4px;font-size:13px;color:var(--faint)}
-.cap b{color:#fff;font-size:14px}
+.cap{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:18px 0 6px}
+.cap h2{margin:0;font:400 17px var(--dg);color:#fff}
+.cap span{font-size:13px;color:var(--faint);display:inline-flex;align-items:center;gap:6px}
+.cap span svg{width:22px;height:22px;display:inline-block}
 svg{display:block;width:100%;height:auto}
+.tels{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 6px}
+.tel{display:flex;align-items:center;gap:10px;border:1px solid var(--gold);padding:3px 10px;min-height:30px}
+.tel span{font-size:13px;font-weight:800;color:var(--gold)}
+.tel b{font:700 19px var(--num);color:#fff}
+.tel b small{font-size:12px;color:var(--faint)}
 .legend{display:flex;flex-wrap:wrap;gap:4px 14px;margin:6px 0 0;font-size:12.5px;color:var(--faint)}
 .legend i{display:inline-block;width:22px;height:0;border-top:2px dashed #f2f2f0;vertical-align:middle;margin-right:5px}
 .legend i.g{border-top-color:var(--gold)}
 .legend i.s{border-top-style:solid;border-top-color:var(--mute)}
-.sec{margin-top:20px;padding-top:12px;border-top:1px solid var(--line)}
-.sec h2{margin:0 0 10px;font-size:16px;color:#fff;font-weight:800}
-.sec h2 small{font-weight:400;font-size:12.5px;color:var(--faint);margin-left:6px}
-.cmb{display:grid;grid-template-columns:1fr 92px 44px;gap:10px 10px;align-items:center}
-.cmb .k{font-size:15px;color:var(--fg)}
+.sec{margin-top:4px}
+.cmb{display:grid;grid-template-columns:1fr 92px 44px;gap:10px;align-items:center}
+.cmb .k{font-size:15px}
 .cmb .k small{color:var(--faint);font-size:12.5px;margin-left:4px}
 .cmb .t{height:8px;background:rgba(255,255,255,.08)}
-.cmb .t i{display:block;height:100%;background:rgba(232,236,239,.5)}
+.cmb .t i{display:block;height:100%;background:#5b6b7c}
 .cmb .t i.top{background:var(--goldBg)}
 .cmb .v{font:700 21px var(--num);text-align:right}
 .cmb .v small{font-size:12px;color:var(--faint)}
-.sec2{margin-top:10px;font-size:14px;color:var(--dim);line-height:1.85}
-.sec2 .n{font-size:17px;color:#fff}
+.cmb .oth .k,.cmb .oth .v{color:var(--faint)}
+.rel{margin-top:14px;padding-top:10px;border-top:1px solid var(--line);font-size:14px;color:var(--dim);line-height:1.9}
+.rel b{color:#fff;font-weight:700}
+.rel .n{font-size:17px;color:#fff}
+.rel .nt{font-size:12.5px;color:var(--faint)}
 table{width:100%;border-collapse:collapse;font-size:14px}
 th,td{padding:8px 3px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
 th:first-child,td:first-child,th:nth-child(2),td:nth-child(2){text-align:left}
 th{color:var(--faint);font-weight:700;font-size:12px}
 td.n{font-size:18px;font-weight:600}
+td.F{color:var(--gold)}
 td small{color:var(--faint);margin-left:3px;font-size:12px}
 .c{display:inline-flex;width:24px;height:24px;align-items:center;justify-content:center;font:700 16px var(--num)}
+.tnote{font-size:12.5px;color:var(--faint);margin-top:6px;line-height:1.7}
 details{margin:18px 0 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 details>summary{display:flex;align-items:center;min-height:48px;font-size:16px;color:var(--fg);cursor:pointer;list-style:none;font-weight:700}
 details>summary::-webkit-details-marker{display:none}
@@ -85,8 +99,8 @@ details[open]>summary::after{content:"\2212"}
 .C1{background:var(--l1);color:#111}.C2{background:var(--l2);color:#fff;box-shadow:inset 0 0 0 1px #8a96a3}.C3{background:var(--l3);color:#fff}
 .C4{background:var(--l4);color:#fff}.C5{background:var(--l5);color:#111}.C6{background:var(--l6);color:#fff}
 .err{padding:30px 0;color:var(--faint)}
-.ln{stroke-dashoffset:0;animation:dr 1.2s ease-out both}
-@keyframes dr{from{opacity:0}to{opacity:1}}
+.ln{animation:fi 1s ease-out both}
+@keyframes fi{from{opacity:0}to{opacity:1}}
 @media (prefers-reduced-motion:reduce){.ln{animation:none}}
 </style>
 </head>
@@ -96,13 +110,13 @@ details[open]>summary::after{content:"\2212"}
 <header>
   <p class="no" id="d">1マーク</p>
   <h1 class="kataTitle">1マークの見立て</h1>
-  <p class="sub">スタート展示の隊形と、過去のレースで学習したモデルの見立てから、1マークの形を描きました。</p>
+  <p class="sub">スタート展示の隊形と、過去のレースの集計にもとづく見立てから、1マークの形を描きました。</p>
 </header>
 <div class="tabsW"><div class="tabs" id="pick"></div></div>
 <div class="rs" id="rs"></div>
 <div id="main"><div class="err">読み込んでいます…</div></div>
 <details><summary>この図の読み方と、当たり方</summary><div class="dbody" id="how"></div></details>
-<p class="stamp">AIの見立て（実験）です。舟券の購入は20歳になってから。</p>
+<p class="stamp">過去のレースの集計にもとづく見立てです（実験）。舟券の購入は20歳になってから。</p>
 </div>
 <script>
 (function(){
@@ -111,12 +125,14 @@ var D=null,J=null,R=null;
 function $(id){return document.getElementById(id)}
 function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 function pct(x){return Math.round(x*100)}
-function stTxt(v){return v==null?"—":(v<0?"F"+Math.abs(v).toFixed(2).slice(1):v.toFixed(2).slice(1))}
+function isF(b){return b.tenjiF===1||(b.st!=null&&b.st<0)}
+function stTxt(b){return b.st==null?"—":(isF(b)?"F":b.st.toFixed(2).slice(1))}
 var q=new URLSearchParams(location.search),day=q.get("d")||"20261030";
-fetch("ichimark/v4_"+day+".json").then(function(r){return r.ok?r.json():Promise.reject()}).then(function(d){D=d;init()}).catch(function(){$("main").innerHTML='<div class="err">この日のデータがありません。</div>'});
+fetch("ichimark/v5_"+day+".json").then(function(r){return r.ok?r.json():Promise.reject()}).then(function(d){D=d;init()}).catch(function(){$("main").innerHTML='<div class="err">この日のデータがありません。</div>'});
 
-/* 組み合わせのキー（例 "3まくり差し"）→ コースと決まり手 */
-function split(k){var m=/^(\d)(.+)$/.exec(k);return m?{c:+m[1],t:m[2]}:{c:0,t:k}}
+/* 組み合わせ（例 "3まくり差し"）→ コースと決まり手。「その他」と「6〜」は形を描けないのでまとめる */
+function split(k){var m=/^(\d)(.*)$/.exec(k);return m?{c:+m[1],t:m[2]}:{c:0,t:k}}
+function drawable(k){var s=split(k);return s.c>=2&&/^(まくり|まくり差し|差し)$/.test(s.t)}
 function init(){
   $("d").textContent=(+day.slice(4,6))+"月"+(+day.slice(6,8))+"日";
   var vs=[];D.races.forEach(function(r){if(vs.indexOf(r.jcd)<0)vs.push(r.jcd)});vs.sort();
@@ -127,12 +143,13 @@ function init(){
   how();draw();
 }
 function how(){
-  var e=D.eval||{},cal=D.calib||[];
-  $("how").innerHTML="<b>上の帯（スリット）</b>：スタート展示のSTで6艇を並べたもの。右の縦線がスタートラインで、右にあるほど早い。展示でF（フライング）だった艇は線の右に出ます。隣の2艇より0.05以上遅い艇に「凹み」の印を付けます。<br>"
-   +"<b>下の図</b>：上が1マーク、下がスタートライン。艇は下から上へ進み、1マークを左に回ります。艇の並びはスタート展示の進入、前後はスタート展示STの差です（実線の位置は事実）。白の点線は1コースの逃げ、金の点線は見立ての上位の攻め筋で、どちらも見立て（推測）です。航跡は決まり手の型で描いた模式で、実際の位置や距離は表していません。<br>"
-   +"<b>見立ての確率</b>：1着の「コース×決まり手」をまとめて出しています。<br>"
-   +(e.top1!=null?"<b>当たり方</b>（学習に使っていない "+esc(e.span||"2026年8月以降")+" のレース）：一番高い見立てが当たった割合 "+(e.top1*100).toFixed(1)+"%（毎回「1コース逃げ」と答えると "+(e.baseTop1*100).toFixed(1)+"%）。":"")
-   +(cal.length?"<br>逃げの見立ての確率と、実際に逃げた割合："+'<table><tr><th>見立て</th><th>レース数</th><th>実際に逃げた</th></tr>'+cal.map(function(c){return '<tr><td>'+esc(c.bin)+'%</td><td class="n">'+c.n.toLocaleString()+'</td><td class="n">'+(c.n?(c.nige*100).toFixed(1)+"%":"—")+"</td></tr>"}).join("")+"</table>":"");
+  var e=D.eval||{},cal=(D.calib||[]).filter(function(c){return c.n>=100}),ed=D.edge;
+  $("how").innerHTML="<b>スリット</b>：スタート展示のSTで6艇を並べたもの。縦の線がスタートラインで、右にあるほど早い。展示でF（フライング）だった艇は、線の右の帯に「F」と出します。展示のFは本番の早さの目安にならないため、凹みの判定と平均比には使いません。隣の艇より0.05以上遅い艇1つに「凹み」の印を付けます。<br>"
+   +"<b>1マーク</b>：上が1マーク、下がスタートライン。艇は下から上へ進み、1マークを左に回ります。艇の並びはスタート展示の進入、前後はスタート展示STの差です。白の点線は1コースの逃げ、金の点線は「逃げ以外」でいちばん高い見立ての航跡です。航跡は決まり手の型（まくり＝1コースの前を絞って外を回る／まくり差し＝外を回ってから内へ切り返す／差し＝1コースが回ったあとに内へ入る）で描いた模式で、実際の位置や距離は表していません。<br>"
+   +"<b>見立て</b>：過去のレースの集計から、1着の「コース×決まり手」の確率を出しています。展示のFは、その選手の本番の平均STに置き換えて使っています。<br>"
+   +(e.top1!=null?"<b>当たり方</b>（集計に使っていない "+esc(e.span||"2026年8月以降")+"・"+(e.nEval||0).toLocaleString()+"レース）：いちばん高い見立てが当たった割合は "+(e.top1*100).toFixed(1)+"%で、毎回「1コース逃げ」と答えた場合（"+(e.baseTop1*100).toFixed(1)+"%）とほとんど変わりません。この見立ての強みは、確率の大きさが実際の割合とよく合うことです（下の表）。":"")
+   +(ed?"<br>逃げの見立てが50%未満だった "+ed.n.toLocaleString()+"レースでは、実際の逃げは "+(ed.nigeRate*100).toFixed(1)+"%。逃げ以外でいちばん高い見立てのコースの艇が1着になったのは "+(ed.hitTop*100).toFixed(1)+"%（毎回2コースの艇と答えた場合は "+(ed.hitBase2*100).toFixed(1)+"%）。":"")
+   +(cal.length?'<table><tr><th>逃げの見立て</th><th>レース数</th><th>実際に逃げた</th></tr>'+cal.map(function(c){return '<tr><td>'+esc(c.bin)+'%</td><td class="n">'+c.n.toLocaleString()+'</td><td class="n">'+(c.nige*100).toFixed(1)+"%</td></tr>"}).join("")+"</table>":"");
 }
 function draw(){
   [].forEach.call($("pick").children,function(b){b.setAttribute("aria-pressed",b.dataset.j===J)});
@@ -143,95 +160,97 @@ function draw(){
   race(have[R]);
 }
 function boatAt(bs,c){return bs.filter(function(b){return b.course===c})[0]}
-/* 凹み：隣の艇（片側しかない端は片側）より0.05以上遅い艇のうち、いちばん差の大きい1艇 */
-function dent(bs){var best=null,bd=0;bs.forEach(function(b){if(b.st==null)return;var ns=[boatAt(bs,b.course-1),boatAt(bs,b.course+1)].filter(function(x){return x&&x.st!=null});if(!ns.length)return;var d=Math.min.apply(null,ns.map(function(x){return b.st-x.st}));if(d>=.05&&d>bd){bd=d;best=b}});return best}
+/* 凹み：展示Fでない艇のうち、展示Fでない隣（片側でもよい）より0.05以上遅い、いちばん差の大きい1艇 */
+function dent(bs){var best=null,bd=0;bs.forEach(function(b){if(b.st==null||isF(b))return;var ns=[boatAt(bs,b.course-1),boatAt(bs,b.course+1)].filter(function(x){return x&&x.st!=null&&!isF(x)});if(!ns.length)return;var d=Math.min.apply(null,ns.map(function(x){return b.st-x.st}));if(d>=.05&&d>bd){bd=d;best=b}});return best}
+function telop(bs,a1,a2,pj){function one(k,op){if(!k)return '';var o=split(k),b=boatAt(bs,o.c);return '<div class="tel" style="opacity:'+op+'"><span>'+o.c+'コース'+(b&&b.waku!==o.c?'（'+b.waku+'号艇）':'')+' '+esc(o.t)+'</span><b>'+pct(pj[k])+'<small>%</small></b></div>'}return a1?'<div class="tels">'+one(a1,1)+one(a2,.55)+'</div>':''}
+function windRel(r){var wd=r.wind||{};if(wd.code===17||wd.ms===0)return {t:"無風"};if(wd.code==null||r.bearing==null)return null;
+  var a=((wd.code-1)*22.5-r.bearing+360)%360,df=Math.min(a,360-a);return {t:df<=45?"追い風":df>=135?"向かい風":"横風",a:a,ms:wd.ms}}
+function windIcon(w){if(!w||w.a==null)return "";return '<svg viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="10" fill="none" stroke="rgba(232,236,239,.35)"/><g transform="rotate('+w.a.toFixed(0)+' 11 11)"><line x1="11" y1="17" x2="11" y2="6" stroke="#dcbd78" stroke-width="2"/><path d="M7 8 L11 3 L15 8 Z" fill="#dcbd78"/></g></svg>'}
 function race(r){
   var bs=r.boats.slice().sort(function(a,b){return a.course-b.course});
   var pj=r.pj,keys=Object.keys(pj).sort(function(a,b){return pj[b]-pj[a]});
   var pn=pj["1逃げ"]||0,vn=(D.venueNige||{})[r.jcd];
-  var att=keys.filter(function(k){var s=split(k);return s.c>=2&&/まくり|差し/.test(s.t)});
-  var a1=att[0],a2=att[1]&&pj[att[1]]>=pj[a1]*.7?att[1]:null;
-  var dn=dent(bs);
-  var html='<figure class="fig" id="ch"><p class="ft">'+esc(r.venue)+" "+R+'R</p>'
+  var att=keys.filter(drawable),a1=att[0],a2=att[1]&&pj[att[1]]>=pj[a1]*.7?att[1]:null;
+  var dn=dent(bs),w=windRel(r),irr=bs.some(function(b){return b.waku!==b.course||isF(b)});
+  var html='<div class="rh"><div class="t">'+esc(r.venue)+" "+R+'R</div><div class="dl">'+(r.deadline?'締切<b>'+esc(r.deadline)+'</b>':'')+'</div><div class="s">'+esc([r.title,r.day].filter(Boolean).join("・"))+'</div></div>'
     +'<div class="hero"><div class="big">'+pct(pn)+'<small>%</small></div><div class="lab"><b>1コースが逃げる見立て</b>'
     +(vn?'<span class="df">'+(pn*100-vn.rate*100>=0?"+":"")+(pn*100-vn.rate*100).toFixed(0)+'</span>'+esc(r.venue)+'の平均 <span class="n">'+(vn.rate*100).toFixed(0)+'</span>%（<span class="n">'+vn.n.toLocaleString()+'</span>レース）':"")+'</div></div>'
-    +'<div class="cap"><b>スリット</b><span>スタート展示ST・右ほど早い</span></div>'+slit(bs,dn)
-    +'<div class="cap"><b>1マーク</b><span>'+windTxt(r)+'</span></div>'+course(bs,pn,a1,a2,pj)
-    +'<div class="legend"><span><i></i>逃げの見立て</span><span><i class="g"></i>攻め筋の見立て</span><span><i class="s"></i>スタートライン</span></div></figure>';
-  // 見立ての上位
-  var top=keys.slice(0,5),mx=pj[top[0]];
-  html+='<div class="sec"><h2>見立ての上位<small>1着のコースと決まり手</small></h2><div class="cmb">'
-    +top.map(function(k,i){var s=split(k),b=boatAt(bs,s.c);return '<span class="k">'+s.c+'コース '+esc(s.t)+(b&&b.waku!==s.c?'<small>'+b.waku+'号艇</small>':"")+'</span><span class="t"><i class="'+(k===a1?"top":"")+'" style="width:'+(pj[k]/mx*100).toFixed(1)+'%"></i></span><span class="v">'+pct(pj[k])+'<small>%</small></span>'}).join("")+'</div>';
-  var sec=(D.second||{})[a1];
-  if(sec){var tot=0,arr=Object.keys(sec).map(function(c){tot+=sec[c];return [c,sec[c]]}).sort(function(a,b){return b[1]-a[1]}).slice(0,3);
-    html+='<div class="sec2">'+split(a1).c+'コースの'+esc(split(a1).t)+'が決まったときの2着（過去の実績・<span class="n">'+tot.toLocaleString()+'</span>レース）：'+arr.map(function(x){return x[0]+'コース <span class="n">'+(x[1]/tot*100).toFixed(0)+'</span>%'}).join("・")+'</div>';}
+    +'<div class="cap"><h2>スリット</h2><span>スタート展示ST・右ほど早い</span></div>'+slit(bs,dn)
+    +'<div class="cap"><h2>1マーク</h2><span>'+windIcon(w)+(w?esc(w.t)+(w.ms?' <span class="n" style="font-size:17px;color:#fff">'+w.ms+'</span>m':''):'')+(r.wave!=null?'・波 <span class="n" style="font-size:17px;color:#fff">'+r.wave+'</span>cm':'')+'</span></div>'+telop(bs,a1,a2,pj)+course(bs,pn,a1,a2,pj)
+    +'<div class="legend"><span><i></i>逃げの見立て</span><span><i class="g"></i>逃げ以外の見立て</span><span><i class="s"></i>スタートライン</span></div>';
+  // 逃げ以外の見立て（形を描ける組み合わせ）＋その他の合計
+  var shown=att.slice(0,4),oth=keys.filter(function(k){return k!=="1逃げ"&&shown.indexOf(k)<0}).reduce(function(s,k){return s+pj[k]},0),mx=pj[shown[0]]||1;
+  html+='<div class="cap"><h2>逃げ以外の見立て</h2><span>全体の中の割合</span></div><div class="sec"><div class="cmb">'
+    +shown.map(function(k){var s=split(k),b=boatAt(bs,s.c);return '<span class="k">'+s.c+'コース '+esc(s.t)+(b&&b.waku!==s.c?'<small>'+b.waku+'号艇</small>':"")+'</span><span class="t"><i class="'+(k===a1?"top":"")+'" style="width:'+(pj[k]/mx*100).toFixed(1)+'%"></i></span><span class="v">'+pct(pj[k])+'<small>%</small></span>'}).join("")
+    +'<span class="k oth">そのほか（抜き・恵まれ・6コースなど）</span><span></span><span class="v oth">'+pct(oth)+'<small>%</small></span></div>';
+  // 2着・3着の連動（場別。少なければ全国）
+  if(a1){var S=D.second||{},vs=(S[r.jcd]||{})[a1],al=(S.all||{})[a1],use=null,lab="";
+    function tot(o){return o?Object.keys(o).reduce(function(s,c){return s+o[c]},0):0}
+    if(vs&&tot(vs["2"])>=30){use=vs;lab=esc(r.venue)}else if(al){use=al;lab="全国"}
+    if(use){var line=function(o){var t=tot(o);return Object.keys(o).map(function(c){return [c,o[c]]}).sort(function(a,b){return b[1]-a[1]}).slice(0,3).map(function(x){return x[0]+'コース <span class="n">'+(x[1]/t*100).toFixed(0)+'</span>%'}).join("・")};
+      var s1=split(a1);
+      html+='<div class="rel"><b>'+s1.c+'コースの'+esc(s1.t)+'が決まったとき</b>（過去の実績・'+lab+'・<span class="n">'+tot(use["2"]).toLocaleString()+'</span>レース）<br>2着　'+line(use["2"])+(use["3"]?'<br>3着　'+line(use["3"]):'')
+        +(irr?'<br><span class="nt">このレースは前づけや展示のFがあり、隊形がふだんと違うので参考程度です。</span>':'')+'</div>';}}
   html+='</div>';
   // スタート展示の表
-  html+='<div class="sec"><h2>スタート展示</h2><table><tr><th>枠</th><th>選手</th><th>ST</th><th>平均比</th><th>展示</th><th>チルト</th></tr>'
-    +bs.map(function(b){return '<tr><td><span class="c C'+b.waku+'">'+b.waku+'</span></td><td>'+esc(b.name||"")+"<small>"+b.course+"コース・"+esc(b.cls||"")+'</small></td><td class="n">'+stTxt(b.st)+'</td><td class="n">'+(b.stDiff==null?"—":(b.stDiff>0?"+":"")+b.stDiff.toFixed(2))+'</td><td class="n">'+(b.tenji?b.tenji.toFixed(2):"—")+(b.tenjiRank?"<small>"+b.tenjiRank+"位</small>":"")+'</td><td class="n">'+(b.tilt==null?"—":b.tilt.toFixed(1))+"</td></tr>"}).join("")
-    +'</table><div class="sec2" style="font-size:12.5px;color:var(--faint)">平均比＝スタート展示STから、その選手の本番の平均ST（前日まで）を引いた差。マイナスは普段より早い。</div></div>';
+  html+='<div class="cap"><h2>スタート展示</h2><span></span></div><table><tr><th>枠</th><th>選手</th><th>ST</th><th>平均比</th><th>展示</th><th>チルト</th></tr>'
+    +bs.map(function(b){var f=isF(b);return '<tr><td><span class="c C'+b.waku+'">'+b.waku+'</span></td><td>'+esc(b.name||"")+"<small>"+b.course+"コース・"+esc(b.cls||"")+'</small></td><td class="n'+(f?' F':'')+'">'+stTxt(b)+'</td><td class="n">'+(f||b.stDiff==null?"—":(b.stDiff>0?"+":"")+b.stDiff.toFixed(2))+'</td><td class="n">'+(b.tenji?b.tenji.toFixed(2):"—")+(b.tenjiRank?"<small>"+b.tenjiRank+"位</small>":"")+'</td><td class="n">'+(b.tilt==null?"—":b.tilt.toFixed(1))+"</td></tr>"}).join("")
+    +'</table><div class="tnote">平均比＝スタート展示のSTから、その選手の本番の平均ST（前日まで）を引いた差。マイナスはふだんより早い。展示でFの艇は出しません。</div>';
   $("main").innerHTML=html;
 }
-function windTxt(r){var wd=r.wind||{};if(wd.code===17||wd.ms===0)return "無風";if(wd.code==null||r.bearing==null)return "";
-  var a=((wd.code-1)*22.5-r.bearing+360)%360,df=Math.min(a,360-a);
-  var t=df<=45?"追い風":df>=135?"向かい風":(a>180?"横風（右から）":"横風（左から）");
-  return t+' <span class="n" style="font-size:17px;color:#fff">'+(wd.ms!=null?wd.ms:"")+'</span>m';}
-/* スリット：行＝コース（上が1）。横＝スタート展示ST。右端寄りの縦線がスタートライン */
+/* スリット：行＝コース（上が1）。横＝スタート展示ST（.00〜.35の等間隔）。縦の線＝スタートライン、その右の帯＝展示F */
 function slit(bs,dn){
-  var W=340,RH=26,H=RH*6+18,SX=250,K=400;   // 0.10秒 = 40px。Fは線の右へ（0.20まで）
-  var s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="スタート展示STの並び">';
-  for(var c=1;c<=6;c++){var y=8+(c-1)*RH;s+='<line x1="30" y1="'+(y+RH)+'" x2="'+(W-6)+'" y2="'+(y+RH)+'" stroke="rgba(232,236,239,.08)"/><text x="8" y="'+(y+RH/2+5)+'" font-size="13" font-family="Barlow Condensed,sans-serif" fill="#8a96a3">'+c+'</text>'}
-  [.1,.2,.3].forEach(function(v){var x=SX-v*K;s+='<line x1="'+x+'" y1="6" x2="'+x+'" y2="'+(H-10)+'" stroke="rgba(232,236,239,.07)"/><text x="'+x+'" y="'+(H-1)+'" text-anchor="middle" font-size="11" font-family="Barlow Condensed,sans-serif" fill="#8a96a3">.'+(v*10)+'0</text>'});
-  s+='<line x1="'+SX+'" y1="4" x2="'+SX+'" y2="'+(H-10)+'" stroke="#8a96a3" stroke-width="1.5"/>';
-  bs.forEach(function(b){var y=8+(b.course-1)*RH+RH/2,st=b.st==null?.3:b.st,x=SX-Math.max(-.2,Math.min(.5,st))*K,w=b.waku;
-    s+='<line x1="34" y1="'+y+'" x2="'+(x-28)+'" y2="'+y+'" stroke="rgba(232,236,239,.12)" stroke-width="1"/>'
-      +'<path d="M'+(x-28)+' '+(y-6)+' L'+(x-8)+' '+(y-6)+' L'+x+' '+y+' L'+(x-8)+' '+(y+6)+' L'+(x-28)+' '+(y+6)+' Z" fill="'+LC[w]+'"'+(w===2?' stroke="#8a96a3"':"")+'/>'
-      +'<text x="'+(x-16)+'" y="'+(y+4.5)+'" text-anchor="middle" font-size="12" font-weight="700" font-family="Barlow Condensed,sans-serif" fill="'+LT[w]+'">'+w+'</text>'
-      +'<text x="'+(x-34)+'" y="'+(y+5)+'" text-anchor="end" font-size="14" font-weight="600" font-family="Barlow Condensed,sans-serif" fill="'+(b.st!=null&&b.st<0?"#dcbd78":"#f2f2f0")+'">'+stTxt(b.st)+'</text>';
-    if(dn&&dn===b)s+='<rect x="'+(x+6)+'" y="'+(y-9)+'" width="34" height="18" fill="none" stroke="#dcbd78"/><text x="'+(x+23)+'" y="'+(y+4.5)+'" text-anchor="middle" font-size="11.5" font-weight="800" fill="#dcbd78">凹み</text>';
+  var W=340,RH=26,H=RH*6+22,SX=W-60,K=(SX-72)/.35;
+  var s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="スタート展示STの並び">'
+    +'<rect x="'+SX+'" y="4" width="'+(W-SX)+'" height="'+(H-18)+'" fill="rgba(220,189,120,.10)"/>'
+    +'<text x="'+(SX+(W-SX)/2)+'" y="'+(H-2)+'" text-anchor="middle" font-size="11" fill="#dcbd78">展示F</text>';
+  for(var c=1;c<=6;c++){var y=6+(c-1)*RH;s+='<line x1="24" y1="'+(y+RH)+'" x2="'+SX+'" y2="'+(y+RH)+'" stroke="rgba(232,236,239,.08)"/><text x="6" y="'+(y+RH/2+5)+'" font-size="13" font-family="Barlow Condensed,sans-serif" fill="#8a96a3">'+c+'</text>'}
+  [0,.1,.2,.3].forEach(function(v){var x=SX-v*K;s+=(v?'<line x1="'+x+'" y1="4" x2="'+x+'" y2="'+(H-18)+'" stroke="rgba(232,236,239,.07)"/>':'')+'<text x="'+x+'" y="'+(H-2)+'" text-anchor="middle" font-size="11" font-family="Barlow Condensed,sans-serif" fill="#8a96a3">'+(v?'.'+(v*10)+'0':'0')+'</text>'});
+  s+='<line x1="'+SX+'" y1="2" x2="'+SX+'" y2="'+(H-16)+'" stroke="#cdd7e0" stroke-width="1.5"/>';
+  bs.forEach(function(b){var y=6+(b.course-1)*RH+RH/2,f=isF(b),st=b.st==null?.3:b.st,x=f?SX+44:SX-Math.max(0,Math.min(.35,st))*K,w=b.waku;
+    s+='<path d="M'+(x-26)+' '+(y-6)+' L'+(x-8)+' '+(y-6)+' L'+x+' '+y+' L'+(x-8)+' '+(y+6)+' L'+(x-26)+' '+(y+6)+' Z" fill="'+LC[w]+'"'+(w===2?' stroke="#8a96a3"':"")+'/>'
+      +'<text x="'+(x-15)+'" y="'+(y+4.5)+'" text-anchor="middle" font-size="12" font-weight="700" font-family="Barlow Condensed,sans-serif" fill="'+LT[w]+'">'+w+'</text>'
+      +(f?'':'<text x="'+(x-31)+'" y="'+(y+5)+'" text-anchor="end" font-size="14" font-weight="600" font-family="Barlow Condensed,sans-serif" fill="#f2f2f0">'+stTxt(b)+'</text>');
+    if(dn&&dn===b)s+='<rect x="'+(x+5)+'" y="'+(y-9)+'" width="34" height="18" fill="#0d1c2f" stroke="#dcbd78"/><text x="'+(x+22)+'" y="'+(y+4.5)+'" text-anchor="middle" font-size="11.5" font-weight="800" fill="#dcbd78">凹み</text>';
   });
   return s+'</svg>';
 }
-/* 1マーク：上が1マーク。スタートの瞬間の隊形（横一線＋ST差）と、決まり手の型で描いた見立ての航跡 */
+/* 1マーク：上が1マーク（図の左から1/3）。スタートの瞬間の隊形（横一線＋ST差。展示Fは線上）と、決まり手の型で描いた航跡 */
 function course(bs,pn,a1,a2,pj){
-  var W=340,H=340,CX=170,TOP=20,BX=96,BY=76,SY=268;
-  var sc=function(y){return .62+.38*Math.max(0,Math.min(1,(y-TOP)/(H-TOP)))};
+  var W=340,H=300,CX=170,TOP=10,BX=104,BY=58,SY=220;
+  var sc=function(y){return .66+.34*Math.max(0,Math.min(1,(y-TOP)/(H-TOP)))};
   var P=function(x,y){return [CX+(x-CX)*sc(y),y]};
   var pt=function(x,y){var q=P(x,y);return q[0].toFixed(1)+" "+q[1].toFixed(1)};
-  var lx=function(c){return 110+(c-1)*38};
-  var ly=function(b){var st=b.st==null?.15:b.st;return SY+14+Math.max(-.2,Math.min(.3,st))*120};   // 0.10秒 = 12px。Fは線より前
+  var lx=function(c){return 112+(c-1)*38};
+  var ly=function(b){var st=(b.st==null||isF(b))?0:b.st;return SY+14+Math.min(.3,st)*120};   // 0.10秒 = 12px
   var s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="1マークの見立ての図">'
-    +'<defs><pattern id="rp" width="24" height="10" patternUnits="userSpaceOnUse"><path d="M0 6 Q6 2 12 6 T24 6" fill="none" stroke="#0e3a52" stroke-width="1" opacity=".5"/></pattern>'
-    +'<linearGradient id="wk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>'
-    +'<rect width="'+W+'" height="'+H+'" fill="#0b2a3d"/><rect width="'+W+'" height="'+H+'" fill="url(#rp)"/>';
-  // スタートライン（事実＝実線）
-  s+='<path d="M'+pt(18,SY)+' L'+pt(W-18,SY)+'" stroke="#8a96a3" stroke-width="1.5"/>';
-  // 航跡（見立て＝点線）
+    +'<defs><pattern id="rp" width="24" height="10" patternUnits="userSpaceOnUse"><path d="M0 6 Q6 2 12 6 T24 6" fill="none" stroke="#0e3a52" stroke-width="1" opacity=".5"/></pattern></defs>'
+    +'<rect width="'+W+'" height="'+H+'" fill="#0b2a3d"/><rect width="'+W+'" height="'+H+'" fill="url(#rp)"/>'
+    +'<path d="M'+pt(14,SY)+' L'+pt(W-14,SY)+'" stroke="#8a96a3" stroke-width="1.5"/>';
   var b1=boatAt(bs,1),e0=[lx(1),b1?ly(b1)-16:SY-2];
-  var dEsc='M'+pt(e0[0],e0[1])+' C '+pt(e0[0],e0[1]-110)+', '+pt(BX+36,BY+66)+', '+pt(BX+26,BY+6)+' S '+pt(BX+2,BY-42)+', '+pt(BX-40,BY-10);
+  var dEsc='M'+pt(e0[0],e0[1])+' C '+pt(e0[0],e0[1]-100)+', '+pt(BX+34,BY+56)+', '+pt(BX+24,BY+4)+' S '+pt(BX+2,BY-40)+', '+pt(BX-40,BY-10);
   s+='<path class="ln" d="'+dEsc+'" fill="none" stroke="#f2f2f0" stroke-width="'+(2+pn*4).toFixed(1)+'" stroke-dasharray="7 6" stroke-linecap="round"/>';
-  function attPath(k){var o=split(k),b=boatAt(bs,o.c);if(!b)return "";var x0=lx(o.c),y0=ly(b)-16,t=o.t;
-    if(t==="まくり") return 'M'+pt(x0,y0)+' C '+pt(x0-4,y0-110)+', '+pt(BX+56,BY+60)+', '+pt(BX+54,BY+10)+' S '+pt(BX+18,BY-62)+', '+pt(BX-40,BY-46);          // 1の前を横切り、外を全速で叩く
-    if(t==="まくり差し") return 'M'+pt(x0,y0)+' C '+pt(x0+6,y0-120)+', '+pt(BX+92,BY+40)+', '+pt(BX+62,BY+2)+' C '+pt(BX+40,BY-26)+', '+pt(BX+4,BY-30)+', '+pt(BX-22,BY+6);  // 外から入り、1の内へ切り込む
-    return 'M'+pt(x0,y0)+' C '+pt(x0-6,y0-120)+', '+pt(BX+62,BY+84)+', '+pt(BX+44,BY+24)+' C '+pt(BX+32,BY-8)+', '+pt(BX+2,BY-32)+', '+pt(BX-20,BY-2);  // 差し：1の後ろを横切り、ブイのすぐ外を小さく回る
+  function attPath(k){var o=split(k),b=boatAt(bs,o.c);if(!b)return "";var x0=lx(o.c),y0=ly(b)-16;
+    if(o.t==="まくり") return 'M'+pt(x0,y0)+' L'+pt(BX+46,BY+30)+' C '+pt(BX+38,BY+6)+', '+pt(BX+30,BY-56)+', '+pt(BX-44,BY-44);   // 1の前を絞る直線→外を大きく回る
+    if(o.t==="まくり差し") return 'M'+pt(x0,y0)+' L'+pt(x0+6,BY+58)+' C '+pt(x0+4,BY+20)+', '+pt(BX+42,BY+2)+', '+pt(BX+22,BY-12)+' C '+pt(BX+8,BY-22)+', '+pt(BX-10,BY-14)+', '+pt(BX-20,BY+8);   // 外を回ってから内へ切り返す（くの字）
+    return 'M'+pt(x0,y0)+' C '+pt(x0-6,y0-100)+', '+pt(BX+54,BY+76)+', '+pt(BX+36,BY+26)+' C '+pt(BX+26,BY-4)+', '+pt(BX+2,BY-26)+', '+pt(BX-18,BY+2);   // 差し：1の後ろを横切り、1が回ったあとに内へ
   }
-  if(a2) s+='<path class="ln" d="'+attPath(a2)+'" fill="none" stroke="#dcbd78" stroke-opacity=".55" stroke-width="2" stroke-dasharray="5 6" stroke-linecap="round"/>';
+  if(a2) s+='<path class="ln" d="'+attPath(a2)+'" fill="none" stroke="#dcbd78" stroke-opacity=".4" stroke-width="1.5" stroke-dasharray="5 6" stroke-linecap="round"/>';
   if(a1) s+='<path class="ln" d="'+attPath(a1)+'" fill="none" stroke="#dcbd78" stroke-width="3" stroke-dasharray="7 6" stroke-linecap="round"/>';
-  // 1マーク（公式の橙）
-  var bq=P(BX,BY),k=sc(BY);
-  s+='<g><rect x="'+(bq[0]-8*k)+'" y="'+(bq[1]-14*k)+'" width="'+(16*k)+'" height="'+(22*k)+'" fill="#ff7a2e"/><rect x="'+(bq[0]-8*k)+'" y="'+(bq[1]-5*k)+'" width="'+(16*k)+'" height="'+(5*k)+'" fill="#f2f2f0"/><path d="M'+(bq[0]-8*k)+' '+(bq[1]-14*k)+' L'+bq[0]+' '+(bq[1]-22*k)+' L'+(bq[0]+8*k)+' '+(bq[1]-14*k)+' Z" fill="#ff9a55"/></g>'
-    +'<text x="'+(bq[0]-6)+'" y="'+(bq[1]+30)+'" text-anchor="end" font-size="13" font-weight="700" fill="#cdd7e0">1マーク</text>';
-  // 名札（攻め筋の先・金の枠）
+  // 1マーク（公式の橙・大きく）
+  var bq=P(BX,BY),k=sc(BY)*1.7;
+  s+='<g><rect x="'+(bq[0]-7*k)+'" y="'+(bq[1]-12*k)+'" width="'+(14*k)+'" height="'+(19*k)+'" fill="#ff7a2e"/><rect x="'+(bq[0]-7*k)+'" y="'+(bq[1]-4*k)+'" width="'+(14*k)+'" height="'+(4*k)+'" fill="#f2f2f0"/><path d="M'+(bq[0]-7*k)+' '+(bq[1]-12*k)+' L'+bq[0]+' '+(bq[1]-19*k)+' L'+(bq[0]+7*k)+' '+(bq[1]-12*k)+' Z" fill="#ff9a55"/></g>'
+    +'<text x="'+(bq[0]-14)+'" y="'+(bq[1]+28)+'" text-anchor="end" font-size="13" font-weight="700" fill="#cdd7e0">1マーク</text>';
+  // 名札（右側・金の枠。2本目は弱く）
   function tag(k2,y,op){if(!k2)return "";var o=split(k2),b=boatAt(bs,o.c),t=o.c+'コース'+(b&&b.waku!==o.c?'（'+b.waku+'号艇）':'')+' '+o.t,w=t.length*12.5+46,x=W-10-w;
     return '<g opacity="'+op+'"><rect x="'+x+'" y="'+y+'" width="'+w+'" height="24" fill="#0d1c2f" stroke="#dcbd78"/><text x="'+(x+10)+'" y="'+(y+16.5)+'" font-size="12.5" font-weight="800" fill="#dcbd78">'+t+'</text><text x="'+(x+w-8)+'" y="'+(y+17.5)+'" text-anchor="end" font-size="17" font-weight="700" font-family="Barlow Condensed,sans-serif" fill="#f2f2f0">'+pct(pj[k2])+'%</text></g>';}
-  s+=tag(a1,TOP+2,1)+tag(a2,TOP+30,.75);
-  // 艇（上から見た細長い船形・艇番は胴体の中）と引き波
+  // 艇（上から見た細長い船形）と細い引き波
   bs.forEach(function(b){var q=P(lx(b.course),ly(b)),kk=sc(ly(b))*1.1,w=b.waku;
     s+='<g transform="translate('+q[0].toFixed(1)+' '+q[1].toFixed(1)+') scale('+kk.toFixed(3)+')">'
-      +'<path d="M-6 14 L-20 50 M6 14 L20 50" stroke="url(#wk)" stroke-width="2" fill="none"/>'
+      +'<path d="M-5 14 L-15 46 M5 14 L15 46" stroke="rgba(255,255,255,.15)" stroke-width="1.5" fill="none"/>'
       +'<path d="M0 -16 L7 -7 L7 14 L-7 14 L-7 -7 Z" fill="'+LC[w]+'"'+(w===2?' stroke="#8a96a3" stroke-width="1"':"")+'/>'
       +'<text x="0" y="8" text-anchor="middle" font-size="13" font-weight="700" font-family="Barlow Condensed,sans-serif" fill="'+LT[w]+'">'+w+'</text>'
-      +(b.waku>b.course?'<rect x="-22" y="17" width="44" height="16" fill="#0d1c2f" stroke="#dcbd78"/><text x="0" y="29" text-anchor="middle" font-size="10.5" font-weight="800" fill="#dcbd78">前づけ</text>':'')
+      +(b.waku>b.course?'<rect x="-22" y="17" width="44" height="16" fill="#0d1c2f" stroke="#dcbd78"/><text x="0" y="29" text-anchor="middle" font-size="10.5" font-weight="800" fill="#dcbd78">前づけ</text>':(isF(b)?'<text x="0" y="31" text-anchor="middle" font-size="12" font-weight="800" fill="#dcbd78">F</text>':''))
       +'</g>';});
   return s+'</svg>';
 }
