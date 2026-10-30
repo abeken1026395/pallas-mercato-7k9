@@ -134,7 +134,7 @@ function race(r){
   var bs=r.boats.slice().sort(function(a,b){return a.course-b.course});
   var rest=[2,3,4,5,6].map(function(c){return pc[c-1]}),sum=rest.reduce(function(a,b){return a+b},0)||1,mx=Math.max.apply(null,rest);
   var aw=laneOf(bs,att);
-  $("main").innerHTML='<figure class="chart" id="ch" style="margin-left:-4px;margin-right:-4px"><p class="ft">'+esc(r.venue)+" "+R+'R</p><p class="fs">スタート展示の隊形から1マークまで（模式図）</p>'
+  $("main").innerHTML='<figure class="chart" id="ch" style="margin-left:-4px;margin-right:-4px"><p class="ft">'+esc(r.venue)+" "+R+'R</p><p class="fs">スタート展示の隊形から1マークまで</p>'
     +'<div class="hero"><div class="big">'+pct(p["逃げ"])+'<small>%</small></div><div class="lab">1コースが<br>逃げる見立て</div></div>'
     +svg(bs,p,att,out,r)
     +'<button type="button" class="replay" id="rp">もう一度見る</button></figure>'
@@ -146,46 +146,83 @@ function race(r){
     +'</table></div>'
     +'<details style="margin-top:14px"><summary>1マークの決まり方の見立て</summary><div class="dbody">'+TYPES.map(function(t){return t+" "+pct(p[t])+"%"}).join("・")+'</div></details>';
   var ch=$("ch");requestAnimationFrame(function(){requestAnimationFrame(function(){ch.classList.add("on")})});
-  $("rp").onclick=function(){ch.classList.remove("on");void ch.offsetWidth;setTimeout(function(){ch.classList.add("on")},60)};
+  $("rp").onclick=function(){race(r)};   // 描き直すと SVG の動きも頭から再生される
 }
-/* 縦の模式図。上＝1マーク（左に回る）、下＝スタートライン。1コースが左（内）。
-   艇の縦位置＝スタート展示STの差（早いほど前）。4コースより外はダッシュとして後ろから助走してくる形 */
+/* 水面の見立て図（中継のCGの作法）。奥＝1マーク、手前＝スタートライン。少し上から見下ろす遠近をつけ、奥ほど小さく描く。
+   1コースが左（内）。艇の前後＝スタート展示STの差（早いほど前）。4コースより外はダッシュとして後ろから。
+   白＝1コースの逃げの航跡（太さ＝逃げの見立て）。金＝逃げなかったときに勝つ見込みが最も高いコースの攻め筋。
+   1コースと攻めの艇は線に沿って1マークへ進み、ほかの艇は少しだけ前へ出る（1回だけ。「もう一度見る」で再生） */
 function svg(bs,p,att,out,r){
-  var W=340,H=360,BX=80,BY=70,SY=262;
-  var x=function(c){return 88+(c-1)*44};
+  var W=340,H=400,CX=170,TOP=34,BX=92,BY=92,SY=300,DUR=1.8;
+  // 遠近：奥（y が小さい）ほど横幅と大きさを詰める
+  var sc=function(y){return .58+.42*Math.max(0,Math.min(1,(y-TOP)/(H-TOP)))};
+  var P=function(x,y){return [CX+(x-CX)*sc(y),y]};
+  var pt=function(x,y){var q=P(x,y);return q[0].toFixed(1)+" "+q[1].toFixed(1)};
+  var lx=function(c){return 104+(c-1)*40};
   var sts=bs.map(function(b){return b.st==null||b.st<0?null:b.st}).filter(function(v){return v!=null}),mn=sts.length?Math.min.apply(null,sts):0;
-  var y=function(b){var d=b.st==null||b.st<0?.1:Math.min(.25,b.st-mn);return SY+6+d*120+(b.course>=4?20:0)};
-  var s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="スタート展示の隊形と1マークの見立ての模式図">'
-    // 水面の目印
-    +'<line x1="20" y1="'+SY+'" x2="'+(W-14)+'" y2="'+SY+'" stroke="rgba(232,236,239,.35)" stroke-width="1" stroke-dasharray="3 5"/>'
-    +'<text x="'+(W-14)+'" y="'+(SY-6)+'" text-anchor="end" font-size="11" fill="rgba(232,236,239,.55)">スタートライン</text>'
-    +'<line x1="'+((x(3)+x(4))/2)+'" y1="'+(SY+12)+'" x2="'+((x(3)+x(4))/2)+'" y2="'+(H-6)+'" stroke="rgba(232,236,239,.14)" stroke-width="1"/>'
-    +'<text x="'+((x(3)+x(4))/2+6)+'" y="'+(H-10)+'" font-size="10.5" fill="rgba(232,236,239,.45)">ダッシュ</text>'
-    +'<text x="'+((x(3)+x(4))/2-6)+'" y="'+(H-10)+'" text-anchor="end" font-size="10.5" fill="rgba(232,236,239,.45)">スロー</text>';
-  // 逃げの線：1コースから1マークへ、マークを左に巻く
-  var x1=x(1),b1=bs.filter(function(b){return b.course===1})[0],y1=b1?y(b1)-14:SY;
-  s+='<path class="ln" pathLength="1" style="--d:500ms" d="M'+x1+' '+y1+' C '+x1+' '+(y1-90)+', '+(BX+26)+' '+(BY+70)+', '+(BX+16)+' '+(BY+8)+' S '+(BX-6)+' '+(BY-22)+', '+(BX-12)+' '+(BY-10)+'" fill="none" stroke="#fff" stroke-width="'+(1.5+p["逃げ"]*6).toFixed(1)+'" stroke-linecap="round"/>';
-  // 攻め筋
-  var ba=bs.filter(function(b){return b.course===att})[0];
-  if(ba){var xa=x(att),ya=y(ba)-14,d;
-    if(out) d='M'+xa+' '+ya+' C '+(xa+6)+' '+(ya-110)+', '+(BX+110)+' '+(BY+30)+', '+(BX+60)+' '+(BY-14)+' S '+(BX+8)+' '+(BY-44)+', '+(BX-14)+' '+(BY-30);
-    else d='M'+xa+' '+ya+' C '+(xa-4)+' '+(ya-90)+', '+(BX+70)+' '+(BY+96)+', '+(BX+30)+' '+(BY+30)+' S '+(BX+4)+' '+(BY+8)+', '+(BX-2)+' '+(BY+14);
-    s+='<path class="ln" pathLength="1" style="--d:900ms" d="'+d+'" fill="none" stroke="#dcbd78" stroke-width="3.5" stroke-linecap="round"/>'
-      +'<g class="fd" style="--d:1700ms"><text x="'+(W-10)+'" y="'+(BY+6)+'" text-anchor="end" font-size="14" font-weight="800" fill="#dcbd78">'+att+'コース '+(out?"まくり筋":"差し筋")+'</text></g>';}
+  var ly=function(b){var d=b.st==null||b.st<0?.1:Math.min(.25,b.st-mn);return SY+10+d*110+(b.course>=4?22:0)};
+  var s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="スタート展示の隊形と1マークの見立ての図">'
+    +'<defs>'
+    +'<linearGradient id="wt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a2a3c"/><stop offset=".55" stop-color="#0c3147"/><stop offset="1" stop-color="#0e3a52"/></linearGradient>'
+    +'<radialGradient id="gl" cx=".27" cy=".23" r=".5"><stop offset="0" stop-color="rgba(255,150,80,.22)"/><stop offset="1" stop-color="rgba(255,150,80,0)"/></radialGradient>'
+    +'<linearGradient id="wk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".75"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>'
+    +'<filter id="gw" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>'
+    +'<pattern id="rp2" width="22" height="9" patternUnits="userSpaceOnUse"><path d="M0 5 Q5.5 1 11 5 T22 5" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="1"/></pattern>'
+    +'</defs>';
+  // 水面（台形＝遠近）・さざ波・1マークのまわりの照り返し
+  var a0=P(14,TOP),a1=P(W-14,TOP),a2=P(W-14,H),a3=P(14,H);
+  var poly=a0[0]+','+a0[1]+' '+a1[0]+','+a1[1]+' '+a2[0]+','+a2[1]+' '+a3[0]+','+a3[1];
+  s+='<polygon points="'+poly+'" fill="url(#wt)"/><polygon points="'+poly+'" fill="url(#rp2)"/><polygon points="'+poly+'" fill="url(#gl)"/>';
+  // コースの目安線（スタートから奥へ）
+  for(var c=1;c<=6;c++){s+='<path d="M'+pt(lx(c),H-6)+' L'+pt(lx(c),TOP+60)+'" stroke="rgba(255,255,255,.05)" stroke-width="1"/>'}
+  // スタートライン（大時計の線）とスロー／ダッシュの境
+  s+='<path d="M'+pt(20,SY)+' L'+pt(W-20,SY)+'" stroke="rgba(242,242,240,.55)" stroke-width="1.4" stroke-dasharray="6 5"/>'
+    +'<text x="'+(P(20,SY)[0]+4)+'" y="'+(SY+16)+'" font-size="10" font-weight="700" letter-spacing=".1em" fill="rgba(242,242,240,.7)">スタートライン</text>';
+  var mid=(lx(3)+lx(4))/2;
+  s+='<path d="M'+pt(mid,SY+16)+' L'+pt(mid,H-4)+'" stroke="rgba(242,242,240,.16)" stroke-width="1"/>'
+    +'<text x="'+(P(mid,H-8)[0]+6)+'" y="'+(H-10)+'" font-size="11" fill="rgba(242,242,240,.5)">ダッシュ</text>'
+    +'<text x="'+(P(mid,H-8)[0]-6)+'" y="'+(H-10)+'" text-anchor="end" font-size="11" fill="rgba(242,242,240,.5)">スロー</text>';
+  // 航跡の形（実座標 → 遠近をかけた点）
+  var b1=bs.filter(function(b){return b.course===1})[0],ba=bs.filter(function(b){return b.course===att})[0];
+  var e0=[lx(1),b1?ly(b1)-16:SY];
+  var dEsc='M'+pt(e0[0],e0[1])+' C '+pt(e0[0],e0[1]-120)+', '+pt(BX+32,BY+70)+', '+pt(BX+20,BY+6)+' S '+pt(BX-4,BY-28)+', '+pt(BX-30,BY-14);
+  var dAtt='';
+  if(ba){var q0=[lx(att),ly(ba)-16];
+    dAtt=out?'M'+pt(q0[0],q0[1])+' C '+pt(q0[0]+10,q0[1]-140)+', '+pt(BX+128,BY+24)+', '+pt(BX+74,BY-26)+' S '+pt(BX+6,BY-58)+', '+pt(BX-30,BY-40)
+            :'M'+pt(q0[0],q0[1])+' C '+pt(q0[0]-8,q0[1]-110)+', '+pt(BX+86,BY+108)+', '+pt(BX+38,BY+40)+' S '+pt(BX+8,BY+16)+', '+pt(BX-10,BY+26);}
+  var ew=(2+p["逃げ"]*7).toFixed(1);
+  // 逃げの航跡：下に広い白の帯（引き波）＋芯
+  s+='<path class="ln" pathLength="1" style="--d:0ms;transition-duration:'+DUR+'s" d="'+dEsc+'" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="'+(+ew+8)+'" stroke-linecap="round"/>'
+    +'<path class="ln" pathLength="1" style="--d:0ms;transition-duration:'+DUR+'s" d="'+dEsc+'" fill="none" stroke="#f2f2f0" stroke-width="'+ew+'" stroke-linecap="round"/>';
+  if(dAtt) s+='<path class="ln" pathLength="1" style="--d:150ms;transition-duration:'+DUR+'s" d="'+dAtt+'" fill="none" stroke="#dcbd78" stroke-width="4" stroke-linecap="round" filter="url(#gw)"/>';
+  // 1マーク（橙と白の縞のブイ・照り返しの輪）
+  var bq=P(BX,BY),bs1=sc(BY);
+  s+='<ellipse cx="'+bq[0]+'" cy="'+(bq[1]+9*bs1)+'" rx="'+(16*bs1)+'" ry="'+(5*bs1)+'" fill="rgba(0,0,0,.35)"/>'
+    +'<circle class="fd" style="--d:'+(DUR*1000)+'ms" cx="'+bq[0]+'" cy="'+bq[1]+'" r="'+(26*bs1)+'" fill="none" stroke="#ff8a3d" stroke-opacity=".45" stroke-width="1.5"/>'
+    +'<g><rect x="'+(bq[0]-9*bs1)+'" y="'+(bq[1]-15*bs1)+'" width="'+(18*bs1)+'" height="'+(24*bs1)+'" fill="#ff7a2e"/><rect x="'+(bq[0]-9*bs1)+'" y="'+(bq[1]-5*bs1)+'" width="'+(18*bs1)+'" height="'+(5*bs1)+'" fill="#f2f2f0"/><path d="M'+(bq[0]-9*bs1)+' '+(bq[1]-15*bs1)+' L'+bq[0]+' '+(bq[1]-24*bs1)+' L'+(bq[0]+9*bs1)+' '+(bq[1]-15*bs1)+' Z" fill="#ff9a55"/></g>'
+    +'<text x="'+(bq[0]-18)+'" y="'+(bq[1]+4)+'" text-anchor="end" font-size="13" font-weight="800" letter-spacing=".08em" fill="#ffb27e">1マーク</text>';
+  // 攻め筋の名札（線の先・金の地に黒字）
+  if(dAtt){var tag=att+'コース '+(out?'まくり筋':'差し筋'),tw=tag.length*13+16,tx=W-12-tw,ty=out?BY-58:BY+64;
+    s+='<g class="fd" style="--d:'+(DUR*1000+200)+'ms"><rect x="'+tx+'" y="'+ty+'" width="'+tw+'" height="24" fill="#c8a45e"/><text x="'+(tx+tw/2)+'" y="'+(ty+16.5)+'" text-anchor="middle" font-size="13" font-weight="800" fill="#111">'+tag+'</text></g>';}
   // 風（直前情報の風向・風速を、この場の水面の向き＝2M→1Mの方位に合わせて回す。上向き＝追い風）
-  var wd=r.wind||{},wx=W-44,wy=176;
-  if(wd.code===17||wd.ms===0){s+='<g class="fd" style="--d:300ms"><circle cx="'+wx+'" cy="'+wy+'" r="22" fill="none" stroke="rgba(232,236,239,.25)"/><text x="'+wx+'" y="'+(wy+5)+'" text-anchor="middle" font-size="13" fill="var(--dim)">無風</text></g>'}
+  var wd=r.wind||{},wx=W-46,wy=228;
+  if(wd.code===17||wd.ms===0){s+='<g class="fd" style="--d:200ms"><circle cx="'+wx+'" cy="'+wy+'" r="24" fill="rgba(13,28,47,.55)" stroke="rgba(242,242,240,.3)"/><text x="'+wx+'" y="'+(wy+5)+'" text-anchor="middle" font-size="13" fill="#cdd7e0">無風</text></g>'}
   else if(wd.code!=null&&r.bearing!=null){var a=((wd.code-1)*22.5-r.bearing+360)%360,df=Math.min(a,360-a),rel=df<=45?"追い風":df>=135?"向かい風":"横風";
-    s+='<g class="fd" style="--d:300ms"><circle cx="'+wx+'" cy="'+wy+'" r="22" fill="none" stroke="rgba(232,236,239,.25)"/>'
-      +'<g transform="rotate('+a.toFixed(1)+' '+wx+' '+wy+')"><line x1="'+wx+'" y1="'+(wy+15)+'" x2="'+wx+'" y2="'+(wy-11)+'" stroke="#9fd3ff" stroke-width="3" stroke-linecap="round"/><path d="M'+(wx-7)+' '+(wy-6)+' L'+wx+' '+(wy-17)+' L'+(wx+7)+' '+(wy-6)+' Z" fill="#9fd3ff"/></g>'
-      +'<text x="'+wx+'" y="'+(wy+42)+'" text-anchor="middle" font-size="13" font-weight="800" fill="#9fd3ff">'+rel+' '+(wd.ms!=null?wd.ms+'m':'')+'</text></g>';}
-  // 1マーク
-  s+='<circle cx="'+BX+'" cy="'+BY+'" r="10" fill="#ff7a2e"/><circle cx="'+BX+'" cy="'+BY+'" r="16" fill="none" stroke="#ff7a2e" stroke-opacity=".35"/>'
-    +'<text x="'+(BX-22)+'" y="'+(BY+5)+'" text-anchor="end" font-size="13" font-weight="800" fill="#ffb27e">1マーク</text>';
-  // 艇（船首が上）
-  bs.forEach(function(b,i){var cx=x(b.course),cy=y(b),w=b.waku;
-    s+='<g class="mv" style="--d:'+(i*50)+'ms"><path d="M'+(cx-11)+' '+(cy+14)+' L'+(cx-11)+' '+(cy-4)+' L'+cx+' '+(cy-18)+' L'+(cx+11)+' '+(cy-4)+' L'+(cx+11)+' '+(cy+14)+' Z" fill="'+LC[w]+'"'+(w===2?' stroke="#8a96a3" stroke-width="1.2"':"")+'/>'
-      +'<text x="'+cx+'" y="'+(cy+8)+'" text-anchor="middle" font-size="15" font-weight="800" fill="'+LT[w]+'">'+w+'</text></g>';});
+    s+='<g class="fd" style="--d:200ms"><circle cx="'+wx+'" cy="'+wy+'" r="24" fill="rgba(13,28,47,.55)" stroke="rgba(242,242,240,.3)"/>'
+      +'<g transform="rotate('+a.toFixed(1)+' '+wx+' '+wy+')"><line x1="'+wx+'" y1="'+(wy+16)+'" x2="'+wx+'" y2="'+(wy-10)+'" stroke="#9fd3ff" stroke-width="3" stroke-linecap="round"/><path d="M'+(wx-7)+' '+(wy-6)+' L'+wx+' '+(wy-18)+' L'+(wx+7)+' '+(wy-6)+' Z" fill="#9fd3ff"/></g>'
+      +'<text x="'+wx+'" y="'+(wy+44)+'" text-anchor="middle" font-size="13" font-weight="800" fill="#9fd3ff">'+rel+' <tspan font-family="Barlow Condensed,sans-serif" font-size="16">'+(wd.ms!=null?wd.ms:"")+'</tspan>m</text></g>';}
+  // 艇：船首が上。後ろに引き波（V字）。1コースと攻めの艇は航跡に沿って進む
+  bs.forEach(function(b,i){var cx=lx(b.course),cy=ly(b),w=b.waku,q=P(cx,cy),k=sc(cy)*1.05;
+    var hull='<path d="M-11 14 L-11 -3 L0 -18 L11 -3 L11 14 Z" fill="'+LC[w]+'"'+(w===2?' stroke="#8a96a3" stroke-width="1.2"':"")+'/>'
+      +'<text x="0" y="8" text-anchor="middle" font-size="15" font-weight="700" font-family="Barlow Condensed,Hiragino Sans,sans-serif" fill="'+LT[w]+'">'+w+'</text>';
+    var wake='<path d="M-9 14 L-26 52 M9 14 L26 52" stroke="url(#wk)" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M0 14 L0 46" stroke="url(#wk)" stroke-width="5" opacity=".5"/>';
+    var path=b.course===1?dEsc:(b.course===att&&dAtt?dAtt:null);
+    if(path){
+      s+='<g><g transform="scale('+k.toFixed(3)+')">'+wake+hull+'</g><animateMotion dur="'+DUR+'s" fill="freeze" begin="0s" keyPoints="0;'+(b.course===1?'.62':'.56')+'" keyTimes="0;1" calcMode="spline" keySplines=".3 .1 .2 1" path="'+(b.course===1?dEsc:dAtt)+'"/></g>';
+    }else{
+      s+='<g transform="translate('+q[0].toFixed(1)+' '+q[1].toFixed(1)+')"><g><g transform="scale('+k.toFixed(3)+')">'+wake+hull+'</g><animateTransform attributeName="transform" type="translate" from="0 0" to="0 '+(-34*k).toFixed(1)+'" dur="'+DUR+'s" begin="0s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines=".3 .1 .2 1"/></g></g>';
+    }
+  });
   return s+'</svg>';
 }
 })();
