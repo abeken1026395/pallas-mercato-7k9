@@ -63,7 +63,7 @@ svg{display:block;width:100%;height:auto}
 .tel b{font:700 19px var(--num);color:#fff}
 .tel b small{font-size:12px;color:var(--faint)}
 .why{margin:4px 0 0;border-top:1px solid var(--line);padding-top:8px;font-size:13.5px;color:var(--dim);line-height:1.7}
-.why .wh{font-size:12px;color:var(--faint);margin-bottom:2px}
+.why .wh{font-size:12px;color:var(--faint);margin-bottom:4px}.why .wh small{display:block;font-size:11.5px;line-height:1.5;margin-top:2px}
 .why .wr{display:grid;grid-template-columns:34px 1fr;align-items:baseline;gap:10px}
 .why .wr.o{color:var(--faint)}
 .why .pt{text-align:right}
@@ -217,12 +217,12 @@ function telop(bs,a1,a2,pj){
   return one(a1,1)+(a2&&pj[a2]>=THIN?one(a2,.6):'');
 }
 function windRel(r){var wd=r.wind||{};if(wd.code===17||wd.ms===0)return {t:"無風"};if(wd.code==null||r.bearing==null)return null;
-  var a=((wd.code-1)*22.5-r.bearing+360)%360,df=Math.min(a,360-a);return {t:df<=45?"追い風":df>=135?"向かい風":(a<180?"左からの横風":"右からの横風"),a:a,ms:wd.ms}}
+  var a=((wd.code-1)*22.5-r.bearing+360)%360,df=Math.min(a,360-a);return {t:df<=45?"追い風":df>=135?"向かい風":(a<180?"横風（1マークへ向かって左から）":"横風（1マークへ向かって右から）"),a:a,ms:wd.ms}}
 function windIcon(w){if(!w||w.a==null)return "";return '<svg viewBox="0 0 22 22" aria-hidden="true"><g transform="rotate('+w.a.toFixed(0)+' 11 11)"><line x1="11" y1="20" x2="11" y2="7" stroke="#dcbd78" stroke-width="2.4"/><path d="M5.5 9 L11 1.5 L16.5 9 Z" fill="#dcbd78"/></g></svg>'}
 function chip(w){return '<span class="c C'+w+'">'+w+'</span>'}
 /* 攻め筋の艇の根拠（画面の材料だけで言える事実を、効きそうな順に2つまで） */
 function fixLab(s){return String(s).replace(/(\d+\/\d+)本/g,'$1走')}
-function shortLab(s){return fixLab(s).replace(/（(?!\d号艇）)(?!前づけ）)[^）]*）/g,'').replace(/\s+$/,'')}
+function shortLab(s){return fixLab(s).replace(/・1コース1着率.*$/,'').replace(/（(?!\d号艇）)(?!前づけ）)[^）]*）/g,'').replace(/\s+$/,'')}
 function attWhy(bs,k,dn){var o=split(k),b=boatAt(bs,o.c);if(!b)return [];var out=[],inn=boatAt(bs,o.c-1);
   if(dn&&inn&&dn===inn){var ud=inn.tenjiAvgSt!=null?inn.st-inn.tenjiAvgSt:null;if(ud==null||ud>=.04)out.push(inn.course+'コースが凹み（展示ST '+stTxt(inn)+(ud!=null?'・ふだんの展示より+'+ud.toFixed(2).replace(/^0/,''):'')+'）で、内の壁が手薄')}
   var od=(!isF(b)&&b.st!=null&&b.tenjiAvgSt!=null)?b.st-b.tenjiAvgSt:null;
@@ -244,11 +244,11 @@ function race(r){
     +(vn?esc(r.venue)+'の逃げの平均 <span class="n">'+(vn.rate*100).toFixed(0)+'</span>%<span class="nb">（<span class="n">'+vn.n.toLocaleString()+'</span>レース）</span>より <span class="df'+(diff<0?' dn':'')+'">'+(diff>=0?"+":"−")+Math.abs(diff).toFixed(0)+'</span>':"")+'</div></div>';
   // 見立ての根拠：場の平均から動かした要素（最大4つ）＋そのほか（合計が見出しの差と合う）
   var rs=(r.reasons||[]).slice();
-  if(rs.length&&diff!=null){var rr=(r.rest||0)+(r.venueGap||0);if(Math.abs(rr)>=.5)rs.push({label:'そのほかの要素の合計',pt:rr,o:1})}
+  if(rs.length&&diff!=null){if(r.rest!=null&&Math.abs(r.rest)>=.5)rs.push({label:'そのほかの要素の合計',pt:r.rest,o:1});if(r.venueGap!=null&&Math.abs(r.venueGap)>=.5)rs.push({label:'場の平均への補正：見立ての基準（2026年1月から前日までの同じ場）と場の平均の差',pt:r.venueGap,o:1})}
   // 1コース自身の展示FとF持ちは、寄与の大きさにかかわらず書く
-  if(b1&&(isF(b1)||b1.fcount))rs.push({label:'1コース'+(b1.waku!==1?'（'+b1.waku+'号艇）':'')+'：'+[isF(b1)?'スタート展示でF（本番のSTは平均'+(b1.avgSt!=null?' '+b1.avgSt.toFixed(2).replace(/^0/,''):'')+'で代用）':'',b1.fcount?'F'+b1.fcount+'持ち':''].filter(Boolean).join('・'),pt:null,o:1})
+  if(b1&&!isF(b1)&&b1.fcount)rs.push({label:'1コース'+(b1.waku!==1?'（'+b1.waku+'号艇）':'')+'：'+'F'+b1.fcount+'持ち（寄与は上の一覧に含む）',pt:null,o:1})
   var c1=r.c1||{};
-  if(rs.length||c1.all){html+='<div class="why"><div class="wh">場の平均からの動き</div>'+rs.map(function(x){var up=x.pt>=0;return '<div class="wr'+(x.o?' o':'')+'"><span class="pt '+(up?"up":"dn")+'">'+(x.pt==null?'':(up?"+":"−")+Math.abs(x.pt).toFixed(0))+'</span>'+(function(s){var i=s.indexOf('：');return i<0?'<span class="h">'+esc(s)+'</span>':'<span class="h">'+esc(s.slice(0,i))+'<small>'+esc(s.slice(i+1))+'</small></span>'})(shortLab(x.label))+'</div>'}).join("")
+  if(rs.length||c1.all){html+='<div class="why"><div class="wh">場の平均からの動き<small>＋は逃げに有利、−は不利。2〜6コースの艇の「力」が＋なのは、その艇がこのコースの平均より1コースを脅かしにくいという意味です</small></div>'+rs.map(function(x){var up=x.pt>=0;return '<div class="wr'+(x.o?' o':'')+'"><span class="pt '+(up?"up":"dn")+'">'+(x.pt==null?'':(up?"+":"−")+Math.abs(x.pt).toFixed(0))+'</span>'+(function(s){var i=s.indexOf('：');return i<0?'<span class="h">'+esc(s)+'</span>':'<span class="h">'+esc(s.slice(0,i))+'<small>'+esc(s.slice(i+1))+'</small></span>'})(shortLab(x.label))+'</div>'}).join("")
     +(c1.all&&c1.all.n?'<div class="c1"><div class="c1h">'+(b1?esc(b1.name)+'の':'')+'1コースの1着率（直近1年）</div><div class="c1g"><span>全国</span><span><b class="n">'+(c1.all.w/c1.all.n*100).toFixed(0)+'</b>%<small>'+c1.all.w+'/'+c1.all.n+'走</small></span>'
       +'<span>'+esc(r.venue)+'</span><span>'+(c1.local&&c1.local.n?'<b class="n">'+(c1.local.w/c1.local.n*100).toFixed(0)+'</b>%<small>'+c1.local.w+'/'+c1.local.n+'走</small>':'<small>直近1年の1コースなし</small>')+'</span></div>'
       +'</div>':'')
@@ -274,7 +274,7 @@ function race(r){
     +(b.course===1&&ms.c1taken?'全国で、1コースを取られたレースの逃げは <span class="n">'+(ms.c1taken.nige*100).toFixed(0)+'</span>%（<span class="n">'+ms.c1taken.n.toLocaleString()+'</span>レース）。':'')
     +'本番で進入が変わると見立ても変わります。</div>'});
   // 逃げ以外の見立て（形を描ける組み合わせ）｜6コース・そのほか（中身の上位2つ）。1コースの抜き・恵まれは上の欄に出すので重ねない
-  var shown=att.slice(0,4),six=Object.keys(pj).filter(function(k){return /^6/.test(k)}).reduce(function(s,k){return s+pj[k]},0);
+  var shown=att.slice(0,5),six=Object.keys(pj).filter(function(k){return /^6/.test(k)}).reduce(function(s,k){return s+pj[k]},0);
   var othK=keys.filter(function(k){return k!=="1逃げ"&&k!=="1その他"&&!/^6/.test(k)&&shown.indexOf(k)<0}),oth=othK.reduce(function(s,k){return s+pj[k]},0);
   var rows=shown.map(function(k){var s=split(k),b=boatAt(bs,s.c);return {k:k,lab:chip(b?b.waku:s.c)+' '+s.c+'コースから'+esc(s.t),v:pj[k]}});
   var rest2=[{lab:'1コース 抜き・恵まれ',v:p1o},{lab:'6コース（すべて）',v:six},{lab:'そのほか<small>'+othK.slice(0,2).map(function(k){var s=split(k);return '<span class="nb">'+s.c+'コース'+(s.t||'')+' '+pct(pj[k])+'%</span>'}).join('・')+'</small>',v:oth}];
