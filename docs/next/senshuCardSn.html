@@ -1,10 +1,10 @@
-<!-- データ攻め by あべけん https://abeken1026395.github.io/pallas-mercato-7k9/ -->
+<!-- データ攻め by 阿部 https://abeken1026395.github.io/pallas-mercato-7k9/ -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta name="robots" content="noindex, nofollow">
 <meta charset="UTF-8">
-<meta name="author" content="あべけん（データ攻め）">
+<meta name="author" content="阿部（データ攻め）">
 <link rel="canonical" href="https://abeken1026395.github.io/pallas-mercato-7k9/players/card.html">
 <meta property="og:type" content="website">
 <meta property="og:title" content="選手カード | データ攻め">
@@ -627,7 +627,7 @@ document.querySelectorAll("[data-w]").forEach(b=>b.addEventListener("click",()=>
 Promise.all([fetch("../players/card/common.json").then(r=>r.json()),fetch("../players/card/index.json").then(r=>r.json()),fetch("../players/card/kgOutline.json").then(r=>r.json()).catch(()=>null)]).then(async([j,ix,k])=>{D=j;D.players={};IDX=ix;K=k;if(!IDX[cur])cur="4238";await loadP(cur);D.tags=(D.tags||[]).map(t=>DS[t[0]]?[t[0],t[1],DS[t[0]],t[3]]:t);if(cmp===cur)cmp=cur==="4320"?"4238":"4320";render();renderVs();}).catch(()=>{document.getElementById("card").innerHTML='<div class="body">データを読み込めませんでした。再読み込みしてください。</div>';});
 </script>
 
-<footer style="margin:24px auto 8px;max-width:560px;padding:0 16px;text-align:center;font-size:10px;color:#8a94a3;line-height:1.7;">見出しの書体：キルゴU（作者 名残雪 様）をアウトライン化して加工（Cパターン）<br>© 2026 データ攻め ── 制作・運営 あべけん</footer>
+<footer style="margin:24px auto 8px;max-width:560px;padding:0 16px;text-align:center;font-size:10px;color:#8a94a3;line-height:1.7;">見出しの書体：キルゴU（作者 名残雪 様）をアウトライン化して加工（Cパターン）<br>© 2026 データ攻め ── 制作・運営 阿部</footer>
 <script src="../assets/guard.js" defer></script>
 </body>
 </html>

@@ -37,7 +37,7 @@ MIN_ST = 20
 MIN_VEN = 200
 HARAN_TH = 5000   # 荒れの線。verifyPredictions.py・build_verify_summary.py と同じ（REFERENCE.md (6)）
 
-SRC = "データ攻め（YouTube あべけん）"
+SRC = "データ攻め"
 
 
 def norm_chaku(v):

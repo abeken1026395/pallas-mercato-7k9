@@ -1,10 +1,10 @@
-<!-- データ攻め by あべけん https://abeken1026395.github.io/pallas-mercato-7k9/ -->
+<!-- データ攻め by 阿部 https://abeken1026395.github.io/pallas-mercato-7k9/ -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta name="robots" content="noindex, nofollow">
 <meta charset="UTF-8">
-<meta name="author" content="あべけん（データ攻め）">
+<meta name="author" content="阿部（データ攻め）">
 <link rel="canonical" href="https://abeken1026395.github.io/pallas-mercato-7k9/next/senshuCardD.html">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>選手カード 技名サンプル | データ攻め</title>
@@ -565,7 +565,7 @@ document.querySelectorAll("[data-w]").forEach(b=>b.addEventListener("click",()=>
 Promise.all([fetch("senshuCard/card2D.json").then(r=>r.json()),fetch("senshuCard/kgOutlineC.json").then(r=>r.json()).catch(()=>null)]).then(([j,k])=>{D=j;K=k;const WZ={nige:["鉄壁イン","④1マーク・逃げ","決まった割合"],makuri:["豪腕まくり","④1マーク・まくり","決まった割合"],maezuke:["イン強奪","②進入・位置取り","やった割合"],tiltDash:["チルトダッシュ","①展示・チルト","やった割合"],sashi:["針の穴","④1マーク・差し","決まった割合"],c4:["四ノ陣","④1マーク・4コース","入った割合"],nuki:["逆転の舟足","⑤道中・抜き","決まった割合"],outKeep:["大外の意地","⑥着順・粘り","入った割合"],p23:["食らいつき","⑥着順・2着3着","入った割合"],geko:["下剋上","⑥着順・着順上げ","上げた割合"],fut:["不退転","②進入・枠を守る","守った割合"],zst:["ゼロ台の牙","③スタート・好スタート","決めた割合"],kanso:["完全走破","⑥着順・完走","走り切った割合"]};D.tags=(D.tags||[]).map(t=>{const z=WZ[t[0]];return z?[t[0],z[0],`${z[1]}｜${z[0]===t[1]?"":t[1]+"："}${t[2]}（${z[2]}）`,t[3]]:t;});if(!D.players[cur])cur="4238";if(cmp===cur)cmp=cur==="4320"?"4238":"4320";render();renderVs();}).catch(()=>{document.getElementById("card").innerHTML='<div class="body">データを読み込めませんでした。再読み込みしてください。</div>';});
 </script>
 
-<footer style="margin:24px auto 8px;max-width:560px;padding:0 16px;text-align:center;font-size:10px;color:#8a94a3;line-height:1.7;">見出しの書体：キルゴU（作者 名残雪 様）をアウトライン化して加工（Cパターン）<br>© 2026 データ攻め ── 制作・運営 あべけん</footer>
+<footer style="margin:24px auto 8px;max-width:560px;padding:0 16px;text-align:center;font-size:10px;color:#8a94a3;line-height:1.7;">見出しの書体：キルゴU（作者 名残雪 様）をアウトライン化して加工（Cパターン）<br>© 2026 データ攻め ── 制作・運営 阿部</footer>
 <script src="../assets/guard.js" defer></script>
 </body>
 </html>
