@@ -1,0 +1,170 @@
+<!-- データ攻め by あべけん https://abeken1026395.github.io/pallas-mercato-7k9/ -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="UTF-8">
+<meta name="author" content="あべけん（データ攻め）">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>【実験場】1マークの見立て</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;800&display=swap" rel="stylesheet">
+<style>
+/* 中継のグラフィックの作法：太い数字・艇の色は塗りの札で・斜めの切り込み・飾りの角丸や影は使わない */
+:root{
+  color-scheme:dark;
+  --bg:#070c12; --water:#0a1824; --water2:#0d2030; --line:#1b2b3a; --txt:#eef3f7; --sub:#93a7b8; --dim:#5f7486;
+  --hot:#ff5a36; --buoy:#ff6a2a;
+  --l1:#f4f4f0; --l2:#151515; --l3:#e2353b; --l4:#2f6fe0; --l5:#f2cf1d; --l6:#1f9d55;
+  --num:"Barlow Condensed","DIN Condensed","Arial Narrow",sans-serif;
+  --font:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:var(--font);-webkit-text-size-adjust:100%}
+.wrap{max-width:720px;margin:0 auto;padding:8px 16px 56px}
+a{color:#8fd0ff}
+.nav a{display:inline-flex;align-items:center;min-height:44px;font-size:13px;color:var(--sub)}
+.mast{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:2px solid var(--txt);padding:6px 0 8px}
+.mast h1{font:800 30px/1 var(--num);letter-spacing:.02em}
+.mast h1 i{font-style:normal;color:var(--hot)}
+.mast .d{font:600 15px var(--num);color:var(--sub);letter-spacing:.06em}
+.pick{display:flex;gap:0;overflow-x:auto;scrollbar-width:none;margin-top:10px;border-bottom:1px solid var(--line)}
+.pick::-webkit-scrollbar{display:none}
+.pick button{flex:none;min-height:44px;padding:0 12px;background:none;border:none;border-bottom:3px solid transparent;color:var(--sub);font:700 14px var(--font);cursor:pointer}
+.pick button[aria-pressed="true"]{color:var(--txt);border-bottom-color:var(--hot)}
+.rs{display:grid;grid-template-columns:repeat(12,1fr);gap:2px;margin-top:8px}
+.rs button{min-height:40px;background:#0f1b27;border:none;color:var(--sub);font:700 15px var(--num);cursor:pointer}
+.rs button[aria-pressed="true"]{background:var(--txt);color:var(--bg)}
+.rs button:disabled{background:transparent;color:#2c3e4f;cursor:default}
+.board{margin-top:14px;background:var(--water);position:relative;overflow:hidden}
+.board::before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 0 62%,rgba(255,90,54,.08) 62% 64%,transparent 64%);pointer-events:none}
+.head{display:grid;grid-template-columns:1fr auto;align-items:end;padding:12px 14px 0}
+.head .r{font:800 40px/1 var(--num)}
+.head .r small{font:700 15px var(--font);margin-left:6px;color:var(--sub)}
+.head .k{text-align:right}
+.head .k .lab{font:700 11px var(--font);letter-spacing:.2em;color:var(--sub)}
+.head .k .v{font:800 46px/1 var(--num)}
+.head .k .v span{font-size:22px;margin-left:1px}
+.head .k .t{font:700 13px var(--font);color:var(--sub)}
+svg.course{display:block;width:100%;height:auto}
+.leg{display:flex;justify-content:space-between;padding:0 14px 10px;font:600 11px var(--font);color:var(--dim);letter-spacing:.08em}
+.sec{padding:12px 14px;border-top:1px solid var(--line)}
+.sec h2{font:700 11px var(--font);letter-spacing:.2em;color:var(--sub);margin-bottom:8px}
+.cb{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;align-items:end;height:92px}
+.cb div{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.cb b{font:800 18px var(--num)}
+.cb i{display:block;width:100%;background:#203546}
+.cb i.top{background:var(--hot)}
+.cb span{margin-top:4px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font:800 16px var(--num)}
+.ty{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.ty div{border-left:3px solid #203546;padding:2px 0 2px 8px}
+.ty div.top{border-left-color:var(--hot)}
+.ty .n{font:700 11px var(--font);color:var(--sub);white-space:nowrap}
+.ty .p{font:800 26px/1.1 var(--num)}
+.ty .p span{font-size:14px}
+.boats{display:grid;grid-template-columns:auto 1fr auto auto;gap:6px 10px;align-items:center;font-size:13px}
+.boats .c{width:26px;height:26px;display:flex;align-items:center;justify-content:center;font:800 16px var(--num)}
+.boats .nm{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.boats .nm small{color:var(--sub);font-weight:400;margin-left:6px}
+.boats .st,.boats .tj{font:700 16px var(--num);text-align:right;min-width:44px}
+.boats .hd{font:700 11px var(--font);color:var(--dim)}
+.foot{margin-top:14px;font-size:12px;color:var(--dim);line-height:1.8}
+.foot b{color:var(--sub)}
+.err{padding:30px 0;color:var(--sub)}
+/* 艇の色の札 */
+.L1{background:var(--l1);color:#111}.L2{background:var(--l2);color:#fff;box-shadow:inset 0 0 0 1px #6b7a88}.L3{background:var(--l3);color:#fff}
+.L4{background:var(--l4);color:#fff}.L5{background:var(--l5);color:#111}.L6{background:var(--l6);color:#fff}
+@media (prefers-reduced-motion:reduce){svg.course *{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="nav"><a href="../">← データ攻め トップ</a></div>
+<div class="mast"><h1>1ST TURN <i>/</i> 見立て</h1><div class="d" id="d"></div></div>
+<div class="pick" id="pick"></div>
+<div class="rs" id="rs"></div>
+<div id="main"><div class="err">読み込んでいます…</div></div>
+<div class="foot" id="foot"></div>
+</div>
+<script>
+(function(){
+var LC=["","#f4f4f0","#151515","#e2353b","#2f6fe0","#f2cf1d","#1f9d55"],LT=["","#111","#fff","#fff","#fff","#111","#fff"];
+var TYPES=["逃げ","差し","まくり","まくり差し"];
+var D=null,J=null,R=null;
+function $(id){return document.getElementById(id)}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function pct(x){return Math.round(x*100)}
+var q=new URLSearchParams(location.search),day=q.get("d")||"20261030";
+fetch("ichimark/data"+day+".json").then(function(r){return r.ok?r.json():Promise.reject()}).then(function(d){D=d;init()}).catch(function(){$("main").innerHTML='<div class="err">この日のデータがありません。</div>'});
+
+function init(){
+  $("d").textContent=day.slice(0,4)+"."+day.slice(4,6)+"."+day.slice(6,8);
+  var vs=[];D.races.forEach(function(r){if(vs.indexOf(r.jcd)<0)vs.push(r.jcd)});vs.sort();
+  J=q.get("j")&&vs.indexOf(q.get("j"))>=0?q.get("j"):vs[0];
+  $("pick").innerHTML=vs.map(function(j){var r=D.races.filter(function(x){return x.jcd===j})[0];return '<button type="button" data-j="'+j+'">'+esc(r.venue)+"</button>"}).join("");
+  $("pick").onclick=function(e){var b=e.target.closest("button");if(!b)return;J=b.dataset.j;R=null;draw()};
+  $("rs").onclick=function(e){var b=e.target.closest("button");if(!b||b.disabled)return;R=+b.dataset.r;draw()};
+  var e=D.eval||{};
+  $("foot").innerHTML="<b>AIの見立て（実験）</b>。展示の値・級別・選手の過去の成績などから、過去のレースで学習したモデルが出した確率です。1マークの実際の位置は公式データに無いため、図の位置は確率から描いた模式図です。"
+    +(e.acc4!=null?"<br>当たり方（学習に使っていない 2026年8月以降のレース）：4つの型の正解率 "+(e.acc4*100).toFixed(1)+"%（毎回「逃げ」と答えると "+(e.base4*100).toFixed(1)+"%）。逃げ以外のときに勝つコースの正解率 "+(e.accCourse*100).toFixed(1)+"%（毎回2コースと答えると "+(e.baseCourse*100).toFixed(1)+"%）。":"");
+  draw();
+}
+function draw(){
+  [].forEach.call($("pick").children,function(b){b.setAttribute("aria-pressed",b.dataset.j===J)});
+  var rr=D.races.filter(function(x){return x.jcd===J}),have={};rr.forEach(function(x){have[x.rno]=x});
+  if(R==null||!have[R])R=rr[0].rno;
+  var h="";for(var i=1;i<=12;i++)h+='<button type="button" data-r="'+i+'" aria-pressed="'+(i===R)+'"'+(have[i]?"":" disabled")+">"+i+"</button>";
+  $("rs").innerHTML=h;
+  race(have[R]);
+}
+function race(r){
+  var p=r.p,top=TYPES.slice().sort(function(a,b){return p[b]-p[a]})[0];
+  var pc=r.pc,att=[1,2,3,4,5].reduce(function(a,c){return pc[c]>pc[a]?c:a},1)+1;   // 逃げ以外のときに勝つ見込みの高いコース（2〜6）
+  var bs=r.boats.slice().sort(function(a,b){return a.course-b.course});
+  $("main").innerHTML='<div class="board"><div class="head"><div class="r">'+R+'R<small>'+esc(r.venue)+'</small></div>'
+    +'<div class="k"><div class="lab">ESCAPE</div><div class="v">'+pct(p["逃げ"])+'<span>%</span></div><div class="t">1コースが逃げる見立て</div></div></div>'
+    +svg(bs,p,att,pc)+'<div class="leg"><span>スタート展示の隊形</span><span>1マーク</span></div></div>'
+    +'<div class="board" style="margin-top:2px"><div class="sec"><h2>逃げなかったとき、勝つのは何コースか</h2><div class="cb">'
+    +[1,2,3,4,5,6].map(function(c){var v=pc[c-1],mx=Math.max.apply(null,pc);return '<div><b>'+pct(v)+'</b><i class="'+(c===att?"top":"")+'" style="height:'+Math.max(2,v/mx*54)+'px"></i><span class="L'+laneOf(bs,c)+'">'+c+"</span></div>"}).join("")
+    +'</div></div><div class="sec"><h2>1マークの決まり方</h2><div class="ty">'
+    +TYPES.map(function(t){return '<div class="'+(t===top?"top":"")+'"><div class="n">'+t+'</div><div class="p">'+pct(p[t])+'<span>%</span></div></div>'}).join("")
+    +'</div></div><div class="sec"><h2>スタート展示</h2><div class="boats"><span></span><span></span><span class="hd" style="text-align:right">ST</span><span class="hd" style="text-align:right">展示</span>'
+    +bs.map(function(b){return '<span class="c L'+b.waku+'">'+b.waku+'</span><span class="nm">'+esc(b.name||"")+"<small>"+b.course+"コース"+(b.cls?"・"+esc(b.cls):"")+'</small></span><span class="st">'+(b.st==null?"—":(b.st<0?"F"+Math.abs(b.st).toFixed(2).slice(1):b.st.toFixed(2).slice(1)))+'</span><span class="tj">'+(b.tenji?b.tenji.toFixed(2):"—")+"</span>"}).join("")
+    +"</div></div></div>";
+}
+function laneOf(bs,c){var b=bs.filter(function(x){return x.course===c})[0];return b?b.waku:c}
+/* 水面の模式図。左＝スタートライン（スタート展示STの差だけ前後にずらす）、右＝1マーク。
+   1コースの艇から1マークへの線の太さ＝逃げの確率、攻めの線＝逃げなかったときに勝つ見込みが最も高いコース */
+function svg(bs,p,att,pc){
+  var W=360,H=210,X0=34,BX=300,BY=40,lane=function(c){return 46+(c-1)*27};
+  var sts=bs.map(function(b){return b.st==null||b.st<0?null:b.st}).filter(function(v){return v!=null}),mn=sts.length?Math.min.apply(null,sts):0;
+  var s='<svg class="course" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="スタート展示の隊形と1マークの見立ての模式図">'
+    +'<defs><pattern id="wv" width="18" height="6" patternUnits="userSpaceOnUse"><path d="M0 3 Q4.5 0 9 3 T18 3" fill="none" stroke="rgba(255,255,255,.035)" stroke-width="1"/></pattern></defs>'
+    +'<rect width="'+W+'" height="'+H+'" fill="url(#wv)"/>'
+    +'<line x1="'+(X0+44)+'" y1="20" x2="'+(X0+44)+'" y2="'+(H-14)+'" stroke="rgba(255,255,255,.22)" stroke-width="1" stroke-dasharray="2 4"/>'
+    +'<text x="'+(X0+48)+'" y="'+(H-16)+'" fill="rgba(255,255,255,.35)" font-size="8" font-family="var(--num)" letter-spacing="1.5">START</text>';
+  // 逃げの線
+  var b1=bs.filter(function(b){return b.course===1})[0],y1=lane(1);
+  var xOf=function(b){return X0+44-(b.st==null||b.st<0?12:Math.min(28,(b.st-mn)*160))};
+  if(b1){var x1=xOf(b1)+16;s+='<path d="M'+x1+' '+y1+' C '+(x1+90)+' '+(y1-4)+', '+(BX-60)+' '+(BY-6)+', '+(BX-12)+' '+(BY-2)+'" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width="'+(1+p["逃げ"]*6).toFixed(1)+'" stroke-linecap="round" class="ln" style="--len:300"/>'}
+  // 攻めの線
+  var ba=bs.filter(function(b){return b.course===att})[0];
+  if(ba){var xa=xOf(ba)+16,ya=lane(att),out=(p["まくり"]+p["まくり差し"])>=p["差し"];
+    var d=out?'M'+xa+' '+ya+' C '+(xa+80)+' '+(ya-20)+', '+(BX-40)+' '+(BY+70)+', '+(BX+18)+' '+(BY+10):'M'+xa+' '+ya+' C '+(xa+110)+' '+(ya+6)+', '+(BX-30)+' '+(BY+40)+', '+(BX-4)+' '+(BY+16);
+    s+='<path d="'+d+'" fill="none" stroke="var(--hot)" stroke-width="2.5" stroke-dasharray="5 5" class="ln dash"/>'
+      +'<text x="'+(W-8)+'" y="'+(BY+86)+'" text-anchor="end" fill="var(--hot)" font-size="12" font-weight="800" font-family="var(--num)">'+att+'コース '+(out?"まくり筋":"差し筋")+' '+pct(pc[att-1])+'%</text>';}
+  // 1マーク
+  s+='<circle cx="'+BX+'" cy="'+BY+'" r="9" fill="var(--buoy)"/><circle cx="'+BX+'" cy="'+BY+'" r="14" fill="none" stroke="var(--buoy)" stroke-opacity=".35"/>'
+    +'<text x="'+BX+'" y="'+(BY-20)+'" text-anchor="middle" fill="var(--buoy)" font-size="11" font-weight="800" font-family="var(--num)" letter-spacing="1">1M</text>';
+  // 艇（船首が右を向いた形）
+  bs.forEach(function(b,i){var x=xOf(b),y=lane(b.course),w=b.waku;
+    s+='<g class="bt" style="--dx:'+(-x+6)+'px;animation-delay:'+(i*40)+'ms"><path d="M'+x+' '+(y-8)+' L'+(x+20)+' '+(y-8)+' L'+(x+30)+' '+y+' L'+(x+20)+' '+(y+8)+' L'+x+' '+(y+8)+' Z" fill="'+LC[w]+'"'+(w===2?' stroke="#6b7a88" stroke-width="1"':"")+'/>'
+      +'<text x="'+(x+11)+'" y="'+(y+4.5)+'" text-anchor="middle" font-size="13" font-weight="800" font-family="var(--num)" fill="'+LT[w]+'">'+w+'</text></g>';});
+  return s+'<style>.bt{animation:in .55s cubic-bezier(.2,.8,.2,1) both}@keyframes in{from{transform:translateX(var(--dx));opacity:0}}.ln{stroke-dasharray:var(--len,400);stroke-dashoffset:var(--len,400);animation:dr .7s .45s ease-out forwards}.ln.dash{stroke-dasharray:5 5;stroke-dashoffset:0;opacity:0;animation:fd .4s .9s forwards}@keyframes dr{to{stroke-dashoffset:0}}@keyframes fd{to{opacity:1}}</style></svg>';
+}
+})();
+</script>
+<script src="../assets/guard.js" defer></script>
+</body>
+</html>
