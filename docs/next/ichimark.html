@@ -75,12 +75,14 @@ svg{display:block;width:100%;height:auto}
 .cap2{flex-wrap:wrap}.cap2 span{flex-basis:100%}
 .why .pt{display:inline-block;font:700 18px var(--num)}
 .why .pt.up{color:var(--gold)}.why .pt.dn{color:#cdd7e0}
-.why .c1{margin-top:4px;font-size:12.5px;color:var(--faint)}
-.why details.wd{margin:6px 0 0;border:0}.why details.wd>summary{min-height:34px;font-size:12.5px;font-weight:400;color:var(--faint)}.why details.wd>div{font-size:12.5px;color:var(--faint);line-height:1.6;margin:0 0 4px}.why .wn{margin-top:6px}
+.why .c1{margin-top:8px;font-size:12.5px;color:var(--faint)}.why .c1h{margin-bottom:2px}
+.why .c1g{display:grid;grid-template-columns:auto 1fr auto 1fr;gap:4px 10px;align-items:baseline}.why .c1g b{font:700 18px var(--num);color:#fff}.why .c1g small{margin-left:6px;color:var(--faint);font-size:12px;white-space:nowrap}
+.why .wr .h{color:var(--fg)}.why .wr.o .h{color:var(--faint)}.why .wr .h small{display:block;font-size:12px;color:var(--faint);line-height:1.5}
+.why details.wd{margin:6px 0 0;border:0}.why details.wd>summary{font-family:inherit;min-height:34px;font-size:12.5px;font-weight:400;color:var(--faint)}.why details.wd>div{font-size:12.5px;color:var(--faint);line-height:1.6;margin:0 0 4px}.why .wn{margin-top:6px}
 .why .c1 .n{font-size:15px;color:#fff}
 .wv{font-size:17px;color:#fff;margin-left:2px}
 .panel{position:relative}
-.panel .tels{position:absolute;left:8px;top:8px;z-index:1;display:flex;flex-direction:column;gap:4px;margin:0}
+.panel .tels{display:flex;flex-wrap:wrap;gap:4px;margin:0 0 8px}
 .tel{display:flex;height:32px;border:none;padding:0}
 .tel .l{background:var(--goldBg);color:#0d1c2f;font-size:13px;font-weight:800;padding:0 10px;display:flex;align-items:center}
 .tel .r{background:#0d1c2f;color:var(--gold);font:700 20px var(--num);padding:0 10px;display:flex;align-items:center}
@@ -103,14 +105,14 @@ svg{display:block;width:100%;height:auto}
 .fm{color:var(--dim);font-weight:700;border:1px solid #5b6b7c;padding:0 3px;font-size:11px}
 .sn{margin:6px 0 0;font-size:12.5px;color:var(--faint);line-height:1.6}.sn.fa{font-size:14px;color:var(--dim);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:10px 0}
 .legend i{display:inline-block;width:22px;height:0;border-top:3px solid #f2f2f0;vertical-align:middle;margin-right:5px}
-.legend i.g{border-top-color:#c9a96e}.legend i.d{border-top:2px dashed #7f8fa3}.legend i.m{width:12px;height:12px;border:1.6px solid #dcbd78;vertical-align:-1px}
+.legend i.g{border-top-color:#c9a96e}.legend i.d{border-top:2px dashed #7f8fa3}.legend i.fo{width:10px;height:14px;border:1.6px dashed #cdd7e0;vertical-align:-2px}.legend i.m{width:12px;height:12px;border:1.6px solid #dcbd78;vertical-align:-1px}
 .legend i.s{border-top-style:solid;border-top-color:var(--mute)}
 .sec{margin-top:4px}
 .cmb{display:grid;grid-template-columns:1fr 92px 44px;gap:10px;align-items:center}
 .cmb .k{font-size:15px}
 .cmb .k small{color:var(--faint);font-size:12.5px;margin-left:4px}
-.cmb .t{height:8px;background:rgba(255,255,255,.08)}
-.cmb .t i{display:block;height:100%;background:rgba(220,189,120,.38)}
+.cmb .t{height:10px;background:rgba(255,255,255,.08)}.cmb .t i.gr{background:#5b6b7c}
+.cmb .t i{display:block;height:100%;background:rgba(220,189,120,.6)}
 .cmb .t i.top{background:var(--goldBg)}
 .cmb .v{font:700 21px var(--num);text-align:right}
 .cmb .v small{font-size:12px;color:var(--faint)}
@@ -120,7 +122,7 @@ svg{display:block;width:100%;height:auto}
 .rel .n{font-size:17px;color:#fff}
 .rel .nt{font-size:12.5px;color:var(--faint)}
 table{width:100%;border-collapse:collapse;font-size:14px;table-layout:fixed}
-col.c0{width:32px}col.c2{width:42px}col.c3{width:48px}col.c4{width:62px}col.c5{width:34px}
+col.c0{width:30px}col.c2{width:40px}col.c3{width:56px}col.c4{width:62px}col.c5{width:32px}
 td.nm{white-space:normal;line-height:1.35}
 td.nm small{display:block;margin:2px 0 0}
 td sup{font-size:12px;color:var(--dim);margin-left:2px;vertical-align:5px}
@@ -135,7 +137,7 @@ td small{color:var(--faint);margin-left:3px;font-size:12px}
 .c{display:inline-flex;width:24px;height:24px;align-items:center;justify-content:center;font:700 16px var(--num)}
 .tnote{font-size:12.5px;color:var(--faint);margin-top:6px;line-height:1.7}
 details{margin:18px 0 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-details>summary{display:flex;align-items:center;min-height:48px;font-size:16px;color:var(--fg);cursor:pointer;list-style:none;font-weight:700}
+details>summary{display:flex;align-items:center;min-height:48px;font:400 17px var(--dg);color:var(--fg);cursor:pointer;list-style:none}
 details>summary::-webkit-details-marker{display:none}
 details>summary::after{content:"+";margin-left:auto;color:var(--dim);font-weight:400;font-size:18px}
 details[open]>summary::after{content:"\2212"}
@@ -246,9 +248,9 @@ function race(r){
   // 1コース自身の展示FとF持ちは、寄与の大きさにかかわらず書く
   if(b1&&(isF(b1)||b1.fcount))rs.push({label:'1コース'+(b1.waku!==1?'（'+b1.waku+'号艇）':'')+'：'+[isF(b1)?'スタート展示でF（本番のSTは平均'+(b1.avgSt!=null?' '+b1.avgSt.toFixed(2).replace(/^0/,''):'')+'で代用）':'',b1.fcount?'F'+b1.fcount+'持ち':''].filter(Boolean).join('・'),pt:null,o:1})
   var c1=r.c1||{};
-  if(rs.length||c1.all){html+='<div class="why"><div class="wh">場の平均からの動き</div>'+rs.map(function(x){var up=x.pt>=0;return '<div class="wr'+(x.o?' o':'')+'"><span class="pt '+(up?"up":"dn")+'">'+(x.pt==null?'':(up?"+":"−")+Math.abs(x.pt).toFixed(0))+'</span><span>'+esc(shortLab(x.label))+'</span></div>'}).join("")
-    +(c1.all&&c1.all.n?'<div class="c1">'+(b1?esc(b1.name)+'の':'')+'1コースの1着率（直近1年）　全国 <span class="n">'+(c1.all.w/c1.all.n*100).toFixed(0)+'</span>%（'+c1.all.w+'/'+c1.all.n+'走）'
-      +(c1.local&&c1.local.n?'・'+esc(r.venue)+' <span class="n">'+(c1.local.w/c1.local.n*100).toFixed(0)+'</span>%（'+c1.local.w+'/'+c1.local.n+'走）':'・'+esc(r.venue)+'は直近1年の1コースなし')
+  if(rs.length||c1.all){html+='<div class="why"><div class="wh">場の平均からの動き</div>'+rs.map(function(x){var up=x.pt>=0;return '<div class="wr'+(x.o?' o':'')+'"><span class="pt '+(up?"up":"dn")+'">'+(x.pt==null?'':(up?"+":"−")+Math.abs(x.pt).toFixed(0))+'</span>'+(function(s){var i=s.indexOf('：');return i<0?'<span class="h">'+esc(s)+'</span>':'<span class="h">'+esc(s.slice(0,i))+'<small>'+esc(s.slice(i+1))+'</small></span>'})(shortLab(x.label))+'</div>'}).join("")
+    +(c1.all&&c1.all.n?'<div class="c1"><div class="c1h">'+(b1?esc(b1.name)+'の':'')+'1コースの1着率（直近1年）</div><div class="c1g"><span>全国</span><span><b class="n">'+(c1.all.w/c1.all.n*100).toFixed(0)+'</b>%<small>'+c1.all.w+'/'+c1.all.n+'走</small></span>'
+      +'<span>'+esc(r.venue)+'</span><span>'+(c1.local&&c1.local.n?'<b class="n">'+(c1.local.w/c1.local.n*100).toFixed(0)+'</b>%<small>'+c1.local.w+'/'+c1.local.n+'走</small>':'<small>直近1年の1コースなし</small>')+'</span></div>'
       +'</div>':'')
     +(rs.some(function(x){return shortLab(x.label)!==fixLab(x.label)})||c1.natRate!=null?'<details class="wd"><summary>要素の中身</summary>'+rs.filter(function(x){return shortLab(x.label)!==fixLab(x.label)}).map(function(x){return '<div>'+esc(fixLab(x.label))+'</div>'}).join('')
       +(c1.natRate!=null?'<div class="wn">見出しの%は「1コースが逃げで勝つ」率で、1着率（抜き・恵まれを含む）とは別です。全国の1コースの1着率は <span class="n">'+(c1.natRate*100).toFixed(0)+'</span>%（<span class="n">'+(c1.natN||0).toLocaleString()+'</span>走・直近1年）。</div>':'')+'</details>':'')
@@ -262,7 +264,7 @@ function race(r){
       +(gs?'。'+dn.course+'コースのスタートが逃げの見立てに与えた分は <span class="n">'+(gs.pt>=0?'+':'−')+Math.abs(gs.pt).toFixed(1)+'</span>':'')+'。</div>'}
   html+=''
     +'<div class="cap"><h2>1マーク</h2><span>'+windIcon(w)+(w?esc(w.t)+(w.ms?'<span class="n wv">'+w.ms+'</span>m':''):'')+(r.wave!=null?'・波<span class="n wv">'+r.wave+'</span>cm':'')+'</span></div>'
-    +'<div class="legend"><span><i class="w"></i>逃げ</span>'+(on?'<span><i class="g"></i>攻め筋</span>':'<span><i class="d"></i>攻め筋の候補</span>')+(bs.some(function(b){return b.waku>b.course})?'<span><i class="m"></i>前づけ</span>':'')+'<span><i class="s"></i>スタートライン</span></div>'
+    +'<div class="legend"><span><i class="w"></i>逃げ</span>'+(on?'<span><i class="g"></i>攻め筋</span>':'<span><i class="d"></i>攻め筋の候補</span>')+(bs.some(function(b){return b.waku>b.course})?'<span><i class="m"></i>前づけ</span>':'')+(bs.some(isF)?'<span><i class="fo"></i>展示F（本番の平均STの位置）</span>':'')+'<span><i class="s"></i>スタートライン</span></div>'
     +'<div class="panel">'+'<div class="tels">'+telop(bs,a1,a2,pj)+'</div>'+course(bs,pn,a1,a2,pj,att)+'</div>';
   if(on){var ws=attWhy(bs,a1,dn);if(ws.length)html+='<div class="aw"><span>'+split(a1).c+'コースの攻め筋の材料</span>'+ws.map(function(x){return '<div>'+esc(x)+'</div>'}).join('')+'</div>'}
   // 前づけ：選手の実績と、前づけがあったレースの逃げ率（実測）
@@ -274,10 +276,10 @@ function race(r){
   // 逃げ以外の見立て（形を描ける組み合わせ）｜6コース・そのほか（中身の上位2つ）。1コースの抜き・恵まれは上の欄に出すので重ねない
   var shown=att.slice(0,4),six=Object.keys(pj).filter(function(k){return /^6/.test(k)}).reduce(function(s,k){return s+pj[k]},0);
   var othK=keys.filter(function(k){return k!=="1逃げ"&&k!=="1その他"&&!/^6/.test(k)&&shown.indexOf(k)<0}),oth=othK.reduce(function(s,k){return s+pj[k]},0);
-  var rows=shown.map(function(k){var s=split(k),b=boatAt(bs,s.c);return {k:k,lab:chip(b?b.waku:s.c)+' '+s.c+'コース '+esc(s.t),v:pj[k]}});
+  var rows=shown.map(function(k){var s=split(k),b=boatAt(bs,s.c);return {k:k,lab:chip(b?b.waku:s.c)+' '+s.c+'コースから'+esc(s.t),v:pj[k]}});
   var rest2=[{lab:'1コース 抜き・恵まれ',v:p1o},{lab:'6コース（すべて）',v:six},{lab:'そのほか<small>'+othK.slice(0,2).map(function(k){var s=split(k);return '<span class="nb">'+s.c+'コース'+(s.t||'')+' '+pct(pj[k])+'%</span>'}).join('・')+'</small>',v:oth}];
-  rest2[2].nobar=1;var mx=Math.max.apply(null,rows.concat(rest2.slice(0,2)).map(function(x){return x.v}))||1;
-  var line=function(x,o){return '<span class="k'+(o?' oth':'')+'">'+x.lab+'</span>'+(x.nobar?'<span></span>':'<span class="t"><i class="'+(x.k&&x.k===a1&&on?"top":"")+'" style="width:'+Math.min(100,x.v/.25*100).toFixed(1)+'%"></i></span>')+'<span class="v'+(o?' oth':'')+'">'+pct(x.v)+'<small>%</small></span>'};
+  rest2[2].gray=1;var mx=Math.max.apply(null,rows.concat(rest2.slice(0,2)).map(function(x){return x.v}))||1;
+  var line=function(x,o){return '<span class="k'+(o?' oth':'')+'">'+x.lab+'</span>'+(x.nobar?'<span></span>':'<span class="t"><i class="'+(x.k&&x.k===a1&&on?"top":x.gray?"gr":"")+'" style="width:'+Math.min(100,x.v/.25*100).toFixed(1)+'%"></i></span>')+'<span class="v'+(o?' oth':'')+'">'+pct(x.v)+'<small>%</small></span>'};
   html+='<div class="cap"><h2>逃げ以外の見立て</h2><span>全体の中の割合</span></div><div class="cmb">'+rows.map(function(x){return line(x)}).join("")+'<span class="sep"></span>'+rest2.map(function(x){return line(x,1)}).join("")+'</div>';
   // 2着・3着の連動（場別。少なければ全国）：上位3つを、艇番の四角と割合を縦に積んで1〜3位の順に
   if(on){var S=D.second||{},vs=(S[r.jcd]||{})[a1],al=(S.all||{})[a1],use=null,lab="";
