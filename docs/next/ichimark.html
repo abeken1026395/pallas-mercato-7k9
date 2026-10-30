@@ -104,7 +104,7 @@ svg{display:block;width:100%;height:auto}
 .sub2{font-size:12.5px;color:var(--faint);margin:-2px 0 6px}
 .nb{white-space:nowrap}
 .fm{color:var(--dim);font-weight:700;border:1px solid #5b6b7c;padding:0 3px;font-size:11px}
-.sn{margin:6px 0 0;font-size:12.5px;color:var(--faint);line-height:1.6}.sn .fa2{margin-top:6px}.sn.fa{font-size:14px;color:var(--dim);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:10px 0}
+.sn{margin:6px 0 0;font-size:12.5px;color:var(--faint);line-height:1.6}.sn .fa2{margin-top:6px}.gcal{margin-top:14px}.gcal .gh{margin:12px 0 2px;font-size:13px;color:var(--dim);font-weight:700}.sn.fa{font-size:14px;color:var(--dim);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:10px 0}
 .legend i{display:inline-block;width:22px;height:0;border-top:3px solid #f2f2f0;vertical-align:middle;margin-right:5px}
 .legend i.g{border-top-color:#c9a96e}.legend i.d{border-top:2px dashed #7f8fa3}.legend i.fo{width:10px;height:14px;border:1.6px dashed #cdd7e0;vertical-align:-2px}.legend i.m{width:12px;height:12px;border:1.6px solid #dcbd78;vertical-align:-1px}
 .legend i.s{border-top-style:solid;border-top-color:var(--mute)}
@@ -177,7 +177,7 @@ function pct(x){return Math.round(x*100)}
 function isF(b){return b.tenjiF===1||(b.st!=null&&b.st<0)}
 function stTxt(b){return b.st==null?"—":(isF(b)?"F":b.st.toFixed(2).slice(1))}
 var q=new URLSearchParams(location.search),day=q.get("d")||"20261030";
-fetch("ichimark/v11_"+day+".json").then(function(r){return r.ok?r.json():Promise.reject()}).then(function(d){D=d;init()}).catch(function(e){if(e&&e.stack)console.error(e.stack);$("main").innerHTML='<div class="err">この日のデータがありません。</div>'});
+fetch("ichimark/v12_"+day+".json").then(function(r){return r.ok?r.json():Promise.reject()}).then(function(d){D=d;init()}).catch(function(e){if(e&&e.stack)console.error(e.stack);$("main").innerHTML='<div class="err">この日のデータがありません。</div>'});
 
 /* 組み合わせ（例 "3まくり差し"）→ コースと決まり手。「その他」と「6〜」は形を描けないのでまとめる */
 function split(k){var m=/^(\d)(.*)$/.exec(k);return m?{c:+m[1],t:m[2]}:{c:0,t:k}}
@@ -195,11 +195,12 @@ function how(){
   var e=D.eval||{},cal=(D.calib||[]).filter(function(c){return c.n>=100}),ed=D.edge;
   $("how").innerHTML="スタート展示の隊形と、過去のレースの集計にもとづく見立てから、1マークの形を描いています。<br><b>スリット</b>：スタート展示のSTで6艇を並べたもの。縦の線がスタートラインで、右にあるほど早い。展示でF（フライング）だった艇は、線の右の帯に「F」と出します。展示のFは本番の早さの目安にならないため、凹みの判定と平均比には使いません。隣の艇より0.05以上遅い艇1つに「凹み」の印を付けます。<br>"
    +"<b>1マーク</b>：上が1マーク、下がスタートライン。艇は下から上へ進み、1マークを左に回ります。艇の並びはスタート展示の進入、前後はスタート展示STの差です。風の左右は、スタートから1マークへ向かって見た向きです。白の線は1コースの逃げ、金の線は「逃げ以外」でいちばん高い見立ての航跡です。絞れないときは、候補の上位3つを灰色の破線で重ねます。航跡は決まり手の型（まくり＝1コースの前を絞って外を回る／まくり差し＝外を回ってから内へ切り返す／差し＝1コースが回ったあとに内へ入る）で描いた模式で、実際の位置や距離は表していません。<br>"
-   +"<b>見立て</b>：過去のレースの集計から、1着の「コース×決まり手」の確率を出しています。展示のFは、その選手の本番の平均STに置き換えて使っています。1〜4コースのF持ち（直近180日のF本数）と、進入が枠なりかどうかも材料に入れています。<br>"
+   +"<b>見立て</b>：過去のレースの集計から、1着の「コース×決まり手」の確率を出しています。展示のFは、その選手の本番の平均STに置き換えて使っています。1〜4コースのF持ち（直近180日のF本数）、進入が枠なりかどうか、モーター2連率、レースの格も材料に入れています。走数の少ない選手の率は、同じ級別の平均に寄せて使っています。<br>"
    +(e.top1!=null?"<b>当たり方</b>（集計に使っていない "+esc(e.span||"2026年8月以降")+"・"+(e.nEval||0).toLocaleString()+"レース）：いちばん高い見立てが当たった割合は "+(e.top1*100).toFixed(1)+"%で、毎回「1コース逃げ」と答えた場合（"+(e.baseTop1*100).toFixed(1)+"%）とほとんど変わりません。この見立ての強みは、確率の大きさが実際の割合とよく合うことです（下の表）。":"")
    +(e.compare?"<br>逃げたかどうかに対する誤差（ブライアスコア。小さいほど実際に近い）は、場の逃げの平均だけだと <b>"+e.compare.a_venueRate.brier.toFixed(3)+"</b>、場と1コースの級別の実績だと <b>"+e.compare.b_venue_x_c1cls.brier.toFixed(3)+"</b>、この見立てで <b>"+e.compare.c_model.brier.toFixed(3)+"</b>。":"")
    +(ed?"<br>逃げの見立てが50%未満だった "+ed.n.toLocaleString()+"レースでは、実際の逃げは "+(ed.nigeRate*100).toFixed(1)+"%。逃げ以外でいちばん高い見立てのコースの艇が1着になったのは "+(ed.hitTop*100).toFixed(1)+"%（毎回2コースの艇と答えた場合は "+(ed.hitBase2*100).toFixed(1)+"%）。":"")
-   +(cal.length?'<table><tr><th>逃げの見立て</th><th>レース数</th><th>実際に逃げた</th></tr>'+cal.map(function(c){return '<tr><td>'+esc(c.bin)+'%</td><td class="n">'+c.n.toLocaleString()+'</td><td class="n">'+(c.nige*100).toFixed(1)+"%</td></tr>"}).join("")+"</table>":"");
+   +(cal.length?'<table><tr><th>逃げの見立て</th><th>レース数</th><th>実際に逃げた</th></tr>'+cal.map(function(c){return '<tr><td>'+esc(c.bin)+'%</td><td class="n">'+c.n.toLocaleString()+'</td><td class="n">'+(c.nige*100).toFixed(1)+"%</td></tr>"}).join("")+"</table>":"")
+   +(e.calibByGrade?'<div class="gcal"><b>格ごとの当たり方</b>（同じ期間。SGやG1は逃げが多く、見立ても高めに出ます）'+Object.keys(e.calibByGrade).map(function(g){var x=e.calibByGrade[g],cs=x.calib.filter(function(c){return c.n>=30});return '<div class="gh">'+esc(g)+'（'+x.n.toLocaleString()+'レース・逃げ '+(x.nige*100).toFixed(1)+'%）</div><table><tr><th>見立ての帯</th><th>レース数</th><th>見立て</th><th>実際</th></tr>'+cs.map(function(c){return '<tr><td>'+esc(c.bin)+'%</td><td class="n">'+c.n.toLocaleString()+'</td><td class="n">'+(c.meanPred*100).toFixed(1)+'%</td><td class="n">'+(c.nige*100).toFixed(1)+'%</td></tr>'}).join('')+'</table>'}).join('')+'<div class="tnote">30レース未満の帯は省いています。</div></div>':"");
 }
 function draw(){
   [].forEach.call($("pick").children,function(b){b.setAttribute("aria-pressed",b.dataset.j===J)});
