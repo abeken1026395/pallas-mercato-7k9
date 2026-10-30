@@ -19,11 +19,11 @@ shutil.copy(SRC + "/delaSub.woff2", DST + "/delaSub.woff2")
 shutil.copy(SRC + "/fonts/fontsource-dela-gothic-one-5.3.0/package/LICENSE", DST + "/delaOFL.txt")
 
 head = (
-    '<!-- データ攻め by あべけん https://abeken1026395.github.io/pallas-mercato-7k9/ -->\n'
+    '<!-- データ攻め by 阿部 https://abeken1026395.github.io/pallas-mercato-7k9/ -->\n'
     '<!DOCTYPE html>\n<html lang="ja">\n<head>\n'
     '<meta charset="UTF-8">\n'
     '<meta name="robots" content="noindex, nofollow">\n'
-    '<meta name="author" content="あべけん（データ攻め）">\n'
+    '<meta name="author" content="阿部（データ攻め）">\n'
     '<link rel="canonical" href="' + URL + '">\n'
     '<meta name="description" content="' + DESC + '">\n'
     '<meta property="og:type" content="article">\n'

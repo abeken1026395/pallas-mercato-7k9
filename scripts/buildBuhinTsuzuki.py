@@ -182,7 +182,7 @@ key = ''.join('<tr><th>%s</th>%s</tr>' % (GN[g], ''.join('<td>%d</td>' % SA[(g, 
 lagNote = '昨日（%s）の部品交換はまだ入っていないので、今日が「翌日」の選手は載っていません。' % md((T - datetime.timedelta(days=1)).strftime('%Y%m%d')) if latest < (T - datetime.timedelta(days=1)).strftime('%Y%m%d') else ''
 behind = [j for j in jcds if j in vday and (T - datetime.timedelta(days=vday[j] - 1)).strftime('%Y%m%d') <= latest and latestBy.get(j, '') < latest]
 
-page = '''<!-- データ攻め by あべけん https://abeken1026395.github.io/pallas-mercato-7k9/ -->
+page = '''<!-- データ攻め by 阿部 https://abeken1026395.github.io/pallas-mercato-7k9/ -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>

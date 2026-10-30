@@ -88,6 +88,6 @@ for i, pg in enumerate(w.pages):
     c.save(); b.seek(0)
     pg.merge_page(PdfReader(b).pages[0])
 
-w.add_metadata({"/Title": "データ攻めトリセツ 2026年9月30日版", "/Author": "あべけん"})
+w.add_metadata({"/Title": "データ攻めトリセツ 2026年9月30日版", "/Author": "阿部"})
 w.write(DST)
 print("pages:", n)

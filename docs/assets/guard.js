@@ -7,7 +7,7 @@
   if (ok) return;
   var d = document.createElement("div");
   d.style.cssText = "position:relative;background:#b3261e;color:#fff;padding:12px 44px 12px 12px;font-size:13px;line-height:1.7;text-align:center";
-  d.innerHTML = '<strong>このページは本物ではありません。</strong><br>「データ攻め」の無断複製です。 <a href="https://www.youtube.com/@abe-ken" target="_blank" rel="noopener" style="color:#ffd166;font-weight:700;text-decoration:underline">本物を見る（YouTube「あべけん」）</a>';
+  d.innerHTML = '<strong>このページは本物ではありません。</strong><br>「データ攻め」の無断複製です。 <a href="https://abeken1026395.github.io/pallas-mercato-7k9/" target="_blank" rel="noopener" style="color:#ffd166;font-weight:700;text-decoration:underline">本物を見る（データ攻め）</a>';
   var b = document.createElement("button");
   b.type = "button";
   b.setAttribute("aria-label", "閉じる");

@@ -70,7 +70,7 @@ def main():
         racers[toban] = {"inN": inN, "inWin": inWin, "rate": rate}
     out = {
         "updated": datetime.datetime.now(JST).strftime("%Y-%m-%d"),
-        "出典": "データ攻め（YouTube あべけん）",
+        "出典": "データ攻め",
         "racers": racers,
     }
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
