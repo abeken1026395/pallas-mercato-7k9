@@ -230,13 +230,13 @@ $("log").addEventListener("click",function(e){var b=e.target.closest("button");i
 
 /* ---------- データの管理 ---------- */
 $("x-out").onclick=function(){
-  var blob=new Blob([JSON.stringify({kind:"datazemeKansenNote",v:1,at:new Date().toISOString(),memo:memos,money:money},null,1)],{type:"application/json"});
+  var blob=new Blob([JSON.stringify({kind:"dzKansenNote",v:1,at:new Date().toISOString(),memo:memos,money:money},null,1)],{type:"application/json"});
   var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="kansenNote"+today().replace(/-/g,"")+".json";document.body.appendChild(a);a.click();a.remove();
   $("x-msg").textContent="メモ"+memos.length+"件・支出"+money.length+"件を書き出しました。";
 };
 $("x-in").addEventListener("change",function(){
   var f=this.files&&this.files[0];if(!f)return;var rd=new FileReader();
-  rd.onload=function(){try{var j=JSON.parse(rd.result);if(j.kind!=="datazemeKansenNote")throw 0;
+  rd.onload=function(){try{var j=JSON.parse(rd.result);if(j.kind!=="dzKansenNote")throw 0;
     var have={};memos.forEach(function(m){have[m.id]=1});var nm=(j.memo||[]).filter(function(m){return m&&m.id&&!have[m.id]});memos=memos.concat(nm);
     var hv={};money.forEach(function(x){hv[x.id]=1});var nx=(j.money||[]).filter(function(x){return x&&x.id&&!hv[x.id]});money=money.concat(nx);
     save(KM,memos);save(KS,money);drawMemos();drawMoney();$("x-msg").textContent="メモ"+nm.length+"件・支出"+nx.length+"件を足しました（同じものは足していません）。";
