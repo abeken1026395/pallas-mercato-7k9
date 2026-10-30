@@ -170,7 +170,7 @@ function pct(x){return Math.round(x*100)}
 function isF(b){return b.tenjiF===1||(b.st!=null&&b.st<0)}
 function stTxt(b){return b.st==null?"—":(isF(b)?"F":b.st.toFixed(2).slice(1))}
 var q=new URLSearchParams(location.search),day=q.get("d")||"20261030";
-fetch("ichimark/v7_"+day+".json").then(function(r){return r.ok?r.json():Promise.reject()}).then(function(d){D=d;init()}).catch(function(){$("main").innerHTML='<div class="err">この日のデータがありません。</div>'});
+fetch("ichimark/v8_"+day+".json").then(function(r){return r.ok?r.json():Promise.reject()}).then(function(d){D=d;init()}).catch(function(){$("main").innerHTML='<div class="err">この日のデータがありません。</div>'});
 
 /* 組み合わせ（例 "3まくり差し"）→ コースと決まり手。「その他」と「6〜」は形を描けないのでまとめる */
 function split(k){var m=/^(\d)(.*)$/.exec(k);return m?{c:+m[1],t:m[2]}:{c:0,t:k}}
@@ -236,7 +236,7 @@ function race(r){
     +(vn?'<span class="df">'+(diff>=0?"+":"")+diff.toFixed(0)+'</span>'+esc(r.venue)+'の平均 <span class="n">'+(vn.rate*100).toFixed(0)+'</span>%（<span class="n">'+vn.n.toLocaleString()+'</span>レース）':"")+'</div></div>';
   // 見立ての根拠：場の平均から動かした要素（最大4つ）＋そのほか（合計が見出しの差と合う）
   var rs=(r.reasons||[]).slice();
-  if(rs.length&&diff!=null){var rest=r.rest!=null?r.rest:diff-rs.reduce(function(s,x){return s+x.pt},0);if(Math.abs(rest)>=.5)rs.push({label:'そのほかの要素',pt:rest,o:1})}
+  if(rs.length&&diff!=null){if(r.rest!=null&&Math.abs(r.rest)>=.5)rs.push({label:'そのほかの要素の合計',pt:r.rest,o:1});if(r.venueGap!=null&&Math.abs(r.venueGap)>=.5)rs.push({label:'この場の集計と実績の差',pt:r.venueGap,o:1})}
   var c1=r.c1||{};
   if(rs.length||c1.all){html+='<div class="why"><div class="wh">場の平均からの動き</div>'+rs.map(function(x){var up=x.pt>=0;return '<div class="wr'+(x.o?' o':'')+'"><span class="pt '+(up?"up":"dn")+'">'+(up?"+":"−")+Math.abs(x.pt).toFixed(0)+'</span><span>'+esc(x.label)+'</span></div>'}).join("")
     +(c1.all&&c1.all.n?'<div class="c1">'+(b1?esc(b1.name)+'の':'')+'1コース1着率　全国 <span class="n">'+(c1.all.w/c1.all.n*100).toFixed(0)+'</span>%（'+c1.all.w+'/'+c1.all.n+'走）'
@@ -335,7 +335,7 @@ function course(bs,pn,a1,a2,pj,att){
     s+='<path class="ln" d="'+attPath(a1)+'" fill="none" stroke="#c9a96e" stroke-width="'+(2+Math.min(.3,pj[a1])*10).toFixed(1)+'" stroke-linecap="round" marker-end="url(#ah)"/>';
   }else{
     (att||[]).slice(0,3).forEach(function(k,i){var o=split(k),b=boatAt(bs,o.c),w=b?b.waku:o.c;s+='<path class="ln" d="'+attPath(k)+'" fill="none" stroke="#7f8fa3" stroke-opacity=".8" stroke-width="1.4" stroke-dasharray="4 4" stroke-linecap="round" marker-end="url(#ag)"/>'
-      +'<g transform="translate('+(W-74)+' '+(TOP+50+i*24)+')"><rect width="18" height="18" fill="'+LC[w]+'"'+(w===2?' stroke="#8a96a3"':'')+'/><text x="9" y="13.5" text-anchor="middle" font-size="13" font-weight="700" font-family="Barlow Condensed,sans-serif" fill="'+LT[w]+'">'+w+'</text><text x="24" y="14" font-size="12" fill="#cdd7e0">'+esc(o.t)+'</text><text x="66" y="14.5" text-anchor="end" font-size="15" font-weight="700" font-family="Barlow Condensed,sans-serif" fill="#f2f2f0">'+pct(pj[k])+'%</text></g>'});
+      +'<g transform="translate('+(W-116)+' '+(TOP+50+i*24)+')"><rect width="18" height="18" fill="'+LC[w]+'"'+(w===2?' stroke="#8a96a3"':'')+'/><text x="9" y="13.5" text-anchor="middle" font-size="13" font-weight="700" font-family="Barlow Condensed,sans-serif" fill="'+LT[w]+'">'+w+'</text><text x="24" y="14" font-size="12" fill="#cdd7e0">'+esc(o.t)+'</text><text x="108" y="14.5" text-anchor="end" font-size="15" font-weight="700" font-family="Barlow Condensed,sans-serif" fill="#f2f2f0">'+pct(pj[k])+'%</text></g>'});
   }
   // 1マーク（公式の橙）
   s+='<g><rect x="'+(bq[0]-7*k)+'" y="'+(bq[1]-12*k)+'" width="'+(14*k)+'" height="'+(19*k)+'" fill="#ff7a2e"/><rect x="'+(bq[0]-7*k)+'" y="'+(bq[1]-4*k)+'" width="'+(14*k)+'" height="'+(4*k)+'" fill="#f2f2f0"/><path d="M'+(bq[0]-7*k)+' '+(bq[1]-12*k)+' L'+bq[0]+' '+(bq[1]-19*k)+' L'+(bq[0]+7*k)+' '+(bq[1]-12*k)+' Z" fill="#ff9a55"/></g>';
