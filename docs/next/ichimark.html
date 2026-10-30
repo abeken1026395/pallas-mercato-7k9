@@ -370,10 +370,12 @@ function course(bs,pn,a1,a2,pj,att){
   function pts(x0,y0,o){var q=[],ks=o.ks,a0=ks[0][0],aE=ks[ks.length-1][0];
     var R=function(a){for(var i=1;i<ks.length;i++){if(a>=ks[i][0]){var f=(a-ks[i-1][0])/(ks[i][0]-ks[i-1][0]);return ks[i-1][1]+(ks[i][1]-ks[i-1][1])*f}}return ks[ks.length-1][1]};
     var r0=a0*Math.PI/180,sx=o.cx+ks[0][1]*Math.cos(r0),sy=o.cy+ks[0][1]*Math.sin(r0),dy=Math.max(20,y0-sy),tl=(o.tilt||0)*Math.PI/180;
-    var up=o.up||.45,c1=[x0-Math.sin(tl)*dy*up,y0-Math.cos(tl)*dy*up],c2=[sx-Math.sin(r0)*dy*.35,sy+Math.cos(r0)*dy*.35];
+    var up=o.up||.45,c1=o.hold?[x0-Math.tan(5*Math.PI/180)*Math.max(0,y0-o.hold),o.hold]:[x0-Math.sin(tl)*dy*up,y0-Math.cos(tl)*dy*up],c2=[sx-Math.sin(r0)*dy*.35,sy+Math.cos(r0)*dy*.35];
     for(var u=0;u<1;u+=1/14){var v=1-u;q.push([v*v*v*x0+3*v*v*u*c1[0]+3*v*u*u*c2[0]+u*u*u*sx,v*v*v*y0+3*v*v*u*c1[1]+3*v*u*u*c2[1]+u*u*u*sy])}
     var k=q.length;for(var a=a0;a>=aE;a-=3){var r=a*Math.PI/180,rr=R(a);q.push([o.cx+rr*Math.cos(r),o.cy+rr*Math.sin(r)])}
-    var e=q.length-1,last=q[e],ex=(o.ex!=null?o.ex:aE)*Math.PI/180,e2=-218*Math.PI/180,Lx=Math.max(8,Math.min(o.L,(SY-25-last[1]-15*(-Math.cos(e2)))/(-Math.cos(ex)||1))),m=[last[0]+Math.sin(ex)*Lx,last[1]-Math.cos(ex)*Lx];q.push(m);q.push([m[0]+Math.sin(e2)*15,m[1]-Math.cos(e2)*15]);
+    var e=q.length-1,last=q[e],ex=-178*Math.PI/180,e2=-170*Math.PI/180,Lx=Math.max(8,Math.min(o.L,SY-25-last[1]-15));
+    var m=[last[0]+Math.sin(ex)*Lx,last[1]-Math.cos(ex)*Lx];q.push(m);
+    for(var j=1;j<=3;j++){var aj=ex+(e2-ex)*j/3;m=[m[0]+Math.sin(aj)*5,m[1]-Math.cos(aj)*5];q.push(m)}
     return {q:q.map(function(p){return P(p[0],p[1])}),k:k,e:e}}
   function poly(q,ws){var n=q.length,L=[],Rr=[];for(var i=0;i<n;i++){var a=q[Math.max(0,i-1)],b=q[Math.min(n-1,i+1)],dx=b[0]-a[0],dy=b[1]-a[1],m=Math.hypot(dx,dy)||1,w=ws[i]/2;L.push([q[i][0]-dy/m*w,q[i][1]+dx/m*w]);Rr.push([q[i][0]+dy/m*w,q[i][1]-dx/m*w])}
     return 'M'+L.concat(Rr.reverse()).map(function(p){return p[0].toFixed(1)+" "+p[1].toFixed(1)}).join(" L")+" Z"}
@@ -381,7 +383,7 @@ function course(bs,pn,a1,a2,pj,att){
   var gid=0;
   function ribbon(P0,col,wmax,op,under){var q=P0.q,k=P0.k,n=q.length,len=[0];for(var i=1;i<n;i++)len.push(len[i-1]+Math.hypot(q[i][0]-q[i-1][0],q[i][1]-q[i-1][1]));
     var Lk=len[k],T=len[n-1]-Lk||1,ws=q.map(function(_,i){var w=i<=k?2.5+(wmax-2.5)*(len[i]/(Lk||1)):wmax*(1-.3*(len[i]-Lk)/T);return w+(under?3:0)});
-    var a=poly(q.slice(0,k+1),ws.slice(0,k+1)),b=poly(q.slice(k),ws.slice(k));
+    var a=poly(q.slice(0,k+2),ws.slice(0,k+2)),b=poly(q.slice(k),ws.slice(k));
     if(under)return '<path d="'+a+'" fill="#0b2a3d"/><path d="'+b+'" fill="#0b2a3d"/>';
     var id="rg"+(++gid);
     return '<linearGradient id="'+id+'" gradientUnits="userSpaceOnUse" x1="'+q[0][0].toFixed(1)+'" y1="'+q[0][1].toFixed(1)+'" x2="'+q[k][0].toFixed(1)+'" y2="'+q[k][1].toFixed(1)+'"><stop offset="0" stop-color="'+col+'" stop-opacity=".3"/><stop offset="1" stop-color="'+col+'"/></linearGradient>'
@@ -399,12 +401,12 @@ function course(bs,pn,a1,a2,pj,att){
   var b1=boatAt(bs,1),y1=b1?ly(b1)-22:SY-6;
   // 1コース：まくられる見立てなら淡く、外へ流される
   var mk1=t1==="まくり",R1=(mk1?32:(t1==="差し"?28:26))*G;
-  var escO={cx:BX-2*G,cy:BY+2*G,ks:[[-10,R1E],[-185,R1]],ex:-205,L:30};
+  var escO={cx:BX-2*G,cy:BY+2*G,ks:[[-10,R1E],[-185,R1]],L:30};
   var E=pts(lx(1),y1,escO);
   function attO(t,c,y0,main){var Lm=main?44:30;
-    if(t==="まくり")return {tilt:11,cx:BX-6*G,cy:BY+6*G,ks:[[-10,36*G],[-100,40*G],[-185,40*G]],ex:-205,L:Lm};     // 左へ寄せて1を絞り、回りながら外へ膨らむ
-    if(t==="まくり差し")return {tilt:2,up:.62,cx:BX-6*G,cy:BY+10*G,ks:[[5,50*G],[-100,38*G],[-195,16*G]],ex:-205,L:Lm};             // 外から回り始め、回りながら1の内へ
-    return {tilt:3,cx:BX-4*G,cy:BY+4*G,ks:[[-20,38*G],[-120,38*G],[-195,14*G]],ex:-205,L:main?34:30}}   // 差し：1と同じくらいの長さ（並ぶ）
+    if(t==="まくり")return {tilt:11,cx:BX-6*G,cy:BY+6*G,ks:[[-10,36*G],[-100,40*G],[-185,40*G]],L:Lm};     // 左へ寄せて1を絞り、回りながら外へ膨らむ
+    if(t==="まくり差し")return {hold:BY+45,cx:BX-6*G,cy:BY+10*G,ks:[[5,50*G],[-100,38*G],[-195,16*G]],L:Lm};             // 外から回り始め、回りながら1の内へ
+    return {tilt:3,cx:BX-4*G,cy:BY+4*G,ks:[[-20,38*G],[-120,38*G],[-195,14*G]],L:main?34:30}}   // 差し：1と同じくらいの長さ（並ぶ）
   function attP(k,main){var o=split(k),b=boatAt(bs,o.c);if(!b)return null;var y0=ly(b)-22;return pts(lx(o.c),y0,attO(o.t,o.c,y0,main))}
   // 1の引き波（細く淡い帯）
   s+='<path d="M'+E.q.slice(E.k,E.e).map(function(p){return p[0].toFixed(1)+" "+p[1].toFixed(1)}).join(" L")+'" fill="none" stroke="#fff" stroke-opacity=".06" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>';
@@ -414,11 +416,11 @@ function course(bs,pn,a1,a2,pj,att){
   cands.slice(1).forEach(function(k,ci){var A=attP(k,false);if(!A)return;var o=split(k),dir=o.t==="まくり"?-1:1,tl0=A.q.slice(A.e),ex0=tl0[tl0.length-1][0],dx=0;
     for(var g=0;g<6&&taken.some(function(x){return Math.abs(ex0+dx-x)<14});g++)dx+=dir*14;taken.push(ex0+dx);
     var tail=tl0.map(function(p){return [p[0]+dx,p[1]]}),b=boatAt(bs,o.c),w=b?b.waku:o.c;
-    s+='<path d="M'+tail.map(function(p){return p[0].toFixed(1)+" "+p[1].toFixed(1)}).join(" L")+'" fill="none" stroke="#8fa0b3" stroke-width="1.2" stroke-dasharray="2 5" stroke-linecap="round"/>'+head(tail,"#8fa0b3",.85)
+    s+='<circle cx="'+tail[0][0].toFixed(1)+'" cy="'+tail[0][1].toFixed(1)+'" r="1.6" fill="#8fa0b3"/><path d="M'+tail.map(function(p){return p[0].toFixed(1)+" "+p[1].toFixed(1)}).join(" L")+'" fill="none" stroke="#8fa0b3" stroke-width="1.2" stroke-dasharray="2 5" stroke-linecap="round"/>'+head(tail,"#8fa0b3",.85)
       +'<text x="'+(tail[tail.length-1][0]-2).toFixed(1)+'" y="'+(tail[tail.length-1][1]+16).toFixed(1)+'" text-anchor="middle" font-size="10" font-weight="700" font-family="Barlow Condensed,sans-serif" fill="#8fa0b3">'+w+'</text>'});
   // まくり差しの見立てでは、壁になる内側のまくり艇を淡く添える
   var A=cands.length?attP(cands[0],on):null;
-  if(on&&t1==="まくり差し"){var c0=split(a1).c,wb=boatAt(bs,c0-1);if(wb&&c0-1>=2){var y0=ly(wb)-22,Wl=pts(lx(c0-1),y0,attO("まくり",c0-1,y0,false));s+=ribbon(Wl,"#8fa0b3",4,.18)}}
+  if(on&&t1==="まくり差し"){var c0=split(a1).c,wb=boatAt(bs,c0-1);if(wb&&c0-1>=2){var y0=ly(wb)-22,Wl=pts(lx(c0-1),y0,attO("まくり",c0-1,y0,false));s+=ribbon(Wl,"#8fa0b3",4,.1)}}
   // 金（主の攻め筋）→ 白（逃げ）を最前面に
   if(A)s+=ribbon(A,"#c9a96e",on?8:6,1,true)+ribbon(A,"#c9a96e",on?8:6,on?1:.85)+head(A.q,"#c9a96e",on?1:.85);
   s+=ribbon(E,"#f2f2f0",6,1,true)+ribbon(E,"#f2f2f0",6,mk1?.7:1)+head(E.q,"#f2f2f0",mk1?.75:1);
