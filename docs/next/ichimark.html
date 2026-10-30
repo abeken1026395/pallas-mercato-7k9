@@ -173,7 +173,7 @@ function pct(x){return Math.round(x*100)}
 function isF(b){return b.tenjiF===1||(b.st!=null&&b.st<0)}
 function stTxt(b){return b.st==null?"—":(isF(b)?"F":b.st.toFixed(2).slice(1))}
 var q=new URLSearchParams(location.search),day=q.get("d")||"20261030";
-fetch("ichimark/v10_"+day+".json").then(function(r){return r.ok?r.json():Promise.reject()}).then(function(d){D=d;init()}).catch(function(){$("main").innerHTML='<div class="err">この日のデータがありません。</div>'});
+fetch("ichimark/v11_"+day+".json").then(function(r){return r.ok?r.json():Promise.reject()}).then(function(d){D=d;init()}).catch(function(){$("main").innerHTML='<div class="err">この日のデータがありません。</div>'});
 
 /* 組み合わせ（例 "3まくり差し"）→ コースと決まり手。「その他」と「6〜」は形を描けないのでまとめる */
 function split(k){var m=/^(\d)(.*)$/.exec(k);return m?{c:+m[1],t:m[2]}:{c:0,t:k}}
@@ -247,7 +247,7 @@ function race(r){
   if(b1&&(isF(b1)||b1.fcount))rs.push({label:'1コース'+(b1.waku!==1?'（'+b1.waku+'号艇）':'')+'：'+[isF(b1)?'スタート展示でF（本番のSTは平均'+(b1.avgSt!=null?' '+b1.avgSt.toFixed(2).replace(/^0/,''):'')+'で代用）':'',b1.fcount?'F'+b1.fcount+'持ち':''].filter(Boolean).join('・'),pt:null,o:1})
   var c1=r.c1||{};
   if(rs.length||c1.all){html+='<div class="why"><div class="wh">場の平均からの動き</div>'+rs.map(function(x){var up=x.pt>=0;return '<div class="wr'+(x.o?' o':'')+'"><span class="pt '+(up?"up":"dn")+'">'+(x.pt==null?'':(up?"+":"−")+Math.abs(x.pt).toFixed(0))+'</span><span>'+esc(shortLab(x.label))+'</span></div>'}).join("")
-    +(c1.all&&c1.all.n?'<div class="c1">'+(b1?esc(b1.name)+'の':'')+'1コースの1着率　全国 <span class="n">'+(c1.all.w/c1.all.n*100).toFixed(0)+'</span>%（'+c1.all.w+'/'+c1.all.n+'走）'
+    +(c1.all&&c1.all.n?'<div class="c1">'+(b1?esc(b1.name)+'の':'')+'1コースの1着率（直近1年）　全国 <span class="n">'+(c1.all.w/c1.all.n*100).toFixed(0)+'</span>%（'+c1.all.w+'/'+c1.all.n+'走）'
       +(c1.local&&c1.local.n?'・'+esc(r.venue)+' <span class="n">'+(c1.local.w/c1.local.n*100).toFixed(0)+'</span>%（'+c1.local.w+'/'+c1.local.n+'走）':'・'+esc(r.venue)+'は直近1年の1コースなし')
       +'</div>':'')
     +(rs.some(function(x){return shortLab(x.label)!==fixLab(x.label)})||c1.natRate!=null?'<details class="wd"><summary>要素の中身</summary>'+rs.filter(function(x){return shortLab(x.label)!==fixLab(x.label)}).map(function(x){return '<div>'+esc(fixLab(x.label))+'</div>'}).join('')
@@ -268,7 +268,7 @@ function race(r){
   // 前づけ：選手の実績と、前づけがあったレースの逃げ率（実測）
   var ms=D.maezukeStats||{};
   bs.filter(function(b){return b.waku>b.course}).forEach(function(b){html+='<div class="note">'+chip(b.waku)+' '+esc(b.name)+'がスタート展示で'+b.course+'コースへ。'+(b.mz?'直近1年に'+b.waku+'枠から'+b.course+'コースに入ったのは <span class="n">'+b.mz[0]+'/'+b.mz[1]+'</span>走。':'')
-    +(b.course===2&&ms.to2?'全国で、2コースへの前づけがあったレースの逃げは <span class="n">'+(ms.to2.nige*100).toFixed(0)+'</span>%（<span class="n">'+ms.to2.n.toLocaleString()+'</span>レース）、枠なりは <span class="n">'+(ms.waku.nige*100).toFixed(0)+'</span>%（<span class="n">'+ms.waku.n.toLocaleString()+'</span>レース）。':'')
+    +(b.course===2&&ms.to2?(function(){var v=(ms.byVenue||{})[r.jcd]||{},lv=v.to2&&v.waku,s=lv?v:ms;return (lv?esc(r.venue)+'で':'全国で')+'、2コースへの前づけがあったレースの逃げは <span class="n">'+(s.to2.nige*100).toFixed(0)+'</span>%（<span class="n">'+s.to2.n.toLocaleString()+'</span>レース）、枠なりは <span class="n">'+(s.waku.nige*100).toFixed(0)+'</span>%（<span class="n">'+s.waku.n.toLocaleString()+'</span>レース）。'})():'')
     +(b.course===1&&ms.c1taken?'全国で、1コースを取られたレースの逃げは <span class="n">'+(ms.c1taken.nige*100).toFixed(0)+'</span>%（<span class="n">'+ms.c1taken.n.toLocaleString()+'</span>レース）。':'')
     +'本番で進入が変わると見立ても変わります。</div>'});
   // 逃げ以外の見立て（形を描ける組み合わせ）｜6コース・そのほか（中身の上位2つ）。1コースの抜き・恵まれは上の欄に出すので重ねない
