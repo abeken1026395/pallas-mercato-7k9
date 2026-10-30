@@ -125,6 +125,7 @@ GUARD = [
     "docs/next/kansei5/uranai.html",
     "docs/payouts/index.html",
     "docs/players/card.html",
+    "docs/note/index.html",  # 観戦ノート（本番。2026-10-30 けん「観戦ノート出して良いよ」）
     "docs/results/index.html",
     "docs/torisetsu/index.html",
     "docs/updates/index.html",

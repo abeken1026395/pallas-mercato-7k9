@@ -360,6 +360,7 @@ body{position:relative}
     <a class="ni" style="--c:#6b7a8c" href="./motor-maintenance/"><span class="ic">整</span>整備</a>
     <a class="ni" style="--c:#6b7a8c" href="./kensho/" data-new="2026-10-30"><span class="ic">検</span>検証<span class="qn-new" hidden>NEW</span></a>
     <a class="ni" style="--c:#6b7a8c" href="./players/card.html" data-new="2026-10-21"><span class="ic">札</span>選手カード<span class="qn-new" hidden>NEW</span></a>
+    <a class="ni" style="--c:#6b7a8c" href="./note/" data-new="2026-10-30"><span class="ic">帳</span>観戦ノート<span class="qn-new" hidden>NEW</span></a>
     <a class="ni" style="--c:#6b7a8c" href="./glossary/"><span class="ic">辞</span>用語辞典</a>
     <a class="ni" style="--c:#6b7a8c" href="./fan/"><span class="ic">文</span>場の文化</a>
     <a class="ni" style="--c:#6b7a8c" href="./announcers/"><span class="ic">実</span>実況アナ</a>
@@ -400,7 +401,7 @@ body{position:relative}
 (function(){
   var go=document.getElementById("hk-go"), box=document.getElementById("hk-code"), msg=document.getElementById("hk-msg");
   if(!go) return;
-  var OK=/^(br_|uranai_|aisho_|senshuCard|tdExtraOpen$)/;
+  var OK=/^(br_|uranai_|aisho_|senshuCard|dz_note_|tdExtraOpen$)/;
   /* 控えを取る：この端末の保存を同じ形のコードにする（2026-10-26 けん「進めてよい」） */
   var out=document.getElementById("hk-out"), oc=document.getElementById("hk-outcode"), om=document.getElementById("hk-outmsg");
   out.addEventListener("click", function(){
