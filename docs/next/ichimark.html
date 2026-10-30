@@ -86,7 +86,7 @@ svg{display:block;width:100%;height:auto}
 .tel{display:flex;height:32px;border:none;padding:0}
 .tel .l{background:var(--goldBg);color:#0d1c2f;font-size:13px;font-weight:800;padding:0 10px;display:flex;align-items:center}
 .tel .r{background:#0d1c2f;color:var(--gold);font:700 20px var(--num);padding:0 10px;display:flex;align-items:center}
-.tel .r small{font-size:12px;margin-left:1px}
+.tel .r small{font-size:12px;margin-left:1px}.tel .rn{align-self:center;font-size:11px;color:var(--faint);margin-left:8px}
 .tel.txt{height:auto;display:block;font-size:12.5px;color:var(--faint);line-height:1.6}
 .tel.off .l{background:#2a3d52;color:#cdd7e0}.tel.off .r{font:700 13px -apple-system,"Hiragino Sans",sans-serif;color:#cdd7e0}
 .note{margin-top:8px;font-size:13px;color:var(--dim);line-height:1.7}
@@ -218,7 +218,7 @@ function dent(bs){var best=null,bd=0;bs.forEach(function(b){if(b.course<2||b.cou
 var THIN=.12;   // 攻め筋の見立てがこれ未満なら「絞れない」として線を引かない
 function telop(bs,a1,a2,pj){
   if(!a1||pj[a1]<THIN)return '<div class="tel txt">逃げ以外の攻め筋は1つに絞れません。金の破線がいちばん高い候補、灰の破線がその次です。</div>';
-  function one(k,op){var o=split(k),b=boatAt(bs,o.c);return '<div class="tel" style="opacity:'+op+'"><span class="l">'+o.c+'コース'+(b&&b.waku!==o.c?'（'+b.waku+'号艇）':'')+' '+esc(o.t)+'</span><span class="r">'+pct(pj[k])+'<small>%</small></span></div>'}
+  function one(k,op){var o=split(k),b=boatAt(bs,o.c);return '<div class="tel" style="opacity:'+op+'"><span class="l">'+o.c+'コース'+(b&&b.waku!==o.c?'（'+b.waku+'号艇）':'')+' '+esc(o.t)+'</span><span class="r">'+Math.round(pj[k]/Math.max(1e-9,1-(pj["1逃げ"]||0))*100)+'<small>%</small></span><span class="rn">逃げなかったときの割合</span></div>'}
   return one(a1,1)+(a2&&pj[a2]>=THIN?one(a2,.6):'');
 }
 function windRel(r){var wd=r.wind||{};if(wd.code===17||wd.ms===0)return {t:"無風"};if(wd.code==null||r.bearing==null)return null;
@@ -312,8 +312,9 @@ function race(r){
   var rows=shown.map(function(k){var s=split(k),b=boatAt(bs,s.c);return {k:k,lab:chip(b?b.waku:s.c)+' '+s.c+'コースから'+esc(s.t),v:pj[k]}});
   var rest2=[{lab:'1コース 抜き・恵まれ',v:p1o},{lab:'6コース（すべて）',v:six},{lab:'そのほか<small>'+othK.slice(0,2).map(function(k){var s=split(k);return '<span class="nb">'+s.c+'コース'+(s.t||'')+' '+pct(pj[k])+'%</span>'}).join('・')+'</small>',v:oth}];
   rest2[2].gray=1;var mx=Math.max.apply(null,rows.concat(rest2.slice(0,2)).map(function(x){return x.v}))||1;
-  var line=function(x,o){return '<span class="k'+(o?' oth':'')+'">'+x.lab+'</span>'+(x.nobar?'<span></span>':'<span class="t"><i class="'+(x.k&&x.k===a1&&on?"top":x.gray?"gr":"")+'" style="width:'+Math.min(100,x.v/.25*100).toFixed(1)+'%"></i></span>')+'<span class="v'+(o?' oth':'')+'">'+pct(x.v)+'<small>%</small></span>'};
-  html+='<div class="cap"><h2>逃げ以外の見立て</h2><span>全体の中の割合</span></div><div class="cmb">'+rows.map(function(x){return line(x)}).join("")+'<span class="sep"></span>'+rest2.map(function(x){return line(x,1)}).join("")+'</div>';
+  var notN=Math.max(1e-9,1-pn),cp=function(v){return v/notN};
+  var line=function(x,o){var c=cp(x.v);return '<span class="k'+(o?' oth':'')+'">'+x.lab+'</span>'+(x.nobar?'<span></span>':'<span class="t"><i class="'+(x.k&&x.k===a1&&on?"top":x.gray?"gr":"")+'" style="width:'+Math.min(100,c/.5*100).toFixed(1)+'%"></i></span>')+'<span class="v'+(o?' oth':'')+'">'+Math.round(c*100)+'<small>%</small></span>'};
+  html+='<div class="cap"><h2>逃げなかったら</h2><span>逃げなかったときの内訳</span></div><div class="sub2">1コースが逃げない見立ては <span class="n">'+pct(1-pn)+'</span>%。その中で、どの決まり方が多いか（合計100%）</div><div class="cmb">'+rows.map(function(x){return line(x)}).join("")+'<span class="sep"></span>'+rest2.map(function(x){return line(x,1)}).join("")+'</div>';
   // 2着・3着の連動（場別。少なければ全国）：上位3つを、艇番の四角と割合を縦に積んで1〜3位の順に
   [pn>=.4?'1逃げ':null,on?a1:null].filter(Boolean).forEach(function(a1){var S=D.second||{},vs=(S[r.jcd]||{})[a1],al=(S.all||{})[a1],use=null,lab="";
     function tot(o){return o?Object.keys(o).reduce(function(s,c){return s+o[c]},0):0}
@@ -353,7 +354,7 @@ function slit(bs,dn){
 /* 1マーク：ブイを中心に寄せた描き方。スタートの瞬間の隊形（横一線＋ST差。展示Fの艇は本番の平均STの位置に輪郭だけで）と、決まり手の型で描いた航跡。
    航跡はブイの外を回り、ブイとの間をあける。攻め筋が絞れないときは、候補の上位3つを細い灰の線で重ねる */
 function course(bs,pn,a1,a2,pj,att){
-  var W=340,H=262,CX=170,TOP=6,BX=118,BY=80,SY=168;
+  var W=340,H=262,CX=170,TOP=6,BX=104,BY=74,SY=176;
   var sc=function(y){return .74+.26*Math.max(0,Math.min(1,(y-TOP)/(H-TOP)))};
   var P=function(x,y){return [CX+(x-CX)*sc(y),y]};
   var pt=function(x,y){var q=P(x,y);return q[0].toFixed(1)+" "+q[1].toFixed(1)};
@@ -370,25 +371,35 @@ function course(bs,pn,a1,a2,pj,att){
     +'<rect width="'+W+'" height="'+(H+20)+'" fill="#0b2a3d"/><rect width="'+W+'" height="'+(H+20)+'" fill="url(#rp)"/>'
     +'<path d="M'+pt(10,SY)+' L'+pt(W-10,SY)+'" stroke="#8a96a3" stroke-width="1.5"/>';
   // ブイのまわりの旋回の目安（細い円弧）
-  var bq=P(BX,BY),k=sc(BY)*1.45;
+  var bq=P(BX,BY),k=sc(BY)*1.15;
   s+='<path d="M'+(bq[0]+22)+' '+(bq[1]+6)+' A22 22 0 1 0 '+(bq[0]-20)+' '+(bq[1]+10)+'" fill="none" stroke="rgba(242,242,240,.16)" stroke-width="1" stroke-dasharray="2 4"/>';
-  var b1=boatAt(bs,1),e0=[lx(1),b1?ly(b1)-20:SY-2];
-  var dEsc=sashi
-    ?'M'+pt(e0[0],e0[1])+' C '+pt(e0[0],e0[1]-70)+', '+pt(BX+30,BY+40)+', '+pt(BX+22,BY-2)+' C '+pt(BX+16,BY-36)+', '+pt(BX-30,BY-44)+', '+pt(BX-66,BY-30)
-    :'M'+pt(e0[0],e0[1])+' C '+pt(e0[0],e0[1]-70)+', '+pt(BX+30,BY+40)+', '+pt(BX+22,BY-2)+' C '+pt(BX+16,BY-32)+', '+pt(BX-18,BY-34)+', '+pt(BX-44,BY-12);
-  s+='<path class="ln" d="'+dEsc+'" fill="none" stroke="#f2f2f0" stroke-opacity=".9" stroke-width="'+(1.5+pn*3.5).toFixed(1)+'" stroke-linecap="round" marker-end="url(#aw)"/>';
-  function attPath(k){var o=split(k),b=boatAt(bs,o.c);if(!b)return "";var x0=lx(o.c),y0=ly(b)-20;
-    if(o.t==="まくり") return 'M'+pt(x0,y0)+' L'+pt(BX+48,BY+26)+' C '+pt(BX+44,BY-8)+', '+pt(BX+20,BY-62)+', '+pt(BX-48,BY-52);   // 1の前を絞って外を大きく
-    if(o.t==="まくり差し") return 'M'+pt(x0,y0)+' L'+pt(x0+4,BY+48)+' C '+pt(x0+2,BY+16)+', '+pt(BX+46,BY+2)+', '+pt(BX+30,BY-16)+' C '+pt(BX+18,BY-44)+', '+pt(BX-18,BY-44)+', '+pt(BX-38,BY+2);   // 外を回ってから内へ（くの字）
-    return 'M'+pt(x0,y0)+' C '+pt(x0-6,y0-80)+', '+pt(BX+52,BY+56)+', '+pt(BX+34,BY+18)+' C '+pt(BX+28,BY-14)+', '+pt(BX-2,BY-40)+', '+pt(BX-32,BY+4);   // 差し：1が回ったあとに内へ
+  // 航跡は「まっすぐ1マークへ → ブイのまわりを円で回る → 出口へまっすぐ」の幾何で描く（ふにゃっとした曲線をやめる）
+  // 角度は画面座標（右が0°、上がマイナス）。左へ回る＝角度が減る向き。点を細かく取ってから遠近の変換をかける
+  function geo(x0,y0,ex,ey,cx,cy,R,a0,a1d,L){var q=[[x0,y0],[ex,ey]],st=(a1d<a0?-1:1)*4;
+    for(var a=a0;(st<0?a>=a1d:a<=a1d);a+=st){var r=a*Math.PI/180;q.push([cx+R*Math.cos(r),cy+R*Math.sin(r)])}
+    var r1=a1d*Math.PI/180,tx=Math.sin(r1)*(st<0?1:-1),ty=-Math.cos(r1)*(st<0?1:-1),lx2=cx+R*Math.cos(r1),ly2=cy+R*Math.sin(r1);q.push([lx2+tx*L,ly2+ty*L]);
+    return 'M'+q.map(function(p){return pt(p[0],p[1])}).join(' L')}
+  // 入りの角度を、近づく向きと円の接線がそろうように決める（つなぎ目で折れない）
+  function turn(x0,y0,cx,cy,R,a1d,L){var th=0;for(var i=0;i<6;i++){var ex=cx+R*Math.cos(th),ey=cy+R*Math.sin(th),dx=ex-x0,dy=ey-y0,n=Math.hypot(dx,dy)||1;th=Math.atan2(dx/n,-dy/n)}
+    var a0=th*180/Math.PI;return geo(x0,y0,cx+R*Math.cos(th),cy+R*Math.sin(th),cx,cy,R,a0,a1d,L)}
+  function wake(d,col,w,o,dash,mk){return '<path class="ln" d="'+d+'" fill="none" stroke="'+col+'" stroke-opacity="'+(o*.14).toFixed(2)+'" stroke-width="'+(w+4).toFixed(1)+'" stroke-linecap="round" stroke-linejoin="round"/>'
+    +'<path class="ln" d="'+d+'" fill="none" stroke="'+col+'" stroke-opacity="'+o+'" stroke-width="'+w.toFixed(1)+'" stroke-linecap="round" stroke-linejoin="round"'+(dash?' stroke-dasharray="'+dash+'"':'')+(mk?' marker-end="url(#'+mk+')"':'')+'/>'}
+  var b1=boatAt(bs,1),e0=[lx(1),b1?ly(b1)-22:SY-2];
+  var dEsc=turn(e0[0],e0[1],BX,BY,32,sashi?-150:-160,sashi?42:50);
+  s+=wake(dEsc,'#f2f2f0',1.8+pn*3.4,.95,'','aw');
+  // 回ったあとの外側にしぶき（逃げの線の頂点の外）
+  var sp=[[-50,40],[-70,42],[-90,43],[-110,42]].map(function(a){var r=a[0]*Math.PI/180;return pt(BX+a[1]*Math.cos(r),BY+a[1]*Math.sin(r))});
+  s+='<path d="M'+sp.join(' L')+'" fill="none" stroke="#f2f2f0" stroke-opacity=".35" stroke-width="1" stroke-dasharray="1 3" stroke-linecap="round"/>';
+  function attPath(k){var o=split(k),b=boatAt(bs,o.c);if(!b)return "";var x0=lx(o.c),y0=ly(b)-22;
+    if(o.t==="まくり") return turn(x0,y0,BX,BY,54,-168,40);               // 1の前を絞り、外を大きく回る
+    if(o.t==="まくり差し") return turn(x0,y0,BX+22,BY+46,36,-152,40);    // 外へ出てから、1と2の間へ切り込む
+    return turn(x0,y0,BX+12,BY+44,22,-148,44);                             // 差し：1が回ったあと、内を小さく回る
   }
-  var lab=function(k,c,dy){var o=split(k),b=boatAt(bs,o.c);var q=P(lx(o.c),(b?ly(b):SY)-40);return '<text x="'+(q[0]+8)+'" y="'+(q[1]-dy)+'" font-size="12" font-weight="700" font-family="Barlow Condensed,sans-serif" fill="'+c+'">'+pct(pj[k])+'%</text>'};
   if(on){
-    if(a2&&pj[a2]>=THIN) s+='<path class="ln" d="'+attPath(a2)+'" fill="none" stroke="#7f8fa3" stroke-width="1.5" stroke-dasharray="5 5" stroke-linecap="round" marker-end="url(#ag)"/>';
-    s+='<path class="ln" d="'+attPath(a1)+'" fill="none" stroke="#c9a96e" stroke-width="'+(2+Math.min(.3,pj[a1])*10).toFixed(1)+'" stroke-linecap="round" marker-end="url(#ah)"/>';
+    if(a2&&pj[a2]>=THIN) s+=wake(attPath(a2),'#7f8fa3',1.5,.7,'6 4','ag');
+    s+=wake(attPath(a1),'#c9a96e',2.2+Math.min(.3,pj[a1])*10,.95,'','ah');
   }else{
-    (att||[]).slice(0,3).forEach(function(k,i){var o=split(k),b=boatAt(bs,o.c),w=b?b.waku:o.c;s+='<path class="ln"'+(i?' transform="translate('+(i*5)+' 0)"':'')+' d="'+attPath(k)+'" fill="none" stroke="'+(i?'#7f8fa3':'#c9a96e')+'" stroke-opacity="'+(i?'.45':'.9')+'" stroke-width="'+(i?1.2:1.8)+'" stroke-dasharray="4 4" stroke-linecap="round" '+(i?'':'marker-end="url(#ah)"')+'/>'
-      });
+    (att||[]).slice(0,3).forEach(function(k,i){s+=wake(attPath(k),i?'#7f8fa3':'#c9a96e',i?1.3:2,i?.55:.9,i?'5 4':'7 4',i?'':'ah')});
   }
   // 1マーク（公式の橙）
   s+='<g><rect x="'+(bq[0]-7*k)+'" y="'+(bq[1]-12*k)+'" width="'+(14*k)+'" height="'+(19*k)+'" fill="#ff7a2e"/><rect x="'+(bq[0]-7*k)+'" y="'+(bq[1]-4*k)+'" width="'+(14*k)+'" height="'+(4*k)+'" fill="#f2f2f0"/><path d="M'+(bq[0]-7*k)+' '+(bq[1]-12*k)+' L'+bq[0]+' '+(bq[1]-19*k)+' L'+(bq[0]+7*k)+' '+(bq[1]-12*k)+' Z" fill="#ff9a55"/></g>';
