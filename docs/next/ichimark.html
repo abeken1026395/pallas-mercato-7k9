@@ -185,11 +185,11 @@ function svg(bs,p,att,out,r){
   // 航跡の形（実座標 → 遠近をかけた点）
   var b1=bs.filter(function(b){return b.course===1})[0],ba=bs.filter(function(b){return b.course===att})[0];
   var e0=[lx(1),b1?ly(b1)-16:SY];
-  var dEsc='M'+pt(e0[0],e0[1])+' C '+pt(e0[0],e0[1]-120)+', '+pt(BX+32,BY+70)+', '+pt(BX+20,BY+6)+' S '+pt(BX-4,BY-28)+', '+pt(BX-30,BY-14);
+  var dEsc='M'+pt(e0[0],e0[1])+' C '+pt(e0[0],e0[1]-120)+', '+pt(BX+38,BY+70)+', '+pt(BX+28,BY+6)+' S '+pt(BX+2,BY-44)+', '+pt(BX-38,BY-12);   // 逃げ：ブイの右を上がり、外へふくらみながら回る
   var dAtt='';
   if(ba){var q0=[lx(att),ly(ba)-16];
     dAtt=out?'M'+pt(q0[0],q0[1])+' C '+pt(q0[0]+10,q0[1]-140)+', '+pt(BX+128,BY+24)+', '+pt(BX+74,BY-26)+' S '+pt(BX+6,BY-58)+', '+pt(BX-30,BY-40)
-            :'M'+pt(q0[0],q0[1])+' C '+pt(q0[0]-8,q0[1]-110)+', '+pt(BX+86,BY+108)+', '+pt(BX+38,BY+40)+' S '+pt(BX+8,BY+16)+', '+pt(BX-10,BY+26);}
+            :'M'+pt(q0[0],q0[1])+' C '+pt(q0[0]-6,q0[1]-120)+', '+pt(BX+62,BY+84)+', '+pt(BX+44,BY+24)+' C '+pt(BX+32,BY-8)+', '+pt(BX+2,BY-32)+', '+pt(BX-20,BY-2);}   // 差し：1の外で待ち、1の後ろを横切ってブイのすぐ外を小さく回る   // 差し：1マークのすぐ外を小さく回り、内に残る（ブイには触れない）
   var ew=(2+p["逃げ"]*7).toFixed(1);
   // 逃げの航跡：下に広い白の帯（引き波）＋芯
   s+='<path class="ln" pathLength="1" style="--d:0ms;transition-duration:'+DUR+'s" d="'+dEsc+'" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="'+(+ew+8)+'" stroke-linecap="round"/>'
