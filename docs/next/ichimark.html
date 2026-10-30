@@ -118,6 +118,7 @@ function init(){
   var e=D.eval||{};
   $("how").innerHTML="上が1マーク、下がスタートラインです。艇は下から上へ進み、1マークを左に回ります。<br>"
     +"白い線は1コースが逃げる形で、太いほど見立ての確率が高い。黄色の線は、逃げなかったときに勝つ見込みが最も高いコースの攻め筋（外を大きく回る形＝まくり筋、内に切り込む形＝差し筋）です。<br>"
+    +"右の矢印は直前情報の風で、この場の水面の向き（2マークから1マークへの方位。航空写真から実測）に合わせて回しています。上向きが追い風、下向きが向かい風です。<br>"
     +"艇の前後はスタート展示のSTの差、4コースより外はダッシュとして後ろから描いています。1マークでの実際の位置は公式データに無いため、図は確率から描いた模式図です。<br>"
     +(e.acc4!=null?"当たり方（学習に使っていない2026年8月以降のレース）：決まり方の正解率 "+(e.acc4*100).toFixed(1)+"%（毎回「逃げ」と答えると "+(e.base4*100).toFixed(1)+"%）。逃げなかったときに勝つコースの正解率 "+(e.accCourse*100).toFixed(1)+"%（毎回2コースと答えると "+(e.baseCourse*100).toFixed(1)+"%）。":"");
   draw();
@@ -140,7 +141,7 @@ function race(r){
   var aw=laneOf(bs,att);
   $("main").innerHTML='<figure class="chart" id="ch" style="margin-left:-4px;margin-right:-4px"><p class="ft dg">'+esc(r.venue)+" "+R+'R</p><p class="fs">スタート展示の隊形から1マークまで（模式図）</p>'
     +'<div class="hero"><div class="big dg">'+pct(p["逃げ"])+'<small>%</small></div><div class="lab">1コースが<br>逃げる見立て</div></div>'
-    +svg(bs,p,att,out)
+    +svg(bs,p,att,out,r)
     +'<button type="button" class="replay" id="rp">もう一度見る</button></figure>'
     +'<div class="sec"><h2>逃げなかったら、勝つのは何コースか</h2><div class="bars">'
     +[2,3,4,5,6].map(function(c,i){var v=rest[i]/sum;return '<span class="c C'+laneOf(bs,c)+'">'+c+'</span><span class="t"><i class="'+(c===att?"top":"")+'" style="transform:scaleX('+(rest[i]/mx).toFixed(3)+')"></i></span><span class="v">'+pct(v)+'<small>%</small></span>'}).join("")
@@ -154,7 +155,7 @@ function race(r){
 }
 /* 縦の模式図。上＝1マーク（左に回る）、下＝スタートライン。1コースが左（内）。
    艇の縦位置＝スタート展示STの差（早いほど前）。4コースより外はダッシュとして後ろから助走してくる形 */
-function svg(bs,p,att,out){
+function svg(bs,p,att,out,r){
   var W=340,H=360,BX=80,BY=70,SY=262;
   var x=function(c){return 88+(c-1)*44};
   var sts=bs.map(function(b){return b.st==null||b.st<0?null:b.st}).filter(function(v){return v!=null}),mn=sts.length?Math.min.apply(null,sts):0;
@@ -176,6 +177,13 @@ function svg(bs,p,att,out){
     else d='M'+xa+' '+ya+' C '+(xa-4)+' '+(ya-90)+', '+(BX+70)+' '+(BY+96)+', '+(BX+30)+' '+(BY+30)+' S '+(BX+4)+' '+(BY+8)+', '+(BX-2)+' '+(BY+14);
     s+='<path class="ln" pathLength="1" style="--d:900ms" d="'+d+'" fill="none" stroke="var(--hi)" stroke-width="3.5" stroke-linecap="round"/>'
       +'<g class="fd" style="--d:1700ms"><text x="'+(W-10)+'" y="'+(BY+6)+'" text-anchor="end" font-size="14" font-weight="800" fill="var(--hi)">'+att+'コース '+(out?"まくり筋":"差し筋")+'</text></g>';}
+  // 風（直前情報の風向・風速を、この場の水面の向き＝2M→1Mの方位に合わせて回す。上向き＝追い風）
+  var wd=r.wind||{},wx=W-44,wy=176;
+  if(wd.code===17||wd.ms===0){s+='<g class="fd" style="--d:300ms"><circle cx="'+wx+'" cy="'+wy+'" r="22" fill="none" stroke="rgba(232,236,239,.25)"/><text x="'+wx+'" y="'+(wy+5)+'" text-anchor="middle" font-size="13" fill="var(--dim)">無風</text></g>'}
+  else if(wd.code!=null&&r.bearing!=null){var a=((wd.code-1)*22.5-r.bearing+360)%360,df=Math.min(a,360-a),rel=df<=45?"追い風":df>=135?"向かい風":"横風";
+    s+='<g class="fd" style="--d:300ms"><circle cx="'+wx+'" cy="'+wy+'" r="22" fill="none" stroke="rgba(232,236,239,.25)"/>'
+      +'<g transform="rotate('+a.toFixed(1)+' '+wx+' '+wy+')"><line x1="'+wx+'" y1="'+(wy+15)+'" x2="'+wx+'" y2="'+(wy-11)+'" stroke="#9fd3ff" stroke-width="3" stroke-linecap="round"/><path d="M'+(wx-7)+' '+(wy-6)+' L'+wx+' '+(wy-17)+' L'+(wx+7)+' '+(wy-6)+' Z" fill="#9fd3ff"/></g>'
+      +'<text x="'+wx+'" y="'+(wy+42)+'" text-anchor="middle" font-size="13" font-weight="800" fill="#9fd3ff">'+rel+' '+(wd.ms!=null?wd.ms+'m':'')+'</text></g>';}
   // 1マーク
   s+='<circle cx="'+BX+'" cy="'+BY+'" r="10" fill="#ff7a2e"/><circle cx="'+BX+'" cy="'+BY+'" r="16" fill="none" stroke="#ff7a2e" stroke-opacity=".35"/>'
     +'<text x="'+(BX-22)+'" y="'+(BY+5)+'" text-anchor="end" font-size="13" font-weight="800" fill="#ffb27e">1マーク</text>';
