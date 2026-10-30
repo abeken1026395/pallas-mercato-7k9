@@ -3,7 +3,9 @@
 useDefault = true
 
 # Cloudflare Web Analytics のビーコン token は公開HTMLに埋め込む前提の識別子で、秘密情報ではない。
-# この token 1つだけを除外する。
+# 公式サイト（boatrace.jp）のHTMLに埋め込まれた Akamai mPulse の API_key も公開の識別子で、秘密情報ではない
+# （2026-10-30 追加。PR #873 の試走で保存した公式結果ページのHTMLで検出された）。
+# この2つだけを除外する。
 [allowlist]
-description = "Cloudflare Web Analytics beacon token (public)"
-regexes = ['''173925d64f4a495bac679b00505ea517''']
+description = "Public beacon identifiers: Cloudflare Web Analytics token, boatrace.jp Akamai mPulse API_key"
+regexes = ['''173925d64f4a495bac679b00505ea517''', '''BK9MD-NAPZQ-PFTWM-2CATF-Q959S''']
