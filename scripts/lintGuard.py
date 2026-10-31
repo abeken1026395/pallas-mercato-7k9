@@ -27,6 +27,7 @@ GUARD_FILE = "docs/assets/guard.js"
 
 # guard.js 参照が必須のページ（正本が別にある生成物も、生成物側で検査する）
 GUARD = [
+    "docs/next/topKoki.html",  # 実験場：トップに阿部の一言（2026-11-01）
     "docs/index.html",
     "docs/announcers/index.html",
     "docs/glossary/index.html",
