@@ -1,0 +1,83 @@
+name: 1マークの見立て（展示前版・実験場）
+
+# 当日の朝、出走表が出たあとに、展示を使わない見立てを作る（けん裁定 2026-10-31：朝に1回）。
+# 書くのは docs/next/ichimark/mae_YYYYMMDD.json と maeIndex.json の2つだけ（実験場・noindex）。
+# 既に今日の分があれば作り直さない（冪等）。出走表がまだ無ければ何も書かずに終わる。
+# GitHub の schedule は取りこぼすことがあるので朝に4回置く。JST 11:00から11:40の競合帯は外している。
+#   '17 22 * * *' → JST 07:17 ／ '47 22 * * *' → JST 07:47 ／ '17 23 * * *' → JST 08:17 ／ '17 1 * * *' → JST 10:17
+on:
+  schedule:
+    - cron: '17 22 * * *'
+    - cron: '47 22 * * *'
+    - cron: '17 23 * * *'
+    - cron: '17 1 * * *'
+  workflow_dispatch:
+    inputs:
+      hd:
+        description: '対象開催日（YYYYMMDD）。空ならJST当日'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ichimark-mae
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 対象日と既存の確認
+        id: day
+        env:
+          IN_HD: ${{ github.event.inputs.hd }}
+        run: |
+          HD="$(echo "$IN_HD" | tr -d '[:space:]')"
+          if [ -z "$HD" ]; then
+            HD=$(python3 -c "from datetime import datetime,timezone,timedelta;print(datetime.now(timezone(timedelta(hours=9))).strftime('%Y%m%d'))")
+          fi
+          echo "hd=$HD" >> "$GITHUB_OUTPUT"
+          if [ -f "docs/next/ichimark/mae_$HD.json" ] && [ -z "$IN_HD" ]; then
+            echo "skip=1" >> "$GITHUB_OUTPUT"; echo "既にあります: $HD"
+          fi
+
+      - uses: actions/setup-python@v5
+        if: steps.day.outputs.skip != '1'
+        with:
+          python-version: '3.12'
+
+      - name: 依存
+        if: steps.day.outputs.skip != '1'
+        run: pip install numpy scikit-learn lightgbm==4.7.0
+
+      - name: 見立てを作る
+        if: steps.day.outputs.skip != '1'
+        run: python scripts/ichimark/buildMae.py "${{ steps.day.outputs.hd }}"
+
+      - name: commit and push
+        if: steps.day.outputs.skip != '1'
+        env:
+          BR: ${{ github.ref_name }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/next/ichimark/mae_*.json docs/next/ichimark/maeIndex.json 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "no changes"; exit 0
+          fi
+          git commit -m "1マークの見立て（展示前版）: ${{ steps.day.outputs.hd }}"
+          for i in 1 2 3 4 5 6; do
+            git fetch origin "$BR" || true
+            if git rebase "origin/$BR"; then
+              if git push origin "HEAD:$BR"; then echo "pushed (try $i)"; exit 0; fi
+            else
+              git rebase --abort 2>/dev/null || true
+            fi
+            sleep $(( (RANDOM % 6) + 3 ))
+          done
+          echo "push retries exhausted"; exit 1
