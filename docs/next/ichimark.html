@@ -106,7 +106,7 @@ svg{display:block;width:100%;height:auto}
 .fm{color:var(--dim);font-weight:700;border:1px solid #5b6b7c;padding:0 3px;font-size:11px}
 .sn{margin:6px 0 0;font-size:12.5px;color:var(--faint);line-height:1.6}.sn .fa2{margin-top:6px}.gcal{margin-top:14px}.gcal svg.cal{max-width:360px;margin:8px 0 4px}.gcal details.gt{margin:8px 0 0;border:0}.gcal details.gt>summary{min-height:36px;font:400 13px -apple-system,"Hiragino Sans",sans-serif;color:var(--faint)}.gcal .gh{margin:12px 0 2px;font-size:13px;color:var(--dim);font-weight:700}.sn.fa{font-size:14px;color:var(--dim);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:10px 0}
 .legend i{display:inline-block;width:22px;height:0;border-top:3px solid #f2f2f0;vertical-align:middle;margin-right:5px}
-.legend i.g{border-top-color:#c9a96e}.legend i.d{border-top:2px dotted #8fa0b3}.legend i.fo{width:10px;height:14px;border:1.6px dashed #cdd7e0;vertical-align:-2px}.legend i.m{width:12px;height:12px;border:1.6px solid #dcbd78;vertical-align:-1px}
+.legend i.g{border-top-color:#c9a96e}.legend i.d{border-top:2px solid rgba(143,160,179,.6)}.legend i.fo{width:10px;height:14px;border:1.6px dashed #cdd7e0;vertical-align:-2px}.legend i.m{width:12px;height:12px;border:1.6px solid #dcbd78;vertical-align:-1px}
 .legend i.s{border-top-style:solid;border-top-color:var(--mute)}
 .sec{margin-top:4px}
 .cmb{display:grid;grid-template-columns:minmax(0,1fr) 96px 40px;gap:8px;align-items:center}
@@ -297,8 +297,8 @@ function race(r){
       +(gs?'。'+dn.course+'コースのスタートが逃げの見立てに与えた分は <span class="n">'+(gs.pt>=0?'+':'−')+Math.abs(gs.pt).toFixed(1)+'</span>ポイント'+(Math.abs(gs.pt)<1?'で、ほとんど効いていません':''):'')+'。</div>'}
   html+=''
     +'<div class="cap"><h2>1マーク</h2><span>'+windIcon(w)+(w?esc(w.t)+(w.ms?'<span class="n wv">'+w.ms+'</span>m':''):'')+(r.wave!=null?'・波<span class="n wv">'+r.wave+'</span>cm':'')+'</span></div>'
-    +'<div class="legend"><span><i class="w"></i>逃げ</span>'+(on?'<span><i class="g"></i>攻め筋</span>':'<span><i class="g"></i>いちばん高い候補</span><span><i class="d"></i>次の候補の抜け方</span>')+(bs.some(function(b){return b.waku>b.course})?'<span><i class="m"></i>前づけ</span>':'')+(bs.some(isF)?'<span><i class="fo"></i>展示F（本番の平均STの位置）</span>':'')+'<span><i class="s"></i>スタートライン</span></div>'
-    +'<div class="panel">'+'<div class="tels">'+telop(bs,a1,a2,pj)+'</div>'+course(bs,pn,a1,a2,pj,att)+'</div>';
+    +'<div class="legend"><span>線の太さと%は、このレース全体での見立て。金の線は、その攻めが決まったときの形。四角は艇番</span></div>'
+    +'<div class="panel">'+course(bs,pn,a1,a2,pj,att)+'</div>';
   if(on){var ws=attWhy(bs,a1,dn);if(ws.length)html+='<div class="aw"><span>'+split(a1).c+'コースの攻め筋の材料</span>'+ws.map(function(x){return '<div>'+esc(x)+'</div>'}).join('')+'</div>'}
   // 前づけ：選手の実績と、前づけがあったレースの逃げ率（実測）
   var ms=D.maezukeStats||{};
@@ -357,101 +357,69 @@ function tipTag(q,w,txt,used,lc){   // 札は線の上に載せる（どの線�
   return '<g transform="translate('+p[0].toFixed(1)+' '+p[1].toFixed(1)+')"><rect x="-6.5" y="-6.5" width="13" height="13" fill="'+LC[w]+'" stroke="'+(lc||'#0b2a3d')+'" stroke-width="1.2"/><text x="0" y="4" text-anchor="middle" font-size="10" font-weight="700" font-family="Barlow Condensed,sans-serif" fill="'+LT[w]+'">'+w+'</text>'
     +(txt?'<text x="'+(txt.side>0?10:-10)+'" y="3.5" text-anchor="'+(txt.side>0?'start':'end')+'" font-size="9" font-weight="700" fill="'+(lc||'#cdd7e0')+'">'+txt.t+'</text>':'')+'</g>'}
 function course(bs,pn,a1,a2,pj,att){
-  /* 1マーク：真上から見た図。航跡は「進入の直線 → ブイのまわりのらせん（半径を角度ごとに変える）→ 抜けの直線」。
-     決まり手ごとの形は元A1級の解説者役の目安（2026-10-31・2回目）：
-     差し＝−100°までは1の外（後ろ）を回り、そこから1の内へ絞る／まくり＝左へ約12°寄せて1を絞り、1のすぐ外を先に回る（1は流される）
-     ／まくり差し＝自分のコースを上がってから内へ寄せ、外から回り始めて1の内へ。線は帯（2.5px→回り始めで最大→出口で細く） */
-  var W=340,H=262,CX=170,TOP=6,BX=86,BY=88,SY=178,G=1.45;
-  var sc=function(y){return .62+.38*Math.max(0,Math.min(1,(y-TOP)/(H-TOP)))};
-  var P=function(x,y){return [CX+(x-CX)*sc(y),y]};
-  var lx=function(c){return 120+(c-1)*27};
-  var stOf=function(b){return isF(b)?(b.avgSt!=null?b.avgSt:.15):(b.st==null?.15:b.st)};
-  var ly=function(b){return SY+16+Math.min(.3,stOf(b))*70};
+  /* 1マーク：真上から見た図（遠近なし）。航跡は「艇の鼻先からの直線 → 円に接して入る旋回（半径を角度で変える）→ 左下へ抜ける直線」。
+     折れが出ないよう、直線は旋回の円への接線で入れる。線の太さは見立ての大きさ（全体に占める%）で 2.5〜4.5px。
+     決まり手は「白（逃げ）と交わる場所」で描き分ける（2026-11-01 採点役：元選手級の解説者・デザイナー・読者）：
+     まくり＝進入の直線で1の前を横切り、1は外へ流される（見立てが立たないときは1の外を回る）
+     ／差し＝1の後ろの低い位置で回って1の内へ／まくり差し＝頂点までは1の外、頂点を過ぎて1の内へ */
+  var W=340,H=262,BX=176,BY=60,SY=226;
+  var lx=function(c){return 203+(c-1)*18};
   var on=a1&&pj[a1]>=THIN,t1=on?split(a1).t:"";
-  var R1E=26*G;
-  // o: {cx,cy,ks:[[角度,半径],...]（角度は減る向き）,L,ex:抜けの角度,via:[x,y]（進入の途中の点）}。返り値 {q:画面の点列, k:回り始めの添字, e:回り終わりの添字}
-  function pts(x0,y0,o){var q=[],ks=o.ks,a0=ks[0][0],aE=ks[ks.length-1][0];
-    var R=function(a){for(var i=1;i<ks.length;i++){if(a>=ks[i][0]){var f=(a-ks[i-1][0])/(ks[i][0]-ks[i-1][0]);return ks[i-1][1]+(ks[i][1]-ks[i-1][1])*f}}return ks[ks.length-1][1]};
-    var r0=a0*Math.PI/180,sx=o.cx+ks[0][1]*Math.cos(r0),sy=o.cy+ks[0][1]*Math.sin(r0),dy=Math.max(20,y0-sy),tl=(o.tilt||0)*Math.PI/180;
-    var up=o.up||.45;
-    if(o.hold&&y0>o.hold){var hx=x0-Math.tan(5*Math.PI/180)*(y0-o.hold);for(var u0=0;u0<1;u0+=1/6)q.push([x0+(hx-x0)*u0,y0+(o.hold-y0)*u0]);x0=hx;y0=o.hold;dy=Math.max(20,y0-sy)}   // 寄せ始めまでは自分のコースをまっすぐ
-    var c1=o.hold?[x0,y0-dy*.5]:[x0-Math.sin(tl)*dy*up,y0-Math.cos(tl)*dy*up],c2=[sx-Math.sin(r0)*dy*.35,sy+Math.cos(r0)*dy*.35];
-    for(var u=0;u<1;u+=1/14){var v=1-u;q.push([v*v*v*x0+3*v*v*u*c1[0]+3*v*u*u*c2[0]+u*u*u*sx,v*v*v*y0+3*v*v*u*c1[1]+3*v*u*u*c2[1]+u*u*u*sy])}
-    var k=q.length;for(var a=a0;a>=aE;a-=3){var r=a*Math.PI/180,rr=R(a);q.push([o.cx+rr*Math.cos(r),o.cy+rr*Math.sin(r)])}
-    var e=q.length-1,last=q[e],ex=-178*Math.PI/180,e2=-174*Math.PI/180,Lx=Math.max(8,Math.min(o.L,SY-25-last[1]-15));
-    var m=[last[0]+Math.sin(ex)*Lx,last[1]-Math.cos(ex)*Lx];q.push(m);
-    for(var j=1;j<=3;j++){var aj=ex+(e2-ex)*j/3;m=[m[0]+Math.sin(aj)*5,m[1]-Math.cos(aj)*5];q.push(m)}
-    return {q:q.map(function(p){return P(p[0],p[1])}),k:k,e:e}}
-  function poly(q,ws){var n=q.length,L=[],Rr=[];for(var i=0;i<n;i++){var a=q[Math.max(0,i-1)],b=q[Math.min(n-1,i+1)],dx=b[0]-a[0],dy=b[1]-a[1],m=Math.hypot(dx,dy)||1,w=ws[i]/2;L.push([q[i][0]-dy/m*w,q[i][1]+dx/m*w]);Rr.push([q[i][0]+dy/m*w,q[i][1]-dx/m*w])}
-    return 'M'+L.concat(Rr.reverse()).map(function(p){return p[0].toFixed(1)+" "+p[1].toFixed(1)}).join(" L")+" Z"}
-  // 帯：進入はうすい→濃い（直線なので線形のグラデーションで）、回り始め以降は一枚の濃い帯。重なりが見えないよう、まとめて不透明度をかける
-  var gid=0;
-  function ribbon(P0,col,wmax,op,under){var q=P0.q,k=P0.k,n=q.length,len=[0];for(var i=1;i<n;i++)len.push(len[i-1]+Math.hypot(q[i][0]-q[i-1][0],q[i][1]-q[i-1][1]));
-    var Lk=len[k],T=len[n-1]-Lk||1,ws=q.map(function(_,i){var w=i<=k?2.5+(wmax-2.5)*(len[i]/(Lk||1)):wmax*(1-.3*(len[i]-Lk)/T);return w+(under?3:0)});
-    var a=poly(q.slice(0,k+2),ws.slice(0,k+2)),b=poly(q.slice(k),ws.slice(k));
-    if(under)return '<path d="'+a+'" fill="#0b2a3d"/><path d="'+b+'" fill="#0b2a3d"/>';
-    var id="rg"+(++gid);
-    return '<linearGradient id="'+id+'" gradientUnits="userSpaceOnUse" x1="'+q[0][0].toFixed(1)+'" y1="'+q[0][1].toFixed(1)+'" x2="'+q[k][0].toFixed(1)+'" y2="'+q[k][1].toFixed(1)+'"><stop offset="0" stop-color="'+col+'" stop-opacity=".3"/><stop offset="1" stop-color="'+col+'"/></linearGradient>'
-      +'<g opacity="'+op+'"><path d="'+a+'" fill="url(#'+id+')"/><path d="'+b+'" fill="'+col+'"/></g>'}
-  function head(q,col,op){var b=q[q.length-1],a=q[q.length-2],dx=b[0]-a[0],dy=b[1]-a[1],m=Math.hypot(dx,dy)||1,ux=dx/m,uy=dy/m;
-    var tip=[b[0]+ux*7,b[1]+uy*7],l=[b[0]-uy*4.5-ux*3,b[1]+ux*4.5-uy*3],r=[b[0]+uy*4.5-ux*3,b[1]-ux*4.5-uy*3];
-    return '<path d="M'+tip.map(function(v){return v.toFixed(1)}).join(" ")+" L"+l.map(function(v){return v.toFixed(1)}).join(" ")+" L"+r.map(function(v){return v.toFixed(1)}).join(" ")+' Z" fill="'+col+'" fill-opacity="'+(op||1)+'"/>'}
+  var mk1=a1&&split(a1).t==="まくり"&&split(a1).c>=2,fl=mk1?Math.min(1,pj[a1]/Math.max(.05,pn)):0,wEnd=29+16*fl;
+  function wd(p){return 2.5+3*Math.min(1,p/.7)}
+  function pc(p){return Math.max(1,Math.round(p*100))}
+  function path(c,o){var S=[lx(c),SY-2],r0=o.ks[0][1],dx=o.cx-S[0],dy=o.cy-S[1],D=Math.hypot(dx,dy),phi=Math.atan2(dy,dx),be=Math.asin(Math.min(.999,r0/D)),best=null;
+    [phi+be,phi-be].forEach(function(t){var T=[S[0]+Math.cos(t)*D*Math.cos(be),S[1]+Math.sin(t)*D*Math.cos(be)];if(!best||T[0]>best[0])best=T});
+    var a0=Math.atan2(best[1]-o.cy,best[0]-o.cx)*180/Math.PI,ks=o.ks.slice();ks[0]=[a0,r0];
+    var R=function(a){for(var i=1;i<ks.length;i++){if(a>=ks[i][0]){var f=(a-ks[i-1][0])/(ks[i][0]-ks[i-1][0]);if(ks.length>2)f=f*f*(3-2*f);return ks[i-1][1]+(ks[i][1]-ks[i-1][1])*f}}return ks[ks.length-1][1]};
+    var q=[S];for(var a=a0;a>=-180;a-=3){var r=a*Math.PI/180;q.push([o.cx+R(a)*Math.cos(r),o.cy+R(a)*Math.sin(r)])}
+    var e=q[q.length-1],tl=(o.tl||0)*Math.PI/180;
+    for(var j=1;j<=4;j++){var f=j/4;q.push([e[0]-Math.sin(tl)*o.L*f,e[1]+Math.cos(tl)*o.L*f])}
+    return q}
+  function d(q){return 'M'+q.map(function(p){return p[0].toFixed(1)+" "+p[1].toFixed(1)}).join(" L")}
+  function head(q,col,w){var b=q[q.length-1],a=q[q.length-2],dx=b[0]-a[0],dy=b[1]-a[1],m=Math.hypot(dx,dy)||1,ux=dx/m,uy=dy/m,h=Math.min(12,w*3),hw=Math.min(6,w*1.5);
+    var tip=[b[0]+ux*h*.6,b[1]+uy*h*.6],l=[b[0]-uy*hw-ux*h*.4,b[1]+ux*hw-uy*h*.4],r=[b[0]+uy*hw-ux*h*.4,b[1]-ux*hw-uy*h*.4];
+    return '<path d="M'+[tip,l,r].map(function(p){return p[0].toFixed(1)+" "+p[1].toFixed(1)}).join(" L")+' Z" fill="'+col+'"/>'}
+  function line(q,col,w,op,arrow){return '<path d="'+d(q)+'" fill="none" stroke="#0b2639" stroke-width="'+(w+1.5).toFixed(1)+'" stroke-linecap="round" stroke-linejoin="round"/>'
+    +'<g opacity="'+op+'"><path d="'+d(q)+'" fill="none" stroke="'+col+'" stroke-width="'+w.toFixed(1)+'" stroke-linecap="round" stroke-linejoin="round"/>'
+    +(arrow?head(q,col,w):'<circle cx="'+q[q.length-1][0].toFixed(1)+'" cy="'+q[q.length-1][1].toFixed(1)+'" r="2.5" fill="'+col+'"/>')+'</g>'}
+  var escO={cx:BX,cy:BY,ks:[[0,27],[-180,wEnd]],L:40,tl:12};
+  function attO(t,main,c){
+    if(t==="まくり")return {cx:BX+8,cy:BY+4,ks:[[0,28],[-180,28]],L:main?56:44,tl:12};
+    if(t==="まくり差し")return {cx:BX+4,cy:BY,ks:[[0,38],[-60,36],[-150,20],[-180,18]],L:main?56:44,tl:12};
+    return {cx:BX+3,cy:BY+5,ks:[[0,20],[-180,20]],L:main?56:44,tl:12}}
   var s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="1マークの見立ての図">'
-    +'<defs><linearGradient id="wt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#071d2b"/><stop offset="1" stop-color="#0e3550"/></linearGradient>'
-    +'<pattern id="rp" width="24" height="10" patternUnits="userSpaceOnUse"><path d="M0 6 Q6 2 12 6 T24 6" fill="none" stroke="#1d4d6a" stroke-width="1" opacity=".5"/></pattern>'
-    +'<linearGradient id="fm" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".1"/><stop offset="1" stop-color="#fff" stop-opacity="1"/></linearGradient><mask id="mk"><rect width="'+W+'" height="'+H+'" fill="url(#fm)"/></mask>'
-    +'<linearGradient id="wk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".45"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>'
-    +'<rect width="'+W+'" height="'+H+'" fill="url(#wt)"/><rect width="'+W+'" height="'+H+'" fill="url(#rp)" mask="url(#mk)"/>'
-    +'<path d="M'+P(10,SY).map(function(v){return v.toFixed(1)}).join(" ")+' L'+P(W-10,SY).map(function(v){return v.toFixed(1)}).join(" ")+'" stroke="#8a96a3" stroke-width="1.5"/>';
-  var b1=boatAt(bs,1),y1=b1?ly(b1)-22:SY-6;
-  // 1コース：まくられる見立てなら淡く、外へ流される
-  var mk1=t1==="まくり",R1=(mk1?32:(t1==="差し"?28:26))*G;
-  var escO={cx:BX-2*G,cy:BY+2*G,ks:[[-10,R1E],[-185,R1]],L:30};
-  var E=pts(lx(1),y1,escO);
-  function attO(t,c,y0,main){var Lm=main?44:30;
-    if(t==="まくり")return {tilt:11,cx:BX-6*G,cy:BY+6*G,ks:[[-10,36*G],[-100,40*G],[-185,40*G]],L:Lm};     // 左へ寄せて1を絞り、回りながら外へ膨らむ
-    if(t==="まくり差し")return {hold:BY+45,cx:BX-6*G,cy:BY+10*G,ks:[[5,50*G],[-100,38*G],[-195,16*G]],L:Lm};             // 外から回り始め、回りながら1の内へ
-    return {tilt:3,cx:BX-4*G,cy:BY+4*G,ks:[[-20,38*G],[-115,37*G],[-140,32*G],[-165,23*G],[-195,14*G]],L:main?34:30}}   // 差し：1と同じくらいの長さ（並ぶ）
-  function attP(k,main){var o=split(k),b=boatAt(bs,o.c);if(!b)return null;var y0=ly(b)-22;return pts(lx(o.c),y0,attO(o.t,o.c,y0,main))}
-  // 1の引き波（細く淡い帯）
-  s+='<path d="M'+E.q.slice(E.k,E.e).map(function(p){return p[0].toFixed(1)+" "+p[1].toFixed(1)}).join(" L")+'" fill="none" stroke="#fff" stroke-opacity=".06" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>';
-  var cands=on?[a1].concat(a2&&pj[a2]>=THIN?[a2]:[]):(att||[]).slice(0,3);
-  // 次の候補：回り終わりからの抜けだけを点線と矢じりで。根元に艇番
-  var tags=[],A0=cands.length?attP(cands[0],on):null,taken=[E.q[E.q.length-1][0]].concat(A0?[A0.q[A0.q.length-1][0]]:[]);
-  cands.slice(1).forEach(function(k,ci){var A=attP(k,false);if(!A)return;var o=split(k),dir=o.t==="まくり"?-1:1,tl0=A.q.slice(Math.max(A.k,A.e-9)),ex0=tl0[tl0.length-1][0],dx=0;
-    for(var g=0;g<6&&taken.some(function(x){return Math.abs(ex0+dx-x)<14});g++)dx+=dir*14;taken.push(ex0+dx);
-    var tail=tl0.map(function(p){return [p[0]+dx,p[1]]}),b=boatAt(bs,o.c),w=b?b.waku:o.c;
-    s+='<circle cx="'+tail[0][0].toFixed(1)+'" cy="'+tail[0][1].toFixed(1)+'" r="1.6" fill="#8fa0b3"/><path d="M'+tail.map(function(p){return p[0].toFixed(1)+" "+p[1].toFixed(1)}).join(" L")+'" fill="none" stroke="#8fa0b3" stroke-width="1.2" stroke-dasharray="2 5" stroke-linecap="round"/>'+head(tail,"#8fa0b3",.85)
-      ;tags.push([tail,w,{t:o.t,side:o.t==="まくり"?-1:1},"#8fa0b3"])});
-  // まくり差しの見立てでは、壁になる内側のまくり艇を淡く添える
-  var A=cands.length?attP(cands[0],on):null;
-  if(on&&t1==="まくり差し"){var c0=split(a1).c,wb=boatAt(bs,c0-1);if(wb&&c0-1>=2){var y0=ly(wb)-22,Wl=pts(lx(c0-1),y0,attO("まくり",c0-1,y0,false));s+=ribbon(Wl,"#8fa0b3",4,.1)}}
-  // 金（主の攻め筋）→ 白（逃げ）を最前面に
-  if(A)s+=ribbon(A,"#c9a96e",on?8:6,1,true)+ribbon(A,"#c9a96e",on?8:6,on?1:.85)+head(A.q,"#c9a96e",on?1:.85);
-  s+=ribbon(E,"#f2f2f0",6,1,true)+ribbon(E,"#f2f2f0",6,mk1?.7:1)+head(E.q,"#f2f2f0",mk1?.75:1);
-  if(b1)tags.unshift([E.q,b1.waku,null,"#f2f2f0"]);
-  if(A){var oa=split(cands[0]),ba=boatAt(bs,oa.c);tags.splice(1,0,[A.q,ba?ba.waku:oa.c,{t:oa.t,side:oa.t==="まくり"?-1:1},"#c9a96e"])}
-  // しぶき：主の線の、出口側の外。後ろへ倒し、長さをばらつかせ、点を混ぜる
-  var so=A&&on?attO(t1,split(a1).c,0,true):escO,sp="",Lr=[6,3,9,4,10,2,7];
-  var Rk=function(ks,a){for(var j=1;j<ks.length;j++){if(a>=ks[j][0]){var f=(a-ks[j-1][0])/(ks[j][0]-ks[j-1][0]);return ks[j-1][1]+(ks[j][1]-ks[j-1][1])*f}}return ks[ks.length-1][1]};
-  for(var i=0;i<7;i++){var ad=-60+i*8,aa=ad*Math.PI/180,rr=Rk(so.ks,ad)+9,l=Lr[i],bk=-20*Math.PI/180;
-    var p0=P(so.cx+rr*Math.cos(aa),so.cy+rr*Math.sin(aa)),p1=P(so.cx+(rr+l)*Math.cos(aa+bk*l/40),so.cy+(rr+l)*Math.sin(aa+bk*l/40));
-    sp+='<path d="M'+p0[0].toFixed(1)+" "+p0[1].toFixed(1)+" L"+p1[0].toFixed(1)+" "+p1[1].toFixed(1)+'" stroke="#fff" stroke-opacity=".5" stroke-width="1.1" stroke-linecap="round"/>'}
-  [[-34,16],[-22,12],[-48,20]].forEach(function(d){var aa=d[0]*Math.PI/180,rr=Rk(so.ks,d[0])+d[1],p=P(so.cx+rr*Math.cos(aa),so.cy+rr*Math.sin(aa));sp+='<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="1" fill="#fff" fill-opacity=".5"/>'});
-  s+=sp;
-  // 1マーク：真上から見た丸と、白い波紋
-  var bq=P(BX,BY);
-  s+='<ellipse cx="'+bq[0].toFixed(1)+'" cy="'+bq[1].toFixed(1)+'" rx="15" ry="11" fill="none" stroke="#f2f2f0" stroke-opacity=".15" stroke-width=".8"/><ellipse cx="'+bq[0].toFixed(1)+'" cy="'+bq[1].toFixed(1)+'" rx="23" ry="17" fill="none" stroke="#f2f2f0" stroke-opacity=".1" stroke-width=".8"/>'
-    +'<circle cx="'+bq[0].toFixed(1)+'" cy="'+bq[1].toFixed(1)+'" r="7" fill="#ff7a2e"/><circle cx="'+bq[0].toFixed(1)+'" cy="'+bq[1].toFixed(1)+'" r="2.5" fill="#f2f2f0"/>';
-  bs.forEach(function(b){var q=P(lx(b.course),ly(b)),kk=sc(ly(b))*1.32,w=b.waku,f=isF(b);
-    var hull='M0 -20 C4 -15 6 -8 6 0 L6 16 L-6 16 L-6 0 C-6 -8 -4 -15 0 -20 Z';
-    s+='<g transform="translate('+q[0].toFixed(1)+' '+q[1].toFixed(1)+') scale('+kk.toFixed(3)+')">'
-      +'<path d="M-4 16 L-13 40 M4 16 L13 40" stroke="url(#wk)" stroke-width="1.6" fill="none"/>'
-      +(f?'<path d="'+hull+'" fill="#0b2a3d" stroke="'+(w===2?'#8a96a3':LC[w])+'" stroke-width="2" stroke-dasharray="3 2"/><text x="0" y="9" text-anchor="middle" font-size="13" font-weight="700" font-family="Barlow Condensed,sans-serif" fill="'+(w===2?'#cdd7e0':LC[w])+'">'+w+'</text>'
-         :'<path d="'+hull+'" fill="'+LC[w]+'"'+(w===2?' stroke="#8a96a3" stroke-width="1"':"")+'/><text x="0" y="9" text-anchor="middle" font-size="13" font-weight="700" font-family="Barlow Condensed,sans-serif" fill="'+LT[w]+'">'+w+'</text>')
-      +(b.waku>b.course?'<path d="M0 -25 C5 -19 9 -10 9 0 L9 19 L-9 19 L-9 0 C-9 -10 -5 -19 0 -25 Z" fill="none" stroke="#dcbd78" stroke-width="1.6"/>':'')
-      +'</g>';});
-  var used=[];tags.forEach(function(g){s+=tipTag(g[0],g[1],g[2],used,g[3])});
+    +'<rect width="'+W+'" height="'+H+'" fill="#0b2639"/>'
+    +'<line x1="16" y1="'+SY+'" x2="'+(W-16)+'" y2="'+SY+'" stroke="#5d6f82" stroke-width="1"/>';
+  var cands=on?[a1].concat(a2&&pj[a2]>=THIN?[a2]:[]):(att||[]).slice(0,2),labs=[],c0=cands.length?split(cands[0]).c:0;
+  // 次の候補（主の攻め筋と同じ艇なら線は描かず、札にまとめる）
+  var extra=null;
+  cands.slice(1).forEach(function(k){var o=split(k),b=boatAt(bs,o.c);if(!b)return;
+    if(o.c===c0||(c0&&o.t===split(cands[0]).t)){extra={w:b.waku,t:o.t+' '+pc(pj[k])+'%',col:null,o:1.5};return}
+    var q=path(o.c,attO(o.t,false,o.c)),Ew=path(1,escO),near=q.slice(1).some(function(p){return p[1]<BY+40&&Ew.slice(1).some(function(e){return Math.hypot(p[0]-e[0],p[1]-e[1])<9})});
+    if(near){extra={w:b.waku,t:o.t+' '+pc(pj[k])+'%',col:null,o:1.5};return}
+    s+=line(q,"#9fb0c2",wd(pj[k]),.75,false);
+    labs.push({w:b.waku,t:o.t+' '+pc(pj[k])+'%',col:"#9fb0c2",o:2})});
+  var E=path(1,escO),b1=boatAt(bs,1),sE=line(E,"#f2f2f0",wd(pn),1,true),sashi=cands.length&&split(cands[0]).t==="差し";
+  if(!sashi)s+=sE;
+  if(cands.length){var o0=split(cands[0]),b0=boatAt(bs,o0.c);if(b0){var A=path(o0.c,attO(o0.t,true,o0.c));
+    s+=line(A,"#c9a96e",wd(pj[cands[0]]),1,true);labs.push({w:b0.waku,t:o0.t+' '+pc(pj[cands[0]])+'%',col:"#c9a96e",o:1});if(extra)labs.push(extra)}}
+  if(sashi)s+=sE;
+  labs.push({w:b1?b1.waku:1,t:'逃げ '+pc(pn)+'%',col:"#f2f2f0",o:0});
+  var shown=pn+cands.reduce(function(a,k){return a+pj[k]},0);
+  labs.push({w:0,t:'そのほか '+pc(Math.max(0,1-shown))+'%',col:null,o:3});
+  // 1マーク
+  s+='<circle cx="'+BX+'" cy="'+BY+'" r="6" fill="#ff7a2e" stroke="#071d2b" stroke-width="1.5"/>';
+  // 札：左に縦に並べる（逃げ→攻め筋→次の候補→そのほか）。色の短い線で、どの線の札かを示す
+  labs.sort(function(a,b){return a.o-b.o});
+  var y0=SY-14-(labs.length-1)*21;labs.forEach(function(l,i){var y=y0+i*21,x=18;
+    if(l.col)s+='<rect x="'+x+'" y="'+(y-8)+'" width="12" height="4" fill="'+l.col+'"/>';
+    if(l.w)s+='<rect x="'+(x+16)+'" y="'+(y-12)+'" width="15" height="15" fill="'+LC[l.w]+'"'+(l.w===2?' stroke="#8a96a3" stroke-width="1"':'')+'/><text x="'+(x+23.5)+'" y="'+(y-0.5)+'" text-anchor="middle" font-size="12" font-weight="700" font-family="Barlow Condensed,sans-serif" fill="'+LT[l.w]+'">'+l.w+'</text>';
+    s+='<text x="'+(x+(l.w?36:16))+'" y="'+(y-0.5)+'" font-size="'+(l.o===3||l.o===1.5?11:12.5)+'" font-weight="700" fill="'+(l.o===3||l.o===1.5?'#8a96a3':'#e6ebf0')+'">'+esc(l.t)+'</text>'});
+  // 艇：鼻先がスタートライン
+  bs.forEach(function(b){var x=lx(b.course),w=b.waku;
+    s+='<g transform="translate('+x+' '+SY+') scale(1.15)"><path d="M0 0 C3.5 4 5.5 9 5.5 14 L5.5 26 L-5.5 26 L-5.5 14 C-5.5 9 -3.5 4 0 0 Z" fill="'+LC[w]+'" stroke="'+(w===2?'#8a96a3':'none')+'" stroke-width="1"/>'
+      +'<text x="0" y="22" text-anchor="middle" font-size="11" font-weight="700" font-family="Barlow Condensed,sans-serif" fill="'+LT[w]+'">'+w+'</text></g>'});
   return s+'</svg>';
 }
 })();
