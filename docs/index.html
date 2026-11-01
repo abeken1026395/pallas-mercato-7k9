@@ -620,7 +620,7 @@ Promise.all([
   .catch(function(){ fail(); });
 // 最近の更新（最新3件）＋更新サイン。updates.json の最新3件を quicknav 直下に常時表示する。
 // 1件目は全文、2・3件目は1行（はみ出しは…）。札の色はページの種類ごとに固定し、ページ名も文字で書く。
-// 前に /updates/ を開いたときより新しい更新にだけ「新しい」を付ける。件数・点滅は出さない。
+// 前に /updates/ を開いたときより新しい更新にだけ「NEW」を付ける。件数・点滅は出さない。
 // 既読キーは専用の br_updates_seen（/updates/ を開くと更新される）。出走表の pruneOld（3日引き）は
 // br_watch / br_viewed / br_collected の3つだけを対象にするため、br_yomi と同様にこのキーは間引かれない。
 // ページ名→種類・開く先の対応は docs/updates/index.html と同じ（直すときは2か所そろえる）。
@@ -654,7 +654,7 @@ Promise.all([
           var a = mk(h ? "a" : "div", "srow" + (i === 0 ? " full" : "")); if(h) a.href = h;
           var c = mk("span", "chip", p); c.style.setProperty("--c", k[1]); a.appendChild(c);
           a.appendChild(mk("span", "dt", parseInt(ds.slice(5,7),10) + "/" + parseInt(ds.slice(8,10),10)));
-          if(seen && ds > seen) a.appendChild(mk("span", "newmk", "新しい"));
+          if(seen && ds > seen) a.appendChild(mk("span", "newmk", "NEW"));
           a.appendChild(mk("span", "tx", String(x.text || "")));
           rows.appendChild(a);
         });
