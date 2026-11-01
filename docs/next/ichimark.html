@@ -81,7 +81,7 @@ svg{display:block;width:100%;height:auto}
 .why details.wd{margin:6px 0 0;border:0}.why details.wd>summary{font-family:inherit;min-height:34px;font-size:12.5px;font-weight:400;color:var(--faint)}.why details.wd>div{font-size:12.5px;color:var(--faint);line-height:1.6;margin:0 0 4px}.why .wn{margin-top:6px}
 .why .c1 .n{font-size:15px;color:#fff}
 .wv{font-size:17px;color:#fff;margin-left:2px}
-.panel{position:relative;overflow:hidden}.panel svg{overflow:hidden}
+.panel{position:relative;overflow:hidden}.panel svg{overflow:hidden}.mkc{display:block;width:100%;height:auto}
 .panel .tels{display:flex;flex-wrap:wrap;gap:4px;margin:0 0 8px}
 .tel{display:flex;height:32px;border:none;padding:0}
 .tel .l{background:var(--goldBg);color:#0d1c2f;font-size:13px;font-weight:800;padding:0 10px;display:flex;align-items:center}
@@ -171,7 +171,8 @@ details[open]>summary::after{content:"\2212"}
 <script>
 (function(){
 var LC=["","#f2f2f0","#1b1b1b","#e2382f","#2a6fd6","#f2c200","#1f9a55"],LT=["","#111","#fff","#fff","#fff","#111","#fff"];
-var D=null,J=null,R=null;
+var D=null,J=null,R=null,MK=null;
+function paintMk(){var cv=document.getElementById("mkc");if(!cv||!MK)return;var dpr=Math.min(3,window.devicePixelRatio||1),m=MK;cv.width=Math.round(m.w*dpr);cv.height=Math.round(m.h*dpr);var img=new Image();img.onload=function(){var ctx=cv.getContext("2d");ctx.drawImage(img,0,0,cv.width,cv.height)};img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(m.svg);MK=null}
 function $(id){return document.getElementById(id)}
 function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 function pct(x){return Math.round(x*100)}
@@ -328,7 +329,7 @@ function race(r){
   html+='<div class="cap" id="tbl"><h2>出走表</h2><span></span></div><table><colgroup><col class="c0"><col><col class="c2"><col class="c3"><col class="c4"><col class="c5"></colgroup><tr><th>枠</th><th>選手</th><th>全国</th><th>当地</th><th>今節</th><th>機</th></tr>'
     +bs.map(function(b){return '<tr><td>'+chip(b.waku)+'</td><td class="nm">'+esc(b.name||"")+'<small><span class="nb">'+esc(b.cls||"")+'</span>'+(b.fcount?'・<span class="nb fm">F'+b.fcount+'</span>':'')+(b.avgSt!=null?'・<span class="nb">平均ST'+b.avgSt.toFixed(2).replace(/^0/,'')+'</span>':'')+'</small></td><td class="n">'+(b.nat2!=null?b.nat2.toFixed(0):'—')+'</td><td class="n">'+(b.loc2!=null?b.loc2.toFixed(0):'—')+'</td><td class="n">'+(b.setsuN?b.setsuWin+'/'+b.setsuN:'—')+'</td><td class="n">'+(b.motor!=null?b.motor.toFixed(0):'—')+"</td></tr>"}).join("")
     +'</table><div class="tnote">全国・当地＝2連率（%、出走表）。今節＝同じ場の直前6日の1着数/走数（前日まで）。機＝モーター2連率（%）。平均ST＝本番の平均スタートタイミング（出走表）。F1・F2＝フライングを持っている本数。</div>';
-  $("main").innerHTML=html;
+  $("main").innerHTML=html;paintMk();
 }
 /* スリット：行＝進入コース（上が1）、旗＝艇番。横＝スタート展示ST（.40〜0）。展示Fの艇がいるときだけ、線の右に帯 */
 function slit(bs,dn){
@@ -435,7 +436,7 @@ function course(bs,pn,a1,a2,pj,att){
   function sc(p){var a=P(p),b=P([p[0]+1,p[1]]);return Math.hypot(b[0]-a[0],b[1]-a[1])}
   function f1(v){return v.toFixed(1)}
   function poly(pts){return 'M'+pts.map(function(p){return f1(p[0])+" "+f1(p[1])}).join(" L")+' Z'}
-  var s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="1マークの見立ての図"><defs>'
+  var s='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" font-family="-apple-system,Hiragino Sans,Hiragino Kaku Gothic ProN,Noto Sans JP,Noto Sans CJK JP,Meiryo,sans-serif"><defs>'
     +'<linearGradient id="wt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#071a2c"/><stop offset=".5" stop-color="#0c2c44"/><stop offset="1" stop-color="#113a58"/></linearGradient></defs>'
     +'<rect width="'+W+'" height="'+H+'" fill="url(#wt)"/>';
   var gid=0;
@@ -489,7 +490,9 @@ function course(bs,pn,a1,a2,pj,att){
   tags.forEach(function(it){s+=tag(it,it.r.t+' '+pc(it.r.p)+'%',0,extra&&extra.c===it.c?extra.t+' '+pc(extra.p)+'%':'')});
   var rest=Math.max(0,1-pn-cands.reduce(function(a,k){return a+pj[k]},0));
   s+='<text x="'+(W-10)+'" y="'+(H-10)+'" text-anchor="end" font-size="12" font-weight="700" fill="#b6c3d0">そのほか '+pc(rest)+'%</text>';
-  return s+'</svg>';
+  // AI対策：図は文字を持たない画像（canvas）として出す。組み立てた SVG は画面に置かず、画像に焼いてから描く
+  MK={svg:s+'</svg>',w:W,h:H};
+  return '<canvas id="mkc" class="mkc" role="img" aria-label="1マークの図" style="aspect-ratio:'+W+'/'+H+'"></canvas>';
 }
 })();
 </script>
