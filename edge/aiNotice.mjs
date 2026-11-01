@@ -57,6 +57,8 @@ const TARGETS = [
   /^\/motor\/(index\.html)?$/,
   /^\/motor\/[^/]+\.csv$/,
   /^\/motor-maintenance\/(index\.html)?$/,
+  /^\/next\/ichimark(\.html)?$/,                 // 1マークの見立て（実験場。けん裁定 2026-11-01「A」：罠の対象に入れる）
+  /^\/next\/ichimark\/[^/]+\.json$/,
 ];
 
 // 返す形："html" / "json" / "csv"。対象外なら null。
