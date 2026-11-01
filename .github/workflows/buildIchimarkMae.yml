@@ -1,7 +1,7 @@
-name: 1マークの見立て（展示前版・実験場）
+name: 1マークの見立て（展示前版）
 
 # 当日の朝、出走表が出たあとに、展示を使わない見立てを作る（けん裁定 2026-10-31：朝に1回）。
-# 書くのは docs/next/ichimark/mae_YYYYMMDD.json と maeIndex.json の2つだけ（実験場・noindex）。
+# 書くのは docs/ichimark/mae_YYYYMMDD.json と maeIndex.json の2つだけ。
 # 既に今日の分があれば作り直さない（冪等）。出走表がまだ無ければ何も書かずに終わる。
 # GitHub の schedule は取りこぼすことがあるので朝に4回置く。JST 11:00から11:40の競合帯は外している。
 #   '17 22 * * *' → JST 07:17 ／ '47 22 * * *' → JST 07:47 ／ '17 23 * * *' → JST 08:17 ／ '17 1 * * *' → JST 10:17
@@ -42,7 +42,7 @@ jobs:
             HD=$(python3 -c "from datetime import datetime,timezone,timedelta;print(datetime.now(timezone(timedelta(hours=9))).strftime('%Y%m%d'))")
           fi
           echo "hd=$HD" >> "$GITHUB_OUTPUT"
-          if [ -f "docs/next/ichimark/mae_$HD.json" ] && [ -z "$IN_HD" ]; then
+          if [ -f "docs/ichimark/mae_$HD.json" ] && [ -z "$IN_HD" ]; then
             echo "skip=1" >> "$GITHUB_OUTPUT"; echo "既にあります: $HD"
           fi
 
@@ -66,7 +66,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/next/ichimark/mae_*.json docs/next/ichimark/maeIndex.json 2>/dev/null || true
+          git add docs/ichimark/mae_*.json docs/ichimark/maeIndex.json 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "no changes"; exit 0
           fi

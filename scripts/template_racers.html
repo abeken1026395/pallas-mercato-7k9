@@ -582,6 +582,7 @@ var tide=null;               /* 当日干満（tideToday.json・潮汐場のみ�
 var NS=null;                 /* 1号艇逃げ時の2着コース分布（nigeSecond.json・直近730日・回数のみ） */
 var GRADE=null;              /* 開催グレード（gradeSchedule.json・公式の月間スケジュール由来） */
 var MZ=null, MZMETA=null;   /* 前づけ実績（maezuke.json・選手別・回数のみ。率は20走以上だけ出す） */
+var MAE_DAYS=[];             /* 1マークの見立てがある開催日（../ichimark/maeIndex.json）。ある日だけリンクを出す */
 var CL10=null, CL10_STATE="idle";  /* コース別直近10走。レース画面を開いたときだけ取得する */
 
 function loadJSON(u){ return fetch(u).then(function(r){return r.json();}); }
@@ -598,6 +599,7 @@ loadJSON("../data/maezuke.json").then(function(j){ if(j&&j["選手"]){MZ=j["選�
 loadJSON("../data/nigeSecond.json").then(function(j){ NS=j||null; rerender(); }).catch(function(){});
 loadJSON("../data/wakuStats.json").then(function(j){ WS=j||null; rerender(); }).catch(function(){});
 loadJSON("../data/gradeSchedule.json").then(function(j){ GRADE=j||null; rerender(); }).catch(function(){});
+loadJSON("../ichimark/maeIndex.json").then(function(j){ MAE_DAYS=(j&&j.days)||[]; rerender(); }).catch(function(){});
 /* 中止（chushiToday.json・公式の本日のレース一覧由来）。場コード→{から: 中止が始まるR, 表記}。
    中止後の公式出走表は締切予定時刻に実在しない値を出すため、中止のレースでは締切を出さない。
    JSONの開催日とその場の開催日が一致するときだけ使う。取れなければ何も出さない。 */
@@ -1734,7 +1736,8 @@ function renderRace(app,crumb,v){
       +'<a class="offlink offlink-card" href="'+base+'racelist'+q+'" target="_blank" rel="noopener">公式出走表 ↗</a>';
   }
   var uranai='<a class="offlink offlink-card" href="../uranai/?jcd='+v.jcd+'&hd='+v.hd+'&rno='+view.rno+'R&from=racers">🔮 この6艇を占う</a>';
-  var links='<div class="race-links">'+wbtn+off+uranai+'</div>';
+  var ichi=MAE_DAYS.indexOf(v.hd)>=0?'<a class="offlink offlink-card" href="../ichimark/?d='+v.hd+'&j='+v.jcd+'&r='+view.rno+'">1マークの見立て</a>':'';
+  var links='<div class="race-links">'+wbtn+off+ichi+uranai+'</div>';
   var html='<div class="race-head"><div class="line1"><span class="rt">'+esc(v.name)+' '+view.rno+'R</span><span class="kikaku">'+esc(rc.kikaku)+'</span></div>'
     +'<div class="dl">'+cdHtml+(chR?'':'<span>締切 '+esc(rc.deadline||"-")+'</span>')+'<span>'+esc(v.setsu)+' '+esc(v.day)+'</span></div>'
     +links+'</div>';

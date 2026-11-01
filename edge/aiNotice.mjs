@@ -57,7 +57,9 @@ const TARGETS = [
   /^\/motor\/(index\.html)?$/,
   /^\/motor\/[^/]+\.csv$/,
   /^\/motor-maintenance\/(index\.html)?$/,
-  /^\/next\/ichimark(\.html)?$/,                 // 1マークの見立て（実験場。けん裁定 2026-11-01「A」：罠の対象に入れる）
+  /^\/ichimark\/(index\.html)?$/,                // 1マークの見立て（けん裁定 2026-11-01「A」：罠の対象に入れる。同日「1と2」で本番へ）
+  /^\/ichimark\/[^/]+\.json$/,
+  /^\/next\/ichimark(\.html)?$/,                 // 実験場だったころの住所と、実験場に残る旧版のデータ
   /^\/next\/ichimark\/[^/]+\.json$/,
 ];
 
