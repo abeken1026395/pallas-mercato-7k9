@@ -6,7 +6,9 @@
 <meta charset="UTF-8">
 <meta name="author" content="阿部（データ攻め）">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>【実験場】1マークの見立て</title>
+<link rel="canonical" href="https://abeken1026395.github.io/pallas-mercato-7k9/ichimark/">
+<title>1マークの見立て｜データ攻め</title>
+<link rel="apple-touch-icon" href="../icon180.png">
 <!-- kata6:head -->
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&amp;family=Dela+Gothic+One&amp;display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/kata/kata.css?v=c853c8e7">
@@ -166,7 +168,7 @@ details[open]>summary::after{content:"\2212"}
 
 <div id="main"><div class="err">読み込んでいます…</div></div>
 <details><summary>この図の読み方と、答え合わせ</summary><div class="dbody" id="how"></div></details>
-<p class="stamp">展示の前の材料と過去のレースの集計にもとづく見立てです（実験）。スタート展示・展示タイムは入っていません。スローとダッシュの境と起こし位置は未確認のため、図には描いていません。潮の流れも見立てに使っていません。舟券の購入は20歳になってから。</p>
+<p class="stamp">展示の前の材料と過去のレースの集計にもとづく見立てです。スタート展示・展示タイムは入っていません。スローとダッシュの境と起こし位置は未確認のため、図には描いていません。潮の流れも見立てに使っていません。舟券の購入は20歳になってから。</p>
 </div>
 <script>
 (function(){
@@ -178,8 +180,8 @@ function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return
 function pct(x){return Math.round(x*100)}
 function isF(b){return b.tenjiF===1||(b.st!=null&&b.st<0)}
 function stTxt(b){return b.st==null?"—":(isF(b)?"F":b.st.toFixed(2).slice(1))}
-var q=new URLSearchParams(location.search),day=/^\d{8}$/.test(q.get("d")||"")?q.get("d"):null;
-(day?Promise.resolve(day):fetch("ichimark/maeIndex.json").then(function(r){return r.ok?r.json():Promise.reject()}).then(function(x){return x.latest})).then(function(d0){day=d0;return fetch("ichimark/mae_"+day+".json")}).then(function(r){return r.ok?r.json():Promise.reject()}).then(function(d){D=d;init()}).catch(function(e){if(e&&e.stack)console.error(e.stack);$("main").innerHTML='<div class="err">この日のデータがありません。</div>'});
+var q=new URLSearchParams(location.search),Q_R=/^([1-9]|1[0-2])$/.test(q.get("r")||"")?+q.get("r"):null,day=/^\d{8}$/.test(q.get("d")||"")?q.get("d"):null;
+(day?Promise.resolve(day):fetch("maeIndex.json").then(function(r){return r.ok?r.json():Promise.reject()}).then(function(x){return x.latest})).then(function(d0){day=d0;return fetch("mae_"+day+".json")}).then(function(r){return r.ok?r.json():Promise.reject()}).then(function(d){D=d;init()}).catch(function(e){if(e&&e.stack)console.error(e.stack);$("main").innerHTML='<div class="err">この日のデータがありません。</div>'});
 
 /* 組み合わせ（例 "3まくり差し"）→ コースと決まり手。「その他」と「6〜」は形を描けないのでまとめる */
 function split(k){var m=/^(\d)(.*)$/.exec(k);return m?{c:+m[1],t:m[2].replace('その他','そのほか')}:{c:0,t:k}}
@@ -208,6 +210,7 @@ function how(){
 function draw(){
   [].forEach.call($("pick").children,function(b){b.setAttribute("aria-pressed",b.dataset.j===J)});
   var rr=D.races.filter(function(x){return x.jcd===J}),have={};rr.forEach(function(x){have[x.rno]=x});
+  if(R==null&&Q_R&&have[Q_R])R=Q_R;Q_R=null;
   if(R==null||!have[R])R=rr[0].rno;
   var h="";for(var i=1;i<=12;i++)h+='<button type="button" data-r="'+i+'" aria-pressed="'+(i===R)+'"'+(have[i]?"":" disabled")+">"+i+(have[i]?"":"<small>未</small>")+"</button>";
   $("rs").innerHTML=h;

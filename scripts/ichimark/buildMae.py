@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""buildMae.py — 1マークの見立て（展示前版）を作る。実験場 docs/next/ichimark.html が読む。
+"""buildMae.py — 1マークの見立て（展示前版）を作る。docs/ichimark/index.html が読む（2026-11-01 けん裁定で実験場から本番へ）。
 
 展示（スタート展示・展示タイム）が締切の約5分前にしか届かないため（2026-10-31 実測 n=38）、
 展示を使わず、当日の朝に出ている材料だけで見立てる。
@@ -12,8 +12,8 @@
 1着の「コース×決まり手」15分類を LightGBM で出し、1逃げの確率をまとまりごとの厳密シャープレイ値で分ける。
 
 出力（docs/ 配下はこの2つだけ。冪等：中身が同じなら書かない）
-  docs/next/ichimark/mae_YYYYMMDD.json
-  docs/next/ichimark/maeIndex.json
+  docs/ichimark/mae_YYYYMMDD.json
+  docs/ichimark/maeIndex.json
 入力は読むだけ（results/・preview/・pv2/programs/ は書かない。当日の出走表は上流から取ってその場で使う）。
 
 使い方:  python scripts/ichimark/buildMae.py [YYYYMMDD]   （省略時は JST の今日）
@@ -35,7 +35,7 @@ import lightgbm as lgb
 from sklearn.metrics import log_loss
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-OUTDIR = os.path.join(ROOT, "docs", "next", "ichimark")
+OUTDIR = os.path.join(ROOT, "docs", "ichimark")
 JST = datetime.timezone(datetime.timedelta(hours=9))
 TRAIN_FROM = "20260101"
 EVAL_FROM = "20260801"

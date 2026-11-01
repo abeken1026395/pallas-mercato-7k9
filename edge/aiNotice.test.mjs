@@ -25,7 +25,8 @@ const TARGETS = [
   "/highlights/", "/highlights/highlights.json", "/highlights/racerStatsToday.json",
   "/data/kansenki/articles/20260709-01.json", "/data/tenjiStats.json",
   "/motor/", "/motor/motors_all.csv", "/motor-maintenance/",
-  "/next/ichimark.html", "/next/ichimark", "/next/ichimark/mae_20261031.json", "/next/ichimark/maeIndex.json",
+  "/ichimark/", "/ichimark/index.html", "/ichimark/mae_20261101.json", "/ichimark/maeIndex.json",
+  "/next/ichimark.html", "/next/ichimark", "/next/ichimark/v9_20261030.json",
 ];
 const OUTSIDE = ["/", "/results/", "/kensho/", "/data/weather.json", "/data/verify_summary.json", "/stadium/", "/robots.txt"];
 const AI = ["ChatGPT-User/1.0", "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Claude-User/1.0; +Claude-User@anthropic.com)", "Perplexity-User/1.0", "GPTBot/1.1", "ClaudeBot/1.0", "CCBot/2.0"];

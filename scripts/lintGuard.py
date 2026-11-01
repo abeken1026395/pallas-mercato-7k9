@@ -34,6 +34,7 @@ GUARD = [
     "docs/announcers/index.html",
     "docs/glossary/index.html",
     "docs/choukan/index.html",
+    "docs/ichimark/index.html",  # 1マークの見立て（2026-11-01 実験場から本番へ）
     "docs/highlights/index.html",
     "docs/kensho/index.html",
     "docs/kensho/flow/index.html",
@@ -67,7 +68,6 @@ GUARD = [
     "docs/next/senshuCardSnA.html",
     "docs/next/motorKeireki.html",
     "docs/next/kansenNote.html",
-    "docs/next/ichimark.html",
     "docs/next/torisetsu.html",
     "docs/next/topI.html",
     "docs/next/choukanTop.html",

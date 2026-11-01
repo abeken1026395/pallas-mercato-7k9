@@ -363,6 +363,7 @@ body{position:relative}
     <a class="ni" style="--c:#6b7a8c" href="./kensho/" data-new="2026-10-30"><span class="ic">検</span>検証<span class="qn-new" hidden>NEW</span></a>
     <a class="ni" style="--c:#6b7a8c" href="./players/card.html" data-new="2026-10-21"><span class="ic">札</span>選手カード<span class="qn-new" hidden>NEW</span></a>
     <a class="ni" style="--c:#6b7a8c" href="./note/" data-new="2026-10-30"><span class="ic">帳</span>観戦ノート<span class="qn-new" hidden>NEW</span></a>
+    <a class="ni" style="--c:#6b7a8c" href="./ichimark/" data-new="2026-11-01"><span class="ic">旋</span>1マーク<span class="qn-new" hidden>NEW</span></a>
     <a class="ni" style="--c:#6b7a8c" href="./glossary/"><span class="ic">辞</span>用語辞典</a>
     <a class="ni" style="--c:#6b7a8c" href="./fan/"><span class="ic">文</span>場の文化</a>
     <a class="ni" style="--c:#6b7a8c" href="./announcers/"><span class="ic">実</span>実況アナ</a>
@@ -629,7 +630,7 @@ Promise.all([
     [/出走表/, "#e05b4b", "./racers/"], [/見どころ|朝刊|観戦記/, "#f2b155", "./highlights/"], [/検証/, "#9b8cf0", "./kensho/"],
     [/選手|占い|アナ/, "#cdd6e0", "./players/"], [/モーター/, "#3fb1c9", "./motor/"], [/24場|場|結果|万舟/, "#7fd4a8", "./stadium/"], [/./, "#8a9bb0", ""]
   ];
-  var HREF = [ [/朝刊|観戦記/, "./choukan/"], [/選手占い|^占い/, "./uranai/"], [/選手カード/, "./players/card.html"], [/アナ/, "./announcers/"],
+  var HREF = [ [/1マーク/, "./ichimark/"], [/朝刊|観戦記/, "./choukan/"], [/選手占い|^占い/, "./uranai/"], [/選手カード/, "./players/card.html"], [/アナ/, "./announcers/"],
                [/モーター整備/, "./motor-maintenance/"], [/万舟/, "./payouts/"], [/結果/, "./results/"], [/トリセツ/, "./torisetsu/"], [/用語/, "./glossary/"],
                [/^トップ$|更新履歴|全ページ/, ""] ];
   function kind(p){ for(var i = 0; i < KINDS.length; i++) if(KINDS[i][0].test(p)) return KINDS[i]; return KINDS[KINDS.length - 1]; }
