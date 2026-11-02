@@ -5,7 +5,13 @@ name: 1マークの見立て（展示前版）
 # 既に今日の分があれば作り直さない（冪等）。出走表がまだ無ければ何も書かずに終わる。
 # GitHub の schedule は取りこぼすことがあるので朝に4回置く。JST 11:00から11:40の競合帯は外している。
 #   '17 22 * * *' → JST 07:17 ／ '47 22 * * *' → JST 07:47 ／ '17 23 * * *' → JST 08:17 ／ '17 1 * * *' → JST 10:17
+# 定時起動は数時間遅れたり起動しなかったりする（2026-11-01 初回 10:10、11-02 は 09:47 まで0回）。
+# けん裁定 2026-11-02「1」：出走表の自動更新が成功したら続けて起動する。今日の分があれば何もしない。
+# 続けての起動は JST 06:00 より前（前日の結果がそろう前）と 11:00から11:40 の競合帯では作らない。
 on:
+  workflow_run:
+    workflows: ["出走表データ自動更新"]
+    types: [completed]
   schedule:
     - cron: '17 22 * * *'
     - cron: '47 22 * * *'
@@ -27,6 +33,7 @@ concurrency:
 
 jobs:
   build:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -42,6 +49,12 @@ jobs:
             HD=$(python3 -c "from datetime import datetime,timezone,timedelta;print(datetime.now(timezone(timedelta(hours=9))).strftime('%Y%m%d'))")
           fi
           echo "hd=$HD" >> "$GITHUB_OUTPUT"
+          if [ "${{ github.event_name }}" = "workflow_run" ]; then
+            HM=$(python3 -c "from datetime import datetime,timezone,timedelta;print(datetime.now(timezone(timedelta(hours=9))).strftime('%H%M'))")
+            if [ "$HM" -lt 600 ] || { [ "$HM" -ge 1100 ] && [ "$HM" -le 1140 ]; }; then
+              echo "skip=1" >> "$GITHUB_OUTPUT"; echo "続けての起動は作らない時刻: JST $HM"; exit 0
+            fi
+          fi
           if [ -f "docs/ichimark/mae_$HD.json" ] && [ -z "$IN_HD" ]; then
             echo "skip=1" >> "$GITHUB_OUTPUT"; echo "既にあります: $HD"
           fi
