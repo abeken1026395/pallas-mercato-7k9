@@ -16,6 +16,10 @@
   .hk textarea{width:100%;box-sizing:border-box;font-size:12px;padding:8px;background:transparent;color:#f2f5f8;border:1px solid rgba(255,255,255,.3)}
   .hk button{min-height:44px;padding:0 20px;font-weight:700;font-size:15px;border:0;border-radius:999px;background:#f2f5f8;color:#0b1a2b}
   a{display:inline-block;color:#fff;background:#c4302b;font-weight:700;text-decoration:none;padding:12px 22px;border-radius:999px}
+  .yt summary{display:inline-block;list-style:none;cursor:pointer;color:#fff;background:#c4302b;font-weight:700;padding:12px 22px;border-radius:999px}
+  .yt summary::-webkit-details-marker{display:none}
+  .yt-cs{margin:18px 0 6px;font-size:26px;letter-spacing:.08em;font-weight:700}
+  .yt-m{margin:0;line-height:1.9;font-size:15px}
 </style>
 </head>
 <body>
@@ -31,7 +35,11 @@
     <p><button type="button" id="hk-copy">コードをコピー</button></p>
     <p class="hk-d" id="hk-msg" role="status"></p>
   </div>
-  <p><a href="https://www.youtube.com/@abe-ken" target="_blank" rel="noopener">YouTube「あべけん」</a></p>
+  <details class="yt">
+    <summary>YouTube</summary>
+    <p class="yt-cs">coming soon</p>
+    <p class="yt-m">YouTubeは、新しいチャンネルで復活します。<br>復活を待て。</p>
+  </details>
 </div>
 <script>
 /* 前の住所に残っている保存内容を「DZ1.」＋base64 のコードにする（新しい住所は書かない・2026-10-26）。 */
