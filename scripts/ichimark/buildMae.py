@@ -11,7 +11,9 @@
   過去の直前情報 … ふだんのスタート展示ST・節の展示タイム偏差（前日まで）
 1着の「コース×決まり手」15分類を LightGBM で出し、1逃げの確率をまとまりごとの厳密シャープレイ値で分ける。
 
-出力（docs/ 配下はこの2つだけ。冪等：中身が同じなら書かない）
+作り方（学習の設定・使わない材料のまとまり）は scripts/ichimark/maeConfig.json にある。週1の見直し（tuneWeekly.py）が書き換える。
+
+出力（docs/ 配下はこの2つだけ。一度出した日の見立ては書き換えない＝答え合わせを正直にするため）
   docs/ichimark/mae_YYYYMMDD.json
   docs/ichimark/maeIndex.json
 入力は読むだけ（results/・preview/・pv2/programs/ は書かない。当日の出走表は上流から取ってその場で使う）。
@@ -57,6 +59,32 @@ NB = len(BOAT_COLS)
 SHINNYU = [BOAT_COLS.index(c) for c in ("mzIn", "mzDiff", "mzOut", "mzN")]
 FCOL = [BOAT_COLS.index(c) for c in ("f180", "p_racer_flying_count")]
 RACE0 = 3  # 先頭3列＝場（カテゴリ）・R番号・レースの格
+# 週1の見直しで出し入れする材料のまとまり（maeConfig.json の drop に名前を書くと、学習にも見立てにも使わない）
+DROP_GROUPS = {
+    "tenjiSt": ["tenjiStAvg", "tenjiStN"],
+    "setsu": ["setsuN", "setsuCh", "setsuWin", "setsuTop2", "setsuSt"],
+    "setsuTenji": ["setsuTenjiDev", "setsuTenjiSt"],
+    "mz": ["mzIn", "mzDiff", "mzOut", "mzN"],
+    "waku": ["wakuN", "wakuWin", "wakuTop2", "wakuSt"],
+    "prog": ["p_" + k for k in PROG_KEYS],
+    "f180": ["f180"],
+}
+CFG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "maeConfig.json")
+DEFAULT_PARAMS = {"n_estimators": 250, "learning_rate": 0.03, "num_leaves": 4, "min_child_samples": 200,
+                  "reg_lambda": 5, "subsample": 0.8, "colsample_bytree": 0.5}
+
+
+def load_cfg(path=CFG_PATH):
+    try:
+        with open(path, encoding="utf-8") as f:
+            c = json.load(f)
+    except Exception:
+        c = {}
+    return {"id": c.get("id", "v1"), "params": dict(DEFAULT_PARAMS, **(c.get("params") or {})),
+            "drop": [g for g in (c.get("drop") or []) if g in DROP_GROUPS]}
+
+
+CFG = load_cfg()
 
 
 def ymd(d, n):
@@ -225,16 +253,36 @@ def build_training(ev, keys, races):
     return np.array(X, float), np.array(y), meta
 
 
-def fit(X, y):
-    m = lgb.LGBMClassifier(objective="multiclass", n_estimators=250, learning_rate=0.03, num_leaves=4,
-                           min_child_samples=200, reg_lambda=5, subsample=0.8, subsample_freq=1,
-                           colsample_bytree=0.5, random_state=0, verbose=-1, n_jobs=2)
-    return m.fit(X, y, categorical_feature=[0])
+def drop_idx(drop):
+    names = [c for g in drop for c in DROP_GROUPS.get(g, [])]
+    return [col(w, c) for w in range(1, 7) for c in names]
+
+
+def masked(A, drop):
+    """使わない材料の列を欠損にした写しを返す（元の配列は書き換えない。説明文には元の値を使う）。"""
+    ix = drop_idx(drop)
+    if not ix:
+        return A
+    B = np.array(A, float, copy=True)
+    B[:, ix] = NAN
+    return B
+
+
+def fit(X, y, cfg=None):
+    cfg = cfg or CFG
+    pr = cfg["params"]
+    m = lgb.LGBMClassifier(objective="multiclass", n_estimators=int(pr["n_estimators"]), learning_rate=pr["learning_rate"],
+                           num_leaves=int(pr["num_leaves"]), min_child_samples=int(pr["min_child_samples"]),
+                           reg_lambda=pr["reg_lambda"], subsample=pr["subsample"], subsample_freq=1,
+                           colsample_bytree=pr["colsample_bytree"], random_state=0, verbose=-1, n_jobs=2)
+    m.fit(masked(X, cfg["drop"]), y, categorical_feature=[0])
+    m.dropGroups_ = list(cfg["drop"])
+    return m
 
 
 def proba(m, A):
     P = np.zeros((len(A), K))
-    P[:, m.classes_] = m.predict_proba(A)
+    P[:, m.classes_] = m.predict_proba(masked(A, getattr(m, "dropGroups_", [])))
     return P
 
 
@@ -382,6 +430,11 @@ def fmt(x, nd=0):
 # ---------------------------------------------------------------- 本体
 def main():
     hd = sys.argv[1] if len(sys.argv) > 1 else datetime.datetime.now(JST).strftime("%Y%m%d")
+    path = os.path.join(OUTDIR, "mae_%s.json" % hd)
+    if os.path.exists(path):
+        # 一度出した見立ては書き換えない（答え合わせを正直にするため。けん裁定 2026-11-03）
+        print("既にあります（書き換えない）", path)
+        return 0
     prog = fetch_program(hd)
     pm = prog_map(prog)
     if not pm:
@@ -470,7 +523,7 @@ def main():
                            "natRate": round(nat[1] / nat[0], 4) if nat[0] else None, "natN": nat[0]},
                     "boats": boats, "deadline": dl, "title": p.get("race_title") or "", "day": p.get("race_subtitle") or "",
                     "grade": GNAME.get(int(p["race_grade_number"]), "") if p.get("race_grade_number") else ""})
-    doc = {"date": hd, "mode": "mae", "venueNige": venueNige, "second": second, "maezukeStats": mz, "races": out,
+    doc = {"date": hd, "mode": "mae", "cfg": CFG["id"], "venueNige": venueNige, "second": second, "maezukeStats": mz, "races": out,
            "method": "展示前の材料だけで、LightGBM 15分類（1着のコース×決まり手）。学習 %s から前日まで %dレース。"
                      "寄与はまとまりごとの厳密シャープレイ値（背景＝同じ場の学習レースから無作為100件、場とR番号は固定）。"
                      "base＝背景の平均確率、rest＝(確率−base)×100−表示した上位5つの合計、venueGap＝(base−場の直近1年の逃げ率)×100。"
@@ -478,12 +531,10 @@ def main():
     if E:
         doc.update(E)
     os.makedirs(OUTDIR, exist_ok=True)
-    path = os.path.join(OUTDIR, "mae_%s.json" % hd)
     body = json.dumps(doc, ensure_ascii=False, separators=(",", ":"))
-    old = open(path, encoding="utf-8").read() if os.path.exists(path) else None
-    if old != body:
-        open(path, "w", encoding="utf-8").write(body)
-        print("書いた", path, len(body.encode("utf-8")), "バイト", len(out), "レース")
+    with open(path, "x", encoding="utf-8") as f:  # 既にあれば例外で止まる（書き換えない）
+        f.write(body)
+    print("書いた", path, len(body.encode("utf-8")), "バイト", len(out), "レース", "作り方", CFG["id"])
     days = sorted(os.path.basename(f)[4:12] for f in glob.glob(os.path.join(OUTDIR, "mae_*.json")))
     ib = json.dumps({"days": days, "latest": days[-1]}, ensure_ascii=False, separators=(",", ":"))
     ip = os.path.join(OUTDIR, "maeIndex.json")

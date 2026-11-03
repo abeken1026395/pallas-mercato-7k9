@@ -8,6 +8,8 @@ name: 1マークの見立て（展示前版）
 # 定時起動は数時間遅れたり起動しなかったりする（2026-11-01 初回 10:10、11-02 は 09:47 まで0回）。
 # けん裁定 2026-11-02「1」：出走表の自動更新が成功したら続けて起動する。今日の分があれば何もしない。
 # 続けての起動は JST 06:00 より前（前日の結果がそろう前）と 11:00から11:40 の競合帯では作らない。
+# けん裁定 2026-11-03「1A」：起動のたびに実戦の答え合わせ（kotaeawase.json）も作り直す（11:00から11:40 は除く）。
+# 一度出した日の見立ては書き換えない（手動で日付を指定しても、既にあれば作らない）。
 on:
   workflow_run:
     workflows: ["出走表データ自動更新"]
@@ -51,16 +53,19 @@ jobs:
           echo "hd=$HD" >> "$GITHUB_OUTPUT"
           if [ "${{ github.event_name }}" = "workflow_run" ]; then
             HM=$(python3 -c "from datetime import datetime,timezone,timedelta;print(datetime.now(timezone(timedelta(hours=9))).strftime('%H%M'))")
-            if [ "$HM" -lt 600 ] || { [ "$HM" -ge 1100 ] && [ "$HM" -le 1140 ]; }; then
-              echo "skip=1" >> "$GITHUB_OUTPUT"; echo "続けての起動は作らない時刻: JST $HM"; exit 0
+            if [ "$HM" -ge 1100 ] && [ "$HM" -le 1140 ]; then
+              echo "quiet=1" >> "$GITHUB_OUTPUT"; echo "skip=1" >> "$GITHUB_OUTPUT"; echo "競合帯なので何もしない: JST $HM"; exit 0
+            fi
+            if [ "$HM" -lt 600 ]; then
+              echo "skip=1" >> "$GITHUB_OUTPUT"; echo "見立ては作らない時刻（答え合わせだけ）: JST $HM"; exit 0
             fi
           fi
-          if [ -f "docs/ichimark/mae_$HD.json" ] && [ -z "$IN_HD" ]; then
-            echo "skip=1" >> "$GITHUB_OUTPUT"; echo "既にあります: $HD"
+          if [ -f "docs/ichimark/mae_$HD.json" ]; then
+            echo "skip=1" >> "$GITHUB_OUTPUT"; echo "既にあります（書き換えない）: $HD"
           fi
 
       - uses: actions/setup-python@v5
-        if: steps.day.outputs.skip != '1'
+        if: steps.day.outputs.quiet != '1'
         with:
           python-version: '3.12'
 
@@ -72,18 +77,22 @@ jobs:
         if: steps.day.outputs.skip != '1'
         run: python scripts/ichimark/buildMae.py "${{ steps.day.outputs.hd }}"
 
+      - name: 実戦の答え合わせ
+        if: steps.day.outputs.quiet != '1'
+        run: python scripts/ichimark/kotaeawase.py
+
       - name: commit and push
-        if: steps.day.outputs.skip != '1'
+        if: steps.day.outputs.quiet != '1'
         env:
           BR: ${{ github.ref_name }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/ichimark/mae_*.json docs/ichimark/maeIndex.json 2>/dev/null || true
+          git add docs/ichimark/mae_*.json docs/ichimark/maeIndex.json docs/ichimark/kotaeawase.json 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "no changes"; exit 0
           fi
-          git commit -m "1マークの見立て（展示前版）: ${{ steps.day.outputs.hd }}"
+          git commit -m "1マークの見立て（展示前版）: ${{ steps.day.outputs.hd }}（見立て・答え合わせ）"
           for i in 1 2 3 4 5 6; do
             git fetch origin "$BR" || true
             if git rebase "origin/$BR"; then
