@@ -1,6 +1,6 @@
 """next/index.html を実験場（docs/next/torisetsu.html）用に整えて書き出す。"""
 import os, re, shutil
-CF_TAG = '<!-- Cloudflare Web Analytics --><script type=\'module\' src=\'https://static.cloudflareinsights.com/beacon.min.js\' data-cf-beacon=\'{"token": "173925d64f4a495bac679b00505ea517"}\'></script><!-- End Cloudflare Web Analytics -->'
+CF_TAG = '<!-- Cloudflare Web Analytics --><script type=\'module\' src=\'https://static.cloudflareinsights.com/beacon.min.js\' data-cf-beacon=\'{"token": "173925d64f4a495bac679b00505ea517"}\'></script><!-- End Cloudflare Web Analytics --><script src=/assets/raihou.js defer></script>'
 
 SRC = "/home/claude/next"
 REPO = "/home/claude/pallas-mercato-7k9"
