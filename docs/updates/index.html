@@ -65,8 +65,18 @@ html[data-vr] .wrap::after{content:none;margin:0}
 <link rel="stylesheet" href="../assets/kata/updates.css?v=1dade624">
 <link rel="stylesheet" href="../assets/ugoki.css?v=a0c08edf">
 <!-- /kata6:head -->
+<style>
+.it .uthumb{float:right;margin:6px 0 4px 10px}
+.it:after{content:"";display:block;clear:both}
+.uthumb{flex:none;width:64px;height:64px;padding:0;border:1px solid rgba(242,177,85,.55);background:#0b1219 center/cover no-repeat;cursor:zoom-in}
+.ubox{position:fixed;inset:0;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:rgba(5,10,16,.92);padding:16px;cursor:zoom-out}
+.ubox[hidden]{display:none}
+.ubox img{max-width:100%;max-height:82vh;border:1px solid rgba(255,255,255,.2)}
+.ubox p{margin:0;font-size:12px;color:#8ea3b8}
+</style>
 </head>
 <body>
+<div class="ubox" id="ubox" hidden role="dialog" aria-label="更新の画面"><img id="uboxImg" alt=""><p>タップで閉じる</p></div>
 <a class="siteback" href="../">← データ攻め トップ</a>
 <a class="sitelink" href="../torisetsu/#g11">📘 トリセツ</a>
 <div class="wrap">
@@ -103,7 +113,7 @@ html[data-vr] .wrap::after{content:none;margin:0}
     { k: "jo",   nm: "24場・結果", c: "--c-jo", re: /24場|場|結果|万舟/, href: "../stadium/" },
     { k: "etc",  nm: "そのほか", c: "--c-etc", re: /./, href: "" }
   ];
-  var HREF = [ [/朝刊|観戦記/, "../choukan/"], [/選手占い|^占い/, "../uranai/"], [/選手カード/, "../players/card.html"], [/アナ/, "../announcers/"],
+  var HREF = [ [/1マーク/, "../ichimark/"], [/朝刊|観戦記/, "../choukan/"], [/選手占い|^占い/, "../uranai/"], [/選手カード/, "../players/card.html"], [/アナ/, "../announcers/"],
                [/モーター整備/, "../motor-maintenance/"], [/万舟/, "../payouts/"], [/結果/, "../results/"], [/トリセツ/, "../torisetsu/"], [/用語/, "../glossary/"],
                [/^トップ$/, "../"], [/更新履歴|全ページ/, ""] ];
   function kind(p){ for(var i = 0; i < KINDS.length; i++) if(KINDS[i].re.test(p)) return KINDS[i]; return KINDS[KINDS.length - 1]; }
@@ -112,6 +122,20 @@ html[data-vr] .wrap::after{content:none;margin:0}
   // 日付の文字列をそのまま読む（端末の時間帯で1日ずれないように）
   function md(d){ var y = +d.slice(0,4), m = +d.slice(5,7), dd = +d.slice(8,10); return m + "月" + dd + "日（" + WD[new Date(Date.UTC(y, m - 1, dd)).getUTCDay()] + "）"; }
   function mk(tag, cls, txt){ var e = document.createElement(tag); if(cls) e.className = cls; if(txt != null) e.textContent = txt; return e; }
+  var OKIMG = /^updates\/img\/[A-Za-z0-9]+\.webp$/;
+  function thumb(x, pre){
+    if(!OKIMG.test(String(x.img || ""))) return null;
+    var big = OKIMG.test(String(x.imgL || "")) ? x.imgL : x.img, b = mk("button", "uthumb");
+    b.type = "button"; b.setAttribute("aria-label", "更新の画面を大きく見る");
+    b.style.backgroundImage = "url(" + pre + x.img + ")";
+    b.addEventListener("click", function(ev){ ev.preventDefault(); ev.stopPropagation();
+      document.getElementById("uboxImg").src = pre + big; document.getElementById("ubox").hidden = false; });
+    return b;
+  }
+  (function(){ var bx = document.getElementById("ubox"); if(!bx) return;
+    function close(){ bx.hidden = true; }
+    bx.addEventListener("click", close);
+    document.addEventListener("keydown", function(e){ if(e.key === "Escape") close(); }); })();
   function chip(p, k){ var c = mk("span", "chip", p); c.style.setProperty("--c", "var(" + k.c + ")"); return c; }
 
   var ROWS = document.getElementById("rows"), FLT = document.getElementById("flt");
@@ -137,6 +161,7 @@ html[data-vr] .wrap::after{content:none;margin:0}
       a.style.setProperty("--c", "var(" + k.c + ")");
       a.appendChild(chip(p, k));
       if(fresh) a.appendChild(mk("span", "newmk", "NEW"));
+      var th = thumb(x, "../"); if(th) a.appendChild(th);
       a.appendChild(mk("p", "t", String(x.text || "")));
       if(u) a.appendChild(mk("span", "go", "このページを開く →"));
       ROWS.appendChild(a);

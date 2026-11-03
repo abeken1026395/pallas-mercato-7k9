@@ -232,8 +232,18 @@ body{position:relative}
 <!-- /kata6:head -->
 <style>.koki{margin:14px auto 0;max-width:340px;padding:9px 4px;border-top:1px solid rgba(201,168,92,.4);border-bottom:1px solid rgba(201,168,92,.4);font-size:13.5px;line-height:1.75;color:#d6e0ea;font-weight:500}.koki span{display:block;text-align:right;font-size:11.5px;color:#8ea3b8;margin-top:2px;font-weight:400}</style>
 <style>.yosouBtn{display:flex;flex-direction:column;align-items:center;gap:2px;max-width:340px;margin:12px auto 0;padding:10px 14px;border:1px solid rgba(242,177,85,.65);background:rgba(242,177,85,.08);color:var(--tx);text-decoration:none}.yosouBtn small{font-size:11px;color:#8ea3b8;letter-spacing:.06em}.yosouBtn b{font-size:17px;color:#f2b155;font-weight:700;letter-spacing:.04em}.yosouBtn span{font-size:11.5px;line-height:1.6;color:#c9d6e3}</style>
+<style>
+.srow.full .tx{flex-basis:calc(100% - 80px)}
+.srow .uthumb{margin:2px 0 0 auto}
+.uthumb{flex:none;width:64px;height:64px;padding:0;border:1px solid rgba(242,177,85,.55);background:#0b1219 center/cover no-repeat;cursor:zoom-in}
+.ubox{position:fixed;inset:0;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:rgba(5,10,16,.92);padding:16px;cursor:zoom-out}
+.ubox[hidden]{display:none}
+.ubox img{max-width:100%;max-height:82vh;border:1px solid rgba(255,255,255,.2)}
+.ubox p{margin:0;font-size:12px;color:#8ea3b8}
+</style>
 </head>
 <body>
+<div class="ubox" id="ubox" hidden role="dialog" aria-label="更新の画面"><img id="uboxImg" alt=""><p>タップで閉じる</p></div>
 <div class="byline">by 阿部</div>
 <div class="wrap">
 
@@ -637,6 +647,20 @@ Promise.all([
   function kind(p){ for(var i = 0; i < KINDS.length; i++) if(KINDS[i][0].test(p)) return KINDS[i]; return KINDS[KINDS.length - 1]; }
   function href(p, k){ for(var i = 0; i < HREF.length; i++) if(HREF[i][0].test(p)) return HREF[i][1]; return k[2]; }
   function mk(tag, cls, txt){ var e = document.createElement(tag); if(cls) e.className = cls; if(txt != null) e.textContent = txt; return e; }
+  var OKIMG = /^updates\/img\/[A-Za-z0-9]+\.webp$/;
+  function thumb(x, pre){
+    if(!OKIMG.test(String(x.img || ""))) return null;
+    var big = OKIMG.test(String(x.imgL || "")) ? x.imgL : x.img, b = mk("button", "uthumb");
+    b.type = "button"; b.setAttribute("aria-label", "更新の画面を大きく見る");
+    b.style.backgroundImage = "url(" + pre + x.img + ")";
+    b.addEventListener("click", function(ev){ ev.preventDefault(); ev.stopPropagation();
+      document.getElementById("uboxImg").src = pre + big; document.getElementById("ubox").hidden = false; });
+    return b;
+  }
+  (function(){ var bx = document.getElementById("ubox"); if(!bx) return;
+    function close(){ bx.hidden = true; }
+    bx.addEventListener("click", close);
+    document.addEventListener("keydown", function(e){ if(e.key === "Escape") close(); }); })();
   fetch("./data/updates.json", { cache: "no-store" })
     .then(function(r){ return r.ok ? r.json() : Promise.reject(); })
     .then(function(d){
@@ -656,6 +680,7 @@ Promise.all([
           a.appendChild(mk("span", "dt", parseInt(ds.slice(5,7),10) + "/" + parseInt(ds.slice(8,10),10)));
           if(seen && ds > seen) a.appendChild(mk("span", "newmk", "NEW"));
           a.appendChild(mk("span", "tx", String(x.text || "")));
+          if(i === 0){ var th = thumb(x, "./"); if(th) a.appendChild(th); }
           rows.appendChild(a);
         });
         box.classList.add("filled");
