@@ -25,7 +25,7 @@ const TARGETS = [
   "/highlights/", "/highlights/highlights.json", "/highlights/racerStatsToday.json",
   "/data/kansenki/articles/20260709-01.json", "/data/tenjiStats.json",
   "/motor/", "/motor/motors_all.csv", "/motor-maintenance/",
-  "/ichimark/", "/ichimark/index.html", "/ichimark/mae_20261101.json", "/ichimark/maeIndex.json",
+  "/ichimark/", "/ichimark/index.html", "/ichimark/mae_20261101.json", "/ichimark/maeIndex.json", "/ichimark/kotaeawase.json",
   "/next/ichimark.html", "/next/ichimark", "/next/ichimark/v9_20261030.json",
 ];
 const OUTSIDE = ["/", "/results/", "/kensho/", "/data/weather.json", "/data/verify_summary.json", "/stadium/", "/robots.txt"];

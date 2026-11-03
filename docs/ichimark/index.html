@@ -141,6 +141,7 @@ td.F{color:#f0a9a0}
 td small{color:var(--faint);margin-left:3px;font-size:12px}
 .c{display:inline-flex;width:24px;height:24px;align-items:center;justify-content:center;font:700 16px var(--num)}
 .tnote{font-size:12.5px;color:var(--faint);margin-top:6px;line-height:1.7}
+.jis{margin:0 0 14px;padding:0 0 12px;border-bottom:1px solid var(--line)}
 details{margin:18px 0 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 details>summary{display:flex;align-items:center;min-height:48px;font:400 17px var(--dg);color:var(--fg);cursor:pointer;list-style:none}
 details>summary::-webkit-details-marker{display:none}
@@ -194,10 +195,22 @@ function init(){
   $("pick").onclick=function(e){var b=e.target.closest("button");if(!b)return;J=b.dataset.j;R=null;draw()};
   $("rs").onclick=function(e){var b=e.target.closest("button");if(!b||b.disabled)return;R=+b.dataset.r;draw()};
   how();draw();
+  fetch("kotaeawase.json").then(function(r){return r.ok?r.json():Promise.reject()}).then(jissen).catch(function(){});
+}
+/* 実戦の答え合わせ（けん裁定 2026-11-03「1A」）：朝に出した見立て（書き換えない）と、その日の結果の照合。kotaeawase.py が毎日作る */
+function jissen(k){
+  var el=$("jissen");if(!el||!k||!k.total)return;
+  function md(d){return (+d.slice(4,6))+"/"+(+d.slice(6,8))}
+  var t=k.total,ds=(k.days||[]).slice(-14).reverse(),cf=Object.keys(k.byCfg||{});
+  el.innerHTML='<div class="jis"><b>実戦の答え合わせ</b>（朝に出した見立てを、その日の結果と照らした成績です。出した見立ては、あとから書き換えていません）<br>'
+   +md(k.from)+'から'+md(k.to)+'の '+t.n.toLocaleString()+'レースで、逃げたかどうかに対する誤差（小さいほど実際に近い）は、この見立てが <b>'+t.brier.toFixed(3)+'</b>、場の逃げの平均だけだと <b>'+t.brierVenue.toFixed(3)+'</b>。実際の逃げは '+(t.nige*100).toFixed(1)+'%、見立ての平均は '+(t.pred*100).toFixed(1)+'%でした。'
+   +'<table><tr><th>日</th><th>レース数</th><th>見立ての誤差</th><th>場の平均の誤差</th></tr>'+ds.map(function(x){return '<tr><td>'+md(x.date)+'</td><td class="n">'+x.n+'</td><td class="n">'+x.brier.toFixed(3)+'</td><td class="n">'+x.brierVenue.toFixed(3)+'</td></tr>'}).join('')+'</table>'
+   +'<div class="tnote">見立ての作り方は毎週1回見直し、直近4週のレースで今より実際に近く、どの格でも悪くならないときだけ切り替えます。この日の見立ては作り方 '+esc(D.cfg||'v1')+'。'
+   +(cf.length>1?'作り方ごとの誤差：'+cf.map(function(c){var x=k.byCfg[c];return esc(c)+' '+x.brier.toFixed(3)+'（'+x.n.toLocaleString()+'レース）'}).join('、')+'。':'')+'</div></div>';
 }
 function how(){
   var e=D.eval||{},cal=(D.calib||[]).filter(function(c){return c.n>=100}),ed=D.edge;
-  $("how").innerHTML="展示の前に分かっている材料（出走表・過去のレースの結果・前日までの直前情報）だけで作った見立てから、1マークの形を描いています。スタート展示と展示タイムは使っていません。見立ては毎朝、出走表が出たあとに作ります。<br>"
+  $("how").innerHTML='<div id="jissen"></div>'+"展示の前に分かっている材料（出走表・過去のレースの結果・前日までの直前情報）だけで作った見立てから、1マークの形を描いています。スタート展示と展示タイムは使っていません。見立ては毎朝、出走表が出たあとに作ります。<br>"
    +"<b>1マーク</b>：スタートの後ろ斜め上から見下ろした絵です。1コースの艇がマークの頂点の手前にいる瞬間、つまり勝負が決まる直前の位置関係を描いています。色の付いた艇が逃げと攻め筋（いちばん高い見立てと、その次）、灰色はそのほかの艇です。細い線は、その攻めが決まったときに抜けていく先です。決まり手の型は、まくり＝1コースの外に並びかける／差し＝1コースの後ろ・内から懐へ／まくり差し＝1コースの後ろ・外から航跡を越えて内へ、です。艇の前後には出走表の平均STの差を使っています。旋回の大きさや艇どうしの間隔は公式の数値がないため推定で、実際の距離を表した図ではありません。<br>"
    +"<b>見立て</b>：過去のレースの集計から、1着の「コース×決まり手」の確率を出しています。材料は、級別・全国と当地の勝率系・F本数・平均ST・モーターとボートの2連率（出走表）、今節の成績（同じ場の直前6日）、過去1年にその枠から出たときの成績、前づけの癖、ふだんのスタート展示ST、今節の展示タイムの傾向（前日まで）、レースの格です。<br><b>目安の言葉</b>：場の平均との差が8ポイント以上で「逃げ寄り」「逃げにくめ」、15ポイント以上で「かなり」を付けています。<br><b>要素ごとの内訳</b>：場の平均から見立てまでの差（ポイント）を、要素ごとに分けたものです。要素の多いレースは近い値で出しています。F持ちの点数は小さいことが多く、その場合は「そのほか」に入ります。<br>"
    +(ed?"<b>答え合わせ</b>（集計に使っていない "+esc(e.span||"2026年8月以降")+"・"+(e.nEval||0).toLocaleString()+"レース）：逃げの見立てが50%未満だった "+ed.n.toLocaleString()+"レースでは、実際の逃げは "+(ed.nigeRate*100).toFixed(1)+"%。逃げ以外でいちばん高い見立てのコースの艇が1着になったのは "+(ed.hitTop*100).toFixed(1)+"%で、毎回2コースの艇と答えた場合（"+(ed.hitBase2*100).toFixed(1)+"%）より多く拾えています。":"")
