@@ -1111,9 +1111,10 @@ function App() {
         setVenueMeta(m);
       }
     }).catch(() => {});
-    // E30該当場は Pages 配信済みの docs/data/e30PlayerStats.json の「対象場」を参照
+    // E30該当場は Pages 配信済みの docs/data/e30Venues.json（buildE30Stats.py が e30PlayerStats.json と同時に書く
+    // 「対象場」だけの小さい版）を参照。選手成績まで入った e30PlayerStats.json（約1.5MB）は読まない。
     //（docs/motor/index.html 基準で ../data/。ルート直下の e30Schedule.json は Pages 非公開のため使わない）
-    fetch("../data/e30PlayerStats.json").then(r => r.ok ? r.json() : Promise.reject()).then(j => {
+    fetch("../data/e30Venues.json").then(r => r.ok ? r.json() : Promise.reject()).then(j => {
       const tv = j && j["対象場"];
       if (tv && typeof tv === "object") {
         const m = {};

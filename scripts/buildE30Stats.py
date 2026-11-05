@@ -198,8 +198,14 @@ def main():
     if os.path.dirname(OUT):
         os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with io.open(OUT, "w", encoding="utf-8") as f:
-        json.dump(doc, f, ensure_ascii=False, indent=1)
+        json.dump(doc, f, ensure_ascii=False, separators=(",", ":"))
     print("wrote", OUT)
+    # モーターページ用：「対象場」だけの小さい版（e30PlayerStats.json を丸ごと読ませないため）
+    venues_out = os.path.join(os.path.dirname(OUT), "e30Venues.json")
+    with io.open(venues_out, "w", encoding="utf-8") as f:
+        json.dump({"生成時刻JST": doc["生成時刻JST"], "対象場": doc["対象場"]},
+                  f, ensure_ascii=False, separators=(",", ":"))
+    print("wrote", venues_out)
     print("  対象場", list(venues.keys()), "集計期間", first_seen, "〜", last_seen,
           "開催日", day_cnt, "延べ出走", race_cnt, "選手", total_kept,
           ("(先頭切詰め)" if truncated else ""))

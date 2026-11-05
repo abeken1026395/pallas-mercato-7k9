@@ -28,7 +28,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/data/e30PlayerStats.json
+          git add docs/data/e30PlayerStats.json docs/data/e30Venues.json
           git diff --staged --quiet || git commit -m "update e30PlayerStats.json"
           # push競合(cannot lock ref)は短いランダム待機でリトライする。
           BR="${GITHUB_REF_NAME}"
