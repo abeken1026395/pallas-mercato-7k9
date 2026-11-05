@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<script src="../assets/guard.js"></script>
+<title>トップ案J（24場の格子）| データ攻め 実験場</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Dela+Gothic+One&display=swap" rel="stylesheet">
+<!-- 実験場（2026-11-05）プロ化2の見本。トップの1画面目だけを組み直す。
+     ・見出しを1段に詰める ・漢字1文字の四角を、自前の線の絵柄＋文字に替える
+     ・今日の開催を24場の格子（公式の場の順・4列×6段）で1画面目に置く
+     データは本番トップと同じ todayTop.json（買い目・確率は扱わない）。 -->
+<style>
+:root{--bg0:#13304f;--bg1:#0d1c2f;--panel:#132b46;--line:rgba(255,255,255,.12);--tx:#e8eef5;--dim:#8ea3b8;--gold:#c9a85c;--gold2:#f2b155}
+*,*::before,*::after{box-sizing:border-box;border-radius:0}
+html{background:linear-gradient(180deg,var(--bg0) 0,var(--bg1) 520px) no-repeat,var(--bg1)}
+body{margin:0;color:var(--tx);font-family:-apple-system,"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",Meiryo,sans-serif;-webkit-text-size-adjust:100%}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px 40px}
+.num{font-family:"Barlow Condensed",-apple-system,sans-serif;font-variant-numeric:tabular-nums}
+
+/* 見出し：1段 */
+.hd{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:14px 0 10px;border-bottom:1px solid var(--line)}
+.logo{margin:0;font:400 24px/1 "Dela Gothic One",sans-serif;letter-spacing:.02em;white-space:nowrap}
+.catch{margin:0;font-size:11px;line-height:1.5;color:var(--dim);text-align:right}
+.catch b{color:var(--gold);font-weight:600}
+
+/* 入口：線の絵柄＋文字 */
+.qk{display:grid;grid-template-columns:repeat(6,1fr);gap:0;margin:0 -4px;padding:10px 0 8px;border-bottom:1px solid var(--line)}
+.qk a{display:flex;flex-direction:column;align-items:center;gap:5px;padding:6px 0;font-size:11px;color:#cdd8e3;-webkit-tap-highlight-color:transparent}
+.qk svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.qk svg .g{stroke:var(--gold2)}
+.qk a:active{color:var(--gold2)}
+
+/* 今日の開催：24場の格子 */
+.kh{display:flex;align-items:center;justify-content:space-between;margin:14px 0 8px}
+.kh h2{margin:0;font-size:15px;font-weight:700;letter-spacing:.04em}
+.kh h2 .num{font-size:20px;margin-right:4px}
+.kh .s{font-size:11px;color:var(--dim)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+.c{position:relative;display:flex;flex-direction:column;min-height:74px;padding:5px 4px 6px;background:#0f2238;text-align:center}
+.c.off{background:#0b1a2b;color:#4f647a;justify-content:center}
+.c.off .vn{font-weight:500}
+.c .top{display:flex;align-items:center;justify-content:center;gap:3px;min-height:16px}
+.gr{display:inline-block;padding:0 4px;font:600 10px/15px -apple-system,sans-serif;letter-spacing:.02em;color:#fff;background:#5d7186}
+.gr.g1{background:#e8862a}.gr.sg{background:#c43a3a}.gr.g2{background:#7d55c7}.gr.g3{background:#2f6fd0}
+.ic{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ic.nt{color:#c7b3ff}.ic.mn{color:#ffd36b}.ic.lf{color:#ff8fae}
+.vn{margin-top:2px;font-size:15px;font-weight:700;letter-spacing:.06em}
+.dy{font-size:10.5px;color:var(--dim)}
+.nx{margin-top:auto;font-size:12px;color:var(--tx)}
+.nx b{font-size:15px;font-weight:600;margin-right:3px}
+.nx.end{font-size:10.5px;color:#6f8399}
+.c.live{box-shadow:inset 0 2px 0 var(--gold2)}
+.c:not(.off):active{background:#173352}
+.lg{display:flex;flex-wrap:wrap;gap:4px 12px;margin:8px 0 0;font-size:11px;color:var(--dim)}
+.lg span{display:inline-flex;align-items:center;gap:3px}
+.lg i{display:inline-block;width:14px;height:2px;background:var(--gold2)}
+.fail{display:block;margin:12px 0;padding:12px;border:1px solid var(--line);font-size:13px;color:var(--dim)}
+.cont{display:block;margin:22px 0 0;padding:12px;border:1px dashed var(--line);font-size:12px;color:var(--dim);text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hd">
+  <h1 class="logo">データ攻め</h1>
+  <p class="catch">材料はそろえた。<br><b>決めるのは、あなた。</b></p>
+</header>
+
+<nav class="qk" aria-label="よく使うページ">
+  <a href="../racers/"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16"/><path d="M3.5 9.3h17M3.5 14.6h17"/><path class="g" d="M6.5 6.6v0.1M6.5 11.9v0.1M6.5 17.2v0.1" stroke-width="2.6"/><path d="M9.5 6.7h7M9.5 12h5M9.5 17.3h6"/></svg>出走表</a>
+  <a href="../highlights/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V3.5"/><path class="g" d="M5 4.5c3-1.6 5.5 1.6 8.5 0s4.5-.6 5.5 0v7.5c-1-.6-2.5-1.6-5.5 0S8 10.4 5 12"/></svg>見どころ</a>
+  <a href="../results/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V3.5"/><rect x="5" y="4" width="14" height="9"/><path class="g" d="M5 4h3.5v3H5zM12 4h3.5v3H12zM8.5 7H12v3H8.5zM15.5 7H19v3h-3.5zM5 10h3.5v3H5zM12 10h3.5v3H12z" fill="currentColor" style="fill:var(--gold2);stroke:none"/></svg>結果</a>
+  <a href="../motor/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle class="g" cx="12" cy="12" r="2.2"/><path d="M12 9.8C10.6 6.5 11 3.6 12.9 3.2c1.8-.4 2.4 2.8.4 6.9"/><path d="M13.9 13.1c3.5.4 5.9 2.2 5.4 4-.5 1.8-3.6 1.2-6.2-2.4"/><path d="M10.1 13.1c-2.1 2.9-4.8 4-6.1 2.6-1.3-1.4.8-3.8 5.3-4.3"/></svg>モーター</a>
+  <a href="../players/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14.5C4 8.5 7.6 4.5 12.5 4.5S20.5 8 20.5 12.5v2H4z"/><path class="g" d="M11 14.5V9.2h9.3"/><path d="M4 14.5c0 3 2 5 5 5h8.5c1.7 0 3-1.3 3-3v-2"/></svg>選手</a>
+  <a href="../stadium/"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="g" d="M12 3.5l4.5 11h-9z"/><path d="M6.5 14.5h11"/><path d="M2.5 18.5c1.6-1.2 3.2-1.2 4.8 0s3.2 1.2 4.7 0 3.2-1.2 4.8 0 3.1 1.2 4.7 0"/></svg>24場</a>
+</nav>
+
+<div class="kh"><h2 id="kH">今日の開催</h2><span class="s" id="kS"></span></div>
+<div class="grid" id="grid" aria-label="24場の今日の開催"></div>
+<div class="lg">
+  <span><svg class="ic nt" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>ナイター</span>
+  <span><svg class="ic mn" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg>モーニング</span>
+  <span><svg class="ic lf" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-7.5-10A4.2 4.2 0 0 1 12 7.6 4.2 4.2 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/></svg>女子戦</span>
+  <span><i></i>発売中</span>
+</div>
+<a class="fail" id="fail" href="../racers/" hidden>今日の開催は出走表で確認できます</a>
+
+<a class="cont" href="../">この下は、今のトップと同じ並び（更新・場の朝刊・読みもの…）が続く想定です</a>
+
+</div>
+<script>
+(function(){
+  var V=[["01","桐生"],["02","戸田"],["03","江戸川"],["04","平和島"],["05","多摩川"],["06","浜名湖"],["07","蒲郡"],["08","常滑"],["09","津"],["10","三国"],["11","びわこ"],["12","住之江"],["13","尼崎"],["14","鳴門"],["15","丸亀"],["16","児島"],["17","宮島"],["18","徳山"],["19","下関"],["20","若松"],["21","芦屋"],["22","福岡"],["23","唐津"],["24","大村"]];
+  var IC={
+    nt:'<svg class="ic nt" viewBox="0 0 24 24" aria-label="ナイター"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>',
+    mn:'<svg class="ic mn" viewBox="0 0 24 24" aria-label="モーニング"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg>',
+    lf:'<svg class="ic lf" viewBox="0 0 24 24" aria-label="女子戦"><path d="M12 20s-7.5-4.6-7.5-10A4.2 4.2 0 0 1 12 7.6 4.2 4.2 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/></svg>'
+  };
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  function nowHM(){var d=new Date(Date.now()+9*3600000);return ("0"+d.getUTCHours()).slice(-2)+":"+("0"+d.getUTCMinutes()).slice(-2);}
+  function todayYmd(){var d=new Date(Date.now()+9*3600000);return d.getUTCFullYear()+("0"+(d.getUTCMonth()+1)).slice(-2)+("0"+d.getUTCDate()).slice(-2);}
+  /* 格の札：公式の月間スケジュール（gradeSchedule.json）の区分。オールレディース・マスターズリーグ・企業杯は公式の格付けどおりG3 */
+  var G3={"G3":1,"オールレディース":1,"マスターズリーグ":1,"企業杯":1};
+  function grLabel(k){ k=String(k||""); if(G3[k]) return "G3"; if(k==="SG"||k==="G1"||k==="G2"||k==="PG1") return k; return "一般"; }
+  function grCls(g){g=String(g||"");return g==="SG"?"sg":g==="G1"||g==="PG1"?"g1":g==="G2"?"g2":g==="G3"?"g3":"";}
+  var grid=document.getElementById("grid");
+  function render(d){
+    var by={}, n=0;
+    (d["レース"]||[]).forEach(function(r){ var j=r["場コード"]; (by[j]=by[j]||[]).push(r); n++; });
+    var hm=nowHM(), held=0, isToday=String(d["開催日"])===todayYmd();
+    var lady=d["レディース"]||[], kaku=d["格"]||{}, gs=(GS&&GS.days&&GS.days[String(d["開催日"])])||{};
+    grid.innerHTML=V.map(function(v){
+      var rs=by[v[0]];
+      if(!rs||!rs.length) return '<div class="c off"><span class="vn">'+v[1]+'</span></div>';
+      held++;
+      rs.sort(function(a,b){return parseInt(a["レース"])-parseInt(b["レース"]);});
+      var first=rs[0]["締切時刻"]||"", last=rs[rs.length-1]["締切時刻"]||"";
+      var nx=null; if(isToday){ for(var i=0;i<rs.length;i++){ if((rs[i]["締切時刻"]||"")>hm){ nx=rs[i]; break; } } } else nx=rs[0];
+      var g=gs[v[0]]?grLabel(gs[v[0]]["区分"]):(kaku[v[0]]||"一般");
+      var icons=(last>="19:00"?IC.nt:"")+(first&&first<"09:30"?IC.mn:"")+((lady.indexOf(v[0])>=0||(gs[v[0]]&&gs[v[0]]["レディース"]))?IC.lf:"");
+      var foot=nx?'<span class="nx num"><b>'+esc(parseInt(nx["レース"]))+'R</b>'+esc(nx["締切時刻"])+'</span>':'<span class="nx end">発売終了</span>';
+      return '<a class="c'+(nx&&isToday?' live':'')+'" href="../racers/#v'+v[0]+'">'
+        +'<span class="top"><span class="gr '+grCls(g)+'">'+esc(g)+'</span>'+icons+'</span>'
+        +'<span class="vn">'+v[1]+'</span><span class="dy">'+esc(rs[0]["日目"]||"")+'</span>'+foot+'</a>';
+    }).join("");
+    var hd=String(d["開催日"]||"");
+    document.getElementById("kH").innerHTML='<span class="num">'+held+'</span>場で開催';
+    document.getElementById("kS").textContent=(hd.length===8?(+hd.slice(4,6))+"/"+(+hd.slice(6,8)):"")+"・"+n+"レース・タップで出走表へ";
+  }
+  var GS=null;
+  var gsP=fetch("../data/gradeSchedule.json?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(j){GS=j;}).catch(function(){});
+  fetch("../data/todayTop.json?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():Promise.reject();})
+    .then(function(d){ return gsP.then(function(){ render(d); setInterval(function(){ render(d); },60000); }); })
+    .catch(function(){ document.getElementById("fail").hidden=false; });
+})();
+</script>
+</body>
+</html>
