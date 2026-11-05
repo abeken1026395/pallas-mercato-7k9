@@ -588,7 +588,6 @@ var CL10=null, CL10_STATE="idle";  /* コース別直近10走。レース画面�
 function loadJSON(u){ return fetch(u).then(function(r){return r.json();}); }
 function loadText(u){ return fetch(u).then(function(r){return r.text();}); }
 
-loadJSON("../data/e30PlayerStats.json").then(function(j){ if(j&&j["選手成績"]){E30=j["選手成績"];E30META={期間:j["集計期間"],出典:j["出典"],対象場:j["対象場"]||{}};} rerender(); }).catch(function(){});
 loadJSON("../data/arare.json").then(function(j){arare=j;arareHd=String(j&&j.generated||"").slice(0,10).replace(/-/g,"");rerender();}).catch(function(){});
 loadJSON("../data/weather.json").then(function(j){weather=j;rerender();}).catch(function(){});
 loadJSON("../players/profile.json").then(function(j){PROF=j||{};rerender();}).catch(function(){});
@@ -596,8 +595,6 @@ loadText("../players/racerKimarite.csv").then(function(t){ parseKimarite(t); rer
 loadJSON("../highlights/highlights.json").then(function(j){ parseHL(j); rerender(); }).catch(function(){});
 loadJSON("../data/tideToday.json").then(function(j){ tide=j||null; rerender(); }).catch(function(){});
 loadJSON("../data/maezuke.json").then(function(j){ if(j&&j["選手"]){MZ=j["選手"];MZMETA={期間:j["期間"]||[]};} rerender(); }).catch(function(){});
-loadJSON("../data/nigeSecond.json").then(function(j){ NS=j||null; rerender(); }).catch(function(){});
-loadJSON("../data/wakuStats.json").then(function(j){ WS=j||null; rerender(); }).catch(function(){});
 loadJSON("../data/gradeSchedule.json").then(function(j){ GRADE=j||null; rerender(); }).catch(function(){});
 loadJSON("../ichimark/maeIndex.json").then(function(j){ MAE_DAYS=(j&&j.days)||[]; rerender(); }).catch(function(){});
 /* 中止（chushiToday.json・公式の本日のレース一覧由来）。場コード→{から: 中止が始まるR, 表記}。
@@ -1448,6 +1445,17 @@ function ensureCL10(){
     rerender();
   }).catch(function(){ CL10_STATE="error"; rerender(); });
 }
+/* E30該当場成績（e30PlayerStats.json）・逃げ時の2着（nigeSecond.json）・枠別成績（wakuStats.json）。
+   3つで展開後約3MBあり、どれもレース画面でしか使わないため初期取得には載せず、
+   レース画面を最初に開いたときに1回だけ取る（ensureCL10 と同じ型）。取れなければ各ブロックを出さない。 */
+var RS_STATE="idle";
+function ensureRS(){
+  if(RS_STATE!=="idle") return;
+  RS_STATE="loading";
+  loadJSON("../data/e30PlayerStats.json").then(function(j){ if(j&&j["選手成績"]){E30=j["選手成績"];E30META={期間:j["集計期間"],出典:j["出典"],対象場:j["対象場"]||{}};} rerender(); }).catch(function(){});
+  loadJSON("../data/nigeSecond.json").then(function(j){ NS=j||null; rerender(); }).catch(function(){});
+  loadJSON("../data/wakuStats.json").then(function(j){ WS=j||null; rerender(); }).catch(function(){});
+}
 /* 展示タイム別の成績（tenjiStats.json）。選手ごとに 良い/普通/悪い の回数と、同じ進入コースの
    全選手平均で期待される回数だけを持つ。率はここで計算する。レース画面を開いたときに1回だけ取る。
    取得に失敗したときはブロックごと出さない。30走に満たない区分は率を出さない。 */
@@ -1817,6 +1825,7 @@ function renderRace(app,crumb,v){
 
   ensureCL10();
   ensureTJ();
+  ensureRS();
   html+=cmp6Table(boats);
   html+=wakuStatsTable(rc.boats);
   html+=nigeSecondTable(rc.boats);
