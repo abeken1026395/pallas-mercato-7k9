@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<script src="../assets/guard.js"></script>
+<title>トップ案L | データ攻め 実験場</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Dela+Gothic+One&display=swap" rel="stylesheet">
+<!-- 実験場（2026-11-05）プロ化2の見本 第3版。デザイン評議会（ブランド／画面設計／競艇メディア／読みやすさ）の結論で組み直す。
+     ・ロゴ：金の角にブイと回り込む航跡の記号（B案の改）。バーでは英字の行を出さない
+     ・上部バーはロゴと検索だけ。案内は画面下の固定タブ5つ（トップ・出走表・見どころ・結果・その他）
+     ・24場の格子は公式の並びのまま。非開催は高さを半分にして場名だけ（文字は背景と5.3:1）
+     ・色は紺1色。発売中は左端の金の線、発売終了は薄く。ナイター＝月・モーニング＝太陽・女子戦＝ハートの印。色を付けるのは格の札だけ
+     ・分母つきの実測は格子に入れず、締切順の行と今日の注目のカードに出す（1号艇のイン1着率と走数。highlights.json の値をそのまま）
+     データは todayTop.json・gradeSchedule.json・highlights.json（締切順か注目を描くときだけ読む）。買い目・確率は扱わない。 -->
+<style>
+:root{--bg:#0b1726;--bar:#0e1d30;--cell:#13253b;--line:rgba(255,255,255,.09);--tx:#eef3f8;--dim:#a3b4c6;--mute:#7a8ea3;--gold:#e9b45a;--blue:#3d86e6}
+*,*::before,*::after{box-sizing:border-box;border-radius:0}
+html{background:var(--bg)}
+body{margin:0;color:var(--tx);font-family:-apple-system,"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",Meiryo,sans-serif;-webkit-text-size-adjust:100%;padding-bottom:calc(64px + env(safe-area-inset-bottom))}
+a{color:inherit;text-decoration:none;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit}
+.num{font-family:"Barlow Condensed",-apple-system,sans-serif;font-variant-numeric:tabular-nums}
+
+/* 上部バー：ロゴと検索だけ（高さ52） */
+.bar{position:sticky;top:0;z-index:30;height:52px;background:var(--bar);border-bottom:1px solid var(--line)}
+.bar-in{max-width:600px;height:100%;margin:0 auto;display:flex;align-items:center;gap:10px;padding:0 16px}
+.brand{display:flex;align-items:center;gap:11px}
+.brand svg{width:30px;height:30px;flex:none}
+.brand b{font:400 21px/1 "Dela Gothic One",sans-serif;letter-spacing:.02em;white-space:nowrap}
+.bar .sp{flex:1}
+.bar .sr{display:flex;align-items:center;justify-content:center;width:44px;height:44px;margin-right:-10px}
+.bar .sr svg{width:22px;height:22px;stroke:#dfe7ef;fill:none;stroke-width:1.6;stroke-linecap:round}
+
+.wrap{max-width:600px;margin:0 auto;padding:0 12px 24px}
+
+/* 今日の注目 */
+.hl{margin:0 -12px;padding:14px 0 14px 12px;background:#0f1b33;border-bottom:1px solid var(--line);box-shadow:inset 0 1px 0 var(--gold)}
+.hl-h{display:flex;align-items:baseline;gap:8px;margin:0 0 10px;font-size:15px;font-weight:800;letter-spacing:.06em}
+.hl-h span{font-size:13px;font-weight:500;color:var(--dim);letter-spacing:0}
+.hl-r{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-right:12px}
+.hl-r::-webkit-scrollbar{display:none}
+.hc{flex:none;scroll-snap-align:start;display:flex;flex-direction:column;gap:6px;width:280px;padding:12px 14px;background:var(--cell);border:1px solid var(--line)}
+.hc .t{display:flex;align-items:center;gap:8px}
+.hc .v{font-size:18px;font-weight:800;letter-spacing:.05em}
+.hc .k{font-size:13px;line-height:1.45;color:var(--dim)}
+.hc .w{display:flex;align-items:baseline;gap:8px;font-size:13px;color:var(--dim)}
+.hc .w b{font-size:20px;font-weight:600;color:var(--tx)}
+.hc .w .fn{font-size:12px;font-weight:700;color:var(--gold);border:1px solid var(--gold);padding:0 6px;line-height:18px}
+.hc .d{padding-top:6px;border-top:1px solid var(--line);font-size:13px;color:var(--dim)}
+.hc .d b{color:var(--tx);font-weight:700}
+.hc.end{opacity:.55}
+
+/* 切り替え */
+.seg{display:flex;margin:12px 0 0;border-bottom:1px solid var(--line)}
+.seg button{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;height:46px;background:none;border:0;border-bottom:2px solid transparent;color:var(--dim);font-size:15px;font-weight:700;letter-spacing:.04em;cursor:pointer}
+.seg button.on{color:var(--tx);border-bottom-color:var(--gold)}
+.seg svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.sub{display:flex;justify-content:space-between;align-items:baseline;margin:10px 2px;font-size:13px;color:var(--dim)}
+.sub b{color:var(--tx);font-size:17px;margin-right:2px}
+
+/* 24場の格子（公式の並び） */
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.c{position:relative;display:flex;flex-direction:column;min-height:96px;padding:8px 5px 8px 8px;background:var(--cell);border:1px solid var(--line)}
+.c.live{box-shadow:inset 3px 0 0 var(--gold)}
+.c.done{opacity:.55}
+.c .vn{position:relative;display:block;padding-right:14px;font-size:17px;font-weight:800;line-height:1.15;white-space:nowrap}
+.c .vn .ics{position:absolute;right:-2px;top:-3px;display:flex;flex-direction:column}
+.c .vn .ics .ic{width:13px;height:13px}
+.c .md{display:flex;flex-wrap:wrap;align-items:center;gap:3px 5px;margin-top:6px}
+.c .dy{flex:none;font-size:13px;color:var(--dim);white-space:nowrap}
+.c .ft{margin-top:auto;padding-top:6px;font-size:13px;color:var(--dim)}
+.c .ft b{font-size:16px;font-weight:700;color:var(--tx);margin-right:4px}
+.c .ft.end{font-size:13px}
+.c.off{min-height:44px;padding:0;align-items:center;justify-content:center;background:none;border:1px solid rgba(255,255,255,.05);font-size:14px;font-weight:500;color:var(--mute);letter-spacing:.06em}
+a.c:active{background:#1a3150}
+.gr{display:inline-block;flex:none;white-space:nowrap;padding:0 5px;font:700 12px/18px -apple-system,sans-serif;letter-spacing:.02em;color:#fff;background:#4f6378}
+.gr.g1{background:#d9782a}.gr.sg{background:#c13838}.gr.g2{background:#7a52c2}.gr.g3{background:#2c69c9}
+.ic{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ic.nt{color:#cdbdff}.ic.mn{color:#ffd76e}.ic.lf{color:#ff9ab6}
+.lg{display:flex;flex-wrap:wrap;gap:6px 14px;margin:12px 2px 0;font-size:13px;color:var(--dim)}
+.lg span{display:inline-flex;align-items:center;gap:5px}
+.lg i{display:inline-block;width:3px;height:14px;background:var(--gold)}
+
+/* 締切順 */
+.grid.off{display:none}
+.list{display:none}
+.list.on{display:block}
+.row{display:grid;grid-template-columns:58px 1fr auto;column-gap:10px;row-gap:3px;align-items:baseline;padding:11px 4px;border-bottom:1px solid var(--line)}
+.row .tm{grid-row:1/3;align-self:center;font-size:20px;font-weight:600}
+.row .vv{font-size:16px;font-weight:800;letter-spacing:.04em}
+.row .vv .num{font-size:17px;font-weight:700;margin-left:6px}
+.row .kk{font-size:13px;color:var(--dim);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
+.row .dd{grid-column:2/4;font-size:13px;color:var(--dim)}
+.row .dd b{color:var(--tx)}
+.row.past{opacity:.45}
+.more{display:block;width:100%;margin:10px 0 0;height:44px;background:none;border:1px solid var(--line);color:var(--dim);font-size:14px;cursor:pointer}
+
+.fail{display:block;margin:12px 0;padding:12px;border:1px solid var(--line);font-size:14px;color:var(--dim)}
+.fail[hidden]{display:none}
+.cont{display:block;margin:22px 0 0;padding:14px;border:1px dashed var(--line);font-size:13px;color:var(--dim);text-align:center}
+
+/* 画面下の固定タブ */
+.tb{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--bar);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+.tb-in{max-width:600px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);height:58px}
+.tb a,.tb button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:none;border:0;font-size:12px;font-weight:600;color:var(--dim);cursor:pointer}
+.tb .on{color:var(--tx)}
+.tb .on svg{stroke:var(--gold)}
+.tb svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.sheet{position:fixed;left:0;right:0;bottom:calc(58px + env(safe-area-inset-bottom));z-index:29;background:var(--bar);border-top:1px solid var(--line)}
+.sheet[hidden]{display:none}
+.sheet-in{max-width:600px;margin:0 auto;display:grid;grid-template-columns:repeat(2,1fr)}
+.sheet a{display:flex;align-items:center;gap:10px;height:52px;padding:0 18px;border-bottom:1px solid var(--line);font-size:15px;font-weight:600}
+.sheet a:nth-child(odd){border-right:1px solid var(--line)}
+.sheet svg{width:22px;height:22px;stroke:var(--dim);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+</style>
+</head>
+<body>
+<header class="bar"><div class="bar-in">
+  <a class="brand" href="./topL.html" aria-label="データ攻め トップ">
+    <svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" fill="#e9b45a"/><path d="M15.5 27V14.5a4.5 4.5 0 0 1 9 0V27z" fill="#0b1726"/><path d="M15.5 19.2h9" stroke="#e9b45a" stroke-width="1.8"/><path d="M6 30c7.5 5 23 4.6 27.6-2.6 1.7-2.7.5-6-2.8-8.2" fill="none" stroke="#0b1726" stroke-width="3.4" stroke-linecap="round"/></svg>
+    <b>データ攻め</b>
+  </a>
+  <span class="sp"></span>
+  <a class="sr" href="../players/" aria-label="選手を探す"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5l5 5"/></svg></a>
+</div></header>
+
+<div class="wrap">
+  <section class="hl" id="hl" hidden>
+    <h2 class="hl-h">今日の注目<span>グレード戦と優勝戦</span></h2>
+    <div class="hl-r" id="hlR"></div>
+  </section>
+
+  <div class="seg" role="tablist">
+    <button class="on" id="sgA" role="tab"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7"/><rect x="13.5" y="3.5" width="7" height="7"/><rect x="3.5" y="13.5" width="7" height="7"/><rect x="13.5" y="13.5" width="7" height="7"/></svg>開催一覧</button>
+    <button id="sgB" role="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="7.5"/><path d="M12 9v4l2.5 2M9.5 3h5"/></svg>締切順</button>
+  </div>
+  <div class="sub"><span id="sbL"></span><span>タップで出走表へ</span></div>
+  <div class="grid" id="grid"></div>
+  <div class="list" id="list"></div>
+  <div class="lg" id="lg">
+    <span><i></i>発売中</span>
+    <span><svg class="ic nt" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>ナイター</span>
+    <span><svg class="ic mn" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg>モーニング</span>
+    <span><svg class="ic lf" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-7.5-10A4.2 4.2 0 0 1 12 7.6 4.2 4.2 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/></svg>女子戦</span>
+  </div>
+  <a class="fail" id="fail" href="../racers/" hidden>今日の開催は出走表で確認できます</a>
+  <a class="cont" href="../">この下に、今のトップの更新欄・場の朝刊・読みもの・答え合わせが続く想定です</a>
+</div>
+
+<div class="sheet" id="sheet" hidden><div class="sheet-in">
+  <a href="../motor/"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.2"/><path d="M12 9.8C10.6 6.5 11 3.6 12.9 3.2c1.8-.4 2.4 2.8.4 6.9"/><path d="M13.9 13.1c3.5.4 5.9 2.2 5.4 4-.5 1.8-3.6 1.2-6.2-2.4"/><path d="M10.1 13.1c-2.1 2.9-4.8 4-6.1 2.6-1.3-1.4.8-3.8 5.3-4.3"/></svg>モーター</a>
+  <a href="../players/"><svg viewBox="0 0 24 24"><path d="M4 14.5C4 8.5 7.6 4.5 12.5 4.5S20.5 8 20.5 12.5v2H4z"/><path d="M11 14.5V9.2h9.3"/><path d="M4 14.5c0 3 2 5 5 5h8.5c1.7 0 3-1.3 3-3v-2"/></svg>選手</a>
+  <a href="../stadium/"><svg viewBox="0 0 24 24"><path d="M12 3.5l4.5 11h-9z"/><path d="M2.5 18.5c1.6-1.2 3.2-1.2 4.8 0s3.2 1.2 4.7 0 3.2-1.2 4.8 0 3.1 1.2 4.7 0"/></svg>24場</a>
+  <a href="../kensho/"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V5M16 20v-7M2.5 20h19"/></svg>検証</a>
+  <a href="../updates/"><svg viewBox="0 0 24 24"><path d="M12 7v5l3 2"/><circle cx="12" cy="12" r="8.5"/></svg>更新履歴</a>
+  <a href="../torisetsu/"><svg viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4"/></svg>使い方</a>
+</div></div>
+<nav class="tb" aria-label="ページ"><div class="tb-in">
+  <a class="on" href="./topL.html"><svg viewBox="0 0 24 24"><path d="M3.5 11L12 4l8.5 7"/><path d="M6 9.5V20h12V9.5"/></svg>トップ</a>
+  <a href="../racers/"><svg viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="16"/><path d="M3.5 9.3h17M3.5 14.6h17M8 4v16"/></svg>出走表</a>
+  <a href="../highlights/"><svg viewBox="0 0 24 24"><path d="M5 21V3.5"/><path d="M5 4.5c3-1.6 5.5 1.6 8.5 0s4.5-.6 5.5 0v7.5c-1-.6-2.5-1.6-5.5 0S8 10.4 5 12"/></svg>見どころ</a>
+  <a href="../results/"><svg viewBox="0 0 24 24"><path d="M5 21V3.5"/><rect x="5" y="4" width="14" height="9"/><path d="M5 7h14M5 10h14M8.5 4v9M12 4v9M15.5 4v9"/></svg>結果</a>
+  <button id="moreBtn" aria-expanded="false" aria-controls="sheet"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>その他</button>
+</div></nav>
+
+<script>
+(function(){
+  var V=[["01","桐生"],["02","戸田"],["03","江戸川"],["04","平和島"],["05","多摩川"],["06","浜名湖"],["07","蒲郡"],["08","常滑"],["09","津"],["10","三国"],["11","びわこ"],["12","住之江"],["13","尼崎"],["14","鳴門"],["15","丸亀"],["16","児島"],["17","宮島"],["18","徳山"],["19","下関"],["20","若松"],["21","芦屋"],["22","福岡"],["23","唐津"],["24","大村"]];
+  var VN={}; V.forEach(function(v){VN[v[0]]=v[1];});
+  var IC={
+    nt:'<svg class="ic nt" viewBox="0 0 24 24" aria-label="ナイター"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>',
+    mn:'<svg class="ic mn" viewBox="0 0 24 24" aria-label="モーニング"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg>',
+    lf:'<svg class="ic lf" viewBox="0 0 24 24" aria-label="女子戦"><path d="M12 20s-7.5-4.6-7.5-10A4.2 4.2 0 0 1 12 7.6 4.2 4.2 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/></svg>'
+  };
+  /* 格の札：公式の月間スケジュールの区分。オールレディース・マスターズリーグ・企業杯は公式の格付けどおりG3 */
+  var G3={"G3":1,"オールレディース":1,"マスターズリーグ":1,"企業杯":1};
+  function grLabel(k){k=String(k||"");if(G3[k])return "G3";if(k==="SG"||k==="G1"||k==="G2"||k==="PG1")return k;return "一般";}
+  function grCls(g){return g==="SG"?"sg":g==="G1"||g==="PG1"?"g1":g==="G2"?"g2":g==="G3"?"g3":"";}
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  /* 全角の英数字を半角に（公式の表記「第５４回」「３日目」をそろえる） */
+  function han(s){return String(s||"").replace(/[０-９Ａ-Ｚａ-ｚ]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-0xFEE0);});}
+  function jst(){return new Date(Date.now()+9*3600000);}
+  function nowHM(){var d=jst();return ("0"+d.getUTCHours()).slice(-2)+":"+("0"+d.getUTCMinutes()).slice(-2);}
+  function ymd(){var d=jst();return d.getUTCFullYear()+("0"+(d.getUTCMonth()+1)).slice(-2)+("0"+d.getUTCDate()).slice(-2);}
+  var D=null, GS=null, HL=null, HL_ST="idle", mode="grid", showAll=false;
+  /* 1号艇のイン1着率と走数（highlights.json の艇の inWinRate・inN をそのまま。分母が無いものは出さない） */
+  function inLine(j,r){
+    if(!HL) return "";
+    var k=j+"_"+r, x=HL[k]; if(!x) return "";
+    var b=(x["艇"]||[]).filter(function(t){return t["枠"]===1;})[0];
+    if(!b||b.inWinRate==null||!b.inN) return "";
+    return '1号艇 <b>'+esc(b["氏名"])+'</b>　イン1着 <b class="num">'+b.inWinRate.toFixed(1)+'%</b>（'+b.inN+'走）';
+  }
+  function ensureHL(){
+    if(HL_ST!=="idle") return; HL_ST="loading";
+    fetch("../highlights/highlights.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():Promise.reject();})
+      .then(function(j){ if(String(j["開催日"]||"").replace(/-/g,"")!==String(D["開催日"])){HL_ST="error";return;}
+        HL={}; (j["レース"]||[]).forEach(function(x){HL[x["場コード"]+"_"+parseInt(x["レース"])]=x;}); HL_ST="ready"; render(); })
+      .catch(function(){HL_ST="error";});
+  }
+  function render(){
+    var d=D, by={}, n=0, hm=nowHM(), isToday=String(d["開催日"])===ymd();
+    var gs=(GS&&GS.days&&GS.days[String(d["開催日"])])||{}, kaku=d["格"]||{}, lady=d["レディース"]||[];
+    (d["レース"]||[]).forEach(function(r){(by[r["場コード"]]=by[r["場コード"]]||[]).push(r);n++;});
+    var held=0, live=0, all=[], hlc=[];
+    document.getElementById("grid").innerHTML=V.map(function(v){
+      var rs=by[v[0]]; if(!rs||!rs.length) return '<div class="c off">'+v[1]+'</div>';
+      held++; rs.sort(function(a,b){return parseInt(a["レース"])-parseInt(b["レース"]);});
+      var first=rs[0]["締切時刻"]||"", last=rs[rs.length-1]["締切時刻"]||"";
+      var nx=null; if(isToday){for(var i=0;i<rs.length;i++){if((rs[i]["締切時刻"]||"")>hm){nx=rs[i];break;}}} else nx=rs[0];
+      if(nx) live++;
+      var g=gs[v[0]]?grLabel(gs[v[0]]["区分"]):(kaku[v[0]]||"一般");
+      var isLady=lady.indexOf(v[0])>=0||!!(gs[v[0]]&&gs[v[0]]["レディース"]);
+      var ics=(last>="19:00"?IC.nt:"")+(first&&first<"09:30"?IC.mn:"")+(isLady?IC.lf:"");
+      rs.forEach(function(r){all.push({t:r["締切時刻"]||"",j:v[0],r:parseInt(r["レース"]),k:r["企画名"]||""});});
+      var fin=rs.filter(function(r){return /優勝戦/.test(r["企画名"]||"");})[0];
+      if(g!=="一般"||fin) hlc.push({j:v[0],g:g,dy:han(rs[0]["日目"]),fin:fin,last:rs[rs.length-1],lady:isLady});
+      var foot=nx?'<div class="ft num"><b>'+parseInt(nx["レース"])+'R</b>'+esc(nx["締切時刻"])+'</div>':'<div class="ft end">発売終了</div>';
+      return '<a class="c'+(nx&&isToday?' live':'')+(nx?'':' done')+'" href="../racers/#v'+v[0]+'">'
+        +'<span class="vn">'+v[1]+'<span class="ics">'+ics+'</span></span>'
+        +'<span class="md"><span class="gr '+grCls(g)+'">'+esc(g)+'</span><span class="dy">'+esc(han(rs[0]["日目"]))+'</span></span>'+foot+'</a>';
+    }).join("");
+    var hd=String(d["開催日"]||"");
+    document.getElementById("sbL").innerHTML='<b class="num">'+held+'</b>場で開催　'+(+hd.slice(4,6))+'/'+(+hd.slice(6,8))+'・<span class="num">'+n+'</span>レース';
+    /* 締切順：これからのレースを先に。終わったレースは「終わったレースも見る」で出す */
+    all.sort(function(a,b){return a.t<b.t?-1:a.t>b.t?1:0;});
+    var up=isToday?all.filter(function(x){return x.t>hm;}):all, past=isToday?all.filter(function(x){return x.t<=hm;}):[];
+    var rows=(showAll?past.concat(up):up).map(function(x){
+      return '<a class="row'+(isToday&&x.t<=hm?' past':'')+'" href="../racers/#v'+x.j+'"><span class="tm num">'+esc(x.t)+'</span>'
+        +'<span class="vv">'+VN[x.j]+'<span class="num">'+x.r+'R</span></span><span class="kk">'+esc(han(x.k))+'</span>'
+        +'<span class="dd">'+inLine(x.j,x.r)+'</span></a>';
+    }).join("");
+    if(!up.length&&!showAll) rows='<div class="row"><span class="dd">今日の発売はすべて終わりました</span></div>';
+    document.getElementById("list").innerHTML=rows+(past.length&&!showAll?'<button class="more" id="moreAll">終わったレースも見る（'+past.length+'）</button>':'');
+    var ma=document.getElementById("moreAll"); if(ma) ma.onclick=function(){showAll=true;render();};
+    /* 今日の注目：グレード戦と優勝戦 */
+    var order={"SG":0,"G1":1,"PG1":1,"G2":2,"G3":3,"一般":4};
+    hlc.sort(function(a,b){return (order[a.g]-order[b.g])||(a.j<b.j?-1:1);});
+    if(hlc.length){
+      document.getElementById("hl").hidden=false;
+      document.getElementById("hlR").innerHTML=hlc.map(function(h){
+        var r=h.fin||h.last, rn=parseInt(r["レース"]), done=isToday&&(r["締切時刻"]||"")<=hm;
+        var nm=han((gs[h.j]&&gs[h.j]["節名"])||"");
+        var dl=inLine(h.j,rn);
+        return '<a class="hc'+(done?' end':'')+'" href="../racers/#v'+h.j+'"><span class="t"><span class="gr '+grCls(h.g)+'">'+esc(h.g)+'</span><span class="v">'+VN[h.j]+'</span>'+(h.lady?IC.lf:'')+'<span class="k" style="margin-left:auto">'+esc(h.dy)+'</span></span>'
+          +(nm?'<span class="k">'+esc(nm)+'</span>':'')
+          +'<span class="w"><b class="num">'+rn+'R</b><span class="num">'+esc(r["締切時刻"])+' 締切</span>'+(h.fin?'<span class="fn">優勝戦</span>':'')+'</span>'
+          +(dl?'<span class="d">'+dl+'</span>':'')+'</a>';
+      }).join("");
+      ensureHL();
+    }
+    if(mode==="list") ensureHL();
+  }
+  function setMode(m){mode=m;
+    document.getElementById("sgA").className=m==="grid"?"on":"";document.getElementById("sgB").className=m==="list"?"on":"";
+    document.getElementById("grid").className="grid"+(m==="grid"?"":" off");document.getElementById("list").className="list"+(m==="list"?" on":"");
+    document.getElementById("lg").style.display=m==="grid"?"":"none"; if(D) render();}
+  document.getElementById("sgA").onclick=function(){setMode("grid");};
+  document.getElementById("sgB").onclick=function(){setMode("list");};
+  var mb=document.getElementById("moreBtn"), sh=document.getElementById("sheet");
+  mb.onclick=function(){var o=sh.hidden;sh.hidden=!o;mb.setAttribute("aria-expanded",o?"true":"false");mb.className=o?"on":"";};
+  var gsP=fetch("../data/gradeSchedule.json?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(j){GS=j;}).catch(function(){});
+  fetch("../data/todayTop.json?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():Promise.reject();})
+    .then(function(d){D=d;return gsP.then(function(){render();setInterval(render,60000);});})
+    .catch(function(){document.getElementById("fail").hidden=false;});
+})();
+</script>
+</body>
+</html>
