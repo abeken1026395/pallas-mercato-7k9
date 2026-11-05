@@ -27,6 +27,7 @@ GUARD_FILE = "docs/assets/guard.js"
 
 # guard.js 参照が必須のページ（正本が別にある生成物も、生成物側で検査する）
 GUARD = [
+    "docs/next/topJ.html",  # 実験場：トップの1画面目に24場の格子と線の絵柄の入口（プロ化2の見本・2026-11-05）
     "docs/next/shuukanTop.html",  # 実験場：習慣化（フォロー中の今日・更新時刻・ホーム画面の案内）（2026-11-05）
     "docs/next/topUpdImg.html",  # 実験場：更新欄の画像（2026-11-03）
     "docs/next/topYosou2.html",  # 実験場：トップの上のカードにAI予想部屋（2026-11-01）
