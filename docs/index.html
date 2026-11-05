@@ -271,7 +271,121 @@ body{position:relative}
   <div id="newsRows"></div>
 </section>
 
-<div class="sec"><h2 id="tdHead">今日の開催</h2></div>
+<section class="fol" id="fol" hidden aria-label="フォロー中の今日">
+  <div class="fol-h"><p>フォロー中の今日</p><a href="./racers/">出走表へ</a></div>
+  <div id="folRows"></div>
+</section>
+<style>
+.fol{margin:18px 0 0;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:8px 12px 4px}
+.fol[hidden]{display:none}
+.fol-h{display:flex;justify-content:space-between;align-items:baseline;margin:0 0 2px}
+.fol-h[hidden]{display:none}
+.fol-h p{margin:0;font-size:13px;font-weight:800;color:var(--tx)}
+.fol-h a{font-size:12px;color:var(--accent);padding:6px 0 6px 12px}
+.fol-r{display:flex;align-items:center;gap:10px;min-height:44px;border-top:1px solid color-mix(in srgb,var(--line) 70%,transparent);color:inherit;text-decoration:none}
+.fol-h+div .fol-r:first-child{border-top:0}
+.fol-k{flex:none;width:52px;font-size:11px;color:var(--sub);text-align:center;border:1px solid var(--line);border-radius:3px;padding:2px 0}
+.fol-n{flex:none;max-width:9em;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fol-v{flex:1;min-width:0;font-size:12.5px;color:var(--sub);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fol-v b{color:var(--tx);font-weight:700}
+a.fol-r .fol-v::after{content:" ›";color:var(--dim)}
+.fol-tip{display:flex;align-items:center;gap:8px;min-height:44px;font-size:12.5px;color:var(--sub)}
+.fol-tip a{color:var(--accent)}
+.fol-x{margin-left:auto;flex:none;width:44px;height:44px;background:none;border:0;color:var(--dim);font-size:18px;cursor:pointer}
+</style>
+<script>
+/* フォロー中の今日（2026-11-05 本番・けん裁定）。出走表で付けた 場（br_stadium）・推し（br_oshi）・気になる（br_watch）を、
+   トップで今日の分だけ見せる。端末の中だけで完結し、外へは送らない。連続記録・残り時間・通知は使わない。
+   行の数は端末の記録だけで先に決めて高さを確保し、今日の開催（todayTop.json）と出場予定（racerSchedule.json）が届いたら文字だけ埋める。 */
+(function(){
+  var box=document.getElementById("fol"), rows=document.getElementById("folRows");
+  if(!box) return;
+  function get(k,d){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } }
+  function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+  function pad(c){ var t=String(c==null?"":c); return t.length===1?"0"+t:t; }
+  var J=new Date(Date.now()+9*3600000);
+  var today=J.toISOString().slice(0,10).replace(/-/g,"");
+  var nowMin=J.getUTCHours()*60+J.getUTCMinutes();
+  function md(y){ return parseInt(y.slice(4,6),10)+"/"+parseInt(y.slice(6,8),10); }
+  function toMin(t){ var m=/^(\d{1,2}):(\d{2})$/.exec(t||""); return m?(+m[1])*60+(+m[2]):null; }
+  var PIN=(get("br_stadium",[])||[]).filter(function(p){return p&&p.code;}).slice(0,3);
+  var OSHI=(get("br_oshi",[])||[]).filter(function(o){return o&&o.toban;}).slice(0,3);
+  var WATCH=get("br_watch",[])||[], COL=get("br_collected",[])||[];
+  var wToday=WATCH.filter(function(x){return String(x.hd)===today;});
+  var wPast=WATCH.filter(function(x){ return String(x.hd)<today && COL.indexOf(x.jcd+"_"+x.hd+"_"+x.rno)<0; });
+  var visited=(get("dzRaihou",{d:[]})||{}).d||[];
+  var back=visited.some(function(d){ return d!==today.slice(0,4)+"-"+today.slice(4,6)+"-"+today.slice(6,8); });
+
+  if(!PIN.length && !OSHI.length && !wToday.length && !wPast.length){
+    /* フォローが無い人：2日目以降に1行だけ。閉じたら二度と出さない */
+    if(!back || get("br_folTip","0")==="1") return;
+    rows.innerHTML='<div class="fol-tip"><span>出走表で <b>推し</b>・<b>場</b>・<b>気になる</b> を付けると、ここに今日の分が出ます。</span><button type="button" class="fol-x" aria-label="この案内を閉じる">×</button></div>';
+    box.querySelector(".fol-h").hidden=true;
+    rows.querySelector(".fol-x").onclick=function(){ try{ localStorage.setItem("br_folTip",'"1"'); }catch(e){} box.hidden=true; };
+    box.hidden=false; return;
+  }
+  /* 行を先に作る（高さの確保） */
+  var html="";
+  PIN.forEach(function(p,i){ html+='<div class="fol-r" id="folP'+i+'"><span class="fol-k">場</span><span class="fol-n">'+esc(p.name)+'</span><span class="fol-v">…</span></div>'; });
+  OSHI.forEach(function(o,i){ html+='<div class="fol-r" id="folO'+i+'"><span class="fol-k">推し</span><span class="fol-n">'+esc(o.name||o.toban)+'</span><span class="fol-v">…</span></div>'; });
+  if(wToday.length||wPast.length) html+='<div class="fol-r" id="folW"><span class="fol-k">気になる</span><span class="fol-n">レース</span><span class="fol-v">…</span></div>';
+  rows.innerHTML=html; box.hidden=false;
+  function put(id,text,href){
+    var el=document.getElementById(id); if(!el) return;
+    if(href){ var a=document.createElement("a"); a.className="fol-r"; a.id=id; a.href=href; a.innerHTML=el.innerHTML; el.parentNode.replaceChild(a,el); el=a; }
+    el.querySelector(".fol-v").innerHTML=text;
+  }
+  /* 気になる：端末の記録だけで出せる */
+  if(wToday.length||wPast.length){
+    var done=wToday.filter(function(x){ var m=toMin(x.deadline); return m!==null && nowMin>=m+12; }).length;
+    var t=[];
+    if(wToday.length) t.push('今日 <b class="num">'+wToday.length+'</b>件'+(done?'（結果が出た <b class="num">'+done+'</b>件）':''));
+    if(wPast.length) t.push('結果を見ていない <b class="num">'+wPast.length+'</b>件');
+    put("folW",t.join("・"),"./racers/");
+  }
+  /* 場：今日の開催（トップと同じ todayTop.json） */
+  if(PIN.length){
+    (window.__dzTT||(window.__dzTT=fetch("./data/todayTop.json?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():Promise.reject();}))).then(function(d){
+      var hd=String(d["開催日"]||""), R=d["レース"]||[];
+      var lab= hd===today?"今日":md(hd);
+      PIN.forEach(function(p,i){
+        var rs=R.filter(function(r){return pad(r["場コード"])===pad(p.code);});
+        if(!rs.length){ put("folP"+i,lab+"は開催なし",null); return; }
+        rs.sort(function(a,b){return a["締切時刻"]>b["締切時刻"]?1:-1;});
+        put("folP"+i,lab+' <b>'+esc(rs[0]["日目"]||"")+'</b>　<span class="num">'+esc(rs[0]["締切時刻"])+'\u301c'+esc(rs[rs.length-1]["締切時刻"])+'</span>',"./racers/#v"+pad(p.code));
+      });
+    }).catch(function(){ PIN.forEach(function(p,i){ put("folP"+i,"出走表で確かめる","./racers/"); }); });
+  }
+  /* 推し：出場予定（racerSchedule.json）。推しがいる端末だけが読む */
+  if(OSHI.length){
+    fetch("./data/racerSchedule.json").then(function(r){return r.ok?r.json():Promise.reject();}).then(function(d){
+      var RS=d.racers||{}, VN=d["場"]||{};
+      OSHI.forEach(function(o,i){
+        var s=RS[String(o.toban)];
+        if(!s){ put("folO"+i,"予定を取れていません",null); return; }
+        var cur=s.filter(function(x){return x.f<=today&&today<=x.t;})[0];
+        if(cur){ var j=pad(cur.j); put("folO"+i,'今日 <b>'+esc(VN[String(cur.j)]||"")+'</b>（'+md(cur.f)+'\u301c'+md(cur.t)+'）',"./racers/#v"+j); return; }
+        var nx=s.filter(function(x){return x.f>today;}).sort(function(a,b){return a.f>b.f?1:-1;})[0];
+        put("folO"+i, nx?('次は <b class="num">'+md(nx.f)+'</b>から '+esc(VN[String(nx.j)]||"")):"出場予定なし", null);
+      });
+    }).catch(function(){ OSHI.forEach(function(o,i){ put("folO"+i,"出走表で確かめる","./racers/"); }); });
+  }
+})();
+</script>
+<div class="sec"><h2 id="tdHead">今日の開催</h2><span class="s num" id="tdUpd"></span></div>
+<script>
+/* 更新時刻の明示（2026-11-05 本番・けん裁定）。今日の開催の見出しの横に、出走表・見どころのデータを作った時刻をそのまま出す。
+   決まった予定時刻は書かない（実際の時刻だけ）。残り時間・カウントダウンは出さない。 */
+(function(){
+  var el=document.getElementById("tdUpd"); if(!el) return;
+  (window.__dzTT||(window.__dzTT=fetch("./data/todayTop.json?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():Promise.reject();}))).then(function(d){
+    var g=((d["生成元"]||{})["highlights"])||"", m=/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(g);
+    if(!m) return;
+    var t=new Date(Date.now()+9*3600000).toISOString().slice(0,10), same=(m[1]+"-"+m[2]+"-"+m[3])===t;
+    el.textContent=(same?"":(+m[2])+"/"+(+m[3])+" ")+(+m[4])+":"+m[5]+" 更新";
+  }).catch(function(){});
+})();
+</script>
 <div id="todayBlock">
 <section class="today" id="tdCard">
   <div class="date"><span class="d num" id="tdDate"></span><span class="w" id="tdWd"></span><span class="c"><b class="num" id="tdV"></b>場 ・ <b class="num" id="tdR"></b>レース</span></div>
@@ -287,12 +401,42 @@ body{position:relative}
 </section>
 <a class="tdFail" id="tdFail" href="./highlights/" hidden>今日の開催は見どころで確認できます</a>
 </div>
-<div class="homeHint">ホーム画面に置くと、朝いちばんに開けます<small>iPhone：共有ボタンから「ホーム画面に追加」</small><small>Android：Chromeの右上「︙」から「ホーム画面に追加」</small></div>
+<div class="homeHint hh2" id="homeHint" hidden><span class="hh-t">ホーム画面に置くと、朝いちばんに開けます<small class="hh-i">iPhone：Safari の共有ボタンから「ホーム画面に追加」</small><small class="hh-a">Android：Chrome の右上「︙」から「ホーム画面に追加」</small><small class="hh-l" hidden>LINE の中の画面からは置けません。右下か右上のメニューから「ブラウザで開く」を選んでから、上の手順で置いてください</small></span><button type="button" class="hh-x" aria-label="この案内を閉じる">×</button></div>
+<style>
+.hh2{display:flex;align-items:center;gap:6px;text-align:left;margin:12px 0 0;padding:6px 0 6px 12px;border:1px solid var(--line);border-radius:6px}
+.hh2[hidden]{display:none}
+.hh2 .hh-t{flex:1}
+.hh2 small[hidden]{display:none}
+.hh-x{flex:none;width:44px;height:44px;background:none;border:0;color:var(--dim);font-size:18px;cursor:pointer}
+</style>
+<script>
+/* ホーム画面の案内（2026-11-05 本番・けん裁定）。2日目以降に来た人にだけ出す。ホーム画面から開いている人には出さない。
+   閉じたら二度と出さない（出走表の案内と同じ br_a2hs を使う。どちらで閉じても両方消える）。端末の記録が読めない環境では従来どおり出す。 */
+(function(){
+  var el=document.getElementById("homeHint"); if(!el) return;
+  var sa=(window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true;
+  if(sa) return;
+  var ua=navigator.userAgent||"", ios=/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1), and=/Android/.test(ua);
+  if(ios) el.querySelector(".hh-a").hidden=true;
+  if(and) el.querySelector(".hh-i").hidden=true;
+  if(/ Line\//.test(ua)) el.querySelector(".hh-l").hidden=false;
+  var x=el.querySelector(".hh-x"), ok=true, show=false;
+  try{
+    if(localStorage.getItem("br_a2hs")==="1") return;
+    var d=(JSON.parse(localStorage.getItem("dzRaihou")||"{}").d)||[];
+    var t=new Date(Date.now()+9*3600000).toISOString().slice(0,10);
+    show=d.some(function(s){return s!==t;});
+  }catch(e){ ok=false; show=true; }
+  if(!ok) x.hidden=true;
+  x.onclick=function(){ try{ localStorage.setItem("br_a2hs","1"); }catch(e){} el.hidden=true; };
+  if(show) el.hidden=false;
+})();
+</script>
 
 <div class="sec ch-sec" id="chHead" hidden><h2 id="chH2">場の朝刊</h2><span class="s" id="chSub"></span></div>
 <div class="ch" id="chBox" hidden>
   <div class="ch-rail" id="chRail" role="list"></div>
-  <div class="ch-note">前日までの確定データで書いた、場ごとの読みものです。予想・買い目は扱いません。</div>
+  <div class="ch-note">前日までの確定データで書いた、場ごとの読みものです。予想・買い目は扱いません。翌日の分は、前の晩から場ごとに順に出ます。</div>
 </div>
 
 <div class="sec"><h2>読みもの</h2><span class="s">最新の検証</span></div>
@@ -624,7 +768,7 @@ function renderWeek(w, d){
   el.hidden = false;
 }
 Promise.all([
-  fetch("./data/todayTop.json?_=" + Date.now(), { cache: "no-store" }).then(function(r){ return r.ok ? r.json() : Promise.reject(); }),
+  (window.__dzTT || (window.__dzTT = fetch("./data/todayTop.json?_=" + Date.now(), { cache: "no-store" }).then(function(r){ return r.ok ? r.json() : Promise.reject(); }))),
   fetch("./data/gradeWeek.json?_=" + Date.now(), { cache: "no-store" }).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; })
 ]).then(function(a){ try{ renderWeek(a[1], a[0]); }catch(e){} renderToday(a[0]); })
   .catch(function(){ fail(); });
