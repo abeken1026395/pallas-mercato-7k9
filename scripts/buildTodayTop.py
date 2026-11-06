@@ -12,7 +12,8 @@ buildTodayTop.py
   docs/data/todayTop.json
 
 トップは約890KBの highlights.json を読まず、このファイル（20KB前後）だけを読む。
-予想・確率・判定は入れない。事実（開催・格・企画名・女子の人数）だけを入れる。
+予想・確率・判定は入れない。事実（開催・格・企画名・女子の人数・1号艇のイン1着率と走数）だけを入れる。
+1号艇のイン1着率と走数は highlights.json の艇の inWinRate・inN をそのまま写す（どちらかが無いレースは入れない）。
 入力が欠けても落とさない。highlights.json が無いときだけ何も書かずに終わる。
 """
 
@@ -54,6 +55,7 @@ def main():
     races = []
     for r in hl["レース"]:
         boats = r.get("艇") or []
+        b1 = next((b for b in boats if b.get("枠") == 1), None)
         races.append({
             "場コード": r.get("場コード"),
             "場名": r.get("場名"),
@@ -63,6 +65,8 @@ def main():
             "日目": r.get("日目") or "",
             "女子": sum(1 for b in boats if str(b.get("登録番号")) in female),
         })
+        if b1 and b1.get("inWinRate") is not None and b1.get("inN"):
+            races[-1]["1号艇"] = {"氏名": b1.get("氏名") or "", "inWinRate": b1.get("inWinRate"), "inN": b1.get("inN")}
 
     out = {
         "開催日": day,
