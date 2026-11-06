@@ -73,3 +73,13 @@
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
 })();
+
+/* プロ化3（2026-11-07）：全ページ共通の枠（上の帯・下のタブ）を読み込む。ページが自分で読み込んでいるときは何もしない */
+(function(){
+  try {
+    if (window.__dzFrame || document.querySelector('script[src*="assets/siteFrame.js"]')) return;
+    var k = document.currentScript || document.querySelector('script[src*="assets/kata/kata.js"]'); if (!k) return;
+    var s = document.createElement("script"); s.src = k.src.replace(/kata\/kata\.js.*$/, "siteFrame.js?v=0324b51f");
+    (document.body || document.head).appendChild(s);
+  } catch (e) {}
+})();

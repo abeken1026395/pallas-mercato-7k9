@@ -1,10 +1,12 @@
-/* サイト共通の枠（プロ化3・2026-11-07 けん「本番に反映してくれ」・第2弾「本番へ」）。トップと同じ上の帯（ロゴ・データ攻め・選手検索）と下の5つのタブを、どのページにも出す。
+/* サイト共通の枠（プロ化3・2026-11-07 けん「本番に反映してくれ」・第2弾「本番へ」・第3弾 全ページへ）。トップと同じ上の帯（ロゴ・データ攻め・選手検索）と下の5つのタブを、どのページにも出す。
    置き場所：assets/siteFrame.js。読み込む側は <script src="（ルートからの相対）assets/siteFrame.js" defer></script>。
    ルートはこのファイル自身の場所から割り出す（ページの深さに関係なく正しいリンクになる）。
    トップ（index.html）は自前の帯とタブを持つので何もしない。 */
 (function(){
   if (window.__dzFrame) return; window.__dzFrame = 1;
   var me = document.currentScript || document.querySelector('script[src*="assets/siteFrame.js"]');
+  if (document.readyState === "loading") { document.addEventListener("DOMContentLoaded", function(){ run(me); }); } else { run(me); }
+  function run(me){
   var ROOT = me ? me.src.replace(/assets\/siteFrame\.js.*$/, "") : (location.origin + "/");
   var here = location.href.split(/[?#]/)[0];
   if (here === ROOT || here === ROOT + "index.html" || document.querySelector("header.bar .brand")) return;
@@ -57,16 +59,24 @@
   bar.innerHTML = '<div class="dzf-in"><a class="dzf-brand" href="' + ROOT + '" aria-label="データ攻め トップ"><svg viewBox="96 539 1873 1102" aria-hidden="true"><path fill="#e9b45a" fill-rule="evenodd" d="' + LOGO + '"/></svg><span class="dzf-wm"><b>データ攻め</b><i>DATA ZEME</i></span></a><span class="dzf-sp"></span><a class="dzf-sr" href="' + ROOT + 'players/" aria-label="選手を探す"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5l5 5"/></svg></a></div><div class="dzf-waku" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>';
   document.body.insertBefore(bar, document.body.firstChild);
   // 本文の余白を打ち消して、帯を画面の端から端まで出す（ページごとに body の余白が違うため）
-  var bs = getComputedStyle(document.body);
-  bar.style.margin = "-" + bs.paddingTop + " -" + bs.paddingRight + " 4px -" + bs.paddingLeft;
+  var bs = getComputedStyle(document.body), px = function(k){ return (parseFloat(bs["padding" + k]) || 0) + (parseFloat(bs["margin" + k]) || 0); };
+  bar.style.margin = "-" + px("Top") + "px -" + px("Right") + "px 4px -" + px("Left") + "px";
+  // ページに残っている「← データ攻め トップ」と、トップへ戻るだけの「データ攻め」のリンクは、上の帯と重なるので隠す
+  Array.prototype.forEach.call(document.querySelectorAll("a"), function(a){
+    if (a.closest(".dzf-bar,.dzf-tb,.dzf-sh")) return;
+    var tx = (a.textContent || "").trim();
+    if (/^\u2190\s*データ攻め/.test(tx) || (tx === "データ攻め" && a.href.split(/[?#]/)[0] === ROOT)) a.style.display = "none";
+  });
   var L = [["motor/","モーター"],["players/","選手"],["stadium/","24場"],["kensho/","検証"],["updates/","更新履歴"],["torisetsu/","使い方"],0,["payouts/","万舟のツボ"],["motor-maintenance/","整備"],["players/card.html","選手カード"],["note/","観戦ノート"],["ichimark/","1マーク"],["glossary/","用語辞典"],["fan/","場の文化"],["announcers/","実況アナ"],["uranai/","占い"]];
   var sh = document.createElement("div"); sh.className = "dzf-sh"; sh.id = "dzfSheet"; sh.hidden = true;
   sh.innerHTML = '<div class="dzf-shi">' + L.map(function(x){ return x ? '<a href="' + ROOT + x[0] + '">' + x[1] + '</a>' : '<div class="sh2">ほかのページ</div>'; }).join("") + '<a href="https://note.com/abeken2000" target="_blank" rel="noopener">有料note（外部）</a></div>';
   var tb = document.createElement("nav"); tb.className = "dzf-tb"; tb.setAttribute("aria-label", "ページ");
   function t(k, h, n){ return '<a href="' + ROOT + h + '"' + (cur === k ? ' class="on" aria-current="page"' : '') + '>' + I[k] + n + '</a>'; }
   tb.innerHTML = '<div class="dzf-tbi">' + t("top", "", "トップ") + t("racers", "racers/", "出走表") + t("highlights", "highlights/", "見どころ") + t("results", "results/", "結果") + '<button type="button" id="dzfMore" aria-expanded="false" aria-controls="dzfSheet"' + (cur === "more" ? ' class="on"' : '') + '>' + I.more + 'その他</button></div>';
+  if (/^torisetsu\//.test(path)) { st.textContent = st.textContent.replace("body{padding-bottom:calc(66px + env(safe-area-inset-bottom))!important}", ""); return; } // トリセツは自前の下の帯（さいしょへ・もくじ）を持つので、下のタブは出さない
   document.body.appendChild(sh); document.body.appendChild(tb);
   var mb = document.getElementById("dzfMore");
   mb.addEventListener("click", function(){ var o = sh.hidden; sh.hidden = !o; mb.setAttribute("aria-expanded", o ? "true" : "false"); });
   document.addEventListener("click", function(e){ if (!sh.hidden && !sh.contains(e.target) && !mb.contains(e.target)) { sh.hidden = true; mb.setAttribute("aria-expanded", "false"); } });
+  }
 })();
