@@ -45,6 +45,8 @@ SHIME_KANYOKU = ["答えは水面の上に", "目が離せない", "注目した
                  "どんなドラマ", "勝負の行方"]
 BANNED_HIYU = ["目盛り", "物差し"]
 AORI = ["激アツ", "大チャンス", "狙い目", "妙味"]
+# 表記の統一（2026-11-06 けん裁定）：「おさえ」は「抑え」で書く
+HYOKI_NG = ["\u62bc\u3055\u3048"]
 
 # --- 検査6: 答え合わせの自己評価語（watchPoint導入日以降の記事のみ）---
 JIKO_HYOKA = ["的中", "読み通り", "予想通り"]
@@ -191,6 +193,7 @@ def check_banned(body):
     out += [("締め常套句", w) for w in SHIME_KANYOKU if w in body]
     out += [("禁止比喩", w) for w in BANNED_HIYU if w in body]
     out += [("煽り", w) for w in AORI if w in body]
+    out += [("表記（抑えに統一）", w) for w in HYOKI_NG if w in body]
     return out
 
 
