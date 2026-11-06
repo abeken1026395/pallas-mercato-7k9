@@ -3,8 +3,10 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="./assets/guard.js"></script>
+<title>データ攻め｜今日も、読んでから。</title>
 <meta name="author" content="阿部（データ攻め）">
 <link rel="canonical" href="https://abeken1026395.github.io/pallas-mercato-7k9/">
 <meta name="description" content="買い目も予想も出さない競艇データサイト。出走表・見どころ・モーター・24場の特性・万舟の記録を毎日更新しています。全レースを朝に分類して保存し、夜に結果と照らした自己採点も、外れを含めて載せています。">
@@ -15,285 +17,473 @@
 <meta property="og:url" content="https://abeken1026395.github.io/pallas-mercato-7k9/">
 <meta property="og:site_name" content="データ攻め">
 <meta name="twitter:card" content="summary">
-<title>データ攻め｜今日も、読んでから。</title>
 <link rel="manifest" href="./manifest.json?v=2">
 <link rel="apple-touch-icon" href="./icon180.png">
 <meta name="theme-color" content="#0c1520">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='40 -22 1984 1984'><rect x='-1000' y='-1000' width='5000' height='5000' fill='#E9B45A'/><path fill='#0B1726' d='M 836 541 C 827 542, 810 543, 798 544 C 662 551, 505 607, 381 693 C 346 717, 276 775, 258 795 C 245 809, 213 848, 201 864 C 129 961, 97 1070, 115 1160 C 127 1221, 158 1279, 203 1325 C 216 1337, 218 1338, 236 1342 C 252 1345, 263 1349, 302 1363 C 375 1390, 411 1395, 424 1382 C 435 1371, 435 1360, 423 1342 C 402 1312, 381 1270, 375 1244 C 365 1206, 364 1126, 373 1084 C 381 1042, 407 978, 429 941 C 464 883, 512 824, 554 788 C 619 733, 683 693, 775 651 C 819 631, 881 613, 946 601 C 957 600, 968 597, 970 596 C 987 589, 991 567, 977 554 C 971 548, 965 546, 932 544 C 925 543, 910 542, 900 541 C 878 539, 859 539, 836 541 M 1303 816 C 1249 823, 1210 862, 1202 916 C 1199 933, 1199 933, 1186 928 C 1121 901, 1067 898, 994 919 C 985 921, 964 929, 946 937 C 898 959, 835 1011, 797 1060 C 765 1102, 762 1115, 777 1129 C 787 1139, 792 1139, 862 1123 C 889 1117, 955 1104, 983 1099 C 994 1097, 1023 1091, 1048 1087 C 1072 1083, 1104 1077, 1119 1074 C 1134 1071, 1162 1066, 1182 1063 C 1201 1060, 1226 1055, 1236 1053 C 1245 1052, 1272 1047, 1294 1043 C 1316 1039, 1345 1034, 1360 1031 C 1375 1028, 1391 1025, 1396 1025 C 1415 1021, 1418 1020, 1429 1002 C 1462 948, 1449 879, 1397 840 C 1371 820, 1335 811, 1303 816 M 1898 1068 C 1892 1068, 1879 1069, 1870 1070 C 1861 1071, 1846 1072, 1836 1073 C 1826 1074, 1809 1076, 1797 1077 C 1719 1084, 1472 1120, 1365 1140 C 1350 1143, 1320 1148, 1298 1152 C 1276 1156, 1250 1161, 1240 1162 C 1231 1164, 1206 1169, 1186 1172 C 1167 1175, 1139 1180, 1124 1183 C 1109 1186, 1077 1192, 1052 1196 C 959 1213, 954 1214, 908 1224 C 893 1227, 853 1236, 819 1243 C 695 1268, 541 1304, 530 1312 C 513 1323, 515 1348, 533 1357 C 543 1362, 573 1367, 601 1369 C 622 1370, 760 1370, 779 1369 C 787 1368, 802 1367, 812 1366 C 822 1365, 838 1364, 847 1363 C 856 1362, 865 1362, 868 1361 C 921 1355, 959 1351, 977 1349 C 989 1348, 1006 1346, 1016 1345 C 1026 1344, 1042 1343, 1052 1342 C 1061 1341, 1078 1340, 1089 1339 C 1133 1335, 1247 1334, 1282 1337 C 1289 1338, 1309 1340, 1325 1341 C 1390 1347, 1464 1363, 1534 1385 C 1577 1399, 1587 1401, 1602 1398 C 1619 1394, 1625 1390, 1681 1342 C 1707 1320, 1819 1227, 1850 1201 C 1936 1131, 1956 1115, 1962 1103 C 1968 1091, 1960 1073, 1947 1068 C 1941 1066, 1915 1066, 1898 1068 M 543 1151 C 533 1153, 522 1161, 518 1170 C 512 1180, 508 1257, 513 1266 C 522 1282, 529 1283, 574 1272 C 611 1263, 614 1262, 618 1257 C 629 1247, 629 1235, 617 1176 C 615 1163, 609 1156, 600 1152 C 595 1150, 551 1149, 543 1151'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&amp;text=%E3%83%87%E3%83%BC%E3%82%BF%E6%94%BB%E3%82%81%E5%87%BA%E8%A6%8B%E7%B5%90%E3%83%A2%E9%81%B8%E5%A0%B4%E6%95%B4%E6%A4%9C%E8%BE%9E%E6%96%87%E5%AE%9F%E5%8D%A0%E6%9B%B4%E6%9C%8924&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Dela+Gothic+One&display=swap" rel="stylesheet">
+<!-- 本番トップ（2026-11-06 プロ化2で作り直し。実験場の案M第4版を本番化）。手書きの一次ソース（生成物ではない）。
+     以下は案Mの注記（案M・第2版：プロ4人の審査で直した）。第4版：1画面目の帯を2本（電子書籍のオプチャ登録を先に、AI予想部屋を次に）、お知らせは電子書籍・AI予想部屋・YouTubeの3つとも金で目立たせ、電子書籍とAI予想部屋にボタン（けん 2026-11-06「電子書籍もオプトを取りたい。フロント販売」）。
+     第3版：1画面目にAI予想部屋の1行帯（金）、お知らせ欄を今日の注目の下へ、AI予想部屋のカードだけ金で大きく、答え合わせの下に有料noteの入口（けん 2026-11-06「有料買い目を売って行きたい」）。
+     第2版の変更：開催中の場だけ格子・休みは1行、フォロー中を注目の上、お知らせは見出し1行ずつ（けん裁定 案B）＋最新の更新1行、金はロゴと荒れの数字だけ、文字5段階・行間2種類、女子戦は文字札、注目に競走名、フッターに非公式と出典。
+     第1版：上半分は案L。その下に お知らせ（2番目・文面は本番のまま）→フォロー中の今日（付けている人だけ）→場の朝刊（横送り）→答え合わせ（小さなカード、内訳は畳む）→読みもの→フッター。
+     本番トップから外したもの：署名・重なる決め台詞・漢字1字の入口・最近新しくなったこと・ホーム画面の案内（その他へ）・ページ一覧（その他へ）・フォローの控え（その他へ）。
+     以下は案Lの注記。デザイン評議会（ブランド／画面設計／競艇メディア／読みやすさ）の結論で組み直す。
+     ・ロゴ：2026-11-06 決定のシンボル（三日月と波で包む、前傾の選手とフルフェイス）。バーは高さ64で、名前の下に英字の行（DATA ZEME）を添える。バーの下端に枠番6色の線（4px・固定）（けん指示 2026-11-06）
+     ・バーの下に日付と決め台詞の帯（日付はここだけに出す。データの開催日で上書き。開催数とレース数は下の「場で開催」の行だけ）
+     ・上部バーはロゴと検索だけ。案内は画面下の固定タブ5つ（トップ・出走表・見どころ・結果・その他）
+     ・24場の格子は公式の並びのまま。非開催は高さを半分にして場名だけ（文字は背景と5.3:1）
+     ・色は紺1色。発売中は左端の金の線、発売終了は薄く。ナイター＝月・モーニング＝太陽・女子戦＝ハートの印。色を付けるのは格の札だけ
+     ・分母つきの実測は格子に入れず、締切順の行と今日の注目のカードに出す（1号艇のイン1着率と走数。highlights.json の値をそのまま）
+     データは todayTop.json・gradeSchedule.json・highlights.json（締切順か注目を描くときだけ読む）。買い目・確率は扱わない。 -->
 <style>
-:root{
-  --bg:#0a1422;--card:#12233a;--card2:#16243449;--line:#24406a;--tx:#e6e8eb;--sub:#a0acb8;--dim:#9aabbd;
-  --are:#f2b155;--kata:#5cc8b0;--base:#6b7280;--accent:#7fb4ff;--mido:#f2c200;--midoTx:#f5d55c;
-}
-*{box-sizing:border-box}
-body{margin:0;background:linear-gradient(180deg,#1b3a5e 0,#132b46 360px,#0d1c2f 900px,var(--bg) 1500px) var(--bg);background-repeat:no-repeat;color:var(--tx);font-family:-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;-webkit-font-smoothing:antialiased}
-.wrap{max-width:480px;margin:0 auto;padding:18px 16px 40px}
-.num{font-variant-numeric:tabular-nums}
-a{color:inherit;text-decoration:none}
+:root{--bg:#0b1726;--bar:#0e1d30;--cell:#13253b;--line:rgba(255,255,255,.09);--tx:#eef3f8;--dim:#a3b4c6;--mute:#8fa3b8;--gold:#e9b45a;--blue:#6aa6f8}
+*,*::before,*::after{box-sizing:border-box;border-radius:0}
+html{background:var(--bg)}
+body{margin:0;color:var(--tx);font-family:-apple-system,"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",Meiryo,sans-serif;-webkit-text-size-adjust:100%;padding-bottom:calc(64px + env(safe-area-inset-bottom))}
+a{color:inherit;text-decoration:none;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit}
+.num{font-family:"Barlow Condensed",-apple-system,sans-serif;font-variant-numeric:tabular-nums}
 
-/* ヘッダー */
-.hd{text-align:center;padding:26px 0 6px}
-.logo{font-family:"Dela Gothic One",-apple-system,"Hiragino Sans",sans-serif;font-size:56px;font-weight:400;letter-spacing:.03em;margin:0;line-height:1.05;white-space:nowrap;color:#f2f2f0}
-.catch{font-size:14px;color:#dfe6ee;font-weight:600;letter-spacing:.08em;margin:10px 0 0}
-.catch span{font-size:11px;color:#8ea3b8;font-weight:400;letter-spacing:.22em;margin-right:6px}
-.promise{margin:16px auto 0;font-size:15px;color:var(--tx);font-weight:700}
-.promise small{display:block;font-size:11.5px;color:#8ea3b8;font-weight:400;margin-top:4px}
-.guide{display:inline-flex;align-items:center;gap:6px;margin:8px 0 0;min-height:44px;font-size:13.5px;font-weight:600;color:var(--tx);text-decoration:underline;text-underline-offset:5px;text-decoration-color:#f2b155;text-decoration-thickness:2px}
-.guide b{color:#f2b155;font-weight:700}
+/* 上部バー：ロゴと検索だけ（高さ52） */
+.bar{position:sticky;top:0;z-index:30;height:68px;background:var(--bar);border-bottom:1px solid var(--line)}
+.bar-in{max-width:600px;height:64px;margin:0 auto;display:flex;align-items:center;gap:10px;padding:0 16px}
+.brand{display:flex;align-items:center;gap:11px}
+.brand svg{height:40px;width:auto;flex:none;display:block}
+.brand .wm{display:flex;flex-direction:column;gap:5px}
+.brand b{font:400 25px/1 "Dela Gothic One",sans-serif;letter-spacing:.04em;white-space:nowrap}
+.brand i{font:400 11px/1 "Dela Gothic One",sans-serif;font-style:normal;letter-spacing:.42em;color:var(--dim);white-space:nowrap}
+.bar .sp{flex:1}
+/* 枠番6色の線：上部バーの下端に固定 */
+.waku{display:flex;height:4px}.waku i{flex:1}.waku i:nth-child(1){background:#f4f4f4}.waku i:nth-child(2){background:#000;box-shadow:inset 0 0 0 1px #3a4a5c}.waku i:nth-child(3){background:#e2313a}.waku i:nth-child(4){background:#2b6fdc}.waku i:nth-child(5){background:#f2d02e}.waku i:nth-child(6){background:#2fa04f}
+/* 日付と決め台詞の帯 */
+.cap{background:#0c1a2b;border-bottom:1px solid var(--line)}
+.cap-in{max-width:600px;margin:0 auto;padding:7px 16px;display:flex;align-items:baseline;gap:12px}
+.cap .dt{font-size:13px;font-weight:700;color:var(--tx);white-space:nowrap;letter-spacing:.02em}
+.cap .tg{margin-left:auto;font-size:11px;color:#d6e0ea;white-space:nowrap;letter-spacing:.04em}
+.bar .sr{display:flex;align-items:center;justify-content:center;width:44px;height:44px;margin-right:-10px}
+.bar .sr svg{width:22px;height:22px;stroke:#dfe7ef;fill:none;stroke-width:1.6;stroke-linecap:round}
 
-/* よく使う6ページ */
-.quick{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin:18px 0 0}
-.quick a{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10.5px;color:var(--sub)}
-.quick span{width:44px;height:44px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:"Dela Gothic One",-apple-system,sans-serif;font-size:19px;color:var(--tx);background:color-mix(in srgb,var(--c) 18%,transparent);border:1px solid color-mix(in srgb,var(--c) 45%,transparent)}
-/* 最近の更新（updates.json の最新3件。1件目は全文、残りは1行。高さを予約して、出ても出なくても動かない） */
-.news{margin:18px 0 0;min-height:224px;border:1px solid color-mix(in srgb,var(--are) 45%,var(--line));background:linear-gradient(160deg,#1b2a3a 0%,#121d29 70%);padding:10px 12px 4px;visibility:hidden}
-.news.filled{visibility:visible}
-.news.gone{display:none}
-.news-h{display:flex;align-items:center;gap:10px;margin-bottom:2px}
-.news-h p{margin:0;font-size:15px;font-weight:800;color:var(--tx)}
-.news-h a{margin-left:auto;font-size:13px;color:var(--sub);text-decoration:underline;text-underline-offset:4px;padding:8px 0}
-.srow{display:flex;gap:8px;align-items:center;min-height:40px;padding:6px 0;border-top:1px solid var(--line);text-decoration:none;color:var(--tx);font-size:14px}
-.srow:first-child{border-top:none}
-.srow .tx{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.srow.full{align-items:flex-start;flex-wrap:wrap}
-.srow.full .tx{flex-basis:100%;white-space:normal;font-size:15px;line-height:1.6}
-.srow .dt{font-size:12px;color:var(--sub);flex:none;font-variant-numeric:tabular-nums}
-/* ページの札：色はページの種類ごとに固定。文字でもページ名を書く（色だけで伝えない） */
-.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--tx);padding:1px 9px 1px 7px;border-radius:99px;background:color-mix(in srgb,var(--c) 22%,transparent);border:1px solid color-mix(in srgb,var(--c) 55%,transparent);white-space:nowrap;flex:none}
-.chip:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--c)}
-.newmk{font-size:11px;font-weight:800;color:#0b1219;background:var(--are);border-radius:4px;padding:0 6px;flex:none}
+.wrap{max-width:600px;margin:0 auto;padding:0 12px 24px}
 
-/* 見出し */
-.sec{margin:26px 0 10px;display:flex;align-items:baseline;gap:10px}
-.sec h2{font-size:17px;margin:0;font-weight:800;line-height:1.2}
-.sec .s{font-size:12px;color:var(--dim)}
-/* 読みもの：最新の検証1本（一覧 ./kensho/ の data-new が最も新しいカードを表示。取れないときは下の既定のまま） */
-/* 場の朝刊（2026-10-28 本番化・旧称 観戦記）：場ごとの記事を横に送って選ぶ。タップで専用ページへ */
-.ch{margin:0}
-.ch-rail{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:2px 2px 10px;scrollbar-width:none}
+/* 今日の注目 */
+.hl{margin:0 -12px;padding:14px 0 14px 12px;background:#0f1b33;border-bottom:1px solid var(--line);}
+.hl-h{display:flex;align-items:baseline;gap:8px;margin:0 0 10px;font-size:15px;font-weight:800;letter-spacing:.06em}
+.hl-h span{font-size:13px;font-weight:500;color:var(--dim);letter-spacing:0}
+.hl-r{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-right:12px}
+.hl-r::-webkit-scrollbar{display:none}
+.hc{flex:none;scroll-snap-align:start;display:flex;flex-direction:column;gap:6px;width:280px;padding:12px 14px;background:var(--cell);border:1px solid var(--line)}
+.hc .t{display:flex;align-items:center;gap:8px}
+.hc .v{font-size:18px;font-weight:800;letter-spacing:.05em}
+.hc .k{font-size:13px;line-height:1.3;color:var(--dim)}
+.hc .w{display:flex;align-items:baseline;gap:8px;font-size:13px;color:var(--dim)}
+.hc .w b{font-size:18px;font-weight:600;color:var(--tx)}
+.hc .w .fn{font-size:11px;font-weight:700;color:var(--tx);border:1px solid var(--tx);padding:0 6px;line-height:18px}
+.hc .d{padding-top:6px;border-top:1px solid var(--line);font-size:13px;color:var(--dim)}
+.hc .d b{color:var(--tx);font-weight:700}
+.hc.end{opacity:.55}
+
+/* 切り替え */
+.seg{display:flex;margin:12px 0 0;border-bottom:1px solid var(--line)}
+.seg button{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;height:46px;background:none;border:0;border-bottom:2px solid transparent;color:var(--dim);font-size:15px;font-weight:700;letter-spacing:.04em;cursor:pointer}
+.seg button.on{color:var(--tx);border-bottom-color:var(--tx)}
+.seg svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.sub{display:flex;justify-content:space-between;align-items:baseline;margin:10px 2px;font-size:13px;color:var(--dim)}
+.sub b{color:var(--tx);font-size:18px;margin-right:2px}
+
+/* 24場の格子（公式の並び） */
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.c{position:relative;display:flex;flex-direction:column;min-height:74px;padding:6px 5px 6px 8px;background:var(--cell);border:1px solid var(--line)}
+.c.live{box-shadow:inset 3px 0 0 var(--blue)}
+.c.done{opacity:.55}
+.c .vn{position:relative;display:block;padding-right:14px;font-size:18px;font-weight:800;line-height:1.3;white-space:nowrap}
+.c .vn .ics{position:absolute;right:-2px;top:-3px;display:flex;flex-direction:column}
+.c .vn .ics .ic{width:13px;height:13px}
+.c .md{display:flex;flex-wrap:wrap;align-items:center;gap:3px 5px;margin-top:4px}
+.c .dy{flex:none;font-size:13px;color:var(--dim);white-space:nowrap}
+.c .ft{margin-top:auto;padding-top:4px;font-size:13px;color:var(--dim)}
+.c .ft b{font-size:15px;font-weight:700;color:var(--tx);margin-right:4px}
+.c .ft.end{font-size:13px}
+.c.off{min-height:44px;padding:0;align-items:center;justify-content:center;background:none;border:1px solid rgba(255,255,255,.05);font-size:15px;font-weight:500;color:var(--mute);letter-spacing:.06em}
+a.c:active{background:#1a3150}
+.offl{margin:8px 2px 0;font-size:13px;line-height:1.7;color:var(--mute)}
+.offl[hidden]{display:none}
+.gr{display:inline-block;flex:none;white-space:nowrap;padding:0 5px;font:700 11px/18px -apple-system,sans-serif;letter-spacing:.02em;color:#fff;background:#4f6378}
+.gr.g1{background:#d9782a;color:#0b1726}.gr.lf{background:#f4c2d0;color:#0b1726}.gr.sg{background:#c13838}.gr.g2{background:#7a52c2}.gr.g3{background:#2c69c9}
+.ic{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ic.nt{color:#cdbdff}.ic.mn{color:#ffd76e}.ic.lf{color:#ff9ab6}
+.lg{display:flex;flex-wrap:wrap;gap:6px 14px;margin:12px 2px 0;font-size:13px;color:var(--dim)}
+.lg span{display:inline-flex;align-items:center;gap:5px}
+.lg i{display:inline-block;width:3px;height:14px;background:var(--blue)}
+
+/* 締切順 */
+.grid.off{display:none}
+.list{display:none}
+.list.on{display:block}
+.row{display:grid;grid-template-columns:58px 1fr auto;column-gap:10px;row-gap:3px;align-items:baseline;padding:11px 4px;border-bottom:1px solid var(--line)}
+.row .tm{grid-row:1/3;align-self:center;font-size:18px;font-weight:600}
+.row .vv{font-size:15px;font-weight:800;letter-spacing:.04em}
+.row .vv .num{font-size:18px;font-weight:700;margin-left:6px}
+.row .kk{font-size:13px;color:var(--dim);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
+.row .dd{grid-column:2/4;font-size:13px;color:var(--dim)}
+.row .dd b{color:var(--tx)}
+.row.past{opacity:.45}
+.more{display:block;width:100%;margin:10px 0 0;height:44px;background:none;border:1px solid var(--line);color:var(--dim);font-size:15px;cursor:pointer}
+
+.fail{display:block;margin:12px 0;padding:12px;border:1px solid var(--line);font-size:15px;color:var(--dim)}
+.fail[hidden]{display:none}
+.cont{display:block;margin:22px 0 0;padding:14px;border:1px dashed var(--line);font-size:13px;color:var(--dim);text-align:center}
+
+/* 画面下の固定タブ */
+.tb{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--bar);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+.tb-in{max-width:600px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);height:58px}
+.tb a,.tb button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:none;border:0;font-size:11px;font-weight:600;color:var(--dim);cursor:pointer}
+.tb .on{color:var(--tx)}
+.tb .on svg{stroke:var(--tx)}
+.tb svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.sheet{position:fixed;left:0;right:0;bottom:calc(58px + env(safe-area-inset-bottom));z-index:29;background:var(--bar);border-top:1px solid var(--line)}
+.sheet[hidden]{display:none}
+.sheet-in{max-width:600px;margin:0 auto;display:grid;grid-template-columns:repeat(2,1fr)}
+.sheet a{display:flex;align-items:center;gap:10px;height:52px;padding:0 18px;border-bottom:1px solid var(--line);font-size:15px;font-weight:600}
+.sheet a:nth-of-type(odd){border-right:1px solid var(--line)}
+.sheet svg{width:22px;height:22px;stroke:var(--dim);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+
+/* ===== 案Lの下に続く欄（2026-11-06 けん裁定：告知は2番目・素人っぽさを外す） ===== */
+.sh{display:flex;align-items:center;gap:8px;margin:26px 0 6px;min-height:44px;font-size:15px;font-weight:800;letter-spacing:.06em}
+.sh span{font-size:13px;font-weight:500;color:var(--dim);letter-spacing:0}
+.sh a{margin-left:auto;display:inline-flex;align-items:center;min-height:44px;font-size:13px;font-weight:600;color:var(--blue);letter-spacing:0;padding:0 0 0 16px}
+/* お知らせ */
+.ann{display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
+.an{display:flex;flex-direction:column;gap:2px;padding:12px 14px;background:var(--cell);border:1px solid var(--line)}
+.an[hidden]{display:none}
+.an small{font-size:11px;color:var(--mute);letter-spacing:.04em}
+.an b{font-size:15px;font-weight:800;color:var(--tx);line-height:1.3}
+.an span{font-size:13px;line-height:1.7;color:var(--dim)}
+a.an::after{content:"";}
+.an.upd span{display:block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* フォロー中の今日 */
+.fol[hidden]{display:none}
+.fol-box{background:var(--cell);border:1px solid var(--line)}
+.fol-r{display:flex;align-items:center;gap:10px;min-height:46px;padding:0 12px;border-top:1px solid var(--line)}
+.fol-r:first-child{border-top:0}
+.fol-k{flex:none;width:52px;font-size:11px;color:var(--dim);text-align:center;border:1px solid var(--line);padding:2px 0}
+.fol-n{flex:none;max-width:9em;font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fol-v{flex:1;min-width:0;font-size:13px;color:var(--dim);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fol-v b{color:var(--tx);font-weight:700}
+a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
+/* 場の朝刊（横に送る） */
+.ch[hidden],.chh[hidden]{display:none}
+.ch-rail{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0 -12px;padding:0 12px 4px}
 .ch-rail::-webkit-scrollbar{display:none}
-.ch-card{flex:0 0 78%;max-width:320px;scroll-snap-align:start;display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-top:3px solid var(--line);border-radius:6px;padding:14px 14px 12px;color:var(--tx);text-decoration:none;min-height:150px}
-.ch-v{font-size:12px;color:var(--dim);letter-spacing:.04em}
-.ch-v b{color:var(--midoTx);font-weight:800;margin-right:6px}
-.ch-t{font-size:16px;font-weight:800;line-height:1.45;margin-top:5px}
-.ch-l{font-size:13px;color:var(--sub);line-height:1.7;margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.ch-go{margin-top:auto;padding-top:8px;text-align:right;font-size:13px;font-weight:700;color:var(--accent)}
-.ch-note{font-size:12px;color:var(--dim);line-height:1.6}
-/* 場の朝刊のカード：格の色（見どころ・出走表と同じ色の辞書。SG赤・G1金・G2銀・女子戦は淡いピンク） */
+.ch-card{flex:0 0 74%;max-width:300px;scroll-snap-align:start;display:flex;flex-direction:column;gap:5px;padding:12px 14px;background:var(--cell);border:1px solid var(--line);border-top:3px solid var(--line);min-height:128px}
+.ch-v{font-size:11px;color:var(--dim)}
+.ch-v b{color:var(--tx);font-weight:800;margin-right:6px;font-size:13px}
+.ch-t{font-size:15px;font-weight:800;line-height:1.3}
+.ch-l{font-size:13px;color:var(--dim);line-height:1.7;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ch-go{display:none}
 .ch-card.g-sg{border-top-color:#ee3f3d}.ch-card.g-g1{border-top-color:#dcbd78}.ch-card.g-g2{border-top-color:#b8c4d2}.ch-card.g-lady{border-top-color:#f4c2d0}
-.ch-gb{display:inline-block;font-size:11px;font-weight:700;border-radius:4px;padding:0 6px;margin-right:6px;line-height:18px;color:#0b1219;vertical-align:1px}
+.ch-gb{display:inline-block;font-size:11px;font-weight:700;padding:0 5px;margin-right:5px;line-height:17px;color:#0b1219;vertical-align:1px}
 .ch-gb.sg{background:#ee3f3d}.ch-gb.g1{background:#dcbd78}.ch-gb.g2{background:#b8c4d2}.ch-gb.lady{background:#f4c2d0}
-.kn{display:block;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:16px}
-.kn-no{display:block;font-size:12px;color:var(--dim);letter-spacing:.04em}
-.kn-t{display:block;font-size:17px;font-weight:800;line-height:1.45;margin-top:4px}
-.kn-d{display:block;font-size:13.5px;color:var(--sub);line-height:1.7;margin-top:8px}
-.kn-go{display:block;text-align:right;font-size:14px;font-weight:700;color:var(--accent);margin-top:10px}
-.kn-all{display:block;text-align:right;font-size:12px;color:var(--dim);margin-top:8px}
+.ch-note{margin:6px 0 0;font-size:11px;color:var(--mute);line-height:1.7}
+/* 答え合わせ（小さなカード） */
+.ans-g{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ans-c{padding:12px;background:var(--cell);border:1px solid var(--line)}
+.ans-c .k{font-size:11px;color:var(--dim);line-height:1.7}
+.ans-c .v{display:block;margin:4px 0 2px;font-size:28px;line-height:1;font-weight:600}
+.ans-c.are .v{color:#f2b155}.ans-c.kata .v{color:#5cc8b0}
+.ans-c .u{font-size:11px;color:var(--dim)}
+.ans-c .u b{color:var(--tx);font-weight:700}
+.ans-c .bars{margin-top:8px;display:grid;gap:3px}
+.ans-c .bar{height:5px;background:rgba(255,255,255,.07)}
+.ans-c .bar i{display:block;height:100%}
+.ans-c.are .bar.me i{background:#f2b155}.ans-c.kata .bar.me i{background:#5cc8b0}
+.ans-c .bar.base i{background:#6b7a8c}
+.ans-f{margin:8px 0 0;font-size:11px;color:var(--mute);line-height:1.7}
+.ans-d{margin-top:8px;border:1px solid var(--line)}
+.ans-d summary{min-height:44px;display:flex;align-items:center;padding:0 12px;font-size:13px;font-weight:700;color:var(--blue);cursor:pointer;list-style:none}
+.ans-d summary::-webkit-details-marker{display:none}
+.ans-d summary::after{content:"+";margin-left:auto;color:var(--dim);font-size:15px}
+.ans-d[open] summary::after{content:"\2212"}
+.ans-b{padding:4px 12px 12px;font-size:13px;line-height:1.7;color:#c9d6e3}
+.ans-b h3{margin:14px 0 2px;font-size:13px;color:var(--tx)}
+.ans-b p{margin:4px 0}
+.ans-b .day{padding:8px 10px;background:var(--cell)}
+.ans-b .day b{color:var(--tx)}
+.ans-b table{width:100%;border-collapse:collapse;margin:6px 0;font-size:11px}
+.ans-b th,.ans-b td{border:1px solid var(--line);padding:5px 6px;text-align:left;vertical-align:top}
+.ans-b a{color:var(--blue);text-decoration:underline}
+/* 読みもの */
+.kn{display:block;padding:14px;background:var(--cell);border:1px solid var(--line)}
+.kn-no{display:block;font-size:11px;color:var(--dim)}
+.kn-t{display:block;margin-top:4px;font-size:15px;font-weight:800;line-height:1.7}
+.kn-d{display:block;margin-top:6px;font-size:13px;line-height:1.7;color:var(--dim);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+/* フッター */
+.ft{margin:34px 0 0;padding:18px 0 6px;border-top:1px solid var(--line);text-align:center;font-size:11px;line-height:1.7;color:var(--mute)}
+/* その他シート：一覧と引き継ぎ */
+.sheet{max-height:72vh;overflow-y:auto}
+.sheet .sh2{grid-column:1/-1;padding:12px 18px 4px;font-size:11px;color:var(--dim);border-bottom:1px solid var(--line)}
+.sheet .hint{grid-column:1/-1;padding:10px 18px;font-size:13px;line-height:1.7;color:var(--dim);border-bottom:1px solid var(--line)}
+.sheet .hk{grid-column:1/-1;margin:0;padding:12px 18px 16px;font-size:13px;line-height:1.7;border:0}
+.sheet .hk summary{cursor:pointer;font-weight:700;min-height:40px;display:flex;align-items:center}
+.sheet .hk textarea{width:100%;font-size:13px;padding:8px;background:transparent;color:inherit;border:1px solid var(--line)}
+.sheet .hk button{margin-top:8px;min-height:44px;padding:0 18px;font-weight:700;font-size:15px;background:#f2f5f8;color:#0b1a2b;border:0;cursor:pointer}
+.sheet .hk .hk-h{margin:12px 0 4px;font-weight:700}
+.sheet .hk .hk-n{margin:12px 0 0;font-size:11px;color:var(--dim)}
 
-/* 今日 */
-#todayBlock{min-height:506px}
-.exOpen #todayBlock{min-height:754px}
-.exOpen .exb{transition:none}
-.today:not(.ready){visibility:hidden}
-.tdFail[hidden],.today[hidden]{display:none}
-.tdFail{display:flex;align-items:center;min-height:506px;justify-content:center;border:1px dashed var(--line);border-radius:6px;color:var(--sub);font-size:14px}
-.today{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:16px}
-.date{display:flex;align-items:baseline;gap:10px}
-.date .d{font-size:26px;font-weight:800}
-.date .w{font-size:13px;color:var(--sub)}
-.date .c{margin-left:auto;font-size:13px;color:var(--sub)}
-.date .c b{color:var(--tx);font-size:17px}
-.venues{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 4px}
-.v{font-size:12px;padding:4px 9px;border-radius:999px;border:1px solid var(--line);color:var(--sub)}
-.v b.gr{font-size:10.5px;font-weight:800;color:var(--midoTx)}
-.v i{font-style:normal;font-size:11.5px;color:var(--dim)}
-.v i.fin{color:var(--midoTx)}
-.v.g{border-color:color-mix(in srgb,var(--mido) 55%,transparent);color:var(--tx)}
-.grade{font-size:12.5px;color:var(--sub);margin:8px 2px 0;line-height:1.7}
-.grade[hidden]{display:none}
-.grade .gh{font-size:11.5px;color:var(--dim);margin-bottom:2px}
-.grade b{color:var(--midoTx);font-weight:700;margin-right:6px}
-.grade span{color:var(--tx);margin-left:8px;white-space:nowrap}
-.grade .gi{margin:3px 0}
-.grade small{display:block;font-size:12px;color:var(--dim);line-height:1.5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.vrest{font-size:12px;color:var(--sub);margin:2px 2px 0}
-.peaks{margin:12px 0 0;padding:0;list-style:none}
-.peaks li{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid #1c2b3c;font-size:14px}
-.peaks .tm{width:44px;color:var(--sub);font-size:13px}
-.peaks .kind{font-size:11px;padding:2px 7px;border-radius:3px;background:color-mix(in srgb,var(--mido) 18%,transparent);color:var(--midoTx);white-space:nowrap}
-.peaks .go{display:none}
-.peaks a{display:flex;align-items:center;gap:10px;width:100%}
-.ctasub{font-size:12px;color:var(--dim);text-align:center;margin-top:6px}
-.extra{border-top:1px solid #1c2b3c}
-.exh{display:flex;width:100%;align-items:center;gap:8px;padding:12px 0;background:none;border:0;color:var(--sub);font-size:13px;cursor:pointer;min-height:44px}
-.exh .exar{margin-left:auto;font-size:11px;transition:transform .15s}
-.exh[aria-expanded="true"] .exar{transform:rotate(180deg)}
-.exb{display:grid;grid-template-rows:0fr;transition:grid-template-rows .15s ease}
-.exb.open{grid-template-rows:1fr}
-.exb>div{overflow:hidden}
-.exb .peaks{margin:0}
-.exb .kind.plain{background:#1d2a3a;color:var(--sub)}
-.exmore{font-size:12px;color:var(--dim);padding:6px 0 2px}
-.v i.lady{color:var(--sub)}
-.homeHint{margin:10px 0 0;text-align:center;font-size:12.5px;color:var(--sub)}
-.homeHint small{display:block;font-size:12px;color:var(--dim);margin-top:2px}
-.cta{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:12px;padding:12px;border-radius:4px;background:var(--mido);border:1px solid var(--mido);color:#111;font-size:14px;font-weight:700}
+/* 有料noteへの導線（2026-11-06 けん：有料の買い目を売っていく） */
+.prb{display:block;background:#18263a;border-bottom:1px solid rgba(233,180,90,.45)}
+.prb-in{max-width:600px;margin:0 auto;display:flex;align-items:center;gap:8px;min-height:44px;padding:0 16px}
+.prb small{font-size:11px;color:#0b1726;background:var(--gold);padding:1px 5px;font-weight:700}
+.prb b{font-size:15px;color:var(--gold);font-weight:800;white-space:nowrap}
+.prb span{font-size:13px;color:#d6e0ea;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.prb i{margin-left:auto;font-style:normal;font-size:18px;color:var(--gold)}
+.an.pri{border:1px solid var(--gold);background:#1a2638;padding:14px}
+.an.pri b{font-size:18px;color:var(--gold)}
+.an.pri span{color:#d6e0ea}
+.an.pri em{margin-top:6px;align-self:flex-start;font-style:normal;font-size:13px;font-weight:700;color:#0b1726;background:var(--gold);padding:6px 12px}
+.ntl{display:flex;align-items:center;gap:8px;min-height:44px;margin-top:8px;padding:0 12px;border:1px solid rgba(233,180,90,.45);font-size:13px;font-weight:700;color:var(--gold)}
+.ntl i{margin-left:auto;font-style:normal;font-size:18px}
 
-/* 答え合わせ */
-.tb{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:16px}
-.tbh{display:flex;align-items:center;gap:8px}
-.pill{font-size:12px;color:var(--sub)}
-.upd{margin-left:auto;font-size:12px;color:var(--dim)}
-.day{margin:10px 0 6px;padding:12px;border-radius:4px;background:#0d1b2e;border:1px solid #1f3656}
-.day[hidden]{display:none}
-.dayh{font-size:13px;color:var(--sub);display:flex;align-items:baseline;gap:6px}
-.dayh b{color:var(--tx);font-size:16px}
-.dayh>span{margin-left:auto;font-size:12px;color:var(--dim)}
-.dayr{display:flex;justify-content:space-between;font-size:13.5px;padding:6px 0 0}
-.dayr b{color:var(--tx)}
-.dv{font-weight:700}
-.dv.are{color:var(--are)}.dv.kata{color:var(--kata)}
-.dayn{font-size:12px;color:var(--dim);margin-top:8px;line-height:1.6}
-.tbt{font-size:15px;font-weight:700;margin:12px 0 4px}
-.row{padding:12px 0 4px}
-.row+.row{border-top:1px solid #1c2b3c}
-.rl{font-size:13px;color:var(--sub)}
-.rl b{color:var(--tx);font-weight:600}
-.rv{display:flex;align-items:baseline;gap:10px;margin-top:2px}
-.big{font-size:30px;font-weight:800;border-bottom:2px dotted currentColor;cursor:pointer;line-height:1.15}
-.big small{font-size:18px;font-weight:700}
-.are .big{color:var(--are)} .kata .big{color:var(--kata)}
-.usual{font-size:13px;color:var(--sub)}
-.usual b{color:var(--tx);font-weight:600}
-.bars{margin:8px 0 2px;display:grid;gap:4px}
-.bar{height:6px;border-radius:3px;background:#1b2838;position:relative;overflow:hidden}
-.bar i{position:absolute;left:0;top:0;bottom:0;border-radius:3px}
-.are .bar.me i{background:var(--are)} .kata .bar.me i{background:var(--kata)}
-.bar.base i{background:var(--base)}
-.bl{display:flex;justify-content:space-between;font-size:12px;color:var(--dim)}
-.per100{font-size:12px;color:var(--dim);margin-top:4px}
-.note{font-size:12px;color:var(--dim);margin-top:10px}
-.foot{font-size:12px;color:var(--dim);margin-top:6px}
-.more{display:block;width:100%;margin-top:12px;padding:10px;border-radius:4px;border:1px solid var(--line);background:none;color:var(--sub);font-size:13px;cursor:pointer}
-.panel{display:grid;grid-template-rows:0fr;transition:grid-template-rows .15s ease}
-.panel.open{grid-template-rows:1fr}
-.panel>div{overflow:hidden}
-.pb{margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-size:12.5px;color:var(--sub);line-height:1.75}
-.pb h3{font-size:13px;color:var(--tx);margin:12px 0 4px}
-.pb h3:first-child{margin-top:0}
-.pb p{margin:0 0 6px}
-.pb table{width:100%;border-collapse:collapse;font-size:12px;margin:4px 0}
-.pb th,.pb td{border-top:1px solid #1c2b3c;padding:6px 4px;text-align:left;vertical-align:top}
-.pb th{color:var(--dim);font-weight:500}
-.pb tr th:first-child{white-space:nowrap;width:4.5em}
-.pb td b{color:var(--tx)}
-.pb .lnk{color:var(--accent)}
-.home{margin-top:10px;padding:10px;border-radius:4px;background:#0f1a27;font-size:12.5px}
-.age{font-size:12px;color:var(--dim);margin-top:8px}
-@media (prefers-reduced-motion:reduce){.panel{transition:none}}
-
-/* ナビ：ページごとの色を左の帯とアイコンの下地に */
-.mains{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.mc{display:flex;align-items:center;gap:10px;padding:12px 10px;border-radius:4px;background:var(--card);border:1px solid var(--line);box-shadow:inset 0 3px 0 var(--c)}
-.mi{width:40px;height:40px;flex:none;border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:"Dela Gothic One",-apple-system,sans-serif;font-size:19px;color:var(--tx);background:color-mix(in srgb,var(--c) 18%,transparent)}
-.mt{font-size:14.5px;font-weight:700;line-height:1.3}
-.mt small{display:block;font-size:11px;color:var(--sub);font-weight:400;margin-top:2px}
-.nav{display:grid;grid-template-columns:repeat(5,1fr);gap:12px 4px;margin-top:16px}
-.ni{display:flex;flex-direction:column;align-items:center;gap:5px;font-size:11px;color:var(--sub)}
-.ni.ext em{font-style:normal;font-size:10.5px;color:var(--dim);margin-top:-4px}
-.ic{width:44px;height:44px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:"Dela Gothic One",-apple-system,sans-serif;font-size:17px;color:var(--tx);background:color-mix(in srgb,var(--c) 16%,transparent);border:1px solid color-mix(in srgb,var(--c) 40%,transparent)}
-
-.ft{text-align:center;margin-top:34px;font-size:12px;color:var(--dim);line-height:1.8}
-.ft b{color:var(--sub);font-weight:600}
-
-.byline{position:absolute;top:10px;right:12px;font-size:10px;color:#8a94a3;letter-spacing:.3px;pointer-events:none}
-body{position:relative}
-.ni{position:relative}
-.qn-sign{position:absolute;top:-3px;right:2px;display:flex;align-items:center;gap:3px;height:10px;pointer-events:none}
-.qn-sign[hidden]{display:none}
-.qn-sign .qn-dot{width:6px;height:6px;border-radius:50%;background:#ff6b5e;flex:none}
-.qn-sign .qn-date{font-size:9px;line-height:1;color:var(--tx);font-variant-numeric:tabular-nums;white-space:nowrap}
-.qn-new{position:absolute;top:-4px;right:4px;font-size:8px;line-height:1;letter-spacing:.05em;color:#0b1219;background:#ffd166;border-radius:3px;padding:2px 3px;pointer-events:none}
-.qn-new[hidden]{display:none}
-.big[role=button]:focus-visible,.more:focus-visible,.exh:focus-visible,a:focus-visible{outline:2px solid #3a5675;outline-offset:2px;border-radius:6px}
-.ft a{color:#9aa4b3;text-decoration:underline}
-</style>
-<script>try{if(localStorage.getItem("tdExtraOpen")==="1")document.documentElement.classList.add("exOpen");}catch(e){}</script>
-<!-- kata6:head -->
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&amp;family=Dela+Gothic+One&amp;display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/kata/kata.css?v=c853c8e7">
-<link rel="stylesheet" href="assets/kata/top.css?v=2e454bc0">
-<link rel="stylesheet" href="assets/ugoki.css?v=a0c08edf">
-<style>html{background:linear-gradient(180deg,#1b3a5e 0,#132b46 360px,#0d1c2f 900px,#0a1422 1500px) #0a1422 !important;background-repeat:no-repeat !important}</style>
-<script>window.KATA_GRAD=1</script>
-<style>*,*::before,*::after{border-radius:0 !important}</style>
-<!-- /kata6:head -->
-<style>.koki{margin:14px auto 0;max-width:340px;padding:9px 4px;border-top:1px solid rgba(201,168,92,.4);border-bottom:1px solid rgba(201,168,92,.4);font-size:13.5px;line-height:1.75;color:#d6e0ea;font-weight:500}.koki span{display:block;text-align:right;font-size:11.5px;color:#8ea3b8;margin-top:2px;font-weight:400}.koki b{color:#f2b155;font-weight:800}</style>
-<style>.yosouBtn{display:flex;flex-direction:column;align-items:center;gap:2px;max-width:340px;margin:12px auto 0;padding:10px 14px;border:1px solid rgba(242,177,85,.65);background:rgba(242,177,85,.08);color:var(--tx);text-decoration:none}.yosouBtn small{font-size:11px;color:#8ea3b8;letter-spacing:.06em}.yosouBtn b{font-size:17px;color:#f2b155;font-weight:700;letter-spacing:.04em}.yosouBtn span{font-size:11.5px;line-height:1.6;color:#c9d6e3}.ebBtn{text-align:center}.ebBtn b{font-size:15px;line-height:1.5}</style>
-<style>
-.srow.full .tx{flex-basis:calc(100% - 80px)}
-.srow .uthumb{margin:2px 0 0 auto}
-.uthumb{flex:none;width:64px;height:64px;padding:0;border:1px solid rgba(242,177,85,.55);background:#0b1219 center/cover no-repeat;cursor:zoom-in}
-.ubox{position:fixed;inset:0;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:rgba(5,10,16,.92);padding:16px;cursor:zoom-out}
-.ubox[hidden]{display:none}
-.ubox img{max-width:100%;max-height:82vh;border:1px solid rgba(255,255,255,.2)}
-.ubox p{margin:0;font-size:12px;color:#8ea3b8}
+.prb.p2{background:#152235}
+.prb + .prb{border-top:0}
+.an.pri.yt b{font-size:15px}
 </style>
 </head>
 <body>
-<div class="ubox" id="ubox" hidden role="dialog" aria-label="更新の画面"><img id="uboxImg" alt=""><p>タップで閉じる</p></div>
-<div class="byline">by 阿部</div>
+<header class="bar"><div class="bar-in">
+  <a class="brand" href="./" aria-label="データ攻め トップ">
+    <svg viewBox="96 539 1873 1102" aria-hidden="true"><path fill="#e9b45a" fill-rule="evenodd" d="M 836 541 C 827 542, 810 543, 798 544 C 662 551, 505 607, 381 693 C 346 717, 276 775, 258 795 C 177 884, 131 966, 115 1050 C 96 1150, 129 1250, 207 1328 C 230 1351, 239 1357, 255 1363 C 260 1364, 276 1370, 292 1376 C 344 1395, 368 1401, 416 1406 C 459 1412, 463 1411, 467 1403 C 471 1396, 469 1393, 457 1381 C 414 1340, 379 1275, 371 1223 C 365 1187, 366 1117, 373 1084 C 381 1042, 407 978, 429 941 C 464 883, 512 824, 554 788 C 619 733, 683 693, 775 651 C 826 628, 883 612, 974 597 C 1027 588, 1031 587, 1035 583 C 1041 577, 1039 568, 1032 564 C 1021 557, 974 547, 938 545 C 928 544, 910 542, 900 541 C 878 539, 859 539, 836 541 M 1306 815 C 1221 826, 1174 916, 1216 989 C 1221 996, 1221 999, 1222 1005 C 1223 1014, 1222 1013, 1258 1043 C 1294 1073, 1298 1075, 1308 1074 C 1314 1074, 1380 1063, 1398 1059 C 1411 1056, 1415 1042, 1405 1035 C 1404 1034, 1384 1024, 1362 1012 C 1339 1000, 1319 989, 1318 987 C 1312 982, 1313 979, 1323 960 C 1340 927, 1342 924, 1350 925 C 1352 926, 1369 935, 1389 945 C 1428 966, 1432 967, 1439 964 C 1455 955, 1448 904, 1426 871 C 1401 833, 1350 809, 1306 815 M 1062 906 C 1036 907, 998 916, 970 927 C 916 949, 878 975, 832 1020 C 807 1045, 791 1067, 770 1099 C 757 1121, 737 1159, 736 1166 C 734 1174, 740 1181, 748 1181 C 752 1181, 839 1164, 878 1155 C 892 1152, 918 1146, 934 1143 C 965 1137, 973 1135, 1048 1122 C 1072 1118, 1104 1112, 1119 1109 C 1134 1106, 1159 1102, 1175 1099 C 1207 1094, 1211 1093, 1214 1088 C 1220 1079, 1217 1074, 1198 1058 C 1178 1042, 1171 1032, 1169 1016 C 1167 1007, 1166 1002, 1161 987 C 1154 969, 1152 957, 1151 938 C 1151 923, 1150 921, 1148 918 C 1141 909, 1106 904, 1062 906 M 1898 1068 C 1892 1068, 1879 1069, 1870 1070 C 1861 1071, 1846 1072, 1836 1073 C 1826 1074, 1809 1076, 1797 1077 C 1719 1084, 1472 1120, 1365 1140 C 1350 1143, 1320 1148, 1298 1152 C 1276 1156, 1250 1161, 1240 1162 C 1231 1164, 1206 1169, 1186 1172 C 1167 1175, 1139 1180, 1124 1183 C 1109 1186, 1077 1192, 1052 1196 C 959 1213, 954 1214, 908 1224 C 893 1227, 853 1236, 819 1243 C 692 1268, 542 1304, 523 1314 C 496 1328, 504 1349, 539 1359 C 570 1368, 583 1369, 678 1370 C 763 1370, 777 1370, 812 1366 C 821 1365, 837 1364, 846 1363 C 856 1362, 865 1362, 868 1361 C 917 1355, 959 1351, 977 1349 C 989 1348, 1006 1346, 1016 1345 C 1026 1344, 1042 1343, 1052 1342 C 1061 1341, 1078 1340, 1089 1339 C 1133 1335, 1247 1334, 1282 1337 C 1289 1338, 1309 1340, 1325 1341 C 1390 1347, 1464 1363, 1534 1385 C 1579 1399, 1588 1401, 1603 1397 C 1621 1393, 1626 1389, 1681 1342 C 1707 1320, 1819 1227, 1850 1201 C 1912 1151, 1949 1120, 1956 1112 C 1969 1096, 1969 1083, 1955 1072 C 1947 1066, 1928 1064, 1898 1068 M 540 1151 C 531 1154, 517 1167, 515 1175 C 515 1177, 513 1203, 511 1232 C 508 1282, 508 1284, 510 1287 C 513 1295, 521 1297, 534 1293 C 537 1292, 559 1286, 581 1281 C 624 1270, 626 1269, 629 1263 C 632 1258, 632 1259, 623 1208 C 614 1159, 614 1156, 608 1152 C 604 1150, 547 1149, 540 1151 M 1132 1401 C 1073 1404, 968 1424, 902 1445 C 867 1455, 733 1493, 714 1498 C 676 1508, 630 1515, 596 1518 C 586 1519, 567 1521, 554 1523 C 525 1526, 464 1527, 442 1524 C 346 1513, 307 1504, 238 1479 C 195 1464, 192 1463, 185 1467 C 182 1469, 179 1474, 179 1478 C 179 1493, 239 1539, 297 1568 C 364 1602, 413 1616, 498 1626 C 617 1640, 734 1621, 898 1560 C 1002 1521, 1080 1498, 1142 1487 C 1199 1477, 1221 1476, 1306 1476 C 1382 1477, 1401 1478, 1461 1489 C 1486 1494, 1491 1493, 1495 1485 C 1501 1473, 1491 1466, 1445 1448 C 1389 1426, 1341 1414, 1269 1405 C 1239 1400, 1167 1398, 1132 1401"/></svg>
+    <span class="wm"><b>データ攻め</b><i>DATA ZEME</i></span>
+  </a>
+  <span class="sp"></span>
+  <a class="sr" href="./players/" aria-label="選手を探す"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5l5 5"/></svg></a>
+</div><div class="waku" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div></header>
+<div class="cap"><div class="cap-in"><span class="dt" id="capD"></span><span class="tg">材料はそろえた。決めるのは、あなた。</span></div></div>
+<a class="prb" href="https://line.me/ti/g2/cWBd6B5LrMYi-egDxWT_oTWxRbdU3xuC9H0QVA?" target="_blank" rel="noopener"><span class="prb-in"><small>11/9 21時</small><b>電子書籍を動画で配信</b><span>全3話・専用オプチャで受け取る</span><i aria-hidden="true">›</i></span></a>
+<a class="prb p2" href="https://abeken1026395.github.io/pallas-mercato-7k9/in/yosou/" target="_blank" rel="noopener"><span class="prb-in"><small>LINE</small><b>AI予想部屋</b><span>買い目noteの更新と結果が届く</span><i aria-hidden="true">›</i></span></a>
+
 <div class="wrap">
-
-<header class="hd">
-  <h1 class="logo">データ攻め</h1>
-  <div class="ugBand" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
-  <p class="catch">今日も、読んでから。</p>
-  <p class="promise">材料はそろえた。決めるのは、あなた。<small>買い目・予想は出さず、毎朝の開催前に数字だけ更新</small></p>
-  <p class="koki">材料集めに終わりはない。次の仕込みも進めてます。<br><b>11月末、YouTube復活。</b>乞うご期待。<span>阿部より</span></p>
-  <a class="yosouBtn" href="https://abeken1026395.github.io/pallas-mercato-7k9/in/yosou/" target="_blank" rel="noopener"><small>LINE オープンチャット</small><b>AI予想部屋</b><span>データ攻めとは別に、AIが出した予想（note）の更新と、当たったレースの結果が届く部屋です</span></a>
-  <a class="yosouBtn ebBtn" href="https://line.me/ti/g2/cWBd6B5LrMYi-egDxWT_oTWxRbdU3xuC9H0QVA?" target="_blank" rel="noopener"><small>オープンチャット｜期間限定</small><b>幻になったあべけん電子書籍、全3話を動画で配信決定！</b><span>第1話は11/9（月）21時公開<br>情報受け取りはココをクリックして<br>専用オプチャに参加してください！<br>【書籍制作の裏側も毎日公開中！】</span></a>
-  <a class="guide" href="./torisetsu/">はじめての方へ　<b>トリセツ</b>（使い方）</a>
-</header>
-
-<nav class="quick" aria-label="よく使うページ">
-  <a style="--c:#58a6ff" href="./racers/"><span>出</span>出走表</a>
-  <a style="--c:#f2c200" href="./highlights/"><span>見</span>見どころ</a>
-  <a style="--c:#e05b4b" href="./results/"><span>結</span>結果</a>
-  <a style="--c:#3fb1c9" href="./motor/"><span>モ</span>モーター</a>
-  <a style="--c:#cdd6e0" href="./players/"><span>選</span>選手</a>
-  <a style="--c:#7fd4a8" href="./stadium/"><span>場</span>24場</a>
-</nav>
-
-<section class="news" id="news" aria-label="最近の更新">
-  <div class="news-h"><p>最近、新しくなったこと</p><a href="./updates/">すべて見る</a></div>
-  <div id="newsRows"></div>
-</section>
-
 <section class="fol" id="fol" hidden aria-label="フォロー中の今日">
-  <div class="fol-h"><p>フォロー中の今日</p><a href="./racers/">出走表へ</a></div>
-  <div id="folRows"></div>
+  <h2 class="sh" style="margin-top:18px">フォロー中の今日<a href="./racers/">出走表へ</a></h2>
+  <div class="fol-box" id="folRows"></div>
 </section>
-<style>
-.fol{margin:18px 0 0;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:8px 12px 4px}
-.fol[hidden]{display:none}
-.fol-h{display:flex;justify-content:space-between;align-items:baseline;margin:0 0 2px}
-.fol-h[hidden]{display:none}
-.fol-h p{margin:0;font-size:13px;font-weight:800;color:var(--tx)}
-.fol-h a{font-size:12px;color:var(--accent);padding:6px 0 6px 12px}
-.fol-r{display:flex;align-items:center;gap:10px;min-height:44px;border-top:1px solid color-mix(in srgb,var(--line) 70%,transparent);color:inherit;text-decoration:none}
-.fol-h+div .fol-r:first-child{border-top:0}
-.fol-k{flex:none;width:52px;font-size:11px;color:var(--sub);text-align:center;border:1px solid var(--line);border-radius:3px;padding:2px 0}
-.fol-n{flex:none;max-width:9em;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.fol-v{flex:1;min-width:0;font-size:12.5px;color:var(--sub);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.fol-v b{color:var(--tx);font-weight:700}
-a.fol-r .fol-v::after{content:" ›";color:var(--dim)}
-.fol-tip{display:flex;align-items:center;gap:8px;min-height:44px;font-size:12.5px;color:var(--sub)}
-.fol-tip a{color:var(--accent)}
-.fol-x{margin-left:auto;flex:none;width:44px;height:44px;background:none;border:0;color:var(--dim);font-size:18px;cursor:pointer}
-</style>
+  <section class="hl" id="hl" hidden>
+    <h2 class="hl-h">今日の注目<span>グレード戦と優勝戦</span></h2>
+    <div class="hl-r" id="hlR"></div>
+  </section>
+
+  <h2 class="sh" style="margin-top:14px">お知らせ</h2>
+<section class="ann" aria-label="お知らせ">
+  <a class="an pri" href="https://line.me/ti/g2/cWBd6B5LrMYi-egDxWT_oTWxRbdU3xuC9H0QVA?" target="_blank" rel="noopener"><small>専用オープンチャット｜第1話 11/9（月）21時</small><b>電子書籍を動画で配信（全3話）</b><span>書籍づくりの裏側も毎日お届けしています</span><em>オプチャで受け取る ›</em></a>
+  <a class="an pri" href="https://abeken1026395.github.io/pallas-mercato-7k9/in/yosou/" target="_blank" rel="noopener"><small>LINE オープンチャット</small><b>AI予想部屋</b><span>AIが出した買い目（有料note）の更新と、当たったレースの結果が届きます</span><em>LINEで受け取る ›</em></a>
+  <div class="an pri yt"><small>阿部より</small><b>YouTubeは11月末に再開します</b></div>
+  <a class="an upd" id="updL" href="./updates/" hidden><small id="updD">更新</small><span id="updT"></span></a>
+</section>
+  <div class="seg" role="tablist">
+    <button class="on" id="sgA" role="tab"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7"/><rect x="13.5" y="3.5" width="7" height="7"/><rect x="3.5" y="13.5" width="7" height="7"/><rect x="13.5" y="13.5" width="7" height="7"/></svg>開催一覧</button>
+    <button id="sgB" role="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="7.5"/><path d="M12 9v4l2.5 2M9.5 3h5"/></svg>締切順</button>
+  </div>
+  <div class="sub"><span id="sbL"></span><span>タップで出走表へ</span></div>
+  <div class="grid" id="grid"></div>
+  <p class="offl" id="offL" hidden></p>
+  <div class="list" id="list"></div>
+  <div class="lg" id="lg">
+    <span><i></i>発売中</span>
+    <span><svg class="ic nt" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>ナイター</span>
+    <span><svg class="ic mn" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg>モーニング</span>
+    <span><span class="gr lf">女子</span>女子戦</span>
+  </div>
+  <a class="fail" id="fail" href="./racers/" hidden>今日の開催は出走表で確認できます</a>
+
+<h2 class="sh chh" id="chHead" hidden><span id="chH2" style="font-size:15px;font-weight:800;color:var(--tx);letter-spacing:.06em">場の朝刊</span><span id="chSub"></span></h2>
+<div class="ch" id="chBox" hidden>
+  <div class="ch-rail" id="chRail" role="list"></div>
+  <p class="ch-note">前日までの確定データで書いた、場ごとの読みものです。予想・買い目は扱いません。</p>
+</div>
+<h2 class="sh">朝の見立ての答え合わせ<span class="num" id="tbUpd"></span></h2>
+<section class="ans" aria-label="朝の見立ての答え合わせ">
+  <div class="ans-g">
+    <div class="ans-c are"><span class="k">朝「荒れる」と見た <b class="num" id="nHarai">—</b> レース</span><b class="v num" id="v-harai">—</b><span class="u">が荒れた／いつもは <b class="num" id="bHarai">—</b></span>
+      <div class="bars" aria-hidden="true"><div class="bar me"><i id="barHarai" style="width:0"></i></div><div class="bar base"><i id="barHaraiB" style="width:0"></i></div></div></div>
+    <div class="ans-c kata"><span class="k">朝「堅め」と見た <b class="num" id="nKata">—</b> レース</span><b class="v num" id="v-kata">—</b><span class="u">が堅く決着／いつもは <b class="num" id="bKata">—</b></span>
+      <div class="bars" aria-hidden="true"><div class="bar me"><i id="barKata" style="width:0"></i></div><div class="bar base"><i id="barKataB" style="width:0"></i></div></div></div>
+  </div>
+  <p class="ans-f num">棒は上が見立て、下がいつも（全レース）。毎朝の見立てを夜に答え合わせ ─ <span id="v-total">—</span>レース<span id="v-asof"></span>。有料noteとは仕組みも集計も別です。</p>
+  <a class="ntl" href="https://note.com/abeken2000" target="_blank" rel="noopener">買い目は有料noteで（この答え合わせとは別の仕組み）<i aria-hidden="true">›</i></a>
+  <details class="ans-d"><summary>前日の結果と、数え方</summary><div class="ans-b">
+    <div class="day" id="dayBox"><b class="num" id="dDate">—</b> の答え合わせ（<span class="num" id="dN">—</span>レース）<br>「荒れる」と見た <b class="num" id="dHn">—</b> 本のうち <b class="num" id="dHh">—</b> 本が荒れた／「堅め」と見た <b class="num" id="dKn">—</b> 本のうち <b class="num" id="dKh">—</b> 本が堅く決着<br><span id="dNote"></span></div>
+    <h3>荒れる ＝ 3連単の払戻 5,000円以上</h3>
+    <p>朝に「荒れる」と分類した <b class="num" id="pNHarai">—</b> レースのうち、荒れたのは <span id="pHarai">—</span>。全 <span id="pAll">—</span> レースでは <span id="pBase">—</span>。「荒れる」と見なかった <span id="pNOther">—</span> レースだけなら <span id="pOther">—</span>。</p>
+    <p>荒れやすさを伝える見立てです。「荒れる」と見たレースの約3分の2は荒れていません。それも全部数えています。</p>
+    <h3>堅め ＝ 3連単の払戻 5,000円未満</h3>
+    <p>対象 <b class="num" id="pNKata">—</b> レース。全レースでは <span id="pBaseK">—</span>。「混戦」と見た <span id="pNKonsen">—</span> レースは、どちらとも言っていないので入りません。</p>
+    <h3>モデル</h3>
+    <p>現行モデル：2026/9/30から。2026/7/7以降の判定は、そのレースの結果が出る前に保存したもので、結果が出たあとは直していません。モデルを変えたときは更新履歴に書きます。波乱・堅めと判定したレースは、外れも除かずに全部を分母に入れています。</p>
+    <h3>このサイトと有料noteの違い</h3>
+    <table>
+      <tr><th></th><th>このサイト（無料）</th><th>有料note</th></tr>
+      <tr><th>出すもの</th><td>レースの分類と数字</td><td>買い目</td></tr>
+      <tr><th>仕組み</th><td>公開データを決まった計算式で毎朝分類。人の手で直さない</td><td>買い目を作るための別の仕組み</td></tr>
+      <tr><th>この数字</th><td><b>分類の答え合わせ</b></td><td>含まない</td></tr>
+    </table>
+    <p>仕組みが別なので、上の答え合わせの数字は有料noteには当てはまりません。<a href="https://note.com/abeken2000" target="_blank" rel="noopener">有料noteについて</a></p>
+  </div></details>
+</section>
+<h2 class="sh">読みもの<span>最新の検証</span><a href="./kensho/">一覧へ</a></h2>
+<a class="kn" id="knCard" href="./kensho/">
+  <span class="kn-no" id="knNo">検証</span>
+  <span class="kn-t" id="knT">最新の検証を読む</span>
+  <span class="kn-d" id="knD"></span>
+</a>
+<footer class="ft">
+  舟券の購入は20歳になってから。<br>
+  無理のない範囲で楽しみましょう。<br>
+  ボートレース公式とは関係のない、個人のサイトです。<br>
+  データは公式サイトなどの公開情報をもとに集計しています。<br>
+  © 2026 データ攻め ── 制作・運営 阿部
+</footer>
+</div>
+
+<div class="sheet" id="sheet" hidden><div class="sheet-in">
+  <a href="./motor/">モーター</a>
+  <a href="./players/">選手</a>
+  <a href="./stadium/">24場</a>
+  <a href="./kensho/">検証</a>
+  <a href="./updates/">更新履歴</a>
+  <a href="./torisetsu/">使い方</a>
+  <div class="sh2">ほかのページ</div>
+  <a href="./payouts/">万舟のツボ</a>
+  <a href="./motor-maintenance/">整備</a>
+  <a href="./players/card.html">選手カード</a>
+  <a href="./note/">観戦ノート</a>
+  <a href="./ichimark/">1マーク</a>
+  <a href="./glossary/">用語辞典</a>
+  <a href="./fan/">場の文化</a>
+  <a href="./announcers/">実況アナ</a>
+  <a href="./uranai/">占い</a>
+  <a href="https://note.com/abeken2000" target="_blank" rel="noopener">有料note（外部）</a>
+  <div class="hint">ホーム画面に置くと、朝いちばんに開けます。iPhone：Safari の共有ボタンから「ホーム画面に追加」。Android：Chrome の右上「︙」から「ホーム画面に追加」。</div>
+  <details class="hk" id="hikitsugi">
+  <summary>フォローの控え（引き継ぎ・機種変更）</summary>
+  <p>☆推し・📍場・気になるレース・選手メモは、この端末の中にだけ保存されています。アイコンを消したり機種を変えたりすると消えるので、控えのコードを LINE の Keep やメモに残しておくと戻せます。</p>
+  <p class="hk-h">控えを取る</p>
+  <button type="button" id="hk-out">控えのコードを出す</button>
+  <textarea id="hk-outcode" rows="3" readonly aria-label="控えのコード" hidden></textarea>
+  <p id="hk-outmsg" role="status"></p>
+  <p class="hk-h">控えから戻す</p>
+  <textarea id="hk-code" rows="3" placeholder="DZ1. から始まるコードを貼る" aria-label="控えのコード（貼る）"></textarea>
+  <button type="button" id="hk-go">戻す</button>
+  <p id="hk-msg" role="status"></p>
+  <p class="hk-n">前の住所（github.io）のフォローは、前と同じ開き方（同じブラウザ、またはホーム画面の同じアイコン）で前の住所を開くと、「おかえりなさい」の下にコードが出ます。それをここに貼ってください。</p>
+</details>
+</div></div>
+<nav class="tb" aria-label="ページ"><div class="tb-in">
+  <a class="on" href="./"><svg viewBox="0 0 24 24"><path d="M3.5 11L12 4l8.5 7"/><path d="M6 9.5V20h12V9.5"/></svg>トップ</a>
+  <a href="./racers/"><svg viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="16"/><path d="M3.5 9.3h17M3.5 14.6h17M8 4v16"/></svg>出走表</a>
+  <a href="./highlights/"><svg viewBox="0 0 24 24"><path d="M5 21V3.5"/><path d="M5 4.5c3-1.6 5.5 1.6 8.5 0s4.5-.6 5.5 0v7.5c-1-.6-2.5-1.6-5.5 0S8 10.4 5 12"/></svg>見どころ</a>
+  <a href="./results/"><svg viewBox="0 0 24 24"><path d="M5 21V3.5"/><rect x="5" y="4" width="14" height="9"/><path d="M5 7h14M5 10h14M8.5 4v9M12 4v9M15.5 4v9"/></svg>結果</a>
+  <button id="moreBtn" aria-expanded="false" aria-controls="sheet"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>その他</button>
+</div></nav>
+
+<script>
+(function(){
+  var V=[["01","桐生"],["02","戸田"],["03","江戸川"],["04","平和島"],["05","多摩川"],["06","浜名湖"],["07","蒲郡"],["08","常滑"],["09","津"],["10","三国"],["11","びわこ"],["12","住之江"],["13","尼崎"],["14","鳴門"],["15","丸亀"],["16","児島"],["17","宮島"],["18","徳山"],["19","下関"],["20","若松"],["21","芦屋"],["22","福岡"],["23","唐津"],["24","大村"]];
+  var VN={}; V.forEach(function(v){VN[v[0]]=v[1];});
+  var IC={
+    nt:'<svg class="ic nt" viewBox="0 0 24 24" aria-label="ナイター"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>',
+    mn:'<svg class="ic mn" viewBox="0 0 24 24" aria-label="モーニング"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg>',
+    lf:'<svg class="ic lf" viewBox="0 0 24 24" aria-label="女子戦"><path d="M12 20s-7.5-4.6-7.5-10A4.2 4.2 0 0 1 12 7.6 4.2 4.2 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/></svg>'
+  };
+  /* 格の札：公式の月間スケジュールの区分。オールレディース・マスターズリーグ・企業杯は公式の格付けどおりG3 */
+  var G3={"G3":1,"オールレディース":1,"マスターズリーグ":1,"企業杯":1};
+  function grLabel(k){k=String(k||"");if(G3[k])return "G3";if(k==="SG"||k==="G1"||k==="G2"||k==="PG1")return k;return "一般";}
+  function grCls(g){return g==="SG"?"sg":g==="G1"||g==="PG1"?"g1":g==="G2"?"g2":g==="G3"?"g3":"";}
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  /* 全角の英数字を半角に（公式の表記「第５４回」「３日目」をそろえる） */
+  function han(s){return String(s||"").replace(/[０-９Ａ-Ｚａ-ｚ]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-0xFEE0);});}
+  function jst(){return new Date(Date.now()+9*3600000);}
+  function nowHM(){var d=jst();return ("0"+d.getUTCHours()).slice(-2)+":"+("0"+d.getUTCMinutes()).slice(-2);}
+  function ymd(){var d=jst();return d.getUTCFullYear()+("0"+(d.getUTCMonth()+1)).slice(-2)+("0"+d.getUTCDate()).slice(-2);}
+  (function(){var d=jst();document.getElementById("capD").textContent=(d.getUTCMonth()+1)+"月"+d.getUTCDate()+"日（"+"日月火水木金土".charAt(d.getUTCDay())+"）";})();
+  var D=null, GS=null, HL=null, HL_ST="idle", mode="grid", showAll=false;
+  /* 1号艇のイン1着率と走数（highlights.json の艇の inWinRate・inN をそのまま。分母が無いものは出さない） */
+  function inLine(j,r){
+    var x=(D&&D["レース"]||[]).filter(function(t){return t["場コード"]===j&&parseInt(t["レース"])===r;})[0];
+    var b=x&&x["1号艇"]; if(!b||b.inWinRate==null||!b.inN) return "";
+    return '1号艇 <b>'+esc(b["氏名"])+'</b>　イン1着 <b class="num">'+Number(b.inWinRate).toFixed(1)+'%</b>（'+b.inN+'走）';
+  }
+  function ensureHL(){ /* 1号艇の数字は todayTop.json に入ったので、highlights.json は読まない（2026-11-06） */ }
+  function render(){
+    var d=D, by={}, n=0, hm=nowHM(), isToday=String(d["開催日"])===ymd();
+    var gs=(GS&&GS.days&&GS.days[String(d["開催日"])])||{}, kaku=d["格"]||{}, lady=d["レディース"]||[];
+    (d["レース"]||[]).forEach(function(r){(by[r["場コード"]]=by[r["場コード"]]||[]).push(r);n++;});
+    var held=0, live=0, all=[], hlc=[], offs=[];
+    document.getElementById("grid").innerHTML=V.map(function(v){
+      var rs=by[v[0]]; if(!rs||!rs.length){ offs.push(v[1]); return ''; }
+      held++; rs.sort(function(a,b){return parseInt(a["レース"])-parseInt(b["レース"]);});
+      var first=rs[0]["締切時刻"]||"", last=rs[rs.length-1]["締切時刻"]||"";
+      var nx=null; if(isToday){for(var i=0;i<rs.length;i++){if((rs[i]["締切時刻"]||"")>hm){nx=rs[i];break;}}} else nx=rs[0];
+      if(nx) live++;
+      var g=gs[v[0]]?grLabel(gs[v[0]]["区分"]):(kaku[v[0]]||"一般");
+      var isLady=lady.indexOf(v[0])>=0||!!(gs[v[0]]&&gs[v[0]]["レディース"]);
+      var ics=(last>="19:00"?IC.nt:"")+(first&&first<"09:30"?IC.mn:"");
+      rs.forEach(function(r){all.push({t:r["締切時刻"]||"",j:v[0],r:parseInt(r["レース"]),k:r["企画名"]||""});});
+      var fin=rs.filter(function(r){return /優勝戦/.test(r["企画名"]||"");})[0];
+      if(g!=="一般"||fin) hlc.push({j:v[0],g:g,dy:han(rs[0]["日目"]),fin:fin,last:rs[rs.length-1],lady:isLady});
+      var foot=nx?'<div class="ft num"><b>'+parseInt(nx["レース"])+'R</b>'+esc(nx["締切時刻"])+'</div>':'<div class="ft end">発売終了</div>';
+      return '<a class="c'+(nx&&isToday?' live':'')+(nx?'':' done')+'" href="./racers/#v'+v[0]+'">'
+        +'<span class="vn">'+v[1]+'<span class="ics">'+ics+'</span></span>'
+        +'<span class="md"><span class="gr '+grCls(g)+'">'+esc(g)+'</span>'+(isLady?'<span class="gr lf">女子</span>':'')+'<span class="dy">'+esc(han(rs[0]["日目"]))+'</span></span>'+foot+'</a>';
+    }).join("");
+    var ol=document.getElementById("offL"); if(ol){ ol.textContent=offs.length?("休み："+offs.join("・")):""; ol.hidden=!offs.length; }
+    var hd=String(d["開催日"]||"");
+    document.getElementById("sbL").innerHTML='<b class="num">'+held+'</b>場で開催・<span class="num">'+n+'</span>レース';
+    if(hd.length===8){var cd=new Date(Date.UTC(+hd.slice(0,4),+hd.slice(4,6)-1,+hd.slice(6,8)));document.getElementById("capD").textContent=(+hd.slice(4,6))+"月"+(+hd.slice(6,8))+"日（"+"日月火水木金土".charAt(cd.getUTCDay())+"）";}
+    /* 締切順：これからのレースを先に。終わったレースは「終わったレースも見る」で出す */
+    all.sort(function(a,b){return a.t<b.t?-1:a.t>b.t?1:0;});
+    var up=isToday?all.filter(function(x){return x.t>hm;}):all, past=isToday?all.filter(function(x){return x.t<=hm;}):[];
+    var rows=(showAll?past.concat(up):up).map(function(x){
+      return '<a class="row'+(isToday&&x.t<=hm?' past':'')+'" href="./racers/#v'+x.j+'"><span class="tm num">'+esc(x.t)+'</span>'
+        +'<span class="vv">'+VN[x.j]+'<span class="num">'+x.r+'R</span></span><span class="kk">'+esc(han(x.k))+'</span>'
+        +'<span class="dd">'+inLine(x.j,x.r)+'</span></a>';
+    }).join("");
+    if(!up.length&&!showAll) rows='<div class="row"><span class="dd">今日の発売はすべて終わりました</span></div>';
+    document.getElementById("list").innerHTML=rows+(past.length&&!showAll?'<button class="more" id="moreAll">終わったレースも見る（'+past.length+'）</button>':'');
+    var ma=document.getElementById("moreAll"); if(ma) ma.onclick=function(){showAll=true;render();};
+    /* 今日の注目：グレード戦と優勝戦 */
+    var order={"SG":0,"G1":1,"PG1":1,"G2":2,"G3":3,"一般":4};
+    hlc.sort(function(a,b){return (order[a.g]-order[b.g])||(a.j<b.j?-1:1);});
+    if(hlc.length){
+      document.getElementById("hl").hidden=false;
+      document.getElementById("hlR").innerHTML=hlc.map(function(h){
+        var r=h.fin||h.last, rn=parseInt(r["レース"]), done=isToday&&(r["締切時刻"]||"")<=hm;
+        var nm=han((gs[h.j]&&gs[h.j]["節名"])||"");
+        var dl=inLine(h.j,rn);
+        return '<a class="hc'+(done?' end':'')+'" href="./racers/#v'+h.j+'"><span class="t"><span class="gr '+grCls(h.g)+'">'+esc(h.g)+'</span><span class="v">'+VN[h.j]+'</span>'+(h.lady?'<span class="gr lf">女子</span>':'')+'<span class="k" style="margin-left:auto">'+esc(h.dy)+'</span></span>'
+          +(nm?'<span class="k">'+esc(nm)+'</span>':'')
+          +'<span class="w"><b class="num">'+rn+'R</b><span class="num">'+esc(r["締切時刻"])+' 締切</span>'+(h.fin?'<span class="fn">優勝戦</span>':(r["企画名"]?'<span class="fn">'+esc(han(r["企画名"]))+'</span>':''))+'</span>'
+          +(dl?'<span class="d">'+dl+'</span>':'')+'</a>';
+      }).join("");
+      ensureHL();
+    }
+    if(mode==="list") ensureHL();
+  }
+  function setMode(m){mode=m;
+    document.getElementById("sgA").className=m==="grid"?"on":"";document.getElementById("sgB").className=m==="list"?"on":"";
+    document.getElementById("grid").className="grid"+(m==="grid"?"":" off");document.getElementById("list").className="list"+(m==="list"?" on":"");
+    document.getElementById("lg").style.display=m==="grid"?"":"none"; if(D) render();}
+  document.getElementById("sgA").onclick=function(){setMode("grid");};
+  document.getElementById("sgB").onclick=function(){setMode("list");};
+  var mb=document.getElementById("moreBtn"), sh=document.getElementById("sheet");
+  mb.onclick=function(){var o=sh.hidden;sh.hidden=!o;mb.setAttribute("aria-expanded",o?"true":"false");mb.className=o?"on":"";};
+  var gsP=fetch("./data/gradeSchedule.json?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(j){GS=j;}).catch(function(){});
+  fetch("./data/todayTop.json?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():Promise.reject();})
+    .then(function(d){D=d;return gsP.then(function(){render();setInterval(render,60000);});})
+    .catch(function(){document.getElementById("fail").hidden=false;});
+})();
+</script>
 <script>
 /* フォロー中の今日（2026-11-05 本番・けん裁定）。出走表で付けた 場（br_stadium）・推し（br_oshi）・気になる（br_watch）を、
    トップで今日の分だけ見せる。端末の中だけで完結し、外へは送らない。連続記録・残り時間・通知は使わない。
@@ -317,14 +507,7 @@ a.fol-r .fol-v::after{content:" ›";color:var(--dim)}
   var visited=(get("dzRaihou",{d:[]})||{}).d||[];
   var back=visited.some(function(d){ return d!==today.slice(0,4)+"-"+today.slice(4,6)+"-"+today.slice(6,8); });
 
-  if(!PIN.length && !OSHI.length && !wToday.length && !wPast.length){
-    /* フォローが無い人：2日目以降に1行だけ。閉じたら二度と出さない */
-    if(!back || get("br_folTip","0")==="1") return;
-    rows.innerHTML='<div class="fol-tip"><span>出走表で <b>推し</b>・<b>場</b>・<b>気になる</b> を付けると、ここに今日の分が出ます。</span><button type="button" class="fol-x" aria-label="この案内を閉じる">×</button></div>';
-    box.querySelector(".fol-h").hidden=true;
-    rows.querySelector(".fol-x").onclick=function(){ try{ localStorage.setItem("br_folTip",'"1"'); }catch(e){} box.hidden=true; };
-    box.hidden=false; return;
-  }
+  if(!PIN.length && !OSHI.length && !wToday.length && !wPast.length) return; /* 付けていない人には何も出さない（2026-11-06） */
   /* 行を先に作る（高さの確保） */
   var html="";
   PIN.forEach(function(p,i){ html+='<div class="fol-r" id="folP'+i+'"><span class="fol-k">場</span><span class="fol-n">'+esc(p.name)+'</span><span class="fol-v">…</span></div>'; });
@@ -373,240 +556,6 @@ a.fol-r .fol-v::after{content:" ›";color:var(--dim)}
   }
 })();
 </script>
-<div class="sec"><h2 id="tdHead">今日の開催</h2><span class="s num" id="tdUpd"></span></div>
-<script>
-/* 更新時刻の明示（2026-11-05 本番・けん裁定）。今日の開催の見出しの横に、出走表・見どころのデータを作った時刻をそのまま出す。
-   決まった予定時刻は書かない（実際の時刻だけ）。残り時間・カウントダウンは出さない。 */
-(function(){
-  var el=document.getElementById("tdUpd"); if(!el) return;
-  (window.__dzTT||(window.__dzTT=fetch("./data/todayTop.json?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():Promise.reject();}))).then(function(d){
-    var g=((d["生成元"]||{})["highlights"])||"", m=/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(g);
-    if(!m) return;
-    var t=new Date(Date.now()+9*3600000).toISOString().slice(0,10), same=(m[1]+"-"+m[2]+"-"+m[3])===t;
-    el.textContent=(same?"":(+m[2])+"/"+(+m[3])+" ")+(+m[4])+":"+m[5]+" 更新";
-  }).catch(function(){});
-})();
-</script>
-<div id="todayBlock">
-<section class="today" id="tdCard">
-  <div class="date"><span class="d num" id="tdDate"></span><span class="w" id="tdWd"></span><span class="c"><b class="num" id="tdV"></b>場 ・ <b class="num" id="tdR"></b>レース</span></div>
-  <div class="venues" id="tdMark"></div>
-  <div class="vrest" id="tdRest"></div>
-  <div class="grade" id="tdGrade" hidden></div>
-  <ul class="peaks" id="tdPeaks"></ul>
-  <div class="extra" id="tdExtra" hidden>
-    <button class="exh" id="exBtn" aria-expanded="false" aria-controls="exBody"><span id="exSum"></span><span class="exar">▼</span></button>
-    <div class="exb" id="exBody"><div><ul class="peaks" id="exList"></ul><div class="exmore" id="exMore"></div></div></div>
-  </div>
-  <a class="cta" href="./highlights/">今日の見どころを読む</a>
-</section>
-<a class="tdFail" id="tdFail" href="./highlights/" hidden>今日の開催は見どころで確認できます</a>
-</div>
-<div class="homeHint hh2" id="homeHint" hidden><span class="hh-t">ホーム画面に置くと、朝いちばんに開けます<small class="hh-i">iPhone：Safari の共有ボタンから「ホーム画面に追加」</small><small class="hh-a">Android：Chrome の右上「︙」から「ホーム画面に追加」</small><small class="hh-l" hidden>LINE の中の画面からは置けません。右下か右上のメニューから「ブラウザで開く」を選んでから、上の手順で置いてください</small></span><button type="button" class="hh-x" aria-label="この案内を閉じる">×</button></div>
-<style>
-.hh2{display:flex;align-items:center;gap:6px;text-align:left;margin:12px 0 0;padding:6px 0 6px 12px;border:1px solid var(--line);border-radius:6px}
-.hh2[hidden]{display:none}
-.hh2 .hh-t{flex:1}
-.hh2 small[hidden]{display:none}
-.hh-x{flex:none;width:44px;height:44px;background:none;border:0;color:var(--dim);font-size:18px;cursor:pointer}
-</style>
-<script>
-/* ホーム画面の案内（2026-11-05 本番・けん裁定）。2日目以降に来た人にだけ出す。ホーム画面から開いている人には出さない。
-   閉じたら二度と出さない（出走表の案内と同じ br_a2hs を使う。どちらで閉じても両方消える）。端末の記録が読めない環境では従来どおり出す。 */
-(function(){
-  var el=document.getElementById("homeHint"); if(!el) return;
-  var sa=(window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true;
-  if(sa) return;
-  var ua=navigator.userAgent||"", ios=/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1), and=/Android/.test(ua);
-  if(ios) el.querySelector(".hh-a").hidden=true;
-  if(and) el.querySelector(".hh-i").hidden=true;
-  if(/ Line\//.test(ua)) el.querySelector(".hh-l").hidden=false;
-  var x=el.querySelector(".hh-x"), ok=true, show=false;
-  try{
-    if(localStorage.getItem("br_a2hs")==="1") return;
-    var d=(JSON.parse(localStorage.getItem("dzRaihou")||"{}").d)||[];
-    var t=new Date(Date.now()+9*3600000).toISOString().slice(0,10);
-    show=d.some(function(s){return s!==t;});
-  }catch(e){ ok=false; show=true; }
-  if(!ok) x.hidden=true;
-  x.onclick=function(){ try{ localStorage.setItem("br_a2hs","1"); }catch(e){} el.hidden=true; };
-  if(show) el.hidden=false;
-})();
-</script>
-
-<div class="sec ch-sec" id="chHead" hidden><h2 id="chH2">場の朝刊</h2><span class="s" id="chSub"></span></div>
-<div class="ch" id="chBox" hidden>
-  <div class="ch-rail" id="chRail" role="list"></div>
-  <div class="ch-note">前日までの確定データで書いた、場ごとの読みものです。予想・買い目は扱いません。翌日の分は、前の晩から場ごとに順に出ます。</div>
-</div>
-
-<div class="sec"><h2>読みもの</h2><span class="s">最新の検証</span></div>
-<a class="kn" id="knCard" href="./kensho/tilt/">
-  <span class="kn-no" id="knNo">検証 09</span>
-  <span class="kn-t" id="knT">チルト3度の7艇に1艇は菅章哉だった</span>
-  <span class="kn-d" id="knD">「チルトを跳ねた艇は伸び勝負。穴の目印」――直前情報のチルトの欄を見て、印を足したくなる話です。跳ねた艇の1着と回収率を、跳ねてきた選手ごとに分けて数えました。</span>
-</a>
-<a class="kn-all" href="./kensho/">検証の一覧へ</a>
-
-<div class="sec"><h2>朝の見立ては当たっているか</h2></div>
-<section class="tb">
-  <div class="tbh"><span class="pill">朝の見立て｜答え合わせ</span><span class="upd num" id="tbUpd">9/29 夜に採点</span></div>
-  <div class="day" id="dayBox">
-    <div class="dayh"><b class="num" id="dDate">9/29</b> の答え合わせ<span class="num"><span id="dN">144</span>レース</span></div>
-    <div class="dayr"><span>「荒れる」と見た <b class="num" id="dHn">43</b> 本</span><span class="dv are num"><span id="dHh">14</span> 本が荒れた</span></div>
-    <div class="dayr"><span>「堅め」と見た <b class="num" id="dKn">64</b> 本</span><span class="dv kata num"><span id="dKh">51</span> 本が堅く決着</span></div>
-    <div class="dayn" id="dNote">その日の全体は 144本中40本が荒れました。「荒れる」と見た方がよく荒れた日です。</div>
-  </div>
-  <div class="tbt">通して見ると、荒れ模様と見たレースは、<br>いつもより荒れた。</div>
-
-  <div class="row are">
-    <div class="rl">朝「荒れる」と見た <b class="num" id="nHarai">20,176</b> レース</div>
-    <div class="rv"><span class="big num" id="v-harai" role="button" tabindex="0" aria-controls="panel" aria-expanded="false">35.9%</span><span class="usual">が荒れた ／ いつもは <b class="num" id="bHarai">30.7%</b></span></div>
-    <div class="bars" aria-hidden="true">
-      <div class="bar me"><i id="barHarai" style="width:35.9%"></i></div>
-      <div class="bar base"><i id="barHaraiB" style="width:30.7%"></i></div>
-    </div>
-  </div>
-
-  <div class="row kata">
-    <div class="rl">朝「堅め」と見た <b class="num" id="nKata">28,054</b> レース</div>
-    <div class="rv"><span class="big num" id="v-kata" role="button" tabindex="0" aria-controls="panel" aria-expanded="false">74.6%</span><span class="usual">が堅く決着 ／ いつもは <b class="num" id="bKata">69.3%</b></span></div>
-    <div class="bars" aria-hidden="true">
-      <div class="bar me"><i id="barKata" style="width:74.6%"></i></div>
-      <div class="bar base"><i id="barKataB" style="width:69.3%"></i></div>
-    </div>
-    <div class="bl"><span>上：見立て　下：いつも（全レース）</span><span>100%</span></div>
-  </div>
-
-  <div class="note">有料noteとは仕組みも集計も別です。</div>
-  <div class="foot num">毎朝の見立てを夜に答え合わせ ─ <span id="v-total">66,404</span>レース<span id="v-asof">（2025/7/15から2026/9/29）</span></div>
-
-  <button class="more" id="more" aria-expanded="false" aria-controls="panel">数え方を見る</button>
-  <div class="panel" id="panel"><div><div class="pb">
-    <h3>荒れる ＝ 3連単の払戻 5,000円以上</h3>
-    <p>朝に「荒れる」と分類した <b class="num" id="pNHarai">20,176</b> レースのうち、荒れたのは <span id="pHarai">35.9%</span>。全 <span id="pAll">66,404</span> レースでは <span id="pBase">30.7%</span>。「荒れる」と見なかった <span id="pNOther">46,228</span> レースだけなら <span id="pOther">28.5%</span>。</p>
-    <p>荒れやすさを伝える見立てです。「荒れる」と見たレースの約3分の2は荒れていません。それも全部数えています。</p>
-    <h3>堅め ＝ 3連単の払戻 5,000円未満</h3>
-    <p>対象 <b class="num" id="pNKata">28,054</b> レース。全レースでは <span id="pBaseK">69.3%</span>。「混戦」と見た <span id="pNKonsen">18,174</span> レースは、どちらとも言っていないので入りません。</p>
-    <h3>モデル</h3>
-    <p>現行モデル：2026/9/30から。2026/7/7以降の判定は、そのレースの結果が出る前に保存したもので、結果が出たあとは直していません。モデルを変えたときは更新履歴に書きます。波乱・堅めと判定したレースは、外れも除かずに全部を分母に入れています。</p>
-    <h3>このサイトと有料noteの違い</h3>
-    <table>
-      <tr><th></th><th>このサイト（無料）</th><th>有料note</th></tr>
-      <tr><th>出すもの</th><td>レースの分類と数字</td><td>買い目</td></tr>
-      <tr><th>仕組み</th><td>公開データを決まった計算式で毎朝分類。人の手で直さない</td><td>買い目を作るための別の仕組み</td></tr>
-      <tr><th>この数字</th><td><b>分類の答え合わせ</b></td><td>含まない</td></tr>
-    </table>
-    <p>仕組みが別なので、上の答え合わせの数字は有料noteには当てはまりません。</p>
-    <p><a class="lnk" href="https://note.com/abeken2000" target="_blank" rel="noopener">有料noteについて</a></p>
-    <div class="home">毎晩採点して、毎朝更新します。ホーム画面に置くと朝すぐ開けます。</div>
-    <div class="age">舟券の購入は20歳になってから。無理のない範囲で楽しみましょう。</div>
-  </div></div></div>
-</section>
-
-<div class="sec"><h2>ページ</h2><span class="s">何があるか</span></div>
-<nav aria-label="全ページ">
-  <div class="mains">
-    <a class="mc" style="--c:#58a6ff" href="./racers/"><span class="mi">出</span><span class="mt">出走表<small>今日の出走情報</small></span></a>
-    <a class="mc" style="--c:#f2c200" href="./highlights/"><span class="mi">見</span><span class="mt">見どころ<small>今日の注目レース</small></span></a>
-    <a class="mc" style="--c:#e05b4b" href="./results/"><span class="mi">結</span><span class="mt">レース結果<small>直近30日と配当</small></span></a>
-    <a class="mc" style="--c:#3fb1c9" href="./motor/"><span class="mi">モ</span><span class="mt">モーター<small>各場の機力順</small></span></a>
-    <a class="mc" style="--c:#cdd6e0" href="./players/"><span class="mi">選</span><span class="mt">選手図鑑<small>全1,643選手</small></span></a>
-    <a class="mc" style="--c:#f2b155" href="./payouts/"><span class="mi">万</span><span class="mt">万舟のツボ<small>荒れ率と高配当</small></span></a>
-  </div>
-  <div class="nav">
-    <a class="ni" style="--c:#6b7a8c" href="./stadium/"><span class="ic">24</span>24場</a>
-    <a class="ni" style="--c:#6b7a8c" href="./motor-maintenance/"><span class="ic">整</span>整備</a>
-    <a class="ni" style="--c:#6b7a8c" href="./kensho/" data-new="2026-10-30"><span class="ic">検</span>検証<span class="qn-new" hidden>NEW</span></a>
-    <a class="ni" style="--c:#6b7a8c" href="./players/card.html" data-new="2026-10-21"><span class="ic">札</span>選手カード<span class="qn-new" hidden>NEW</span></a>
-    <a class="ni" style="--c:#6b7a8c" href="./note/" data-new="2026-10-30"><span class="ic">帳</span>観戦ノート<span class="qn-new" hidden>NEW</span></a>
-    <a class="ni" style="--c:#6b7a8c" href="./ichimark/" data-new="2026-11-01"><span class="ic">旋</span>1マーク<span class="qn-new" hidden>NEW</span></a>
-    <a class="ni" style="--c:#6b7a8c" href="./glossary/"><span class="ic">辞</span>用語辞典</a>
-    <a class="ni" style="--c:#6b7a8c" href="./fan/"><span class="ic">文</span>場の文化</a>
-    <a class="ni" style="--c:#6b7a8c" href="./announcers/"><span class="ic">実</span>実況アナ</a>
-    <a class="ni" style="--c:#6b7a8c" href="./uranai/"><span class="ic">占</span>占い</a>
-    <a class="ni" style="--c:#6b7a8c" href="./updates/" id="qn-updates"><span class="ic">更</span>更新履歴<span class="qn-sign" id="qn-sign" hidden><span class="qn-dot" aria-hidden="true"></span><span class="qn-date"></span></span></a>
-    <a class="ni ext" style="--c:#6b7a8c" href="https://note.com/abeken2000" target="_blank" rel="noopener"><span class="ic">有</span>有料note<em>外部サイト</em></a>
-  </div>
-</nav>
-
-<details class="hk" id="hikitsugi">
-  <summary>フォローの控え（引き継ぎ・機種変更）</summary>
-  <p>☆推し・📍場・気になるレース・選手メモは、この端末の中にだけ保存されています。アイコンを消したり機種を変えたりすると消えるので、控えのコードを LINE の Keep やメモに残しておくと戻せます。</p>
-  <p class="hk-h">控えを取る</p>
-  <button type="button" id="hk-out">控えのコードを出す</button>
-  <textarea id="hk-outcode" rows="3" readonly aria-label="控えのコード" hidden></textarea>
-  <p id="hk-outmsg" role="status"></p>
-  <p class="hk-h">控えから戻す</p>
-  <textarea id="hk-code" rows="3" placeholder="DZ1. から始まるコードを貼る" aria-label="控えのコード（貼る）"></textarea>
-  <button type="button" id="hk-go">戻す</button>
-  <p id="hk-msg" role="status"></p>
-  <p class="hk-n">前の住所（github.io）のフォローは、前と同じ開き方（同じブラウザ、またはホーム画面の同じアイコン）で前の住所を開くと、「おかえりなさい」の下にコードが出ます。それをここに貼ってください。</p>
-</details>
-<style>
-  .hk{margin:16px auto 8px;max-width:640px;padding:12px 14px;border:1px solid rgba(255,255,255,.18);font-size:14px;line-height:1.8}
-  .hk summary{cursor:pointer;font-weight:700}
-  .hk ol{margin:6px 0 10px;padding-left:1.4em}
-  .hk textarea{width:100%;box-sizing:border-box;font-size:13px;padding:8px;background:transparent;color:inherit;border:1px solid rgba(255,255,255,.3)}
-  .hk button{margin-top:8px;min-height:44px;padding:0 18px;font-weight:700;font-size:15px;background:#f2f5f8;color:#0b1a2b;border:0;cursor:pointer}
-  .hk #hk-msg,.hk #hk-outmsg{margin:8px 0 0;font-weight:700}
-  .hk .hk-h{margin:14px 0 4px;font-weight:700}
-  .hk .hk-n{margin:14px 0 0;font-size:12px;opacity:.8}
-  .hk #hk-outcode{margin-top:8px}
-</style>
-<script>
-/* フォローの控えと引き継ぎ（2026-10-26 けん裁定）。コードは「DZ1.」＋保存内容のJSONを base64 にしたもの。
-   今ある値は消さない：一覧は足し合わせ、メモなどは今ある方を残し、無いものだけ足す。 */
-(function(){
-  var go=document.getElementById("hk-go"), box=document.getElementById("hk-code"), msg=document.getElementById("hk-msg");
-  if(!go) return;
-  var OK=/^(br_|uranai_|aisho_|senshuCard|dz_note_|tdExtraOpen$)/;
-  /* 控えを取る：この端末の保存を同じ形のコードにする（2026-10-26 けん「進めてよい」） */
-  var out=document.getElementById("hk-out"), oc=document.getElementById("hk-outcode"), om=document.getElementById("hk-outmsg");
-  out.addEventListener("click", function(){
-    var data={}, n=0;
-    try{ for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i); if(OK.test(k)){ data[k]=localStorage.getItem(k); n++; } } }catch(e){}
-    if(!n){ om.textContent="この端末には、まだ控えるフォローがありません。"; oc.hidden=true; return; }
-    var u=new TextEncoder().encode(JSON.stringify(data)), bin=""; for(var j=0;j<u.length;j++) bin+=String.fromCharCode(u[j]);
-    var code="DZ1."+btoa(bin); oc.value=code; oc.hidden=false;
-    function done(){ om.textContent="コピーしました。LINE の Keep やメモに貼って残してください。"; }
-    function sel(){ oc.focus(); oc.select(); try{ document.execCommand("copy"); done(); }catch(e){ om.textContent="上のコードを長押しして、全部コピーしてください。"; } }
-    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(code).then(done,sel); } else sel();
-  });
-  function dec(s){ s=s.replace(/\s+/g,""); if(s.indexOf("DZ1.")!==0) throw 0;
-    var bin=atob(s.slice(4)), u=new Uint8Array(bin.length); for(var i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
-    return JSON.parse(new TextDecoder().decode(u)); }
-  function pj(v){ try{ return JSON.parse(v); }catch(e){ return undefined; } }
-  go.addEventListener("click", function(){
-    var data; try{ data=dec(box.value); }catch(e){ msg.textContent="コードが読めませんでした。「DZ1.」から最後まで、全部貼ってください。"; return; }
-    var n=0;
-    Object.keys(data).forEach(function(k){
-      if(!OK.test(k) || typeof data[k]!=="string") return;
-      var cur=null; try{ cur=localStorage.getItem(k); }catch(e){}
-      var next=data[k];
-      if(cur!==null){
-        var a=pj(cur), b=pj(data[k]);
-        if(Array.isArray(a) && Array.isArray(b)){
-          var seen={}, out=[]; a.concat(b).forEach(function(x){ var key=JSON.stringify(x); if(!seen[key]){ seen[key]=1; out.push(x); } });
-          next=JSON.stringify(out);
-        } else if(a && b && typeof a==="object" && typeof b==="object"){
-          next=JSON.stringify(Object.assign({}, b, a));
-        } else { return; }
-      }
-      try{ localStorage.setItem(k,next); n++; }catch(e){}
-    });
-    msg.textContent = n ? "戻しました（"+n+"件）。各ページを開くと反映されています。" : "戻すものが見つかりませんでした（すでに同じ内容があります）。";
-    if(n) box.value="";
-  });
-})();
-</script>
-
-<footer class="ft">
-  舟券の購入は20歳になってから。<br>
-  無理のない範囲で楽しみましょう。<br>
-  © 2026 データ攻め ── 制作・運営 阿部
-</footer>
-</div>
 <script>
 /* レイアウト計量テーブル */
 function scaleFactors(){return [37740, 36479, 11680, 12487, 12540, 12479, 25915, 12417, 32, 9472, 9472, 32, 21046, 20316, 12539, 36939, 21942, 32, 12354, 12409, 12369, 12435];}
@@ -624,7 +573,7 @@ function lineBoxes(){
   var d=function(s){return decodeURIComponent(escape(atob(s)));};
   return {t:a,k:"k"+(h%100000),ids:d("di10b3RhbHx2LWhhcmFpfHYta2F0YXx2LXNodXx2LWFzb2Y=").split("|")};
 }
-// 答え合わせカードを verify_summary.json から反映する。読めないときはHTMLの値のまま。
+// 答え合わせ（小さなカード）を verify_summary.json から反映する。本番トップと同じ処理。読めないときはHTMLの値のまま。
 // 基準の率（荒れ基準率）が無い間は、HTMLに書いた値を出したままにする。
 (function(){
   var _s = lineBoxes();
@@ -681,186 +630,6 @@ function lineBoxes(){
     })
     .catch(function(){ /* HTMLの値のまま */ });
 })();
-// 数え方のパネル（ボタン・2つの数字のどれからでも開閉）。
-(function(){
-  var p = document.getElementById("panel"), b = document.getElementById("more");
-  if(!p || !b) return;
-  var ts = [b, document.getElementById("v-harai"), document.getElementById("v-kata")];
-  function t(){
-    var o = p.classList.toggle("open");
-    ts.forEach(function(x){ if(x) x.setAttribute("aria-expanded", o ? "true" : "false"); });
-    b.textContent = o ? "閉じる" : "数え方を見る";
-  }
-  b.addEventListener("click", t);
-  [ts[1], ts[2]].forEach(function(x){
-    if(!x) return;
-    x.addEventListener("click", t);
-    x.addEventListener("keydown", function(e){ if(e.key === "Enter" || e.key === " "){ e.preventDefault(); t(); } });
-  });
-})();
-// 今日の開催（docs/data/todayTop.json・buildTodayTop.py が生成）。予想は含まない。
-// 読めないときは欄の高さを保ったまま、見どころへの1行に切り替える（CLS対策）。
-function fail(){ document.getElementById("tdCard").hidden=true; document.getElementById("tdFail").hidden=false; }
-function renderToday(d){
-  try{
-    var R=d["レース"]; if(!R||!R.length){ fail(); return; }
-    var ymd=d["開催日"], m=parseInt(ymd.slice(4,6),10), dd=parseInt(ymd.slice(6,8),10);
-    var wd="日月火水木金土".charAt(new Date(+ymd.slice(0,4),m-1,dd).getDay());
-    var $=function(i){return document.getElementById(i);};
-    $("tdDate").textContent=m+"/"+dd; $("tdWd").textContent=wd+"曜"; $("tdHead").textContent=m+"/"+dd+"の開催";
-    var LADY=d["レディース"]||[], G=d["格"]||{}, GR={"SG":0,"PG1":1,"G1":1,"G2":2,"G3":3};
-    var vs=[],info={};
-    R.forEach(function(r){ var v=r["場名"]; if(!info[v]){ info[v]={day:r["日目"],g:G[r["場コード"]]||"",lady:LADY.indexOf(r["場コード"])>=0}; vs.push(v);} });
-    $("tdV").textContent=vs.length; $("tdR").textContent=R.length;
-    function vr(v){ var i=info[v]; return i.g? GR[i.g] : (i.day==="最終日"?10:(i.day==="初日"?11:(i.lady?12:99))); }
-    var mark=vs.filter(function(v){return vr(v)<99;}).sort(function(a,b){return vr(a)-vr(b);});
-    var rest=vs.filter(function(v){return vr(v)===99;});
-    $("tdMark").innerHTML=mark.map(function(v){ var i=info[v], t=[];
-      if(i.g) t.push('<b class="gr">'+i.g+'</b>');
-      if(i.lady) t.push('<i class="lady">オールレディース</i>');
-      if(i.day==="最終日") t.push('<i class="fin">優勝戦</i>'); else if(i.day==="初日") t.push('<i>初日</i>');
-      return '<span class="v'+(i.g?' g':'')+'">'+v+' '+t.join(' ')+'</span>'; }).join("");
-    $("tdRest").textContent=rest.length?(mark.length?"ほか ":"")+rest.join("・"):"";
-    function isFin(k){ k=k||""; return k.indexOf("優勝戦")>=0&&k.indexOf("準優")<0; }
-    function rank(r){ var k=r["企画名"]||"", g=G[r["場コード"]], top=(g==="SG"||g==="G1"||g==="PG1");
-      if(isFin(k)&&top) return 0; if(isFin(k)) return 1; if(k.indexOf("準優勝戦")>=0) return 2;
-      if(k.indexOf("ドリーム")>=0) return 3; if(/選抜|特選|特賞/.test(k)) return 4; return 5; }
-    var c=R.slice().sort(function(a,b){ return rank(a)-rank(b) || (b["締切時刻"]>a["締切時刻"]?1:-1); }).slice(0,3);
-    c.sort(function(a,b){ return a["締切時刻"]>b["締切時刻"]?1:-1; });
-    $("tdPeaks").innerHTML=c.map(function(r){ var g=G[r["場コード"]], k=r["企画名"], lab=[];
-      if(g) lab.push(g); if(rank(r)<5) lab.push(k);
-      return '<li><a href="./highlights/"><span class="tm num">'+r["締切時刻"]+'</span>'+r["場名"]+' '+r["レース"]+(lab.length?'<span class="kind">'+lab.join(' ')+'</span>':'')+'<span class="go">›</span></a></li>'; }).join("");
-    var used={}; c.forEach(function(r){used[r["場名"]+r["レース"]]=1;});
-    var kinds=[["ドリーム戦",function(r){return (r["企画名"]||"").indexOf("ドリーム")>=0;}],
-               ["女子戦",function(r){return r["女子"]===6 && LADY.indexOf(r["場コード"])<0;}]];
-    var pick=[],sum=[],over=0;
-    kinds.forEach(function(k){ var a=R.filter(function(r){return !used[r["場名"]+r["レース"]] && k[1](r);})
-        .sort(function(x,y){return x["締切時刻"]>y["締切時刻"]?1:-1;});
-      if(!a.length) return; sum.push(k[0]+" "+a.length);
-      a.slice(0,3).forEach(function(r){used[r["場名"]+r["レース"]]=1; pick.push([r,k[0]]);}); over+=Math.max(0,a.length-3); });
-    if(pick.length){
-      pick.sort(function(x,y){return x[0]["締切時刻"]>y[0]["締切時刻"]?1:-1;});
-      $("exSum").textContent=sum.join("・");
-      $("exList").innerHTML=pick.map(function(x){var r=x[0];return '<li><a href="./highlights/"><span class="tm num">'+r["締切時刻"]+'</span>'+r["場名"]+' '+r["レース"]+'<span class="kind plain">'+x[1]+'</span><span class="go">›</span></a></li>';}).join("");
-      $("exMore").textContent=over?("ほか "+over+" 本は見どころで"):"";
-      $("tdExtra").hidden=false;
-      var btn=$("exBtn"),body=$("exBody");
-      var setOpen=function(o){ body.classList.toggle("open",o); btn.setAttribute("aria-expanded",o); try{localStorage.setItem("tdExtraOpen",o?"1":"0");}catch(e){} };
-      var saved=null; try{saved=localStorage.getItem("tdExtraOpen");}catch(e){}
-      if(saved==="1") setOpen(true);
-      btn.addEventListener("click",function(){ setOpen(!body.classList.contains("open")); });
-    }
-    if(!pick.length) document.documentElement.classList.remove("exOpen");
-    $("tdCard").classList.add("ready");
-  }catch(e){ fail(); }
-}
-// 今週のSG・G1（docs/data/gradeWeek.json・fetchGradeSchedule.py が生成）。読めなければ行を出さない。
-function renderWeek(w, d){
-  var el = document.getElementById("tdGrade");
-  var S = (w && w["節"]) || [];
-  if(!el || !S.length) return;
-  var day = {}; ((d && d["レース"]) || []).forEach(function(r){ day[r["場コード"]] = r["日目"]; });
-  var md = function(x){ x = String(x); return parseInt(x.slice(4,6),10) + "/" + parseInt(x.slice(6,8),10); };
-  var esc = function(t){ return String(t == null ? "" : t).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); };
-  el.innerHTML = '<div class="gh">今週のSG・G1</div>' + S.map(function(z){
-    var tail = day[z["場コード"]] ? "（" + esc(day[z["場コード"]]) + "）" : "";
-    return '<div class="gi"><b>' + esc(z["区分"]) + '</b>' + esc(z["場名"]) + '<span class="num">' + md(z["開始日"]) + 'から' + md(z["終了日"]) + '</span>' + tail + '<small>' + esc(z["節名"]) + '</small></div>';
-  }).join("");
-  el.hidden = false;
-}
-Promise.all([
-  (window.__dzTT || (window.__dzTT = fetch("./data/todayTop.json?_=" + Date.now(), { cache: "no-store" }).then(function(r){ return r.ok ? r.json() : Promise.reject(); }))),
-  fetch("./data/gradeWeek.json?_=" + Date.now(), { cache: "no-store" }).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; })
-]).then(function(a){ try{ renderWeek(a[1], a[0]); }catch(e){} renderToday(a[0]); })
-  .catch(function(){ fail(); });
-// 最近の更新（最新3件）＋更新サイン。updates.json の最新3件を quicknav 直下に常時表示する。
-// 1件目は全文、2・3件目は1行（はみ出しは…）。札の色はページの種類ごとに固定し、ページ名も文字で書く。
-// 前に /updates/ を開いたときより新しい更新にだけ「NEW」を付ける。件数・点滅は出さない。
-// 既読キーは専用の br_updates_seen（/updates/ を開くと更新される）。出走表の pruneOld（3日引き）は
-// br_watch / br_viewed / br_collected の3つだけを対象にするため、br_yomi と同様にこのキーは間引かれない。
-// ページ名→種類・開く先の対応は docs/updates/index.html と同じ（直すときは2か所そろえる）。
-(function(){
-  var el = document.getElementById("qn-sign");
-  var box = document.getElementById("news");
-  var KINDS = [
-    [/出走表/, "#e05b4b", "./racers/"], [/見どころ|朝刊|観戦記/, "#f2b155", "./highlights/"], [/検証/, "#9b8cf0", "./kensho/"],
-    [/選手|占い|アナ/, "#cdd6e0", "./players/"], [/モーター/, "#3fb1c9", "./motor/"], [/24場|場|結果|万舟/, "#7fd4a8", "./stadium/"], [/./, "#8a9bb0", ""]
-  ];
-  var HREF = [ [/1マーク/, "./ichimark/"], [/朝刊|観戦記/, "./choukan/"], [/選手占い|^占い/, "./uranai/"], [/選手カード/, "./players/card.html"], [/アナ/, "./announcers/"],
-               [/モーター整備/, "./motor-maintenance/"], [/万舟/, "./payouts/"], [/結果/, "./results/"], [/トリセツ/, "./torisetsu/"], [/用語/, "./glossary/"],
-               [/^トップ$|更新履歴|全ページ/, ""] ];
-  function kind(p){ for(var i = 0; i < KINDS.length; i++) if(KINDS[i][0].test(p)) return KINDS[i]; return KINDS[KINDS.length - 1]; }
-  function href(p, k){ for(var i = 0; i < HREF.length; i++) if(HREF[i][0].test(p)) return HREF[i][1]; return k[2]; }
-  function mk(tag, cls, txt){ var e = document.createElement(tag); if(cls) e.className = cls; if(txt != null) e.textContent = txt; return e; }
-  var OKIMG = /^updates\/img\/[A-Za-z0-9]+\.webp$/;
-  function thumb(x, pre){
-    if(!OKIMG.test(String(x.img || ""))) return null;
-    var big = OKIMG.test(String(x.imgL || "")) ? x.imgL : x.img, b = mk("button", "uthumb");
-    b.type = "button"; b.setAttribute("aria-label", "更新の画面を大きく見る");
-    b.style.backgroundImage = "url(" + pre + x.img + ")";
-    b.addEventListener("click", function(ev){ ev.preventDefault(); ev.stopPropagation();
-      document.getElementById("uboxImg").src = pre + big; document.getElementById("ubox").hidden = false; });
-    return b;
-  }
-  (function(){ var bx = document.getElementById("ubox"); if(!bx) return;
-    function close(){ bx.hidden = true; }
-    bx.addEventListener("click", close);
-    document.addEventListener("keydown", function(e){ if(e.key === "Escape") close(); }); })();
-  fetch("./data/updates.json", { cache: "no-store" })
-    .then(function(r){ return r.ok ? r.json() : Promise.reject(); })
-    .then(function(d){
-      if(!Array.isArray(d)) return Promise.reject();
-      d = d.filter(function(x){ return x && /^\d{4}-\d{2}-\d{2}$/.test(String(x.date || "")); });   // 想定外の値は出さない
-      if(!d.length) return Promise.reject();
-      var latest = String(d[0].date);
-      var md = parseInt(latest.slice(5,7),10) + "/" + parseInt(latest.slice(8,10),10);
-      var seen = null;
-      try { seen = localStorage.getItem("br_updates_seen"); } catch(e){}
-      if(box){
-        var rows = document.getElementById("newsRows");
-        d.slice(0, 3).forEach(function(x, i){
-          var p = String(x.page || ""), k = kind(p), h = href(p, k), ds = String(x.date);
-          var a = mk(h ? "a" : "div", "srow" + (i === 0 ? " full" : "")); if(h) a.href = h;
-          var c = mk("span", "chip", p); c.style.setProperty("--c", k[1]); a.appendChild(c);
-          a.appendChild(mk("span", "dt", parseInt(ds.slice(5,7),10) + "/" + parseInt(ds.slice(8,10),10)));
-          if(seen && ds > seen) a.appendChild(mk("span", "newmk", "NEW"));
-          a.appendChild(mk("span", "tx", String(x.text || "")));
-          if(i === 0){ var th = thumb(x, "./"); if(th) a.appendChild(th); }
-          rows.appendChild(a);
-        });
-        box.classList.add("filled");
-      }
-      if(seen === latest) return;                        // 既読ならタイルの赤点は出さない（枠は出たまま）
-      if(el){
-        el.querySelector(".qn-date").textContent = md;
-        el.hidden = false;
-      }
-      var a = document.getElementById("qn-updates");
-      if(a) a.setAttribute("aria-label", "更新履歴（" + md + " に更新）");
-    })
-    .catch(function(){ if(box) box.classList.add("gone"); });   // 取得できなければ枠ごと出さない
-})();
-if("serviceWorker" in navigator){ window.addEventListener("load",function(){ navigator.serviceWorker.register("./sw.js").catch(function(){}); }); }
-</script>
-<script>
-(function(){
-  /* クイックナビのNEWバッジ。
-     a に data-new="YYYY-MM-DD"（JSTの公開日）を書くと、その日から3日間だけ出る。
-     4日目の0時に自動で消えるので、あとから消しに来る作業は要らない。
-     点滅・カウントダウン・残り時間の表示はしない。新着かどうかを示すだけ。 */
-  var DAYS = 3;
-  var links = document.querySelectorAll("a[data-new]");
-  for (var i = 0; i < links.length; i++) {
-    var d = links[i].getAttribute("data-new");
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) { continue; }
-    var end = new Date(d + "T00:00:00+09:00").getTime();
-    if (isNaN(end)) { continue; }
-    end += DAYS * 86400000;
-    if (Date.now() >= end) { continue; }
-    var b = links[i].querySelector(".qn-new");
-    if (b) { b.hidden = false; }
-  }
-})();
 </script>
 <script>
 // 読みもの：検証の一覧から、data-new が最も新しいカードを1枚だけ表示する。
@@ -884,12 +653,6 @@ if("serviceWorker" in navigator){ window.addEventListener("load",function(){ nav
   }).catch(function(){ /* HTMLの既定のまま */ });
 })();
 </script>
-<script src="./assets/guard.js" defer></script>
-<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics --><script src=/assets/raihou.js defer></script>
-<!-- kata6:body -->
-<script src="assets/kata/kata.js?v=ecd47e51"></script>
-<script src="assets/ugoki.js?v=e40e8a0a"></script>
-<!-- /kata6:body -->
 <script>
 /* 場の朝刊（2026-10-28 本番化・旧称 観戦記）。記事は docs/data/kansenki/ の既存データをそのまま読む。
    18時以降は翌日分が書き上がっていればそちらを先に出す（あすの朝刊）。?d=YYYYMMDD で日付を指定できる（確認用） */
@@ -900,15 +663,15 @@ if("serviceWorker" in navigator){ window.addEventListener("load",function(){ nav
   var hour=new Date(Date.now()+9*3600000).getUTCHours();
   var today=jst(0), cands=q?[q]:(hour>=18?[jst(1),today]:[today]);
   function load(d){
-    return fetch('data/kansenki/source/'+d+'.json?_='+Date.now()).then(function(r){return r.ok?r.json():Promise.reject();}).then(function(src){
+    return fetch('./data/kansenki/source/'+d+'.json?_='+Date.now()).then(function(r){return r.ok?r.json():Promise.reject();}).then(function(src){
       var vs=(src.venues||[]);
       return Promise.all(vs.map(function(v){
-        return fetch('data/kansenki/articles/'+d+'-'+v.jcd+'.json?_='+Date.now()).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});
+        return fetch('./data/kansenki/articles/'+d+'-'+v.jcd+'.json?_='+Date.now()).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});
       })).then(function(as){ return {d:d, list:as.filter(Boolean)}; });
     });
   }
   // 格（docs/data/gradeSchedule.json）。その日の分が無い日（あすの朝刊）は、前の日の節が続く場だけ前の日の格を使う。
-  var GS=fetch('data/gradeSchedule.json?_='+Date.now()).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});
+  var GS=fetch('./data/gradeSchedule.json?_='+Date.now()).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});
   function gradeOf(gs, d, jcd){
     var days=(gs&&gs.days)||{};
     if(days[d]) return days[d][jcd]||null;
@@ -936,7 +699,7 @@ if("serviceWorker" in navigator){ window.addEventListener("load",function(){ nav
     document.getElementById('chRail').innerHTML=res.list.map(function(a){
       var body=String(a.body||''), lead=body.split('\n').filter(function(x){return x.trim() && x.trim().charAt(0)!=='■';}).slice(0,2).join('');
       var gm=gradeMark(gradeOf(res.gs, d, a.jcd));
-      return '<a class="ch-card'+gm.cls+'" role="listitem" href="choukan/?d='+d+'&amp;j='+esc(a.jcd)+'">'+
+      return '<a class="ch-card'+gm.cls+'" role="listitem" href="./choukan/?d='+d+'&amp;j='+esc(a.jcd)+'">'+
         '<span class="ch-v"><b>'+esc(a.venue)+'</b>'+gm.html+'</span>'+
         '<span class="ch-t">'+esc(a.title)+'</span>'+
         '<span class="ch-l">'+esc(lead)+'</span>'+
@@ -947,5 +710,66 @@ if("serviceWorker" in navigator){ window.addEventListener("load",function(){ nav
   tryNext(0);
 })();
 </script>
+<script>
+/* フォローの控えと引き継ぎ（2026-10-26 けん裁定）。コードは「DZ1.」＋保存内容のJSONを base64 にしたもの。
+   今ある値は消さない：一覧は足し合わせ、メモなどは今ある方を残し、無いものだけ足す。 */
+(function(){
+  var go=document.getElementById("hk-go"), box=document.getElementById("hk-code"), msg=document.getElementById("hk-msg");
+  if(!go) return;
+  var OK=/^(br_|uranai_|aisho_|senshuCard|dz_note_|tdExtraOpen$)/;
+  /* 控えを取る：この端末の保存を同じ形のコードにする（2026-10-26 けん「進めてよい」） */
+  var out=document.getElementById("hk-out"), oc=document.getElementById("hk-outcode"), om=document.getElementById("hk-outmsg");
+  out.addEventListener("click", function(){
+    var data={}, n=0;
+    try{ for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i); if(OK.test(k)){ data[k]=localStorage.getItem(k); n++; } } }catch(e){}
+    if(!n){ om.textContent="この端末には、まだ控えるフォローがありません。"; oc.hidden=true; return; }
+    var u=new TextEncoder().encode(JSON.stringify(data)), bin=""; for(var j=0;j<u.length;j++) bin+=String.fromCharCode(u[j]);
+    var code="DZ1."+btoa(bin); oc.value=code; oc.hidden=false;
+    function done(){ om.textContent="コピーしました。LINE の Keep やメモに貼って残してください。"; }
+    function sel(){ oc.focus(); oc.select(); try{ document.execCommand("copy"); done(); }catch(e){ om.textContent="上のコードを長押しして、全部コピーしてください。"; } }
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(code).then(done,sel); } else sel();
+  });
+  function dec(s){ s=s.replace(/\s+/g,""); if(s.indexOf("DZ1.")!==0) throw 0;
+    var bin=atob(s.slice(4)), u=new Uint8Array(bin.length); for(var i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
+    return JSON.parse(new TextDecoder().decode(u)); }
+  function pj(v){ try{ return JSON.parse(v); }catch(e){ return undefined; } }
+  go.addEventListener("click", function(){
+    var data; try{ data=dec(box.value); }catch(e){ msg.textContent="コードが読めませんでした。「DZ1.」から最後まで、全部貼ってください。"; return; }
+    var n=0;
+    Object.keys(data).forEach(function(k){
+      if(!OK.test(k) || typeof data[k]!=="string") return;
+      var cur=null; try{ cur=localStorage.getItem(k); }catch(e){}
+      var next=data[k];
+      if(cur!==null){
+        var a=pj(cur), b=pj(data[k]);
+        if(Array.isArray(a) && Array.isArray(b)){
+          var seen={}, out=[]; a.concat(b).forEach(function(x){ var key=JSON.stringify(x); if(!seen[key]){ seen[key]=1; out.push(x); } });
+          next=JSON.stringify(out);
+        } else if(a && b && typeof a==="object" && typeof b==="object"){
+          next=JSON.stringify(Object.assign({}, b, a));
+        } else { return; }
+      }
+      try{ localStorage.setItem(k,next); n++; }catch(e){}
+    });
+    msg.textContent = n ? "戻しました（"+n+"件）。各ページを開くと反映されています。" : "戻すものが見つかりませんでした（すでに同じ内容があります）。";
+    if(n) box.value="";
+  });
+})();
+</script>
+<script>
+/* お知らせの一番下に、最新の更新を1行だけ（2026-11-06 けん裁定）。読めなければ出さない */
+(function(){
+  fetch("./data/updates.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():Promise.reject();}).then(function(d){
+    if(!Array.isArray(d)) return;
+    d=d.filter(function(x){return x&&/^\d{4}-\d{2}-\d{2}$/.test(String(x.date||""));}); if(!d.length) return;
+    var x=d[0], ds=String(x.date);
+    document.getElementById("updD").textContent="更新 "+parseInt(ds.slice(5,7),10)+"/"+parseInt(ds.slice(8,10),10)+(x.page?"｜"+String(x.page):"");
+    document.getElementById("updT").textContent=String(x.text||"");
+    document.getElementById("updL").hidden=false;
+  }).catch(function(){});
+})();
+</script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics --><script src=/assets/raihou.js defer></script>
+<script>if("serviceWorker" in navigator){ window.addEventListener("load",function(){ navigator.serviceWorker.register("./sw.js").catch(function(){}); }); }</script>
 </body>
 </html>
