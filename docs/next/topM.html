@@ -10,7 +10,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Dela+Gothic+One&display=swap" rel="stylesheet">
-<!-- 実験場（2026-11-06）プロ化2の本番化前の全体見本（案M・第2版：プロ4人の審査で直した）。第2版の変更：開催中の場だけ格子・休みは1行、フォロー中を注目の上、お知らせは見出し1行ずつ（けん裁定 案B）＋最新の更新1行、金はロゴと荒れの数字だけ、文字5段階・行間2種類、女子戦は文字札、注目に競走名、フッターに非公式と出典。
+<!-- 実験場（2026-11-06）プロ化2の本番化前の全体見本（案M・第2版：プロ4人の審査で直した）。第3版：1画面目にAI予想部屋の1行帯（金）、お知らせ欄を今日の注目の下へ、AI予想部屋のカードだけ金で大きく、答え合わせの下に有料noteの入口（けん 2026-11-06「有料買い目を売って行きたい」）。
+     第2版の変更：開催中の場だけ格子・休みは1行、フォロー中を注目の上、お知らせは見出し1行ずつ（けん裁定 案B）＋最新の更新1行、金はロゴと荒れの数字だけ、文字5段階・行間2種類、女子戦は文字札、注目に競走名、フッターに非公式と出典。
      第1版：上半分は案L。その下に お知らせ（2番目・文面は本番のまま）→フォロー中の今日（付けている人だけ）→場の朝刊（横送り）→答え合わせ（小さなカード、内訳は畳む）→読みもの→フッター。
      本番トップから外したもの：署名・重なる決め台詞・漢字1字の入口・最近新しくなったこと・ホーム画面の案内（その他へ）・ページ一覧（その他へ）・フォローの控え（その他へ）。
      以下は案Lの注記。デザイン評議会（ブランド／画面設計／競艇メディア／読みやすさ）の結論で組み直す。
@@ -214,6 +215,20 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
 .sheet .hk button{margin-top:8px;min-height:44px;padding:0 18px;font-weight:700;font-size:15px;background:#f2f5f8;color:#0b1a2b;border:0;cursor:pointer}
 .sheet .hk .hk-h{margin:12px 0 4px;font-weight:700}
 .sheet .hk .hk-n{margin:12px 0 0;font-size:11px;color:var(--dim)}
+
+/* 有料noteへの導線（2026-11-06 けん：有料の買い目を売っていく） */
+.prb{display:block;background:#18263a;border-bottom:1px solid rgba(233,180,90,.45)}
+.prb-in{max-width:600px;margin:0 auto;display:flex;align-items:center;gap:8px;min-height:44px;padding:0 16px}
+.prb small{font-size:11px;color:#0b1726;background:var(--gold);padding:1px 5px;font-weight:700}
+.prb b{font-size:15px;color:var(--gold);font-weight:800;white-space:nowrap}
+.prb span{font-size:13px;color:#d6e0ea;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.prb i{margin-left:auto;font-style:normal;font-size:18px;color:var(--gold)}
+.an.pri{border:1px solid var(--gold);background:#1a2638;padding:14px}
+.an.pri b{font-size:18px;color:var(--gold)}
+.an.pri span{color:#d6e0ea}
+.an.pri em{margin-top:6px;align-self:flex-start;font-style:normal;font-size:13px;font-weight:700;color:#0b1726;background:var(--gold);padding:6px 12px}
+.ntl{display:flex;align-items:center;gap:8px;min-height:44px;margin-top:8px;padding:0 12px;border:1px solid rgba(233,180,90,.45);font-size:13px;font-weight:700;color:var(--gold)}
+.ntl i{margin-left:auto;font-style:normal;font-size:18px}
 </style>
 </head>
 <body>
@@ -226,6 +241,7 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
   <a class="sr" href="../players/" aria-label="選手を探す"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5l5 5"/></svg></a>
 </div><div class="waku" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div></header>
 <div class="cap"><div class="cap-in"><span class="dt" id="capD"></span><span class="tg">材料はそろえた。決めるのは、あなた。</span></div></div>
+<a class="prb" href="https://abeken1026395.github.io/pallas-mercato-7k9/in/yosou/" target="_blank" rel="noopener"><span class="prb-in"><small>LINE</small><b>AI予想部屋</b><span>買い目noteの更新と結果が届く</span><i aria-hidden="true">›</i></span></a>
 
 <div class="wrap">
 <section class="fol" id="fol" hidden aria-label="フォロー中の今日">
@@ -237,6 +253,13 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
     <div class="hl-r" id="hlR"></div>
   </section>
 
+  <h2 class="sh" style="margin-top:14px">お知らせ</h2>
+<section class="ann" aria-label="お知らせ">
+  <a class="an pri" href="https://abeken1026395.github.io/pallas-mercato-7k9/in/yosou/" target="_blank" rel="noopener"><small>LINE オープンチャット</small><b>AI予想部屋</b><span>AIが出した買い目（有料note）の更新と、当たったレースの結果が届きます</span><em>LINEで受け取る ›</em></a>
+  <a class="an" href="https://line.me/ti/g2/cWBd6B5LrMYi-egDxWT_oTWxRbdU3xuC9H0QVA?" target="_blank" rel="noopener"><small>オープンチャット｜11/9（月）21時から</small><b>電子書籍を動画で配信（全3話）</b><span>専用のオープンチャットで受け取れます</span></a>
+  <div class="an"><small>阿部より</small><b>YouTubeは11月末に再開します</b></div>
+  <a class="an upd" id="updL" href="../updates/" hidden><small id="updD">更新</small><span id="updT"></span></a>
+</section>
   <div class="seg" role="tablist">
     <button class="on" id="sgA" role="tab"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7"/><rect x="13.5" y="3.5" width="7" height="7"/><rect x="3.5" y="13.5" width="7" height="7"/><rect x="13.5" y="13.5" width="7" height="7"/></svg>開催一覧</button>
     <button id="sgB" role="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="7.5"/><path d="M12 9v4l2.5 2M9.5 3h5"/></svg>締切順</button>
@@ -253,13 +276,6 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
   </div>
   <a class="fail" id="fail" href="../racers/" hidden>今日の開催は出走表で確認できます</a>
 
-<h2 class="sh">お知らせ</h2>
-<section class="ann" aria-label="お知らせ">
-  <a class="an" href="https://abeken1026395.github.io/pallas-mercato-7k9/in/yosou/" target="_blank" rel="noopener"><small>LINE オープンチャット</small><b>AI予想部屋</b><span>AIが出した予想（note）の更新と、当たったレースの結果が届きます</span></a>
-  <a class="an" href="https://line.me/ti/g2/cWBd6B5LrMYi-egDxWT_oTWxRbdU3xuC9H0QVA?" target="_blank" rel="noopener"><small>オープンチャット｜11/9（月）21時から</small><b>電子書籍を動画で配信（全3話）</b><span>専用のオープンチャットで受け取れます</span></a>
-  <div class="an"><small>阿部より</small><b>YouTubeは11月末に再開します</b></div>
-  <a class="an upd" id="updL" href="../updates/" hidden><small id="updD">更新</small><span id="updT"></span></a>
-</section>
 <h2 class="sh chh" id="chHead" hidden><span id="chH2" style="font-size:15px;font-weight:800;color:var(--tx);letter-spacing:.06em">場の朝刊</span><span id="chSub"></span></h2>
 <div class="ch" id="chBox" hidden>
   <div class="ch-rail" id="chRail" role="list"></div>
@@ -274,6 +290,7 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
       <div class="bars" aria-hidden="true"><div class="bar me"><i id="barKata" style="width:0"></i></div><div class="bar base"><i id="barKataB" style="width:0"></i></div></div></div>
   </div>
   <p class="ans-f num">棒は上が見立て、下がいつも（全レース）。毎朝の見立てを夜に答え合わせ ─ <span id="v-total">—</span>レース<span id="v-asof"></span>。有料noteとは仕組みも集計も別です。</p>
+  <a class="ntl" href="https://note.com/abeken2000" target="_blank" rel="noopener">買い目は有料noteで（この答え合わせとは別の仕組み）<i aria-hidden="true">›</i></a>
   <details class="ans-d"><summary>前日の結果と、数え方</summary><div class="ans-b">
     <div class="day" id="dayBox"><b class="num" id="dDate">—</b> の答え合わせ（<span class="num" id="dN">—</span>レース）<br>「荒れる」と見た <b class="num" id="dHn">—</b> 本のうち <b class="num" id="dHh">—</b> 本が荒れた／「堅め」と見た <b class="num" id="dKn">—</b> 本のうち <b class="num" id="dKh">—</b> 本が堅く決着<br><span id="dNote"></span></div>
     <h3>荒れる ＝ 3連単の払戻 5,000円以上</h3>
