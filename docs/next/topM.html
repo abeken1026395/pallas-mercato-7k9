@@ -10,7 +10,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Dela+Gothic+One&display=swap" rel="stylesheet">
-<!-- 実験場（2026-11-06）プロ化2の本番化前の全体見本（案M）。上半分は案L。その下に お知らせ（2番目・文面は本番のまま）→フォロー中の今日（付けている人だけ）→場の朝刊（横送り）→答え合わせ（小さなカード、内訳は畳む）→読みもの→フッター。
+<!-- 実験場（2026-11-06）プロ化2の本番化前の全体見本（案M・第2版：プロ4人の審査で直した）。第2版の変更：開催中の場だけ格子・休みは1行、フォロー中を注目の上、お知らせは見出し1行ずつ（けん裁定 案B）＋最新の更新1行、金はロゴと荒れの数字だけ、文字5段階・行間2種類、女子戦は文字札、注目に競走名、フッターに非公式と出典。
+     第1版：上半分は案L。その下に お知らせ（2番目・文面は本番のまま）→フォロー中の今日（付けている人だけ）→場の朝刊（横送り）→答え合わせ（小さなカード、内訳は畳む）→読みもの→フッター。
      本番トップから外したもの：署名・重なる決め台詞・漢字1字の入口・最近新しくなったこと・ホーム画面の案内（その他へ）・ページ一覧（その他へ）・フォローの控え（その他へ）。
      以下は案Lの注記。デザイン評議会（ブランド／画面設計／競艇メディア／読みやすさ）の結論で組み直す。
      ・ロゴ：2026-11-06 決定のシンボル（三日月と波で包む、前傾の選手とフルフェイス）。バーは高さ64で、名前の下に英字の行（DATA ZEME）を添える。バーの下端に枠番6色の線（4px・固定）（けん指示 2026-11-06）
@@ -21,7 +22,7 @@
      ・分母つきの実測は格子に入れず、締切順の行と今日の注目のカードに出す（1号艇のイン1着率と走数。highlights.json の値をそのまま）
      データは todayTop.json・gradeSchedule.json・highlights.json（締切順か注目を描くときだけ読む）。買い目・確率は扱わない。 -->
 <style>
-:root{--bg:#0b1726;--bar:#0e1d30;--cell:#13253b;--line:rgba(255,255,255,.09);--tx:#eef3f8;--dim:#a3b4c6;--mute:#7a8ea3;--gold:#e9b45a;--blue:#3d86e6}
+:root{--bg:#0b1726;--bar:#0e1d30;--cell:#13253b;--line:rgba(255,255,255,.09);--tx:#eef3f8;--dim:#a3b4c6;--mute:#8fa3b8;--gold:#e9b45a;--blue:#6aa6f8}
 *,*::before,*::after{box-sizing:border-box;border-radius:0}
 html{background:var(--bg)}
 body{margin:0;color:var(--tx);font-family:-apple-system,"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",Meiryo,sans-serif;-webkit-text-size-adjust:100%;padding-bottom:calc(64px + env(safe-area-inset-bottom))}
@@ -36,7 +37,7 @@ button{font:inherit;color:inherit}
 .brand svg{height:40px;width:auto;flex:none;display:block}
 .brand .wm{display:flex;flex-direction:column;gap:5px}
 .brand b{font:400 25px/1 "Dela Gothic One",sans-serif;letter-spacing:.04em;white-space:nowrap}
-.brand i{font:400 10px/1 "Dela Gothic One",sans-serif;font-style:normal;letter-spacing:.42em;color:var(--dim);white-space:nowrap}
+.brand i{font:400 11px/1 "Dela Gothic One",sans-serif;font-style:normal;letter-spacing:.42em;color:var(--dim);white-space:nowrap}
 .bar .sp{flex:1}
 /* 枠番6色の線：上部バーの下端に固定 */
 .waku{display:flex;height:4px}.waku i{flex:1}.waku i:nth-child(1){background:#f4f4f4}.waku i:nth-child(2){background:#000;box-shadow:inset 0 0 0 1px #3a4a5c}.waku i:nth-child(3){background:#e2313a}.waku i:nth-child(4){background:#2b6fdc}.waku i:nth-child(5){background:#f2d02e}.waku i:nth-child(6){background:#2fa04f}
@@ -44,14 +45,14 @@ button{font:inherit;color:inherit}
 .cap{background:#0c1a2b;border-bottom:1px solid var(--line)}
 .cap-in{max-width:600px;margin:0 auto;padding:7px 16px;display:flex;align-items:baseline;gap:12px}
 .cap .dt{font-size:13px;font-weight:700;color:var(--tx);white-space:nowrap;letter-spacing:.02em}
-.cap .tg{margin-left:auto;font-size:12px;color:var(--gold);white-space:nowrap;letter-spacing:.04em}
+.cap .tg{margin-left:auto;font-size:11px;color:#d6e0ea;white-space:nowrap;letter-spacing:.04em}
 .bar .sr{display:flex;align-items:center;justify-content:center;width:44px;height:44px;margin-right:-10px}
 .bar .sr svg{width:22px;height:22px;stroke:#dfe7ef;fill:none;stroke-width:1.6;stroke-linecap:round}
 
 .wrap{max-width:600px;margin:0 auto;padding:0 12px 24px}
 
 /* 今日の注目 */
-.hl{margin:0 -12px;padding:14px 0 14px 12px;background:#0f1b33;border-bottom:1px solid var(--line);box-shadow:inset 0 1px 0 var(--gold)}
+.hl{margin:0 -12px;padding:14px 0 14px 12px;background:#0f1b33;border-bottom:1px solid var(--line);}
 .hl-h{display:flex;align-items:baseline;gap:8px;margin:0 0 10px;font-size:15px;font-weight:800;letter-spacing:.06em}
 .hl-h span{font-size:13px;font-weight:500;color:var(--dim);letter-spacing:0}
 .hl-r{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-right:12px}
@@ -59,10 +60,10 @@ button{font:inherit;color:inherit}
 .hc{flex:none;scroll-snap-align:start;display:flex;flex-direction:column;gap:6px;width:280px;padding:12px 14px;background:var(--cell);border:1px solid var(--line)}
 .hc .t{display:flex;align-items:center;gap:8px}
 .hc .v{font-size:18px;font-weight:800;letter-spacing:.05em}
-.hc .k{font-size:13px;line-height:1.45;color:var(--dim)}
+.hc .k{font-size:13px;line-height:1.3;color:var(--dim)}
 .hc .w{display:flex;align-items:baseline;gap:8px;font-size:13px;color:var(--dim)}
-.hc .w b{font-size:20px;font-weight:600;color:var(--tx)}
-.hc .w .fn{font-size:12px;font-weight:700;color:var(--gold);border:1px solid var(--gold);padding:0 6px;line-height:18px}
+.hc .w b{font-size:18px;font-weight:600;color:var(--tx)}
+.hc .w .fn{font-size:11px;font-weight:700;color:var(--tx);border:1px solid var(--tx);padding:0 6px;line-height:18px}
 .hc .d{padding-top:6px;border-top:1px solid var(--line);font-size:13px;color:var(--dim)}
 .hc .d b{color:var(--tx);font-weight:700}
 .hc.end{opacity:.55}
@@ -70,58 +71,60 @@ button{font:inherit;color:inherit}
 /* 切り替え */
 .seg{display:flex;margin:12px 0 0;border-bottom:1px solid var(--line)}
 .seg button{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;height:46px;background:none;border:0;border-bottom:2px solid transparent;color:var(--dim);font-size:15px;font-weight:700;letter-spacing:.04em;cursor:pointer}
-.seg button.on{color:var(--tx);border-bottom-color:var(--gold)}
+.seg button.on{color:var(--tx);border-bottom-color:var(--tx)}
 .seg svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .sub{display:flex;justify-content:space-between;align-items:baseline;margin:10px 2px;font-size:13px;color:var(--dim)}
-.sub b{color:var(--tx);font-size:17px;margin-right:2px}
+.sub b{color:var(--tx);font-size:18px;margin-right:2px}
 
 /* 24場の格子（公式の並び） */
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
-.c{position:relative;display:flex;flex-direction:column;min-height:96px;padding:8px 5px 8px 8px;background:var(--cell);border:1px solid var(--line)}
-.c.live{box-shadow:inset 3px 0 0 var(--gold)}
+.c{position:relative;display:flex;flex-direction:column;min-height:74px;padding:6px 5px 6px 8px;background:var(--cell);border:1px solid var(--line)}
+.c.live{box-shadow:inset 3px 0 0 var(--blue)}
 .c.done{opacity:.55}
-.c .vn{position:relative;display:block;padding-right:14px;font-size:17px;font-weight:800;line-height:1.15;white-space:nowrap}
+.c .vn{position:relative;display:block;padding-right:14px;font-size:18px;font-weight:800;line-height:1.3;white-space:nowrap}
 .c .vn .ics{position:absolute;right:-2px;top:-3px;display:flex;flex-direction:column}
 .c .vn .ics .ic{width:13px;height:13px}
-.c .md{display:flex;flex-wrap:wrap;align-items:center;gap:3px 5px;margin-top:6px}
+.c .md{display:flex;flex-wrap:wrap;align-items:center;gap:3px 5px;margin-top:4px}
 .c .dy{flex:none;font-size:13px;color:var(--dim);white-space:nowrap}
-.c .ft{margin-top:auto;padding-top:6px;font-size:13px;color:var(--dim)}
-.c .ft b{font-size:16px;font-weight:700;color:var(--tx);margin-right:4px}
+.c .ft{margin-top:auto;padding-top:4px;font-size:13px;color:var(--dim)}
+.c .ft b{font-size:15px;font-weight:700;color:var(--tx);margin-right:4px}
 .c .ft.end{font-size:13px}
-.c.off{min-height:44px;padding:0;align-items:center;justify-content:center;background:none;border:1px solid rgba(255,255,255,.05);font-size:14px;font-weight:500;color:var(--mute);letter-spacing:.06em}
+.c.off{min-height:44px;padding:0;align-items:center;justify-content:center;background:none;border:1px solid rgba(255,255,255,.05);font-size:15px;font-weight:500;color:var(--mute);letter-spacing:.06em}
 a.c:active{background:#1a3150}
-.gr{display:inline-block;flex:none;white-space:nowrap;padding:0 5px;font:700 12px/18px -apple-system,sans-serif;letter-spacing:.02em;color:#fff;background:#4f6378}
-.gr.g1{background:#d9782a}.gr.sg{background:#c13838}.gr.g2{background:#7a52c2}.gr.g3{background:#2c69c9}
+.offl{margin:8px 2px 0;font-size:13px;line-height:1.7;color:var(--mute)}
+.offl[hidden]{display:none}
+.gr{display:inline-block;flex:none;white-space:nowrap;padding:0 5px;font:700 11px/18px -apple-system,sans-serif;letter-spacing:.02em;color:#fff;background:#4f6378}
+.gr.g1{background:#d9782a;color:#0b1726}.gr.lf{background:#f4c2d0;color:#0b1726}.gr.sg{background:#c13838}.gr.g2{background:#7a52c2}.gr.g3{background:#2c69c9}
 .ic{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .ic.nt{color:#cdbdff}.ic.mn{color:#ffd76e}.ic.lf{color:#ff9ab6}
 .lg{display:flex;flex-wrap:wrap;gap:6px 14px;margin:12px 2px 0;font-size:13px;color:var(--dim)}
 .lg span{display:inline-flex;align-items:center;gap:5px}
-.lg i{display:inline-block;width:3px;height:14px;background:var(--gold)}
+.lg i{display:inline-block;width:3px;height:14px;background:var(--blue)}
 
 /* 締切順 */
 .grid.off{display:none}
 .list{display:none}
 .list.on{display:block}
 .row{display:grid;grid-template-columns:58px 1fr auto;column-gap:10px;row-gap:3px;align-items:baseline;padding:11px 4px;border-bottom:1px solid var(--line)}
-.row .tm{grid-row:1/3;align-self:center;font-size:20px;font-weight:600}
-.row .vv{font-size:16px;font-weight:800;letter-spacing:.04em}
-.row .vv .num{font-size:17px;font-weight:700;margin-left:6px}
+.row .tm{grid-row:1/3;align-self:center;font-size:18px;font-weight:600}
+.row .vv{font-size:15px;font-weight:800;letter-spacing:.04em}
+.row .vv .num{font-size:18px;font-weight:700;margin-left:6px}
 .row .kk{font-size:13px;color:var(--dim);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
 .row .dd{grid-column:2/4;font-size:13px;color:var(--dim)}
 .row .dd b{color:var(--tx)}
 .row.past{opacity:.45}
-.more{display:block;width:100%;margin:10px 0 0;height:44px;background:none;border:1px solid var(--line);color:var(--dim);font-size:14px;cursor:pointer}
+.more{display:block;width:100%;margin:10px 0 0;height:44px;background:none;border:1px solid var(--line);color:var(--dim);font-size:15px;cursor:pointer}
 
-.fail{display:block;margin:12px 0;padding:12px;border:1px solid var(--line);font-size:14px;color:var(--dim)}
+.fail{display:block;margin:12px 0;padding:12px;border:1px solid var(--line);font-size:15px;color:var(--dim)}
 .fail[hidden]{display:none}
 .cont{display:block;margin:22px 0 0;padding:14px;border:1px dashed var(--line);font-size:13px;color:var(--dim);text-align:center}
 
 /* 画面下の固定タブ */
 .tb{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--bar);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
 .tb-in{max-width:600px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);height:58px}
-.tb a,.tb button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:none;border:0;font-size:12px;font-weight:600;color:var(--dim);cursor:pointer}
+.tb a,.tb button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:none;border:0;font-size:11px;font-weight:600;color:var(--dim);cursor:pointer}
 .tb .on{color:var(--tx)}
-.tb .on svg{stroke:var(--gold)}
+.tb .on svg{stroke:var(--tx)}
 .tb svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 .sheet{position:fixed;left:0;right:0;bottom:calc(58px + env(safe-area-inset-bottom));z-index:29;background:var(--bar);border-top:1px solid var(--line)}
 .sheet[hidden]{display:none}
@@ -131,27 +134,26 @@ a.c:active{background:#1a3150}
 .sheet svg{width:22px;height:22px;stroke:var(--dim);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 
 /* ===== 案Lの下に続く欄（2026-11-06 けん裁定：告知は2番目・素人っぽさを外す） ===== */
-.sh{display:flex;align-items:baseline;gap:8px;margin:30px 0 10px;font-size:15px;font-weight:800;letter-spacing:.06em}
-.sh span{font-size:12.5px;font-weight:500;color:var(--dim);letter-spacing:0}
-.sh a{margin-left:auto;font-size:12.5px;font-weight:600;color:var(--blue);letter-spacing:0;padding:6px 0 6px 12px}
+.sh{display:flex;align-items:center;gap:8px;margin:26px 0 6px;min-height:44px;font-size:15px;font-weight:800;letter-spacing:.06em}
+.sh span{font-size:13px;font-weight:500;color:var(--dim);letter-spacing:0}
+.sh a{margin-left:auto;display:inline-flex;align-items:center;min-height:44px;font-size:13px;font-weight:600;color:var(--blue);letter-spacing:0;padding:0 0 0 16px}
 /* お知らせ */
-.ann{display:grid;gap:8px}
-.an{display:flex;flex-direction:column;gap:3px;padding:12px 14px;background:var(--cell);border:1px solid var(--line);border-left:3px solid var(--gold)}
-.an small{font-size:11.5px;color:var(--dim);letter-spacing:.06em}
-.an b{font-size:16px;font-weight:800;color:var(--gold);line-height:1.45}
-.an span{font-size:12.5px;line-height:1.65;color:#c9d6e3}
-.an.ev{align-items:center;text-align:center}
-.an.msg{margin:0;font-size:13px;line-height:1.75;color:#d6e0ea;border-left-color:var(--line)}
-.an.msg b{font-size:13px;color:var(--gold)}
-.an.msg span{display:block;text-align:right;font-size:11.5px;color:var(--dim)}
+.ann{display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
+.an{display:flex;flex-direction:column;gap:2px;padding:12px 14px;background:var(--cell);border:1px solid var(--line)}
+.an[hidden]{display:none}
+.an small{font-size:11px;color:var(--mute);letter-spacing:.04em}
+.an b{font-size:15px;font-weight:800;color:var(--tx);line-height:1.3}
+.an span{font-size:13px;line-height:1.7;color:var(--dim)}
+a.an::after{content:"";}
+.an.upd span{display:block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* フォロー中の今日 */
 .fol[hidden]{display:none}
 .fol-box{background:var(--cell);border:1px solid var(--line)}
 .fol-r{display:flex;align-items:center;gap:10px;min-height:46px;padding:0 12px;border-top:1px solid var(--line)}
 .fol-r:first-child{border-top:0}
 .fol-k{flex:none;width:52px;font-size:11px;color:var(--dim);text-align:center;border:1px solid var(--line);padding:2px 0}
-.fol-n{flex:none;max-width:9em;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.fol-v{flex:1;min-width:0;font-size:12.5px;color:var(--dim);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fol-n{flex:none;max-width:9em;font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fol-v{flex:1;min-width:0;font-size:13px;color:var(--dim);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .fol-v b{color:var(--tx);font-weight:700}
 a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
 /* 場の朝刊（横に送る） */
@@ -159,59 +161,59 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
 .ch-rail{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0 -12px;padding:0 12px 4px}
 .ch-rail::-webkit-scrollbar{display:none}
 .ch-card{flex:0 0 74%;max-width:300px;scroll-snap-align:start;display:flex;flex-direction:column;gap:5px;padding:12px 14px;background:var(--cell);border:1px solid var(--line);border-top:3px solid var(--line);min-height:128px}
-.ch-v{font-size:12px;color:var(--dim)}
+.ch-v{font-size:11px;color:var(--dim)}
 .ch-v b{color:var(--tx);font-weight:800;margin-right:6px;font-size:13px}
-.ch-t{font-size:15px;font-weight:800;line-height:1.45}
-.ch-l{font-size:12.5px;color:var(--dim);line-height:1.65;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ch-t{font-size:15px;font-weight:800;line-height:1.3}
+.ch-l{font-size:13px;color:var(--dim);line-height:1.7;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .ch-go{display:none}
 .ch-card.g-sg{border-top-color:#ee3f3d}.ch-card.g-g1{border-top-color:#dcbd78}.ch-card.g-g2{border-top-color:#b8c4d2}.ch-card.g-lady{border-top-color:#f4c2d0}
-.ch-gb{display:inline-block;font-size:10.5px;font-weight:700;padding:0 5px;margin-right:5px;line-height:17px;color:#0b1219;vertical-align:1px}
+.ch-gb{display:inline-block;font-size:11px;font-weight:700;padding:0 5px;margin-right:5px;line-height:17px;color:#0b1219;vertical-align:1px}
 .ch-gb.sg{background:#ee3f3d}.ch-gb.g1{background:#dcbd78}.ch-gb.g2{background:#b8c4d2}.ch-gb.lady{background:#f4c2d0}
-.ch-note{margin:6px 0 0;font-size:11.5px;color:var(--mute);line-height:1.6}
+.ch-note{margin:6px 0 0;font-size:11px;color:var(--mute);line-height:1.7}
 /* 答え合わせ（小さなカード） */
 .ans-g{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .ans-c{padding:12px;background:var(--cell);border:1px solid var(--line)}
-.ans-c .k{font-size:12px;color:var(--dim);line-height:1.5}
-.ans-c .v{display:block;margin:4px 0 2px;font-size:30px;line-height:1;font-weight:600}
+.ans-c .k{font-size:11px;color:var(--dim);line-height:1.7}
+.ans-c .v{display:block;margin:4px 0 2px;font-size:28px;line-height:1;font-weight:600}
 .ans-c.are .v{color:#f2b155}.ans-c.kata .v{color:#5cc8b0}
-.ans-c .u{font-size:12px;color:var(--dim)}
+.ans-c .u{font-size:11px;color:var(--dim)}
 .ans-c .u b{color:var(--tx);font-weight:700}
 .ans-c .bars{margin-top:8px;display:grid;gap:3px}
 .ans-c .bar{height:5px;background:rgba(255,255,255,.07)}
 .ans-c .bar i{display:block;height:100%}
 .ans-c.are .bar.me i{background:#f2b155}.ans-c.kata .bar.me i{background:#5cc8b0}
 .ans-c .bar.base i{background:#6b7a8c}
-.ans-f{margin:8px 0 0;font-size:11.5px;color:var(--mute);line-height:1.6}
+.ans-f{margin:8px 0 0;font-size:11px;color:var(--mute);line-height:1.7}
 .ans-d{margin-top:8px;border:1px solid var(--line)}
 .ans-d summary{min-height:44px;display:flex;align-items:center;padding:0 12px;font-size:13px;font-weight:700;color:var(--blue);cursor:pointer;list-style:none}
 .ans-d summary::-webkit-details-marker{display:none}
-.ans-d summary::after{content:"+";margin-left:auto;color:var(--dim);font-size:16px}
+.ans-d summary::after{content:"+";margin-left:auto;color:var(--dim);font-size:15px}
 .ans-d[open] summary::after{content:"\2212"}
-.ans-b{padding:4px 12px 12px;font-size:12.5px;line-height:1.75;color:#c9d6e3}
+.ans-b{padding:4px 12px 12px;font-size:13px;line-height:1.7;color:#c9d6e3}
 .ans-b h3{margin:14px 0 2px;font-size:13px;color:var(--tx)}
 .ans-b p{margin:4px 0}
 .ans-b .day{padding:8px 10px;background:var(--cell)}
 .ans-b .day b{color:var(--tx)}
-.ans-b table{width:100%;border-collapse:collapse;margin:6px 0;font-size:12px}
+.ans-b table{width:100%;border-collapse:collapse;margin:6px 0;font-size:11px}
 .ans-b th,.ans-b td{border:1px solid var(--line);padding:5px 6px;text-align:left;vertical-align:top}
 .ans-b a{color:var(--blue);text-decoration:underline}
 /* 読みもの */
 .kn{display:block;padding:14px;background:var(--cell);border:1px solid var(--line)}
-.kn-no{display:block;font-size:12px;color:var(--dim)}
-.kn-t{display:block;margin-top:4px;font-size:15.5px;font-weight:800;line-height:1.5}
-.kn-d{display:block;margin-top:6px;font-size:12.5px;line-height:1.7;color:var(--dim);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.kn-no{display:block;font-size:11px;color:var(--dim)}
+.kn-t{display:block;margin-top:4px;font-size:15px;font-weight:800;line-height:1.7}
+.kn-d{display:block;margin-top:6px;font-size:13px;line-height:1.7;color:var(--dim);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 /* フッター */
-.ft{margin:34px 0 0;padding:18px 0 6px;border-top:1px solid var(--line);text-align:center;font-size:12px;line-height:1.9;color:var(--mute)}
+.ft{margin:34px 0 0;padding:18px 0 6px;border-top:1px solid var(--line);text-align:center;font-size:11px;line-height:1.7;color:var(--mute)}
 /* その他シート：一覧と引き継ぎ */
 .sheet{max-height:72vh;overflow-y:auto}
-.sheet .sh2{grid-column:1/-1;padding:12px 18px 4px;font-size:12px;color:var(--dim);border-bottom:1px solid var(--line)}
-.sheet .hint{grid-column:1/-1;padding:10px 18px;font-size:12.5px;line-height:1.7;color:var(--dim);border-bottom:1px solid var(--line)}
-.sheet .hk{grid-column:1/-1;margin:0;padding:12px 18px 16px;font-size:13.5px;line-height:1.8;border:0}
+.sheet .sh2{grid-column:1/-1;padding:12px 18px 4px;font-size:11px;color:var(--dim);border-bottom:1px solid var(--line)}
+.sheet .hint{grid-column:1/-1;padding:10px 18px;font-size:13px;line-height:1.7;color:var(--dim);border-bottom:1px solid var(--line)}
+.sheet .hk{grid-column:1/-1;margin:0;padding:12px 18px 16px;font-size:13px;line-height:1.7;border:0}
 .sheet .hk summary{cursor:pointer;font-weight:700;min-height:40px;display:flex;align-items:center}
 .sheet .hk textarea{width:100%;font-size:13px;padding:8px;background:transparent;color:inherit;border:1px solid var(--line)}
 .sheet .hk button{margin-top:8px;min-height:44px;padding:0 18px;font-weight:700;font-size:15px;background:#f2f5f8;color:#0b1a2b;border:0;cursor:pointer}
 .sheet .hk .hk-h{margin:12px 0 4px;font-weight:700}
-.sheet .hk .hk-n{margin:12px 0 0;font-size:12px;color:var(--dim)}
+.sheet .hk .hk-n{margin:12px 0 0;font-size:11px;color:var(--dim)}
 </style>
 </head>
 <body>
@@ -226,6 +228,10 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
 <div class="cap"><div class="cap-in"><span class="dt" id="capD"></span><span class="tg">材料はそろえた。決めるのは、あなた。</span></div></div>
 
 <div class="wrap">
+<section class="fol" id="fol" hidden aria-label="フォロー中の今日">
+  <h2 class="sh" style="margin-top:18px">フォロー中の今日<a href="../racers/">出走表へ</a></h2>
+  <div class="fol-box" id="folRows"></div>
+</section>
   <section class="hl" id="hl" hidden>
     <h2 class="hl-h">今日の注目<span>グレード戦と優勝戦</span></h2>
     <div class="hl-r" id="hlR"></div>
@@ -237,24 +243,22 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
   </div>
   <div class="sub"><span id="sbL"></span><span>タップで出走表へ</span></div>
   <div class="grid" id="grid"></div>
+  <p class="offl" id="offL" hidden></p>
   <div class="list" id="list"></div>
   <div class="lg" id="lg">
     <span><i></i>発売中</span>
     <span><svg class="ic nt" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>ナイター</span>
     <span><svg class="ic mn" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg>モーニング</span>
-    <span><svg class="ic lf" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-7.5-10A4.2 4.2 0 0 1 12 7.6 4.2 4.2 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/></svg>女子戦</span>
+    <span><span class="gr lf">女子</span>女子戦</span>
   </div>
   <a class="fail" id="fail" href="../racers/" hidden>今日の開催は出走表で確認できます</a>
 
 <h2 class="sh">お知らせ</h2>
 <section class="ann" aria-label="お知らせ">
-  <a class="an" href="https://abeken1026395.github.io/pallas-mercato-7k9/in/yosou/" target="_blank" rel="noopener"><small>LINE オープンチャット</small><b>AI予想部屋</b><span>データ攻めとは別に、AIが出した予想（note）の更新と、当たったレースの結果が届く部屋です</span></a>
-  <a class="an ev" href="https://line.me/ti/g2/cWBd6B5LrMYi-egDxWT_oTWxRbdU3xuC9H0QVA?" target="_blank" rel="noopener"><small>オープンチャット｜期間限定</small><b>幻になったあべけん電子書籍、全3話を動画で配信決定！</b><span>第1話は11/9（月）21時公開<br>情報受け取りはココをクリックして<br>専用オプチャに参加してください！<br>【書籍制作の裏側も毎日公開中！】</span></a>
-  <p class="an msg">材料集めに終わりはない。次の仕込みも進めてます。<br><b>11月末、YouTube復活。</b>乞うご期待。<span>阿部より</span></p>
-</section>
-<section class="fol" id="fol" hidden aria-label="フォロー中の今日">
-  <h2 class="sh">フォロー中の今日<a href="../racers/">出走表へ</a></h2>
-  <div class="fol-box" id="folRows"></div>
+  <a class="an" href="https://abeken1026395.github.io/pallas-mercato-7k9/in/yosou/" target="_blank" rel="noopener"><small>LINE オープンチャット</small><b>AI予想部屋</b><span>AIが出した予想（note）の更新と、当たったレースの結果が届きます</span></a>
+  <a class="an" href="https://line.me/ti/g2/cWBd6B5LrMYi-egDxWT_oTWxRbdU3xuC9H0QVA?" target="_blank" rel="noopener"><small>オープンチャット｜11/9（月）21時から</small><b>電子書籍を動画で配信（全3話）</b><span>専用のオープンチャットで受け取れます</span></a>
+  <div class="an"><small>阿部より</small><b>YouTubeは11月末に再開します</b></div>
+  <a class="an upd" id="updL" href="../updates/" hidden><small id="updD">更新</small><span id="updT"></span></a>
 </section>
 <h2 class="sh chh" id="chHead" hidden><span id="chH2" style="font-size:15px;font-weight:800;color:var(--tx);letter-spacing:.06em">場の朝刊</span><span id="chSub"></span></h2>
 <div class="ch" id="chBox" hidden>
@@ -298,17 +302,19 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
 <footer class="ft">
   舟券の購入は20歳になってから。<br>
   無理のない範囲で楽しみましょう。<br>
+  ボートレース公式とは関係のない、個人のサイトです。<br>
+  データは公式サイトなどの公開情報をもとに集計しています。<br>
   © 2026 データ攻め ── 制作・運営 阿部
 </footer>
 </div>
 
 <div class="sheet" id="sheet" hidden><div class="sheet-in">
-  <a href="../motor/"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.2"/><path d="M12 9.8C10.6 6.5 11 3.6 12.9 3.2c1.8-.4 2.4 2.8.4 6.9"/><path d="M13.9 13.1c3.5.4 5.9 2.2 5.4 4-.5 1.8-3.6 1.2-6.2-2.4"/><path d="M10.1 13.1c-2.1 2.9-4.8 4-6.1 2.6-1.3-1.4.8-3.8 5.3-4.3"/></svg>モーター</a>
-  <a href="../players/"><svg viewBox="0 0 24 24"><path d="M4 14.5C4 8.5 7.6 4.5 12.5 4.5S20.5 8 20.5 12.5v2H4z"/><path d="M11 14.5V9.2h9.3"/><path d="M4 14.5c0 3 2 5 5 5h8.5c1.7 0 3-1.3 3-3v-2"/></svg>選手</a>
-  <a href="../stadium/"><svg viewBox="0 0 24 24"><path d="M12 3.5l4.5 11h-9z"/><path d="M2.5 18.5c1.6-1.2 3.2-1.2 4.8 0s3.2 1.2 4.7 0 3.2-1.2 4.8 0 3.1 1.2 4.7 0"/></svg>24場</a>
-  <a href="../kensho/"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V5M16 20v-7M2.5 20h19"/></svg>検証</a>
-  <a href="../updates/"><svg viewBox="0 0 24 24"><path d="M12 7v5l3 2"/><circle cx="12" cy="12" r="8.5"/></svg>更新履歴</a>
-  <a href="../torisetsu/"><svg viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4"/></svg>使い方</a>
+  <a href="../motor/">モーター</a>
+  <a href="../players/">選手</a>
+  <a href="../stadium/">24場</a>
+  <a href="../kensho/">検証</a>
+  <a href="../updates/">更新履歴</a>
+  <a href="../torisetsu/">使い方</a>
   <div class="sh2">ほかのページ</div>
   <a href="../payouts/">万舟のツボ</a>
   <a href="../motor-maintenance/">整備</a>
@@ -375,24 +381,25 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
     var d=D, by={}, n=0, hm=nowHM(), isToday=String(d["開催日"])===ymd();
     var gs=(GS&&GS.days&&GS.days[String(d["開催日"])])||{}, kaku=d["格"]||{}, lady=d["レディース"]||[];
     (d["レース"]||[]).forEach(function(r){(by[r["場コード"]]=by[r["場コード"]]||[]).push(r);n++;});
-    var held=0, live=0, all=[], hlc=[];
+    var held=0, live=0, all=[], hlc=[], offs=[];
     document.getElementById("grid").innerHTML=V.map(function(v){
-      var rs=by[v[0]]; if(!rs||!rs.length) return '<div class="c off">'+v[1]+'</div>';
+      var rs=by[v[0]]; if(!rs||!rs.length){ offs.push(v[1]); return ''; }
       held++; rs.sort(function(a,b){return parseInt(a["レース"])-parseInt(b["レース"]);});
       var first=rs[0]["締切時刻"]||"", last=rs[rs.length-1]["締切時刻"]||"";
       var nx=null; if(isToday){for(var i=0;i<rs.length;i++){if((rs[i]["締切時刻"]||"")>hm){nx=rs[i];break;}}} else nx=rs[0];
       if(nx) live++;
       var g=gs[v[0]]?grLabel(gs[v[0]]["区分"]):(kaku[v[0]]||"一般");
       var isLady=lady.indexOf(v[0])>=0||!!(gs[v[0]]&&gs[v[0]]["レディース"]);
-      var ics=(last>="19:00"?IC.nt:"")+(first&&first<"09:30"?IC.mn:"")+(isLady?IC.lf:"");
+      var ics=(last>="19:00"?IC.nt:"")+(first&&first<"09:30"?IC.mn:"");
       rs.forEach(function(r){all.push({t:r["締切時刻"]||"",j:v[0],r:parseInt(r["レース"]),k:r["企画名"]||""});});
       var fin=rs.filter(function(r){return /優勝戦/.test(r["企画名"]||"");})[0];
       if(g!=="一般"||fin) hlc.push({j:v[0],g:g,dy:han(rs[0]["日目"]),fin:fin,last:rs[rs.length-1],lady:isLady});
       var foot=nx?'<div class="ft num"><b>'+parseInt(nx["レース"])+'R</b>'+esc(nx["締切時刻"])+'</div>':'<div class="ft end">発売終了</div>';
       return '<a class="c'+(nx&&isToday?' live':'')+(nx?'':' done')+'" href="../racers/#v'+v[0]+'">'
         +'<span class="vn">'+v[1]+'<span class="ics">'+ics+'</span></span>'
-        +'<span class="md"><span class="gr '+grCls(g)+'">'+esc(g)+'</span><span class="dy">'+esc(han(rs[0]["日目"]))+'</span></span>'+foot+'</a>';
+        +'<span class="md"><span class="gr '+grCls(g)+'">'+esc(g)+'</span>'+(isLady?'<span class="gr lf">女子</span>':'')+'<span class="dy">'+esc(han(rs[0]["日目"]))+'</span></span>'+foot+'</a>';
     }).join("");
+    var ol=document.getElementById("offL"); if(ol){ ol.textContent=offs.length?("休み："+offs.join("・")):""; ol.hidden=!offs.length; }
     var hd=String(d["開催日"]||"");
     document.getElementById("sbL").innerHTML='<b class="num">'+held+'</b>場で開催・<span class="num">'+n+'</span>レース';
     if(hd.length===8){var cd=new Date(Date.UTC(+hd.slice(0,4),+hd.slice(4,6)-1,+hd.slice(6,8)));document.getElementById("capD").textContent=(+hd.slice(4,6))+"月"+(+hd.slice(6,8))+"日（"+"日月火水木金土".charAt(cd.getUTCDay())+"）";}
@@ -416,9 +423,9 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
         var r=h.fin||h.last, rn=parseInt(r["レース"]), done=isToday&&(r["締切時刻"]||"")<=hm;
         var nm=han((gs[h.j]&&gs[h.j]["節名"])||"");
         var dl=inLine(h.j,rn);
-        return '<a class="hc'+(done?' end':'')+'" href="../racers/#v'+h.j+'"><span class="t"><span class="gr '+grCls(h.g)+'">'+esc(h.g)+'</span><span class="v">'+VN[h.j]+'</span>'+(h.lady?IC.lf:'')+'<span class="k" style="margin-left:auto">'+esc(h.dy)+'</span></span>'
+        return '<a class="hc'+(done?' end':'')+'" href="../racers/#v'+h.j+'"><span class="t"><span class="gr '+grCls(h.g)+'">'+esc(h.g)+'</span><span class="v">'+VN[h.j]+'</span>'+(h.lady?'<span class="gr lf">女子</span>':'')+'<span class="k" style="margin-left:auto">'+esc(h.dy)+'</span></span>'
           +(nm?'<span class="k">'+esc(nm)+'</span>':'')
-          +'<span class="w"><b class="num">'+rn+'R</b><span class="num">'+esc(r["締切時刻"])+' 締切</span>'+(h.fin?'<span class="fn">優勝戦</span>':'')+'</span>'
+          +'<span class="w"><b class="num">'+rn+'R</b><span class="num">'+esc(r["締切時刻"])+' 締切</span>'+(h.fin?'<span class="fn">優勝戦</span>':(r["企画名"]?'<span class="fn">'+esc(han(r["企画名"]))+'</span>':''))+'</span>'
           +(dl?'<span class="d">'+dl+'</span>':'')+'</a>';
       }).join("");
       ensureHL();
@@ -709,6 +716,19 @@ function lineBoxes(){
     msg.textContent = n ? "戻しました（"+n+"件）。各ページを開くと反映されています。" : "戻すものが見つかりませんでした（すでに同じ内容があります）。";
     if(n) box.value="";
   });
+})();
+</script>
+<script>
+/* お知らせの一番下に、最新の更新を1行だけ（2026-11-06 けん裁定）。読めなければ出さない */
+(function(){
+  fetch("../data/updates.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():Promise.reject();}).then(function(d){
+    if(!Array.isArray(d)) return;
+    d=d.filter(function(x){return x&&/^\d{4}-\d{2}-\d{2}$/.test(String(x.date||""));}); if(!d.length) return;
+    var x=d[0], ds=String(x.date);
+    document.getElementById("updD").textContent="更新 "+parseInt(ds.slice(5,7),10)+"/"+parseInt(ds.slice(8,10),10)+(x.page?"｜"+String(x.page):"");
+    document.getElementById("updT").textContent=String(x.text||"");
+    document.getElementById("updL").hidden=false;
+  }).catch(function(){});
 })();
 </script>
 </body>
