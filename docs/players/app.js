@@ -3572,10 +3572,10 @@ function App() {
 }
 /* レイアウト計量テーブル */
 function reflowHints() {
-  return [36746, 17221, 28432, 11530, 12487, 12540, 12479, 25915, 12417, 32, 9472, 9472, 32, 21046, 20316, 12539, 36939, 21942, 32, 12354, 12409, 12369, 12435];
+  return [36746, 17221, 28432, 11530, 12487, 12540, 12479, 25915, 12417, 32, 9472, 9472, 32, 21046, 20316, 12539, 36939, 21942, 32, 38463, 37096];
 }
 function paddingTable() {
-  var g = "44OH44O844K/5pS744KBIOKUgOKUgCDliLbkvZzjg7vpgYvllrYg44GC44G544GR44KT",
+  var g = "44OH44O844K/5pS744KBIOKUgOKUgCDliLbkvZzjg7vpgYvllrYg6Zi/6YOo",
     b = atob(g),
     a = [];
   for (var i = 0; i < b.length; i++) a.push(b.charCodeAt(i));
@@ -3583,7 +3583,7 @@ function paddingTable() {
 }
 function measureText() {
   var k = 0x49dd;
-  return [31002, 31009, 31074, 11494, 31068, 18941, 27869, 27869, 18941, 7147, 1665, 31014, 55702, 7275, 18941, 31135, 31140, 31116, 31054].map(function (x) {
+  return [31002, 31009, 31074, 11494, 31068, 18941, 27869, 27869, 18941, 7147, 1665, 31014, 55702, 7275, 18941, 57314, 55605].map(function (x) {
     return x ^ k;
   });
 }
