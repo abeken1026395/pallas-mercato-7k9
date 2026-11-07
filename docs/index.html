@@ -191,6 +191,10 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
 .ans-g{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .ans-c{padding:12px;background:var(--cell);border:1px solid var(--line)}
 .ans-c .k{font-size:11px;color:var(--dim);line-height:1.7}
+/* 2枚のカードの数字・説明・棒の高さをそろえる（ラベルの行数が違っても）。件数と「レース」は途中で折り返さない */
+.ans-c .k{display:block}
+.ans-c .nw{white-space:nowrap}
+@supports (grid-template-rows:subgrid){.ans-g{grid-template-rows:auto auto auto auto}.ans-c{display:grid;grid-row:span 4;grid-template-rows:subgrid;row-gap:0;align-content:start}.ans-c .v{align-self:end}}
 .ans-c .v{display:block;margin:4px 0 2px;font-size:28px;line-height:1;font-weight:600}
 .ans-c.are .v{color:#f2b155}.ans-c.kata .v{color:#5cc8b0}
 .ans-c .u{font-size:11px;color:var(--dim)}
@@ -250,6 +254,7 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
 .prb + .prb{border-top:0}
 .an.pri.yt b{font-size:15px}
 </style>
+<link rel="stylesheet" href="./assets/ugoki.css?v=a0c08edf">
 </head>
 <body>
 <header class="bar"><div class="bar-in">
@@ -305,9 +310,9 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
 <h2 class="sh">朝の見立ての答え合わせ<span class="num" id="tbUpd"></span></h2>
 <section class="ans" aria-label="朝の見立ての答え合わせ">
   <div class="ans-g">
-    <div class="ans-c are"><span class="k">朝「荒れる」と見た <b class="num" id="nHarai">—</b> レース</span><b class="v num" id="v-harai">—</b><span class="u">が荒れた／いつもは <b class="num" id="bHarai">—</b></span>
+    <div class="ans-c are"><span class="k">朝「荒れる」と見た <span class="nw"><b class="num" id="nHarai">—</b> レース</span></span><b class="v num" id="v-harai">—</b><span class="u">が荒れた／いつもは <b class="num" id="bHarai">—</b></span>
       <div class="bars" aria-hidden="true"><div class="bar me"><i id="barHarai" style="width:0"></i></div><div class="bar base"><i id="barHaraiB" style="width:0"></i></div></div></div>
-    <div class="ans-c kata"><span class="k">朝「堅め」と見た <b class="num" id="nKata">—</b> レース</span><b class="v num" id="v-kata">—</b><span class="u">が堅く決着／いつもは <b class="num" id="bKata">—</b></span>
+    <div class="ans-c kata"><span class="k">朝「堅め」と見た <span class="nw"><b class="num" id="nKata">—</b> レース</span></span><b class="v num" id="v-kata">—</b><span class="u">が堅く決着／いつもは <b class="num" id="bKata">—</b></span>
       <div class="bars" aria-hidden="true"><div class="bar me"><i id="barKata" style="width:0"></i></div><div class="bar base"><i id="barKataB" style="width:0"></i></div></div></div>
   </div>
   <p class="ans-f num">棒は上が見立て、下がいつも（全レース）。毎朝の見立てを夜に答え合わせ ─ <span id="v-total">—</span>レース<span id="v-asof"></span>。有料noteとは仕組みも集計も別です。</p>
@@ -771,5 +776,6 @@ function lineBoxes(){
 </script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics --><script src=/assets/raihou.js defer></script>
 <script>if("serviceWorker" in navigator){ window.addEventListener("load",function(){ navigator.serviceWorker.register("./sw.js").catch(function(){}); }); }</script>
+<script src="./assets/ugoki.js?v=e40e8a0a"></script>
 </body>
 </html>
