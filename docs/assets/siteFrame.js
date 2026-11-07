@@ -35,13 +35,13 @@
   + ".dzf-tb a,.dzf-tb button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:none!important;border:0!important;margin:0!important;padding:0!important;font:600 11px/1 -apple-system,'Hiragino Sans','Noto Sans JP',sans-serif!important;color:var(--dzf-dim)!important;text-decoration:none!important;cursor:pointer;border-radius:0!important}"
   + ".dzf-tb .on{color:var(--dzf-tx)!important}"
   + ".dzf-tb svg{width:24px;height:24px;stroke:currentColor;stroke-width:1.5}"
-  + ".dzf-sh{position:fixed;left:0;right:0;bottom:calc(58px + env(safe-area-inset-bottom));z-index:59;background:var(--dzf-bar);border-top:1px solid var(--dzf-line);max-height:72vh;overflow-y:auto}"
+  + ".dzf-sh{position:fixed;left:0;right:0;bottom:calc(58px + env(safe-area-inset-bottom));z-index:59;background:var(--dzf-bar);border-top:1px solid var(--dzf-line);max-height:calc(100vh - 136px - env(safe-area-inset-bottom));max-height:calc(100dvh - 136px - env(safe-area-inset-bottom));overflow-y:auto;overscroll-behavior:contain}"
   + ".dzf-sh[hidden]{display:none}"
   + ".dzf-sh{opacity:0;transform:translateY(10px);transition:opacity .16s ease-out,transform .16s ease-out}.dzf-sh.in{opacity:1;transform:none}@media (prefers-reduced-motion:reduce){.dzf-sh{transition:none}}"
   + ".dzf-shi{max-width:600px;margin:0 auto;display:grid;grid-template-columns:repeat(2,1fr)}"
   + ".dzf-sh a{display:flex;align-items:center;height:52px;padding:0 18px;border-bottom:1px solid var(--dzf-line);font:600 15px/1 -apple-system,'Hiragino Sans','Noto Sans JP',sans-serif!important;color:var(--dzf-tx)!important;text-decoration:none!important;background:none!important;border-radius:0!important}"
   + ".dzf-sh a:nth-of-type(odd){border-right:1px solid var(--dzf-line)}"
-  + ".dzf-sh .sh2{grid-column:1/-1;padding:12px 18px 4px;font-size:11px;color:var(--dzf-dim);border-bottom:1px solid var(--dzf-line)}"
+  + ".dzf-sh a.full{grid-column:1/-1;border-right:0}.dzf-sh .sh2{grid-column:1/-1;padding:12px 18px 4px;font-size:11px;color:var(--dzf-dim);border-bottom:1px solid var(--dzf-line)}"
   + "body{padding-bottom:calc(66px + env(safe-area-inset-bottom))!important}"
   + "body>a.siteback,body>a.sitelink,body>.siteback,body>.sitelink{display:none!important}"
   /* ページの頭の型（大見出し → 1行の説明 → 小さい字の更新・出典）と「このページの見方」の形。全ページで同じにする */
@@ -93,7 +93,7 @@
   });
   var L = [["motor/","モーター"],["players/","選手"],["stadium/","24場"],["kensho/","検証"],["updates/","更新履歴"],["torisetsu/","使い方"],0,["payouts/","万舟のツボ"],["motor-maintenance/","整備"],["players/card.html","選手カード"],["note/","観戦ノート"],["ichimark/","1マーク"],["glossary/","用語辞典"],["fan/","場の文化"],["announcers/","実況アナ"],["uranai/","占い"]];
   var sh = document.createElement("div"); sh.className = "dzf-sh"; sh.id = "dzfSheet"; sh.hidden = true;
-  sh.innerHTML = '<div class="dzf-shi">' + L.map(function(x){ return x ? '<a href="' + ROOT + x[0] + '">' + x[1] + '</a>' : '<div class="sh2">ほかのページ</div>'; }).join("") + '<a href="https://note.com/abeken2000" target="_blank" rel="noopener">有料note（外部）</a><a href="' + ROOT + '#hikitsugi">フォローの控え（機種変更・置き直し）</a></div>';
+  sh.innerHTML = '<div class="dzf-shi">' + L.map(function(x){ return x ? '<a href="' + ROOT + x[0] + '">' + x[1] + '</a>' : '<div class="sh2">ほかのページ</div>'; }).join("") + '<a href="https://note.com/abeken2000" target="_blank" rel="noopener">有料note（外部）</a><a class="full" href="' + ROOT + 'hikae/">フォローの控え（機種変更・アイコンの置き直し）</a></div>';
   var tb = document.createElement("nav"); tb.className = "dzf-tb"; tb.setAttribute("aria-label", "ページ");
   function t(k, h, n){ return '<a href="' + ROOT + h + '"' + (cur === k ? ' class="on" aria-current="page"' : '') + '>' + I[k] + n + '</a>'; }
   tb.innerHTML = '<div class="dzf-tbi">' + t("top", "", "トップ") + t("racers", "racers/", "出走表") + t("highlights", "highlights/", "見どころ") + t("results", "results/", "結果") + '<button type="button" id="dzfMore" aria-expanded="false" aria-controls="dzfSheet"' + (cur === "more" ? ' class="on"' : '') + '>' + I.more + 'その他</button></div>';

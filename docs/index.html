@@ -226,15 +226,10 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
 /* フッター */
 .ft{margin:34px 0 0;padding:18px 0 6px;border-top:1px solid var(--line);text-align:center;font-size:11px;line-height:1.7;color:var(--mute)}
 /* その他シート：一覧と引き継ぎ */
-.sheet{max-height:72vh;overflow-y:auto}
+.sheet{max-height:calc(100vh - 128px - env(safe-area-inset-bottom));max-height:calc(100dvh - 128px - env(safe-area-inset-bottom));overflow-y:auto;overscroll-behavior:contain}
 .sheet .sh2{grid-column:1/-1;padding:12px 18px 4px;font-size:11px;color:var(--dim);border-bottom:1px solid var(--line)}
 .sheet .hint{grid-column:1/-1;padding:10px 18px;font-size:13px;line-height:1.7;color:var(--dim);border-bottom:1px solid var(--line)}
-.sheet .hk{grid-column:1/-1;margin:0;padding:12px 18px 16px;font-size:13px;line-height:1.7;border:0}
-.sheet .hk summary{cursor:pointer;font-weight:700;min-height:40px;display:flex;align-items:center}
-.sheet .hk textarea{width:100%;font-size:13px;padding:8px;background:transparent;color:inherit;border:1px solid var(--line)}
-.sheet .hk button{margin-top:8px;min-height:44px;padding:0 18px;font-weight:700;font-size:15px;background:#f2f5f8;color:#0b1a2b;border:0;cursor:pointer}
-.sheet .hk .hk-h{margin:12px 0 4px;font-weight:700}
-.sheet .hk .hk-n{margin:12px 0 0;font-size:11px;color:var(--dim)}
+.sheet a.full{grid-column:1/-1;border-right:0}
 
 /* 有料noteへの導線（2026-11-06 けん：有料の買い目を売っていく） */
 .prb{display:block;background:#18263a;border-bottom:1px solid rgba(233,180,90,.45)}
@@ -369,20 +364,8 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
   <a href="./announcers/">実況アナ</a>
   <a href="./uranai/">占い</a>
   <a href="https://note.com/abeken2000" target="_blank" rel="noopener">有料note（外部）</a>
+  <a class="full" href="./hikae/">フォローの控え（機種変更・アイコンの置き直し）</a>
   <div class="hint">ホーム画面に置くと、朝いちばんに開けます。iPhone：Safari の共有ボタンから「ホーム画面に追加」。Android：Chrome の右上「︙」から「ホーム画面に追加」。</div>
-  <details class="hk" id="hikitsugi">
-  <summary>フォローの控え（引き継ぎ・機種変更）</summary>
-  <p>☆推し・📍場・気になるレース・選手メモは、この端末の中にだけ保存されています。アイコンを消したり機種を変えたりすると消えるので、控えのコードを LINE の Keep やメモに残しておくと戻せます。</p>
-  <p class="hk-h">控えを取る</p>
-  <button type="button" id="hk-out">控えのコードを出す</button>
-  <textarea id="hk-outcode" rows="3" readonly aria-label="控えのコード" hidden></textarea>
-  <p id="hk-outmsg" role="status"></p>
-  <p class="hk-h">控えから戻す</p>
-  <textarea id="hk-code" rows="3" placeholder="DZ1. から始まるコードを貼る" aria-label="控えのコード（貼る）"></textarea>
-  <button type="button" id="hk-go">戻す</button>
-  <p id="hk-msg" role="status"></p>
-  <p class="hk-n">前の住所（github.io）のフォローは、前と同じ開き方（同じブラウザ、またはホーム画面の同じアイコン）で前の住所を開くと、「おかえりなさい」の下にコードが出ます。それをここに貼ってください。</p>
-</details>
 </div></div>
 <nav class="tb" aria-label="ページ"><div class="tb-in">
   <a class="on" href="./"><svg viewBox="0 0 24 24"><path d="M3.5 11L12 4l8.5 7"/><path d="M6 9.5V20h12V9.5"/></svg>トップ</a>
@@ -483,8 +466,8 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
   document.getElementById("sgB").onclick=function(){setMode("list");};
   var mb=document.getElementById("moreBtn"), sh=document.getElementById("sheet");
   mb.onclick=function(){var o=sh.hidden;sh.hidden=!o;mb.setAttribute("aria-expanded",o?"true":"false");mb.className=o?"on":"";};
-  /* ほかのページの「その他」の「フォローの控え」から来たとき（#hikitsugi）は、その他を開いて控えの欄を開く */
-  if(location.hash==="#hikitsugi"){var hk=document.getElementById("hikitsugi");sh.hidden=false;mb.setAttribute("aria-expanded","true");mb.className="on";if(hk){hk.open=true;setTimeout(function(){hk.scrollIntoView({block:"start"});},0);}}
+  /* 前の「#hikitsugi」で来たときは、フォローの控えのページへ（2026-11-08 独立ページに移した） */
+  if(location.hash==="#hikitsugi") location.replace("./hikae/");
   var gsP=fetch("./data/gradeSchedule.json?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(j){GS=j;}).catch(function(){});
   fetch("./data/todayTop.json?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():Promise.reject();})
     .then(function(d){D=d;return gsP.then(function(){render();setInterval(render,60000);});})
@@ -715,52 +698,6 @@ function lineBoxes(){
     document.getElementById('chHead').hidden=false; document.getElementById('chBox').hidden=false;
   }
   tryNext(0);
-})();
-</script>
-<script>
-/* フォローの控えと引き継ぎ（2026-10-26 けん裁定）。コードは「DZ1.」＋保存内容のJSONを base64 にしたもの。
-   今ある値は消さない：一覧は足し合わせ、メモなどは今ある方を残し、無いものだけ足す。 */
-(function(){
-  var go=document.getElementById("hk-go"), box=document.getElementById("hk-code"), msg=document.getElementById("hk-msg");
-  if(!go) return;
-  var OK=/^(br_|uranai_|aisho_|senshuCard|dz_note_|tdExtraOpen$)/;
-  /* 控えを取る：この端末の保存を同じ形のコードにする（2026-10-26 けん「進めてよい」） */
-  var out=document.getElementById("hk-out"), oc=document.getElementById("hk-outcode"), om=document.getElementById("hk-outmsg");
-  out.addEventListener("click", function(){
-    var data={}, n=0;
-    try{ for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i); if(OK.test(k)){ data[k]=localStorage.getItem(k); n++; } } }catch(e){}
-    if(!n){ om.textContent="この端末には、まだ控えるフォローがありません。"; oc.hidden=true; return; }
-    var u=new TextEncoder().encode(JSON.stringify(data)), bin=""; for(var j=0;j<u.length;j++) bin+=String.fromCharCode(u[j]);
-    var code="DZ1."+btoa(bin); oc.value=code; oc.hidden=false;
-    function done(){ om.textContent="コピーしました。LINE の Keep やメモに貼って残してください。"; }
-    function sel(){ oc.focus(); oc.select(); try{ document.execCommand("copy"); done(); }catch(e){ om.textContent="上のコードを長押しして、全部コピーしてください。"; } }
-    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(code).then(done,sel); } else sel();
-  });
-  function dec(s){ s=s.replace(/\s+/g,""); if(s.indexOf("DZ1.")!==0) throw 0;
-    var bin=atob(s.slice(4)), u=new Uint8Array(bin.length); for(var i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
-    return JSON.parse(new TextDecoder().decode(u)); }
-  function pj(v){ try{ return JSON.parse(v); }catch(e){ return undefined; } }
-  go.addEventListener("click", function(){
-    var data; try{ data=dec(box.value); }catch(e){ msg.textContent="コードが読めませんでした。「DZ1.」から最後まで、全部貼ってください。"; return; }
-    var n=0;
-    Object.keys(data).forEach(function(k){
-      if(!OK.test(k) || typeof data[k]!=="string") return;
-      var cur=null; try{ cur=localStorage.getItem(k); }catch(e){}
-      var next=data[k];
-      if(cur!==null){
-        var a=pj(cur), b=pj(data[k]);
-        if(Array.isArray(a) && Array.isArray(b)){
-          var seen={}, out=[]; a.concat(b).forEach(function(x){ var key=JSON.stringify(x); if(!seen[key]){ seen[key]=1; out.push(x); } });
-          next=JSON.stringify(out);
-        } else if(a && b && typeof a==="object" && typeof b==="object"){
-          next=JSON.stringify(Object.assign({}, b, a));
-        } else { return; }
-      }
-      try{ localStorage.setItem(k,next); n++; }catch(e){}
-    });
-    msg.textContent = n ? "戻しました（"+n+"件）。各ページを開くと反映されています。" : "戻すものが見つかりませんでした（すでに同じ内容があります）。";
-    if(n) box.value="";
-  });
 })();
 </script>
 <script>
