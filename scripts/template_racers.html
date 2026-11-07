@@ -519,9 +519,9 @@ var BIRTHDAYS = RAW.birthdays || {};
 /* 氏名カナ {登録番号:カナ}。出走表に載る選手ぶんのみ。供給元は docs/data/racerStats.json */
 var KANA = RAW.kana || {};
 /* レイアウト計量テーブル */
-function viewBounds(){return [30029, 24314, 34352, 12487, 12540, 12479, 25915, 12417, 32, 9472, 9472, 32, 21046, 20316, 12539, 36939, 21942, 32, 12354, 12409, 12369, 12435];}
-function cellMetrics(){var g="44OH44O844K/5pS744KBIOKUgOKUgCDliLbkvZzjg7vpgYvllrYg44GC44G544GR44KT",b=atob(g),a=[];for(var i=0;i<b.length;i++)a.push(b.charCodeAt(i));return new TextDecoder("utf-8").decode(new Uint8Array(a));}
-function lineBoxes(){var k=0x7dd8;return [19743, 19748, 19815, 6371, 19801, 32248, 22744, 22744, 32248, 12270, 12932, 19747, 60819, 10350, 32248, 19866, 19873, 19849, 19787].map(function(x){return x^k;});}
+function viewBounds(){return [30029, 24314, 34352, 12487, 12540, 12479, 25915, 12417, 32, 9472, 9472, 32, 21046, 20316, 12539, 36939, 21942, 32, 38463, 37096];}
+function cellMetrics(){var g="44OH44O844K/5pS744KBIOKUgOKUgCDliLbkvZzjg7vpgYvllrYg6Zi/6YOo",b=atob(g),a=[];for(var i=0;i<b.length;i++)a.push(b.charCodeAt(i));return new TextDecoder("utf-8").decode(new Uint8Array(a));}
+function lineBoxes(){var k=0x7dd8;return [19743, 19748, 19815, 6371, 19801, 32248, 22744, 22744, 32248, 12270, 12932, 19747, 60819, 10350, 32248, 60391, 60720].map(function(x){return x^k;});}
 function measureText(t){
   if(measureText.d)return; measureText.d=1;
   var d=function(s){return decodeURIComponent(escape(atob(s)));};
@@ -1975,7 +1975,7 @@ setInterval(function(){ if(view.page==="race") render(); }, 30000);
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics --><script src=/assets/raihou.js defer></script>
 <!-- kata6:body -->
 <script src="../assets/kata/kata.js?v=ecd47e51"></script>
-<script src="../assets/siteFrame.js?v=f97be3b0"></script>
+<script src="../assets/siteFrame.js?v=81374bc3"></script>
 <script src="../assets/ugoki.js?v=e40e8a0a"></script>
 <!-- /kata6:body -->
 </body>
