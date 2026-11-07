@@ -483,6 +483,8 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
   document.getElementById("sgB").onclick=function(){setMode("list");};
   var mb=document.getElementById("moreBtn"), sh=document.getElementById("sheet");
   mb.onclick=function(){var o=sh.hidden;sh.hidden=!o;mb.setAttribute("aria-expanded",o?"true":"false");mb.className=o?"on":"";};
+  /* ほかのページの「その他」の「フォローの控え」から来たとき（#hikitsugi）は、その他を開いて控えの欄を開く */
+  if(location.hash==="#hikitsugi"){var hk=document.getElementById("hikitsugi");sh.hidden=false;mb.setAttribute("aria-expanded","true");mb.className="on";if(hk){hk.open=true;setTimeout(function(){hk.scrollIntoView({block:"start"});},0);}}
   var gsP=fetch("./data/gradeSchedule.json?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(j){GS=j;}).catch(function(){});
   fetch("./data/todayTop.json?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():Promise.reject();})
     .then(function(d){D=d;return gsP.then(function(){render();setInterval(render,60000);});})
