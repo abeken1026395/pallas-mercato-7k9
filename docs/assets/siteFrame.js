@@ -93,7 +93,7 @@
   });
   var L = [["motor/","モーター"],["players/","選手"],["stadium/","24場"],["kensho/","検証"],["updates/","更新履歴"],["torisetsu/","使い方"],0,["payouts/","万舟のツボ"],["motor-maintenance/","整備"],["players/card.html","選手カード"],["note/","観戦ノート"],["ichimark/","1マーク"],["glossary/","用語辞典"],["fan/","場の文化"],["announcers/","実況アナ"],["uranai/","占い"]];
   var sh = document.createElement("div"); sh.className = "dzf-sh"; sh.id = "dzfSheet"; sh.hidden = true;
-  sh.innerHTML = '<div class="dzf-shi">' + L.map(function(x){ return x ? '<a href="' + ROOT + x[0] + '">' + x[1] + '</a>' : '<div class="sh2">ほかのページ</div>'; }).join("") + '<a href="https://note.com/abeken2000" target="_blank" rel="noopener">有料note（外部）</a></div>';
+  sh.innerHTML = '<div class="dzf-shi">' + L.map(function(x){ return x ? '<a href="' + ROOT + x[0] + '">' + x[1] + '</a>' : '<div class="sh2">ほかのページ</div>'; }).join("") + '<a href="https://note.com/abeken2000" target="_blank" rel="noopener">有料note（外部）</a><a href="' + ROOT + '#hikitsugi">フォローの控え（機種変更・置き直し）</a></div>';
   var tb = document.createElement("nav"); tb.className = "dzf-tb"; tb.setAttribute("aria-label", "ページ");
   function t(k, h, n){ return '<a href="' + ROOT + h + '"' + (cur === k ? ' class="on" aria-current="page"' : '') + '>' + I[k] + n + '</a>'; }
   tb.innerHTML = '<div class="dzf-tbi">' + t("top", "", "トップ") + t("racers", "racers/", "出走表") + t("highlights", "highlights/", "見どころ") + t("results", "results/", "結果") + '<button type="button" id="dzfMore" aria-expanded="false" aria-controls="dzfSheet"' + (cur === "more" ? ' class="on"' : '') + '>' + I.more + 'その他</button></div>';
