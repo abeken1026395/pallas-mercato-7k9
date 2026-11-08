@@ -42,6 +42,7 @@ GUARD = [
     "docs/choukan/index.html",
     "docs/hikae/index.html",  # フォローの控え（機種変更・アイコンの置き直し。トップの「その他」から独立・2026-11-08）
     "docs/ichimark/index.html",  # 1マークの見立て（2026-11-01 実験場から本番へ）
+    "docs/banzuke/index.html",  # 24場番付（2026-11-08 実験場から本番へ）
     "docs/highlights/index.html",
     "docs/kensho/index.html",
     "docs/kensho/flow/index.html",
