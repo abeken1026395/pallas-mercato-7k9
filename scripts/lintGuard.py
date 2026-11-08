@@ -59,6 +59,7 @@ GUARD = [
     "docs/motor-maintenance/index.html",
     "docs/next/courseLast10Preview.html",
     "docs/next/kisetsuYearly.html",
+    "docs/next/venueRank.html",  # 実験場：24場を数字で並べる（順位の点グラフと四半期の線・2026-11-08）
     "docs/next/koushinRireki.html",  # 実験場：更新履歴の見せ方の見本（2026-10-30）
     "docs/next/index.html",
     "docs/next/tiltLab.html",
