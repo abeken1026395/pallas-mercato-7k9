@@ -27,6 +27,16 @@
 5. 道具を直したら、ここにも写し戻す
 6. 見出しに新しい字を使ったら増えたら、Dela の切り出しを作り直す（delaChars.txt に足す）
 
+## 2026-11-08 作り直し（本番 #1004）で足したもの・直したもの
+
+- `six/shootSaisaku.py` … いまの本番の画面から図31枚を撮る（`SHOOT=prod python3 six/shootSaisaku.py [top race hl motor maint rest players uranai ichimark]`）。図ごとに「切り出す範囲」と「番号を付ける要素」を書く。要素の頭に「→」を付けると、手前に別の文字があっても折れ線でその要素まで線を引く
+- `six/shootLib.py` … 撮影の共通部品。日本語の画面で撮る（locale ja-JP・ブラウザは `--lang=ja-JP` で起動。付けないと日付の入力欄が 04/01/1990 になる）。図の上端・下端で文字が途中で切れるときは、空いた行まで詰める（`trim`）
+- `fig.py` … 番号の丸と線。線は、その高さで最初に出てくる文字や枠の手前で止める（`clear_x`）。カードの縦の枠線は越えて考える（`ink_x`）。2けたの番号は字を小さくする。数字は濃い色で描く
+- `next/dark.py` … 左の白い余白を画面の左端と同じ色で塗る。引き出し線が通る行は線の色を拾わない（拾うと、線が左端から丸の数字を横切る）
+- `next/toSaisaku.py` … `python3 next/toSaisaku.py next` で実験場（`docs/next/torisetsu.html`・`docs/next/torisetsuImg/`）、`prod` で本番（`docs/torisetsu/`）に書き出す
+- 撮るときのデータは、11/7 と 11/8 の出走表がそろった版（main 3f7f9fb）を `git worktree` で出して `:8112` で配る。いまの作業ツリーだと1日分しかなく、撮れない図がある
+- 出したあとの確かめ方：31枚すべてで番号の数と説明の項目数が一致すること、左端に線の色が残っていないこと、全図を目で見ること
+
 ## 注意
 
 - 図の生 PNG は入れていない（撮り直せば作れる）。本番の図は `docs/torisetsu/img/` にある

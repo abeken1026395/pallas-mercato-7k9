@@ -53,10 +53,10 @@ FIND = r"""
     for(let i=0;i<parts.length;i++){
       const part=parts[i];
       if(part.startsWith('node:')){ const r=nodeRect(el,part.slice(5)); if(!r) return null;
-        return {top:r.top+scrollY,bottom:r.bottom+scrollY,mid:(r.top+r.bottom)/2+scrollY}; }
+        return {top:r.top+scrollY,bottom:r.bottom+scrollY,mid:(r.top+r.bottom)/2+scrollY,left:r.left}; }
       el=one(el,part); if(!el) return null; }
     const r=el.getBoundingClientRect();
-    return {top:r.top+scrollY,bottom:r.bottom+scrollY,mid:(r.top+r.bottom)/2+scrollY};
+    return {top:r.top+scrollY,bottom:r.bottom+scrollY,mid:(r.top+r.bottom)/2+scrollY,left:r.left};
   }
   const out={};
   for(const key in spec){ out[key]=Array.isArray(spec[key])? spec[key].map(find) : find(spec[key]); }
@@ -88,7 +88,51 @@ async def route(r):
     return await r.continue_()
 
 
+def quiet_rows(a):
+    """行ごとに「何も描かれていない」か。上の行とほとんど同じ行（縦の枠線や地の色だけが続いている行）。
+    文字や横線のある行は、上の行と画素が違うので外れる。"""
+    import numpy as np
+    d = (np.abs(a[1:] - a[:-1]).sum(axis=2) > 40).sum(axis=1)
+    q = np.concatenate([[True], d <= 6])
+    return q
+
+
+def trim(raw, rows, r=40, run=24, gap=12):
+    """図の上端・下端で、文字や枠が途中で切れていたら、その手前の空いた行まで詰める。
+    番号を付けた行は必ず残す。返り値は (詰めたあとの行の位置, (上で落とした量, 下で落とした量))。"""
+    import numpy as np
+    from PIL import Image
+    im = Image.open(raw).convert("RGB")
+    a = np.array(im).astype(np.int16)
+    h = a.shape[0]
+    q = quiet_rows(a)
+    lo_lim = int(min(rows) - r - 6) if rows else h
+    hi_lim = int(max(rows) + r + 6) if rows else 0
+    top = 0
+    if not q[:run].all():                     # 上端のすぐそばに何かがある＝途中で切れている
+        y = 0
+        while y < lo_lim:
+            if q[y:y + gap].all():
+                top = y + gap // 2
+                break
+            y += 1
+    bot = h
+    if not q[-run:].all():                    # 下端のすぐそばに何かがある＝途中で切れている
+        y = h - gap
+        while y > hi_lim:
+            if q[y:y + gap].all():
+                bot = y + gap // 2
+                break
+            y -= 1
+    if top or bot != h:
+        im.crop((0, top, im.size[0], bot)).save(raw)
+    return [y - top for y in rows], (top, h - bot)
+
+
 async def grab(pg, name, top, bottom, marks, pad_top=10, pad_bot=12, max_h=None):
+    # 「→」で始まる番号は、その高さの手前に別の文字があっても、折れ線で要素そのものまで引く
+    elbow = {i for i, m in enumerate(marks, 1) if m.startswith("→")}
+    marks = [m[1:] if m.startswith("→") else m for m in marks]
     spec = {"top": top, "bottom": bottom, "marks": [m for m in marks]}
     got = await pg.evaluate(FIND, spec)
     if not got["top"] or not got["bottom"]:
@@ -97,11 +141,12 @@ async def grab(pg, name, top, bottom, marks, pad_top=10, pad_bot=12, max_h=None)
     y1 = got["bottom"]["bottom"] + pad_bot
     if max_h:
         y1 = min(y1, y0 + max_h)
-    rows = []
+    rows, ends = [], []
     for m, g in zip(marks, got["marks"]):
         if not g:
             raise SystemExit(f"{name}: 番号の要素が見つからない {m}")
         rows.append((g["mid"] - y0) * DSF)
+        ends.append(round(g["left"] * DSF) - 24)   # 線は要素の左端の手前で止める（文字に重ねない）
     # 上から順か
     for a, b in zip(rows, rows[1:]):
         if b < a - 2:
@@ -119,16 +164,19 @@ async def grab(pg, name, top, bottom, marks, pad_top=10, pad_bot=12, max_h=None)
     raw = f"{RAW}/raw_{name}.png"
     await pg.screenshot(path=raw, full_page=True,
                         clip={"x": 0, "y": y0, "width": 390, "height": y1 - y0})
-    size = callout(raw, f"{BOOK}/{name}.png", [round(y) for y in fixed])
+    fixed, cut = trim(raw, fixed)
+    size = callout(raw, f"{BOOK}/{name}.png", [round(y) for y in fixed], ends=ends, elbow=elbow)
+    if cut != (0, 0):
+        print(f"  {name}: 端で切れる行を落とした 上{cut[0]}px 下{cut[1]}px")
     print(f"{name}: 高さ{round((y1-y0)*DSF)}px 丸{len(fixed)}個 ずらし{shift} → {size}")
 
 
 
-AT = "2026-10-24T13:33:00+09:00"   # 撮る日の時刻（1R〜6Rが済み・7Rが締切まぎわになる時刻にそろえる）
+AT = __import__("os").environ.get("AT","2026-10-24T13:33:00+09:00")   # 撮る日の時刻（1R〜6Rが済み・7Rが締切まぎわになる時刻にそろえる）
 
 async def openPage(b, path, at=AT):
     ctx = await b.new_context(viewport={"width": 390, "height": 844}, device_scale_factor=DSF,
-                              service_workers="block", reduced_motion="reduce", timezone_id="Asia/Tokyo")
+                              service_workers="block", reduced_motion="reduce", timezone_id="Asia/Tokyo", locale="ja-JP")
     await ctx.route("**/*", route)
     pg = await ctx.new_page()
     if at:
