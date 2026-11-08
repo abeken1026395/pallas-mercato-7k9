@@ -122,7 +122,7 @@
     var tx = (a.textContent || "").trim();
     if (/^\u2190\s*データ攻め/.test(tx) || (tx === "データ攻め" && a.href.split(/[?#]/)[0] === ROOT)) a.style.display = "none";
   });
-  var L = [["motor/","モーター"],["players/","選手"],["stadium/","24場"],["kensho/","検証"],["updates/","更新履歴"],["torisetsu/","使い方"],0,["payouts/","万舟のツボ"],["motor-maintenance/","整備"],["players/card.html","選手カード"],["note/","観戦ノート"],["ichimark/","1マーク"],["glossary/","用語辞典"],["fan/","場の文化"],["announcers/","実況アナ"],["uranai/","占い"]];
+  var L = [["motor/","モーター"],["players/","選手図鑑"],["stadium/","24場"],["kensho/","検証"],["updates/","更新履歴"],["torisetsu/","トリセツ"],0,["payouts/","万舟のツボ"],["motor-maintenance/","モーター整備"],["players/card.html","選手カード"],["note/","観戦ノート"],["ichimark/","1マークの見立て"],["glossary/","用語辞典"],["fan/","場の文化"],["announcers/","実況アナ図鑑"],["uranai/","選手占い"]];
   var sh = document.createElement("div"); sh.className = "dzf-sh"; sh.id = "dzfSheet"; sh.hidden = true;
   sh.innerHTML = '<div class="dzf-shi">' + L.map(function(x){ return x ? '<a href="' + ROOT + x[0] + '">' + x[1] + '</a>' : '<div class="sh2">ほかのページ</div>'; }).join("") + '<a href="https://note.com/abeken2000" target="_blank" rel="noopener">有料note（外部）</a><a class="full" href="' + ROOT + 'hikae/">フォローの控え（機種変更・アイコンの置き直し）</a></div>';
   var tb = document.createElement("nav"); tb.className = "dzf-tb"; tb.setAttribute("aria-label", "ページ");
