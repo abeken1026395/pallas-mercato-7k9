@@ -1,0 +1,50 @@
+name: 24場番付 月次更新
+
+# 毎月2日 JST 05:13 に、24場番付を前月末までの成績で作り直す（2026-11-08 けん「月一の更新は自動で」）。
+# Kファイルはランナーから取れないため、土台 analysis/venueRank/venueRank10y.json（Kファイル 2016-11-01 から 2026-11-07）は書き換えず、
+# その翌日から昨日までを results/ で足す（scripts/updateVenueRank.py）。PCには頼らない。
+# 書くもの：analysis/venueRank/venueRankLive.json・docs/banzuke/index.html・docs/stadium/index.html（1コース1着率の3か所だけ）
+# 名前を変えたら deployCloudflare.yml の workflow_run の一覧も直す。
+
+on:
+  schedule:
+    - cron: "13 20 1 * *"   # UTC 毎月1日 20:13 = JST 毎月2日 05:13
+  workflow_dispatch:
+
+concurrency:
+  group: updateBanzuke
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 集計を作り直す
+        run: python3 scripts/updateVenueRank.py
+      - name: 番付ページを書く
+        run: python3 scripts/buildVenueRank.py analysis/venueRank/venueRankLive.json docs/banzuke/index.html
+      - name: 24場ページの1コース1着率をそろえる
+        run: python3 scripts/syncStadiumIn1.py
+      - name: 防御の検査
+        run: python3 scripts/lintGuard.py
+      - name: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add analysis/venueRank/venueRankLive.json docs/banzuke/index.html docs/stadium/index.html
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          git commit -m "auto: 24場番付 月次更新"
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            sleep 10
+          done
+          exit 1
