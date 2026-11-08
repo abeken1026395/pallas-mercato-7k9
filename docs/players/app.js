@@ -565,9 +565,9 @@ function BranchPanel({
       fontWeight: 700,
       borderRadius: 8,
       cursor: "pointer",
-      border: "1px solid " + (bsort === k ? "#ffd166" : "#1e2d3d"),
-      background: bsort === k ? "#ffd166" : "#162232",
-      color: bsort === k ? "#0b1219" : "#8faabe"
+      border: "1px solid " + (bsort === k ? "#eef3f8" : "#1e2d3d"),
+      background: bsort === k ? "#eef3f8" : "#162232",
+      color: bsort === k ? "#0b1726" : "#8faabe"
     }
   }, l))), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -1171,9 +1171,9 @@ function App() {
         borderRadius: 6,
         padding: "4px 10px",
         minHeight: 30,
-        border: "1px solid " + (pi === i ? "#ffd166" : "#2a3d52"),
-        color: pi === i ? "#ffd166" : "#8faabe",
-        background: pi === i ? "#ffd16618" : "#101a26"
+        border: "1px solid " + (pi === i ? "#eef3f8" : "#2a3d52"),
+        color: pi === i ? "#0b1726" : "#8faabe",
+        background: pi === i ? "#eef3f8" : "#101a26"
       }
     }, l))), /*#__PURE__*/React.createElement("table", {
       style: {
@@ -1501,9 +1501,9 @@ function App() {
       fontWeight: 800,
       borderRadius: 8,
       cursor: "pointer",
-      border: "1px solid " + (tab === tv ? "#ffd166" : "#2a3d52"),
-      background: tab === tv ? "#ffd16622" : "#162232",
-      color: tab === tv ? "#ffd166" : "#8faabe"
+      border: "1px solid " + (tab === tv ? "#eef3f8" : "#2a3d52"),
+      background: tab === tv ? "#eef3f8" : "#162232",
+      color: tab === tv ? "#0b1726" : "#8faabe"
     }
   }, tl))), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -1521,9 +1521,9 @@ function App() {
       fontWeight: 700,
       borderRadius: 8,
       cursor: "pointer",
-      border: "1px solid " + (rankF === rk ? "#ffd166" : "#2a3d52"),
-      background: rankF === rk ? "#ffd16622" : "#162232",
-      color: rankF === rk ? "#ffd166" : "#8faabe"
+      border: "1px solid " + (rankF === rk ? "#eef3f8" : "#2a3d52"),
+      background: rankF === rk ? "#eef3f8" : "#162232",
+      color: rankF === rk ? "#0b1726" : "#8faabe"
     }
   }, rk === "ALL" ? "全級" : rk))), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -1576,9 +1576,9 @@ function App() {
       fontWeight: 700,
       borderRadius: 8,
       cursor: "pointer",
-      border: "1px solid " + (femaleOnly ? "#ff7eb6" : "#2a3d52"),
-      background: femaleOnly ? "#ff7eb622" : "#162232",
-      color: femaleOnly ? "#ff7eb6" : "#8faabe"
+      border: "1px solid " + (femaleOnly ? "#eef3f8" : "#2a3d52"),
+      background: femaleOnly ? "#eef3f8" : "#162232",
+      color: femaleOnly ? "#0b1726" : "#8faabe"
     }
   }, "\u2665 \u5973\u5B50"), /*#__PURE__*/React.createElement("button", {
     onClick: () => setOshiOnly(v => !v),
@@ -1588,9 +1588,9 @@ function App() {
       fontWeight: 700,
       borderRadius: 8,
       cursor: "pointer",
-      border: "1px solid " + (oshiOnly ? "#ffd166" : "#2a3d52"),
-      background: oshiOnly ? "#ffd16622" : "#162232",
-      color: oshiOnly ? "#ffd166" : "#8faabe"
+      border: "1px solid " + (oshiOnly ? "#eef3f8" : "#2a3d52"),
+      background: oshiOnly ? "#eef3f8" : "#162232",
+      color: oshiOnly ? "#0b1726" : "#8faabe"
     }
   }, oshi.length ? "⭐" : "☆", " \u63A8\u3057", oshi.length ? " " + oshi.length : ""), /*#__PURE__*/React.createElement("span", {
     style: {
@@ -1855,7 +1855,7 @@ function App() {
     }, /*#__PURE__*/React.createElement("span", {
       "data-nm": "1",
       style: {
-        fontSize: "clamp(15px, calc((100vw - 360px) * 0.067 + 17px), 19px)",
+        fontSize: (p.name || "").length >= 6 ? "clamp(12px, calc((100vw - 360px) * 0.067 + 11px), 15px)" : (p.name || "").length >= 5 ? "clamp(14px, calc((100vw - 360px) * 0.067 + 13px), 17px)" : "clamp(15px, calc((100vw - 360px) * 0.067 + 17px), 19px)",
         fontWeight: 800,
         color: "#e8edf2",
         whiteSpace: "nowrap",
@@ -1863,7 +1863,7 @@ function App() {
         textOverflow: "ellipsis",
         minWidth: 0
       }
-    }, p.name), /*#__PURE__*/React.createElement("span", {
+    }, p.name), tab === "list" && /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: 13,
         color: "#96a8bb",
@@ -1879,19 +1879,33 @@ function App() {
         lineHeight: 1,
         flexShrink: 0
       }
-    }, "\uD83D\uDCDD")), p.kana && /*#__PURE__*/React.createElement("div", {
+    }, "\uD83D\uDCDD")), tab === "list" ? p.kana && /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 10,
         color: "#8aa0b4",
         marginTop: 1
       }
-    }, p.kana)), /*#__PURE__*/React.createElement("div", {
+    }, p.kana) : /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 10,
+        color: "#8aa0b4",
+        marginTop: 1,
+        wordBreak: "keep-all",
+        lineHeight: 1.5
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 12,
+        color: "#96a8bb",
+        marginRight: 6
+      }
+    }, p.branch), p.kana)), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         gap: "clamp(10px, calc((100vw - 360px) * 0.27 + 10px), 18px)",
         flexShrink: 0
       }
-    }, tab !== "list" && k ? [["率", (tab === "makuri" ? k.makuriRate : k.sashiRate) || "-", tab === "makuri" ? "#ff9e64" : "#7ee787", tab === "makuri" ? "まくり率" : "差し率"], ["数", tab === "makuri" ? k.makuri : k.sashi, "#e0e6ed", tab === "makuri" ? "まくり数" : "差し数"]].map(([t, v, col, lb], i) => /*#__PURE__*/React.createElement("div", {
+    }, tab !== "list" && k ? [["率", (tab === "makuri" ? k.makuriRate : k.sashiRate) || "-", tab === "makuri" ? "#ff9e64" : "#7ee787", "率"], ["数", tab === "makuri" ? k.makuri : k.sashi, "#e0e6ed", "本数"]].map(([t, v, col, lb], i) => /*#__PURE__*/React.createElement("div", {
       key: i,
       style: {
         textAlign: "center"
@@ -3445,9 +3459,9 @@ function App() {
           cursor: "pointer",
           borderRadius: 6,
           padding: "3px 9px",
-          border: "1px solid #2a3d52",
-          color: e30All ? "#ffd166" : "#8faabe",
-          background: e30All ? "#ffd16618" : "#101a26"
+          border: "1px solid " + (e30All ? "#eef3f8" : "#2a3d52"),
+          color: e30All ? "#0b1726" : "#8faabe",
+          background: e30All ? "#eef3f8" : "#101a26"
         }
       }, e30All ? "N≥10のみ" : "N<10も表示")), /*#__PURE__*/React.createElement("div", {
         style: {

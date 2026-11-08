@@ -87,7 +87,7 @@ h1 .ch{display:inline-block;animation:chIn 1.6s cubic-bezier(.2,.8,.2,1) both}
 .prof.opening{animation:rise .9s cubic-bezier(.2,.8,.2,1) both}
 .how details[open] .body{animation:rise .9s cubic-bezier(.2,.8,.2,1) both}
 .motionbtn{display:inline-flex;align-items:center;gap:6px;min-height:44px;margin-left:auto;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--sub);font:inherit;font-size:13px;font-weight:700;cursor:pointer}
-html[data-motion="on"] .motionbtn{color:var(--gold);border-color:rgba(255,209,102,.5)}
+html[data-motion="on"] .motionbtn{color:var(--ink);border-color:rgba(232,236,239,.45)}
 html[data-motion="off"] *,html[data-motion="off"] *::before,html[data-motion="off"] *::after{animation:none!important;transition:none!important}
 html[data-motion="off"] .rv{opacity:1;transform:none}
 html[data-motion="off"] .mycard::before{display:none}
@@ -105,8 +105,8 @@ h1{font-family:var(--mincho);font-size:40px;line-height:1.15;font-weight:700;let
 .tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
 .tab{min-height:64px;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:var(--panel);color:var(--sub);font:inherit;font-weight:700;font-size:17px;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .tab small{display:block;font-size:13px;font-weight:500;color:var(--dim);margin-top:2px}
-.tab[aria-selected="true"]{border-color:var(--gold);color:var(--gold);background:var(--panel2)}
-.tab[aria-selected="true"] small{color:var(--ink)}
+.tab[aria-selected="true"]{border-color:#eef3f8;color:#0b1726;background:#eef3f8}
+.tab[aria-selected="true"] small{color:#3d4d5f}
 
 /* 入力 */
 .me{margin-top:12px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
@@ -132,18 +132,18 @@ input:focus,select:focus{outline:none;border-color:var(--gold)}
 /* 絞り込み */
 .seg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:14px}
 .seg button{min-height:44px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--sub);font:inherit;font-weight:700;font-size:15px;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.seg button[aria-pressed="true"]{border-color:var(--gold);color:var(--gold);background:var(--panel2)}
+.seg button[aria-pressed="true"]{border-color:#eef3f8;color:#0b1726;background:#eef3f8}
 .search{margin-top:8px}
 .scope{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:14px}
 .scope button{min-height:44px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--sub);font:inherit;font-weight:700;font-size:15px;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.scope button[aria-pressed="true"]{border-color:var(--gold);color:var(--gold);background:var(--panel2)}
+.scope button[aria-pressed="true"]{border-color:#eef3f8;color:#0b1726;background:#eef3f8}
 .pick{margin-top:10px}
 .pick select{margin-top:2px}
 .rchips{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:8px}
 .rchips button{min-height:48px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;font-size:15px;font-weight:700;line-height:1.2;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .rchips button small{display:block;font-size:13px;font-weight:500;color:var(--sub);font-variant-numeric:tabular-nums}
 .rchips button.done{color:var(--dim)}
-.rchips button[aria-pressed="true"]{border-color:var(--gold);color:var(--gold);background:var(--panel2)}
+.rchips button[aria-pressed="true"]{border-color:#eef3f8;color:#0b1726;background:#eef3f8}
 .starpick{margin-top:12px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--panel);font-size:15px}
 .starpick b{color:var(--gold)}
 .starpick small{display:block;font-size:13px;color:var(--sub);margin-top:2px}
@@ -229,12 +229,13 @@ html[data-vr] body::after{content:none;margin:0}
 .vr-note{display:block;margin:18px 0 20px;font-size:11px;color:#8a8f98;letter-spacing:.02em;text-align:center}
 
 </style>
+<style>/* 共通の枠が付くまで隠す（古い見た目が一瞬出ないように。1.5秒で必ず出す） */html:not(.dzf-ok) body{visibility:hidden;animation:dzfShow 0s linear 1.5s forwards}@keyframes dzfShow{to{visibility:visible}}</style>
 <!-- kata6:head -->
 <link rel="stylesheet" href="../assets/ugoki.css?v=a0c08edf">
 <!-- /kata6:head -->
 </head>
 <body>
-<nav class="top"><a class="siteback" href="../">← データ攻め トップ</a><a class="sitelink" href="../torisetsu/#g10">📘 トリセツ</a><button type="button" class="motionbtn" id="motionBtn" aria-pressed="true">✦ 動き：オン</button></nav>
+<nav class="top"><button type="button" class="motionbtn" id="motionBtn" aria-pressed="true">✦ 動き：オン</button></nav>
 <div class="wrap">
 <header class="hero">
  <div class="nebula" aria-hidden="true"></div>
@@ -871,5 +872,6 @@ Promise.all([getJSON('../data/racerStatsCore.json'),getJSON('../data/racerStatsD
 <!-- kata6:body -->
 <script src="../assets/ugoki.js?v=e40e8a0a"></script>
 <!-- /kata6:body -->
+<script src="../assets/siteFrame.js?v=641dc713"></script>
 </body>
 </html>

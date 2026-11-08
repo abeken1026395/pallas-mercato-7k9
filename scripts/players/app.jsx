@@ -261,7 +261,7 @@ function BranchPanel({bsort,setBsort,kim,players,hasDetail,detailErr,cstat,csMet
     <div style={{fontSize:11,color:"#96a8bb",margin:"2px 2px 10px",lineHeight:1.5}}>支部所属者の集計。勝率・アウト戦・平均STは期首時点の値（2026後期fan2604）。コース別1着率は進入コース別の実走を合算したもので{csMeta&&csMeta.期間&&csMeta.期間.日数?"（過去"+csMeta.期間.日数+"日）":""}、細い横線は全選手の平均。決まり手は所属選手の1着実数を合算した比率。数値右は全国平均との差分。母数の少ない支部はブレやすく、個々の選手が従うわけではない目安。</div>
     <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}>
      {sk.map(([k,l])=>(
-      <button key={k} onClick={()=>setBsort(k)} style={{padding:"6px 13px",fontSize:12,fontWeight:700,borderRadius:8,cursor:"pointer",border:"1px solid "+(bsort===k?"#ffd166":"#1e2d3d"),background:bsort===k?"#ffd166":"#162232",color:bsort===k?"#0b1219":"#8faabe"}}>{l}</button>
+      <button key={k} onClick={()=>setBsort(k)} style={{padding:"6px 13px",fontSize:12,fontWeight:700,borderRadius:8,cursor:"pointer",border:"1px solid "+(bsort===k?"#eef3f8":"#1e2d3d"),background:bsort===k?"#eef3f8":"#162232",color:bsort===k?"#0b1726":"#8faabe"}}>{l}</button>
      ))}
     </div>
     <div style={{display:"flex",flexWrap:"wrap",gap:"4px 12px",marginBottom:12,fontSize:11,color:"#8faabe"}}>
@@ -508,7 +508,7 @@ function App() {
         </summary>
         <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:8}}>
           {WST_PER.map(([k,l],i)=>(
-            <button key={k} type="button" onClick={e=>{e.stopPropagation();e.preventDefault();setWstPer(i);}} style={{fontSize:11,fontWeight:700,cursor:"pointer",borderRadius:6,padding:"4px 10px",minHeight:30,border:"1px solid "+(pi===i?"#ffd166":"#2a3d52"),color:pi===i?"#ffd166":"#8faabe",background:pi===i?"#ffd16618":"#101a26"}}>{l}</button>
+            <button key={k} type="button" onClick={e=>{e.stopPropagation();e.preventDefault();setWstPer(i);}} style={{fontSize:11,fontWeight:700,cursor:"pointer",borderRadius:6,padding:"4px 10px",minHeight:30,border:"1px solid "+(pi===i?"#eef3f8":"#2a3d52"),color:pi===i?"#0b1726":"#8faabe",background:pi===i?"#eef3f8":"#101a26"}}>{l}</button>
           ))}
         </div>
         <table style={{width:"100%",borderCollapse:"collapse",fontSize:12,marginTop:4}}>
@@ -686,12 +686,12 @@ function App() {
 
       <div style={{display:"flex",gap:6,marginBottom:10}}>
         {[["list","一覧"],["makuri","まくり屋"],["sashi","差し屋"],["branch","支部傾向"]].map(([tv,tl])=>(
-          <button key={tv} onClick={()=>{setTab(tv);setOpen(null);}} style={{flex:1,padding:"9px 0",fontSize:13,fontWeight:800,borderRadius:8,cursor:"pointer",border:"1px solid "+(tab===tv?"#ffd166":"#2a3d52"),background:tab===tv?"#ffd16622":"#162232",color:tab===tv?"#ffd166":"#8faabe"}}>{tl}</button>
+          <button key={tv} onClick={()=>{setTab(tv);setOpen(null);}} style={{flex:1,padding:"9px 0",fontSize:13,fontWeight:800,borderRadius:8,cursor:"pointer",border:"1px solid "+(tab===tv?"#eef3f8":"#2a3d52"),background:tab===tv?"#eef3f8":"#162232",color:tab===tv?"#0b1726":"#8faabe"}}>{tl}</button>
         ))}
       </div>
       <div style={{display:"flex",gap:6,marginBottom:8,flexWrap:"wrap"}}>
         {["ALL","A1","A2","B1","B2"].map(rk=>(
-          <button key={rk} onClick={()=>setRankF(rk)} style={{padding:"7px 16px",fontSize:13,fontWeight:700,borderRadius:8,cursor:"pointer",border:"1px solid "+(rankF===rk?"#ffd166":"#2a3d52"),background:rankF===rk?"#ffd16622":"#162232",color:rankF===rk?"#ffd166":"#8faabe"}}>{rk==="ALL"?"全級":rk}</button>
+          <button key={rk} onClick={()=>setRankF(rk)} style={{padding:"7px 16px",fontSize:13,fontWeight:700,borderRadius:8,cursor:"pointer",border:"1px solid "+(rankF===rk?"#eef3f8":"#2a3d52"),background:rankF===rk?"#eef3f8":"#162232",color:rankF===rk?"#0b1726":"#8faabe"}}>{rk==="ALL"?"全級":rk}</button>
         ))}
       </div>
 
@@ -706,8 +706,8 @@ function App() {
           <option value="out">アウト戦順</option>
           <option value="yusyo">優勝数順</option>
         </select>}
-        <button onClick={()=>setFemaleOnly(v=>!v)} style={{padding:"7px 14px",fontSize:13,fontWeight:700,borderRadius:8,cursor:"pointer",border:"1px solid "+(femaleOnly?"#ff7eb6":"#2a3d52"),background:femaleOnly?"#ff7eb622":"#162232",color:femaleOnly?"#ff7eb6":"#8faabe"}}>♥ 女子</button>
-        <button onClick={()=>setOshiOnly(v=>!v)} style={{padding:"7px 14px",fontSize:13,fontWeight:700,borderRadius:8,cursor:"pointer",border:"1px solid "+(oshiOnly?"#ffd166":"#2a3d52"),background:oshiOnly?"#ffd16622":"#162232",color:oshiOnly?"#ffd166":"#8faabe"}}>{oshi.length?"⭐":"☆"} 推し{oshi.length?" "+oshi.length:""}</button>
+        <button onClick={()=>setFemaleOnly(v=>!v)} style={{padding:"7px 14px",fontSize:13,fontWeight:700,borderRadius:8,cursor:"pointer",border:"1px solid "+(femaleOnly?"#eef3f8":"#2a3d52"),background:femaleOnly?"#eef3f8":"#162232",color:femaleOnly?"#0b1726":"#8faabe"}}>♥ 女子</button>
+        <button onClick={()=>setOshiOnly(v=>!v)} style={{padding:"7px 14px",fontSize:13,fontWeight:700,borderRadius:8,cursor:"pointer",border:"1px solid "+(oshiOnly?"#eef3f8":"#2a3d52"),background:oshiOnly?"#eef3f8":"#162232",color:oshiOnly?"#0b1726":"#8faabe"}}>{oshi.length?"⭐":"☆"} 推し{oshi.length?" "+oshi.length:""}</button>
         <span style={{marginLeft:"auto",fontSize:12,color:"#96a8bb"}}>{(tab==="makuri"||tab==="sashi")&&<span style={{color:"#8faabe"}}>1着10本以上・{tab==="makuri"?"まくり":"差し"}率順　</span>}{tab==="branch"?"18支部":filtered.length+"名"}</span>
       </div>
 
@@ -749,14 +749,15 @@ function App() {
                 <span style={{fontSize:13,fontWeight:800,padding:"4px 9px",borderRadius:8,background:RANK_BADGE[p.rank],color:p.rank==="A2"?"#0b1726":"#fff",flexShrink:0}}>{p.rank}</span>
                 <div style={{minWidth:0,flex:1}}>
                   <div style={{display:"flex",alignItems:"baseline",gap:8,flexWrap:"nowrap",minWidth:0}}>
-                    <span data-nm="1" style={{fontSize:"clamp(15px, calc((100vw - 360px) * 0.067 + 17px), 19px)",fontWeight:800,color:"#e8edf2",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",minWidth:0}}>{p.name}</span>
-                    <span style={{fontSize:13,color:"#96a8bb",whiteSpace:"nowrap",flexShrink:0}}>{p.branch}</span>
+                    <span data-nm="1" style={{fontSize:(p.name||"").length>=6?"clamp(12px, calc((100vw - 360px) * 0.067 + 11px), 15px)":(p.name||"").length>=5?"clamp(14px, calc((100vw - 360px) * 0.067 + 13px), 17px)":"clamp(15px, calc((100vw - 360px) * 0.067 + 17px), 19px)",fontWeight:800,color:"#e8edf2",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",minWidth:0}}>{p.name}</span>
+                    {tab==="list"&&<span style={{fontSize:13,color:"#96a8bb",whiteSpace:"nowrap",flexShrink:0}}>{p.branch}</span>}
                     {hasMemo(memo,p.no)&&<span role="img" aria-label="メモあり" title="メモあり" style={{fontSize:13,lineHeight:1,flexShrink:0}}>📝</span>}
                   </div>
-                  {p.kana&&<div style={{fontSize:10,color:"#8aa0b4",marginTop:1}}>{p.kana}</div>}
+                  {/* まくり屋・差し屋は右に数字が2つ並び名前の幅が狭いので、支部はふりがなの行へ下ろし、名前が切れないようにする（2026-11-08） */}
+                  {tab==="list"?(p.kana&&<div style={{fontSize:10,color:"#8aa0b4",marginTop:1}}>{p.kana}</div>):<div style={{fontSize:10,color:"#8aa0b4",marginTop:1,wordBreak:"keep-all",lineHeight:1.5}}><span style={{fontSize:12,color:"#96a8bb",marginRight:6}}>{p.branch}</span>{p.kana}</div>}
                 </div>
                 <div style={{display:"flex",gap:"clamp(10px, calc((100vw - 360px) * 0.27 + 10px), 18px)",flexShrink:0}}>
-                  {tab!=="list" && k ? [["率",(tab==="makuri"?k.makuriRate:k.sashiRate)||"-",tab==="makuri"?"#ff9e64":"#7ee787",(tab==="makuri"?"まくり率":"差し率")],["数",tab==="makuri"?k.makuri:k.sashi,"#e0e6ed",(tab==="makuri"?"まくり数":"差し数")]].map(([t,v,col,lb],i)=>(
+                  {tab!=="list" && k ? [["率",(tab==="makuri"?k.makuriRate:k.sashiRate)||"-",tab==="makuri"?"#ff9e64":"#7ee787","率"],["数",tab==="makuri"?k.makuri:k.sashi,"#e0e6ed","本数"]].map(([t,v,col,lb],i)=>(
                     <div key={i} style={{textAlign:"center"}}>
                       <div style={{fontSize:22,fontWeight:800,color:col,lineHeight:1,fontVariantNumeric:"tabular-nums"}}>{v}{t==="率"&&v!=="-"&&<span style={{fontSize:12}}>%</span>}</div>
                       <div style={{fontSize:11,color:"#96a8bb",marginTop:3}}>{lb}</div>
@@ -1323,7 +1324,7 @@ function App() {
                           <div style={{background:"#0b1219",borderRadius:8,padding:"8px 10px"}}>
                             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:6}}>
                               <span style={{fontSize:11,color:"#c5d2e0",fontWeight:700}}>総 {ep.総出走数} 走</span>
-                              <span onClick={e=>{e.stopPropagation();setE30All(v=>!v);}} style={{fontSize:10,fontWeight:700,cursor:"pointer",borderRadius:6,padding:"3px 9px",border:"1px solid #2a3d52",color:e30All?"#ffd166":"#8faabe",background:e30All?"#ffd16618":"#101a26"}}>{e30All?"N≥10のみ":"N<10も表示"}</span>
+                              <span onClick={e=>{e.stopPropagation();setE30All(v=>!v);}} style={{fontSize:10,fontWeight:700,cursor:"pointer",borderRadius:6,padding:"3px 9px",border:"1px solid "+(e30All?"#eef3f8":"#2a3d52"),color:e30All?"#0b1726":"#8faabe",background:e30All?"#eef3f8":"#101a26"}}>{e30All?"N≥10のみ":"N<10も表示"}</span>
                             </div>
                             <div style={{display:"flex",fontSize:11,color:"#96a8bb",fontWeight:700,padding:"0 0 5px",borderBottom:"1px solid #1a2535"}}>
                               <span style={{width:40}}>コース</span><span style={{width:40,textAlign:"right"}}>出走</span><span style={{width:36,textAlign:"right"}}>1着</span><span style={{width:44,textAlign:"right"}}>2連対</span><span style={{width:52,textAlign:"right"}}>平均ST</span><span style={{flex:1,paddingLeft:10}}>決まり手</span>
