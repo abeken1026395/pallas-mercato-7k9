@@ -1038,17 +1038,22 @@ function render(){
   if(typeof bindTjsTabs==='function') bindTjsTabs();
   applyVenueHash();
 }
-// 整備ページなどから #v24 で来たとき、場別タブでその場を開く（初回の1回だけ）
+// 整備ページなどから #v24 で来たとき、場別タブでその場を開く（初回の1回だけ）。
+// 出走表の「見立てを読む」からは #v24r5 で来る：その場を開き、そのレースを開いてそこへ送る（2026-11-08 けん）
 let VENUE_HASH_DONE=false;
 function applyVenueHash(){
   if(VENUE_HASH_DONE||ISNEXT||!RACES.length) return;
-  const m=/^#v(\d{2})$/.exec(location.hash||''); VENUE_HASH_DONE=true;
+  const m=/^#v(\d{1,2})(?:r(\d{1,2}))?$/.exec(location.hash||''); VENUE_HASH_DONE=true;
   if(!m) return;
-  const r=RACES.find(x=>x['場コード']===m[1]); if(!r) return;
+  const jcd=('0'+m[1]).slice(-2);
+  const r=RACES.find(x=>x['場コード']===jcd); if(!r) return;
+  const rr=m[2]?RACES.find(x=>x['場コード']===jcd&&x['レース']===parseInt(m[2],10)+'R'):null;
   VIEW='all'; OPEN_VENUE=r['場名'];
+  if(rr) OPEN_RACES.add(jcd+'_'+rr['レース']);
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.v==='all'));
   render();
-  const el=document.getElementById('v-'+m[1]); if(el) el.scrollIntoView({block:'start'});
+  const el=(rr&&document.querySelector('.race[data-uid="'+jcd+'_'+rr['レース']+'"]'))||document.getElementById('v-'+jcd);
+  if(el) el.scrollIntoView({block:'start'});
 }
 // 荒れ・堅めの一覧は、締切を過ぎたレースが出たときだけ並べ直す（それ以外は再描画しない）
 function pastCount(){ return document.querySelectorAll('#list > .race.past').length; }
