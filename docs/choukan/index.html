@@ -54,6 +54,7 @@ h2.t{font-size:24px;line-height:1.45;margin:8px 0 22px;font-weight:700;letter-sp
 .pager a[aria-disabled="true"]{visibility:hidden}
 .empty{padding:56px 0;color:var(--sub);font-size:15px;line-height:1.9}
 </style>
+<style>/* 古い見た目が一瞬出るのを止める（2026-11-08）：共通の枠が付くまで本文を隠す。枠が来なくても1.5秒で出す */html{background:#0d1c2f}html:not(.dzf-ok) body{visibility:hidden;animation:dzfShow 0s linear 1.5s forwards}@keyframes dzfShow{to{visibility:visible}}</style>
 </head>
 <body>
 <div class="wrap">
@@ -107,6 +108,6 @@ h2.t{font-size:24px;line-height:1.45;margin:8px 0 22px;font-weight:700;letter-sp
 </script>
 <script src="../assets/guard.js" defer></script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics --><script src=/assets/raihou.js defer></script>
-<script src="../assets/siteFrame.js?v=9abd0c0e"></script>
+<script src="../assets/siteFrame.js?v=e49bc1b8"></script>
 </body>
 </html>
