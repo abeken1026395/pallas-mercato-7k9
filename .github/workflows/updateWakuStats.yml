@@ -31,4 +31,17 @@ jobs:
           git add data/wakuStats/base.csv docs/data/wakuStats.json docs/data/wakuST.json
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
           git commit -m "auto: wakuStats daily update"
-          git push origin HEAD:main
+          # 他の自動コミットと同時刻にぶつかると push が拒否される（2026-11-08 実例）。
+          # 出走表データ自動更新と同じく、最新を取り込んでから最大5回まで再試行する。
+          PUSHED=0
+          for i in 1 2 3 4 5; do
+            if git pull --rebase origin main && git push origin HEAD:main; then PUSHED=1; break; fi
+            git rebase --abort 2>/dev/null || true
+            echo "push retry $i ..."
+            sleep 5
+          done
+          if [ "$PUSHED" != "1" ]; then
+            echo "::error::push に失敗（5回のリトライを使い切った）。コミットは公開されていない"
+            exit 1
+          fi
+          echo "pushed"
