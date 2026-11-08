@@ -1,7 +1,7 @@
 import os, json, numpy as np
 from PIL import Image
 
-SRC = "/home/claude/book"
+SRC = "/home/claude/six/fig"
 OUT = "/home/claude/next/cue.json"
 ORANGE = np.array([255, 122, 0])
 

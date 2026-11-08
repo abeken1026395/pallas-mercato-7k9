@@ -211,10 +211,13 @@ table.sym td.k{width:6.4em;white-space:nowrap}
 #bar button{flex:1;background:none;border:0;color:var(--moji);min-width:0;
   font-family:inherit;font-size:14.5px;font-weight:700;padding:15px 4px;cursor:pointer;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#bar #bBack{color:var(--kigen)}
 #siteTop{position:absolute;left:12px;top:4px;z-index:2;display:inline-flex;align-items:center;
   min-height:44px;padding:0 8px;font-size:13px;color:var(--mojiS);
   text-decoration:underline;text-underline-offset:3px}
+#bar #bBack{color:var(--kigen)}
+/* 読んでいる間（下へ送っている間）は帯を下へ逃がし、本文や図に重ねない。上へ戻すか、ページの端で出す */
+#bar{transition:transform .2s ease}
+#bar.hide{transform:translateY(calc(100% + 40px))}
 #bar button+button{border-left:1px solid #2a6470}
 #bar button:active{background:rgba(228,173,78,.14)}
 
@@ -346,6 +349,15 @@ main{padding-bottom:112px}
   *{animation:none!important;transition:none!important}
   #lanes .bt{transform:none;opacity:1}
 }
+/* 枠の6色は全ページと同じにする（共通の枠 siteFrame.js の「表の作法」2026-11-07）。型の写し取り（.waku.w5.kataN）で5号艇が金になっていたのを戻す。型（:root div.bt.k5.kataN）より強くするため :root と同じクラス5つで書く */
+/* 「丸い札」の見本は丸のまま（型が span.chipo の角を0にしているため） */
+:root span.chipo.maru{border-radius:999px!important}
+:root .k1.k1.k1.k1.k1,:root .w1.w1.w1.w1.w1{background:#f4f4f4!important;color:#0b1726!important;-webkit-text-fill-color:#0b1726!important}
+:root .k2.k2.k2.k2.k2,:root .w2.w2.w2.w2.w2{background:#000!important;color:#fff!important;-webkit-text-fill-color:#fff!important;box-shadow:inset 0 0 0 1px #3a4a5c!important}
+:root .k3.k3.k3.k3.k3,:root .w3.w3.w3.w3.w3{background:#e2313a!important;color:#fff!important;-webkit-text-fill-color:#fff!important}
+:root .k4.k4.k4.k4.k4,:root .w4.w4.w4.w4.w4{background:#2b6fdc!important;color:#fff!important;-webkit-text-fill-color:#fff!important}
+:root .k5.k5.k5.k5.k5,:root .w5.w5.w5.w5.w5{background:#f2d02e!important;color:#0b1726!important;-webkit-text-fill-color:#0b1726!important}
+:root .k6.k6.k6.k6.k6,:root .w6.w6.w6.w6.w6{background:#2fa04f!important;color:#fff!important;-webkit-text-fill-color:#fff!important}
 </style>
 </head>
 <body>
@@ -363,7 +375,7 @@ main{padding-bottom:112px}
       <a class="door d2" href="#p2"><i>2</i><b>困ったとき</b><span>記号の意味／画面がおかしく見えるとき</span></a>
       <a class="door d3" href="#p3"><i>3</i><b>画面の辞書</b><span>12の画面を1つずつ。引いてください</span></a>
     </div>
-    <p class="date">2026年10月24日の画面です<span id="ver"></span></p>
+    <p class="date">2026年11月7日の画面です<span id="ver"></span></p>
   </div>
 </section>
 
@@ -662,7 +674,8 @@ document.addEventListener('click',function(e){
   var NAMES={'':'トップ','racers':'出走表','highlights':'見どころ','motor':'モーター',
     'motor-maintenance':'モーター整備','stadium':'24場','players':'選手図鑑','results':'レース結果',
     'payouts':'万舟のツボ','kensho':'検証','fan':'場の文化','uranai':'占い','announcers':'実況アナ',
-    'glossary':'用語辞典','updates':'更新履歴'};
+    'glossary':'用語辞典','updates':'更新履歴',
+    'choukan':'場の朝刊','ichimark':'1マーク','note':'観戦ノート'};
   var root=location.pathname.replace(/(torisetsu\/(index\.html)?|next\/torisetsu\.html)$/,'');
   var b=document.getElementById('bBack'), back=false;
   try{
@@ -713,6 +726,18 @@ srch.addEventListener('input',function(){
   groups();
   hit.textContent=n?(n+'か所に出てきます'):'見つかりません。ちがう言葉でためしてください';
 });
+</script>
+<script>
+(function(){
+  var bar=document.getElementById('bar');if(!bar)return;
+  var last=scrollY;
+  addEventListener('scroll',function(){
+    var y=scrollY,end=document.documentElement.scrollHeight-innerHeight;
+    if(y<80||y>end-80||y<last-8)bar.classList.remove('hide');
+    else if(y>last+8)bar.classList.add('hide');
+    if(Math.abs(y-last)>8)last=y;
+  },{passive:true});
+})();
 </script>
 </body>
 </html>

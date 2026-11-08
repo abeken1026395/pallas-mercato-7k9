@@ -1,7 +1,7 @@
 import os, numpy as np
 from PIL import Image
 
-SRC = "/home/claude/book"
+SRC = "/home/claude/six/fig"
 DST = "/home/claude/next/img"
 BG = (13, 39, 48)
 
@@ -20,7 +20,16 @@ for f in sorted(os.listdir(SRC)):
     if 4 < g < w * 0.35:                       # 左の余白帯だけ塗り替える
         band = a[:, :g]
         m = (band > 225).all(axis=2)
-        edge = a[:, min(g + 2, w - 1)][:, None, :].repeat(g, axis=1)  # 行ごとに、画面の左端と同じ色で塗る（地の色の帯を作らない）
+        col = a[:, min(g + 2, w - 1)].copy()
+        orange = np.abs(col - np.array([255, 122, 0])).sum(axis=1) < 160   # 引き出し線が通る行は、線の色を拾ってしまう
+        ok = np.where(~orange)[0]
+        if len(ok) and orange.any():
+            bad = np.where(orange)[0]
+            near = ok[np.clip(np.searchsorted(ok, bad), 0, len(ok) - 1)]
+            near2 = ok[np.clip(np.searchsorted(ok, bad) - 1, 0, len(ok) - 1)]
+            near = np.where(np.abs(near - bad) <= np.abs(near2 - bad), near, near2)
+            col[bad] = col[near]                 # その行は、線の外のいちばん近い行の色で塗る
+        edge = col[:, None, :].repeat(g, axis=1)  # 行ごとに、画面の左端と同じ色で塗る（地の色の帯を作らない）
         band[m] = edge[m]
         a[:, :g] = band
     out = Image.fromarray(a.astype(np.uint8))
