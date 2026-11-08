@@ -44,7 +44,8 @@ h1 { font-family:"Dela Gothic One",-apple-system,sans-serif; font-weight:400; fo
 .strip { display:flex; overflow-x:auto; gap:0; margin-top:2px; border-top:1px solid var(--line); border-bottom:1px solid var(--line); scrollbar-width:none; }
 .strip::-webkit-scrollbar { display:none; }
 .pp, .pb { flex:none; min-width:44px; min-height:44px; padding:0 8px; background:none; border:0; color:var(--sub); font-family:"Barlow Condensed",sans-serif; font-size:16px; cursor:pointer; }
-.pp { color:var(--fg); border-right:1px solid var(--line); font-size:14px; }
+.pp { color:var(--fg); border-right:1px solid var(--line); font-family:-apple-system,"Hiragino Sans",sans-serif; font-size:13px; white-space:nowrap; }
+.pb { white-space:nowrap; }
 .pp[aria-pressed="true"] { color:var(--gold); }
 .pb.on { color:var(--bg); background:var(--fg); font-weight:600; }
 .per { font-family:"Barlow Condensed",sans-serif; font-size:13px; color:var(--sub); margin-top:8px; min-height:18px; }
@@ -93,7 +94,7 @@ svg { display:block; width:100%; height:auto; overflow:visible; }
 
 <div class="sec"><h2 id="secT">イン番付</h2></div>
 <div class="tabs" role="tablist"><button class="tab" role="tab" data-k="c1" aria-selected="true">イン</button><button class="tab" role="tab" data-k="c4" aria-selected="false">4コース</button><button class="tab" role="tab" data-k="man" aria-selected="false">万舟</button><button class="tab" role="tab" data-k="shin" aria-selected="false">進入</button><button class="tab" role="tab" data-k="wind" aria-selected="false">風</button><button class="tab" role="tab" data-k="wave" aria-selected="false">波</button></div>
-<div class="strip" id="strip"><button class="pp" id="playBtn" aria-label="期を順に送る">▶</button><button class="pb" data-i="0">16</button><button class="pb" data-i="1">17</button><button class="pb" data-i="2">18</button><button class="pb" data-i="3">19</button><button class="pb" data-i="4">20</button><button class="pb" data-i="5">21</button><button class="pb" data-i="6">22</button><button class="pb" data-i="7">23</button><button class="pb" data-i="8">24</button><button class="pb" data-i="9">25</button><button class="pb" data-i="10">26</button><button class="pb on" data-i="-1">通算</button></div>
+<div class="strip" id="strip"><button class="pp" id="playBtn" aria-label="年を順に送る">▶ 順に</button><button class="pb on" data-i="-1">通算</button><button class="pb" data-i="0">2016年</button><button class="pb" data-i="1">2017年</button><button class="pb" data-i="2">2018年</button><button class="pb" data-i="3">2019年</button><button class="pb" data-i="4">2020年</button><button class="pb" data-i="5">2021年</button><button class="pb" data-i="6">2022年</button><button class="pb" data-i="7">2023年</button><button class="pb" data-i="8">2024年</button><button class="pb" data-i="9">2025年</button><button class="pb" data-i="10">2026年</button></div>
 <p class="per" id="perLab"></p>
 <svg id="rk" viewBox="0 0 360 658" role="img" aria-label="24場の順位">
 <g id="nat" style="transform:translateX(218.0px)"><line class="nat" x1="0" x2="0" y1="26" y2="658"/><text class="natT" x="0" y="20" text-anchor="middle">全国 <tspan id="natV">54.7</tspan></text></g>
@@ -354,11 +355,11 @@ document.querySelectorAll('.tab').forEach(function(t){t.addEventListener('click'
   cur=t.dataset.k;document.getElementById('secT').textContent=D.metrics[cur].title;document.getElementById('defTxt').textContent=D.defs[cur]+'。';draw(true);
 });});
 var pb=document.getElementById('playBtn');
-function stop(){if(timer){clearInterval(timer);timer=null;pb.setAttribute('aria-pressed','false');pb.textContent='▶';}}
+function stop(){if(timer){clearInterval(timer);timer=null;pb.setAttribute('aria-pressed','false');pb.textContent='▶ 順に';}}
 document.querySelectorAll('.pb').forEach(function(p){p.addEventListener('click',function(){stop();per=+p.dataset.i;draw(false);});});
 pb.addEventListener('click',function(){
   if(timer){stop();return;}
-  pb.setAttribute('aria-pressed','true');pb.textContent='■';per=0;draw(false);
+  pb.setAttribute('aria-pressed','true');pb.textContent='■ 止める';per=0;draw(false);
   timer=setInterval(function(){
     if(per>=D.per.length-1){stop();per=-1;draw(false);return;}
     per++;draw(false);
