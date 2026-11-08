@@ -29,3 +29,6 @@ p{line-height:1.85}
 ::selection{background:rgba(212,176,106,.35)}
 /* 状態が変わる部品（型の色を塗らない部品）も、角だけは四角にそろえる（形は状態で変わらないので） */
 :root [data-kskip][data-kskip]{border-radius:0 !important}
+
+/* プロ化 第10弾（2026-11-08 けん「古いUIが一瞬出る。直せ」）：共通の枠（siteFrame.js）が付くまで本文を隠す。枠が来なくても1.5秒で出す */
+html:not(.dzf-ok) body{visibility:hidden;animation:dzfShow 0s linear 1.5s forwards}@keyframes dzfShow{to{visibility:visible}}

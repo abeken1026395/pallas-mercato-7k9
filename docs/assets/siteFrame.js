@@ -3,6 +3,7 @@
    ルートはこのファイル自身の場所から割り出す（ページの深さに関係なく正しいリンクになる）。
    トップ（index.html）は自前の帯とタブを持つので何もしない。 */
 (function(){
+  document.documentElement.classList.add("dzf-ok"); // 本文を出す（kata.css とページの頭で、枠が付くまで隠している）
   if (window.__dzFrame) return; window.__dzFrame = 1;
   var me = document.currentScript || document.querySelector('script[src*="assets/siteFrame.js"]');
   if (document.readyState === "loading") { document.addEventListener("DOMContentLoaded", function(){ run(me); }); } else { run(me); }
