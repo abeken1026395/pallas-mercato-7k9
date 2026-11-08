@@ -100,7 +100,7 @@ class Agg:
             except ValueError:
                 continue
             if 1 <= c <= 6:
-                boats.append((c, w, ch, e.get("toban")))
+                boats.append((c, w, ch, e.get("toban"), e.get("grade")))
         if len(boats) < 5:
             return
         self.days.add(ymd8)
@@ -120,27 +120,30 @@ class Agg:
         ws = num(rinfo.get("windMps"), "m")
         wd = (rinfo.get("windDir") or "").strip()
         wbin = None
+        wa = rinfo.get("windAngle")  # results 由来は風向コードの角度（回転済み）をそのまま渡す
         if ws is not None:
             if ws <= 2 or wd == "無風":
                 wbin = "弱"
-            elif wd in ANG:
-                a = (ANG[wd] + WIND_OFFSET[jcd]) % 360
+            elif wa is not None or wd in ANG:
+                a = wa if wa is not None else (ANG[wd] + WIND_OFFSET[jcd]) % 360
                 diff = abs((a - self.bear[jcd] + 180) % 360 - 180)
                 side = "追い" if diff <= 45 else "向かい" if diff >= 135 else "横"
                 wbin = side + ("5m以上" if ws >= 5 else "3-4m")
             else:
                 self.windUnknown += 1
 
-        for c, w, ch, toban in boats:
+        for c, w, ch, toban, gr in boats:
             win = 1 if ch in ("01", "1") else 0
             if c == 1:
                 addr("c1", win)
                 if s:
                     self.seas[(jcd, s)][0] += win; self.seas[(jcd, s)][1] += 1
-                try:
-                    g = grade_of(self.rank, int(toban), ymd)
-                except (TypeError, ValueError):
-                    g = None
+                g = gr
+                if g not in GRADES:
+                    try:
+                        g = grade_of(self.rank, int(toban), ymd)
+                    except (TypeError, ValueError):
+                        g = None
                 if g in GRADES:
                     self.grade[(jcd, g)][0] += win; self.grade[(jcd, g)][1] += 1
                 if wbin:
@@ -149,7 +152,7 @@ class Agg:
                 addr("c4", win)
         if tri is not None and tri > 0:
             addr("man", 1 if tri >= 10000 else 0)
-        order = [w for c, w, _, _ in sorted(boats)]
+        order = [w for c, w, _, _, _ in sorted(boats)]
         addr("shin", 0 if order == sorted(order) else 1)
         if ws is not None:
             addm("wind", ws)
@@ -158,6 +161,13 @@ class Agg:
             addm("wave", wv)
 
     def dump(self, out, source):
+        o = self.result(source)
+        os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
+        with open(out, "w", encoding="utf-8", newline="\n") as f:
+            json.dump(o, f, ensure_ascii=False, separators=(",", ":"))
+        print("書き出し", out, "期間", o["期間"], "日数", len(self.days), "レース", o["レース数"], "方位不明", self.windUnknown)
+
+    def result(self, source):
         days = sorted(self.days)
         years = sorted({d[:4] for d in days})
         o = {
@@ -183,10 +193,7 @@ class Agg:
             o["級別"]["場"][v] = {g: self.grade[(v, g)] for g in GRADES}
             o["季節"]["場"][v] = {s: self.seas[(v, s)] for s in ("冬", "夏")}
             o["風"]["場"][v] = {b: self.wind[(v, b)] for b in WIND_BINS}
-        os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
-        with open(out, "w", encoding="utf-8", newline="\n") as f:
-            json.dump(o, f, ensure_ascii=False, separators=(",", ":"))
-        print("書き出し", out, "期間", o["期間"], "日数", len(days), "レース", o["レース数"], "方位不明", self.windUnknown)
+        return o
 
 
 def tri_of(pays):
