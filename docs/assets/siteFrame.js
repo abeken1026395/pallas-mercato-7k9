@@ -93,10 +93,22 @@
   // 全角の英数字（公式データのまま「ＢＯＡＴＲＡＣＥ」「５日目」など）を半角にそろえる。入力欄・書式つきの中身は触らない
   var Z = /[\uFF10-\uFF19\uFF21-\uFF3A\uFF41-\uFF5A]/;
   var han = function(root){ if (!root || !root.nodeType) return; var w = document.createTreeWalker(root.nodeType === 3 ? root.parentNode || document.body : root, NodeFilter.SHOW_TEXT, { acceptNode: function(n){ var p = n.parentNode; if (!p || /^(SCRIPT|STYLE|TEXTAREA|INPUT|CODE|PRE)$/.test(p.nodeName) || p.isContentEditable) return 2; return Z.test(n.nodeValue) ? 1 : 2; } }), n, a = []; while ((n = w.nextNode())) a.push(n); a.forEach(function(n){ n.nodeValue = n.nodeValue.replace(/[\uFF10-\uFF19\uFF21-\uFF3A\uFF41-\uFF5A]/g, function(c){ return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); }); }); };
+  // 文字の大きさを5段（12・14・16・20・24px）にそろえる（2026-11-08 けん「はい次」・プロ化 第8弾）。
+  // 26px以上（題字・大きな数字）はそのまま。共通の枠（dzf-）と data-kata-skip（二つ名など）は触らない。px 以外の指定（em・clamp など）も触らない
+  // 検証（/kensho/）の記事は検証の型の決まりで組んでいるので、ここでは大きさを変えない
+  var snapOff = /\/kensho\//.test(location.pathname);
+  var snapFs = function(px){ return px >= 26 ? px : px < 13 ? 12 : px < 15 ? 14 : px < 18 ? 16 : px < 22 ? 20 : 24; };
+  var snapDecl = function(sty){ var m = /^([\d.]+)px$/.exec((sty.getPropertyValue("font-size") || "").trim()); if (!m) return; var px = +m[1], v = snapFs(px); if (v !== px) sty.setProperty("font-size", v + "px", sty.getPropertyPriority("font-size")); };
+  var snapRules = function(rules){ for (var i = 0; i < rules.length; i++) { var r = rules[i]; if (r.cssRules && !r.style) { snapRules(r.cssRules); continue; } if (r.style && r.selectorText && !/dzf-|data-kata-skip/.test(r.selectorText) && r.style.fontSize) snapDecl(r.style); } };
+  var snapSheets = function(){ if (snapOff) return; Array.prototype.forEach.call(document.styleSheets, function(sh){ if (sh.ownerNode && sh.ownerNode.id === "dzfCss") return; if (sh.dzfSnap) return; try { snapRules(sh.cssRules); sh.dzfSnap = 1; } catch (e) {} }); };
+  var snapInline = function(root){ if (snapOff) return; if (!root || root.nodeType !== 1) return; var a = Array.prototype.slice.call(root.querySelectorAll('[style*="font-size"]')); if (root.matches('[style*="font-size"]')) a.push(root); a.forEach(function(el){ if (el.closest("[data-kata-skip],.dzf-bar,.dzf-tb,.dzf-sh")) return; snapDecl(el.style); }); };
+  // em・% などで決まっていて段から外れた文字は、見えている大きさを段にそろえて上書きする（読んでから書く。2回目で入れ子も追いつく）
+  var snapEls = function(root){ if (snapOff) return; if (!root || root.nodeType !== 1) return; var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(n){ return n.nodeValue.trim() ? 1 : 2; } }), n, seen = [], todo = []; while ((n = w.nextNode())) { var el = n.parentElement; if (!el || el.dzfFs || seen.indexOf(el) >= 0 || /^(SCRIPT|STYLE)$/.test(el.nodeName) || el.closest("[data-kata-skip],.dzf-bar,.dzf-tb,.dzf-sh")) continue; seen.push(el); } seen.forEach(function(el){ var px = parseFloat(getComputedStyle(el).fontSize), v = snapFs(px); if (Math.abs(v - px) > 0.25) todo.push([el, v]); }); todo.forEach(function(t){ t[0].style.setProperty("font-size", t[1] + "px", "important"); t[0].dzfFs = 1; }); };
+  snapSheets(); snapInline(document.body);
   var hanQ = [], hanT = 0;
-  try { new MutationObserver(function(ms){ ms.forEach(function(m){ for (var k = 0; k < m.addedNodes.length; k++) hanQ.push(m.addedNodes[k]); if (m.type === "characterData") hanQ.push(m.target); }); if (!hanT) hanT = setTimeout(function(){ var q = hanQ; hanQ = []; hanT = 0; q.forEach(function(x){ if (x.isConnected) han(x); }); }, 120); }).observe(document.body, { childList: true, subtree: true, characterData: true }); } catch (e) {}
+  try { new MutationObserver(function(ms){ ms.forEach(function(m){ for (var k = 0; k < m.addedNodes.length; k++) hanQ.push(m.addedNodes[k]); if (m.type === "characterData") hanQ.push(m.target); }); if (!hanT) hanT = setTimeout(function(){ var q = hanQ; hanQ = []; hanT = 0; q.forEach(function(x){ if (x.isConnected) { han(x); snapInline(x); snapEls(x); if (/^(STYLE|LINK)$/.test(x.nodeName)) snapSheets(); } }); }, 120); }).observe(document.body, { childList: true, subtree: true, characterData: true }); } catch (e) {}
   han(document.body);
-  var onLoad = function(){ cutBR(); wideTable(); setTimeout(function(){ cutBR(); wideTable(); }, 1500); };
+  var onLoad = function(){ snapSheets(); snapInline(document.body); snapEls(document.body); cutBR(); wideTable(); setTimeout(function(){ snapSheets(); snapInline(document.body); snapEls(document.body); cutBR(); wideTable(); }, 1500); setTimeout(function(){ snapSheets(); snapEls(document.body); }, 4000); };
   cutBR(); if (document.readyState === "complete") onLoad(); else window.addEventListener("load", onLoad);
   // 本文の余白を打ち消して、帯を画面の端から端まで出す（ページごとに body の余白が違うため）
   var bs = getComputedStyle(document.body), px = function(k){ return (parseFloat(bs["padding" + k]) || 0) + (parseFloat(bs["margin" + k]) || 0); };

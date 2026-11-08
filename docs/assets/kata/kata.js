@@ -79,7 +79,7 @@
   try {
     if (window.__dzFrame || document.querySelector('script[src*="assets/siteFrame.js"]')) return;
     var k = document.currentScript || document.querySelector('script[src*="assets/kata/kata.js"]'); if (!k) return;
-    var s = document.createElement("script"); s.src = k.src.replace(/kata\/kata\.js.*$/, "siteFrame.js?v=ed786520");
+    var s = document.createElement("script"); s.src = k.src.replace(/kata\/kata\.js.*$/, "siteFrame.js?v=9abd0c0e");
     (document.body || document.head).appendChild(s);
   } catch (e) {}
 })();
