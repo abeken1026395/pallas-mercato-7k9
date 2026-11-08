@@ -45,7 +45,7 @@ function parseMemoImport(txt){
   return out;
 }
 // 級別バッジ色（旧版踏襲: A1=赤系で目立たせる）
-const RANK_BADGE = { "A1":"#e5484d", "A2":"#4593e5", "B1":"#7d8da0", "B2":"#5a6878" };
+const RANK_BADGE = { "A1":"#c8323a", "A2":"#d9772e", "B1":"#2b6fdc", "B2":"#5c6773" };  /* 級別の札は全ページ共通の色（A1赤・A2橙・B1青・B2灰。2026-11-08 白文字で読める濃さに） */
 const RANK_LINE  = { "A1":"#e5484d", "A2":"#4593e5", "B1":"#7d8da0", "B2":"#3a4550" };
 
 // 登番→選手 の逆引き（note内リンク・関係性表示に使う）
@@ -746,7 +746,7 @@ function App() {
                 <button type="button" onClick={e=>{e.stopPropagation();toggleOshi(p.no,p.name);}} title="推しフォロー" aria-pressed={hasOshi(oshi,p.no)} aria-label={p.name+(hasOshi(oshi,p.no)?"のフォローを解除":"をフォロー")} style={{fontSize:18,lineHeight:1,color:hasOshi(oshi,p.no)?"#ffd166":"#8a94a3",cursor:"pointer",flexShrink:0,padding:0,minWidth:24,minHeight:24,display:"inline-flex",alignItems:"center",justifyContent:"center",background:"none",border:"none",fontFamily:"inherit",userSelect:"none"}}>{hasOshi(oshi,p.no)?"⭐":"☆"}</button>
                 {p.female&&<span role="img" aria-label="女子選手" title="女子選手" style={{color:"#ff7eb6",fontSize:13,lineHeight:1,marginTop:2}}>♥</span>}
                 </div>
-                <span style={{fontSize:13,fontWeight:800,padding:"4px 9px",borderRadius:8,background:RANK_BADGE[p.rank],color:"#fff",flexShrink:0}}>{p.rank}</span>
+                <span style={{fontSize:13,fontWeight:800,padding:"4px 9px",borderRadius:8,background:RANK_BADGE[p.rank],color:p.rank==="A2"?"#0b1726":"#fff",flexShrink:0}}>{p.rank}</span>
                 <div style={{minWidth:0,flex:1}}>
                   <div style={{display:"flex",alignItems:"baseline",gap:8,flexWrap:"nowrap",minWidth:0}}>
                     <span data-nm="1" style={{fontSize:"clamp(15px, calc((100vw - 360px) * 0.067 + 17px), 19px)",fontWeight:800,color:"#e8edf2",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",minWidth:0}}>{p.name}</span>

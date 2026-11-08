@@ -145,6 +145,8 @@ a.c:active{background:#1a3150}
 .tb svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 .sheet{position:fixed;left:0;right:0;bottom:calc(58px + env(safe-area-inset-bottom));z-index:29;background:var(--bar);border-top:1px solid var(--line)}
 .sheet[hidden]{display:none}
+.shbd{position:fixed;left:0;right:0;top:0;bottom:0;z-index:28;background:rgba(4,10,18,.6)}
+.shbd[hidden]{display:none}
 .sheet-in{max-width:600px;margin:0 auto;display:grid;grid-template-columns:repeat(2,1fr)}
 .sheet a{display:flex;align-items:center;gap:10px;height:52px;padding:0 18px;border-bottom:1px solid var(--line);font-size:15px;font-weight:600}
 .sheet a:nth-of-type(odd){border-right:1px solid var(--line)}
@@ -346,6 +348,7 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
 </footer>
 </div>
 
+<div class="shbd" id="shbd" hidden></div>
 <div class="sheet" id="sheet" hidden><div class="sheet-in">
   <a href="./motor/">モーター</a>
   <a href="./players/">選手</a>
@@ -465,7 +468,14 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
   document.getElementById("sgA").onclick=function(){setMode("grid");};
   document.getElementById("sgB").onclick=function(){setMode("list");};
   var mb=document.getElementById("moreBtn"), sh=document.getElementById("sheet");
-  mb.onclick=function(){var o=sh.hidden;sh.hidden=!o;mb.setAttribute("aria-expanded",o?"true":"false");mb.className=o?"on":"";};
+  /* その他：後ろを暗くし、後ろのページを動かさない。閉じたら元の位置のまま（2026-11-08 けん「まとめて改善しよう」） */
+  var bd=document.getElementById("shbd"),keepY=0,bs=document.body.style;
+  function openSh(){keepY=window.scrollY;sh.hidden=false;bd.hidden=false;mb.setAttribute("aria-expanded","true");mb.className="on";bs.position="fixed";bs.top=-keepY+"px";bs.left="0";bs.right="0";bs.width="100%";}
+  function closeSh(){if(sh.hidden)return;sh.hidden=true;bd.hidden=true;mb.setAttribute("aria-expanded","false");mb.className="";bs.position="";bs.top="";bs.left="";bs.right="";bs.width="";window.scrollTo(0,keepY);}
+  mb.onclick=function(){if(sh.hidden)openSh();else closeSh();};
+  bd.onclick=closeSh;
+  document.addEventListener("keydown",function(e){if(e.key==="Escape")closeSh();});
+  window.addEventListener("pageshow",function(e){if(e.persisted)closeSh();});
   /* 前の「#hikitsugi」で来たときは、フォローの控えのページへ（2026-11-08 独立ページに移した） */
   if(location.hash==="#hikitsugi") location.replace("./hikae/");
   var gsP=fetch("./data/gradeSchedule.json?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(j){GS=j;}).catch(function(){});

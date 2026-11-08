@@ -92,11 +92,11 @@ function parseMemoImport(txt) {
 }
 // 級別バッジ色（旧版踏襲: A1=赤系で目立たせる）
 const RANK_BADGE = {
-  "A1": "#e5484d",
-  "A2": "#4593e5",
-  "B1": "#7d8da0",
-  "B2": "#5a6878"
-};
+  "A1": "#c8323a",
+  "A2": "#d9772e",
+  "B1": "#2b6fdc",
+  "B2": "#5c6773"
+}; /* 級別の札は全ページ共通の色（A1赤・A2橙・B1青・B2灰。2026-11-08 白文字で読める濃さに） */
 const RANK_LINE = {
   "A1": "#e5484d",
   "A2": "#4593e5",
@@ -1832,7 +1832,7 @@ function App() {
         padding: "4px 9px",
         borderRadius: 8,
         background: RANK_BADGE[p.rank],
-        color: "#fff",
+        color: p.rank === "A2" ? "#0b1726" : "#fff",
         flexShrink: 0
       }
     }, p.rank), /*#__PURE__*/React.createElement("div", {
