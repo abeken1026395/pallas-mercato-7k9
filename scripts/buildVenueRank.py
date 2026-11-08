@@ -163,8 +163,8 @@ def rank_svg(key):
 def short_per(p):
     if UNIT_PER == "四半期":
         q = int(p[5:])
-        return f"{p[2:4]}.{3 * q - 2}-{3 * q}"
-    return f"{p[2:]}"
+        return f"{p[2:4]}年{3 * q - 2}-{3 * q}月"
+    return f"{p}年"
 
 
 gp = D["級別"]["期間"]
@@ -172,12 +172,11 @@ SHORT = UNIT_PER == "四半期"
 p0, p1 = D["期間"]
 dateline = f"{p0[:4]}年{int(p0[4:6])}月{int(p0[6:])}日から{p1[:4]}年{int(p1[4:6])}月{int(p1[6:])}日"
 DEFS = {k: d for k, _, _, d in METRICS}
-tabs = "".join(f'<button class="tab" role="tab" data-k="{k}" aria-selected="{"true" if i == 0 else "false"}">{l}</button>'
+tabs = "".join(f'<button class="btab" role="tab" data-k="{k}" aria-selected="{"true" if i == 0 else "false"}">{l}</button>'
                for i, (k, l, _, _) in enumerate(METRICS))
 opts = "".join(f'<option value="{v}">{v}　{n}</option>' for v, n in NAMES.items())
-strip = '<button class="pp" id="playBtn" aria-label="期を順に送る">▶</button>' + "".join(
-    f'<button class="pb" data-i="{i}">{short_per(p)}</button>' for i, p in enumerate(PER)) + \
-    f'<button class="pb on" data-i="-1">通算</button>'
+strip = f'<button class="pp" id="playBtn" aria-label="{UNIT_PER}を順に送る">▶ 順に</button><button class="pb on" data-i="-1">通算</button>' + "".join(
+    f'<button class="pb" data-i="{i}">{short_per(p)}</button>' for i, p in enumerate(PER))
 payload = json.dumps({"names": NAMES, "metrics": DATA, "per": PER, "perLabel": {p: per_label(p) for p in PER},
                       "karte": KARTE, "mlo": MLO, "mhi": MHI, "defs": DEFS, "color": COLOR,
                       "geom": {"W": W, "RH": RH, "TOP": TOP, "X0": X0, "X1": X1}}, ensure_ascii=False, separators=(",", ":"))
@@ -186,6 +185,20 @@ _days = (_dt.date(int(p1[:4]), int(p1[4:6]), int(p1[6:])) - _dt.date(int(p0[:4])
 years_txt = f"{round(_days / 365.25)}年" if _days >= 730 else f"{round(_days / 30.44)}か月"
 races_txt = f"約{round(D['レース数'] / 10000)}万" if D["レース数"] >= 100000 else f"{D['レース数']:,}"
 season_note = "冬は1回分（試作の期間のため）。" if SHORT else ""
+NEXT = "/next/" in OUT.replace("\\", "/")
+_rel = OUT.replace("\\", "/").split("docs/", 1)[-1]
+CANON = "https://abeken1026395.github.io/pallas-mercato-7k9/" + (_rel[:-len("index.html")] if _rel.endswith("index.html") else _rel)
+TITLE = "24場番付 試作 | データ攻め" if NEXT else "24場番付｜データ攻め"
+CRUMB = '<a href="./">実験場</a>' if NEXT else '<a href="../">データ攻め</a>'
+KATA_HEAD = "" if NEXT else """<!-- kata6:head -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&amp;family=Dela+Gothic+One&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/kata/kata.css?v=c853c8e7">
+<link rel="stylesheet" href="../assets/ugoki.css?v=a0c08edf">
+<!-- /kata6:head -->\n"""
+KATA_BODY = "" if NEXT else """<!-- kata6:body -->
+<script src="../assets/kata/kata.js?v=ecd47e51"></script>
+<script src="../assets/ugoki.js?v=e40e8a0a"></script>
+<!-- /kata6:body -->\n"""
 tail_note = "試作は直近16か月。本番は10年で、期の送りを年ごとにし、風向き別を加える。" if SHORT else ""
 wind_html = ('<p class="kt">風向きと強さ別の1コース1着率</p><svg id="kW" role="img" aria-label="風向きと強さ別の1コース1着率"></svg>'
              '<p class="cap">弱＝2m以下か無風。追い・向かいは水面の向き（2マークから1マーク）との角度。</p>') if WB else ""
@@ -197,13 +210,14 @@ page = f'''<!-- データ攻め by 阿部 https://abeken1026395.github.io/pallas
 <meta name="robots" content="noindex, nofollow">
 <meta charset="UTF-8">
 <meta name="author" content="阿部（データ攻め）">
-<link rel="canonical" href="https://abeken1026395.github.io/pallas-mercato-7k9/next/{os.path.basename(OUT)}">
+<link rel="canonical" href="{CANON}">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>24場番付 試作 | データ攻め</title>
+<title>{TITLE}</title>
+<link rel="apple-touch-icon" href="../icon180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&amp;family=Dela+Gothic+One&amp;display=swap" rel="stylesheet">
-<style>
+{KATA_HEAD}<style>
 :root {{ --bg:#0d1c2f; --band:#132b46; --line:#22395a; --fg:#ecebe5; --sub:#97a8ba; --gold:#d4b06a; --dn:#3e5673; --ease:cubic-bezier(.2,.85,.25,1); }}
 * {{ margin:0; padding:0; box-sizing:border-box; }}
 html {{ background:var(--bg); }}
@@ -227,16 +241,19 @@ h1 {{ font-family:"Dela Gothic One",-apple-system,sans-serif; font-weight:400; f
 .kt6 .r.top {{ color:var(--gold); }}
 .kt6 .v {{ text-align:right; font-family:"Barlow Condensed",sans-serif; font-size:16px; width:5em; color:var(--sub); }}
 .kt {{ font-size:13px; font-weight:700; margin-top:22px; }}
+.kl {{ margin-top:18px; }}
+.kl a {{ color:var(--fg); display:inline-flex; align-items:center; min-height:44px; text-decoration:underline; text-underline-offset:3px; }}
 .cap {{ font-size:12px; color:var(--sub); line-height:1.75; margin-top:2px; }}
 .tabs {{ display:flex; flex-wrap:wrap; margin-top:4px; }}
-.tab {{ position:relative; min-height:44px; padding:0; margin-right:20px; background:none; border:0; color:var(--sub); font-size:13px; cursor:pointer; }}
-.tab[aria-selected="true"] {{ color:var(--fg); font-weight:700; }}
-.tab::after {{ content:""; position:absolute; left:0; right:0; bottom:8px; height:2px; background:var(--fg); transform:scaleX(0); transform-origin:left; transition:transform .3s var(--ease); }}
-.tab[aria-selected="true"]::after {{ transform:scaleX(1); }}
+.btab {{ position:relative; min-height:44px; padding:0; margin-right:20px; background:none; border:0; color:var(--sub); font-size:13px; cursor:pointer; }}
+.btab[aria-selected="true"] {{ color:var(--fg); font-weight:700; }}
+.btab::after {{ content:""; position:absolute; left:0; right:0; bottom:8px; height:2px; background:var(--fg); transform:scaleX(0); transform-origin:left; transition:transform .3s var(--ease); }}
+.btab[aria-selected="true"]::after {{ transform:scaleX(1); }}
 .strip {{ display:flex; overflow-x:auto; gap:0; margin-top:2px; border-top:1px solid var(--line); border-bottom:1px solid var(--line); scrollbar-width:none; }}
 .strip::-webkit-scrollbar {{ display:none; }}
 .pp, .pb {{ flex:none; min-width:44px; min-height:44px; padding:0 8px; background:none; border:0; color:var(--sub); font-family:"Barlow Condensed",sans-serif; font-size:16px; cursor:pointer; }}
-.pp {{ color:var(--fg); border-right:1px solid var(--line); font-size:14px; }}
+.pp {{ color:var(--fg); border-right:1px solid var(--line); font-family:-apple-system,"Hiragino Sans",sans-serif; font-size:13px; white-space:nowrap; }}
+.pb {{ white-space:nowrap; }}
 .pp[aria-pressed="true"] {{ color:var(--gold); }}
 .pb.on {{ color:var(--bg); background:var(--fg); font-weight:600; }}
 .per {{ font-family:"Barlow Condensed",sans-serif; font-size:13px; color:var(--sub); margin-top:8px; min-height:18px; }}
@@ -273,12 +290,12 @@ svg {{ display:block; width:100%; height:auto; overflow:visible; }}
 .deep[open] summary::after {{ content:"−"; }}
 .deep p {{ margin-bottom:6px; }}
 .note {{ font-size:12px; color:var(--sub); line-height:1.8; margin-top:20px; }}
-@media (prefers-reduced-motion: reduce) {{ .row, #nat, .bar, .kbar, .tab::after {{ transition:none; }} .vl.flip {{ animation:none; }} }}
+@media (prefers-reduced-motion: reduce) {{ .row, #nat, .bar, .kbar, .btab::after {{ transition:none; }} .vl.flip {{ animation:none; }} }}
 </style>
 </head>
 <body>
 <div class="wrap">
-<div class="crumb"><a href="./">実験場</a></div>
+<div class="crumb">{CRUMB}</div>
 <h1>24場番付</h1>
 <p class="sub">{years_txt}・{races_txt}レースで決めた、ボートレース場の格</p>
 <p class="dl">{dateline}</p>
@@ -305,6 +322,7 @@ svg {{ display:block; width:100%; height:auto; overflow:visible; }}
 <svg id="kS" role="img" aria-label="冬と夏の1コース1着率"></svg>
 <p class="cap">冬＝12から2月、夏＝6から8月。{season_note}</p>
 {wind_html}
+<p class="cap kl"><a href="../stadium/">水面の特徴・グルメ・予想屋は24場のページへ</a></p>
 </div>
 <p class="note">公式の競走成績から数えています。欠場艇は除いています。{tail_note}</p>
 </div>
@@ -346,16 +364,16 @@ function draw(stagger){{
   document.getElementById('perLab').textContent=per<0?'':D.perLabel[D.per[per]];
   document.querySelectorAll('.pb').forEach(function(p){{p.classList.toggle('on',+p.dataset.i===per);}});
 }}
-document.querySelectorAll('.tab').forEach(function(t){{t.addEventListener('click',function(){{
-  document.querySelectorAll('.tab').forEach(function(x){{x.setAttribute('aria-selected',x===t?'true':'false');}});
+document.querySelectorAll('.btab').forEach(function(t){{t.addEventListener('click',function(){{
+  document.querySelectorAll('.btab').forEach(function(x){{x.setAttribute('aria-selected',x===t?'true':'false');}});
   cur=t.dataset.k;document.getElementById('secT').textContent=D.metrics[cur].title;document.getElementById('defTxt').textContent=D.defs[cur]+'。';draw(true);
 }});}});
 var pb=document.getElementById('playBtn');
-function stop(){{if(timer){{clearInterval(timer);timer=null;pb.setAttribute('aria-pressed','false');pb.textContent='▶';}}}}
+function stop(){{if(timer){{clearInterval(timer);timer=null;pb.setAttribute('aria-pressed','false');pb.textContent='▶ 順に';}}}}
 document.querySelectorAll('.pb').forEach(function(p){{p.addEventListener('click',function(){{stop();per=+p.dataset.i;draw(false);}});}});
 pb.addEventListener('click',function(){{
   if(timer){{stop();return;}}
-  pb.setAttribute('aria-pressed','true');pb.textContent='■';per=0;draw(false);
+  pb.setAttribute('aria-pressed','true');pb.textContent='■ 止める';per=0;draw(false);
   timer=setInterval(function(){{
     if(per>=D.per.length-1){{stop();per=-1;draw(false);return;}}
     per++;draw(false);
@@ -408,7 +426,7 @@ Object.keys(rows).forEach(function(v){{rows[v].addEventListener('click',function
 }})();
 </script>
 <script src="../assets/guard.js" defer></script>
-<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{{"token": "173925d64f4a495bac679b00505ea517"}}'></script><!-- End Cloudflare Web Analytics --><script src=/assets/raihou.js defer></script>
+{KATA_BODY}<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{{"token": "173925d64f4a495bac679b00505ea517"}}'></script><!-- End Cloudflare Web Analytics --><script src=/assets/raihou.js defer></script>
 </body>
 </html>
 '''
