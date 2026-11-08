@@ -541,7 +541,7 @@ function BranchPanel({
       padding: "18px 2px",
       lineHeight: 1.7
     }
-  }, detailErr ? "選手データを読み込めませんでした。ページを再読込してください。" : "読み込み中…");
+  }, detailErr ? "データを読み込めませんでした。通信の良いところで、もう一度読み込んでください。" : "読み込んでいます");
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 11,
@@ -1425,13 +1425,17 @@ function App() {
         color: "#96a8bb"
       }
     }, "2026\u5F8C\u671F\u3000\u6210\u7E3E\uFF1D\u671F\u9996\u6642\u70B9\uFF08fan2604\uFF09")), /*#__PURE__*/React.createElement("div", {
+      className: coreErr ? "dzf-st" : "dzf-st dzf-ld",
+      role: coreErr ? "alert" : "status"
+    }, coreErr ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", {
       style: {
-        fontSize: 13,
-        color: "#8faabe",
-        lineHeight: 1.8,
-        padding: "18px 2px"
+        margin: 0
       }
-    }, coreErr ? "選手データを読み込めませんでした。ページを再読込してください。" : "読み込み中…", oshi.length > 0 && /*#__PURE__*/React.createElement("div", {
+    }, navigator.onLine === false ? "通信が切れています。つながったら、もう一度読み込んでください。" : "データを読み込めませんでした。通信の良いところで、もう一度読み込んでください。"), /*#__PURE__*/React.createElement("button", {
+      type: "button",
+      className: "dzf-re",
+      onClick: () => location.reload()
+    }, "\u3082\u3046\u4E00\u5EA6\u8AAD\u307F\u8FBC\u3080")) : "読み込んでいます", oshi.length > 0 && /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 11,
         color: "#96a8bb",
@@ -1997,7 +2001,7 @@ function App() {
         margin: "12px 0",
         lineHeight: 1.7
       }
-    }, detailErr ? "選手データを読み込めませんでした。ページを再読込してください。" : "読み込み中…") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    }, detailErr ? "データを読み込めませんでした。通信の良いところで、もう一度読み込んでください。" : "読み込んでいます") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 11,
         color: "#8faabe",

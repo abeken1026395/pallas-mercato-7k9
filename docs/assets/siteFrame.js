@@ -4,6 +4,8 @@
    トップ（index.html）は自前の帯とタブを持つので何もしない。 */
 (function(){
   document.documentElement.classList.add("dzf-ok"); // 本文を出す（kata.css とページの頭で、枠が付くまで隠している）
+  // 取れなかったときの表示（全ページ共通の文言。見た目は kata.css の .dzf-st）。圏外なら「通信が切れています」
+  window.dzfErrHtml = function(){ var off = navigator.onLine === false; return '<div class="dzf-st" role="alert"><p>' + (off ? "通信が切れています。つながったら、もう一度読み込んでください。" : "データを読み込めませんでした。通信の良いところで、もう一度読み込んでください。") + '</p><button type="button" class="dzf-re" onclick="location.reload()">もう一度読み込む</button></div>'; };
   if (window.__dzFrame) return; window.__dzFrame = 1;
   var me = document.currentScript || document.querySelector('script[src*="assets/siteFrame.js"]');
   if (document.readyState === "loading") { document.addEventListener("DOMContentLoaded", function(){ run(me); }); } else { run(me); }

@@ -87,7 +87,7 @@ html[data-vr] .wrap::after{content:none;margin:0}
   </div>
 
   <div class="flt" id="flt" role="group" aria-label="ページの種類で絞る"></div>
-  <div class="rows" id="rows" aria-live="polite"><p class="note">読み込み中</p></div>
+  <div class="rows" id="rows" aria-live="polite"><div class="dzf-st dzf-ld" role="status">読み込んでいます</div></div>
 
   <div id="after" hidden>
     <button type="button" class="morebtn" id="moreBtn" hidden>もっと前の更新を見る</button>
@@ -204,7 +204,7 @@ html[data-vr] .wrap::after{content:none;margin:0}
       // 線を引いたあとで既読を書く。トップの更新サインはこれで消える
       try { localStorage.setItem("br_updates_seen", String(data[0].date)); } catch(e){}
     })
-    .catch(function(){ note("更新履歴を読み込めませんでした。"); })
+    .catch(function(){ ROWS.innerHTML=(window.dzfErrHtml?dzfErrHtml():'<div class="dzf-st" role="alert"><p>'+(navigator.onLine===false?'通信が切れています。つながったら、もう一度読み込んでください。':'データを読み込めませんでした。通信の良いところで、もう一度読み込んでください。')+'</p><button type="button" class="dzf-re" onclick="location.reload()">もう一度読み込む</button></div>'); })
     .then(function(){ AFTER.hidden = false; });
 })();
 </script>

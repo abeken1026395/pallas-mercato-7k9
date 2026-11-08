@@ -490,13 +490,13 @@ function renderDay(day){
 
 async function loadDay(hd){
   const out = document.getElementById('out');
-  out.innerHTML = '<div class="empty">読み込み中…</div>';
+  out.innerHTML = '<div class="dzf-st dzf-ld" role="status">読み込んでいます</div>';
   try{
     const res = await fetch('data/'+hd+'.json',{cache:'no-cache'});
     if(!res.ok) throw new Error(res.status);
     renderDay(await res.json());
   }catch(e){
-    out.innerHTML = '<div class="empty">データの取得に失敗しました（'+hd+'）。</div>';
+    out.innerHTML = (window.dzfErrHtml?dzfErrHtml():'<div class="dzf-st" role="alert"><p>'+(navigator.onLine===false?'通信が切れています。つながったら、もう一度読み込んでください。':'データを読み込めませんでした。通信の良いところで、もう一度読み込んでください。')+'</p><button type="button" class="dzf-re" onclick="location.reload()">もう一度読み込む</button></div>');
   }
 }
 
@@ -522,7 +522,7 @@ async function init(){
     sel.value = first['開催日'];
     loadDay(first['開催日']);
   }catch(e){
-    document.getElementById('out').innerHTML='<div class="empty">日付一覧の取得に失敗しました。</div>';
+    document.getElementById('out').innerHTML=(window.dzfErrHtml?dzfErrHtml():'<div class="dzf-st" role="alert"><p>'+(navigator.onLine===false?'通信が切れています。つながったら、もう一度読み込んでください。':'データを読み込めませんでした。通信の良いところで、もう一度読み込んでください。')+'</p><button type="button" class="dzf-re" onclick="location.reload()">もう一度読み込む</button></div>');
   }
 }
 init();
@@ -532,7 +532,7 @@ init();
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics --><script src=/assets/raihou.js defer></script>
 <!-- kata6:body -->
 <script src="../assets/kata/kata.js?v=ecd47e51"></script>
-<script src="../assets/siteFrame.js?v=e49bc1b8"></script>
+<script src="../assets/siteFrame.js?v=5c595aa4"></script>
 <script src="../assets/ugoki.js?v=e40e8a0a"></script>
 <!-- /kata6:body -->
 </body>

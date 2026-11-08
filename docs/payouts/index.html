@@ -90,7 +90,7 @@
 <div id="linksBody" class="links"></div>
 
 <div class="secttl">🎆 全場 高配当レース TOP10</div>
-<div id="topBody" class="card">読み込み中…</div>
+<div id="topBody" class="card"><div class="dzf-st dzf-ld" role="status">読み込んでいます</div></div>
 
 <div class="secttl">🔥 場別 荒れ率ランキング（全24場）</div>
 <div id="arareBody" class="card"></div>
@@ -174,8 +174,7 @@ fetch('./summary.json?_=' + Date.now())
     }).join('');
   })
   .catch(function(){
-    document.getElementById('topBody').innerHTML =
-      '<div class="err">まだデータがありません。「update payouts summary」の集計後に表示されます。</div>';
+    document.getElementById('topBody').innerHTML = (window.dzfErrHtml?dzfErrHtml():'<div class="dzf-st" role="alert"><p>'+(navigator.onLine===false?'通信が切れています。つながったら、もう一度読み込んでください。':'データを読み込めませんでした。通信の良いところで、もう一度読み込んでください。')+'</p><button type="button" class="dzf-re" onclick="location.reload()">もう一度読み込む</button></div>');
   });
 </script>
 <footer style="margin:24px auto 8px;max-width:900px;text-align:center;font-size:10px;color:#8a94a3;letter-spacing:.3px;line-height:1.7;">© 2026 データ攻め ── 制作・運営 阿部</footer>

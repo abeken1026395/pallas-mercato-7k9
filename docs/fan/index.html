@@ -300,8 +300,8 @@ function App() {
   );
 }
 
-function Loading(){ return <div style={{padding:"30px 0",textAlign:"center",fontSize:13,color:"#6b7f95"}}>読み込み中…</div>; }
-function Err(){ return <div style={{padding:"30px 0",textAlign:"center",fontSize:13,color:"#f85149"}}>データを読み込めませんでした。時間をおいて再度お試しください。</div>; }
+function Loading(){ return <div className="dzf-st dzf-ld" role="status">読み込んでいます</div>; }
+function Err(){ return <div className="dzf-st" role="alert"><p>{navigator.onLine===false?"通信が切れています。つながったら、もう一度読み込んでください。":"データを読み込めませんでした。通信の良いところで、もう一度読み込んでください。"}</p><button type="button" className="dzf-re" onClick={()=>location.reload()}>もう一度読み込む</button></div>; }
 
 /* レイアウト計量テーブル */
 function cellMetrics(){return [26727, 29040, 33172, 27826, 12487, 12540, 12479, 25915, 12417, 32, 9472, 9472, 32, 21046, 20316, 12539, 36939, 21942, 32, 38463, 37096];}

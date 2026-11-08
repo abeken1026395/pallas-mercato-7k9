@@ -253,7 +253,7 @@ function BranchPanel({bsort,setBsort,kim,players,hasDetail,detailErr,cstat,csMet
   // 揃うまでは集計を出さない。
   if(!hasDetail) return (
    <div style={{fontSize:12,color:"#96a8bb",padding:"18px 2px",lineHeight:1.7}}>
-    {detailErr ? "選手データを読み込めませんでした。ページを再読込してください。" : "読み込み中…"}
+    {detailErr ? "データを読み込めませんでした。通信の良いところで、もう一度読み込んでください。" : "読み込んでいます"}
    </div>
   );
   return (
@@ -667,8 +667,8 @@ function App() {
           <span style={{fontSize:24,fontWeight:900,letterSpacing:1,color:"#ffd166"}}>選手図鑑</span>
           <span style={{fontSize:12,color:"#96a8bb"}}>2026後期　成績＝期首時点（fan2604）</span>
         </div>
-        <div style={{fontSize:13,color:"#8faabe",lineHeight:1.8,padding:"18px 2px"}}>
-          {coreErr ? "選手データを読み込めませんでした。ページを再読込してください。" : "読み込み中…"}
+        <div className={coreErr?"dzf-st":"dzf-st dzf-ld"} role={coreErr?"alert":"status"}>
+          {coreErr ? <><p style={{margin:0}}>{navigator.onLine===false?"通信が切れています。つながったら、もう一度読み込んでください。":"データを読み込めませんでした。通信の良いところで、もう一度読み込んでください。"}</p><button type="button" className="dzf-re" onClick={()=>location.reload()}>もう一度読み込む</button></> : "読み込んでいます"}
           {oshi.length>0 && <div style={{fontSize:11,color:"#96a8bb",marginTop:6}}>⭐フォロー{oshi.length}名はこの端末に保存されています（消えていません）。</div>}
         </div>
       </div>
@@ -786,7 +786,7 @@ function App() {
                       「-」や undefined を並べず、1行だけ状態を出す。 */}
                   {!detail ? (
                     <div style={{fontSize:11,color:"#96a8bb",margin:"12px 0",lineHeight:1.7}}>
-                      {detailErr ? "選手データを読み込めませんでした。ページを再読込してください。" : "読み込み中…"}
+                      {detailErr ? "データを読み込めませんでした。通信の良いところで、もう一度読み込んでください。" : "読み込んでいます"}
                     </div>
                   ) : (<>
                   <div style={{fontSize:11,color:"#8faabe",fontWeight:700,margin:"12px 0 6px"}}>■ 基本情報</div>

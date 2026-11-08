@@ -397,7 +397,7 @@ html[data-vr] body::after{content:none;margin:0}
   <div class="eyebrow">TODAY'S FOCUS</div>
   <h1>本日の見どころ</h1>
   <div class="lead1">出走表とモーターのデータから、機械的に拾える条件だけを並べています。買い目・確率・勝者予想は出しません。</div>
-  <div class="date" id="date">読み込み中…</div>
+  <div class="date" id="date"></div>
   <details class="howto"><summary>このページの見方・記号</summary><div class="howto-in">
     <p>展開文はコース別の役割（①逃げ／②差し／③④まくり）に沿った<b>複数の筋の併置</b>です。最後の一歩は読み手が埋めてください。</p>
     <div class="mtr-legend">
@@ -436,7 +436,7 @@ html[data-vr] body::after{content:none;margin:0}
 <div id="oshibar"><span class="oshi-btn" id="oshiBtn" role="button" tabindex="0" aria-pressed="false" onclick="toggleOshiOnly()">⭐ 推しのみ</span><span style="opacity:.6">フォロー中の選手が出るレースだけを表示</span></div>
 
 <div id="nextnote" class="nextnote" style="display:none"></div>
-<div id="list"><div class="loading">データを読み込み中…</div></div>
+<div id="list"><div class="dzf-st dzf-ld" role="status">読み込んでいます</div></div>
 <div class="note" id="note"></div>
 </div>
 
@@ -1578,7 +1578,7 @@ fetch(SRC+'?_='+Date.now())
   document.getElementById('note').innerHTML=`イン1着率は目安値（${conf}は公式実数、他は暫定）。機＝モーター2連率（その節の機力目安で、選手の調子とは別物）。<br>波乱＝①が着外になりやすい度合いを1〜6の6段階で示したもの。①の級別・直近20走・外3艇の級別・場の実績など7項目から出しています。買い目・確率・勝者予想は出していません。<br>波乱注目タブは波乱の大きい順に並べています。この条件のレースは過去1年で34%が①着外（全レースでは19%）でした。<br><span style="opacity:.7">生成：${(doc['生成時刻']||'').replace('T',' ').slice(0,16)}</span>` + (OSHI.length?`<br><span class="oshi-note">⭐は推しフォロー中の選手。フォローはこの端末にのみ保存され、外部には送信されません。登録・解除は<a href="../racers/" style="color:#c8a24a">出走表</a>と<a href="../players/" style="color:#c8a24a">選手図鑑</a>から。</span>`:'');
   loadKansenki().then(()=>{kskAllRender();render();});
 })
-.catch(()=>{ISNEXT=false;NEXTMETA={};KANSENKI={};kskAllRender();const nn=document.getElementById('nextnote');if(nn)nn.style.display='none';document.getElementById('list').innerHTML='<div class="empty">'+(SRC==='highlights_next.json'?'明日の前夜プレビューはまだありません（各場のレース確定後、夜に順次追加されます）。':SRC!=='highlights.json'?'この日の見どころはまだありません（明日以降たまります）。':'見どころデータを読み込めませんでした。highlights.json を確認してください。')+'</div>';});
+.catch(()=>{ISNEXT=false;NEXTMETA={};KANSENKI={};kskAllRender();const nn=document.getElementById('nextnote');if(nn)nn.style.display='none';document.getElementById('list').innerHTML=(SRC==='highlights.json')?(window.dzfErrHtml?dzfErrHtml():'<div class="dzf-st" role="alert"><p>'+(navigator.onLine===false?'通信が切れています。つながったら、もう一度読み込んでください。':'データを読み込めませんでした。通信の良いところで、もう一度読み込んでください。')+'</p><button type="button" class="dzf-re" onclick="location.reload()">もう一度読み込む</button></div>'):'<div class="empty">'+(SRC==='highlights_next.json'?'明日の前夜プレビューはまだありません（各場のレース確定後、夜に順次追加されます）。':SRC!=='highlights.json'?'この日の見どころはまだありません（明日以降たまります）。':'')+'</div>';});
 }
 loadHL();
 </script>
@@ -1587,7 +1587,7 @@ loadHL();
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics --><script src=/assets/raihou.js defer></script>
 <!-- kata6:body -->
 <script src="../assets/kata/kata.js?v=ecd47e51"></script>
-<script src="../assets/siteFrame.js?v=e49bc1b8"></script>
+<script src="../assets/siteFrame.js?v=5c595aa4"></script>
 <script src="../assets/ugoki.js?v=e40e8a0a"></script>
 <!-- /kata6:body -->
 </body>
