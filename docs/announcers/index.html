@@ -295,7 +295,7 @@ document.getElementById('nickOnly').onclick=function(){this.classList.toggle('on
 fetch('announcers.json?v='+Date.now())
   .then(r=>r.json())
   .then(d=>{DATA=d;buildRegionChips();document.querySelector('[data-sort="venue"]').classList.add('on');renderFeatured();render()})
-  .catch(()=>{document.getElementById('featWrap').style.display='none';document.getElementById('list').innerHTML='<div class="empty">データを読み込めませんでした</div>'});
+  .catch(()=>{document.getElementById('featWrap').style.display='none';document.getElementById('list').innerHTML=(window.dzfErrHtml?dzfErrHtml():'<div class="dzf-st" role="alert"><p>'+(navigator.onLine===false?'通信が切れています。つながったら、もう一度読み込んでください。':'データを読み込めませんでした。通信の良いところで、もう一度読み込んでください。')+'</p><button type="button" class="dzf-re" onclick="location.reload()">もう一度読み込む</button></div>')});
 </script>
 <footer style="margin:24px auto 8px;max-width:900px;text-align:center;font-size:10px;color:#8a94a3;letter-spacing:.3px;line-height:1.7;">© 2026 データ攻め ── 制作・運営 阿部</footer>
 <script src="../assets/guard.js" defer></script>

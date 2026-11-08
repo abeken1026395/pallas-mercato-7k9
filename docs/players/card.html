@@ -283,7 +283,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     <button data-pal="" aria-pressed="true" style="background:#0b4a50">水面</button>
     <button data-pal="kuro" aria-pressed="false" style="background:#121212">漆黒</button>
   </div></div>
-  <article class="card" id="card"><div class="body">読み込み中</div></article>
+  <article class="card" id="card"><div class="body"><div class="dzf-st dzf-ld" role="status">読み込んでいます</div></div></article>
   <section class="srch"><label for="q2">手合わせ（2選手を比べる）</label><input id="q2" type="search" placeholder="比べる相手：名前か登番" autocomplete="off"><div class="hits" id="hits2"></div></section>
   <article class="card" id="vs" hidden></article>
   <section class="srch" id="shareSec">
@@ -651,7 +651,7 @@ function setPal(p){PAL=p;document.querySelectorAll(".palSel button").forEach(x=>
 document.querySelectorAll(".palSel button").forEach(b=>b.addEventListener("click",()=>setPal(b.dataset.pal)));
 try{const s=localStorage.getItem("senshuCardPal");if(s!==null)setPal(s)}catch(_){}
 document.querySelectorAll("[data-w]").forEach(b=>b.addEventListener("click",()=>{W=b.dataset.w;document.querySelectorAll("[data-w]").forEach(x=>x.setAttribute("aria-pressed",x===b));render();renderVs();}));
-Promise.all([fetch("card/common.json").then(r=>r.json()),fetch("card/index.json").then(r=>r.json()),fetch("card/kgOutline.json").then(r=>r.json()).catch(()=>null)]).then(async([j,ix,k])=>{D=j;D.players={};IDX=ix;K=k;if(!IDX[cur])cur="4238";await loadP(cur);D.tags=(D.tags||[]).map(t=>DS[t[0]]?[t[0],t[1],DS[t[0]],t[3]]:t);if(cmp===cur)cmp=cur==="4320"?"4238":"4320";render();renderVs();if(location.hash==="#snSec"){const e=document.getElementById("snSec");if(e)e.scrollIntoView();}}).catch(()=>{document.getElementById("card").innerHTML='<div class="body">データを読み込めませんでした。再読み込みしてください。</div>';});
+Promise.all([fetch("card/common.json").then(r=>r.json()),fetch("card/index.json").then(r=>r.json()),fetch("card/kgOutline.json").then(r=>r.json()).catch(()=>null)]).then(async([j,ix,k])=>{D=j;D.players={};IDX=ix;K=k;if(!IDX[cur])cur="4238";await loadP(cur);D.tags=(D.tags||[]).map(t=>DS[t[0]]?[t[0],t[1],DS[t[0]],t[3]]:t);if(cmp===cur)cmp=cur==="4320"?"4238":"4320";render();renderVs();if(location.hash==="#snSec"){const e=document.getElementById("snSec");if(e)e.scrollIntoView();}}).catch(()=>{document.getElementById("card").innerHTML='<div class="body">'+(window.dzfErrHtml?dzfErrHtml():'<div class="dzf-st" role="alert"><p>'+(navigator.onLine===false?'通信が切れています。つながったら、もう一度読み込んでください。':'データを読み込めませんでした。通信の良いところで、もう一度読み込んでください。')+'</p><button type="button" class="dzf-re" onclick="location.reload()">もう一度読み込む</button></div>')+'</div>';});
 </script>
 
 <footer style="margin:24px auto 8px;max-width:560px;padding:0 16px;text-align:center;font-size:10px;color:#8a94a3;line-height:1.7;">見出しの書体：キルゴU（作者 名残雪 様）をアウトライン化して加工（Cパターン）<br>© 2026 データ攻め ── 制作・運営 阿部</footer>

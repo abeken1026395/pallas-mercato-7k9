@@ -167,7 +167,7 @@ details[open]>summary::after{content:"\2212"}
 </header>
 <div class="tabsW"><div class="tabs" id="pick"></div><div class="rs" id="rs"></div></div>
 
-<div id="main"><div class="err">読み込んでいます…</div></div>
+<div id="main"><div class="dzf-st dzf-ld" role="status">読み込んでいます</div></div>
 <details><summary>この図の読み方と、答え合わせ</summary><div class="dbody" id="how"></div></details>
 <p class="stamp">展示の前の材料と過去のレースの集計にもとづく見立てです。スタート展示・展示タイムは入っていません。スローとダッシュの境と起こし位置は未確認のため、図には描いていません。潮の流れも見立てに使っていません。舟券の購入は20歳になってから。</p>
 </div>
@@ -182,7 +182,7 @@ function pct(x){return Math.round(x*100)}
 function isF(b){return b.tenjiF===1||(b.st!=null&&b.st<0)}
 function stTxt(b){return b.st==null?"—":(isF(b)?"F":b.st.toFixed(2).slice(1))}
 var q=new URLSearchParams(location.search),Q_R=/^([1-9]|1[0-2])$/.test(q.get("r")||"")?+q.get("r"):null,day=/^\d{8}$/.test(q.get("d")||"")?q.get("d"):null;
-(day?Promise.resolve(day):fetch("maeIndex.json").then(function(r){return r.ok?r.json():Promise.reject()}).then(function(x){return x.latest})).then(function(d0){day=d0;return fetch("mae_"+day+".json")}).then(function(r){return r.ok?r.json():Promise.reject()}).then(function(d){D=d;init()}).catch(function(e){if(e&&e.stack)console.error(e.stack);$("main").innerHTML='<div class="err">この日のデータがありません。</div>'});
+(day?Promise.resolve(day):fetch("maeIndex.json").then(function(r){return r.ok?r.json():Promise.reject()}).then(function(x){return x.latest})).then(function(d0){day=d0;return fetch("mae_"+day+".json")}).then(function(r){return r.ok?r.json():Promise.reject()}).then(function(d){D=d;init()}).catch(function(e){if(e&&e.stack)console.error(e.stack);$("main").innerHTML=(e&&e.stack)?(window.dzfErrHtml?dzfErrHtml():'<div class="dzf-st" role="alert"><p>'+(navigator.onLine===false?'通信が切れています。つながったら、もう一度読み込んでください。':'データを読み込めませんでした。通信の良いところで、もう一度読み込んでください。')+'</p><button type="button" class="dzf-re" onclick="location.reload()">もう一度読み込む</button></div>'):'<div class="err">この日の見立てはまだありません。</div>'});
 
 /* 組み合わせ（例 "3まくり差し"）→ コースと決まり手。「その他」と「6〜」は形を描けないのでまとめる */
 function split(k){var m=/^(\d)(.*)$/.exec(k);return m?{c:+m[1],t:m[2].replace('その他','そのほか')}:{c:0,t:k}}
