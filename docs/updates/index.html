@@ -28,7 +28,7 @@
   /* 種類で絞る。押した札だけを出す */
   .flt{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 4px;min-height:36px}
   .flt button{font:inherit;font-size:13.5px;color:var(--txt);background:var(--card);border:1px solid var(--line);border-radius:99px;padding:5px 13px;min-height:36px;cursor:pointer}
-  .flt button[aria-pressed="true"]{border-color:var(--hi);color:var(--hi);font-weight:700}
+  .flt button[aria-pressed="true"]{border-color:#eef3f8;background:#eef3f8;color:#0b1726;font-weight:700}
   .flt button:focus-visible{outline:2px solid var(--hi);outline-offset:2px}
 
   /* 日ごとに束ねる */
@@ -37,7 +37,7 @@
   .day b{font-size:16px;font-weight:800;font-variant-numeric:tabular-nums}
   .seen{display:flex;align-items:center;gap:10px;margin:22px 0 0;font-size:12.5px;color:var(--dim)}
   .seen:before,.seen:after{content:"";flex:1;height:1px;background:var(--line)}
-  .it{display:block;text-decoration:none;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--c);border-radius:12px;padding:11px 13px 10px;margin:8px 0}
+  .it{display:block;text-decoration:none;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 13px 10px;margin:8px 0}
   .it .t{font-size:16px;line-height:1.7;margin-top:5px}
   .it .go{display:block;margin-top:4px;font-size:13px;color:var(--hi);font-weight:700}
   .it.fresh{background:var(--card2)}

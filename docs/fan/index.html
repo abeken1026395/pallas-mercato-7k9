@@ -53,8 +53,8 @@ function Tab({id, cur, set, children, c}) {
   return (
     <button onClick={()=>set(id)} style={{
       flex:1, minWidth:100, padding:"9px 10px", cursor:"pointer",
-      background: on ? c+"22" : "#111d2b", color: on ? c : "#8faabe",
-      border:"1px solid "+(on ? c : "#1e2d3d"), borderRadius:8, fontSize:13, fontWeight:800
+      background: on ? "#eef3f8" : "#111d2b", color: on ? "#0b1726" : "#8faabe",
+      border:"1px solid "+(on ? "#eef3f8" : "#1e2d3d"), borderRadius:8, fontSize:13, fontWeight:800
     }}>{children}</button>
   );
 }
@@ -74,7 +74,7 @@ function BgmSection({data, e30}) {
       <div style={{marginBottom:12,background:"#1a1222",border:"1px solid #4a2f5a",borderRadius:10,padding:"11px 13px"}}>
         <div onClick={()=>setIntro(!intro)} style={{display:"flex",alignItems:"center",cursor:"pointer",gap:8}}>
           <span style={{fontSize:14,fontWeight:800,color:"#dcbd78"}}>🎵 {col.title}</span>
-          <span style={{marginLeft:"auto",fontSize:11,color:"#dcbd78"}}>{intro?"▲ 閉じる":"▼ 読む"}</span>
+          <span style={{marginLeft:"auto",fontSize:11,color:"#dcbd78",whiteSpace:"nowrap",flexShrink:0}}>{intro?"▲ 閉じる":"▼ 読む"}</span>
         </div>
         <div style={{fontSize:12,color:"#d8c5e0",lineHeight:1.7,marginTop:6}}>{col.lead}</div>
         {intro && (
@@ -101,9 +101,9 @@ function BgmSection({data, e30}) {
       )}
 
       <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:10}}>
-        <button onClick={()=>setPf("ALL")} style={{padding:"5px 11px",cursor:"pointer",background:pf==="ALL"?"#e59ac922":"#111d2b",color:pf==="ALL"?"#dcbd78":"#8faabe",border:"1px solid "+(pf==="ALL"?"#dcbd78":"#1e2d3d"),borderRadius:999,fontSize:12,fontWeight:700}}>すべて</button>
+        <button onClick={()=>setPf("ALL")} style={{padding:"5px 11px",cursor:"pointer",background:pf==="ALL"?"#eef3f8":"#111d2b",color:pf==="ALL"?"#0b1726":"#8faabe",border:"1px solid "+(pf==="ALL"?"#eef3f8":"#1e2d3d"),borderRadius:999,fontSize:12,fontWeight:700}}>すべて</button>
         {psychs.map(k=>(
-          <button key={k} onClick={()=>setPf(k)} style={{padding:"5px 11px",cursor:"pointer",background:pf===k?PSYCH[k].c+"22":"#111d2b",color:pf===k?PSYCH[k].c:"#8faabe",border:"1px solid "+(pf===k?PSYCH[k].c:"#1e2d3d"),borderRadius:999,fontSize:12,fontWeight:700}}>{PSYCH[k]?PSYCH[k].label:k}</button>
+          <button key={k} onClick={()=>setPf(k)} style={{padding:"5px 11px",cursor:"pointer",background:pf===k?"#eef3f8":"#111d2b",color:pf===k?"#0b1726":"#8faabe",border:"1px solid "+(pf===k?"#eef3f8":"#1e2d3d"),borderRadius:999,fontSize:12,fontWeight:700}}>{PSYCH[k]?PSYCH[k].label:k}</button>
         ))}
       </div>
 
@@ -120,7 +120,7 @@ function BgmSection({data, e30}) {
                 <span style={{fontSize:16,fontWeight:800,color:"#f0d8f6",minWidth:54}}>{bg.name}</span>
                 {ps && <span style={{fontSize:10,fontWeight:700,color:ps.c,background:ps.c+"18",border:"1px solid "+ps.c+"66",borderRadius:5,padding:"1px 6px"}}>{ps.label}</span>}
                 <span style={{fontSize:11,color:"#a880b0"}}>{songs.length?songs.length+"曲":(STATUS_LABEL[bg.status]||"")}</span>
-                <span style={{marginLeft:"auto",fontSize:11,color:"#dcbd78"}}>{isOpen?"▲":"▼"}</span>
+                <span style={{marginLeft:"auto",fontSize:11,color:"#dcbd78",whiteSpace:"nowrap",flexShrink:0}}>{isOpen?"▲":"▼"}</span>
               </div>
               {e30 && e30[code] && <div style={{fontSize:11,fontWeight:700,color:"#8fd6c0",marginTop:5}}>E30切替：{e30[code]}〜</div>}
               {bg.hook && <div style={{fontSize:12.5,color:"#e6d0ee",lineHeight:1.7,marginTop:6,fontStyle:"italic"}}>{bg.hook}</div>}
@@ -171,7 +171,7 @@ function YosouyaSection({data, e30}) {
       <div style={{marginBottom:12,background:"#221a12",border:"1px solid #4a3a26",borderRadius:10,padding:"11px 13px"}}>
         <div onClick={()=>setIntro(!intro)} style={{display:"flex",alignItems:"center",cursor:"pointer",gap:8}}>
           <span style={{fontSize:14,fontWeight:800,color:"#d9b382"}}>🎫 {it.title}</span>
-          <span style={{marginLeft:"auto",fontSize:11,color:"#c9a870"}}>{intro?"▲ 閉じる":"▼ 読む"}</span>
+          <span style={{marginLeft:"auto",fontSize:11,color:"#c9a870",whiteSpace:"nowrap",flexShrink:0}}>{intro?"▲ 閉じる":"▼ 読む"}</span>
         </div>
         <div style={{fontSize:12,color:"#ecd9b8",lineHeight:1.7,marginTop:6}}>{it.lead}</div>
         {intro && (
@@ -185,7 +185,7 @@ function YosouyaSection({data, e30}) {
 
       <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:10}}>
         {[["ALL","すべて","#d9b382"],["yes",PRESENT.yes.label,PRESENT.yes.c],["official",PRESENT.official.label,PRESENT.official.c],["advisor",PRESENT.advisor.label,PRESENT.advisor.c],["paper",PRESENT.paper.label,PRESENT.paper.c],["unknown",PRESENT.unknown.label,PRESENT.unknown.c]].map(([k,lb,c])=>(
-          <button key={k} onClick={()=>setPf(k)} style={{padding:"5px 11px",cursor:"pointer",background:pf===k?c+"22":"#111d2b",color:pf===k?c:"#8faabe",border:"1px solid "+(pf===k?c:"#1e2d3d"),borderRadius:999,fontSize:12,fontWeight:700}}>{lb}</button>
+          <button key={k} onClick={()=>setPf(k)} style={{padding:"5px 11px",cursor:"pointer",background:pf===k?"#eef3f8":"#111d2b",color:pf===k?"#0b1726":"#8faabe",border:"1px solid "+(pf===k?"#eef3f8":"#1e2d3d"),borderRadius:999,fontSize:12,fontWeight:700}}>{lb}</button>
         ))}
       </div>
 
@@ -203,7 +203,7 @@ function YosouyaSection({data, e30}) {
                 <span style={{fontSize:16,fontWeight:800,color:"#ecd9b8",minWidth:54}}>{y.name}</span>
                 <span style={{fontSize:10,fontWeight:700,color:pr.c,background:pr.c+"18",border:"1px solid "+pr.c+"66",borderRadius:5,padding:"1px 6px"}}>{pr.label}</span>
                 {y.count && <span style={{fontSize:11,color:"#b39a78"}}>{y.count}</span>}
-                {hasDetail && <span style={{marginLeft:"auto",fontSize:11,color:"#d9b382"}}>{isOpen?"▲":"▼"}</span>}
+                {hasDetail && <span style={{marginLeft:"auto",fontSize:11,color:"#d9b382",whiteSpace:"nowrap",flexShrink:0}}>{isOpen?"▲":"▼"}</span>}
               </div>
               {e30 && e30[code] && <div style={{fontSize:11,fontWeight:700,color:"#8fd6c0",marginTop:5}}>E30切替：{e30[code]}〜</div>}
               {y.hook && <div style={{fontSize:12.5,color:"#ecd9b8",lineHeight:1.7,marginTop:6,fontStyle:"italic"}}>{y.hook}</div>}
@@ -270,9 +270,9 @@ function App() {
       <div style={{fontSize:11.5,color:"#8faabe",marginBottom:12,lineHeight:1.6}}>締切BGM、場立ち予想屋、実況アナ——数字には出ない“場の文化”を24場横断で。買い目・勝敗・的中は出しません。</div>
 
       <div style={{display:"flex",gap:6,marginBottom:12,flexWrap:"wrap"}}>
-        <Tab id="bgm" cur={tab} set={setTab} c="#dcbd78">🎵 場内BGM・締切曲</Tab>
-        <Tab id="yosouya" cur={tab} set={setTab} c="#d9b382">🎫 場内予想屋</Tab>
-        <a href="../announcers/" style={{flex:1,minWidth:100,padding:"9px 10px",display:"flex",alignItems:"center",justifyContent:"center",textDecoration:"none",background:"#111d2b",color:"#3fb56b",border:"1px solid #1e2d3d",borderRadius:8,fontSize:13,fontWeight:800}}>🎙 実況アナ図鑑 →</a>
+        <Tab id="bgm" cur={tab} set={setTab} c="#dcbd78">場内BGM</Tab>
+        <Tab id="yosouya" cur={tab} set={setTab} c="#d9b382">場内予想屋</Tab>
+        <a href="../announcers/" style={{flex:1,minWidth:100,padding:"9px 10px",display:"flex",alignItems:"center",justifyContent:"center",textDecoration:"none",background:"#111d2b",color:"#8faabe",border:"1px solid #1e2d3d",borderRadius:8,fontSize:13,fontWeight:800}}>実況アナ図鑑 →</a>
       </div>
 
       {/* 読み込み時のレイアウトずれ防止：E30切替日の取得も待ってから一度に描き、下の案内・注記が押し下げられないよう高さを確保する */}
@@ -288,8 +288,8 @@ function App() {
       <div style={{marginTop:14,background:"#111d2b",border:"1px solid #24384f",borderRadius:10,padding:"10px 12px"}}>
         <div style={{fontSize:12,color:"#8faabe",lineHeight:1.6}}>各場の水面特性・グルメ・アナと合わせて読むなら</div>
         <div style={{marginTop:6,display:"flex",gap:10,flexWrap:"wrap"}}>
-          <a href="../stadium/" style={{...TAP,fontSize:12,fontWeight:700,color:"#f0883e",textDecoration:"none",borderBottom:"1px dotted #f0883e88"}}>🌊 24場特性＆場グルメ →</a>
-          <a href="../announcers/" style={{...TAP,fontSize:12,fontWeight:700,color:"#3fb56b",textDecoration:"none",borderBottom:"1px dotted #3fb56b88"}}>🎙 実況アナ図鑑 →</a>
+          <a href="../stadium/" style={{...TAP,fontSize:12,fontWeight:700,color:"#c3d0dd",textDecoration:"none",borderBottom:"1px dotted #c3d0dd88"}}>24場の特性 →</a>
+          <a href="../announcers/" style={{...TAP,fontSize:12,fontWeight:700,color:"#c3d0dd",textDecoration:"none",borderBottom:"1px dotted #c3d0dd88"}}>実況アナ図鑑 →</a>
         </div>
       </div>
 

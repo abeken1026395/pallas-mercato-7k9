@@ -122,9 +122,10 @@
     var bgc = "transparent", p = el;
     while (p && p !== document.documentElement) { var b = getComputedStyle(p).backgroundColor; if (b && b !== "transparent" && !/rgba\([^)]*,\s*0\)$/.test(b)) { bgc = b; break; } p = p.parentElement; }
     if (bgc === "transparent") bgc = getComputedStyle(document.body).backgroundColor;
+    // 札は z-index:3。上に張り付く見出し（z-index:5）や共通の枠（58〜60）より下にして、めくりの最中でも見出しや下のタブの上に数字がはみ出さないようにする（2026-11-08）
     var ov = document.createElement("span"), finals = [];
     ov.className = "ugBoard"; ov.setAttribute("aria-hidden", "true");
-    ov.style.cssText = "position:absolute;z-index:60;pointer-events:none;margin:0;padding:0;white-space:nowrap;display:block";
+    ov.style.cssText = "position:absolute;z-index:3;pointer-events:none;margin:0;padding:0;white-space:nowrap;display:block";
     ["fontFamily", "fontSize", "fontWeight", "fontStyle", "letterSpacing", "fontVariantNumeric", "fontFeatureSettings"].forEach(function(k){ ov.style[k] = cs[k]; });
     ov.style.color = cs.webkitTextFillColor && cs.webkitTextFillColor !== cs.color && !/rgba\([^)]*,\s*0\)$/.test(cs.webkitTextFillColor) ? cs.webkitTextFillColor : cs.color;
     ov.style.left = (rr.left + window.scrollX) + "px"; ov.style.top = (rr.top + window.scrollY) + "px";

@@ -48,7 +48,7 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 /* 開催日のタブ（2日分あるときだけ出す）。色は並び替えボタンと同じ「青＝押せる・選択中」 */
 .date-tabs { display:flex; gap:8px; margin:14px 0 2px; }
 .date-tab { flex:1; font-size:15px; font-weight:bold; border:1px solid #24344a; background:#0f1a26; color:#9fb0c3; border-radius:8px; padding:6px 10px; cursor:pointer; min-height:44px; font-family:inherit; }
-.date-tab.on { background:rgba(127,180,255,.16); color:#7fb4ff; border-color:#7fb4ff; font-weight:800; }
+.date-tab.on { background:#eef3f8; color:#0b1726; border-color:#eef3f8; font-weight:800; }
 .date-tab:active { background:#182535; }
 
 /* Rグリッド */
@@ -101,7 +101,7 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .chip-arare-高 { border-color:#f2b155; color:#0b1a33; background:#f2b155; }
 .chip-arare-中 { border-color:#f2b15566; color:#f2b155; }
 .chip-arare-低 { border-color:#5cc8b066; color:#5cc8b0; }
-.chip-fix { border-color:#3a4d63; color:#cdd6e0; }
+.chip-fix { border-color:#3a4d63; color:#cdd6e0; display:inline-flex; vertical-align:middle; }
 /* ①の下振れ要因（事実提示・件数のみ。荒れ判定と混同させないため赤系は使わない） */
 .chip-down-1 { border-color:#33465c; color:#9fb8cc; }
 .chip-down-2 { border-color:#3a3a5c; color:#b3a9dd; }
@@ -2013,7 +2013,7 @@ setInterval(function(){ if(view.page==="race") render(); }, 30000);
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics --><script src=/assets/raihou.js defer></script>
 <!-- kata6:body -->
 <script src="../assets/kata/kata.js?v=ecd47e51"></script>
-<script src="../assets/siteFrame.js?v=d992696c"></script>
+<script src="../assets/siteFrame.js?v=641dc713"></script>
 <script src="../assets/ugoki.js?v=e40e8a0a"></script>
 <!-- /kata6:body -->
 </body>

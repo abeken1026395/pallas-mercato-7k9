@@ -142,10 +142,8 @@ function App() {
     <div style={{minHeight:"100vh",padding:"12px",maxWidth:900,margin:"0 auto"}}>
       <div style={{display:"flex",alignItems:"baseline",gap:10,marginBottom:4,flexWrap:"wrap"}}>
         <span style={{fontSize:20,fontWeight:800,color:"#ffd166"}}>24場の特性</span>
-        <span style={{fontSize:12,color:"#6b7f95"}}>{filtered.length}場</span>
-        <a href="../highlights/" style={{marginLeft:"auto",fontSize:12,fontWeight:700,color:"#ffd166",background:"rgba(255,209,102,0.12)",border:"1px solid #caa23f",borderRadius:999,padding:"4px 10px",textDecoration:"none",whiteSpace:"nowrap"}}>⚡見どころ</a>
+        {filtered.length<R.stadiums.length && <span style={{fontSize:12,color:"#8aa0b4"}}>{filtered.length}場を表示</span>}
       </div>
-      <div style={{fontSize:11,color:"#8aa0b4",marginBottom:10}}>タップで展開。</div>
       <div style={{fontSize:11,color:"#8aa0b4",marginBottom:10}}>1コース1着率は進入コース基準。2016-11-01〜2026-11-07・全24場551,927艇（出典: 公式競走成績・24場番付と同じ数字）</div>
 
       <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:10}}>
@@ -160,7 +158,7 @@ function App() {
           <option value="中">標準(中)</option>
           <option value="高">荒れる(高)</option>
         </select>
-        <button onClick={()=>setPinOnly(v=>!v)} style={{padding:"7px 12px",fontSize:13,fontWeight:700,borderRadius:6,cursor:"pointer",border:"1px solid "+(pinOnly?"#ffd166":"#1e2d3d"),background:pinOnly?"#ffd16622":"#162232",color:pinOnly?"#ffd166":"#8faabe",whiteSpace:"nowrap"}}>📍 フォロー中{pins.length?" "+pins.length:""}</button>
+        <button onClick={()=>setPinOnly(v=>!v)} style={{padding:"7px 12px",fontSize:13,fontWeight:700,borderRadius:6,cursor:"pointer",border:"1px solid "+(pinOnly?"#eef3f8":"#1e2d3d"),background:pinOnly?"#eef3f8":"#162232",color:pinOnly?"#0b1726":"#8faabe",whiteSpace:"nowrap"}}>📍 フォロー中{pins.length?" "+pins.length:""}</button>
       </div>
 
       <div style={{fontSize:11,color:"#6b7f95",lineHeight:1.7,marginBottom:10,padding:"9px 11px",background:"#131e2a",border:"1px solid #1e2d3d",borderRadius:8}}>📍を押すと場をフォロー。フォローした場は出走表の場一覧で先頭に並びます。フォローはこの端末にのみ保存され、外部には送信されません。</div>
@@ -175,7 +173,7 @@ function App() {
       <div style={{marginBottom:10,background:"#1a1222",border:"1px solid #4a2f5a",borderRadius:10,padding:"10px 12px"}}>
         <div onClick={()=>setFanIntro(!fanIntro)} style={{display:"flex",alignItems:"center",cursor:"pointer",gap:8}}>
           <span style={{fontSize:14,fontWeight:800,color:"#dcbd78"}}>🎵 {fanfare.column.title}</span>
-          <span style={{marginLeft:"auto",fontSize:11,color:"#dcbd78"}}>{fanIntro?"▲ 閉じる":"▼ 読む"}</span>
+          <span style={{marginLeft:"auto",fontSize:11,color:"#dcbd78",whiteSpace:"nowrap",flexShrink:0}}>{fanIntro?"▲ 閉じる":"▼ 読む"}</span>
         </div>
         <div style={{fontSize:12,color:"#d8c5e0",lineHeight:1.7,marginTop:6}}>{fanfare.column.lead}</div>
         {fanIntro && (
@@ -255,7 +253,7 @@ function App() {
                           <div onClick={e=>{e.stopPropagation();setChampOpen(isCO?null:s.code);}} style={{display:"flex",alignItems:"center",cursor:"pointer",gap:6,flexWrap:"wrap"}}>
                             <span style={{color:"#ffd166",fontWeight:700}}>🏆 優勝戦の出目ランキング</span>
                             <span style={{fontSize:11,color:"#6b7f95"}}>過去{c.total}戦</span>
-                            <span style={{marginLeft:"auto",fontSize:11,color:"#caa23f"}}>{isCO?"▲ 閉じる":"▼ 見る"}</span>
+                            <span style={{marginLeft:"auto",fontSize:11,color:"#caa23f",whiteSpace:"nowrap",flexShrink:0}}>{isCO?"▲ 閉じる":"▼ 見る"}</span>
                           </div>
                           {isCO && (<div style={{marginTop:6}}>
                             {c.ranking.slice(0,8).map((d,i) => (
@@ -303,7 +301,7 @@ function App() {
                     {sgRest(s.sg) && (<React.Fragment>
                       {sgOpen===s.code && <div style={{marginTop:6,color:"#e0e6ed",whiteSpace:"pre-line"}}>{sgRest(s.sg)}</div>}
                       <div onClick={e=>{e.stopPropagation();setSgOpen(sgOpen===s.code?null:s.code);}} style={{display:"flex",alignItems:"center",cursor:"pointer",minHeight:24,marginTop:2}}>
-                        <span style={{marginLeft:"auto",fontSize:12,color:"#dcbd78"}}>{sgOpen===s.code?"▲ 閉じる":"▼ 続きを読む"}</span>
+                        <span style={{marginLeft:"auto",fontSize:12,color:"#dcbd78",whiteSpace:"nowrap",flexShrink:0}}>{sgOpen===s.code?"▲ 閉じる":"▼ 続きを読む"}</span>
                       </div>
                     </React.Fragment>)}
                   </div>
@@ -312,7 +310,7 @@ function App() {
                   <div style={{marginTop:8,background:"#2a1410",border:"1px solid #5a2f16",borderRadius:8,padding:"8px 10px"}}>
                     <div onClick={e=>{e.stopPropagation();setGOpen(gOpen===s.code?null:s.code);}} style={{display:"flex",alignItems:"center",cursor:"pointer",minHeight:24}}>
                       <span style={{color:"#ff9a5a",fontWeight:700}}>🍜 場めぐり</span>
-                      <span style={{marginLeft:"auto",fontSize:11,color:"#ff9a5a"}}>{gOpen===s.code?"▲ 閉じる":"▼ 見る"}</span>
+                      <span style={{marginLeft:"auto",fontSize:11,color:"#ff9a5a",whiteSpace:"nowrap",flexShrink:0}}>{gOpen===s.code?"▲ 閉じる":"▼ 見る"}</span>
                     </div>
                     {gOpen===s.code && (<div style={{marginTop:2}}>
                     {gourmet[s.name].in && gourmet[s.name].in.length > 0 && (
@@ -394,7 +392,7 @@ function App() {
                   <div style={{marginTop:8,background:"#101f2a",border:"1px solid #1f4a5a",borderRadius:8,padding:"8px 10px"}}>
                     <div onClick={e=>{e.stopPropagation();setVOpen(vOpen===s.code?null:s.code);}} style={{display:"flex",alignItems:"center",cursor:"pointer",minHeight:24}}>
                       <span style={{color:"#5ac8e0",fontWeight:700}}>👀 観戦スポット</span>
-                      <span style={{marginLeft:"auto",fontSize:11,color:"#5ac8e0"}}>{vOpen===s.code?"▲ 閉じる":"▼ 見る"}</span>
+                      <span style={{marginLeft:"auto",fontSize:11,color:"#5ac8e0",whiteSpace:"nowrap",flexShrink:0}}>{vOpen===s.code?"▲ 閉じる":"▼ 見る"}</span>
                     </div>
                     {vOpen===s.code && (<div style={{marginTop:6}}>
                       {gourmet[s.name].viewing.lead ? (
@@ -435,7 +433,7 @@ function App() {
                         <span style={{color:"#dcbd78",fontWeight:700}}>🎵 場内BGM／締切曲</span>
                         {ps && <span style={{fontSize:10,fontWeight:700,color:ps.c,background:ps.c+"18",border:"1px solid "+ps.c+"66",borderRadius:5,padding:"1px 6px"}}>{ps.label}</span>}
                         <span style={{fontSize:11,color:"#a880b0"}}>{songs.length?songs.length+"曲":(STATUS_LABEL[bg.status]||"")}</span>
-                        <span style={{marginLeft:"auto",fontSize:11,color:"#dcbd78"}}>{bOpen===s.code?"▲ 閉じる":"▼ 見る"}</span>
+                        <span style={{marginLeft:"auto",fontSize:11,color:"#dcbd78",whiteSpace:"nowrap",flexShrink:0}}>{bOpen===s.code?"▲ 閉じる":"▼ 見る"}</span>
                       </div>
                       {bOpen===s.code && (<div style={{marginTop:6}}>
                         {bg.hook && <div style={{fontSize:12.5,color:"#e6d0ee",lineHeight:1.7,marginBottom:6,fontStyle:"italic"}}>{bg.hook}</div>}
@@ -468,7 +466,7 @@ function App() {
                         <span style={{color:"#d9b382",fontWeight:700}}>🎫 場内予想屋</span>
                         {pr && <span style={{fontSize:10,fontWeight:700,color:pr.c,background:pr.c+"18",border:"1px solid "+pr.c+"66",borderRadius:5,padding:"1px 6px"}}>{pr.label}</span>}
                         {y.count && <span style={{fontSize:11,color:"#b39a78"}}>{y.count}</span>}
-                        <span style={{marginLeft:"auto",fontSize:11,color:"#d9b382"}}>{yOpen===s.code?"▲ 閉じる":"▼ 見る"}</span>
+                        <span style={{marginLeft:"auto",fontSize:11,color:"#d9b382",whiteSpace:"nowrap",flexShrink:0}}>{yOpen===s.code?"▲ 閉じる":"▼ 見る"}</span>
                       </div>
                       {yOpen===s.code && (<div style={{marginTop:6}}>
                         {y.hook && <div style={{fontSize:12.5,color:"#ecd9b8",lineHeight:1.7,marginBottom:6,fontStyle:"italic"}}>{y.hook}</div>}

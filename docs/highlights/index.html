@@ -27,6 +27,8 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .lead{color:var(--sub);font-size:12.5px;margin-top:10px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 .lead b{color:var(--txt)}
 .tabs{display:flex;gap:6px;margin:16px 0 14px;position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:5}
+/* 上に張り付いたとき、後ろの文字が左右と下から透けないよう、画面の幅いっぱいに地の色で敷く（2026-11-08） */
+:root body .tabs{margin-left:-14px!important;margin-right:-14px!important;padding:8px 14px!important;background:#0d1c2f!important;box-shadow:0 1px 0 rgba(255,255,255,.09)!important}
 .tab{flex:1;text-align:center;padding:9px 4px;border:1px solid var(--line);border-radius:9px;background:var(--panel);color:var(--sub);font-size:13px;font-weight:700;cursor:pointer}
 .sortbtn{padding:4px 12px;border:1px solid var(--line);border-radius:14px;background:var(--panel);color:var(--sub);cursor:pointer;font-weight:600}
 .sortbtn.on{background:rgba(220,189,120,.22);color:#e4defc;border-color:#dcbd78}
@@ -1592,7 +1594,7 @@ loadHL();
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics --><script src=/assets/raihou.js defer></script>
 <!-- kata6:body -->
 <script src="../assets/kata/kata.js?v=ecd47e51"></script>
-<script src="../assets/siteFrame.js?v=d992696c"></script>
+<script src="../assets/siteFrame.js?v=641dc713"></script>
 <script src="../assets/ugoki.js?v=e40e8a0a"></script>
 <!-- /kata6:body -->
 </body>
