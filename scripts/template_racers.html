@@ -1795,7 +1795,7 @@ function renderRace(app,crumb,v){
   if(venueIsFix) chips.push('<span class="chip chip-fix">進入固定</span>');
   kikakuChips(rc.kikaku, venueIsFix).forEach(function(c){ chips.push(c); });
   if(wd) chips.push('<span class="chip">風 <b>'+esc(windArrow(wd.dir)+" "+wd.dir)+'</b> '+esc(wd.wind)+'m</span>');
-  if(hl) chips.push('<a class="chip chip-link" href="../highlights/#v'+parseInt(v.jcd,10)+'">📖 見立てを読む</a>');
+  if(hl) chips.push('<a class="chip chip-link" href="../highlights/#v'+v.jcd+'r'+view.rno+'">📖 見立てを読む</a>');
   if(chips.length) html+='<div class="chips">'+chips.join("")+'</div>';
 
   /* 荒れサインは荒れの札の根拠なので表層に残す（点つき）。下振れ要因・展開・風・潮は1つの折りたたみへ */
