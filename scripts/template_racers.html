@@ -467,6 +467,17 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .mido[open] > summary::after { content:"閉じる ▲"; }
 .mido > .mido-body { padding:0 10px 10px; }
 .mido-note { font-size:13px; color:#9fb0c3; margin:0 2px 6px; }
+/* レースの帯（2026-11-08 けん「A」・プロ化 第9弾）：送るとレースの頭が上に残り、艇番の札で各艇へ飛ぶ */
+.rbar{position:fixed;left:0;right:0;top:0;z-index:50;background:#0d1c2f;border-bottom:1px solid rgba(232,236,239,.18);padding-top:env(safe-area-inset-top)}
+.rbar[hidden]{display:none}
+.rbar-in{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:10px;height:48px;padding:0 12px}
+.rbar-t{font-weight:700;font-size:16px;white-space:nowrap;color:#f2f2f0}
+.rbar-d{font-size:14px;color:#cdd7e0;white-space:nowrap;font-variant-numeric:tabular-nums}
+.rbar-l{margin-left:auto;display:flex;gap:4px}
+.rbar-b{display:flex;align-items:center;justify-content:center;width:28px;height:28px;font-weight:700;font-size:14px;line-height:1;text-decoration:none;position:relative;font-variant-numeric:tabular-nums}
+.rbar-b::after{content:"";position:absolute;left:-2px;right:-2px;top:-8px;bottom:-8px}
+.rbar-b.on{outline:2px solid #f2f5f8;outline-offset:2px}
+.boat{scroll-margin-top:60px}
 </style>
 <!-- kata6:head -->
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&amp;family=Dela+Gothic+One&amp;display=swap" rel="stylesheet">
@@ -548,7 +559,7 @@ function calcViewport(){
 
 /* 場の所在支部（地元判定・固定情報） */
 var HOME_BRANCH = {"01":"群馬","02":"埼玉","03":"東京","04":"東京","05":"東京","06":"静岡","07":"愛知","08":"愛知","09":"三重","10":"福井","11":"滋賀","12":"大阪","13":"兵庫","14":"徳島","15":"香川","16":"岡山","17":"広島","18":"山口","19":"山口","20":"福岡","21":"福岡","22":"福岡","23":"佐賀","24":"長崎"};
-var LANE_COLOR = {1:["#f4f4f4","#0b1726"],2:["#000000","#ffffff"],3:["#e2313a","#ffffff"],4:["#2b6fdc","#ffffff"],5:["#f2d02e","#0b1726"],6:["#2fa04f","#ffffff"]}; /* プロ化3 第2弾：トップの6色の線と同じ色 */
+var LANE_COLOR = {1:["#f4f4f4","#0b1726"],2:["#000000","#ffffff"],3:["#d82a33","#ffffff"],4:["#2b6fdc","#ffffff"],5:["#f2d02e","#0b1726"],6:["#1f8540","#ffffff"]}; /* プロ化3 第2弾：トップの6色の線と同じ色 */
 /* 決まり手カテゴリ色（dataviz検証済み: CVD ΔE 41+）。その他＝抜き・恵まれ */
 var KMR_COLS = {"逃げ":"#3987e5","差し":"#199e70","まくり":"#d6d6d6","まくり差し":"#dcbd78","その他":"#5c6773"};
 
@@ -1710,6 +1721,28 @@ function raceNavBar(v,rno){
     +'<button type="button" class="rnav-b rnav-list" data-go="list">'+esc(v.name)+'<br><small>レース一覧</small></button>'
     +side(nx,"next")+'</nav>';
 }
+/* レースの帯の出し入れと、いま見ている艇の札の印（一度だけ登録し、描き直しのたびに対象を差し替える） */
+var RBAR={io:null,hooked:false};
+function setupRaceBar(app){
+  var rb=document.getElementById("rbar"), rh=app.querySelector(".race-head");
+  if(RBAR.io){ RBAR.io.disconnect(); RBAR.io=null; }
+  if(!rb||!rh) return;
+  if("IntersectionObserver" in window){
+    RBAR.io=new IntersectionObserver(function(es){ es.forEach(function(e){ rb.hidden=e.isIntersecting||e.boundingClientRect.top>0; }); markRaceBar(); });
+    RBAR.io.observe(rh);
+  }
+  var slow=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  Array.prototype.forEach.call(rb.querySelectorAll(".rbar-b"),function(a){
+    a.onclick=function(e){ e.preventDefault(); var t=document.getElementById("bt"+a.getAttribute("data-ln")); if(t) t.scrollIntoView({block:"start",behavior:slow?"auto":"smooth"}); };
+  });
+  markRaceBar();
+  if(!RBAR.hooked){ RBAR.hooked=true; var tk=0; window.addEventListener("scroll",function(){ if(!tk){ tk=1; requestAnimationFrame(function(){ tk=0; markRaceBar(); }); } },{passive:true}); }
+}
+function markRaceBar(){
+  var rb=document.getElementById("rbar"); if(!rb||rb.hidden) return;
+  var cur=null; Array.prototype.forEach.call(document.querySelectorAll(".boat[id^=bt]"),function(b){ if(b.getBoundingClientRect().top<=64) cur=b.id.slice(2); });
+  Array.prototype.forEach.call(rb.querySelectorAll(".rbar-b"),function(a){ a.classList.toggle("on",a.getAttribute("data-ln")===cur); });
+}
 function renderRace(app,crumb,v){
   var rc=v.races[view.rno];
   if(!rc){ view={page:"races",key:view.key,sort:view.sort}; render(); return; }
@@ -1836,7 +1869,12 @@ function renderRace(app,crumb,v){
   html+='<div class="legend-note">出典: BOATRACE公式出走表（勝率・2連率・3連率・モーター・ボート・今節成績。モーターとボートは勝率なし）｜決まり手構成は直近183日集計｜1号艇の決着は枠別成績と同じ期間｜機力評価・展開・荒れ指数は当ポータル生成｜風はOpen-Meteo。<br>本ページは水面傾向・展開の可視化に留め、勝敗の断定・買い目・確率は提示しません。</div>';
 
   html+=raceNavBar(v,view.rno);
+  /* レースの帯：レースの頭が画面の上に消えたら出る。艇番の札は枠の色・押すとその艇へ */
+  html+='<div class="rbar" id="rbar" hidden><div class="rbar-in"><span class="rbar-t">'+esc(v.name)+' '+view.rno+'R</span><span class="rbar-d">'+(chR?'中止':esc(rc.deadline||''))+'</span><span class="rbar-l">'
+    +rc.boats.map(function(r){ var ln=parseInt(g(r,"枠")); var c=LANE_COLOR[ln]||["#333","#fff"]; return isNaN(ln)?'':'<a class="rbar-b wk'+ln+'" href="#bt'+ln+'" data-ln="'+ln+'" aria-label="'+ln+'号艇へ" style="background:'+c[0]+';color:'+c[1]+'">'+ln+'</a>'; }).sort().join("")
+    +'</span></div></div>';
   app.innerHTML=html;
+  setupRaceBar(app);
   document.getElementById("back0").onclick=function(e){e.preventDefault();navGo({page:"venues",sort:view.sort});};
   document.getElementById("back1").onclick=function(e){e.preventDefault();navGo({page:"races",key:view.key,sort:view.sort});};
   Array.prototype.forEach.call(app.querySelectorAll("[data-go]"),function(el){
@@ -1900,7 +1938,7 @@ function boatCard(row,v,hl,minST,maxST,maxMotor){
   var oshi=isOshi(toban);
   var oshiBtn=toban?'<button type="button" class="oshibtn'+(oshi?' on':'')+'" data-toban="'+esc(toban)+'" data-name="'+esc(name)+'" title="推しフォロー" aria-pressed="'+(oshi?'true':'false')+'" aria-label="'+esc(name)+(oshi?'のフォローを解除':'をフォロー')+'">'+(oshi?'⭐':'☆')+'</button>':'';
 
-  return '<div class="boat'+(oshi?' oshi-on':'')+'"><div class="lane-bar" style="background:'+lc[0]+'"></div><div class="boat-body">'
+  return '<div class="boat'+(oshi?' oshi-on':'')+'" id="bt'+lane+'"><div class="lane-bar" style="background:'+lc[0]+'"></div><div class="boat-body">'
     +'<div class="boat-top">'
     +'<span class="lane-num" style="background:'+lc[0]+';color:'+lc[1]+';'+((lane===1||lane===2)?'border:1px solid #445;':'')+'">'+lane+'</span>'
     +'<span class="klass k-'+esc(kl)+'">'+esc(kl)+'</span>'+nameHtml+oshiBtn
