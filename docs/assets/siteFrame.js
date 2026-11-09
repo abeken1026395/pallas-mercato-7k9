@@ -90,6 +90,10 @@
     + ".dzf-sh:is(#dzfZ,.dzf-sh) .sh2{color:var(--dzf-dim)!important;-webkit-text-fill-color:currentColor!important;background:none!important}"
     + ".dzf-bar:is(#dzfZ,.dzf-bar) a{-webkit-text-fill-color:currentColor!important;text-shadow:none!important;box-shadow:none!important}.dzf-bar:is(#dzfZ,.dzf-bar) .dzf-brand{color:var(--dzf-tx)!important;background:none!important;border:0!important}.dzf-bar:is(#dzfZ,.dzf-bar) .dzf-wm b{color:var(--dzf-tx)!important}.dzf-bar:is(#dzfZ,.dzf-bar) .dzf-wm i{color:var(--dzf-dim)!important}.dzf-bar:is(#dzfZ,.dzf-bar) .dzf-sr{background:none!important;border:0!important}";
   var st = document.createElement("style"); st.id = "dzfCss"; st.textContent = css; document.head.appendChild(st);
+  // 押したときの反応（2026-11-09）：指が触れたら札・ボタン・リンクを少し薄くして「押せた」と分かるようにする。
+  // 0.05秒待ってから薄くするので、スクロールのつもりで触れただけのときはちらつかない。iPhone は touchstart の受け手が無いと :active が効かないので空の受け手を置く
+  st.appendChild(document.createTextNode("a[href]:active,button:not(:disabled):active,summary:active,[role=button]:active,[role=tab]:active,label[for]:active{opacity:.6;transition:opacity 0s linear .05s}.dzf-tb:is(#dzfZ,.dzf-tb) a:active,.dzf-tb:is(#dzfZ,.dzf-tb) button:active,.dzf-sh:is(#dzfZ,.dzf-sh) a:active{opacity:.6!important;transition:opacity 0s linear .05s}"));
+  try { document.addEventListener("touchstart", function(){}, { passive: true }); } catch (e) {}
   if (!document.querySelector('link[href*="Dela+Gothic+One"]')) {
     var lf = document.createElement("link"); lf.rel = "stylesheet"; lf.href = "https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap"; document.head.appendChild(lf);
   }
