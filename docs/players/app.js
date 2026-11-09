@@ -1883,7 +1883,8 @@ function App() {
       style: {
         fontSize: 10,
         color: "#8aa0b4",
-        marginTop: 1
+        marginTop: 1,
+        wordBreak: "keep-all"
       }
     }, p.kana) : /*#__PURE__*/React.createElement("div", {
       style: {

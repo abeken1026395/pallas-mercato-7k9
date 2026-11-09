@@ -108,6 +108,8 @@ header.bar{position:sticky;top:0;z-index:30;height:68px;background:var(--bar);bo
 .c .ft.end{font-size:14px}
 .c.off{min-height:44px;padding:0;align-items:center;justify-content:center;background:none;border:1px solid rgba(255,255,255,.05);font-size:16px;font-weight:500;color:var(--mute);letter-spacing:.06em}
 a.c:active{background:#1a3150}
+/* 改行の位置（2026-11-09）：見出しは行をそろえ、本文は最後の行に1、2文字だけ残らないように（トップは札や枠には付けない。書体が届いたときに高さが変わって画面がずれるため） */
+h2,h3{text-wrap:balance}p,li,dd{text-wrap:pretty}
 /* 押したときの反応（ほかのページと同じ。2026-11-09）：触れたら少し薄くする。0.05秒待つのでスクロールではちらつかない */
 a[href]:active,button:not(:disabled):active,summary:active,[role=button]:active,[role=tab]:active,label[for]:active{opacity:.6;transition:opacity 0s linear .05s}
 .offl{margin:8px 2px 0;font-size:14px;line-height:1.7;color:var(--mute)}

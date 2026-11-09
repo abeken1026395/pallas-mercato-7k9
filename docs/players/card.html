@@ -149,6 +149,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .seg{grid-template-columns:repeat(3,minmax(0,1fr))}
 .sumRow{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
 .perNote,.sum .s,.mt .row2,.key,.nt,.foot{overflow-wrap:anywhere}
+.row2 .rk,.row2 .nw{white-space:nowrap;flex:none} /* 「上位1%」「1,638人中」を途中で折らない（2026-11-09） */
 /* 極太の詰め組み：縦に伸ばし、字間を詰める */
 .plate{background:#0d0d0d;color:#fff;grid-template-columns:auto minmax(0,1fr) auto;border-bottom:0;position:relative}
 .plate::after{content:"";position:absolute;left:0;right:0;bottom:0;height:5px;background:var(--buoyR)}
@@ -430,7 +431,7 @@ function meter(k,w){
   const v=w.it[k],f=frac(k,w);
   if(!v){const n=k==="st"?w.st[1]:(f?f[1]:0);return `<div class="mt"><span class="lb">${LAB[k]}</span>${cells(null)}<span class="row2"><span>${n?`出走 ${n}走（20走から順位を出す）`:"この期間の出走なし"}</span><span></span></span></div>`;}
   const [x,n,top,N,dv]=v,col=TC[tier(top)];
-  return `<div class="mt"><span class="lb">${LAB[k]}</span>${cells(dv,col)}<span class="row2"><span>${fmV(k,x)}（${f?`${f[0]}/${f[1]}`:`${n}走`}）偏差値${dv.toFixed(1)}・${N.toLocaleString()}人中</span><span class="rk" style="color:${col}">${rl(top)}</span></span></div>`;
+  return `<div class="mt"><span class="lb">${LAB[k]}</span>${cells(dv,col)}<span class="row2"><span>${fmV(k,x)}（${f?`${f[0]}/${f[1]}`:`${n}走`}）偏差値${dv.toFixed(1)}・<span class="nw">${N.toLocaleString()}人中</span></span><span class="rk" style="color:${col}">${rl(top)}</span></span></div>`;
 }
 function render(){if(window.drawShImgs)setTimeout(drawShImgs,0);
   const P=D.players[cur];if(!P){loadP(cur).then(()=>{if(D.players[cur])render();});return;}const w=P.w[W],win=D.win[W],el=document.getElementById("card");
