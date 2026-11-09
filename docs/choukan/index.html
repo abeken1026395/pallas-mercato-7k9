@@ -33,9 +33,9 @@ a{color:inherit}
 .mast h1{margin:0;font-size:24px;line-height:1;letter-spacing:.08em;color:var(--ink)}
 .mast .dt{font-size:12.5px;color:var(--sub);text-align:right;line-height:1.5;font-variant-numeric:tabular-nums}
 .idx:empty{min-height:46px} /* 場の札が後から出て記事がずれないように（2026-11-09） */
-.idx{display:flex;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--rule);margin:0 -20px;padding:0 20px;-webkit-overflow-scrolling:touch}
+.idx{display:flex;overflow-x:auto;overflow-y:hidden;overscroll-behavior:none;scrollbar-width:none;box-shadow:inset 0 -1px 0 var(--rule);margin:0 -20px;padding:0 20px;-webkit-overflow-scrolling:touch} /* 押したまま動かすと札の列が上下左右に揺れたのを止める（2026-11-09）：縦は送らない・端で弾まない。下線は内側の影で引き、札の下線と重ねる */
 .idx::-webkit-scrollbar{display:none}
-.idx a{flex:0 0 auto;min-height:46px;display:flex;align-items:center;padding:0 12px;font-size:14px;color:var(--sub);text-decoration:none;border-bottom:2px solid transparent;margin-bottom:-1px;letter-spacing:.04em}
+.idx a{flex:0 0 auto;min-height:46px;display:flex;align-items:center;padding:0 12px;font-size:14px;color:var(--sub);text-decoration:none;border-bottom:2px solid transparent;letter-spacing:.04em}
 .idx a:first-child{padding-left:0}
 .idx a.on{color:var(--ink);font-weight:700;border-bottom-color:var(--ink)}
 .dl{margin:30px 0 0;font-size:13px;color:var(--sub);line-height:1.6;letter-spacing:.03em}
