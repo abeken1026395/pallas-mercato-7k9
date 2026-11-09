@@ -269,6 +269,10 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
 <div class="cap"><div class="cap-in"><span class="dt" id="capD"></span><span class="tg">材料はそろえた。決めるのは、あなた。</span></div></div>
 
 <div class="wrap">
+<section class="fol" id="kbTop" hidden aria-label="保存した買い目">
+  <h2 class="sh" style="margin-top:18px">保存した買い目<a href="./note/#bets">一覧</a></h2>
+  <div class="fol-box" id="kbTopRows"></div>
+</section>
 <section class="fol" id="fol" hidden aria-label="フォロー中の今日">
   <h2 class="sh" style="margin-top:18px">フォロー中の今日<a href="./racers/">出走表へ</a></h2>
   <div class="fol-box" id="folRows"></div>
@@ -726,6 +730,33 @@ function lineBoxes(){
   }).catch(function(){});
 })();
 </script>
+<script>
+/* 保存した買い目（再訪設計書 izonSekkei 段階1・2026-11-10）。出走表で保存した dz_bets を、この端末の中だけで読む。
+   今日のレースがあれば締切順に、無ければ最近の3レースを日付つきで。1件も無ければ何も出さない */
+(function(){
+  var VN={"01":"桐生","02":"戸田","03":"江戸川","04":"平和島","05":"多摩川","06":"浜名湖","07":"蒲郡","08":"常滑","09":"津","10":"三国","11":"びわこ","12":"住之江","13":"尼崎","14":"鳴門","15":"丸亀","16":"児島","17":"宮島","18":"徳山","19":"下関","20":"若松","21":"芦屋","22":"福岡","23":"唐津","24":"大村"};
+  var B; try{ B=JSON.parse(localStorage.getItem("dz_bets")||"{}"); }catch(e){ B={}; }
+  if(!B||typeof B!=="object"||Array.isArray(B)) return;
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+  var now=Date.now(), today=new Date(now+9*3600e3).toISOString().slice(0,10).replace(/-/g,"");
+  var xs=Object.keys(B).map(function(k){
+    var m=/^(\d{2})_(\d{8})_(\d{1,2})$/.exec(k), e=B[k];
+    if(!m||!e||typeof e!=="object"||!Array.isArray(e.b)||!e.b.length) return null;
+    var d=typeof e.d==="string"&&/^(\d{1,2}):(\d{2})$/.exec(e.d), t=d?Date.UTC(+m[2].slice(0,4),+m[2].slice(4,6)-1,+m[2].slice(6,8),+d[1]-9,+d[2]):0;
+    return {j:m[1],hd:m[2],r:+m[3],d:e.d||"",t:t,b:e.b};
+  }).filter(Boolean);
+  if(!xs.length) return;
+  var td=xs.filter(function(x){ return x.hd===today; }).sort(function(a,b){ return a.t-b.t||a.r-b.r; });
+  var show=td.length?td:xs.sort(function(a,b){ return b.hd.localeCompare(a.hd)||b.t-a.t; }).slice(0,3);
+  document.getElementById("kbTopRows").innerHTML=show.map(function(x){
+    var n=0; x.b.forEach(function(b){ n+=Array.isArray(b.k)?b.k.length:0; });
+    var st=x.hd!==today?(+x.hd.slice(4,6)+"/"+(+x.hd.slice(6,8))):(x.t&&x.t<=now?"締切済み":"締切 "+x.d);
+    return '<a class="fol-r" href="./racers/#v'+x.j+'r'+x.r+'d'+x.hd+'"><span class="fol-k">'+x.r+'R</span><span class="fol-n">'+esc(VN[x.j]||x.j)+'</span><span class="fol-v"><b>'+n+'点</b>　'+esc(st)+'</span></a>';
+  }).join("");
+  document.getElementById("kbTop").hidden=false;
+})();
+</script>
+<script src="./assets/shinchaku.js?v=1" defer></script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics --><script src=/assets/raihou.js defer></script>
 <script>if("serviceWorker" in navigator){ window.addEventListener("load",function(){ navigator.serviceWorker.register("./sw.js").catch(function(){}); }); }</script>
 <script src="./assets/ugoki.js?v=e40e8a0a"></script>

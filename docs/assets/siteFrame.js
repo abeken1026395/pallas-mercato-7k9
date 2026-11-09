@@ -180,6 +180,8 @@
   function t(k, h, n){ return '<a href="' + ROOT + h + '"' + (cur === k ? ' class="on" aria-current="page"' : '') + '>' + I[k] + n + '</a>'; }
   tb.innerHTML = '<div class="dzf-tbi">' + t("top", "", "トップ") + t("racers", "racers/", "出走表") + t("highlights", "highlights/", "見どころ") + t("results", "results/", "結果") + '<button type="button" id="dzfMore" aria-expanded="false" aria-controls="dzfSheet"' + (cur === "more" ? ' class="on"' : '') + '>' + I.more + 'その他</button></div>';
   document.body.appendChild(sh); document.body.appendChild(tb);
+  // 見どころ・結果の小さな丸と、開いたことの記録（assets/shinchaku.js・2026-11-10）
+  var scn = document.createElement("script"); scn.src = ROOT + "assets/shinchaku.js?v=1"; scn.defer = true; document.body.appendChild(scn);
   var mb = document.getElementById("dzfMore");
   var bd = document.createElement("div"); bd.className = "dzf-bd"; bd.hidden = true; document.body.appendChild(bd);
   var keepY = 0, bs = document.body.style;
