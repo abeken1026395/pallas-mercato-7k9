@@ -249,7 +249,7 @@ h1 {{ font-family:"Dela Gothic One",-apple-system,sans-serif; font-weight:400; f
 .btab[aria-selected="true"] {{ color:var(--fg); font-weight:700; }}
 .btab::after {{ content:""; position:absolute; left:0; right:0; bottom:8px; height:2px; background:var(--fg); transform:scaleX(0); transform-origin:left; transition:transform .3s var(--ease); }}
 .btab[aria-selected="true"]::after {{ transform:scaleX(1); }}
-.strip {{ display:flex; overflow-x:auto; gap:0; margin-top:2px; border-top:1px solid var(--line); border-bottom:1px solid var(--line); scrollbar-width:none; }}
+.strip {{ display:flex; overflow-x:auto; overflow-y:hidden; overscroll-behavior-x:contain; gap:0; margin-top:2px; border-top:1px solid var(--line); border-bottom:1px solid var(--line); scrollbar-width:none; }}
 .strip::-webkit-scrollbar {{ display:none; }}
 .pp, .pb {{ flex:none; min-width:44px; min-height:44px; padding:0 8px; background:none; border:0; color:var(--sub); font-family:"Barlow Condensed",sans-serif; font-size:16px; cursor:pointer; }}
 .pp {{ color:var(--fg); border-right:1px solid var(--line); font-family:-apple-system,"Hiragino Sans",sans-serif; font-size:13px; white-space:nowrap; }}
