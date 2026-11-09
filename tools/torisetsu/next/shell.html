@@ -214,7 +214,6 @@ table.sym td.k{width:6.4em;white-space:nowrap}
 #siteTop{position:absolute;left:12px;top:4px;z-index:2;display:inline-flex;align-items:center;
   min-height:44px;padding:0 8px;font-size:13px;color:var(--mojiS);
   text-decoration:underline;text-underline-offset:3px}
-#bar #bBack{color:var(--kigen)}
 /* 読んでいる間（下へ送っている間）は帯を下へ逃がし、本文や図に重ねない。上へ戻すか、ページの端で出す */
 #bar{transition:transform .2s ease}
 #bar.hide{transform:translateY(calc(100% + 110px))}   /* 共通の下のタブ（高さ66px・z-index 60）の裏へ下ろす */
@@ -391,7 +390,6 @@ __BODY__
 </div></div>
 
 <div id="bar">
-  <button id="bBack">◀ データ攻め</button>
   <button id="bTop">さいしょへ</button>
   <button id="bToc">もくじ・さがす</button>
 </div>
@@ -678,6 +676,7 @@ document.addEventListener('click',function(e){
     'choukan':'場の朝刊','ichimark':'1マーク','note':'観戦ノート'};
   var root=location.pathname.replace(/(torisetsu\/(index\.html)?|next\/torisetsu\.html)$/,'');
   var b=document.getElementById('bBack'), back=false;
+  if(!b)return;   // ◀の戻るボタンは、共通の下のタブ（トップ）と役目が重なるので外した（けん 2026-11-09）
   try{
     var u=new URL(document.referrer);
     if(u.origin===location.origin&&u.pathname.indexOf(root)===0&&u.pathname!==location.pathname){
