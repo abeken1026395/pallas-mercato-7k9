@@ -108,6 +108,8 @@ header.bar{position:sticky;top:0;z-index:30;height:68px;background:var(--bar);bo
 .c .ft.end{font-size:14px}
 .c.off{min-height:44px;padding:0;align-items:center;justify-content:center;background:none;border:1px solid rgba(255,255,255,.05);font-size:16px;font-weight:500;color:var(--mute);letter-spacing:.06em}
 a.c:active{background:#1a3150}
+/* 押したときの反応（ほかのページと同じ。2026-11-09）：触れたら少し薄くする。0.05秒待つのでスクロールではちらつかない */
+a[href]:active,button:not(:disabled):active,summary:active,[role=button]:active,[role=tab]:active,label[for]:active{opacity:.6;transition:opacity 0s linear .05s}
 .offl{margin:8px 2px 0;font-size:14px;line-height:1.7;color:var(--mute)}
 .offl[hidden]{display:none}
 .gr{display:inline-block;flex:none;white-space:nowrap;padding:0 5px;font:700 12px/18px -apple-system,sans-serif;letter-spacing:.02em;color:#fff;background:#4f6378}
@@ -727,5 +729,6 @@ function lineBoxes(){
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics --><script src=/assets/raihou.js defer></script>
 <script>if("serviceWorker" in navigator){ window.addEventListener("load",function(){ navigator.serviceWorker.register("./sw.js").catch(function(){}); }); }</script>
 <script src="./assets/ugoki.js?v=e40e8a0a"></script>
+<script>try{document.addEventListener("touchstart",function(){},{passive:true})}catch(e){}/* iPhone で :active（押したときの反応）を効かせるため */</script>
 </body>
 </html>
