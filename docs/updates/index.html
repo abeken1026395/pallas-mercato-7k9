@@ -27,6 +27,7 @@
 
   /* 種類で絞る。押した札だけを出す */
   .flt{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 4px;min-height:36px}
+  .flt:empty{min-height:78px} /* 絞り込みの札（2段）が後から出て一覧がずれないよう、読み込み中も高さを取っておく（2026-11-09） */
   .flt button{font:inherit;font-size:13.5px;color:var(--txt);background:var(--card);border:1px solid var(--line);border-radius:99px;padding:5px 13px;min-height:36px;cursor:pointer}
   .flt button[aria-pressed="true"]{border-color:#eef3f8;background:#eef3f8;color:#0b1726;font-weight:700}
   .flt button:focus-visible{outline:2px solid var(--hi);outline-offset:2px}

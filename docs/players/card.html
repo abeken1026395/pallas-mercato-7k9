@@ -45,6 +45,8 @@ h1{font-size:20px;font-weight:900;margin:0}
 .seg button[aria-pressed="true"]{background:#eef3f8;color:#0b1726;font-weight:700}
 button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--press);outline-offset:2px}
 .perNote{font-size:12px;color:var(--sub)}
+.perNote:empty{min-height:38.4px}
+#card .dzf-ld{min-height:100vh} /* 読み込み中は下の部品を画面の外に置いておく（カードが出たときに下の部品がずれないように） */ /* 期間の説明（2行）が後から入ってカードがずれないように（2026-11-09） */
 
 /* カード */
 .card{background:var(--water);color:var(--wInk);border-radius:4px;overflow:hidden;box-shadow:0 14px 30px -18px rgba(5,40,45,.9)}
