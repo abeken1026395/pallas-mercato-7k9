@@ -754,7 +754,7 @@ function App() {
                     {hasMemo(memo,p.no)&&<span role="img" aria-label="メモあり" title="メモあり" style={{fontSize:13,lineHeight:1,flexShrink:0}}>📝</span>}
                   </div>
                   {/* まくり屋・差し屋は右に数字が2つ並び名前の幅が狭いので、支部はふりがなの行へ下ろし、名前が切れないようにする（2026-11-08） */}
-                  {tab==="list"?(p.kana&&<div style={{fontSize:10,color:"#8aa0b4",marginTop:1}}>{p.kana}</div>):<div style={{fontSize:10,color:"#8aa0b4",marginTop:1,wordBreak:"keep-all",lineHeight:1.5}}><span style={{fontSize:12,color:"#96a8bb",marginRight:6}}>{p.branch}</span>{p.kana}</div>}
+                  {tab==="list"?(p.kana&&<div style={{fontSize:10,color:"#8aa0b4",marginTop:1,wordBreak:"keep-all"}}>{p.kana}</div>):<div style={{fontSize:10,color:"#8aa0b4",marginTop:1,wordBreak:"keep-all",lineHeight:1.5}}><span style={{fontSize:12,color:"#96a8bb",marginRight:6}}>{p.branch}</span>{p.kana}</div>}
                 </div>
                 <div style={{display:"flex",gap:"clamp(10px, calc((100vw - 360px) * 0.27 + 10px), 18px)",flexShrink:0}}>
                   {tab!=="list" && k ? [["率",(tab==="makuri"?k.makuriRate:k.sashiRate)||"-",tab==="makuri"?"#ff9e64":"#7ee787","率"],["数",tab==="makuri"?k.makuri:k.sashi,"#e0e6ed","本数"]].map(([t,v,col,lb],i)=>(
