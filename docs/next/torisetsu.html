@@ -216,8 +216,8 @@ table.sym td.k{width:6.4em;white-space:nowrap}
 #hit{margin:8px 0 0;font-size:13px;color:var(--mojiS);min-height:1.6em}
 
 /* ── 下の帯 ──────────────────────────── */
-#bar{position:fixed;left:16px;right:16px;bottom:calc(14px + env(safe-area-inset-bottom));
-  z-index:65;display:flex;border-radius:999px;overflow:hidden;
+#bar{position:fixed;left:16px;right:16px;bottom:calc(66px + 10px + env(safe-area-inset-bottom));
+  z-index:59;display:flex;border-radius:999px;overflow:hidden;
   background:rgba(14,44,53,.92);border:1px solid #2a6470;
   box-shadow:0 10px 30px rgba(0,0,0,.45);backdrop-filter:blur(10px)}
 #bar button{flex:1;background:none;border:0;color:var(--moji);min-width:0;
@@ -226,10 +226,9 @@ table.sym td.k{width:6.4em;white-space:nowrap}
 #siteTop{position:absolute;left:12px;top:4px;z-index:2;display:inline-flex;align-items:center;
   min-height:44px;padding:0 8px;font-size:13px;color:var(--mojiS);
   text-decoration:underline;text-underline-offset:3px}
-#bar #bBack{color:var(--kigen)}
 /* 読んでいる間（下へ送っている間）は帯を下へ逃がし、本文や図に重ねない。上へ戻すか、ページの端で出す */
 #bar{transition:transform .2s ease}
-#bar.hide{transform:translateY(calc(100% + 40px))}
+#bar.hide{transform:translateY(calc(100% + 110px))}   /* 共通の下のタブ（高さ66px・z-index 60）の裏へ下ろす */
 #bar button+button{border-left:1px solid #2a6470}
 #bar button:active{background:rgba(228,173,78,.14)}
 
@@ -1269,7 +1268,7 @@ main{padding-bottom:112px}
   <li><b>数えた数</b>「386日・33,027レースを数えました」。<b>母数が先に出ます。</b></li>
 </ol>
 
-<h4>いまある11本</h4>
+<h4>いまある12本</h4>
 <ul>
   <li><b>01 勝負駆けは効くのか</b>　崖っぷちの選手は気合いが入る、を数えました</li>
   <li><b>02 体重を絞ると走るのか</b>　節の中で体重は本当に動いているのか</li>
@@ -1282,6 +1281,7 @@ main{padding-bottom:112px}
   <li><b>09 チルトを跳ねた艇は穴の目印か</b>　跳ねた艇の1着と回収率を、選手ごとに分けて数えました</li>
   <li><b>10 展示で遅れた艇は消しか</b>　展示STと本番のST・着順・払戻を10年分突き合わせました</li>
   <li><b>11 部品を替えた艇を、私は展示の時計で許していた</b>　部品を替えた艇を、展示の順位と替えたあとの日数で追いかけました</li>
+  <li><b>12 SGの勝率最下位は、一般戦の勝率トップより上</b>　SGの2着を、相手5人の全国勝率で並べて一般戦と比べました</li>
 </ul>
 
 <h4>更新のしかた</h4>
@@ -1466,7 +1466,6 @@ main{padding-bottom:112px}
 </div></div>
 
 <div id="bar">
-  <button id="bBack">◀ データ攻め</button>
   <button id="bTop">さいしょへ</button>
   <button id="bToc">もくじ・さがす</button>
 </div>
@@ -1752,6 +1751,7 @@ document.addEventListener('click',function(e){
     'choukan':'場の朝刊','ichimark':'1マーク','note':'観戦ノート'};
   var root=location.pathname.replace(/(torisetsu\/(index\.html)?|next\/torisetsu\.html)$/,'');
   var b=document.getElementById('bBack'), back=false;
+  if(!b)return;   // ◀の戻るボタンは、共通の下のタブ（トップ）と役目が重なるので外した（けん 2026-11-09）
   try{
     var u=new URL(document.referrer);
     if(u.origin===location.origin&&u.pathname.indexOf(root)===0&&u.pathname!==location.pathname){

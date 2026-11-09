@@ -144,7 +144,6 @@
   var tb = document.createElement("nav"); tb.className = "dzf-tb"; tb.setAttribute("aria-label", "ページ");
   function t(k, h, n){ return '<a href="' + ROOT + h + '"' + (cur === k ? ' class="on" aria-current="page"' : '') + '>' + I[k] + n + '</a>'; }
   tb.innerHTML = '<div class="dzf-tbi">' + t("top", "", "トップ") + t("racers", "racers/", "出走表") + t("highlights", "highlights/", "見どころ") + t("results", "results/", "結果") + '<button type="button" id="dzfMore" aria-expanded="false" aria-controls="dzfSheet"' + (cur === "more" ? ' class="on"' : '') + '>' + I.more + 'その他</button></div>';
-  if (/^torisetsu\//.test(path)) { st.textContent = st.textContent.replace("body{padding-bottom:calc(66px + env(safe-area-inset-bottom))!important}", ""); return; } // トリセツは自前の下の帯（さいしょへ・もくじ）を持つので、下のタブは出さない
   document.body.appendChild(sh); document.body.appendChild(tb);
   var mb = document.getElementById("dzfMore");
   var bd = document.createElement("div"); bd.className = "dzf-bd"; bd.hidden = true; document.body.appendChild(bd);
