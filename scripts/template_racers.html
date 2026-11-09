@@ -478,6 +478,51 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .rbar-b::after{content:"";position:absolute;left:-2px;right:-2px;top:-8px;bottom:-8px}
 .rbar-b.on{outline:2px solid #f2f5f8;outline-offset:2px}
 .boat{scroll-margin-top:60px}
+/* 買い目の保存・収支・レースのメモ（izonSekkei 段階1・2026-11-10） */
+.kb{margin:24px 0 16px;padding:16px 0 0;border-top:1px solid rgba(255,255,255,.12);scroll-margin-top:64px}
+.kb-h{font-size:16px;font-weight:700;margin:0 0 4px;color:#eef3f8}
+.kb-note{font-size:12px;color:#a3b4c6;margin:0 0 12px;line-height:1.5}
+.kb-ts{display:flex;flex-wrap:wrap;gap:4px;margin:0 0 12px}
+.kb-t{min-height:44px;padding:0 12px;font-size:14px;font-weight:700;background:#13233a;color:#a3b4c6;border:1px solid #2c3e55;border-radius:0;cursor:pointer;touch-action:manipulation}
+.kb-t[aria-pressed="true"]{background:#eef3f8;color:#0b1726;border-color:#eef3f8}
+.kb-row{display:grid;grid-template-columns:48px repeat(6,1fr);gap:4px;align-items:center;margin:0 0 4px}
+.kb-pl{font-size:12px;color:#a3b4c6;white-space:nowrap}
+.kb-b{min-height:44px;font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;background:#13233a;color:#a3b4c6;border:1px solid #2c3e55;border-radius:0;cursor:pointer;touch-action:manipulation}
+.kb-b[aria-pressed="true"]{background:var(--kc);color:var(--kt);border:2px solid #eef3f8}
+.kb-pv{font-size:13px;color:#c3ccd6;line-height:1.6;margin:8px 0 0;font-variant-numeric:tabular-nums;word-break:keep-all;overflow-wrap:anywhere}
+.kb-ft{display:flex;align-items:center;gap:12px;margin:12px 0 0}
+.kb-n{flex:1;font-size:14px;color:#c3ccd6;font-variant-numeric:tabular-nums}
+.kb-save{min-height:44px;min-width:96px;padding:0 16px;font-size:16px;font-weight:700;background:#7fb4ff;color:#0b1726;border:0;border-radius:0;cursor:pointer;touch-action:manipulation}
+.kb-save:disabled{background:#2c3e55;color:#a3b4c6;cursor:default}
+.kb-tb{display:flex;align-items:center;justify-content:center;min-height:44px;margin:8px 0 0;font-size:14px;font-weight:700;color:#eef3f8;border:1px solid #2c3e55;text-decoration:none}
+.kb-sv{list-style:none;margin:16px 0 0;padding:0;border-top:1px solid rgba(255,255,255,.09)}
+.kb-sv li{display:grid;grid-template-columns:auto 1fr auto auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.09)}
+.kb-st{font-size:12px;font-weight:700;color:#0b1726;background:#eef3f8;padding:3px 6px;white-space:nowrap}
+.kb-sk{font-size:14px;color:#eef3f8;font-variant-numeric:tabular-nums;line-height:1.5;overflow-wrap:anywhere}
+.kb-sn{font-size:12px;color:#a3b4c6;white-space:nowrap;font-variant-numeric:tabular-nums}
+.kb-del{min-height:44px;min-width:44px;font-size:12px;background:none;color:#a3b4c6;border:0;cursor:pointer}
+.kb-rec{display:flex;justify-content:space-between;align-items:center;width:100%;min-height:44px;margin:8px 0 0;padding:0 12px;font-size:14px;color:#eef3f8;background:#13233a;border:1px solid #2c3e55;border-radius:0;font-variant-numeric:tabular-nums;cursor:pointer}
+.kb-msg{font-size:13px;color:#a3b4c6;margin:8px 0 0}
+@keyframes kbPop{0%{transform:scale(.94);opacity:0}100%{transform:scale(1);opacity:1}}
+.kb-pop{animation:kbPop .32s cubic-bezier(.34,1.56,.64,1)}
+.kb-bar{position:fixed;left:0;right:0;bottom:calc(58px + env(safe-area-inset-bottom));z-index:59;background:#0e1d30;border-top:1px solid rgba(255,255,255,.09)}
+.kb-bar[hidden]{display:none}
+.kb-bari{max-width:600px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px 8px}
+.kb-bari button,.kb-bari a{display:flex;align-items:center;justify-content:center;min-height:44px;font-size:14px;font-weight:700;color:#eef3f8;background:#13233a;border:1px solid #2c3e55;border-radius:0;text-decoration:none;cursor:pointer;touch-action:manipulation;font-variant-numeric:tabular-nums}
+.kb-bari .kb-bs{background:#7fb4ff;color:#0b1726;border-color:#7fb4ff}
+.kb-bari .kb-ok{animation:kbPop .32s cubic-bezier(.34,1.56,.64,1)}
+body.kb-has{padding-bottom:calc(118px + env(safe-area-inset-bottom))!important}
+.kb-dlg{margin:auto;width:min(560px,calc(100% - 32px));max-height:calc(100% - 32px);padding:16px;background:#13233a;color:#eef3f8;border:1px solid #2c3e55;border-radius:0}
+.kb-dlg::backdrop{background:rgba(5,12,22,.7)}
+.kb-dlg h2{font-size:16px;margin:0 0 12px}
+.kb-dlg label{display:block;font-size:13px;color:#a3b4c6;margin:0 0 12px}
+.kb-dlg input,.kb-dlg textarea{display:block;width:100%;box-sizing:border-box;margin:4px 0 0;padding:8px;font-size:16px;color:#eef3f8;background:#0b1726;border:1px solid #5c6f86;border-radius:0;font-variant-numeric:tabular-nums}
+.kb-pm{display:flex;flex-wrap:wrap;gap:4px;margin:0 0 16px}
+.kb-pm a{display:inline-flex;align-items:center;min-height:44px;padding:0 8px;font-size:13px;color:#eef3f8;border:1px solid #2c3e55;text-decoration:none}
+.kb-dlgf{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kb-dlgf button{min-height:44px;font-size:16px;font-weight:700;border-radius:0;cursor:pointer}
+.kb-c{background:none;color:#eef3f8;border:1px solid #2c3e55}
+@media (prefers-reduced-motion:reduce){.kb-pop,.kb-bari .kb-ok{animation:none}}
 </style>
 <!-- kata6:head -->
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&amp;family=Dela+Gothic+One&amp;display=swap" rel="stylesheet">
@@ -1053,6 +1098,7 @@ function render(){
   nsSnapshotDetails();
   renderBody();
   nsRestoreDetails();
+  kbBar();
 }
 function renderBody(){
   var _s=calcViewport(); if(!_s) return;
@@ -1868,6 +1914,7 @@ function renderRace(app,crumb,v){
   html+=boats.map(function(row){ return boatCard(row,v,hl,minST,maxST,maxMotor); }).join("");
 
   html+=yomiBox(v,view.rno);
+  html+=kbBox(v,view.rno,rc,chR);
   html+='<div class="legend-note">出典: BOATRACE公式出走表（勝率・2連率・3連率・モーター・ボート・今節成績。モーターとボートは勝率なし）｜決まり手構成は直近183日集計｜1号艇の決着は枠別成績と同じ期間｜機力評価・展開・荒れ指数は当ポータル生成｜風はOpen-Meteo。<br>本ページは水面傾向・展開の可視化に留め、勝敗の断定・買い目・確率は提示しません。</div>';
 
   html+=raceNavBar(v,view.rno);
@@ -1896,6 +1943,180 @@ function renderRace(app,crumb,v){
   Array.prototype.forEach.call(app.querySelectorAll(".yomibtn"),function(el){
     el.onclick=function(){ yomiSet(v,view.rno,parseInt(el.getAttribute("data-y"),10)); render(); };
   });
+  kbBind(app);
+}
+
+/* ===== 買い目の保存・収支・レースのメモ（izonSekkei 段階1・2026-11-10）
+   保存は端末内だけ。dz_bets＝{レースID:{v,j,h,r,d,b:[{t,k:[組],ts}],a,p}}、dz_rmemo＝{レースID:{t,ts}}。
+   どちらもレースIDをキーにしたオブジェクト（/hikae/ の戻しは今ある方を優先するため）。
+   30秒ごとの描き直しで入力が消えないよう、金額とメモの入力は #app の外のダイアログに置く。
+   艇番を押すたびの更新は #kb だけを差し替える（ページ全体は描き直さない） ===== */
+var KB_T={"3t":["3連単",3,1],"3f":["3連複",3,0],"2t":["2連単",2,1],"2f":["2連複",2,0],"kk":["拡連複",2,0],"tn":["単勝",1,1],"fk":["複勝",1,1]};
+var KB_ORDER=["3t","3f","2t","2f","kk","tn","fk"];
+var KB_POS=["1着","2着","3着"];
+var TELEBOAT_URL="https://spweb.brtb.jp/";
+var KB_SEL={rid:"",t:"3t",s:[[],[],[]]}, KB_CUR=null, KB_JUST="", KB_MSG="", KB_BACK=false, KB_BAR=null, KB_DLG=null;
+function kbObj(k){ var v=lsGet(k,{}); return (v&&typeof v==="object"&&!Array.isArray(v))?v:{}; }
+function kbPut(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); return true; }catch(e){ return false; } }
+function kbYen(n){ return Number(n).toLocaleString("ja-JP")+"円"; }
+function kbRows(t){ var d=KB_T[t]; return (d[2]&&d[1]>1)?d[1]:1; }
+function kbCombos(t,s){
+  var d=KB_T[t], c=d[1], out=[], i, j, k, num=function(a,b){ return a-b; };
+  if(d[2]){
+    var a=s[0].slice().sort(num), b=s[1].slice().sort(num), e=s[2].slice().sort(num);
+    if(c===1) return a.map(String);
+    a.forEach(function(x){ b.forEach(function(y){ if(y===x) return;
+      if(c===2){ out.push(x+"-"+y); return; }
+      e.forEach(function(z){ if(z!==x&&z!==y) out.push(x+"-"+y+"-"+z); }); }); });
+    return out;
+  }
+  var p=s[0].slice().sort(num);
+  for(i=0;i<p.length;i++) for(j=i+1;j<p.length;j++){
+    if(c===2){ out.push(p[i]+"="+p[j]); continue; }
+    for(k=j+1;k<p.length;k++) out.push(p[i]+"="+p[j]+"="+p[k]);
+  }
+  return out;
+}
+function kbBox(v,rno,rc,chR){
+  var rid=rkey(v.jcd,v.hd,rno);
+  if(KB_SEL.rid!==rid){ KB_SEL={rid:rid,t:KB_SEL.t,s:[[],[],[]]}; KB_MSG=""; }
+  KB_CUR={rid:rid,v:v,rno:rno,rc:rc,ch:!!chR};
+  if(chR) return '';
+  var t=KB_SEL.t, n=kbRows(t), cmb=kbCombos(t,KB_SEL.s), i, ln;
+  var h='<section class="kb" id="kb" aria-labelledby="kbH"><h2 class="kb-h" id="kbH">買い目を保存</h2><p class="kb-note">この端末にだけ残ります。機種変更のときは「フォローの控え」で移せます。</p>';
+  h+='<div class="kb-ts">'+KB_ORDER.map(function(k){ return '<button type="button" class="kb-t" data-kbt="'+k+'" aria-pressed="'+(k===t)+'">'+KB_T[k][0]+'</button>'; }).join("")+'</div>';
+  for(i=0;i<n;i++){
+    h+='<div class="kb-row" role="group" aria-label="'+(n>1?KB_POS[i]:'選ぶ艇')+'"><span class="kb-pl">'+(n>1?KB_POS[i]:'選ぶ艇')+'</span>';
+    for(ln=1;ln<=6;ln++){
+      var on=KB_SEL.s[i].indexOf(ln)>=0, c=LANE_COLOR[ln]||["#333","#fff"];
+      h+='<button type="button" class="kb-b" data-kbp="'+i+'" data-kbl="'+ln+'" aria-pressed="'+on+'" aria-label="'+(n>1?KB_POS[i]+' ':'')+ln+'号艇" style="--kc:'+c[0]+';--kt:'+c[1]+'">'+ln+'</button>';
+    }
+    h+='</div>';
+  }
+  if(cmb.length) h+='<div class="kb-pv">'+esc(cmb.slice(0,20).join("　"))+(cmb.length>20?'　ほか'+(cmb.length-20)+'点':'')+'</div>';
+  h+='<div class="kb-ft"><span class="kb-n" role="status">'+(cmb.length?cmb.length+'点':'艇番を押して選ぶ')+'</span><button type="button" class="kb-save" id="kbSave"'+(cmb.length?'':' disabled')+'>保存</button></div>';
+  h+='<a class="kb-tb" href="'+TELEBOAT_URL+'" target="_blank" rel="noopener" data-kbtb="1">テレボートで買う ↗</a>';
+  if(KB_MSG) h+='<p class="kb-msg" role="alert">'+esc(KB_MSG)+'</p>';
+  var e=kbObj("dz_bets")[rid];
+  if(e&&Array.isArray(e.b)&&e.b.length){
+    h+='<ul class="kb-sv" aria-label="保存した買い目">'+e.b.map(function(x,i){
+      var k=Array.isArray(x.k)?x.k:[];
+      return '<li'+(KB_JUST===rid+":"+i?' class="kb-pop"':'')+'><span class="kb-st">'+esc((KB_T[x.t]||[String(x.t)])[0])+'</span><span class="kb-sk">'+esc(k.join("　"))+'</span><span class="kb-sn">'+k.length+'点</span><button type="button" class="kb-del" data-kbd="'+i+'" aria-label="この買い目を消す">消す</button></li>';
+    }).join("")+'</ul>';
+  }
+  if(e) h+='<button type="button" class="kb-rec" data-kbm="1"><span>購入 '+(e.a!=null?kbYen(e.a):'—')+'</span><span>払戻 '+(e.p!=null?kbYen(e.p):'—')+'</span></button>';
+  KB_JUST="";
+  return h+'</section>';
+}
+function kbBind(root){
+  var s=root&&root.querySelector?(root.id==="kb"?root:root.querySelector("#kb")):null;
+  kbBar();
+  if(!s) return;
+  Array.prototype.forEach.call(s.querySelectorAll("[data-kbt]"),function(el){
+    el.onclick=function(){ KB_SEL.t=el.getAttribute("data-kbt"); KB_SEL.s=[[],[],[]]; KB_MSG=""; kbRefresh(); };
+  });
+  Array.prototype.forEach.call(s.querySelectorAll("[data-kbl]"),function(el){
+    el.onclick=function(){
+      var a=KB_SEL.s[parseInt(el.getAttribute("data-kbp"),10)], l=parseInt(el.getAttribute("data-kbl"),10), ix=a.indexOf(l);
+      if(ix>=0) a.splice(ix,1); else a.push(l);
+      KB_MSG=""; kbRefresh();
+    };
+  });
+  Array.prototype.forEach.call(s.querySelectorAll("[data-kbd]"),function(el){
+    el.onclick=function(){ kbDel(parseInt(el.getAttribute("data-kbd"),10)); };
+  });
+  var sv=s.querySelector("#kbSave"); if(sv) sv.onclick=function(){ kbSave(); };
+  var rc=s.querySelector("[data-kbm]"); if(rc) rc.onclick=function(){ kbOpen(); };
+  var tb=s.querySelector("[data-kbtb]"); if(tb) tb.onclick=function(){ KB_BACK=true; };
+}
+function kbRefresh(){
+  var s=document.getElementById("kb"); if(!s||!KB_CUR) return;
+  var w=document.createElement("div"); w.innerHTML=kbBox(KB_CUR.v,KB_CUR.rno,KB_CUR.rc,KB_CUR.ch);
+  var nx=w.firstChild; if(!nx) return;
+  s.parentNode.replaceChild(nx,s); kbBind(nx);
+}
+function kbSave(){
+  if(!KB_CUR||KB_CUR.ch) return false;
+  var cmb=kbCombos(KB_SEL.t,KB_SEL.s); if(!cmb.length) return false;
+  var B=kbObj("dz_bets"), c=KB_CUR, e=B[c.rid];
+  if(!e||typeof e!=="object"||!Array.isArray(e.b)) e={v:c.v.name,j:c.v.jcd,h:c.v.hd,r:c.rno,d:c.rc.deadline||"",b:[],a:null,p:null};
+  e.b.push({t:KB_SEL.t,k:cmb,ts:Date.now()}); B[c.rid]=e;
+  if(!kbPut("dz_bets",B)){ KB_MSG="保存できませんでした。端末の空き容量か、プライベートブラウズの設定を確かめてください。"; kbRefresh(); return false; }
+  KB_SEL.s=[[],[],[]]; KB_MSG=""; KB_JUST=c.rid+":"+(e.b.length-1);
+  kbRefresh(); return true;
+}
+function kbDel(i){
+  if(!KB_CUR) return;
+  var B=kbObj("dz_bets"), e=B[KB_CUR.rid]; if(!e||!Array.isArray(e.b)) return;
+  e.b.splice(i,1);
+  if(!e.b.length&&e.a==null&&e.p==null) delete B[KB_CUR.rid]; else B[KB_CUR.rid]=e;
+  kbPut("dz_bets",B); kbRefresh();
+}
+/* 出走表のレース画面だけ、下部タブの上に1段（保存・メモ・テレボート） */
+function kbBar(){
+  if(!KB_BAR){
+    KB_BAR=document.createElement("div"); KB_BAR.className="kb-bar"; KB_BAR.hidden=true;
+    KB_BAR.innerHTML='<div class="kb-bari"><button type="button" class="kb-bs" id="kbBarSave">保存</button><button type="button" id="kbBarMemo">メモ</button><a href="'+TELEBOAT_URL+'" target="_blank" rel="noopener" id="kbBarTb">テレボート ↗</a></div>';
+    document.body.appendChild(KB_BAR);
+    document.getElementById("kbBarSave").onclick=function(){
+      var b=this;
+      if(kbCombos(KB_SEL.t,KB_SEL.s).length&&kbSave()){
+        b.textContent="保存しました"; b.classList.remove("kb-ok"); void b.offsetWidth; b.classList.add("kb-ok");
+        setTimeout(function(){ b.classList.remove("kb-ok"); kbBar(); },800);
+        return;
+      }
+      var s=document.getElementById("kb"); if(s) s.scrollIntoView({block:"start",behavior:"smooth"});
+    };
+    document.getElementById("kbBarMemo").onclick=function(){ kbOpen(); };
+    document.getElementById("kbBarTb").onclick=function(){ KB_BACK=true; var s=document.getElementById("kb"); if(s) s.scrollIntoView({block:"start"}); };
+    document.addEventListener("visibilitychange",function(){
+      if(document.visibilityState!=="visible"||!KB_BACK) return; KB_BACK=false;
+      var s=document.getElementById("kb"); if(s) s.scrollIntoView({block:"start"});
+    });
+  }
+  var on=view.page==="race"&&!!KB_CUR&&!KB_CUR.ch&&!!document.getElementById("kb");
+  KB_BAR.hidden=!on; document.body.classList.toggle("kb-has",on);
+  var sb=document.getElementById("kbBarSave"), n=kbCombos(KB_SEL.t,KB_SEL.s).length;
+  if(sb&&!sb.classList.contains("kb-ok")) sb.textContent=n?"保存 "+n+"点":"保存";
+}
+/* このレースの記録（購入額・払戻・メモ）。入力中に描き直されないよう #app の外に置く */
+function kbOpen(){
+  if(!KB_CUR) return;
+  if(!KB_DLG){
+    KB_DLG=document.createElement("dialog"); KB_DLG.className="kb-dlg"; KB_DLG.setAttribute("aria-labelledby","kbDlgT");
+    KB_DLG.innerHTML='<form method="dialog"><h2 id="kbDlgT"></h2>'
+      +'<label>購入額（円）<input type="number" inputmode="numeric" min="0" step="100" id="kbA"></label>'
+      +'<label>払戻（円）<input type="number" inputmode="numeric" min="0" step="10" id="kbP"></label>'
+      +'<label>このレースのメモ<textarea id="kbM" rows="4" maxlength="400"></textarea></label>'
+      +'<div class="kb-pm" id="kbPm" aria-label="選手のメモ（観戦ノート）"></div>'
+      +'<div class="kb-dlgf"><button type="submit" value="cancel" class="kb-c">閉じる</button><button type="button" class="kb-save" id="kbDlgOk">記録する</button></div></form>';
+    document.body.appendChild(KB_DLG);
+    document.getElementById("kbDlgOk").onclick=function(){ kbRecord(); };
+  }
+  var c=KB_CUR, e=kbObj("dz_bets")[c.rid]||{}, m=kbObj("dz_rmemo")[c.rid]||{};
+  document.getElementById("kbDlgT").textContent=c.v.name+" "+c.rno+"R の記録";
+  document.getElementById("kbA").value=e.a!=null?e.a:"";
+  document.getElementById("kbP").value=e.p!=null?e.p:"";
+  document.getElementById("kbM").value=typeof m.t==="string"?m.t:"";
+  document.getElementById("kbPm").innerHTML=(c.rc.boats||[]).map(function(r){
+    var tb=g(r,"登録番号"), nm=g(r,"氏名").replace(/　+/g,"");
+    return /^\d{4}$/.test(tb)?'<a href="../note/?toban='+esc(tb)+'">'+esc(g(r,"枠"))+' '+esc(nm)+'のメモ</a>':'';
+  }).join("");
+  if(KB_DLG.showModal) KB_DLG.showModal(); else KB_DLG.setAttribute("open","");
+}
+function kbNum(id){ var s=String(document.getElementById(id).value||"").trim(); if(s==="") return null; var n=Math.round(Number(s)); return isFinite(n)&&n>=0?n:null; }
+function kbRecord(){
+  var c=KB_CUR; if(!c) return;
+  var a=kbNum("kbA"), p=kbNum("kbP"), t=String(document.getElementById("kbM").value||"").trim().slice(0,400);
+  var B=kbObj("dz_bets"), e=B[c.rid], M=kbObj("dz_rmemo"), ok=true;
+  if(!e||typeof e!=="object"||!Array.isArray(e.b)) e={v:c.v.name,j:c.v.jcd,h:c.v.hd,r:c.rno,d:c.rc.deadline||"",b:[],a:null,p:null};
+  e.a=a; e.p=p;
+  if(e.b.length||a!=null||p!=null) B[c.rid]=e; else delete B[c.rid];
+  if(t) M[c.rid]={t:t,ts:Date.now()}; else delete M[c.rid];
+  ok=kbPut("dz_bets",B)&&kbPut("dz_rmemo",M);
+  KB_MSG=ok?"":"記録できませんでした。端末の空き容量か、プライベートブラウズの設定を確かめてください。";
+  if(KB_DLG.close) KB_DLG.close(); else KB_DLG.removeAttribute("open");
+  kbRefresh();
 }
 
 function numPct(s){ var x=parseFloat(s); return isNaN(x)?'-':x.toFixed(1); }
