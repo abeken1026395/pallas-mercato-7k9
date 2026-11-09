@@ -45,7 +45,7 @@ h1 { font-family:"Dela Gothic One",-apple-system,sans-serif; font-weight:400; fo
 .kl a { color:var(--fg); display:inline-flex; align-items:center; min-height:44px; text-decoration:underline; text-underline-offset:3px; }
 .cap { font-size:12px; color:var(--sub); line-height:1.75; margin-top:2px; }
 .tabs { display:flex; flex-wrap:wrap; margin-top:4px; }
-.btab { position:relative; min-height:44px; padding:0 12px; margin-right:4px; background:none; border:0; color:var(--sub); font-size:13px; cursor:pointer; }
+.btab { position:relative; min-height:44px; min-width:44px; padding:0 12px; margin-right:4px; background:none; border:0; color:var(--sub); font-size:13px; cursor:pointer; }
 .btab[aria-selected="true"] { color:#0b1726; background:#eef3f8; font-weight:700; } /* 選んでいる札はどのページも白地に紺（2026-11-09） */
 .btab::after { display:none; }
 .btab::after { content:""; position:absolute; left:0; right:0; bottom:8px; height:2px; background:var(--fg); transform:scaleX(0); transform-origin:left; transition:transform .3s var(--ease); }
