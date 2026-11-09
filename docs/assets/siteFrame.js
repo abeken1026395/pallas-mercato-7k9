@@ -3,12 +3,20 @@
    ルートはこのファイル自身の場所から割り出す（ページの深さに関係なく正しいリンクになる）。
    トップ（index.html）は自前の帯とタブを持つので何もしない。 */
 (function(){
-  document.documentElement.classList.add("dzf-ok"); // 本文を出す（kata.css とページの頭で、枠が付くまで隠している）
+  // 本文を出す（kata.css とページの頭で、枠が付くまで隠している）。枠を付け、文字の大きさをそろえ終えてから出す（出した後にずれないように。2026-11-09）
+  function dzfOk(){
+    // 題字の印（kata.js が DOMContentLoaded で付ける）が出す前に付いていないと、出した後に題字の大きさが変わってずれる。h1 があれば先に付けておく
+    try { if (!document.querySelector(".kataTitle")) { var h = document.querySelector("h1"); if (h && !h.closest(".kataNote")) h.classList.add("kataTitle"); } } catch (e) {}
+    document.documentElement.classList.add("dzf-ok");
+  }
   // 取れなかったときの表示（全ページ共通の文言。見た目は kata.css の .dzf-st）。圏外なら「通信が切れています」
   window.dzfErrHtml = function(){ var off = navigator.onLine === false; return '<div class="dzf-st" role="alert"><p>' + (off ? "通信が切れています。つながったら、もう一度読み込んでください。" : "データを読み込めませんでした。通信の良いところで、もう一度読み込んでください。") + '</p><button type="button" class="dzf-re" onclick="location.reload()">もう一度読み込む</button></div>'; };
-  if (window.__dzFrame) return; window.__dzFrame = 1;
+  // 隠したまま1回描かせて（このとき最終の並びが決まる）から出す。描く前に出すと、出した瞬間に並びが変わったと数えられてずれる。rAF が止まる裏のタブでは時間で出す
+  function dzfOkSoon(){ try { requestAnimationFrame(function(){ requestAnimationFrame(dzfOk); }); } catch (e) {} setTimeout(dzfOk, 120); }
+  if (window.__dzFrame) { dzfOkSoon(); return; } window.__dzFrame = 1;
   var me = document.currentScript || document.querySelector('script[src*="assets/siteFrame.js"]');
-  if (document.readyState === "loading") { document.addEventListener("DOMContentLoaded", function(){ run(me); }); } else { run(me); }
+  function go(){ try { run(me); } finally { dzfOkSoon(); } }
+  if (document.readyState === "loading") { document.addEventListener("DOMContentLoaded", go); } else { go(); }
   function run(me){
   var ROOT = me ? me.src.replace(/assets\/siteFrame\.js.*$/, "") : (location.origin + "/");
   var here = location.href.split(/[?#]/)[0];
@@ -117,7 +125,7 @@
   var snapEls = function(root){ if (snapOff) return; if (!root || root.nodeType !== 1) return; var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(n){ return n.nodeValue.trim() ? 1 : 2; } }), n, seen = [], todo = []; while ((n = w.nextNode())) { var el = n.parentElement; if (!el || el.dzfFs || seen.indexOf(el) >= 0 || /clamp|calc|vw|min\(|max\(/.test(el.style.fontSize) || /^(SCRIPT|STYLE)$/.test(el.nodeName) || el.closest("[data-kata-skip],.dzf-bar,.dzf-tb,.dzf-sh")) continue; seen.push(el); } seen.forEach(function(el){ var px = parseFloat(getComputedStyle(el).fontSize), v = snapFs(px); if (Math.abs(v - px) > 0.25) todo.push([el, v]); }); todo.forEach(function(t){ t[0].style.setProperty("font-size", t[1] + "px", "important"); t[0].dzfFs = 1; }); };
   snapSheets(); snapInline(document.body);
   var hanQ = [], hanT = 0;
-  try { new MutationObserver(function(ms){ ms.forEach(function(m){ for (var k = 0; k < m.addedNodes.length; k++) hanQ.push(m.addedNodes[k]); if (m.type === "characterData") hanQ.push(m.target); }); if (!hanT) hanT = setTimeout(function(){ var q = hanQ; hanQ = []; hanT = 0; q.forEach(function(x){ if (x.isConnected) { han(x); snapInline(x); snapEls(x); if (/^(STYLE|LINK)$/.test(x.nodeName)) snapSheets(); } }); }, 120); }).observe(document.body, { childList: true, subtree: true, characterData: true }); } catch (e) {}
+  try { new MutationObserver(function(ms){ ms.forEach(function(m){ for (var k = 0; k < m.addedNodes.length; k++) hanQ.push(m.addedNodes[k]); if (m.type === "characterData") hanQ.push(m.target); }); /* 描く前に直す（120ms 待ってから直すと、いったん描いた文字が後から大きさを変えて画面がずれるため。2026-11-09） */ var q = hanQ; hanQ = []; q.forEach(function(x){ if (x.isConnected) { han(x); snapInline(x); snapEls(x); if (/^(STYLE|LINK)$/.test(x.nodeName)) snapSheets(); } }); }).observe(document.body, { childList: true, subtree: true, characterData: true }); } catch (e) {}
   han(document.body);
   var onLoad = function(){ snapSheets(); snapInline(document.body); snapEls(document.body); cutBR(); wideTable(); setTimeout(function(){ snapSheets(); snapInline(document.body); snapEls(document.body); cutBR(); wideTable(); }, 1500); setTimeout(function(){ snapSheets(); snapEls(document.body); }, 4000); };
   cutBR(); if (document.readyState === "complete") onLoad(); else window.addEventListener("load", onLoad);

@@ -81,7 +81,7 @@ function App() {
   const [gOpen, setGOpen] = useState(null);
   const [sgOpen, setSgOpen] = useState(null);
   const [vOpen, setVOpen] = useState(null);
-  const [fanfare, setFanfare] = useState(null);
+  const [fanfare, setFanfare] = useState(undefined); // undefined＝読み込み中（場内BGMの読み物が後から上に出て一覧がずれないよう、そろうまで一覧を出さない。2026-11-09）
   const [bOpen, setBOpen] = useState(null);
   const [fanIntro, setFanIntro] = useState(false);
   const [yosouya, setYosouya] = useState(null);
@@ -141,7 +141,7 @@ function App() {
   return (
     <div style={{minHeight:"100vh",padding:"12px",maxWidth:900,margin:"0 auto"}}>
       <div style={{display:"flex",alignItems:"baseline",gap:10,marginBottom:4,flexWrap:"wrap"}}>
-        <span style={{fontSize:20,fontWeight:800,color:"#ffd166"}}>24場の特性</span>
+        <span className="kataTitle" style={{fontSize:20,fontWeight:800,color:"#ffd166"}}>24場の特性</span>
         {filtered.length<R.stadiums.length && <span style={{fontSize:12,color:"#8aa0b4"}}>{filtered.length}場を表示</span>}
       </div>
       <div style={{fontSize:11,color:"#8aa0b4",marginBottom:10}}>1コース1着率は進入コース基準。2016-11-01〜2026-11-07・全24場551,927艇（出典: 公式競走成績・24場番付と同じ数字）</div>
@@ -199,7 +199,8 @@ function App() {
       </div>
       )}
 
-      <div style={{display:"grid",gap:8}}>
+      {fanfare===undefined && <div className="dzf-st dzf-ld" role="status" style={{minHeight:"100vh"}}>読み込んでいます</div>}
+      <div style={{display:fanfare===undefined?"none":"grid",gap:8}}>
         {filtered.map(s => {
           const isOpen = open === s.code;
           return (

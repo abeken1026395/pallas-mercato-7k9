@@ -201,7 +201,7 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .vbody{margin-top:8px;padding-left:2px}
 /* 観戦記カード（署名コーナー） */
 /* 観戦記まとめバー（日付タブと3タブの間） */
-.kskall-bar{display:none;width:100%;margin:10px 0 0;padding:11px 12px;min-height:44px;border:1px solid #24384b;border-left:3px solid var(--acc);border-radius:10px;background:linear-gradient(180deg,#12202e,#0e1822);color:var(--txt);font-size:13px;font-weight:700;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.kskall-bar{display:block;visibility:hidden;width:100%;margin:10px 0 0;padding:11px 12px;min-height:44px;border:1px solid #24384b;border-left:3px solid var(--acc);border-radius:10px;background:linear-gradient(180deg,#12202e,#0e1822);color:var(--txt);font-size:13px;font-weight:700;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .kskall-wrap{display:none;margin:8px 0 0}
 .kskall-venue{font-size:12px;font-weight:800;color:var(--sub);margin:0 0 4px 2px}
 .ksk{background:linear-gradient(180deg,#12202e,#0e1822);border:1px solid #24384b;border-left:3px solid var(--acc);border-radius:12px;padding:12px 13px;margin:0 0 10px}
@@ -285,6 +285,9 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .dsw-btn:active{opacity:.7}
 .viewguide{color:var(--sub);font-size:12px;line-height:1.65;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 11px;margin:10px 0 0}
 .viewguide b{color:var(--txt)}
+/* 読み込み中も、日付の行と「場の朝刊をまとめて読む」の高さを先に取っておく（後から出て一覧がずれないように。朝刊が無い日だけ畳む。2026-11-09） */
+#date:empty{min-height:19.2px}
+#list>.dzf-ld{min-height:100vh}
 .nextnote{color:var(--acc2);font-size:12px;line-height:1.6;background:rgba(90,170,255,.08);border:1px solid var(--acc2);border-radius:10px;padding:8px 11px;margin:8px 0}
 .vnext{font-size:12px;color:var(--sub);margin:3px 0 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .part-badge{display:inline-block;font-size:12px;font-weight:800;color:#04121f;background:#e0b64a;border-radius:6px;padding:2px 7px}
@@ -902,7 +905,7 @@ function kskAllRender(){
     const vn=nameOf[c]?kEsc(nameOf[c]):'';
     return `<div class="kskall-venue">${vn}</div>`+renderKansenki(KANSENKI[c], 'all-'+c);
   }).join('');
-  bar.style.display='block';
+  bar.style.display='block'; bar.style.visibility='visible';
   wrap.style.display='none';
   bar.setAttribute('aria-expanded','false');
   bar.textContent=`📝 ${md}場の朝刊をまとめて読む ▼`;
@@ -1006,7 +1009,11 @@ function renderVenues(){
   }).join('');
 }
 
+// 本体（レースの一覧と場の朝刊）がそろう前に、潮・天気などの小さいデータが先に届いて render() を呼ぶと、
+// 一瞬「レースがありません」と出てから一覧に差し替わり、画面もずれる。そろうまでは描かない（2026-11-09）
+var HL_READY=false;
 function render(){
+  if(!HL_READY) return;
   const el=document.getElementById('list');
   if(OSHI_ONLY && !racesForView().length){ el.innerHTML='<div class="empty">本日、推しの出走はありません。<br><span class="oshi-clear" onclick="toggleOshiOnly()">絞り込みを解除</span></div>'; return; }
   let arr=[...racesForView()];
@@ -1546,7 +1553,7 @@ fetch(SRC+'?_='+Date.now())
       document.getElementById('date').textContent = (TODAY_DATE.length===8)?`${TODAY_DATE.slice(0,4)}年${+TODAY_DATE.slice(4,6)}月${+TODAY_DATE.slice(6,8)}日`:'';
       document.getElementById('note').innerHTML='';
       document.getElementById('list').innerHTML='<div class="empty">明日の情報はまだありません。夜に順次追加されます。</div>';
-      KANSENKI={}; kskAllRender();
+      KANSENKI={}; kskAllRender(); HL_READY=true;
       return;
     }
   }
@@ -1583,7 +1590,7 @@ fetch(SRC+'?_='+Date.now())
   if(d.length===8) document.getElementById('date').textContent=`${d.slice(0,4)}年${+d.slice(4,6)}月${+d.slice(6,8)}日 ${doc['レース数']}レース${ISNEXT?'（明日・前夜プレビュー）':''}`;
   const conf=(doc['確定イン率場']||[]).join('・');
   document.getElementById('note').innerHTML=`イン1着率は目安値（${conf}は公式実数、他は暫定）。機＝モーター2連率（その節の機力目安で、選手の調子とは別物）。<br>波乱＝①が着外になりやすい度合いを1〜6の6段階で示したもの。①の級別・直近20走・外3艇の級別・場の実績など7項目から出しています。買い目・確率・勝者予想は出していません。<br>波乱注目タブは波乱の大きい順に並べています。この条件のレースは過去1年で34%が①着外（全レースでは19%）でした。<br><span style="opacity:.7">生成：${(doc['生成時刻']||'').replace('T',' ').slice(0,16)}</span>` + (OSHI.length?`<br><span class="oshi-note">⭐は推しフォロー中の選手。フォローはこの端末にのみ保存され、外部には送信されません。登録・解除は<a href="../racers/" style="color:#c8a24a">出走表</a>と<a href="../players/" style="color:#c8a24a">選手図鑑</a>から。</span>`:'');
-  loadKansenki().then(()=>{kskAllRender();render();});
+  loadKansenki().then(()=>{HL_READY=true;kskAllRender();render();});
 })
 .catch(()=>{ISNEXT=false;NEXTMETA={};KANSENKI={};kskAllRender();const nn=document.getElementById('nextnote');if(nn)nn.style.display='none';document.getElementById('list').innerHTML=(SRC==='highlights.json')?(window.dzfErrHtml?dzfErrHtml():'<div class="dzf-st" role="alert"><p>'+(navigator.onLine===false?'通信が切れています。つながったら、もう一度読み込んでください。':'データを読み込めませんでした。通信の良いところで、もう一度読み込んでください。')+'</p><button type="button" class="dzf-re" onclick="location.reload()">もう一度読み込む</button></div>'):'<div class="empty">'+(SRC==='highlights_next.json'?'明日の前夜プレビューはまだありません（各場のレース確定後、夜に順次追加されます）。':SRC!=='highlights.json'?'この日の見どころはまだありません（明日以降たまります）。':'')+'</div>';});
 }
@@ -1594,7 +1601,7 @@ loadHL();
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics --><script src=/assets/raihou.js defer></script>
 <!-- kata6:body -->
 <script src="../assets/kata/kata.js?v=ecd47e51"></script>
-<script src="../assets/siteFrame.js?v=641dc713"></script>
+<script src="../assets/siteFrame.js?v=dca1d30c"></script>
 <script src="../assets/ugoki.js?v=e40e8a0a"></script>
 <!-- /kata6:body -->
 </body>
