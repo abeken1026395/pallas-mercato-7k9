@@ -234,6 +234,6 @@ jobs:
           echo "$T$G" | grep -q "abeken1026395\|pallas-mercato" && { echo "::error::配信先のトップか guard.js にリポジトリの手がかりが残っている"; exit 1; }
           echo "リポジトリの手がかりOK: トップ・guard.js とも0件"
           K=$(curl -s -A "Mozilla/5.0 (Windows NT 10.0) Chrome/130.0" -H "Accept-Language: ja-JP,ja;q=0.9" "https://$PROJECT.pages.dev/kiyaku/")
-          echo "$K" | grep -q "第7条" || { echo "::error::利用規約のページが出ていない"; exit 1; }
+          echo "$K" | grep -q "第14条" || { echo "::error::利用規約のページが出ていない"; exit 1; }
           echo "$T" | grep -q 'href="/kiyaku/"' || { echo "::error::トップに利用規約へのリンクが無い"; exit 1; }
           echo "利用規約OK: ページあり・トップにリンクあり"
