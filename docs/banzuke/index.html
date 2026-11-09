@@ -45,8 +45,9 @@ h1 { font-family:"Dela Gothic One",-apple-system,sans-serif; font-weight:400; fo
 .kl a { color:var(--fg); display:inline-flex; align-items:center; min-height:44px; text-decoration:underline; text-underline-offset:3px; }
 .cap { font-size:12px; color:var(--sub); line-height:1.75; margin-top:2px; }
 .tabs { display:flex; flex-wrap:wrap; margin-top:4px; }
-.btab { position:relative; min-height:44px; padding:0; margin-right:20px; background:none; border:0; color:var(--sub); font-size:13px; cursor:pointer; }
-.btab[aria-selected="true"] { color:var(--fg); font-weight:700; }
+.btab { position:relative; min-height:44px; padding:0 12px; margin-right:4px; background:none; border:0; color:var(--sub); font-size:13px; cursor:pointer; }
+.btab[aria-selected="true"] { color:#0b1726; background:#eef3f8; font-weight:700; } /* 選んでいる札はどのページも白地に紺（2026-11-09） */
+.btab::after { display:none; }
 .btab::after { content:""; position:absolute; left:0; right:0; bottom:8px; height:2px; background:var(--fg); transform:scaleX(0); transform-origin:left; transition:transform .3s var(--ease); }
 .btab[aria-selected="true"]::after { transform:scaleX(1); }
 .strip { display:flex; overflow-x:auto; gap:0; margin-top:2px; border-top:1px solid var(--line); border-bottom:1px solid var(--line); scrollbar-width:none; }
@@ -55,7 +56,7 @@ h1 { font-family:"Dela Gothic One",-apple-system,sans-serif; font-weight:400; fo
 .pp { color:var(--fg); border-right:1px solid var(--line); font-family:-apple-system,"Hiragino Sans",sans-serif; font-size:13px; white-space:nowrap; }
 .pb { white-space:nowrap; }
 .pp[aria-pressed="true"] { color:var(--gold); }
-.pb.on { color:var(--bg); background:var(--fg); font-weight:600; }
+.pb.on { color:#0b1726; background:#eef3f8; font-weight:600; }
 .per { font-family:"Barlow Condensed",sans-serif; font-size:13px; color:var(--sub); margin-top:8px; min-height:18px; }
 svg { display:block; width:100%; height:auto; overflow:visible; }
 .ax, .natT { fill:var(--sub); font-size:12px; font-family:"Barlow Condensed",sans-serif; }
