@@ -1,0 +1,94 @@
+name: 配信遅れ 警報
+
+# 本番（Cloudflare Pages）に main が届いているかを外から見る。読むだけで何も書き換えない。
+#
+# 2026-11-09 JST 18:57 から約2時間、配信が止まっていた（Analytics Engine 未有効でアップロードが失敗）。
+# 気づくのが遅れたため、遅れを検知したら GitHub Issue を立てる（ラベル deploy-stale）。
+# Issue が立つと、リポジトリを見ている人（持ち主）に GitHub からメールが届く。Cloudflare 側の設定は要らない。
+#
+# 判定は scripts/checkDeployLag.sh（しきい値の根拠もそちら）。
+# 冪等: deploy-stale の Open Issue が既にあれば新しく立てない。直ったら自動でコメントして閉じる。
+# 監視が落ちたら黙って緑にしない（落ちたら赤にする）。
+on:
+  schedule:
+    - cron: "7,27,47 * * * *"   # 20分おき（GitHub の定時起動は取りこぼすので多めに置く）
+  # 配信が終わるたび（失敗も含む）にも見る。定時の取りこぼしを補う
+  workflow_run:
+    workflows: ["Cloudflare Pages 配信"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      FORCE_ISSUE:
+        description: "起票経路の検証。true で異常として扱い Issue を立てる（ラベルは deploy-stale-test）"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+  actions: read
+  issues: write
+
+concurrency:
+  group: deployLagAlarm
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/checkDeployLag.sh
+          sparse-checkout-cone-mode: false
+
+      - name: 判定
+        id: c
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PROJECT: ${{ secrets.CF_PAGES_PROJECT_SECRET }}
+          FORCE_STALE: ${{ github.event.inputs.FORCE_ISSUE }}
+        run: |
+          test -n "$PROJECT" || { echo "::error::Secrets に CF_PAGES_PROJECT_SECRET が無い"; exit 1; }
+          bash scripts/checkDeployLag.sh
+
+      - name: 異常なら Issue を立てる（冪等）
+        if: steps.c.outputs.stale == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "${{ steps.c.outputs.forced }}" = "1" ]; then
+            LABEL=deploy-stale-test
+            TITLE="[検証] 配信遅れ 警報の起票経路確認"
+            DESC="起票経路の検証用（本番の異常ではない）"
+          else
+            LABEL=deploy-stale
+            TITLE="配信遅れ 警報：本番に main が届いていない"
+            DESC="本番の配信が止まっている"
+          fi
+          gh label create "$LABEL" --repo "$GITHUB_REPOSITORY" --color B60205 --description "$DESC" 2>/dev/null || true
+          EXIST=$(gh issue list --repo "$GITHUB_REPOSITORY" --label "$LABEL" --state open --json number --jq 'length')
+          if [ "${EXIST:-0}" != "0" ]; then
+            echo "既に Open Issue あり（ラベル ${LABEL}）→ 立てない"; exit 0
+          fi
+          BODY=$(cat deployLagSummary.md)
+          gh issue create --repo "$GITHUB_REPOSITORY" --title "$TITLE" --label "$LABEL" \
+            --body "$(printf '%s\n\n## 見るところ\n\n- 「Cloudflare Pages 配信」の実行履歴の、失敗したステップのログ\n- 「docs と罠をアップロード」で落ちているなら Cloudflare 側（ダッシュボードの案内・API トークンの期限・バインディング）\n- 本番トップが 200 以外なら Cloudflare の障害情報\n\n（この Issue は配信遅れ警報の自動起票です。直れば自動でコメントして閉じます。）' "$BODY")"
+          echo "起票しました"
+
+      - name: 直っていれば Issue を閉じる
+        if: steps.c.outputs.stale == '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for n in $(gh issue list --repo "$GITHUB_REPOSITORY" --label deploy-stale --state open --json number --jq '.[].number'); do
+            gh issue close "$n" --repo "$GITHUB_REPOSITORY" --comment "$(printf '配信が追いついたので閉じます。\n\n%s' "$(cat deployLagSummary.md)")"
+            echo "閉じた #$n"
+          done
+
+      - name: 結果
+        if: always()
+        run: |
+          echo "### 配信遅れチェック" >> "$GITHUB_STEP_SUMMARY"
+          cat deployLagSummary.md >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || echo "判定が結果を出さずに終わった" >> "$GITHUB_STEP_SUMMARY"
