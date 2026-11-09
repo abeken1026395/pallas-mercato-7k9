@@ -491,7 +491,7 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .kb-b[aria-pressed="true"]{background:var(--kc);color:var(--kt);border:2px solid #eef3f8}
 .kb-b:disabled{opacity:.3;cursor:default}
 .kb-ms{display:flex;gap:4px;margin:0 0 12px}
-.kb-pv{font-size:13px;color:#c3ccd6;line-height:1.6;margin:8px 0 0;font-variant-numeric:tabular-nums;word-break:keep-all;overflow-wrap:anywhere}
+.kb-pv{min-height:1.6em;font-size:13px;color:#c3ccd6;line-height:1.6;margin:8px 0 0;font-variant-numeric:tabular-nums;word-break:keep-all;overflow-wrap:anywhere}
 .kb-ft{display:flex;align-items:center;gap:12px;margin:12px 0 0}
 .kb-n{flex:1;font-size:14px;color:#c3ccd6;font-variant-numeric:tabular-nums}
 .kb-save{min-height:44px;min-width:96px;padding:0 16px;font-size:16px;font-weight:700;background:#7fb4ff;color:#0b1726;border:0;border-radius:0;cursor:pointer;touch-action:manipulation}
@@ -514,17 +514,32 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .kb-bari .kb-bs{background:#7fb4ff;color:#0b1726;border-color:#7fb4ff}
 .kb-bari .kb-ok{animation:kbPop .32s cubic-bezier(.34,1.56,.64,1)}
 body.kb-has{padding-bottom:calc(118px + env(safe-area-inset-bottom))!important}
-.kb-dlg{margin:auto;width:min(560px,calc(100% - 32px));max-height:calc(100% - 32px);padding:16px;background:#13233a;color:#eef3f8;border:1px solid #2c3e55;border-radius:0}
-.kb-dlg::backdrop{background:rgba(5,12,22,.7)}
-.kb-dlg h2{font-size:16px;margin:0 0 12px}
-.kb-dlg label{display:block;font-size:13px;color:#a3b4c6;margin:0 0 12px}
-.kb-dlg input,.kb-dlg textarea{display:block;width:100%;box-sizing:border-box;margin:4px 0 0;padding:8px;font-size:16px;color:#eef3f8;background:#0b1726;border:1px solid #5c6f86;border-radius:0;font-variant-numeric:tabular-nums}
-.kb-pm{display:flex;flex-wrap:wrap;gap:4px;margin:0 0 16px}
-.kb-pm a{display:inline-flex;align-items:center;min-height:44px;padding:0 8px;font-size:13px;color:#eef3f8;border:1px solid #2c3e55;text-decoration:none}
-.kb-dlgf{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.kb-dlgf button{min-height:44px;font-size:16px;font-weight:700;border-radius:0;cursor:pointer}
-.kb-c{background:none;color:#eef3f8;border:1px solid #2c3e55}
-@media (prefers-reduced-motion:reduce){.kb-pop,.kb-bari .kb-ok{animation:none}}
+.kb-sh{position:fixed;left:0;right:0;top:auto;bottom:0;margin:0 auto;width:100%;max-width:600px;max-height:90vh;padding:0;background:#13233a;color:#eef3f8;border:0;border-top:1px solid #2c3e55;border-radius:0}
+.kb-sh[open]{display:flex;flex-direction:column;animation:kbUp .28s cubic-bezier(.2,.7,.2,1)}
+.kb-sh::backdrop{background:rgba(5,12,22,.72)}
+@keyframes kbUp{from{transform:translateY(100%)}to{transform:none}}
+.kb-shg{width:40px;height:4px;margin:8px auto 0;background:#3a4e66}
+.kb-shh{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 8px 4px 16px;border-bottom:1px solid rgba(255,255,255,.09)}
+.kb-shh h2{font-size:16px;font-weight:700;margin:0}
+.kb-x{min-height:44px;min-width:64px;padding:0 8px;font-size:14px;color:#a3b4c6;background:none;border:0;cursor:pointer}
+.kb-shb{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:16px}
+.kb-amts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.kb-lb{display:block;font-size:13px;line-height:1.4;color:#a3b4c6;margin:0 0 4px}
+.kb-in{display:flex;align-items:center;height:52px;background:#0b1726;border:1px solid #5c6f86}
+.kb-in:focus-within{border-color:#7fb4ff;box-shadow:inset 0 0 0 1px #7fb4ff}
+.kb-in input{flex:1;min-width:0;width:100%;height:100%;margin:0;padding:0 8px 0 12px;font:700 20px/normal -apple-system,'Hiragino Sans',sans-serif;color:#eef3f8;text-align:right;font-variant-numeric:tabular-nums;background:none;border:0;border-radius:0;outline:0;-webkit-appearance:none;appearance:none}
+.kb-in span{padding:0 12px 0 0;font-size:14px;color:#a3b4c6}
+.kb-qk{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:8px 0 16px}
+.kb-qk button{min-height:44px;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;color:#eef3f8;background:none;border:1px solid #2c3e55;border-radius:0;cursor:pointer;touch-action:manipulation}
+.kb-shb textarea{display:block;width:100%;box-sizing:border-box;margin:0 0 16px;padding:12px;font-size:16px;line-height:1.6;color:#eef3f8;background:#0b1726;border:1px solid #5c6f86;border-radius:0;outline:0;resize:vertical;-webkit-appearance:none;appearance:none}
+.kb-shb textarea:focus{border-color:#7fb4ff;box-shadow:inset 0 0 0 1px #7fb4ff}
+.kb-pm{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.kb-pm a{display:flex;align-items:center;gap:8px;min-height:44px;padding:0 8px;font-size:14px;color:#eef3f8;border:1px solid #2c3e55;text-decoration:none;overflow:hidden;white-space:nowrap}
+.kb-pmn{display:inline-flex;align-items:center;justify-content:center;flex:none;width:22px;height:22px;font-size:13px;font-weight:700}
+.kb-shf{padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,.09)}
+.kb-shf .kb-save{width:100%}
+.kb-all{display:flex;align-items:center;justify-content:space-between;min-height:44px;margin:8px 0 0;font-size:14px;color:#a3b4c6;text-decoration:none}
+@media (prefers-reduced-motion:reduce){.kb-pop,.kb-bari .kb-ok,.kb-sh[open]{animation:none}}
 </style>
 <!-- kata6:head -->
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&amp;family=Dela+Gothic+One&amp;display=swap" rel="stylesheet">
@@ -902,7 +917,7 @@ function yomiBox(v,rno){
     h+='<div class="yomi-btns">'
       +'<span class="yomibtn'+(mine===0?' on':'')+'" data-y="0">①は残る</span>'
       +'<span class="yomibtn'+(mine===1?' on':'')+'" data-y="1">①は崩れる</span></div>'
-      +'<div class="note">締切前のみ記録できます（締切後は変更不可）。買い目は記録しません。記録はこの端末にのみ保存されます。</div>';
+      +'<div class="note">締切前のみ記録できます（締切後は変更不可）。ここでは読みだけを残します（買い目は下の「買い目を保存」へ）。記録はこの端末にのみ保存されます。</div>';
   }else{
     h+='<div class="yomi-line">'+(mine===null?'記録なし（締切後のため記録できません）':'記録：'+(mine===1?'①は崩れる':'①は残る'))+'</div>';
     if(e&&(e.res===0||e.res===1)){
@@ -2015,7 +2030,7 @@ function kbBox(v,rno,rc,chR){
     }
     h+='</div>';
   }
-  h+='<div class="kb-pv" id="kbPv"'+(cmb.length?'':' hidden')+'>'+esc(kbPvText(cmb))+'</div>';
+  h+='<div class="kb-pv" id="kbPv">'+esc(kbPvText(cmb))+'</div>';
   h+='<div class="kb-ft"><span class="kb-n" id="kbN" role="status">'+(cmb.length?cmb.length+'点':'艇番を押して選ぶ')+'</span><button type="button" class="kb-save" id="kbSave"'+(cmb.length?'':' disabled')+'>保存</button></div>';
   h+='<a class="kb-tb" href="'+TELEBOAT_URL+'" target="_blank" rel="noopener" data-kbtb="1">テレボートで買う ↗</a>';
   if(KB_MSG) h+='<p class="kb-msg" role="alert">'+esc(KB_MSG)+'</p>';
@@ -2027,6 +2042,7 @@ function kbBox(v,rno,rc,chR){
     }).join("")+'</ul>';
   }
   if(e) h+='<button type="button" class="kb-rec" data-kbm="1"><span>購入 '+(e.a!=null?kbYen(e.a):'—')+'</span><span>払戻 '+(e.p!=null?kbYen(e.p):'—')+'</span></button>';
+  h+='<a class="kb-all" href="../note/#bets"><span>保存した買い目とメモの一覧（観戦ノート）</span><span aria-hidden="true">›</span></a>';
   KB_JUST="";
   return h+'</section>';
 }
@@ -2038,7 +2054,7 @@ function kbSync(){
     var i=parseInt(el.getAttribute("data-kbp"),10), ln=parseInt(el.getAttribute("data-kbl"),10);
     el.setAttribute("aria-pressed",String(KB_SEL.s[i].indexOf(ln)>=0)); el.disabled=kbOff(i,ln);
   });
-  var pv=document.getElementById("kbPv"); if(pv){ pv.textContent=kbPvText(cmb); pv.hidden=!cmb.length; }
+  var pv=document.getElementById("kbPv"); if(pv) pv.textContent=kbPvText(cmb);
   var nn=document.getElementById("kbN"); if(nn) nn.textContent=cmb.length?cmb.length+"点":"艇番を押して選ぶ";
   var sv=document.getElementById("kbSave"); if(sv) sv.disabled=!cmb.length;
   var mg=s.querySelector(".kb-msg"); if(mg){ mg.parentNode.removeChild(mg); KB_MSG=""; }
@@ -2119,32 +2135,63 @@ function kbBar(){
   var sb=document.getElementById("kbBarSave"), n=kbCur().length;
   if(sb&&!sb.classList.contains("kb-ok")) sb.textContent=n?"保存 "+n+"点":"保存";
 }
-/* このレースの記録（購入額・払戻・メモ）。入力中に描き直されないよう #app の外に置く */
+/* このレースの記録（購入額・払戻・メモ）。下から出るシート。入力中に描き直されないよう #app の外に置く。
+   開いたときは入力欄にフォーカスしない（キーボードがいきなり出て画面が跳ねるため）。
+   キーボードが出たら visualViewport に合わせてシートの下端を持ち上げる */
+function kbSheetFit(){
+  if(!KB_DLG||!KB_DLG.open) return;
+  var vv=window.visualViewport, off=0, h=window.innerHeight;
+  if(vv){ off=Math.max(0,window.innerHeight-vv.height-vv.offsetTop); h=vv.height; }
+  KB_DLG.style.bottom=off+"px"; KB_DLG.style.maxHeight=Math.round(h*0.9)+"px";
+}
+function kbClose(fromPop){
+  if(!KB_DLG||!KB_DLG.open) return;
+  if(KB_DLG.close) KB_DLG.close(); else KB_DLG.removeAttribute("open");
+  document.documentElement.style.overflow="";
+  if(fromPop!==true){ try{ if(history.state&&history.state.kbSh) history.back(); }catch(e){} }
+}
 function kbOpen(){
   if(!KB_CUR) return;
   if(!KB_DLG){
-    KB_DLG=document.createElement("dialog"); KB_DLG.className="kb-dlg"; KB_DLG.setAttribute("aria-labelledby","kbDlgT");
-    KB_DLG.innerHTML='<form method="dialog"><h2 id="kbDlgT"></h2>'
-      +'<label>購入額（円）<input type="number" inputmode="numeric" min="0" step="100" id="kbA"></label>'
-      +'<label>払戻（円）<input type="number" inputmode="numeric" min="0" step="10" id="kbP"></label>'
-      +'<label>このレースのメモ<textarea id="kbM" rows="4" maxlength="400"></textarea></label>'
-      +'<div class="kb-pm" id="kbPm" aria-label="選手のメモ（観戦ノート）"></div>'
-      +'<div class="kb-dlgf"><button type="submit" value="cancel" class="kb-c">閉じる</button><button type="button" class="kb-save" id="kbDlgOk">記録する</button></div></form>';
+    KB_DLG=document.createElement("dialog"); KB_DLG.className="kb-sh"; KB_DLG.setAttribute("aria-labelledby","kbDlgT");
+    KB_DLG.innerHTML='<div class="kb-shg" aria-hidden="true"></div>'
+      +'<div class="kb-shh"><h2 id="kbDlgT"></h2><button type="button" class="kb-x" id="kbDlgX">閉じる</button></div>'
+      +'<div class="kb-shb">'
+      +'<div class="kb-amts"><div><label class="kb-lb" for="kbA">購入額</label><div class="kb-in"><input id="kbA" type="text" inputmode="numeric" autocomplete="off" placeholder="0"><span>円</span></div></div>'
+      +'<div><label class="kb-lb" for="kbP">払戻</label><div class="kb-in"><input id="kbP" type="text" inputmode="numeric" autocomplete="off" placeholder="0"><span>円</span></div></div></div>'
+      +'<div class="kb-qk" aria-label="購入額に足す"><button type="button" data-kbq="100">+100</button><button type="button" data-kbq="500">+500</button><button type="button" data-kbq="1000">+1,000</button><button type="button" data-kbq="0">0に戻す</button></div>'
+      +'<label class="kb-lb" for="kbM">このレースのメモ</label><textarea id="kbM" rows="3" maxlength="400" placeholder="例：展示で4号艇が伸びていた"></textarea>'
+      +'<div class="kb-lb">選手のメモ（観戦ノートに書く）</div><div class="kb-pm" id="kbPm"></div>'
+      +'</div>'
+      +'<div class="kb-shf"><button type="button" class="kb-save" id="kbDlgOk">記録する</button></div>';
     document.body.appendChild(KB_DLG);
     document.getElementById("kbDlgOk").onclick=function(){ kbRecord(); };
+    document.getElementById("kbDlgX").onclick=function(){ kbClose(); };
+    KB_DLG.addEventListener("click",function(e){ if(e.target===KB_DLG) kbClose(); });
+    KB_DLG.addEventListener("cancel",function(e){ e.preventDefault(); kbClose(); });
+    Array.prototype.forEach.call(KB_DLG.querySelectorAll("[data-kbq]"),function(b){
+      b.onclick=function(){ var el=document.getElementById("kbA"), q=parseInt(b.getAttribute("data-kbq"),10), cur=parseInt(String(el.value).replace(/[^0-9]/g,""),10)||0; el.value=q?String(cur+q):""; };
+    });
+    ["kbA","kbP"].forEach(function(id){ document.getElementById(id).addEventListener("input",function(){ var v=this.value.replace(/[^0-9]/g,"").slice(0,8); if(v!==this.value) this.value=v; }); });
+    window.addEventListener("popstate",function(){ kbClose(true); });
+    if(window.visualViewport){ window.visualViewport.addEventListener("resize",kbSheetFit); window.visualViewport.addEventListener("scroll",kbSheetFit); }
   }
   var c=KB_CUR, e=kbObj("dz_bets")[c.rid]||{}, m=kbObj("dz_rmemo")[c.rid]||{};
   document.getElementById("kbDlgT").textContent=c.v.name+" "+c.rno+"R の記録";
-  document.getElementById("kbA").value=e.a!=null?e.a:"";
-  document.getElementById("kbP").value=e.p!=null?e.p:"";
+  document.getElementById("kbA").value=e.a!=null?String(e.a):"";
+  document.getElementById("kbP").value=e.p!=null?String(e.p):"";
   document.getElementById("kbM").value=typeof m.t==="string"?m.t:"";
   document.getElementById("kbPm").innerHTML=(c.rc.boats||[]).map(function(r){
-    var tb=g(r,"登録番号"), nm=g(r,"氏名").replace(/　+/g,"");
-    return /^\d{4}$/.test(tb)?'<a href="../note/?toban='+esc(tb)+'">'+esc(g(r,"枠"))+' '+esc(nm)+'のメモ</a>':'';
+    var tb=g(r,"登録番号"), nm=g(r,"氏名").replace(/　+/g,""), ln=parseInt(g(r,"枠"),10), lc=LANE_COLOR[ln]||["#333","#fff"];
+    return /^\d{4}$/.test(tb)?'<a href="../note/?toban='+esc(tb)+'"><span class="kb-pmn" style="background:'+lc[0]+';color:'+lc[1]+'">'+ln+'</span>'+esc(nm)+'</a>':'';
   }).join("");
+  try{ var st={}; if(history.state&&typeof history.state==="object") for(var k in history.state) st[k]=history.state[k]; st.kbSh=1; history.pushState(st,""); }catch(x){}
+  document.documentElement.style.overflow="hidden";
+  KB_DLG.style.bottom="0px";
   if(KB_DLG.showModal) KB_DLG.showModal(); else KB_DLG.setAttribute("open","");
+  kbSheetFit();
 }
-function kbNum(id){ var s=String(document.getElementById(id).value||"").trim(); if(s==="") return null; var n=Math.round(Number(s)); return isFinite(n)&&n>=0?n:null; }
+function kbNum(id){ var s=String(document.getElementById(id).value||"").replace(/[^0-9]/g,""); if(s==="") return null; var n=parseInt(s,10); return isFinite(n)&&n>=0?n:null; }
 function kbRecord(){
   var c=KB_CUR; if(!c) return;
   var a=kbNum("kbA"), p=kbNum("kbP"), t=String(document.getElementById("kbM").value||"").trim().slice(0,400);
@@ -2155,7 +2202,7 @@ function kbRecord(){
   if(t) M[c.rid]={t:t,ts:Date.now()}; else delete M[c.rid];
   ok=kbPut("dz_bets",B)&&kbPut("dz_rmemo",M);
   KB_MSG=ok?"":"記録できませんでした。端末の空き容量か、プライベートブラウズの設定を確かめてください。";
-  if(KB_DLG.close) KB_DLG.close(); else KB_DLG.removeAttribute("open");
+  kbClose();
   kbRefresh();
 }
 
