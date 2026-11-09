@@ -4,7 +4,9 @@ name: 配信遅れ 警報
 #
 # 2026-11-09 JST 18:57 から約2時間、配信が止まっていた（Analytics Engine 未有効でアップロードが失敗）。
 # 気づくのが遅れたため、遅れを検知したら GitHub Issue を立てる（ラベル deploy-stale）。
-# Issue が立つと、リポジトリを見ている人（持ち主）に GitHub からメールが届く。Cloudflare 側の設定は要らない。
+# 異常のときはジョブを赤にする。「Cloudflare Pages 配信」の失敗と同じ GitHub Actions の失敗メールが届く
+# （11-09 の配信停止で、この種類のメールが持ち主に届いていることを確認済み。Issue の通知は届かなかった）。
+# Issue は記録として立てる。Cloudflare 側の設定は要らない。
 #
 # 判定は scripts/checkDeployLag.sh（しきい値の根拠もそちら）。
 # 冪等: deploy-stale の Open Issue が既にあれば新しく立てない。直ったら自動でコメントして閉じる。
@@ -86,6 +88,12 @@ jobs:
             gh issue close "$n" --repo "$GITHUB_REPOSITORY" --comment "$(printf '配信が追いついたので閉じます。\n\n%s' "$(cat deployLagSummary.md)")"
             echo "閉じた #$n"
           done
+
+      - name: 異常ならジョブを赤にする（失敗メールで知らせる）
+        if: steps.c.outputs.stale == '1'
+        run: |
+          echo "::error::配信遅れ：$(grep '判定の理由' deployLagSummary.md | sed 's/^- 判定の理由: //')"
+          exit 1
 
       - name: 結果
         if: always()
