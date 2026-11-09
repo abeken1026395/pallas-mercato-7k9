@@ -35,12 +35,12 @@ header .sub{margin:0;font-size:15px;line-height:1.85;color:var(--dim)}
 .tabs{display:flex;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--line)}
 .tabs::-webkit-scrollbar{display:none}
 .tabs button{flex:none;min-height:46px;padding:0 14px;background:none;border:none;border-bottom:2px solid transparent;color:var(--faint);font:700 15px -apple-system,"Hiragino Sans",sans-serif;cursor:pointer}
-.tabs button[aria-pressed="true"]{color:#fff;border-bottom-color:var(--gold)}
+.tabs button[aria-pressed="true"]{color:#0b1726;background:#eef3f8;border-bottom-color:#eef3f8} /* 選んでいる札はどのページも白地に紺（2026-11-09） */
 .rs{display:flex;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--line)}
 .rs::-webkit-scrollbar{display:none}
 .rs button{flex:none;width:44px;min-height:44px;border:none;border-bottom:3px solid transparent;background:none;color:var(--dim);font:600 19px var(--num);cursor:pointer;line-height:1}
 .rs button small{display:none}
-.rs button[aria-pressed="true"]{color:var(--gold);border-bottom-color:var(--gold)}
+.rs button[aria-pressed="true"]{color:#0b1726;background:#eef3f8;border-bottom-color:#eef3f8}
 .rs button:disabled{color:#5a6b80;cursor:default}
 /* レースの見出し（中継のヘッダ） */
 .rh{margin-top:14px;padding-bottom:8px;border-bottom:.5px solid var(--rule);display:grid;grid-template-columns:1fr auto;align-items:end;gap:2px 10px}
