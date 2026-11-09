@@ -489,6 +489,8 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .kb-pl{font-size:12px;color:#a3b4c6;white-space:nowrap}
 .kb-b{min-height:44px;font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;background:#13233a;color:#a3b4c6;border:1px solid #2c3e55;border-radius:0;cursor:pointer;touch-action:manipulation}
 .kb-b[aria-pressed="true"]{background:var(--kc);color:var(--kt);border:2px solid #eef3f8}
+.kb-b:disabled{opacity:.3;cursor:default}
+.kb-ms{display:flex;gap:4px;margin:0 0 12px}
 .kb-pv{font-size:13px;color:#c3ccd6;line-height:1.6;margin:8px 0 0;font-variant-numeric:tabular-nums;word-break:keep-all;overflow-wrap:anywhere}
 .kb-ft{display:flex;align-items:center;gap:12px;margin:12px 0 0}
 .kb-n{flex:1;font-size:14px;color:#c3ccd6;font-variant-numeric:tabular-nums}
@@ -1955,71 +1957,109 @@ var KB_T={"3t":["3連単",3,1],"3f":["3連複",3,0],"2t":["2連単",2,1],"2f":["
 var KB_ORDER=["3t","3f","2t","2f","kk","tn","fk"];
 var KB_POS=["1着","2着","3着"];
 var TELEBOAT_URL="https://spweb.brtb.jp/";
-var KB_SEL={rid:"",t:"3t",s:[[],[],[]]}, KB_CUR=null, KB_JUST="", KB_MSG="", KB_BACK=false, KB_BAR=null, KB_DLG=null;
+var KB_SEL={rid:"",t:"3t",m:"f",s:[[],[],[]]}, KB_CUR=null, KB_JUST="", KB_MSG="", KB_BACK=false, KB_BAR=null, KB_DLG=null;
 function kbObj(k){ var v=lsGet(k,{}); return (v&&typeof v==="object"&&!Array.isArray(v))?v:{}; }
 function kbPut(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); return true; }catch(e){ return false; } }
 function kbYen(n){ return Number(n).toLocaleString("ja-JP")+"円"; }
-function kbRows(t){ var d=KB_T[t]; return (d[2]&&d[1]>1)?d[1]:1; }
-function kbCombos(t,s){
+/* ボックスを選べるのは着順のある 2連単・3連単だけ（連複は選んだ艇の組＝そもそもボックス） */
+function kbHasBox(t){ var d=KB_T[t]; return !!(d&&d[2]&&d[1]>1); }
+function kbRows(t,m){ return (kbHasBox(t)&&m!=="b")?KB_T[t][1]:1; }
+function kbLabel(x){ return (KB_T[x.t]||[String(x.t)])[0]+(x.m==="b"?"ボックス":""); }
+function kbCombos(t,s,m){
   var d=KB_T[t], c=d[1], out=[], i, j, k, num=function(a,b){ return a-b; };
+  var p=s[0].slice().sort(num);
+  if(d[2]&&c>1&&m==="b"){
+    for(i=0;i<p.length;i++) for(j=0;j<p.length;j++){ if(j===i) continue;
+      if(c===2){ out.push(p[i]+"-"+p[j]); continue; }
+      for(k=0;k<p.length;k++) if(k!==i&&k!==j) out.push(p[i]+"-"+p[j]+"-"+p[k]);
+    }
+    return out;
+  }
   if(d[2]){
-    var a=s[0].slice().sort(num), b=s[1].slice().sort(num), e=s[2].slice().sort(num);
+    var a=p, b=s[1].slice().sort(num), e=s[2].slice().sort(num);
     if(c===1) return a.map(String);
     a.forEach(function(x){ b.forEach(function(y){ if(y===x) return;
       if(c===2){ out.push(x+"-"+y); return; }
       e.forEach(function(z){ if(z!==x&&z!==y) out.push(x+"-"+y+"-"+z); }); }); });
     return out;
   }
-  var p=s[0].slice().sort(num);
   for(i=0;i<p.length;i++) for(j=i+1;j<p.length;j++){
     if(c===2){ out.push(p[i]+"="+p[j]); continue; }
     for(k=j+1;k<p.length;k++) out.push(p[i]+"="+p[j]+"="+p[k]);
   }
   return out;
 }
+function kbCur(){ return kbCombos(KB_SEL.t,KB_SEL.s,KB_SEL.m); }
+/* フォーメーションで、ほかの着に1艇だけ選ばれている艇は、その着では押せない（1-1-1 のような組を作らせない） */
+function kbOff(i,ln){
+  if(kbRows(KB_SEL.t,KB_SEL.m)<2||KB_SEL.s[i].indexOf(ln)>=0) return false;
+  for(var j=0;j<KB_SEL.s.length;j++) if(j!==i&&KB_SEL.s[j].length===1&&KB_SEL.s[j][0]===ln) return true;
+  return false;
+}
+function kbPvText(cmb){ return cmb.length?cmb.slice(0,20).join("　")+(cmb.length>20?"　ほか"+(cmb.length-20)+"点":""):""; }
 function kbBox(v,rno,rc,chR){
   var rid=rkey(v.jcd,v.hd,rno);
-  if(KB_SEL.rid!==rid){ KB_SEL={rid:rid,t:KB_SEL.t,s:[[],[],[]]}; KB_MSG=""; }
+  if(KB_SEL.rid!==rid){ KB_SEL={rid:rid,t:KB_SEL.t,m:KB_SEL.m,s:[[],[],[]]}; KB_MSG=""; }
   KB_CUR={rid:rid,v:v,rno:rno,rc:rc,ch:!!chR};
   if(chR) return '';
-  var t=KB_SEL.t, n=kbRows(t), cmb=kbCombos(t,KB_SEL.s), i, ln;
+  var t=KB_SEL.t, m=KB_SEL.m, n=kbRows(t,m), cmb=kbCur(), i, ln;
   var h='<section class="kb" id="kb" aria-labelledby="kbH"><h2 class="kb-h" id="kbH">買い目を保存</h2><p class="kb-note">この端末にだけ残ります。機種変更のときは「フォローの控え」で移せます。</p>';
   h+='<div class="kb-ts">'+KB_ORDER.map(function(k){ return '<button type="button" class="kb-t" data-kbt="'+k+'" aria-pressed="'+(k===t)+'">'+KB_T[k][0]+'</button>'; }).join("")+'</div>';
+  if(kbHasBox(t)) h+='<div class="kb-ms">'+[["f","フォーメーション"],["b","ボックス"]].map(function(x){ return '<button type="button" class="kb-t" data-kbm2="'+x[0]+'" aria-pressed="'+(x[0]===m)+'">'+x[1]+'</button>'; }).join("")+'</div>';
   for(i=0;i<n;i++){
-    h+='<div class="kb-row" role="group" aria-label="'+(n>1?KB_POS[i]:'選ぶ艇')+'"><span class="kb-pl">'+(n>1?KB_POS[i]:'選ぶ艇')+'</span>';
+    var pl=n>1?KB_POS[i]:'選ぶ艇';
+    h+='<div class="kb-row" role="group" aria-label="'+pl+'"><span class="kb-pl">'+pl+'</span>';
     for(ln=1;ln<=6;ln++){
       var on=KB_SEL.s[i].indexOf(ln)>=0, c=LANE_COLOR[ln]||["#333","#fff"];
-      h+='<button type="button" class="kb-b" data-kbp="'+i+'" data-kbl="'+ln+'" aria-pressed="'+on+'" aria-label="'+(n>1?KB_POS[i]+' ':'')+ln+'号艇" style="--kc:'+c[0]+';--kt:'+c[1]+'">'+ln+'</button>';
+      h+='<button type="button" class="kb-b" data-kbp="'+i+'" data-kbl="'+ln+'" aria-pressed="'+on+'"'+(kbOff(i,ln)?' disabled':'')+' aria-label="'+(n>1?pl+' ':'')+ln+'号艇" style="--kc:'+c[0]+';--kt:'+c[1]+'">'+ln+'</button>';
     }
     h+='</div>';
   }
-  if(cmb.length) h+='<div class="kb-pv">'+esc(cmb.slice(0,20).join("　"))+(cmb.length>20?'　ほか'+(cmb.length-20)+'点':'')+'</div>';
-  h+='<div class="kb-ft"><span class="kb-n" role="status">'+(cmb.length?cmb.length+'点':'艇番を押して選ぶ')+'</span><button type="button" class="kb-save" id="kbSave"'+(cmb.length?'':' disabled')+'>保存</button></div>';
+  h+='<div class="kb-pv" id="kbPv"'+(cmb.length?'':' hidden')+'>'+esc(kbPvText(cmb))+'</div>';
+  h+='<div class="kb-ft"><span class="kb-n" id="kbN" role="status">'+(cmb.length?cmb.length+'点':'艇番を押して選ぶ')+'</span><button type="button" class="kb-save" id="kbSave"'+(cmb.length?'':' disabled')+'>保存</button></div>';
   h+='<a class="kb-tb" href="'+TELEBOAT_URL+'" target="_blank" rel="noopener" data-kbtb="1">テレボートで買う ↗</a>';
   if(KB_MSG) h+='<p class="kb-msg" role="alert">'+esc(KB_MSG)+'</p>';
   var e=kbObj("dz_bets")[rid];
   if(e&&Array.isArray(e.b)&&e.b.length){
     h+='<ul class="kb-sv" aria-label="保存した買い目">'+e.b.map(function(x,i){
       var k=Array.isArray(x.k)?x.k:[];
-      return '<li'+(KB_JUST===rid+":"+i?' class="kb-pop"':'')+'><span class="kb-st">'+esc((KB_T[x.t]||[String(x.t)])[0])+'</span><span class="kb-sk">'+esc(k.join("　"))+'</span><span class="kb-sn">'+k.length+'点</span><button type="button" class="kb-del" data-kbd="'+i+'" aria-label="この買い目を消す">消す</button></li>';
+      return '<li'+(KB_JUST===rid+":"+i?' class="kb-pop"':'')+'><span class="kb-st">'+esc(kbLabel(x))+'</span><span class="kb-sk">'+esc(x.m==="b"&&Array.isArray(x.s)?x.s.join("・"):k.join("　"))+'</span><span class="kb-sn">'+k.length+'点</span><button type="button" class="kb-del" data-kbd="'+i+'" aria-label="この買い目を消す">消す</button></li>';
     }).join("")+'</ul>';
   }
   if(e) h+='<button type="button" class="kb-rec" data-kbm="1"><span>購入 '+(e.a!=null?kbYen(e.a):'—')+'</span><span>払戻 '+(e.p!=null?kbYen(e.p):'—')+'</span></button>';
   KB_JUST="";
   return h+'</section>';
 }
+/* 艇番を押したときは、その場の表示だけを書き換える（節ごと作り直すと画面がちらつくため） */
+function kbSync(){
+  var s=document.getElementById("kb"); if(!s) return;
+  var cmb=kbCur();
+  Array.prototype.forEach.call(s.querySelectorAll("[data-kbl]"),function(el){
+    var i=parseInt(el.getAttribute("data-kbp"),10), ln=parseInt(el.getAttribute("data-kbl"),10);
+    el.setAttribute("aria-pressed",String(KB_SEL.s[i].indexOf(ln)>=0)); el.disabled=kbOff(i,ln);
+  });
+  var pv=document.getElementById("kbPv"); if(pv){ pv.textContent=kbPvText(cmb); pv.hidden=!cmb.length; }
+  var nn=document.getElementById("kbN"); if(nn) nn.textContent=cmb.length?cmb.length+"点":"艇番を押して選ぶ";
+  var sv=document.getElementById("kbSave"); if(sv) sv.disabled=!cmb.length;
+  var mg=s.querySelector(".kb-msg"); if(mg){ mg.parentNode.removeChild(mg); KB_MSG=""; }
+  kbBar();
+}
 function kbBind(root){
   var s=root&&root.querySelector?(root.id==="kb"?root:root.querySelector("#kb")):null;
   kbBar();
   if(!s) return;
   Array.prototype.forEach.call(s.querySelectorAll("[data-kbt]"),function(el){
-    el.onclick=function(){ KB_SEL.t=el.getAttribute("data-kbt"); KB_SEL.s=[[],[],[]]; KB_MSG=""; kbRefresh(); };
+    el.onclick=function(){ var t=el.getAttribute("data-kbt"); if(t===KB_SEL.t) return; KB_SEL.t=t; KB_SEL.s=[[],[],[]]; KB_MSG=""; kbRefresh(); };
+  });
+  Array.prototype.forEach.call(s.querySelectorAll("[data-kbm2]"),function(el){
+    el.onclick=function(){ var m=el.getAttribute("data-kbm2"); if(m===KB_SEL.m) return; KB_SEL.m=m; KB_SEL.s=[[],[],[]]; KB_MSG=""; kbRefresh(); };
   });
   Array.prototype.forEach.call(s.querySelectorAll("[data-kbl]"),function(el){
     el.onclick=function(){
+      if(el.disabled) return;
       var a=KB_SEL.s[parseInt(el.getAttribute("data-kbp"),10)], l=parseInt(el.getAttribute("data-kbl"),10), ix=a.indexOf(l);
       if(ix>=0) a.splice(ix,1); else a.push(l);
-      KB_MSG=""; kbRefresh();
+      kbSync();
     };
   });
   Array.prototype.forEach.call(s.querySelectorAll("[data-kbd]"),function(el){
@@ -2037,10 +2077,10 @@ function kbRefresh(){
 }
 function kbSave(){
   if(!KB_CUR||KB_CUR.ch) return false;
-  var cmb=kbCombos(KB_SEL.t,KB_SEL.s); if(!cmb.length) return false;
+  var cmb=kbCur(); if(!cmb.length) return false;
   var B=kbObj("dz_bets"), c=KB_CUR, e=B[c.rid];
   if(!e||typeof e!=="object"||!Array.isArray(e.b)) e={v:c.v.name,j:c.v.jcd,h:c.v.hd,r:c.rno,d:c.rc.deadline||"",b:[],a:null,p:null};
-  e.b.push({t:KB_SEL.t,k:cmb,ts:Date.now()}); B[c.rid]=e;
+  e.b.push(kbHasBox(KB_SEL.t)&&KB_SEL.m==="b"?{t:KB_SEL.t,m:"b",s:KB_SEL.s[0].slice().sort(function(a,b){return a-b;}),k:cmb,ts:Date.now()}:{t:KB_SEL.t,k:cmb,ts:Date.now()}); B[c.rid]=e;
   if(!kbPut("dz_bets",B)){ KB_MSG="保存できませんでした。端末の空き容量か、プライベートブラウズの設定を確かめてください。"; kbRefresh(); return false; }
   KB_SEL.s=[[],[],[]]; KB_MSG=""; KB_JUST=c.rid+":"+(e.b.length-1);
   kbRefresh(); return true;
@@ -2060,7 +2100,7 @@ function kbBar(){
     document.body.appendChild(KB_BAR);
     document.getElementById("kbBarSave").onclick=function(){
       var b=this;
-      if(kbCombos(KB_SEL.t,KB_SEL.s).length&&kbSave()){
+      if(kbCur().length&&kbSave()){
         b.textContent="保存しました"; b.classList.remove("kb-ok"); void b.offsetWidth; b.classList.add("kb-ok");
         setTimeout(function(){ b.classList.remove("kb-ok"); kbBar(); },800);
         return;
@@ -2076,7 +2116,7 @@ function kbBar(){
   }
   var on=view.page==="race"&&!!KB_CUR&&!KB_CUR.ch&&!!document.getElementById("kb");
   KB_BAR.hidden=!on; document.body.classList.toggle("kb-has",on);
-  var sb=document.getElementById("kbBarSave"), n=kbCombos(KB_SEL.t,KB_SEL.s).length;
+  var sb=document.getElementById("kbBarSave"), n=kbCur().length;
   if(sb&&!sb.classList.contains("kb-ok")) sb.textContent=n?"保存 "+n+"点":"保存";
 }
 /* このレースの記録（購入額・払戻・メモ）。入力中に描き直されないよう #app の外に置く */
