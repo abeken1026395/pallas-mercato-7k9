@@ -96,7 +96,9 @@
   td.pl{white-space:nowrap;}
   td.num,th.num{text-align:right;}
   tr.win td{color:var(--win);font-weight:700;}
-  .nm{white-space:nowrap;}
+  .nm{white-space:nowrap;position:relative;}
+  /* 名前の当たりを、行の高さいっぱい・欄の幅いっぱいに広げる（文字の大きさは変えない。2026-11-09） */
+  .nm .pname::after{content:"";position:absolute;inset:0;}
   /* 氏名から選手図鑑へ。色は行に合わせる（1着行は緑のまま）。
      出走表の「詳細」バッジは列幅が足りず着が切れるため、ここでは下線で示す */
   .nm .pname{display:inline-block;min-height:24px;line-height:24px;vertical-align:middle;
@@ -532,7 +534,7 @@ init();
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics --><script src=/assets/raihou.js defer></script>
 <!-- kata6:body -->
 <script src="../assets/kata/kata.js?v=ecd47e51"></script>
-<script src="../assets/siteFrame.js?v=66b9b4c4"></script>
+<script src="../assets/siteFrame.js?v=ae333c81"></script>
 <script src="../assets/ugoki.js?v=e40e8a0a"></script>
 <!-- /kata6:body -->
 </body>
