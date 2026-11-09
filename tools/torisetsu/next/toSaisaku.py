@@ -41,7 +41,7 @@ def prod_html():
         '<meta property="og:type" content="article">\n'
         '<meta property="og:title" content="データ攻め トリセツ">\n'
         '<meta property="og:description" content="' + DESC + '">\n'
-        '<meta property="og:image" content="https://abeken1026395.github.io/pallas-mercato-7k9/icon512.png">\n'
+        '<meta property="og:image" content="https://abeken1026395.github.io/pallas-mercato-7k9/ogp.png">\n'
         '<meta property="og:url" content="' + URL + '">\n'
         '<meta property="og:site_name" content="データ攻め">\n'
         '<meta name="twitter:card" content="summary">\n'
