@@ -173,6 +173,11 @@ a[href]:active,button:not(:disabled):active,summary:active,[role=button]:active,
 .raihou b{color:#eef3f8;font-weight:700}
 .raihou span{display:block}
 .sh a{margin-left:auto;display:inline-flex;align-items:center;min-height:44px;font-size:14px;font-weight:600;color:var(--blue);letter-spacing:0;padding:0 0 0 16px}
+/* 1画面目の帯（電子書籍の動画の告知・2026-11-10） */
+.obi{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px;margin:8px 0 0;padding:0 0 0 12px;border:1px solid var(--line);border-left:3px solid var(--gold);background:var(--cell);color:var(--tx);text-decoration:none}
+.obi[hidden]{display:none}
+.obi-t{min-width:0;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.obi-go{flex:none;align-self:stretch;display:flex;align-items:center;font-size:14px;font-weight:700;color:var(--gold);padding:0 12px;white-space:nowrap}
 /* お知らせ */
 .ann{display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
 .an{display:flex;flex-direction:column;gap:2px;padding:12px 14px;background:var(--cell);border:1px solid var(--line)}
@@ -294,6 +299,15 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
 <script>/* 日付は最初の描画の前に入れる（後から入ると帯の高さが変わって下が全部ずれる・2026-11-10） */(function(){var d=new Date(Date.now()+9*3600e3);document.getElementById("capD").textContent=(d.getUTCMonth()+1)+"月"+d.getUTCDate()+"日（"+"日月火水木金土".charAt(d.getUTCDay())+"）";})();</script>
 
 <div class="wrap">
+<a class="obi" id="ebObi" href="./in/top/ebook-obi/" target="_blank" rel="noopener"><span class="obi-t" id="ebObiT">電子書籍 第2話 11日21時</span><span class="obi-go" id="ebObiG">受け取る ›</span></a>
+<script>/* 電子書籍の動画（全3話）の告知は、日本時間で今どの話の前後かで文面を変える。第2話 11/11 21時・第3話 11/12 21時（2026-11-10 けん）。11/14 0時で帯を消す */
+window.dzEb=function(){var n=Date.now(),t2=Date.UTC(2026,10,11,12),t3=Date.UTC(2026,10,12,12),te=Date.UTC(2026,10,13,15),
+day=function(t){return new Date(t+9*3600e3).toISOString().slice(0,10);},
+w=function(t,lab){return (day(n)===day(t)?"今夜21時":lab);};
+if(n<t2) return {obi:"電子書籍 第2話 "+w(t2,"11日21時"),card:"専用オープンチャット｜第2話 "+(day(n)===day(t2)?"今夜21時":"11/11（水）21時")};
+if(n<t3) return {obi:"電子書籍 第3話 "+w(t3,"12日21時"),card:"専用オープンチャット｜第3話 "+(day(n)===day(t3)?"今夜21時":"11/12（木）21時")};
+if(n<te) return {go:"オプチャへ ›",obi:"電子書籍 全3話 配信済み",card:"専用オープンチャット｜全3話を配信しました"};
+return {obi:"",card:"専用オープンチャット｜全3話を配信しました"};};(function(){var e=window.dzEb(),a=document.getElementById("ebObi");if(!e.obi){a.hidden=true;return;}document.getElementById("ebObiT").textContent=e.obi;if(e.go)document.getElementById("ebObiG").textContent=e.go;})();</script>
 <p class="raihou" id="raihouLine" hidden></p>
 <script>/* 来訪の1行は todayTop.json が届いてから入るので、出る行数ぶんの高さを先に空けておく（連続来訪が続く人は2行・2026-11-10） */(function(){var el=document.getElementById("raihouLine"),n=1;try{var V=JSON.parse(localStorage.getItem("dz_visit")||"{}")||{},j=new Date(Date.now()+9*3600e3),td=j.toISOString().slice(0,10).replace(/-/g,""),yd=new Date(j.getTime()-864e5).toISOString().slice(0,10).replace(/-/g,""),st=+V.streak||0;if((V.last===td&&st>=2)||(V.last===yd&&st>=1))n=2;}catch(e){}el.style.minHeight=(n*1.6)+"em";el.hidden=false;})();</script>
 <section class="fol" id="kbTop" hidden aria-label="保存した買い目">
@@ -396,7 +410,7 @@ window.dzFold=function(rows,key){
 
   <h2 class="sh" style="margin-top:14px">お知らせ</h2>
 <section class="ann" aria-label="お知らせ">
-  <a class="an pri" href="./in/top/ebook-card/" target="_blank" rel="noopener"><small>専用オープンチャット｜第1話 11/9（月）21時</small><b>電子書籍を動画で配信（全3話）</b><span>書籍づくりの裏側も毎日お届けしています</span><em>オプチャで受け取る ›</em></a>
+  <a class="an pri" href="./in/top/ebook-card/" target="_blank" rel="noopener"><small id="ebCardS">専用オープンチャット｜第2話 11/11（水）21時</small><b>電子書籍を動画で配信（全3話）</b><span>書籍づくりの裏側も毎日お届けしています</span><em>オプチャで受け取る ›</em></a><script>(function(){try{document.getElementById("ebCardS").textContent=window.dzEb().card;}catch(e){}})();</script>
   <a class="an pri" href="./in/top/yosou-card/" target="_blank" rel="noopener"><small>LINE オープンチャット</small><b>AI予想部屋</b><span>AIが出した買い目（有料note）の更新と、当たったレースの結果が届きます</span><em>LINEで受け取る ›</em></a>
   <div class="an pri yt"><small>阿部より</small><b>YouTubeは11月末に再開します</b></div>
   <a class="an upd" id="updL" href="./updates/" hidden><small id="updD">更新</small><span id="updT"></span></a>
