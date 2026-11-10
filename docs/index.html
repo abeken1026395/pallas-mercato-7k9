@@ -173,11 +173,21 @@ a[href]:active,button:not(:disabled):active,summary:active,[role=button]:active,
 .raihou b{color:#eef3f8;font-weight:700}
 .raihou span{display:block}
 .sh a{margin-left:auto;display:inline-flex;align-items:center;min-height:44px;font-size:14px;font-weight:600;color:var(--blue);letter-spacing:0;padding:0 0 0 16px}
-/* 1画面目の帯（電子書籍の動画の告知・2026-11-10） */
-.obi{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px;margin:8px 0 0;padding:0 0 0 12px;border:1px solid var(--line);border-left:3px solid var(--gold);background:var(--cell);color:var(--tx);text-decoration:none}
+/* 1画面目の帯（電子書籍の動画の告知・2026-11-10、11-11 作り直し：表紙・全3話の位置・無料と人数・続きの一文） */
+.obi{display:flex;align-items:center;gap:12px;margin:8px 0 0;padding:10px 12px;border:1px solid var(--gold);background:#1a2638;color:var(--tx);text-decoration:none}
 .obi[hidden]{display:none}
-.obi-t{min-width:0;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.obi-go{flex:none;align-self:stretch;display:flex;align-items:center;font-size:14px;font-weight:700;color:var(--gold);padding:0 12px;white-space:nowrap}
+.obi-im{flex:none;width:56px;height:56px;display:block;object-fit:cover;border:1px solid rgba(233,180,90,.5)}
+.obi-b{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.obi-l{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--gold);white-space:nowrap}
+.obi-dots{display:inline-flex;gap:3px}
+.obi-dots i{width:7px;height:7px;border-radius:50%;border:1px solid var(--gold);display:block}
+.obi-dots i.on{background:var(--gold)}
+.obi-dots i.nx{box-shadow:0 0 0 2px rgba(233,180,90,.35)}
+.obi-free{font-size:12px;font-weight:700;color:#0b1726;background:var(--gold);padding:0 5px;line-height:1.5}
+.obi-t{font-size:16px;font-weight:800;line-height:1.35;color:#fff;word-break:keep-all;overflow-wrap:anywhere}
+.obi-p{display:block;font-size:14px;font-weight:600;color:#d6e0ea}
+.obi-m{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;color:#d6e0ea}
+.obi-go{flex:none;font-size:14px;font-weight:700;color:var(--gold);white-space:nowrap}
 /* お知らせ */
 .ann{display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
 .an{display:flex;flex-direction:column;gap:2px;padding:12px 14px;background:var(--cell);border:1px solid var(--line)}
@@ -299,15 +309,16 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
 <script>/* 日付は最初の描画の前に入れる（後から入ると帯の高さが変わって下が全部ずれる・2026-11-10） */(function(){var d=new Date(Date.now()+9*3600e3);document.getElementById("capD").textContent=(d.getUTCMonth()+1)+"月"+d.getUTCDate()+"日（"+"日月火水木金土".charAt(d.getUTCDay())+"）";})();</script>
 
 <div class="wrap">
-<a class="obi" id="ebObi" href="./in/top/ebook-obi/" target="_blank" rel="noopener"><span class="obi-t" id="ebObiT">電子書籍 第2話 11日21時</span><span class="obi-go" id="ebObiG">受け取る ›</span></a>
-<script>/* 電子書籍の動画（全3話）の告知は、日本時間で今どの話の前後かで文面を変える。第2話 11/11 21時・第3話 11/12 21時（2026-11-10 けん）。11/14 0時で帯を消す */
+<a class="obi" id="ebObi" href="./in/top/ebook-obi/" target="_blank" rel="noopener"><img class="obi-im" src="./assets/ebookEp2.jpg" width="56" height="56" alt=""><span class="obi-b"><span class="obi-l"><span id="ebObiL">第2話 11日（水）21時</span><span class="obi-dots" id="ebObiD" aria-label="全3話のうち第2話"><i class="on"></i><i class="nx"></i><i></i></span><span class="obi-free">無料</span></span><span class="obi-t"><span class="obi-p">第1話は、僕の話でした。</span>第2話からは、あなたの話です。</span><span class="obi-m"><span>340人以上が登録</span><span class="obi-go">受け取る ›</span></span></span></a>
+<script>/* 電子書籍の動画（全3話・無料）の告知。日本時間で今どの話の前後かで文面を変える。第2話 11/11 21時・第3話 11/12 21時（2026-11-10 けん）。11/14 0時で帯を消す。
+   ねらい（2026-11-11 けん「好奇心や心理に何の作用もない」）：続きの話（第2話からは、あなたの話）・全3話のどこか（●●○）・無料と実際の登録人数・表紙の画像で、ほかの枠と見分けがつくようにする。人数は けん申告の実数（11/11 350人）から減る見込みのぶん余裕を取り「340人以上」（けん 11/11） */
 window.dzEb=function(){var n=Date.now(),t2=Date.UTC(2026,10,11,12),t3=Date.UTC(2026,10,12,12),te=Date.UTC(2026,10,13,15),
 day=function(t){return new Date(t+9*3600e3).toISOString().slice(0,10);},
 w=function(t,lab){return (day(n)===day(t)?"今夜21時":lab);};
-if(n<t2) return {obi:"電子書籍 第2話 "+w(t2,"11日21時"),card:"専用オープンチャット｜第2話 "+(day(n)===day(t2)?"今夜21時":"11/11（水）21時")};
-if(n<t3) return {obi:"電子書籍 第3話 "+w(t3,"12日21時"),card:"専用オープンチャット｜第3話 "+(day(n)===day(t3)?"今夜21時":"11/12（木）21時")};
-if(n<te) return {go:"オプチャへ ›",obi:"電子書籍 全3話 配信済み",card:"専用オープンチャット｜全3話を配信しました"};
-return {obi:"",card:"専用オープンチャット｜全3話を配信しました"};};(function(){var e=window.dzEb(),a=document.getElementById("ebObi");if(!e.obi){a.hidden=true;return;}document.getElementById("ebObiT").textContent=e.obi;if(e.go)document.getElementById("ebObiG").textContent=e.go;})();</script>
+if(n<t2) return {k:1,lab:"第2話 "+w(t2,"11日（水）21時"),card:"専用オープンチャット｜第2話 "+(day(n)===day(t2)?"今夜21時":"11/11（水）21時")};
+if(n<t3) return {k:2,lab:"第3話 "+w(t3,"12日（木）21時"),card:"専用オープンチャット｜第3話 "+(day(n)===day(t3)?"今夜21時":"11/12（木）21時")};
+if(n<te) return {k:3,lab:"全3話 配信済み",card:"専用オープンチャット｜全3話を配信しました"};
+return {k:0,card:"専用オープンチャット｜全3話を配信しました"};};(function(){var e=window.dzEb(),a=document.getElementById("ebObi");if(!e.k){a.hidden=true;return;}document.getElementById("ebObiL").textContent=e.lab;var d=document.getElementById("ebObiD").children;for(var i=0;i<3;i++)d[i].className=(i<e.k?"on":(i===e.k?"nx":""));document.getElementById("ebObiD").setAttribute("aria-label",e.k<3?"全3話のうち"+e.k+"話まで配信":"全3話を配信");})();</script>
 <p class="raihou" id="raihouLine" hidden></p>
 <script>/* 来訪の1行は todayTop.json が届いてから入るので、出る行数ぶんの高さを先に空けておく（連続来訪が続く人は2行・2026-11-10） */(function(){var el=document.getElementById("raihouLine"),n=1;try{var V=JSON.parse(localStorage.getItem("dz_visit")||"{}")||{},j=new Date(Date.now()+9*3600e3),td=j.toISOString().slice(0,10).replace(/-/g,""),yd=new Date(j.getTime()-864e5).toISOString().slice(0,10).replace(/-/g,""),st=+V.streak||0;if((V.last===td&&st>=2)||(V.last===yd&&st>=1))n=2;}catch(e){}el.style.minHeight=(n*1.6)+"em";el.hidden=false;})();</script>
 <section class="fol" id="kbTop" hidden aria-label="保存した買い目">
