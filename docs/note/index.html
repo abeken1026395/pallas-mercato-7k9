@@ -6,10 +6,10 @@
 <meta charset="UTF-8">
 <meta name="author" content="阿部（データ攻め）">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>観戦ノート｜データ攻め</title>
+<title>自分の記録｜データ攻め</title>
 <link rel="canonical" href="https://abeken1026395.github.io/pallas-mercato-7k9/note/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="観戦ノート｜データ攻め">
+<meta property="og:title" content="自分の記録｜データ攻め">
 <meta property="og:description" content="保存した買い目、選手のメモ、舟券の支出を、この端末の中だけに記録するノート。">
 <meta property="og:url" content="https://abeken1026395.github.io/pallas-mercato-7k9/note/">
 <!-- kata6:head -->
@@ -18,7 +18,7 @@
 <link rel="stylesheet" href="../assets/ugoki.css?v=a0c08edf">
 <!-- /kata6:head -->
 <style>
-/* 観戦ノート：この端末の中だけに保存するメモと支出の記録。サーバーには送らない
+/* 自分の記録：この端末の中だけに保存するメモと支出の記録。サーバーには送らない
    本番の新しい型（assets/kata/kata.css・第6版）にそろえる：平らな紺・角は四角・暗い箱は罫線に・金の差し色・数字は Barlow Condensed */
 :root{--fg:#f2f2f0;--sub:#cdd7e0;--dim:#aebccb;--line:rgba(232,236,239,.18);--line2:rgba(232,236,239,.32);--gold:#dcbd78;--goldBg:#c8a45e;--rule:rgba(212,176,106,.6);--plus:#9be39b;--minus:#ff9c8f;
   --font:-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;--num:"Barlow Condensed","Hiragino Sans",-apple-system,sans-serif}
@@ -75,7 +75,10 @@ textarea{min-height:96px;resize:vertical;line-height:1.7}
 .bet li b{font-size:12px;color:#0b1726;background:#eef3f8;padding:1px 6px;white-space:nowrap}
 .bet li span{font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 .bet li i{font-style:normal;font-size:12px;color:var(--dim);white-space:nowrap}
-.bet .m{display:flex;gap:16px;margin-top:6px;font-size:14px;color:var(--sub);font-variant-numeric:tabular-nums}
+.bet .m{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:6px;font-size:14px;color:var(--sub);font-variant-numeric:tabular-nums}
+.bet .res{margin-top:6px;font-size:14px;line-height:1.6;color:var(--sub);font-variant-numeric:tabular-nums}
+.bet .res.hit{color:var(--fg)}
+.bet .res.hit b{color:#7fb4ff}
 .bet .t{white-space:pre-wrap;word-break:break-word;margin-top:6px;font-size:14px;color:var(--fg);border-left:2px solid var(--line2);padding-left:8px}
 .empty{color:var(--dim);font-size:13px;padding:6px 0}
 .sum{display:grid;grid-template-columns:repeat(2,1fr);margin-top:10px;border-top:1px solid var(--line)}
@@ -109,7 +112,7 @@ footer{margin-top:24px;font-size:13px;color:var(--dim);line-height:1.85}
 <div class="wrap">
 <div class="nav"><a href="../">データ攻め</a></div>
 <header>
-  <h1 class="kataTitle">観戦ノート</h1>
+  <h1 class="kataTitle">自分の記録</h1>
   <p class="lead">保存した買い目と、選手のメモ、舟券の支出の記録。書いた内容はこの端末のブラウザの中だけに残り、データ攻めには送られません。</p>
 </header>
 
@@ -198,6 +201,7 @@ footer{margin-top:24px;font-size:13px;color:var(--dim);line-height:1.85}
 <footer>舟券の購入は20歳になってから。<br>ここに書いた内容は、この端末のブラウザにだけ保存されます（データ攻めのサーバーには届きません）。</footer>
 </div>
 
+<script src="../assets/kotaeawase.js?v=1"></script>
 <script>
 (function(){
 var V=["","桐生","戸田","江戸川","平和島","多摩川","浜名湖","蒲郡","常滑","津","三国","びわこ","住之江","尼崎","鳴門","丸亀","児島","宮島","徳山","下関","若松","芦屋","福岡","唐津","大村"];
@@ -280,45 +284,69 @@ function drawMoney(){
 }
 $("log").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;if(b.dataset.armed){money=money.filter(function(x){return x.id!==b.dataset.x});save(KS,money);drawMoney()}else{b.dataset.armed="1";b.textContent="消す"}});
 
-/* ---------- 保存した買い目（出走表の dz_bets／dz_rmemo。どちらもレースIDキーのオブジェクト） ---------- */
+/* ---------- 保存した買い目・見送り（出走表の dz_bets／dz_rmemo／dz_skip。どれもレースIDキーのオブジェクト）
+   答え合わせは ../assets/kotaeawase.js（DZK）。結果データは表示している日の分だけ読み、届いたら描き直す ---------- */
 var BT={"3t":"3連単","3f":"3連複","2t":"2連単","2f":"2連複","kk":"拡連複","tn":"単勝","fk":"複勝"};
 function loadO(k){try{var v=JSON.parse(localStorage.getItem(k)||"{}");return v&&typeof v==="object"&&!Array.isArray(v)?v:{}}catch(e){return {}}}
 function saveO(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}
-var BPER="m0";
+var BPER="m0", RES={}, RESDAY={};
 $("bper").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;BPER=b.dataset.p;[].forEach.call($("bper").children,function(x){x.setAttribute("aria-pressed",x===b)});drawBets()});
 function inBPer(hd){if(BPER==="all")return true;var t=today(),y=+t.slice(0,4),m=+t.slice(5,7);if(BPER==="m1"){m-=1;if(!m){m=12;y-=1}}return hd.slice(0,6)===String(y)+("0"+m).slice(-2)}
 function betRows(){
-  var B=loadO("dz_bets"),M=loadO("dz_rmemo"),ks={};Object.keys(B).concat(Object.keys(M)).forEach(function(k){if(/^\d{2}_\d{8}_\d{1,2}$/.test(k))ks[k]=1});
-  return Object.keys(ks).map(function(k){var p=k.split("_"),e=B[k]&&typeof B[k]==="object"?B[k]:{},m=M[k]&&typeof M[k]==="object"?M[k]:{};
-    /* 引き継ぎなどで壊れた値が入っていても、ページを止めずに捨てる */
-    var okN=function(x){return typeof x==="number"&&isFinite(x)&&x>=0&&x<1e9};
-    var bs=(Array.isArray(e.b)?e.b:[]).filter(function(x){return x&&typeof x==="object"&&BT[x.t]&&Array.isArray(x.k)}).map(function(x){
-      return {t:x.t,m:x.m==="b"?"b":"",s:Array.isArray(x.s)?x.s.filter(function(n){return n>=1&&n<=6&&n===Math.floor(n)}):[],k:x.k.filter(function(s){return typeof s==="string"&&/^[1-6]([-=][1-6]){0,2}$/.test(s)})}}).filter(function(x){return x.k.length});
-    return {k:k,j:p[0],hd:p[1],r:+p[2],d:typeof e.d==="string"&&/^\d{1,2}:\d{2}$/.test(e.d)?e.d:"",b:bs,a:okN(e.a)?e.a:null,p:okN(e.p)?e.p:null,t:typeof m.t==="string"?m.t:""}})
+  var B=loadO("dz_bets"),M=loadO("dz_rmemo"),S=loadO("dz_skip"),ks={};
+  Object.keys(B).concat(Object.keys(M),Object.keys(S)).forEach(function(k){if(/^\d{2}_\d{8}_\d{1,2}$/.test(k))ks[k]=1});
+  return Object.keys(ks).map(function(k){
+    var p=k.split("_"),m=M[k]&&typeof M[k]==="object"?M[k]:{};
+    /* 引き継ぎなどで壊れた値が入っていても、ページを止めずに捨てる（DZK.entry） */
+    var en=(window.DZK&&DZK.entry(B[k]))||{d:"",b:[],a:null,p:null,u:null};
+    var sk=S[k]&&typeof S[k]==="object"?S[k]:null;
+    var d=en.d||(sk&&typeof sk.d==="string"&&/^\d{1,2}:\d{2}$/.test(sk.d)?sk.d:"");
+    return {k:k,j:p[0],hd:p[1],r:+p[2],d:d,en:en,skip:!!sk&&!en.b.length,t:typeof m.t==="string"?m.t:""}})
+    .filter(function(x){return x.en.b.length||x.skip||x.t||x.en.a!=null||x.en.p!=null})
     .sort(function(x,y){return y.hd.localeCompare(x.hd)||(y.d||"").localeCompare(x.d||"")||y.r-x.r});
+}
+/* 表示している日の結果を読み、届いたら1回だけ描き直す */
+function needResults(xs){
+  if(!window.DZK)return;
+  var days={};xs.forEach(function(x){if((x.en.b.length||x.skip)&&!RESDAY[x.hd])days[x.hd]=1});
+  Object.keys(days).forEach(function(hd){RESDAY[hd]=1;DZK.day(hd).then(function(m){var ch=false;Object.keys(m).forEach(function(k){if(!RES[k]){RES[k]=m[k];ch=true}});if(ch)drawBets()})});
 }
 function drawBets(){
   var xs=betRows().filter(function(x){return inBPer(x.hd)});
-  var withA=xs.filter(function(x){return x.a!=null}),buy=0,pay=0;withA.forEach(function(x){buy+=x.a;pay+=x.p||0});
-  var nBets=0;xs.forEach(function(x){nBets+=x.b.length});
+  needResults(xs);
+  var buy=0,pay=0,nA=0,nHit=0,nMiss=0,nGood=0,nBets=0;
+  var J=xs.map(function(x){
+    nBets+=x.en.b.length;
+    if(x.skip){var s=window.DZK?DZK.skipJudge(RES[x.k]||null):{state:"pending"};if(s.state==="good")nGood++;return {skip:s}}
+    var j=window.DZK?DZK.judge(x.en,RES[x.k]||null):{state:"pending",a:x.en.a,p:x.en.p,hits:[]};
+    if(j.state==="hit")nHit++;else if(j.state==="miss")nMiss++;
+    /* 回収率に入れるのは、購入額と払戻が両方分かるレースだけ。結果待ち・払戻の分からない的中は入れない（外れは払戻0円として入れる） */
+    var pp=j.p!=null?j.p:(j.state==="miss"?0:null);
+    if(j.a!=null&&pp!=null&&j.state!=="pending"){nA++;buy+=j.a;pay+=pp}
+    return {j:j};
+  });
   $("bsum").innerHTML='<div><div class="k">保存したレース</div><div class="v">'+xs.length+"<small>レース</small></div></div>"
-    +'<div><div class="k">回収率（払戻÷購入）</div><div class="v">'+(buy?Math.round(pay/buy*100)+"<small>%</small>":"—")+"</div></div>"
-    +'<div><div class="k">購入</div><div class="v">'+buy.toLocaleString()+"<small>円</small></div></div>"
-    +'<div><div class="k">払戻</div><div class="v">'+pay.toLocaleString()+"<small>円</small></div></div>";
-  $("bnote").textContent=xs.length?"回収率は、購入額を入れた "+withA.length+" レースで計算しています（払戻を入れていないレースは 0 円として数えます）。":"";
+    +'<div><div class="k">回収率（払戻÷購入）</div><div class="v">'+(buy?Math.round(pay/buy*100)+"<small>%（"+nA+"レース）</small>":"—")+"</div></div>"
+    +'<div><div class="k">的中／外れ</div><div class="v">'+nHit+"<small>／</small>"+nMiss+"</div></div>"
+    +'<div><div class="k">見送り成功</div><div class="v">'+nGood+"<small>回</small></div></div>";
+  $("bnote").textContent=xs.length?"回収率は、購入額と払戻が分かる "+nA+" レースで計算しています（結果待ちと、払戻の分からない的中は入れません。購入 "+buy.toLocaleString()+" 円・払戻 "+pay.toLocaleString()+" 円）。見送り成功は、見送ったレースの3連単が "+(window.DZK?DZK.ARE:10000).toLocaleString()+" 円以上だった回数です。":"";
   $("b-count").textContent=xs.length?xs.length+"レース・買い目"+nBets+"件":"";
-  $("b-list").innerHTML=xs.length?xs.map(function(x){
-    var dd=+x.hd.slice(4,6)+"/"+(+x.hd.slice(6,8));
-    return '<div class="bet"><div class="h"><a href="../racers/#v'+esc(x.j)+'">'+dd+" "+esc(V[+x.j]||x.j)+" "+x.r+"R</a><small>"+(x.d?"締切 "+esc(x.d):"")+"</small></div>"
-      +(x.b.length?"<ul>"+x.b.map(function(b){var k=Array.isArray(b.k)?b.k:[];return "<li><b>"+esc((BT[b.t]||b.t)+(b.m==="b"?"ボックス":""))+"</b><span>"+esc(b.m==="b"&&b.s.length?b.s.join("・"):k.join("　"))+"</span><i>"+k.length+"点</i></li>"}).join("")+"</ul>":"")
-      +((x.a!=null||x.p!=null)?'<div class="m"><span>購入 '+(x.a!=null?x.a.toLocaleString()+"円":"—")+"</span><span>払戻 "+(x.p!=null?x.p.toLocaleString()+"円":"—")+"</span></div>":"")
+  $("b-list").innerHTML=xs.length?xs.map(function(x,i){
+    var dd=+x.hd.slice(4,6)+"/"+(+x.hd.slice(6,8)),R=J[i],st="";
+    if(R.skip) st=R.skip.state==="good"?'<div class="res hit"><b>見送り成功</b> 3連単 '+R.skip.san.toLocaleString()+'円</div>':R.skip.state==="plain"?'<div class="res">見送り（3連単 '+R.skip.san.toLocaleString()+'円）</div>':'<div class="res">見送り・結果待ち</div>';
+    else if(x.en.b.length) st=R.j.state==="hit"?'<div class="res hit"><b>的中</b> '+R.j.hits.map(function(h){return esc(BT[h.t]+" "+h.k)+" "+h.pay.toLocaleString()+"円"}).join("　")+"</div>":R.j.state==="miss"?'<div class="res">外れ</div>':'<div class="res">結果待ち</div>';
+    var j=R.j;
+    return '<div class="bet"><div class="h"><a href="../racers/#v'+esc(x.j)+"r"+x.r+"d"+esc(x.hd)+'">'+dd+" "+esc(V[+x.j]||x.j)+" "+x.r+"R</a><small>"+(x.d?"締切 "+esc(x.d):"")+"</small></div>"
+      +(x.en.b.length?"<ul>"+x.en.b.map(function(b){return "<li><b>"+esc((BT[b.t]||b.t)+(b.m==="b"?"ボックス":""))+"</b><span>"+esc(b.m==="b"&&b.s&&b.s.length?b.s.join("・"):b.k.join("　"))+"</span><i>"+b.k.length+"点</i></li>"}).join("")+"</ul>":"")
+      +st
+      +(j&&(j.a!=null||j.p!=null)?'<div class="m"><span>購入 '+(j.a!=null?j.a.toLocaleString()+"円"+(j.autoA?"（自動）":""):"—")+"</span><span>払戻 "+(j.p!=null?j.p.toLocaleString()+"円"+(j.autoP?"（自動）":""):"—")+"</span>"+(function(){var pp=j.p!=null?j.p:(j.state==="miss"?0:null);return (j.a>0&&pp!=null&&j.state!=="pending")?"<span>回収率 "+Math.round(pp/j.a*100)+"%</span>":""})()+"</div>":"")
       +(x.t?'<div class="t">'+esc(x.t)+"</div>":"")
       +'<div class="memo ops" style="border:0;padding:0"><button class="btn small sub" type="button" data-bd="'+esc(x.k)+'">このレースを消す</button></div></div>';
   }).join(""):'<div class="empty">'+(BPER==="all"?"まだ保存した買い目はありません。出走表のレース画面で、艇番を押して「保存」を押すとここに並びます。":"この期間に保存した買い目はありません。")+"</div>";
 }
 $("b-list").addEventListener("click",function(e){var b=e.target.closest("button");if(!b||!b.dataset.bd)return;
   if(!b.dataset.armed){b.dataset.armed="1";b.textContent="もう一度押すと消えます";return}
-  var B=loadO("dz_bets"),M=loadO("dz_rmemo");delete B[b.dataset.bd];delete M[b.dataset.bd];saveO("dz_bets",B);saveO("dz_rmemo",M);drawBets()});
+  var B=loadO("dz_bets"),M=loadO("dz_rmemo"),S=loadO("dz_skip");delete B[b.dataset.bd];delete M[b.dataset.bd];delete S[b.dataset.bd];saveO("dz_bets",B);saveO("dz_rmemo",M);saveO("dz_skip",S);drawBets()});
 
 /* ---------- データの管理 ---------- */
 $("x-out").onclick=function(){
@@ -332,7 +360,7 @@ $("x-in").addEventListener("change",function(){
     var have={};memos.forEach(function(m){have[m.id]=1});var nm=(j.memo||[]).filter(function(m){return m&&m.id&&!have[m.id]});memos=memos.concat(nm);
     var hv={};money.forEach(function(x){hv[x.id]=1});var nx=(j.money||[]).filter(function(x){return x&&x.id&&!hv[x.id]});money=money.concat(nx);
     save(KM,memos);save(KS,money);drawMemos();drawMoney();$("x-msg").textContent="メモ"+nm.length+"件・支出"+nx.length+"件を足しました（同じものは足していません）。";
-  }catch(e){$("x-msg").textContent="観戦ノートのファイルではないようです。"}};
+  }catch(e){$("x-msg").textContent="自分の記録のファイルではないようです。"}};
   rd.readAsText(f);this.value="";
 });
 $("x-del").onclick=function(){$("x-confirm").hidden=false};

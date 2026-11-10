@@ -241,6 +241,14 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
 .sheet .sh2{grid-column:1/-1;padding:12px 18px 4px;font-size:12px;color:var(--dim);border-bottom:1px solid var(--line)}
 .sheet .hint{grid-column:1/-1;padding:10px 18px;font-size:14px;line-height:1.7;color:var(--dim);border-bottom:1px solid var(--line)}
 .sheet a.full{grid-column:1/-1;border-right:0}
+/* メニューの中身：用途ごとの4つのまとまりと、ページ名の下の1行の説明（2026-11-10） */
+.sheet .g2{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,1fr)}
+.sheet .g2 a{flex-direction:column;align-items:flex-start;justify-content:center;gap:4px;height:auto;min-height:60px;padding:10px 18px;border-right:0}
+.sheet .g2 a:nth-child(odd){border-right:1px solid var(--line)}
+.sheet .g2 a:last-child:nth-child(odd){grid-column:1/-1;border-right:0}
+.sheet .g2 b{font-weight:600;line-height:1.3}
+.sheet .g2 small{display:block;font-size:12px;font-weight:400;line-height:1.4;color:var(--dim)}
+.sheet .sh2{padding:14px 18px 6px}
 
 /* 有料noteへの導線（2026-11-06 けん：有料の買い目を売っていく） */
 .prb{display:block;background:#18263a;border-bottom:1px solid rgba(233,180,90,.45)}
@@ -361,25 +369,36 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
 
 <div class="shbd" id="shbd" hidden></div>
 <div class="sheet" id="sheet" hidden><div class="sheet-in">
-  <a href="./motor/">モーター</a>
-  <a href="./players/">選手図鑑</a>
-  <a href="./stadium/">24場</a>
-  <a href="./banzuke/">24場番付</a>
-  <a href="./kensho/">検証</a>
-  <a href="./updates/">更新履歴</a>
-  <a href="./torisetsu/">トリセツ</a>
-  <div class="sh2">ほかのページ</div>
-  <a href="./payouts/">万舟のツボ</a>
-  <a href="./motor-maintenance/">モーター整備</a>
-  <a href="./players/card.html">選手カード</a>
-  <a href="./note/">観戦ノート</a>
-  <a href="./ichimark/">1マークの見立て</a>
-  <a href="./glossary/">用語辞典</a>
-  <a href="./fan/">場の文化</a>
-  <a href="./announcers/">実況アナ図鑑</a>
-  <a href="./uranai/">選手占い</a>
-  <a href="https://note.com/abeken2000" target="_blank" rel="noopener">有料note（外部）</a>
-  <a class="full" href="./hikae/">フォローの控え（機種変更・アイコンの置き直し）</a>
+  <div class="sh2">今日のレースに使う</div>
+  <div class="g2">
+    <a href="./motor/"><b>モーター</b><small>各場のモーター成績</small></a>
+    <a href="./motor-maintenance/"><b>モーター整備</b><small>部品交換と整備の記録</small></a>
+    <a href="./ichimark/"><b>1マークの見立て</b><small>展示前の1周目の見立て図</small></a>
+    <a href="./note/"><b>自分の記録</b><small>買い目・メモ・収支の記録</small></a>
+  </div>
+  <div class="sh2">選手と場を調べる</div>
+  <div class="g2">
+    <a href="./players/"><b>選手図鑑</b><small>全選手の成績と経歴</small></a>
+    <a href="./players/card.html"><b>選手カード</b><small>全選手の中での位置</small></a>
+    <a href="./stadium/"><b>24場</b><small>水面・風・潮の特性</small></a>
+    <a href="./banzuke/"><b>24場番付</b><small>10年分で並べた場の格</small></a>
+    <a href="./payouts/"><b>万舟のツボ</b><small>場別の荒れ率と高配当</small></a>
+  </div>
+  <div class="sh2">読む・楽しむ</div>
+  <div class="g2">
+    <a href="./kensho/"><b>検証</b><small>定説をデータで確かめる</small></a>
+    <a href="./fan/"><b>場の文化</b><small>締切BGM・予想屋</small></a>
+    <a href="./announcers/"><b>実況アナ図鑑</b><small>24場の実況アナ</small></a>
+    <a href="./uranai/"><b>選手占い</b><small>暦で見る今日の勝負運</small></a>
+    <a href="https://note.com/abeken2000" target="_blank" rel="noopener"><b>有料note（外部）</b><small>買い目の販売ページ</small></a>
+  </div>
+  <div class="sh2">使い方と設定</div>
+  <div class="g2">
+    <a href="./torisetsu/"><b>トリセツ</b><small>このサイトの使い方</small></a>
+    <a href="./glossary/"><b>用語辞典</b><small>競艇の言葉の意味</small></a>
+    <a href="./updates/"><b>更新履歴</b><small>最近変わったところ</small></a>
+    <a href="./hikae/"><b>フォローの控え</b><small>機種変更で記録を移す</small></a>
+  </div>
   <div class="hint">ホーム画面に置くと、朝いちばんに開けます。iPhone：Safari の共有ボタンから「ホーム画面に追加」。Android：Chrome の右上「︙」から「ホーム画面に追加」。</div>
 </div></div>
 <nav class="tb" aria-label="ページ"><div class="tb-in">
@@ -387,7 +406,7 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
   <a href="./racers/"><svg viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="16"/><path d="M3.5 9.3h17M3.5 14.6h17M8 4v16"/></svg>出走表</a>
   <a href="./highlights/"><svg viewBox="0 0 24 24"><path d="M5 21V3.5"/><path d="M5 4.5c3-1.6 5.5 1.6 8.5 0s4.5-.6 5.5 0v7.5c-1-.6-2.5-1.6-5.5 0S8 10.4 5 12"/></svg>見どころ</a>
   <a href="./results/"><svg viewBox="0 0 24 24"><path d="M5 21V3.5"/><rect x="5" y="4" width="14" height="9"/><path d="M5 7h14M5 10h14M8.5 4v9M12 4v9M15.5 4v9"/></svg>結果</a>
-  <button id="moreBtn" aria-expanded="false" aria-controls="sheet"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>その他</button>
+  <button id="moreBtn" aria-expanded="false" aria-controls="sheet"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>メニュー</button>
 </div></nav>
 
 <script>
@@ -752,6 +771,7 @@ function lineBoxes(){
   }).catch(function(){});
 })();
 </script>
+<script src="./assets/kotaeawase.js?v=1"></script>
 <script>
 /* 保存した買い目（再訪設計書 izonSekkei 段階1・2026-11-10）。出走表で保存した dz_bets を、この端末の中だけで読む。
    今日のレースがあれば締切順に、無ければ最近の3レースを日付つきで。1件も無ければ何も出さない */
@@ -767,17 +787,27 @@ function lineBoxes(){
     var bs=e.b.filter(function(x){ return x&&typeof x==="object"&&Array.isArray(x.k)&&x.k.length; });
     if(!bs.length) return null;
     var d=typeof e.d==="string"&&/^(\d{1,2}):(\d{2})$/.exec(e.d), t=d?Date.UTC(+m[2].slice(0,4),+m[2].slice(4,6)-1,+m[2].slice(6,8),+d[1]-9,+d[2]):0;
-    return {j:m[1],hd:m[2],r:+m[3],d:d?e.d:"",t:t,b:bs};
+    return {k:k,j:m[1],hd:m[2],r:+m[3],d:d?e.d:"",t:t,b:bs};
   }).filter(Boolean);
   if(!xs.length) return;
   var td=xs.filter(function(x){ return x.hd===today; }).sort(function(a,b){ return a.t-b.t||a.r-b.r; });
   var show=td.length?td:xs.sort(function(a,b){ return b.hd.localeCompare(a.hd)||b.t-a.t; }).slice(0,3);
-  document.getElementById("kbTopRows").innerHTML=show.map(function(x){
-    var n=0; x.b.forEach(function(b){ n+=b.k.length; });
-    var st=x.hd!==today?(+x.hd.slice(4,6)+"/"+(+x.hd.slice(6,8))):(x.t&&x.t<=now?"締切済み":"締切 "+x.d);
-    return '<a class="fol-r" href="./racers/#v'+x.j+'r'+x.r+'d'+x.hd+'"><span class="fol-k">'+x.r+'R</span><span class="fol-n">'+esc(VN[x.j]||x.j)+'</span><span class="fol-v"><b>'+n+'点</b>　'+esc(st)+'</span></a>';
-  }).join("");
+  /* 締切後のレースは答え合わせ（../assets/kotaeawase.js）。結果が届いたら「的中」「外れ」に変える */
+  var RES={};
+  function draw(){
+    document.getElementById("kbTopRows").innerHTML=show.map(function(x){
+      var n=0; x.b.forEach(function(b){ n+=b.k.length; });
+      var st=x.hd!==today?(+x.hd.slice(4,6)+"/"+(+x.hd.slice(6,8))):(x.t&&x.t<=now?"締切済み":"締切 "+x.d), hit=false;
+      if(window.DZK&&RES[x.k]){ var J=DZK.judge(DZK.entry(B[x.k])||{b:[]},RES[x.k]); if(J.state==="hit"){ st="的中"; hit=true; } else if(J.state==="miss") st="外れ"; }
+      return '<a class="fol-r" href="./racers/#v'+x.j+'r'+x.r+'d'+x.hd+'"><span class="fol-k">'+x.r+'R</span><span class="fol-n">'+esc(VN[x.j]||x.j)+'</span><span class="fol-v"><b>'+n+'点</b>　'+(hit?'<b style="color:#7fb4ff">的中</b>':esc(st))+'</span></a>';
+    }).join("");
+  }
+  draw();
   document.getElementById("kbTop").hidden=false;
+  if(window.DZK){
+    var days={}; show.forEach(function(x){ if(x.t&&x.t<=now) days[x.hd]=1; });
+    Object.keys(days).forEach(function(hd){ DZK.day(hd).then(function(m){ var ch=false; show.forEach(function(x){ if(m[x.k]&&!RES[x.k]){ RES[x.k]=m[x.k]; ch=true; } }); if(ch) draw(); }); });
+  }
 })();
 </script>
 <script src="./assets/shinchaku.js?v=2" defer></script>

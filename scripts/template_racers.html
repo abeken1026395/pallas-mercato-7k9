@@ -509,6 +509,21 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .kb-rec{display:flex;justify-content:space-between;align-items:center;width:100%;min-height:44px;margin:8px 0 0;padding:0 12px;font-size:14px;color:#eef3f8;background:#13233a;border:1px solid #2c3e55;border-radius:0;font-variant-numeric:tabular-nums;cursor:pointer}
 .kb-msg{font-size:13px;color:#a3b4c6;margin:8px 0 0}
 .kb-lock{font-size:14px;line-height:1.6;color:#c3ccd6;margin:0 0 8px;padding:12px;background:#13233a;border:1px solid #2c3e55}
+.kb-skip{display:flex;align-items:center;gap:12px;margin:12px 0 0;font-size:13px;line-height:1.6;color:#a3b4c6}
+.kb-skip span{flex:1}
+.kb-sk2{flex:none;min-height:44px;padding:0 12px;font-size:14px;font-weight:700;color:#eef3f8;background:none;border:1px solid #2c3e55;border-radius:0;cursor:pointer}
+.kb-res{margin:12px 0 0;padding:12px;font-size:14px;line-height:1.6;font-variant-numeric:tabular-nums}
+.kb-hit{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;background:#13233a;border:1px solid #7fb4ff;color:#eef3f8}
+.kb-hit b{font-size:16px;color:#7fb4ff}
+.kb-hit .kb-pay{flex-basis:100%;font-size:14px;color:#c3ccd6}
+.kb-hit .kb-pay i{font-style:normal;font-size:18px;font-weight:700;color:#eef3f8}
+.kb-rr{flex-basis:100%;display:block;font-size:14px;color:#c3ccd6}
+.kb-rr b{font-size:16px;color:#eef3f8}
+.kb-miss .kb-rr{display:inline;margin-left:12px;color:#a3b4c6}
+.kb-miss{color:#a3b4c6;border-top:1px solid rgba(255,255,255,.09);padding-left:0}
+.kb-wait{color:#a3b4c6;border-top:1px solid rgba(255,255,255,.09);padding-left:0}
+@keyframes kbPop2{0%{transform:scale(.9);opacity:0}100%{transform:scale(1);opacity:1}}
+.kb-pop2{animation:kbPop2 .6s cubic-bezier(.34,1.56,.64,1)}
 @keyframes kbPop{0%{transform:scale(.94);opacity:0}100%{transform:scale(1);opacity:1}}
 .kb-pop{animation:kbPop .32s cubic-bezier(.34,1.56,.64,1)}
 .kb-bar{position:fixed;left:0;right:0;bottom:calc(58px + env(safe-area-inset-bottom));z-index:59;background:#0e1d30;border-top:1px solid rgba(255,255,255,.09)}
@@ -543,7 +558,7 @@ body.kb-has{padding-bottom:calc(118px + env(safe-area-inset-bottom))!important}
 .kb-shf{padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,.09)}
 .kb-shf .kb-save{width:100%}
 .kb-all{display:flex;align-items:center;justify-content:space-between;min-height:44px;margin:8px 0 0;font-size:14px;color:#a3b4c6;text-decoration:none}
-@media (prefers-reduced-motion:reduce){.kb-pop,.kb-bari .kb-ok,.kb-sh[open]{animation:none}}
+@media (prefers-reduced-motion:reduce){.kb-pop,.kb-pop2,.kb-bari .kb-ok,.kb-sh[open]{animation:none}}
 </style>
 <!-- kata6:head -->
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&amp;family=Dela+Gothic+One&amp;display=swap" rel="stylesheet">
@@ -590,6 +605,7 @@ body.kb-has{padding-bottom:calc(118px + env(safe-area-inset-bottom))!important}
 
 <script src="../assets/haranLv.js"></script>
 <script src="../assets/oshiMotor.js?v=6e528453"></script>
+<script src="../assets/kotaeawase.js?v=1"></script>
 <script>
 var RAW = __DATA_PLACEHOLDER__;
 /* 誕生日マーク {開催日:{登録番号:1}}。該当者のみ。判定は scripts/birthdayMark.py */
@@ -1998,6 +2014,16 @@ var KB_ORDER=["3t","3f","2t","2f","kk","tn","fk"];
 var KB_POS=["1着","2着","3着"];
 var TELEBOAT_URL="https://spweb.brtb.jp/";
 var KB_SEL={rid:"",t:"3t",m:"f",s:[[],[],[]]}, KB_CUR=null, KB_JUST="", KB_MSG="", KB_BACK=false, KB_BAR=null, KB_DLG=null;
+var KB_RACE={}; /* 答え合わせ用の結果。rid -> 結果のレース（まだ無ければ未定義）。assets/kotaeawase.js の DZK.day で読む */
+function kbSkipObj(){ return kbObj("dz_skip"); }
+/* 締切後、そのレースの結果を読みにいく。読めたら #kb だけ描き直す（5分のあいだは同じ結果を使い回す） */
+function kbFetchResult(rid,hd){
+  if(!window.DZK) return;
+  DZK.day(hd).then(function(m){
+    var r=m[rid]||null, had=Object.prototype.hasOwnProperty.call(KB_RACE,rid)&&KB_RACE[rid];
+    if(r&&!had){ KB_RACE[rid]=r; if(KB_CUR&&KB_CUR.rid===rid) kbRefresh(); }
+  });
+}
 function kbObj(k){ var v=lsGet(k,{}); return (v&&typeof v==="object"&&!Array.isArray(v))?v:{}; }
 function kbOkN(x){ return typeof x==="number"&&isFinite(x)&&x>=0&&x<1e9; }
 function kbEntry(e){
@@ -2007,10 +2033,12 @@ function kbEntry(e){
     if(x.m==="b"&&kbHasBox(x.t)){ o.m="b"; o.s=(Array.isArray(x.s)?x.s:[]).filter(function(n){ return n>=1&&n<=6&&n===Math.floor(n); }); }
     return o;
   }).filter(function(x){ return x.k.length; });
-  return {v:typeof e.v==="string"?e.v:"",j:typeof e.j==="string"?e.j:"",h:typeof e.h==="string"?e.h:"",r:kbOkN(e.r)?e.r:0,d:typeof e.d==="string"?e.d:"",b:b,a:kbOkN(e.a)?e.a:null,p:kbOkN(e.p)?e.p:null};
+  return {v:typeof e.v==="string"?e.v:"",j:typeof e.j==="string"?e.j:"",h:typeof e.h==="string"?e.h:"",r:kbOkN(e.r)?e.r:0,d:typeof e.d==="string"?e.d:"",b:b,a:kbOkN(e.a)?e.a:null,p:kbOkN(e.p)?e.p:null,u:kbOkN(e.u)&&e.u>0?e.u:null};
 }
 function kbPut(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); return true; }catch(e){ return false; } }
 function kbYen(n){ return Number(n).toLocaleString("ja-JP")+"円"; }
+/* 1レースの回収率。購入額と払戻が両方分かるときだけ出す */
+function kbRate(a,p){ return (a>0&&p!=null)?'<span class="kb-rr">回収率 <b>'+Math.round(p/a*100)+'%</b>（購入 '+kbYen(a)+'）</span>':''; }
 /* ボックスを選べるのは着順のある 2連単・3連単だけ（連複は選んだ艇の組＝そもそもボックス） */
 function kbHasBox(t){ var d=KB_T[t]; return !!(d&&d[2]&&d[1]>1); }
 function kbRows(t,m){ return (kbHasBox(t)&&m!=="b")?KB_T[t][1]:1; }
@@ -2072,15 +2100,42 @@ function kbBox(v,rno,rc,chR){
     h+='<a class="kb-tb" href="'+TELEBOAT_URL+'" target="_blank" rel="noopener" data-kbtb="1">テレボートで買う ↗</a>';
   }
   if(KB_MSG) h+='<p class="kb-msg" role="alert">'+esc(KB_MSG)+'</p>';
-  var e=kbEntry(kbObj("dz_bets")[rid]);
+  var e=kbEntry(kbObj("dz_bets")[rid]), sk=kbSkipObj()[rid];
+  if(!cl&&!(e&&e.b.length)){
+    h+=sk?'<div class="kb-skip"><span>このレースは見送りにしています。荒れたら「見送り成功」として残ります。</span><button type="button" class="kb-sk2" data-kbskip="0">見送りをやめる</button></div>'
+         :'<div class="kb-skip"><span>買わないと決めたレースは、見送りとして残せます。</span><button type="button" class="kb-sk2" data-kbskip="1">見送る</button></div>';
+  }
+  if(cl&&((e&&e.b.length)||sk)){
+    var race=KB_RACE[rid];
+    if(race===undefined) kbFetchResult(rid,v.hd);
+    if(e&&e.b.length){
+      var J=window.DZK?DZK.judge(DZK.entry(e),race||null):null;
+      if(J&&J.state==="hit"){
+        var seen=kbObj("dz_hitSeen"), first=!seen[rid];
+        h+='<div class="kb-res kb-hit'+(first?' kb-pop2':'')+'" role="status"><b>的中</b><span>'+J.hits.map(function(x){ return esc(KB_T[x.t][0]+" "+x.k)+" "+kbYen(x.pay); }).join("　")+'</span>'
+          +(J.p!=null?'<span class="kb-pay">払戻 <i data-kbcount="'+J.p+'">'+(first?'0円':kbYen(J.p))+'</i>'+(J.autoP?'（1点'+kbYen(e.u)+'で計算）':'')+'</span>'+kbRate(J.a,J.p):'<span class="kb-pay">配当は100円あたり。「記録」で1点の金額か払戻を入れると、回収率に入ります</span>')+'</div>';
+        if(first){ seen[rid]=Date.now(); kbPut("dz_hitSeen",seen); }
+      }else if(J&&J.state==="miss"){
+        h+='<div class="kb-res kb-miss" role="status">外れ'+(J.a!=null?'<span class="kb-rr">購入 '+kbYen(J.a)+'・回収率 0%</span>':'')+'</div>';
+      }else{
+        h+='<div class="kb-res kb-wait" role="status">結果待ち。結果は20〜60分おきに入ります。</div>';
+      }
+    }else{
+      var S=window.DZK?DZK.skipJudge(race||null):{state:"pending"};
+      h+=S.state==="good"?'<div class="kb-res kb-hit" role="status"><b>見送り成功</b><span>3連単 '+kbYen(S.san)+'</span></div>'
+        :S.state==="plain"?'<div class="kb-res kb-miss" role="status">見送り（3連単 '+kbYen(S.san)+'）</div>'
+        :'<div class="kb-res kb-wait" role="status">見送り。結果は20〜60分おきに入ります。</div>';
+    }
+  }
   if(e&&e.b.length){
     h+='<ul class="kb-sv" aria-label="保存した買い目">'+e.b.map(function(x,i){
       var k=x.k;
-      return '<li'+(KB_JUST===rid+":"+i?' class="kb-pop"':'')+'><span class="kb-st">'+esc(kbLabel(x))+'</span><span class="kb-sk">'+esc(x.m==="b"&&x.s.length?x.s.join("・"):k.join("　"))+'</span><span class="kb-sn">'+k.length+'点</span><button type="button" class="kb-del" data-kbd="'+i+'" aria-label="この買い目を消す">消す</button></li>';
+      return '<li'+(KB_JUST===rid+":"+i?' class="kb-pop"':'')+'><span class="kb-st">'+esc(kbLabel(x))+'</span><span class="kb-sk">'+esc(x.m==="b"&&x.s.length?x.s.join("・"):k.join("　"))+'</span><span class="kb-sn">'+k.length+'点</span>'+(cl?'<span></span>':'<button type="button" class="kb-del" data-kbd="'+i+'" aria-label="この買い目を消す">消す</button>')+'</li>';
     }).join("")+'</ul>';
   }
-  h+='<button type="button" class="kb-rec" data-kbm="1"><span>購入 '+(e&&e.a!=null?kbYen(e.a):'—')+'</span><span>払戻 '+(e&&e.p!=null?kbYen(e.p):'—')+'</span></button>';
-  h+='<a class="kb-all" href="../note/#bets"><span>保存した買い目とメモの一覧（観戦ノート）</span><span aria-hidden="true">›</span></a>';
+  var JJ=(e&&window.DZK)?DZK.judge(DZK.entry(e),KB_RACE[rid]||null):null;
+  h+='<button type="button" class="kb-rec" data-kbm="1"><span>購入 '+(JJ&&JJ.a!=null?kbYen(JJ.a)+(JJ.autoA?'（自動）':''):'—')+'</span><span>払戻 '+(JJ&&JJ.p!=null?kbYen(JJ.p)+(JJ.autoP?'（自動）':''):'—')+'</span></button>';
+  h+='<a class="kb-all" href="../note/#bets"><span>保存した買い目とメモの一覧（自分の記録）</span><span aria-hidden="true">›</span></a>';
   KB_JUST="";
   return h+'</section>';
 }
@@ -2122,6 +2177,22 @@ function kbBind(root){
   var sv=s.querySelector("#kbSave"); if(sv) sv.onclick=function(){ kbSave(); };
   var rc=s.querySelector("[data-kbm]"); if(rc) rc.onclick=function(){ kbOpen(); };
   var tb=s.querySelector("[data-kbtb]"); if(tb) tb.onclick=function(){ KB_BACK=true; };
+  var sk=s.querySelector("[data-kbskip]"); if(sk) sk.onclick=function(){
+    if(!KB_CUR||isClosed(KB_CUR.v.hd,KB_CUR.rc.deadline)) return;
+    var S=kbSkipObj();
+    if(sk.getAttribute("data-kbskip")==="1") S[KB_CUR.rid]={ts:Date.now(),v:KB_CUR.v.name,d:KB_CUR.rc.deadline||""}; else delete S[KB_CUR.rid];
+    if(!kbPut("dz_skip",S)) KB_MSG="保存できませんでした。端末の空き容量か、プライベートブラウズの設定を確かめてください。";
+    kbRefresh();
+  };
+  /* 的中の払戻を 0 から数え上げる（400ms・動きを減らす設定では最初から最終値） */
+  Array.prototype.forEach.call(s.querySelectorAll("[data-kbcount]"),function(el){
+    var to=parseInt(el.getAttribute("data-kbcount"),10)||0;
+    if(el.textContent===kbYen(to)) return;
+    var rm=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if(rm||!window.requestAnimationFrame){ el.textContent=kbYen(to); return; }
+    var t0=null; function step(ts){ if(t0===null) t0=ts; var q=Math.min(1,(ts-t0)/400), e=1-Math.pow(1-q,3); el.textContent=kbYen(Math.round(to*e)); if(q<1) requestAnimationFrame(step); }
+    requestAnimationFrame(step);
+  });
 }
 function kbRefresh(){
   var s=document.getElementById("kb"); if(!s||!KB_CUR) return;
@@ -2138,11 +2209,13 @@ function kbSave(){
   e.v=c.v.name; e.j=c.v.jcd; e.h=c.v.hd; e.r=c.rno; e.d=c.rc.deadline||"";
   e.b.push(kbHasBox(KB_SEL.t)&&KB_SEL.m==="b"?{t:KB_SEL.t,m:"b",s:KB_SEL.s[0].slice().sort(function(a,b){return a-b;}),k:cmb,ts:Date.now()}:{t:KB_SEL.t,k:cmb,ts:Date.now()}); B[c.rid]=e;
   if(!kbPut("dz_bets",B)){ KB_MSG="保存できませんでした。端末の空き容量か、プライベートブラウズの設定を確かめてください。"; kbRefresh(); return false; }
+  var SK=kbSkipObj(); if(SK[c.rid]){ delete SK[c.rid]; kbPut("dz_skip",SK); }
   KB_SEL.s=[[],[],[]]; KB_MSG=""; KB_JUST=c.rid+":"+(e.b.length-1);
   kbRefresh(); return true;
 }
 function kbDel(i){
-  if(!KB_CUR) return;
+  /* 締切後は消せない（結果を見てから外れだけ消すと、記録が当てにならなくなる） */
+  if(!KB_CUR||isClosed(KB_CUR.v.hd,KB_CUR.rc.deadline)) return;
   var B=kbObj("dz_bets"), e=kbEntry(B[KB_CUR.rid]); if(!e) return;
   e.b.splice(i,1);
   if(!e.b.length&&e.a==null&&e.p==null) delete B[KB_CUR.rid]; else B[KB_CUR.rid]=e;
@@ -2201,8 +2274,10 @@ function kbOpen(){
       +'<div class="kb-amts"><div><label class="kb-lb" for="kbA">購入額</label><div class="kb-in"><input id="kbA" type="text" inputmode="numeric" autocomplete="off" placeholder="0"><span>円</span></div></div>'
       +'<div><label class="kb-lb" for="kbP">払戻</label><div class="kb-in"><input id="kbP" type="text" inputmode="numeric" autocomplete="off" placeholder="0"><span>円</span></div></div></div>'
       +'<div class="kb-qk" aria-label="購入額に足す"><button type="button" data-kbq="100">+100</button><button type="button" data-kbq="500">+500</button><button type="button" data-kbq="1000">+1,000</button><button type="button" data-kbq="0">0に戻す</button></div>'
+      +'<label class="kb-lb" for="kbU">1点あたりの金額（入れると、購入額と払戻を結果から自動で出します）</label><div class="kb-in kb-inU"><input id="kbU" type="text" inputmode="numeric" autocomplete="off" placeholder="例 100"><span>円</span></div>'
+      +'<div class="kb-qk" aria-label="1点あたりの金額"><button type="button" data-kbu="100">100</button><button type="button" data-kbu="200">200</button><button type="button" data-kbu="500">500</button><button type="button" data-kbu="1000">1,000</button></div>'
       +'<label class="kb-lb" for="kbM">このレースのメモ</label><textarea id="kbM" rows="3" maxlength="400" placeholder="例：展示で4号艇が伸びていた"></textarea>'
-      +'<div class="kb-lb">選手のメモ（観戦ノートに書く）</div><div class="kb-pm" id="kbPm"></div>'
+      +'<div class="kb-lb">選手のメモ（自分の記録に書く）</div><div class="kb-pm" id="kbPm"></div>'
       +'</div>'
       +'<div class="kb-shf"><button type="button" class="kb-save" id="kbDlgOk">記録する</button></div>';
     document.body.appendChild(KB_DLG);
@@ -2213,7 +2288,8 @@ function kbOpen(){
     Array.prototype.forEach.call(KB_DLG.querySelectorAll("[data-kbq]"),function(b){
       b.onclick=function(){ var el=document.getElementById("kbA"), q=parseInt(b.getAttribute("data-kbq"),10), cur=parseInt(String(el.value).replace(/[^0-9]/g,""),10)||0; el.value=q?String(cur+q):""; };
     });
-    ["kbA","kbP"].forEach(function(id){ document.getElementById(id).addEventListener("input",function(){ var v=this.value.replace(/[^0-9]/g,"").slice(0,8); if(v!==this.value) this.value=v; }); });
+    Array.prototype.forEach.call(KB_DLG.querySelectorAll("[data-kbu]"),function(b){ b.onclick=function(){ document.getElementById("kbU").value=b.getAttribute("data-kbu"); }; });
+    ["kbA","kbP","kbU"].forEach(function(id){ document.getElementById(id).addEventListener("input",function(){ var v=this.value.replace(/[^0-9]/g,"").slice(0,8); if(v!==this.value) this.value=v; }); });
     window.addEventListener("popstate",function(){ kbClose(true); });
     if(window.visualViewport){ window.visualViewport.addEventListener("resize",kbSheetFit); window.visualViewport.addEventListener("scroll",kbSheetFit); }
   }
@@ -2221,6 +2297,7 @@ function kbOpen(){
   document.getElementById("kbDlgT").textContent=c.v.name+" "+c.rno+"R の記録";
   document.getElementById("kbA").value=e.a!=null?String(e.a):"";
   document.getElementById("kbP").value=e.p!=null?String(e.p):"";
+  document.getElementById("kbU").value=e.u!=null?String(e.u):"";
   document.getElementById("kbM").value=typeof m.t==="string"?m.t:"";
   document.getElementById("kbPm").innerHTML=(c.rc.boats||[]).map(function(r){
     var tb=g(r,"登録番号"), nm=g(r,"氏名").replace(/　+/g,""), ln=parseInt(g(r,"枠"),10), lc=LANE_COLOR[ln]||["#333","#fff"];
@@ -2235,11 +2312,12 @@ function kbOpen(){
 function kbNum(id){ var s=String(document.getElementById(id).value||"").replace(/[^0-9]/g,""); if(s==="") return null; var n=parseInt(s,10); return isFinite(n)&&n>=0?n:null; }
 function kbRecord(){
   var c=KB_CUR; if(!c) return;
-  var a=kbNum("kbA"), p=kbNum("kbP"), t=String(document.getElementById("kbM").value||"").trim().slice(0,400);
+  var a=kbNum("kbA"), p=kbNum("kbP"), u=kbNum("kbU"), t=String(document.getElementById("kbM").value||"").trim().slice(0,400);
+  if(u===0) u=null;
   var B=kbObj("dz_bets"), e=kbEntry(B[c.rid]), M=kbObj("dz_rmemo"), ok=true;
   if(!e) e={b:[],a:null,p:null};
   e.v=c.v.name; e.j=c.v.jcd; e.h=c.v.hd; e.r=c.rno; e.d=c.rc.deadline||"";
-  e.a=a; e.p=p;
+  e.a=a; e.p=p; e.u=u;
   if(e.b.length||a!=null||p!=null) B[c.rid]=e; else delete B[c.rid];
   if(t) M[c.rid]={t:t,ts:Date.now()}; else delete M[c.rid];
   ok=kbPut("dz_bets",B)&&kbPut("dz_rmemo",M);
@@ -2334,6 +2412,8 @@ setInterval(function(){
   var c=raceCd(v,rc,isChushi(v,view.rno)), cls="cd "+c.cls;
   if(el.className!==cls) el.className=cls;
   if(el.textContent!==c.txt) el.textContent=c.txt;
+  /* 締切後、買い目か見送りがあるレースは結果を読みにいく（届いたら #kb だけ描き直す。読み込みは5分に1回まで） */
+  if(KB_CUR&&KB_CUR.cl&&!KB_RACE[KB_CUR.rid]&&(kbObj("dz_bets")[KB_CUR.rid]||kbSkipObj()[KB_CUR.rid])) kbFetchResult(KB_CUR.rid,v.hd);
 }, 15000);
 </script>
 <script>
@@ -2377,7 +2457,7 @@ setInterval(function(){
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics --><script src=/assets/raihou.js defer></script>
 <!-- kata6:body -->
 <script src="../assets/kata/kata.js?v=ecd47e51"></script>
-<script src="../assets/siteFrame.js?v=ef2e6ec7"></script>
+<script src="../assets/siteFrame.js?v=78adf0a4"></script>
 <script src="../assets/ugoki.js?v=e40e8a0a"></script>
 <!-- /kata6:body -->
 </body>
