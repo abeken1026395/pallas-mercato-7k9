@@ -734,6 +734,7 @@ function lineBoxes(){
   }).catch(function(){});
 })();
 </script>
+<script src="./assets/kotaeawase.js?v=1"></script>
 <script>
 /* 保存した買い目（再訪設計書 izonSekkei 段階1・2026-11-10）。出走表で保存した dz_bets を、この端末の中だけで読む。
    今日のレースがあれば締切順に、無ければ最近の3レースを日付つきで。1件も無ければ何も出さない */
@@ -749,17 +750,27 @@ function lineBoxes(){
     var bs=e.b.filter(function(x){ return x&&typeof x==="object"&&Array.isArray(x.k)&&x.k.length; });
     if(!bs.length) return null;
     var d=typeof e.d==="string"&&/^(\d{1,2}):(\d{2})$/.exec(e.d), t=d?Date.UTC(+m[2].slice(0,4),+m[2].slice(4,6)-1,+m[2].slice(6,8),+d[1]-9,+d[2]):0;
-    return {j:m[1],hd:m[2],r:+m[3],d:d?e.d:"",t:t,b:bs};
+    return {k:k,j:m[1],hd:m[2],r:+m[3],d:d?e.d:"",t:t,b:bs};
   }).filter(Boolean);
   if(!xs.length) return;
   var td=xs.filter(function(x){ return x.hd===today; }).sort(function(a,b){ return a.t-b.t||a.r-b.r; });
   var show=td.length?td:xs.sort(function(a,b){ return b.hd.localeCompare(a.hd)||b.t-a.t; }).slice(0,3);
-  document.getElementById("kbTopRows").innerHTML=show.map(function(x){
-    var n=0; x.b.forEach(function(b){ n+=b.k.length; });
-    var st=x.hd!==today?(+x.hd.slice(4,6)+"/"+(+x.hd.slice(6,8))):(x.t&&x.t<=now?"締切済み":"締切 "+x.d);
-    return '<a class="fol-r" href="./racers/#v'+x.j+'r'+x.r+'d'+x.hd+'"><span class="fol-k">'+x.r+'R</span><span class="fol-n">'+esc(VN[x.j]||x.j)+'</span><span class="fol-v"><b>'+n+'点</b>　'+esc(st)+'</span></a>';
-  }).join("");
+  /* 締切後のレースは答え合わせ（../assets/kotaeawase.js）。結果が届いたら「的中」「外れ」に変える */
+  var RES={};
+  function draw(){
+    document.getElementById("kbTopRows").innerHTML=show.map(function(x){
+      var n=0; x.b.forEach(function(b){ n+=b.k.length; });
+      var st=x.hd!==today?(+x.hd.slice(4,6)+"/"+(+x.hd.slice(6,8))):(x.t&&x.t<=now?"締切済み":"締切 "+x.d), hit=false;
+      if(window.DZK&&RES[x.k]){ var J=DZK.judge(DZK.entry(B[x.k])||{b:[]},RES[x.k]); if(J.state==="hit"){ st="的中"; hit=true; } else if(J.state==="miss") st="外れ"; }
+      return '<a class="fol-r" href="./racers/#v'+x.j+'r'+x.r+'d'+x.hd+'"><span class="fol-k">'+x.r+'R</span><span class="fol-n">'+esc(VN[x.j]||x.j)+'</span><span class="fol-v"><b>'+n+'点</b>　'+(hit?'<b style="color:#7fb4ff">的中</b>':esc(st))+'</span></a>';
+    }).join("");
+  }
+  draw();
   document.getElementById("kbTop").hidden=false;
+  if(window.DZK){
+    var days={}; show.forEach(function(x){ if(x.t&&x.t<=now) days[x.hd]=1; });
+    Object.keys(days).forEach(function(hd){ DZK.day(hd).then(function(m){ var ch=false; show.forEach(function(x){ if(m[x.k]&&!RES[x.k]){ RES[x.k]=m[x.k]; ch=true; } }); if(ch) draw(); }); });
+  }
 })();
 </script>
 <script src="./assets/shinchaku.js?v=2" defer></script>
