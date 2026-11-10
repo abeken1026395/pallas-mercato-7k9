@@ -100,8 +100,10 @@ header.bar{position:sticky;top:0;z-index:30;height:68px;background:var(--bar);bo
 
 /* 24場の格子（公式の並び） */
 .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
-.grid.wait{min-height:400px} /* 1画面目に上げたので、届くまで4段ぶんの高さを空けておく。描画か失敗で wait を外す（2026-11-10） */
-@media (max-width:359px){.grid.wait{min-height:560px}}
+.grid.wait{min-height:440px} /* 1画面目に上げたので、届くまで4段ぶんの高さを空けておく。描画か失敗で wait を外す（2026-11-10） */
+@media (max-width:359px){.grid.wait{min-height:580px}}
+.grid.wait~.offl[hidden]{display:block;min-height:3.4em} /* 休みの場の行（たいてい2行）も届くまで空けておく */
+.sub{min-height:24px} /* 場数の太字が入っても高さが変わらない */
 @media (max-width:359px){.c{padding:6px 4px 6px 6px}.c .vn{font-size:16px;padding-right:10px}.c .ft b{display:block;margin:0}.cap .tg{white-space:normal;text-align:right;line-height:1.4}} /* 320px幅で横にはみ出さない（2026-11-10） */
 .c{position:relative;display:flex;flex-direction:column;min-height:74px;padding:6px 5px 6px 8px;background:var(--cell);border:1px solid var(--line)}
 .c.live{box-shadow:inset 3px 0 0 var(--blue)}
@@ -289,19 +291,91 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
   <a class="sr" href="./players/" aria-label="選手を探す"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5l5 5"/></svg></a>
 </div><div class="waku" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div></header>
 <div class="cap"><div class="cap-in"><span class="dt" id="capD"></span><span class="tg">材料はそろえた。決めるのは、あなた。</span></div></div>
+<script>/* 日付は最初の描画の前に入れる（後から入ると帯の高さが変わって下が全部ずれる・2026-11-10） */(function(){var d=new Date(Date.now()+9*3600e3);document.getElementById("capD").textContent=(d.getUTCMonth()+1)+"月"+d.getUTCDate()+"日（"+"日月火水木金土".charAt(d.getUTCDay())+"）";})();</script>
 
 <div class="wrap">
 <p class="raihou" id="raihouLine" hidden></p>
+<script>/* 来訪の1行は todayTop.json が届いてから入るので、出る行数ぶんの高さを先に空けておく（連続来訪が続く人は2行・2026-11-10） */(function(){var el=document.getElementById("raihouLine"),n=1;try{var V=JSON.parse(localStorage.getItem("dz_visit")||"{}")||{},j=new Date(Date.now()+9*3600e3),td=j.toISOString().slice(0,10).replace(/-/g,""),yd=new Date(j.getTime()-864e5).toISOString().slice(0,10).replace(/-/g,""),st=+V.streak||0;if((V.last===td&&st>=2)||(V.last===yd&&st>=1))n=2;}catch(e){}el.style.minHeight=(n*1.6)+"em";el.hidden=false;})();</script>
 <section class="fol" id="kbTop" hidden aria-label="保存した買い目">
   <h2 class="sh" style="margin-top:18px">保存した買い目<a href="./note/#bets">一覧</a></h2>
   <div class="fol-box" id="kbTopRows"></div>
 </section>
+<script>
+/* 保存した買い目は最初の描画の前に組む（後から出ると開催一覧が下へずれる・2026-11-10）。折りたたみの部品もここで定義する */
+/* 3行を超えたら折りたたむ（2026-11-10 けん裁定：3行ずつ・開いた状態は端末に覚える dz_foldOpen）。保存した買い目でも使う */
+window.dzFold=function(rows,key){
+  if(!rows||!rows.parentNode) return;
+  function st(){ try{ var v=JSON.parse(localStorage.getItem("dz_foldOpen")||"{}"); return v&&typeof v==="object"&&!Array.isArray(v)?v:{}; }catch(e){ return {}; } }
+  var btn=rows.nextElementSibling;
+  if(!btn||!btn.classList||!btn.classList.contains("fol-more")){
+    btn=document.createElement("button"); btn.type="button"; btn.className="fol-more";
+    btn.setAttribute("aria-controls",rows.id);
+    rows.parentNode.insertBefore(btn,rows.nextSibling);
+    btn.addEventListener("click",function(){
+      var s=st(); if(s[key]) delete s[key]; else s[key]=1;
+      try{ localStorage.setItem("dz_foldOpen",JSON.stringify(s)); }catch(e){}
+      window.dzFold(rows,key);
+    });
+  }
+  var n=rows.children.length;
+  if(n<=3){ rows.classList.remove("shut"); btn.hidden=true; return; }
+  var open=!!st()[key];
+  rows.classList.toggle("shut",!open);
+  btn.hidden=false;
+  btn.textContent=open?"閉じる":"ほか"+(n-3)+"件を表示";
+  btn.setAttribute("aria-expanded",open?"true":"false");
+};
+/* 保存した買い目（再訪設計書 izonSekkei 段階1・2026-11-10）。出走表で保存した dz_bets を、この端末の中だけで読む。
+   今日のレースがあれば締切順に、無ければ最近の3レースを日付つきで。1件も無ければ何も出さない */
+(function(){
+  var VN={"01":"桐生","02":"戸田","03":"江戸川","04":"平和島","05":"多摩川","06":"浜名湖","07":"蒲郡","08":"常滑","09":"津","10":"三国","11":"びわこ","12":"住之江","13":"尼崎","14":"鳴門","15":"丸亀","16":"児島","17":"宮島","18":"徳山","19":"下関","20":"若松","21":"芦屋","22":"福岡","23":"唐津","24":"大村"};
+  var B; try{ B=JSON.parse(localStorage.getItem("dz_bets")||"{}"); }catch(e){ B={}; }
+  if(!B||typeof B!=="object"||Array.isArray(B)) return;
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+  var now=Date.now(), today=new Date(now+9*3600e3).toISOString().slice(0,10).replace(/-/g,"");
+  var xs=Object.keys(B).map(function(k){
+    var m=/^(\d{2})_(\d{8})_(\d{1,2})$/.exec(k), e=B[k];
+    if(!m||!e||typeof e!=="object"||!Array.isArray(e.b)) return null;
+    var bs=e.b.filter(function(x){ return x&&typeof x==="object"&&Array.isArray(x.k)&&x.k.length; });
+    if(!bs.length) return null;
+    var d=typeof e.d==="string"&&/^(\d{1,2}):(\d{2})$/.exec(e.d), t=d?Date.UTC(+m[2].slice(0,4),+m[2].slice(4,6)-1,+m[2].slice(6,8),+d[1]-9,+d[2]):0;
+    return {k:k,j:m[1],hd:m[2],r:+m[3],d:d?e.d:"",t:t,b:bs};
+  }).filter(Boolean);
+  if(!xs.length) return;
+  /* 今日の分は 締切前（締切の近い順）→ 締切済み（新しい順）。3件を超えたら折りたたむ（2026-11-10） */
+  var td=xs.filter(function(x){ return x.hd===today; }).sort(function(a,b){
+    var pa=a.t&&a.t<=now?1:0, pb=b.t&&b.t<=now?1:0;
+    if(pa!==pb) return pa-pb;
+    return (pa?b.t-a.t:a.t-b.t)||a.r-b.r;
+  });
+  var show=td.length?td:xs.sort(function(a,b){ return b.hd.localeCompare(a.hd)||b.t-a.t; }).slice(0,3);
+  /* 締切後のレースは答え合わせ（../assets/kotaeawase.js）。結果が届いたら「的中」「外れ」に変える */
+  var RES={};
+  function draw(){
+    document.getElementById("kbTopRows").innerHTML=show.map(function(x){
+      var n=0; x.b.forEach(function(b){ n+=b.k.length; });
+      var st=x.hd!==today?(+x.hd.slice(4,6)+"/"+(+x.hd.slice(6,8))):(x.t&&x.t<=now?"締切済み":"締切 "+x.d), hit=false;
+      if(window.DZK&&RES[x.k]){ var J=DZK.judge(DZK.entry(B[x.k])||{b:[]},RES[x.k]); if(J.state==="hit"){ st="的中"; hit=true; } else if(J.state==="miss") st="外れ"; }
+      return '<a class="fol-r" href="./racers/#v'+x.j+'r'+x.r+'d'+x.hd+'"><span class="fol-k">'+x.r+'R</span><span class="fol-n">'+esc(VN[x.j]||x.j)+'</span><span class="fol-v"><b>'+n+'点</b>　'+(hit?'<b style="color:#7fb4ff">的中</b>':esc(st))+'</span></a>';
+    }).join("");
+    if(window.dzFold) window.dzFold(document.getElementById("kbTopRows"),"kb");
+  }
+  draw();
+  document.getElementById("kbTop").hidden=false;
+  function judge(){ if(!window.DZK) return; /* 答え合わせ（kotaeawase.js）は後で読み込まれるので、読み込み後に呼ぶ */
+    var days={}; show.forEach(function(x){ if(x.t&&x.t<=now) days[x.hd]=1; });
+    Object.keys(days).forEach(function(hd){ DZK.day(hd).then(function(m){ var ch=false; show.forEach(function(x){ if(m[x.k]&&!RES[x.k]){ RES[x.k]=m[x.k]; ch=true; } }); if(ch) draw(); }); });
+  }
+  if(window.DZK) judge(); else document.addEventListener("DOMContentLoaded",judge);
+})();
+</script>
   <div class="seg" role="tablist">
     <button class="on" id="sgA" role="tab"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7"/><rect x="13.5" y="3.5" width="7" height="7"/><rect x="3.5" y="13.5" width="7" height="7"/><rect x="13.5" y="13.5" width="7" height="7"/></svg>開催一覧</button>
     <button id="sgB" role="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="7.5"/><path d="M12 9v4l2.5 2M9.5 3h5"/></svg>締切順</button>
   </div>
-  <div class="sub"><span id="sbL"></span><span>タップで出走表へ</span></div>
+  <div class="sub"><span id="sbL"><b>&nbsp;</b></span><span>タップで出走表へ</span></div>
   <div class="grid wait" id="grid"></div>
+  <script>/* 前回この幅で描いた開催一覧の高さを先に空けておく（同じ日の再訪ではほぼ同じ高さ・2026-11-10）。保存は描画のあと */(function(){try{var v=JSON.parse(localStorage.getItem("topGridH")||"null"),d=new Date(Date.now()+9*3600e3).toISOString().slice(0,10);if(v&&v.d===d&&v.w===document.documentElement.clientWidth&&v.h>=100&&v.h<=1600)document.getElementById("grid").style.minHeight=v.h+"px";}catch(e){}})();</script>
   <p class="offl" id="offL" hidden></p>
   <div class="list" id="list"></div>
   <div class="lg" id="lg">
@@ -452,8 +526,12 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
     var gs=(GS&&GS.days&&GS.days[String(d["開催日"])])||{}, kaku=d["格"]||{}, lady=d["レディース"]||[];
     (d["レース"]||[]).forEach(function(r){(by[r["場コード"]]=by[r["場コード"]]||[]).push(r);n++;});
     var held=0, live=0, all=[], hlc=[], offs=[];
-    document.getElementById("grid").classList.remove("wait");
-    document.getElementById("grid").innerHTML=V.map(function(v){
+    var gEl=document.getElementById("grid");
+    if(gEl.classList.contains("wait")){
+      gEl.classList.remove("wait"); gEl.style.minHeight="";
+      requestAnimationFrame(function(){ var h=Math.round(gEl.getBoundingClientRect().height); if(h>=100) try{ localStorage.setItem("topGridH",JSON.stringify({d:new Date(Date.now()+9*3600e3).toISOString().slice(0,10),w:document.documentElement.clientWidth,h:h})); }catch(e){} });
+    }
+    gEl.innerHTML=V.map(function(v){
       var rs=by[v[0]]; if(!rs||!rs.length){ offs.push(v[1]); return ''; }
       held++; rs.sort(function(a,b){return parseInt(a["レース"])-parseInt(b["レース"]);});
       var first=rs[0]["締切時刻"]||"", last=rs[rs.length-1]["締切時刻"]||"";
@@ -523,36 +601,13 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
   var gsP=fetch("./data/gradeSchedule.json?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(j){GS=j;}).catch(function(){});
   fetch("./data/todayTop.json?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():Promise.reject();})
     .then(function(d){D=d;return gsP.then(function(){render();setInterval(render,60000);});})
-    .catch(function(){document.getElementById("grid").classList.remove("wait");document.getElementById("fail").hidden=false;});
+    .catch(function(){var g=document.getElementById("grid");g.classList.remove("wait");g.style.minHeight="";document.getElementById("fail").hidden=false;});
 })();
 </script>
 <script>
 /* フォロー中の今日（2026-11-05 本番・けん裁定）。出走表で付けた 場（br_stadium）・推し（br_oshi）・気になる（br_watch）を、
    トップで今日の分だけ見せる。端末の中だけで完結し、外へは送らない。連続記録・残り時間・通知は使わない。
    行の数は端末の記録だけで先に決めて高さを確保し、今日の開催（todayTop.json）と出場予定（racerSchedule.json）が届いたら文字だけ埋める。 */
-/* 3行を超えたら折りたたむ（2026-11-10 けん裁定：3行ずつ・開いた状態は端末に覚える dz_foldOpen）。保存した買い目でも使う */
-window.dzFold=function(rows,key){
-  if(!rows||!rows.parentNode) return;
-  function st(){ try{ var v=JSON.parse(localStorage.getItem("dz_foldOpen")||"{}"); return v&&typeof v==="object"&&!Array.isArray(v)?v:{}; }catch(e){ return {}; } }
-  var btn=rows.nextElementSibling;
-  if(!btn||!btn.classList||!btn.classList.contains("fol-more")){
-    btn=document.createElement("button"); btn.type="button"; btn.className="fol-more";
-    btn.setAttribute("aria-controls",rows.id);
-    rows.parentNode.insertBefore(btn,rows.nextSibling);
-    btn.addEventListener("click",function(){
-      var s=st(); if(s[key]) delete s[key]; else s[key]=1;
-      try{ localStorage.setItem("dz_foldOpen",JSON.stringify(s)); }catch(e){}
-      window.dzFold(rows,key);
-    });
-  }
-  var n=rows.children.length;
-  if(n<=3){ rows.classList.remove("shut"); btn.hidden=true; return; }
-  var open=!!st()[key];
-  rows.classList.toggle("shut",!open);
-  btn.hidden=false;
-  btn.textContent=open?"閉じる":"ほか"+(n-3)+"件を表示";
-  btn.setAttribute("aria-expanded",open?"true":"false");
-};
 (function(){
   var box=document.getElementById("fol"), rows=document.getElementById("folRows");
   if(!box) return;
@@ -820,50 +875,6 @@ function lineBoxes(){
 })();
 </script>
 <script src="./assets/kotaeawase.js?v=1"></script>
-<script>
-/* 保存した買い目（再訪設計書 izonSekkei 段階1・2026-11-10）。出走表で保存した dz_bets を、この端末の中だけで読む。
-   今日のレースがあれば締切順に、無ければ最近の3レースを日付つきで。1件も無ければ何も出さない */
-(function(){
-  var VN={"01":"桐生","02":"戸田","03":"江戸川","04":"平和島","05":"多摩川","06":"浜名湖","07":"蒲郡","08":"常滑","09":"津","10":"三国","11":"びわこ","12":"住之江","13":"尼崎","14":"鳴門","15":"丸亀","16":"児島","17":"宮島","18":"徳山","19":"下関","20":"若松","21":"芦屋","22":"福岡","23":"唐津","24":"大村"};
-  var B; try{ B=JSON.parse(localStorage.getItem("dz_bets")||"{}"); }catch(e){ B={}; }
-  if(!B||typeof B!=="object"||Array.isArray(B)) return;
-  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
-  var now=Date.now(), today=new Date(now+9*3600e3).toISOString().slice(0,10).replace(/-/g,"");
-  var xs=Object.keys(B).map(function(k){
-    var m=/^(\d{2})_(\d{8})_(\d{1,2})$/.exec(k), e=B[k];
-    if(!m||!e||typeof e!=="object"||!Array.isArray(e.b)) return null;
-    var bs=e.b.filter(function(x){ return x&&typeof x==="object"&&Array.isArray(x.k)&&x.k.length; });
-    if(!bs.length) return null;
-    var d=typeof e.d==="string"&&/^(\d{1,2}):(\d{2})$/.exec(e.d), t=d?Date.UTC(+m[2].slice(0,4),+m[2].slice(4,6)-1,+m[2].slice(6,8),+d[1]-9,+d[2]):0;
-    return {k:k,j:m[1],hd:m[2],r:+m[3],d:d?e.d:"",t:t,b:bs};
-  }).filter(Boolean);
-  if(!xs.length) return;
-  /* 今日の分は 締切前（締切の近い順）→ 締切済み（新しい順）。3件を超えたら折りたたむ（2026-11-10） */
-  var td=xs.filter(function(x){ return x.hd===today; }).sort(function(a,b){
-    var pa=a.t&&a.t<=now?1:0, pb=b.t&&b.t<=now?1:0;
-    if(pa!==pb) return pa-pb;
-    return (pa?b.t-a.t:a.t-b.t)||a.r-b.r;
-  });
-  var show=td.length?td:xs.sort(function(a,b){ return b.hd.localeCompare(a.hd)||b.t-a.t; }).slice(0,3);
-  /* 締切後のレースは答え合わせ（../assets/kotaeawase.js）。結果が届いたら「的中」「外れ」に変える */
-  var RES={};
-  function draw(){
-    document.getElementById("kbTopRows").innerHTML=show.map(function(x){
-      var n=0; x.b.forEach(function(b){ n+=b.k.length; });
-      var st=x.hd!==today?(+x.hd.slice(4,6)+"/"+(+x.hd.slice(6,8))):(x.t&&x.t<=now?"締切済み":"締切 "+x.d), hit=false;
-      if(window.DZK&&RES[x.k]){ var J=DZK.judge(DZK.entry(B[x.k])||{b:[]},RES[x.k]); if(J.state==="hit"){ st="的中"; hit=true; } else if(J.state==="miss") st="外れ"; }
-      return '<a class="fol-r" href="./racers/#v'+x.j+'r'+x.r+'d'+x.hd+'"><span class="fol-k">'+x.r+'R</span><span class="fol-n">'+esc(VN[x.j]||x.j)+'</span><span class="fol-v"><b>'+n+'点</b>　'+(hit?'<b style="color:#7fb4ff">的中</b>':esc(st))+'</span></a>';
-    }).join("");
-    if(window.dzFold) window.dzFold(document.getElementById("kbTopRows"),"kb");
-  }
-  draw();
-  document.getElementById("kbTop").hidden=false;
-  if(window.DZK){
-    var days={}; show.forEach(function(x){ if(x.t&&x.t<=now) days[x.hd]=1; });
-    Object.keys(days).forEach(function(hd){ DZK.day(hd).then(function(m){ var ch=false; show.forEach(function(x){ if(m[x.k]&&!RES[x.k]){ RES[x.k]=m[x.k]; ch=true; } }); if(ch) draw(); }); });
-  }
-})();
-</script>
 <script src="./assets/shinchaku.js?v=3" defer></script>
 <script>
 /* 連続来訪と、今日見た場の数（izonSekkei 段階2・2026-11-10）。連続来訪は shinchaku.js が先に書き込むので、読み込み後に出す。
@@ -875,14 +886,15 @@ document.addEventListener("DOMContentLoaded",function(){
   var td=new Date(Date.now()+9*3600e3).toISOString().slice(0,10).replace(/-/g,"");
   if(V.last===td&&st>=2) parts.push('連続 <b>'+st+'日</b>（自己ベスト '+Math.max(best,st)+'日）');
   function draw(){ if(parts.length){ el.innerHTML=parts.map(function(s){ return '<span>'+s+'</span>'; }).join(""); el.hidden=false; } }
+  function fin(){ el.style.minHeight=""; if(!parts.length) el.hidden=true; } /* 先に空けた高さを外す。何も出さないときは畳む */
   draw();
   (window.__dzTT||(window.__dzTT=fetch("./data/todayTop.json?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():Promise.reject();}))).then(function(d){
-    if(!d||String(d["開催日"])!==td||!Array.isArray(d["レース"])) return;
+    if(!d||String(d["開催日"])!==td||!Array.isArray(d["レース"])) return fin();
     var all={}; d["レース"].forEach(function(r){ if(r&&/^\d{2}$/.test(r["場コード"])) all[r["場コード"]]=1; });
-    var n=Object.keys(all).length; if(!n) return;
+    var n=Object.keys(all).length; if(!n) return fin();
     var seen={}; obj("br_viewed",true).forEach(function(x){ if(x&&x.hd===td&&all[x.jcd]) seen[x.jcd]=1; });
-    parts.push('今日の開催 '+n+'場中 <b>'+Object.keys(seen).length+'場</b>を見た'); draw();
-  }).catch(function(){});
+    parts.push('今日の開催 '+n+'場中 <b>'+Object.keys(seen).length+'場</b>を見た'); draw(); fin();
+  }).catch(fin);
 });
 </script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics --><script src=/assets/raihou.js defer></script>
