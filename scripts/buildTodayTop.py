@@ -14,6 +14,7 @@ buildTodayTop.py
 トップは約890KBの highlights.json を読まず、このファイル（20KB前後）だけを読む。
 予想・確率・判定は入れない。事実（開催・格・企画名・女子の人数・1号艇のイン1着率と走数）だけを入れる。
 1号艇のイン1着率と走数は highlights.json の艇の inWinRate・inN をそのまま写す（どちらかが無いレースは入れない）。
+機番は1号艇から6号艇の順の6つ（無い枠は null・6つとも無いレースは入れない）。トップの「フォロー中の今日」で推しモーターの出るレースを探すのに使う（2026-11-10）。
 入力が欠けても落とさない。highlights.json が無いときだけ何も書かずに終わる。
 """
 
@@ -35,6 +36,18 @@ def load(path):
     except Exception as e:
         print(f"読めない: {path} ({e})")
         return None
+
+
+def kiban_of(boats, waku):
+    """枠 waku の艇の機番（1から999の整数）。無い・数字でないときは None"""
+    b = next((x for x in boats if x.get("枠") == waku), None)
+    if not b:
+        return None
+    s = str(b.get("機番") if b.get("機番") is not None else "").strip()
+    if not s.isdigit():
+        return None
+    n = int(s)
+    return n if 1 <= n <= 999 else None
 
 
 def main():
@@ -67,6 +80,9 @@ def main():
         })
         if b1 and b1.get("inWinRate") is not None and b1.get("inN"):
             races[-1]["1号艇"] = {"氏名": b1.get("氏名") or "", "inWinRate": b1.get("inWinRate"), "inN": b1.get("inN")}
+        kiban = [kiban_of(boats, w) for w in range(1, 7)]
+        if any(k is not None for k in kiban):
+            races[-1]["機番"] = kiban
 
     out = {
         "開催日": day,
