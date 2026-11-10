@@ -1,4 +1,4 @@
-/* 下部タブの小さな丸（再訪設計書 izonSekkei 段階1・2026-11-10）
+/* 下部タブの小さな丸と連続来訪の記録（再訪設計書 izonSekkei 段階1・2・2026-11-10）
    見どころ：今日（JST）まだ見どころを開いていなければ丸を付ける
    結果　　：この端末で保存した買い目のレースが締切から15分過ぎ、そのあと結果を開いていなければ丸を付ける
    色はアクセントの1色だけ（赤は使わない）。点滅・音はなし。保存先は dz_seen（/hikae/ の対象） */
@@ -7,6 +7,14 @@
   function obj(k){ try{ var v=JSON.parse(localStorage.getItem(k)||"{}"); return (v&&typeof v==="object"&&!Array.isArray(v))?v:{}; }catch(e){ return {}; } }
   var S=obj("dz_seen");
   function put(){ try{ localStorage.setItem("dz_seen",JSON.stringify(S)); }catch(e){} }
+  /* 連続来訪（izonSekkei 段階2・2026-11-10）。日本時間の日付で区切り、前日に来ていなければ1日目に戻す。自己ベストは残す。保存先 dz_visit */
+  (function(){
+    var V=obj("dz_visit"), td=jd(), y=jd(Date.now()-864e5), n=function(x){ x=+x; return isFinite(x)&&x>0&&x<100000?Math.floor(x):0; };
+    if(V.last===td) return;
+    var s=(V.last===y&&n(V.streak))?n(V.streak)+1:1;
+    var W={last:td,streak:s,best:Math.max(n(V.best),s)};
+    try{ localStorage.setItem("dz_visit",JSON.stringify(W)); }catch(e){}
+  })();
   var p=location.pathname;
   if(/\/highlights\/(index\.html)?$/.test(p)){ S.hl=jd(); put(); }
   if(/\/results\/(index\.html)?$/.test(p)){ S.rs=Date.now(); put(); }

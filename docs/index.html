@@ -164,6 +164,9 @@ a[href]:active,button:not(:disabled):active,summary:active,[role=button]:active,
 /* ===== 案Lの下に続く欄（2026-11-06 けん裁定：告知は2番目・素人っぽさを外す） ===== */
 .sh{display:flex;align-items:center;gap:8px;margin:26px 0 6px;min-height:44px;font-size:16px;font-weight:800;letter-spacing:.06em}
 .sh span{font-size:14px;font-weight:500;color:var(--dim);letter-spacing:0}
+.raihou{margin:16px 0 0;font-size:14px;line-height:1.6;color:var(--sub,#a3b4c6);font-variant-numeric:tabular-nums}
+.raihou b{color:#eef3f8;font-weight:700}
+.raihou span{display:block}
 .sh a{margin-left:auto;display:inline-flex;align-items:center;min-height:44px;font-size:14px;font-weight:600;color:var(--blue);letter-spacing:0;padding:0 0 0 16px}
 /* お知らせ */
 .ann{display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
@@ -282,6 +285,7 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
 <div class="cap"><div class="cap-in"><span class="dt" id="capD"></span><span class="tg">材料はそろえた。決めるのは、あなた。</span></div></div>
 
 <div class="wrap">
+<p class="raihou" id="raihouLine" hidden></p>
 <section class="fol" id="kbTop" hidden aria-label="保存した買い目">
   <h2 class="sh" style="margin-top:18px">保存した買い目<a href="./note/#bets">一覧</a></h2>
   <div class="fol-box" id="kbTopRows"></div>
@@ -810,7 +814,27 @@ function lineBoxes(){
   }
 })();
 </script>
-<script src="./assets/shinchaku.js?v=2" defer></script>
+<script src="./assets/shinchaku.js?v=3" defer></script>
+<script>
+/* 連続来訪と、今日見た場の数（izonSekkei 段階2・2026-11-10）。連続来訪は shinchaku.js が先に書き込むので、読み込み後に出す。
+   見た場は出走表の「最近見た」（br_viewed）のうち今日のレース。今日の開催場は todayTop.json */
+document.addEventListener("DOMContentLoaded",function(){
+  function obj(k,arr){ try{ var v=JSON.parse(localStorage.getItem(k)||(arr?"[]":"{}")); return arr?(Array.isArray(v)?v:[]):((v&&typeof v==="object"&&!Array.isArray(v))?v:{}); }catch(e){ return arr?[]:{}; } }
+  var el=document.getElementById("raihouLine"); if(!el) return;
+  var V=obj("dz_visit"), st=+V.streak||0, best=+V.best||0, parts=[];
+  var td=new Date(Date.now()+9*3600e3).toISOString().slice(0,10).replace(/-/g,"");
+  if(V.last===td&&st>=2) parts.push('連続 <b>'+st+'日</b>（自己ベスト '+Math.max(best,st)+'日）');
+  function draw(){ if(parts.length){ el.innerHTML=parts.map(function(s){ return '<span>'+s+'</span>'; }).join(""); el.hidden=false; } }
+  draw();
+  (window.__dzTT||(window.__dzTT=fetch("./data/todayTop.json?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():Promise.reject();}))).then(function(d){
+    if(!d||String(d["開催日"])!==td||!Array.isArray(d["レース"])) return;
+    var all={}; d["レース"].forEach(function(r){ if(r&&/^\d{2}$/.test(r["場コード"])) all[r["場コード"]]=1; });
+    var n=Object.keys(all).length; if(!n) return;
+    var seen={}; obj("br_viewed",true).forEach(function(x){ if(x&&x.hd===td&&all[x.jcd]) seen[x.jcd]=1; });
+    parts.push('今日の開催 '+n+'場中 <b>'+Object.keys(seen).length+'場</b>を見た'); draw();
+  }).catch(function(){});
+});
+</script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics --><script src=/assets/raihou.js defer></script>
 <script>if("serviceWorker" in navigator){ window.addEventListener("load",function(){ navigator.serviceWorker.register("./sw.js").catch(function(){}); }); }</script>
 <script src="./assets/ugoki.js?v=e40e8a0a"></script>

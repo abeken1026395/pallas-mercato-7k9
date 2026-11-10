@@ -76,6 +76,9 @@ textarea{min-height:96px;resize:vertical;line-height:1.7}
 .bet li span{font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 .bet li i{font-style:normal;font-size:12px;color:var(--dim);white-space:nowrap}
 .bet .m{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:6px;font-size:14px;color:var(--sub);font-variant-numeric:tabular-nums}
+.ring{display:flex;align-items:center;gap:12px}
+.ring svg{flex:none}
+.ring .v small.n{display:block;font-size:12px;font-weight:400;color:var(--dim);margin-top:2px}
 .bet .res{margin-top:6px;font-size:14px;line-height:1.6;color:var(--sub);font-variant-numeric:tabular-nums}
 .bet .res.hit{color:var(--fg)}
 .bet .res.hit b{color:#7fb4ff}
@@ -311,6 +314,13 @@ function needResults(xs){
   var days={};xs.forEach(function(x){if((x.en.b.length||x.skip)&&!RESDAY[x.hd])days[x.hd]=1});
   Object.keys(days).forEach(function(hd){RESDAY[hd]=1;DZK.day(hd).then(function(m){var ch=false;Object.keys(m).forEach(function(k){if(!RES[k]){RES[k]=m[k];ch=true}});if(ch)drawBets()})});
 }
+/* 回収率リング：100%で一周。100%を超えても輪は一周のまま、数字は実際の値（izonSekkei 段階2） */
+function ring(pct,n){
+  var r=22,c=2*Math.PI*r,f=Math.max(0,Math.min(pct,100))/100;
+  return '<div class="ring"><svg viewBox="0 0 56 56" width="56" height="56" role="img" aria-label="回収率 '+pct+'%（'+n+'レース）"><circle cx="28" cy="28" r="'+r+'" fill="none" stroke="#2c3e55" stroke-width="6"/>'
+    +'<circle cx="28" cy="28" r="'+r+'" fill="none" stroke="#7fb4ff" stroke-width="6" stroke-dasharray="'+(c*f).toFixed(2)+' '+c.toFixed(2)+'" transform="rotate(-90 28 28)"/></svg>'
+    +'<div class="v">'+pct+'<small>%</small><small class="n">'+n+'レース</small></div></div>';
+}
 function drawBets(){
   var xs=betRows().filter(function(x){return inBPer(x.hd)});
   needResults(xs);
@@ -326,7 +336,7 @@ function drawBets(){
     return {j:j};
   });
   $("bsum").innerHTML='<div><div class="k">保存したレース</div><div class="v">'+xs.length+"<small>レース</small></div></div>"
-    +'<div><div class="k">回収率（払戻÷購入）</div><div class="v">'+(buy?Math.round(pay/buy*100)+"<small>%（"+nA+"レース）</small>":"—")+"</div></div>"
+    +'<div><div class="k">回収率（払戻÷購入）</div>'+(buy?ring(Math.round(pay/buy*100),nA):'<div class="v">—</div>')+"</div>"
     +'<div><div class="k">的中／外れ</div><div class="v">'+nHit+"<small>／</small>"+nMiss+"</div></div>"
     +'<div><div class="k">見送り成功</div><div class="v">'+nGood+"<small>回</small></div></div>";
   $("bnote").textContent=xs.length?"回収率は、購入額と払戻が分かる "+nA+" レースで計算しています（結果待ちと、払戻の分からない的中は入れません。購入 "+buy.toLocaleString()+" 円・払戻 "+pay.toLocaleString()+" 円）。見送り成功は、見送ったレースの3連単が "+(window.DZK?DZK.ARE:10000).toLocaleString()+" 円以上だった回数です。":"";
