@@ -6,10 +6,10 @@
 <meta charset="UTF-8">
 <meta name="author" content="阿部（データ攻め）">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>観戦ノート｜データ攻め</title>
+<title>自分の記録｜データ攻め</title>
 <link rel="canonical" href="https://abeken1026395.github.io/pallas-mercato-7k9/note/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="観戦ノート｜データ攻め">
+<meta property="og:title" content="自分の記録｜データ攻め">
 <meta property="og:description" content="保存した買い目、選手のメモ、舟券の支出を、この端末の中だけに記録するノート。">
 <meta property="og:url" content="https://abeken1026395.github.io/pallas-mercato-7k9/note/">
 <!-- kata6:head -->
@@ -18,7 +18,7 @@
 <link rel="stylesheet" href="../assets/ugoki.css?v=a0c08edf">
 <!-- /kata6:head -->
 <style>
-/* 観戦ノート：この端末の中だけに保存するメモと支出の記録。サーバーには送らない
+/* 自分の記録：この端末の中だけに保存するメモと支出の記録。サーバーには送らない
    本番の新しい型（assets/kata/kata.css・第6版）にそろえる：平らな紺・角は四角・暗い箱は罫線に・金の差し色・数字は Barlow Condensed */
 :root{--fg:#f2f2f0;--sub:#cdd7e0;--dim:#aebccb;--line:rgba(232,236,239,.18);--line2:rgba(232,236,239,.32);--gold:#dcbd78;--goldBg:#c8a45e;--rule:rgba(212,176,106,.6);--plus:#9be39b;--minus:#ff9c8f;
   --font:-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;--num:"Barlow Condensed","Hiragino Sans",-apple-system,sans-serif}
@@ -109,7 +109,7 @@ footer{margin-top:24px;font-size:13px;color:var(--dim);line-height:1.85}
 <div class="wrap">
 <div class="nav"><a href="../">データ攻め</a></div>
 <header>
-  <h1 class="kataTitle">観戦ノート</h1>
+  <h1 class="kataTitle">自分の記録</h1>
   <p class="lead">保存した買い目と、選手のメモ、舟券の支出の記録。書いた内容はこの端末のブラウザの中だけに残り、データ攻めには送られません。</p>
 </header>
 
@@ -332,7 +332,7 @@ $("x-in").addEventListener("change",function(){
     var have={};memos.forEach(function(m){have[m.id]=1});var nm=(j.memo||[]).filter(function(m){return m&&m.id&&!have[m.id]});memos=memos.concat(nm);
     var hv={};money.forEach(function(x){hv[x.id]=1});var nx=(j.money||[]).filter(function(x){return x&&x.id&&!hv[x.id]});money=money.concat(nx);
     save(KM,memos);save(KS,money);drawMemos();drawMoney();$("x-msg").textContent="メモ"+nm.length+"件・支出"+nx.length+"件を足しました（同じものは足していません）。";
-  }catch(e){$("x-msg").textContent="観戦ノートのファイルではないようです。"}};
+  }catch(e){$("x-msg").textContent="自分の記録のファイルではないようです。"}};
   rd.readAsText(f);this.value="";
 });
 $("x-del").onclick=function(){$("x-confirm").hidden=false};
