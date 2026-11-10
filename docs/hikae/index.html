@@ -129,6 +129,22 @@ textarea[readonly]{color:var(--dim);font-size:12px}
         if(Array.isArray(a) && Array.isArray(b)){
           var seen={}, out=[]; a.concat(b).forEach(function(x){ var key=JSON.stringify(x); if(!seen[key]){ seen[key]=1; out.push(x); } });
           next=JSON.stringify(out);
+        } else if(k==="dz_visit" && a && b && typeof a==="object" && typeof b==="object"){
+          /* 連続来訪：新しい端末で先にページを開くと1日目が入るので、自己ベストは大きい方、連続日数は最後に来た日が新しい方を取る */
+          var na=function(x){ x=+x; return isFinite(x)&&x>0?Math.floor(x):0; }, la=String(a.last||""), lb=String(b.last||"");
+          next=JSON.stringify({last:la>lb?la:lb, streak:lb>la?na(b.streak):(la>lb?na(a.streak):Math.max(na(a.streak),na(b.streak))), best:Math.max(na(a.best),na(b.best))});
+        } else if(k==="dz_bets" && a && b && typeof a==="object" && typeof b==="object"){
+          /* 保存した買い目：同じレースが両方にあれば、買い目は足し合わせ（同じものは1つ）、金額は今ある方を優先して空なら移す */
+          var o=Object.assign({}, b, a);
+          Object.keys(a).forEach(function(r){
+            var x=a[r], y=b[r];
+            if(!x||!y||typeof x!=="object"||typeof y!=="object") return;
+            var z=Object.assign({}, y, x), sb={}, bs=[];
+            (Array.isArray(x.b)?x.b:[]).concat(Array.isArray(y.b)?y.b:[]).forEach(function(e){ var kk=JSON.stringify([e&&e.t,e&&e.m,e&&e.k]); if(!sb[kk]){ sb[kk]=1; bs.push(e); } });
+            z.b=bs; ["a","p","u","d"].forEach(function(f){ if(x[f]==null&&y[f]!=null) z[f]=y[f]; });
+            o[r]=z;
+          });
+          next=JSON.stringify(o);
         } else if(a && b && typeof a==="object" && typeof b==="object"){
           next=JSON.stringify(Object.assign({}, b, a));
         } else { return; }
