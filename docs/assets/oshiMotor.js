@@ -63,7 +63,7 @@
     var on=!!S[k], nm=name(j,m);
     return '<button type="button" class="dzom-btn'+(mode==="icon"?" dzom-i":"")+(on?" on":"")+'" data-om="'+k+'" aria-pressed="'+(on?"true":"false")+'"'
       +' aria-label="'+nm+(on?"のフォローを解除":"をフォロー")+'">'+icon(!on)
-      +(mode==="icon"?"":'<span class="dzom-t">'+(on?"推しフォロー中":"推しフォローする")+'</span>')+'</button>';
+      +(mode==="icon"?"":'<span class="dzom-t">'+(on?"フォロー中":"フォローする")+'</span>')+'</button>';
   }
   function mark(j,m){
     var k=key(j,m); if(!k) return "";
@@ -78,7 +78,7 @@
       b.classList.toggle("on",on);
       b.setAttribute("aria-pressed",on?"true":"false");
       b.setAttribute("aria-label",nm+(on?"のフォローを解除":"をフォロー"));
-      var t=b.querySelector(".dzom-t"); if(t) t.textContent=on?"推しフォロー中":"推しフォローする";
+      var t=b.querySelector(".dzom-t"); if(t) t.textContent=on?"フォロー中":"フォローする";
       var ic=b.querySelector(".dzom-ic"); if(ic&&(ic.getAttribute("data-line")==="1")===on) ic.outerHTML=icon(!on);
     });
     Array.prototype.forEach.call(document.querySelectorAll(".dzom-mk[data-om]"),function(s){ s.hidden=!S[s.getAttribute("data-om")]; });
@@ -137,7 +137,7 @@
     var ns=g.map(function(k){ var p=/^(\d{2})_(\d{1,3})$/.exec(String(k)); return p&&VN[p[1]]?VN[p[1]]+" "+(+p[2])+"号機":""; }).filter(Boolean);
     try{ localStorage.removeItem(GONE); }catch(e){}
     if(!ns.length) return;
-    toast("新替で別のモーターになったため、推しフォローを外しました："+(ns.length<=3?ns.join("・"):ns.slice(0,3).join("・")+" ほか"+(ns.length-3)+"機"),true);
+    toast("新替で別のモーターになったため、フォローを外しました："+(ns.length<=3?ns.join("・"):ns.slice(0,3).join("・")+" ほか"+(ns.length-3)+"機"),true);
   }
 
   document.addEventListener("click",function(e){
