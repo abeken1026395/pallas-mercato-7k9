@@ -309,9 +309,9 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
 <script>/* 日付は最初の描画の前に入れる（後から入ると帯の高さが変わって下が全部ずれる・2026-11-10） */(function(){var d=new Date(Date.now()+9*3600e3);document.getElementById("capD").textContent=(d.getUTCMonth()+1)+"月"+d.getUTCDate()+"日（"+"日月火水木金土".charAt(d.getUTCDay())+"）";})();</script>
 
 <div class="wrap">
-<a class="obi" id="ebObi" href="./in/top/ebook-obi/" target="_blank" rel="noopener"><img class="obi-im" src="./assets/ebookEp2.jpg" width="56" height="56" alt=""><span class="obi-b"><span class="obi-l"><span id="ebObiL">第2話 11日（水）21時</span><span class="obi-dots" id="ebObiD" aria-label="全3話のうち第2話"><i class="on"></i><i class="nx"></i><i></i></span><span class="obi-free">無料</span></span><span class="obi-t"><span class="obi-p">第1話は、僕の話でした。</span>第2話からは、あなたの話です。</span><span class="obi-m"><span>350人以上が登録</span><span class="obi-go">受け取る ›</span></span></span></a>
+<a class="obi" id="ebObi" href="./in/top/ebook-obi/" target="_blank" rel="noopener"><img class="obi-im" src="./assets/ebookEp2.jpg" width="56" height="56" alt=""><span class="obi-b"><span class="obi-l"><span id="ebObiL">第2話 11日（水）21時</span><span class="obi-dots" id="ebObiD" aria-label="全3話のうち第2話"><i class="on"></i><i class="nx"></i><i></i></span><span class="obi-free">無料</span></span><span class="obi-t"><span class="obi-p">第1話は、僕の話でした。</span>第2話からは、あなたの話です。</span><span class="obi-m"><span>340人以上が登録</span><span class="obi-go">受け取る ›</span></span></span></a>
 <script>/* 電子書籍の動画（全3話・無料）の告知。日本時間で今どの話の前後かで文面を変える。第2話 11/11 21時・第3話 11/12 21時（2026-11-10 けん）。11/14 0時で帯を消す。
-   ねらい（2026-11-11 けん「好奇心や心理に何の作用もない」）：続きの話（第2話からは、あなたの話）・全3話のどこか（●●○）・無料と実際の登録人数・表紙の画像で、ほかの枠と見分けがつくようにする。人数は けん申告の実数（11/11 350人）を下回らない書き方にする */
+   ねらい（2026-11-11 けん「好奇心や心理に何の作用もない」）：続きの話（第2話からは、あなたの話）・全3話のどこか（●●○）・無料と実際の登録人数・表紙の画像で、ほかの枠と見分けがつくようにする。人数は けん申告の実数（11/11 350人）から減る見込みのぶん余裕を取り「340人以上」（けん 11/11） */
 window.dzEb=function(){var n=Date.now(),t2=Date.UTC(2026,10,11,12),t3=Date.UTC(2026,10,12,12),te=Date.UTC(2026,10,13,15),
 day=function(t){return new Date(t+9*3600e3).toISOString().slice(0,10);},
 w=function(t,lab){return (day(n)===day(t)?"今夜21時":lab);};
