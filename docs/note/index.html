@@ -79,6 +79,7 @@ textarea{min-height:96px;resize:vertical;line-height:1.7}
 .ring{display:flex;align-items:center;gap:12px}
 .ring svg{flex:none}
 .ring .v small.n{display:block;font-size:12px;font-weight:400;color:var(--dim);margin-top:2px}
+.more{padding:12px 0;text-align:center}
 .bet .res{margin-top:6px;font-size:14px;line-height:1.6;color:var(--sub);font-variant-numeric:tabular-nums}
 .bet .res.hit{color:var(--fg)}
 .bet .res.hit b{color:#7fb4ff}
@@ -293,7 +294,7 @@ var BT={"3t":"3連単","3f":"3連複","2t":"2連単","2f":"2連複","kk":"拡連
 function loadO(k){try{var v=JSON.parse(localStorage.getItem(k)||"{}");return v&&typeof v==="object"&&!Array.isArray(v)?v:{}}catch(e){return {}}}
 function saveO(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}
 var BPER="m0", RES={}, RESDAY={};
-$("bper").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;BPER=b.dataset.p;[].forEach.call($("bper").children,function(x){x.setAttribute("aria-pressed",x===b)});drawBets()});
+$("bper").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;BPER=b.dataset.p;BSHOW=20;[].forEach.call($("bper").children,function(x){x.setAttribute("aria-pressed",x===b)});drawBets()});
 function inBPer(hd){if(BPER==="all")return true;var t=today(),y=+t.slice(0,4),m=+t.slice(5,7);if(BPER==="m1"){m-=1;if(!m){m=12;y-=1}}return hd.slice(0,6)===String(y)+("0"+m).slice(-2)}
 function betRows(){
   var B=loadO("dz_bets"),M=loadO("dz_rmemo"),S=loadO("dz_skip"),ks={};
@@ -341,7 +342,9 @@ function drawBets(){
     +'<div><div class="k">見送り成功</div><div class="v">'+nGood+"<small>回</small></div></div>";
   $("bnote").textContent=xs.length?"回収率は、購入額と払戻が分かる "+nA+" レースで計算しています（結果待ちと、払戻の分からない的中は入れません。購入 "+buy.toLocaleString()+" 円・払戻 "+pay.toLocaleString()+" 円）。見送り成功は、見送ったレースの3連単が "+(window.DZK?DZK.ARE:10000).toLocaleString()+" 円以上だった回数です。":"";
   $("b-count").textContent=xs.length?xs.length+"レース・買い目"+nBets+"件":"";
-  $("b-list").innerHTML=xs.length?xs.map(function(x,i){
+  /* 一覧は20レースずつ出し、下の目印が見えたら20ずつ足す（無限スクロール・再訪設計書 段階2）。振り返りの数字は全件で数える */
+  BXS=xs; BJ=J;
+  $("b-list").innerHTML=xs.length?xs.slice(0,BSHOW).map(function(x,i){
     var dd=+x.hd.slice(4,6)+"/"+(+x.hd.slice(6,8)),R=J[i],st="";
     if(R.skip) st=R.skip.state==="good"?'<div class="res hit"><b>見送り成功</b> 3連単 '+R.skip.san.toLocaleString()+'円</div>':R.skip.state==="plain"?'<div class="res">見送り（3連単 '+R.skip.san.toLocaleString()+'円）</div>':'<div class="res">見送り・結果待ち</div>';
     else if(x.en.b.length) st=R.j.state==="hit"?'<div class="res hit"><b>的中</b> '+R.j.hits.map(function(h){return esc(BT[h.t]+" "+h.k)+" "+h.pay.toLocaleString()+"円"}).join("　")+"</div>":R.j.state==="miss"?'<div class="res">外れ</div>':'<div class="res">結果待ち</div>';
@@ -352,7 +355,16 @@ function drawBets(){
       +(j&&(j.a!=null||j.p!=null)?'<div class="m"><span>購入 '+(j.a!=null?j.a.toLocaleString()+"円"+(j.autoA?"（自動）":""):"—")+"</span><span>払戻 "+(j.p!=null?j.p.toLocaleString()+"円"+(j.autoP?"（自動）":""):"—")+"</span>"+(function(){var pp=j.p!=null?j.p:(j.state==="miss"?0:null);return (j.a>0&&pp!=null&&j.state!=="pending")?"<span>回収率 "+Math.round(pp/j.a*100)+"%</span>":""})()+"</div>":"")
       +(x.t?'<div class="t">'+esc(x.t)+"</div>":"")
       +'<div class="memo ops" style="border:0;padding:0"><button class="btn small sub" type="button" data-bd="'+esc(x.k)+'">このレースを消す</button></div></div>';
-  }).join(""):'<div class="empty">'+(BPER==="all"?"まだ保存した買い目はありません。出走表のレース画面で、艇番を押して「保存」を押すとここに並びます。":"この期間に保存した買い目はありません。")+"</div>";
+  }).join("")+(xs.length>BSHOW?'<div class="more" id="b-more"><button class="btn small sub" type="button" id="b-moreb">続きを表示（残り '+(xs.length-BSHOW)+' レース）</button></div>':""):'<div class="empty">'+(BPER==="all"?"まだ保存した買い目はありません。出走表のレース画面で、艇番を押して「保存」を押すとここに並びます。":"この期間に保存した買い目はありません。")+"</div>";
+  watchMore();
+}
+var BSHOW=20, BXS=[], BJ=[], BIO=null;
+function moreBets(){ BSHOW+=20; drawBets(); }
+/* 目印（続きのボタン）が画面に入ったら自動で足す。IntersectionObserver が無い環境ではボタンを押して足す */
+function watchMore(){
+  var m=$("b-more"); if(BIO){BIO.disconnect();BIO=null} if(!m)return;
+  $("b-moreb").onclick=moreBets;
+  if("IntersectionObserver" in window){BIO=new IntersectionObserver(function(es){if(es.some(function(e){return e.isIntersecting})){BIO.disconnect();BIO=null;moreBets()}},{rootMargin:"200px 0px"});BIO.observe(m)}
 }
 $("b-list").addEventListener("click",function(e){var b=e.target.closest("button");if(!b||!b.dataset.bd)return;
   if(!b.dataset.armed){b.dataset.armed="1";b.textContent="もう一度押すと消えます";return}

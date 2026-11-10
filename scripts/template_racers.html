@@ -1149,7 +1149,8 @@ function raceCd(v,rc,chR){
   if(mins===null) return {cls:"cd-open",txt:""};
   if(mins<0) return {cls:"cd-closed",txt:"締切済み"};
   if(mins>=9999) return {cls:"cd-open",txt:"翌日開催"};
-  return {cls:mins<=15?"cd-soon":"cd-open",txt:"締切まで"+fmtMins(mins)};
+  /* 強調は残り10分から（再訪設計書 段階2・2026-11-10。5分前では買いそびれる）。それより前は控えめ。秒・点滅・音は付けない */
+  return {cls:mins<=10?"cd-soon":"cd-open",txt:"締切まで"+fmtMins(mins)};
 }
 /* レース画面の「作り直しが要る状態」の印。締切をまたぐ・日付が変わる・別のレースに移ると変わる */
 var RACE_SIG="";
