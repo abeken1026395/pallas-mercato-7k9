@@ -2,7 +2,7 @@
    数え方：区分ごとの空ページ /in/kaisu/<区分>/ ・ /in/c/<入口>/ を見えない枠で開き、Cloudflare Web Analytics の表示数として数える。
    1) 入口から来た：入口ページ（/in/line/ など）は開いた瞬間に移り、印（sessionStorage の dzIn）だけを残す。移った先のこのファイルが /in/c/<入口>/ を1回開く
    2) 来訪の間隔と頻度：その日の最初の1ページ目だけ、/in/kaisu/ の2区分を開く（第1版と同じ）
-   3) 外の LINE へ出る入口（/in/top/… ・ /in/yosou/）を押したとき：押した側のページで /in/c/<入口>/ を開く
+   外の LINE へ出る入口（/in/top/… ・ /in/yosou/）は、入口ページ自身が数えてから移る（2026-11-11。押した側で数える形はスマホで取りこぼすためやめた）
    保存できない環境では何もしない。 */
 (function () {
   var opens = [];
@@ -55,14 +55,6 @@
       opens.push("/in/kaisu/" + kankaku + "/", "/in/kaisu/" + hindo + "/");
     })();
   } catch (e) { /* 保存できない・ブロックされた環境では何もしない */ }
-  try {
-    document.addEventListener("click", function (ev) {
-      var a = ev.target && ev.target.closest && ev.target.closest("a[href]");
-      if (!a || a.host !== location.host) return;
-      var m = /^\/in\/((?:top\/[a-z0-9-]+)|yosou)\/?$/.exec(a.pathname || "");
-      if (m) frame("/in/c/" + m[1] + "/");
-    }, true);
-  } catch (e) { /* 何もしない */ }
   if (!opens.length) return;
   var go = function () { opens.forEach(frame); };
   if (document.readyState === "complete") go();
