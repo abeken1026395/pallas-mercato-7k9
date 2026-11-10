@@ -515,6 +515,9 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .kb-hit b{font-size:16px;color:#7fb4ff}
 .kb-hit .kb-pay{flex-basis:100%;font-size:14px;color:#c3ccd6}
 .kb-hit .kb-pay i{font-style:normal;font-size:18px;font-weight:700;color:#eef3f8}
+.kb-rr{flex-basis:100%;display:block;font-size:14px;color:#c3ccd6}
+.kb-rr b{font-size:16px;color:#eef3f8}
+.kb-miss .kb-rr{display:inline;margin-left:12px;color:#a3b4c6}
 .kb-miss{color:#a3b4c6;border-top:1px solid rgba(255,255,255,.09);padding-left:0}
 .kb-wait{color:#a3b4c6;border-top:1px solid rgba(255,255,255,.09);padding-left:0}
 @keyframes kbPop2{0%{transform:scale(.9);opacity:0}100%{transform:scale(1);opacity:1}}
@@ -2024,6 +2027,8 @@ function kbEntry(e){
 }
 function kbPut(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); return true; }catch(e){ return false; } }
 function kbYen(n){ return Number(n).toLocaleString("ja-JP")+"円"; }
+/* 1レースの回収率。購入額と払戻が両方分かるときだけ出す */
+function kbRate(a,p){ return (a>0&&p!=null)?'<span class="kb-rr">回収率 <b>'+Math.round(p/a*100)+'%</b>（購入 '+kbYen(a)+'）</span>':''; }
 /* ボックスを選べるのは着順のある 2連単・3連単だけ（連複は選んだ艇の組＝そもそもボックス） */
 function kbHasBox(t){ var d=KB_T[t]; return !!(d&&d[2]&&d[1]>1); }
 function kbRows(t,m){ return (kbHasBox(t)&&m!=="b")?KB_T[t][1]:1; }
@@ -2098,10 +2103,10 @@ function kbBox(v,rno,rc,chR){
       if(J&&J.state==="hit"){
         var seen=kbObj("dz_hitSeen"), first=!seen[rid];
         h+='<div class="kb-res kb-hit'+(first?' kb-pop2':'')+'" role="status"><b>的中</b><span>'+J.hits.map(function(x){ return esc(KB_T[x.t][0]+" "+x.k)+" "+kbYen(x.pay); }).join("　")+'</span>'
-          +(J.p!=null?'<span class="kb-pay">払戻 <i data-kbcount="'+J.p+'">'+(first?'0円':kbYen(J.p))+'</i>'+(J.autoP?'（1点'+kbYen(e.u)+'で計算）':'')+'</span>':'<span class="kb-pay">配当は100円あたり。「記録」で1点の金額か払戻を入れると、回収率に入ります</span>')+'</div>';
+          +(J.p!=null?'<span class="kb-pay">払戻 <i data-kbcount="'+J.p+'">'+(first?'0円':kbYen(J.p))+'</i>'+(J.autoP?'（1点'+kbYen(e.u)+'で計算）':'')+'</span>'+kbRate(J.a,J.p):'<span class="kb-pay">配当は100円あたり。「記録」で1点の金額か払戻を入れると、回収率に入ります</span>')+'</div>';
         if(first){ seen[rid]=Date.now(); kbPut("dz_hitSeen",seen); }
       }else if(J&&J.state==="miss"){
-        h+='<div class="kb-res kb-miss" role="status">外れ</div>';
+        h+='<div class="kb-res kb-miss" role="status">外れ'+(J.a!=null?'<span class="kb-rr">購入 '+kbYen(J.a)+'・回収率 0%</span>':'')+'</div>';
       }else{
         h+='<div class="kb-res kb-wait" role="status">結果待ち。結果は20〜60分おきに入ります。</div>';
       }

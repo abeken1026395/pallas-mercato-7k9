@@ -75,7 +75,7 @@ textarea{min-height:96px;resize:vertical;line-height:1.7}
 .bet li b{font-size:12px;color:#0b1726;background:#eef3f8;padding:1px 6px;white-space:nowrap}
 .bet li span{font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 .bet li i{font-style:normal;font-size:12px;color:var(--dim);white-space:nowrap}
-.bet .m{display:flex;gap:16px;margin-top:6px;font-size:14px;color:var(--sub);font-variant-numeric:tabular-nums}
+.bet .m{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:6px;font-size:14px;color:var(--sub);font-variant-numeric:tabular-nums}
 .bet .res{margin-top:6px;font-size:14px;line-height:1.6;color:var(--sub);font-variant-numeric:tabular-nums}
 .bet .res.hit{color:var(--fg)}
 .bet .res.hit b{color:#7fb4ff}
@@ -339,7 +339,7 @@ function drawBets(){
     return '<div class="bet"><div class="h"><a href="../racers/#v'+esc(x.j)+"r"+x.r+"d"+esc(x.hd)+'">'+dd+" "+esc(V[+x.j]||x.j)+" "+x.r+"R</a><small>"+(x.d?"締切 "+esc(x.d):"")+"</small></div>"
       +(x.en.b.length?"<ul>"+x.en.b.map(function(b){return "<li><b>"+esc((BT[b.t]||b.t)+(b.m==="b"?"ボックス":""))+"</b><span>"+esc(b.m==="b"&&b.s&&b.s.length?b.s.join("・"):b.k.join("　"))+"</span><i>"+b.k.length+"点</i></li>"}).join("")+"</ul>":"")
       +st
-      +(j&&(j.a!=null||j.p!=null)?'<div class="m"><span>購入 '+(j.a!=null?j.a.toLocaleString()+"円"+(j.autoA?"（自動）":""):"—")+"</span><span>払戻 "+(j.p!=null?j.p.toLocaleString()+"円"+(j.autoP?"（自動）":""):"—")+"</span></div>":"")
+      +(j&&(j.a!=null||j.p!=null)?'<div class="m"><span>購入 '+(j.a!=null?j.a.toLocaleString()+"円"+(j.autoA?"（自動）":""):"—")+"</span><span>払戻 "+(j.p!=null?j.p.toLocaleString()+"円"+(j.autoP?"（自動）":""):"—")+"</span>"+(function(){var pp=j.p!=null?j.p:(j.state==="miss"?0:null);return (j.a>0&&pp!=null&&j.state!=="pending")?"<span>回収率 "+Math.round(pp/j.a*100)+"%</span>":""})()+"</div>":"")
       +(x.t?'<div class="t">'+esc(x.t)+"</div>":"")
       +'<div class="memo ops" style="border:0;padding:0"><button class="btn small sub" type="button" data-bd="'+esc(x.k)+'">このレースを消す</button></div></div>';
   }).join(""):'<div class="empty">'+(BPER==="all"?"まだ保存した買い目はありません。出走表のレース画面で、艇番を押して「保存」を押すとここに並びます。":"この期間に保存した買い目はありません。")+"</div>";
