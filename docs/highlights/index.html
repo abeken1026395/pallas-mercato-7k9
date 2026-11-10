@@ -295,7 +295,11 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .vnext{font-size:12px;color:var(--sub);margin:3px 0 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .part-badge{display:inline-block;font-size:12px;font-weight:800;color:#04121f;background:#e0b64a;border-radius:6px;padding:2px 7px}
 /* レース・アコーディオン（場別／波乱・堅め 共用） */
-.race{background:var(--panel);border:1px solid var(--line);border-radius:13px;margin-bottom:9px;overflow:hidden;scroll-margin-top:64px}
+.race{background:var(--panel);border:1px solid var(--line);border-radius:13px;margin-bottom:9px;overflow:hidden;scroll-margin-top:64px;scroll-snap-align:start}
+/* レースを1枚ずつ止めるスクロール（再訪設計書 段階2・2026-11-10）。止める位置はレースの頭だけ（見出しの下 64px）。
+   proximity なので、頭の近くで指を離したときだけ止まる。長く開いたカードは途中でも止まらずに読める（カードの中にスクロールを作らない） */
+html{scroll-snap-type:y proximity}
+@media (prefers-reduced-motion:reduce){html{scroll-snap-type:none}}
 .race.open{border-color:#dcbd78}
 .rhead{padding:11px 13px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .rhead:focus-visible{outline:2px solid var(--acc2);outline-offset:-2px}
