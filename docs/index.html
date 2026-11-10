@@ -74,7 +74,7 @@ header.bar{position:sticky;top:0;z-index:30;height:68px;background:var(--bar);bo
 .wrap{max-width:600px;margin:0 auto;padding:0 12px 24px}
 
 /* 今日の注目 */
-.hl{margin:0 -12px;padding:14px 0 14px 12px;background:#0f1b33;border-bottom:1px solid var(--line);}
+.hl{margin:24px -12px 0;padding:14px 0 14px 12px;background:#0f1b33;border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
 .hl-h{display:flex;align-items:baseline;gap:8px;margin:0 0 10px;font-size:16px;font-weight:800;letter-spacing:.06em}
 .hl-h span{font-size:14px;font-weight:500;color:var(--dim);letter-spacing:0}
 .hl-r{display:flex;gap:10px;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scrollbar-width:none;padding-right:12px}
@@ -99,7 +99,10 @@ header.bar{position:sticky;top:0;z-index:30;height:68px;background:var(--bar);bo
 .sub b{color:var(--tx);font-size:20px;margin-right:2px}
 
 /* 24場の格子（公式の並び） */
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+.grid.wait{min-height:400px} /* 1画面目に上げたので、届くまで4段ぶんの高さを空けておく。描画か失敗で wait を外す（2026-11-10） */
+@media (max-width:359px){.grid.wait{min-height:560px}}
+@media (max-width:359px){.c{padding:6px 4px 6px 6px}.c .vn{font-size:16px;padding-right:10px}.c .ft b{display:block;margin:0}.cap .tg{white-space:normal;text-align:right;line-height:1.4}} /* 320px幅で横にはみ出さない（2026-11-10） */
 .c{position:relative;display:flex;flex-direction:column;min-height:74px;padding:6px 5px 6px 8px;background:var(--cell);border:1px solid var(--line)}
 .c.live{box-shadow:inset 3px 0 0 var(--blue)}
 .c.done{opacity:.55}
@@ -187,6 +190,9 @@ a.an::after{content:"";}
 .fol-v{flex:1;min-width:0;font-size:14px;color:var(--dim);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .fol-v b{color:var(--tx);font-weight:700}
 a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
+.fol-box.shut>.fol-r:nth-child(n+4){display:none}
+.fol-more{display:flex;align-items:center;justify-content:center;width:100%;min-height:44px;margin:0;padding:0 12px;background:var(--cell);border:1px solid var(--line);border-top:0;color:var(--blue);font:inherit;font-size:14px;font-weight:600;cursor:pointer;touch-action:manipulation}
+.fol-more[hidden]{display:none}
 /* 場の朝刊（横に送る） */
 .ch[hidden],.chh[hidden]{display:none}
 .ch-rail{display:flex;gap:10px;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0 -12px;padding:0 12px 4px}
@@ -290,28 +296,12 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
   <h2 class="sh" style="margin-top:18px">保存した買い目<a href="./note/#bets">一覧</a></h2>
   <div class="fol-box" id="kbTopRows"></div>
 </section>
-<section class="fol" id="fol" hidden aria-label="フォロー中の今日">
-  <h2 class="sh" style="margin-top:18px">フォロー中の今日<a href="./racers/">出走表へ</a></h2>
-  <div class="fol-box" id="folRows"></div>
-</section>
-  <section class="hl" id="hl" hidden>
-    <h2 class="hl-h">今日の注目<span>グレード戦と優勝戦</span></h2>
-    <div class="hl-r" id="hlR"></div>
-  </section>
-
-  <h2 class="sh" style="margin-top:14px">お知らせ</h2>
-<section class="ann" aria-label="お知らせ">
-  <a class="an pri" href="./in/top/ebook-card/" target="_blank" rel="noopener"><small>専用オープンチャット｜第1話 11/9（月）21時</small><b>電子書籍を動画で配信（全3話）</b><span>書籍づくりの裏側も毎日お届けしています</span><em>オプチャで受け取る ›</em></a>
-  <a class="an pri" href="./in/top/yosou-card/" target="_blank" rel="noopener"><small>LINE オープンチャット</small><b>AI予想部屋</b><span>AIが出した買い目（有料note）の更新と、当たったレースの結果が届きます</span><em>LINEで受け取る ›</em></a>
-  <div class="an pri yt"><small>阿部より</small><b>YouTubeは11月末に再開します</b></div>
-  <a class="an upd" id="updL" href="./updates/" hidden><small id="updD">更新</small><span id="updT"></span></a>
-</section>
   <div class="seg" role="tablist">
     <button class="on" id="sgA" role="tab"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7"/><rect x="13.5" y="3.5" width="7" height="7"/><rect x="3.5" y="13.5" width="7" height="7"/><rect x="13.5" y="13.5" width="7" height="7"/></svg>開催一覧</button>
     <button id="sgB" role="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="7.5"/><path d="M12 9v4l2.5 2M9.5 3h5"/></svg>締切順</button>
   </div>
   <div class="sub"><span id="sbL"></span><span>タップで出走表へ</span></div>
-  <div class="grid" id="grid"></div>
+  <div class="grid wait" id="grid"></div>
   <p class="offl" id="offL" hidden></p>
   <div class="list" id="list"></div>
   <div class="lg" id="lg">
@@ -321,6 +311,22 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
     <span><span class="gr lf">女子</span>女子戦</span>
   </div>
   <a class="fail" id="fail" href="./racers/" hidden>今日の開催は出走表で確認できます</a>
+  <section class="hl" id="hl" hidden>
+    <h2 class="hl-h">今日の注目<span>グレード戦と優勝戦</span></h2>
+    <div class="hl-r" id="hlR"></div>
+  </section>
+<section class="fol" id="fol" hidden aria-label="フォロー中の今日">
+  <h2 class="sh" style="margin-top:18px">フォロー中の今日<a href="./racers/">出走表へ</a></h2>
+  <div class="fol-box" id="folRows"></div>
+</section>
+
+  <h2 class="sh" style="margin-top:14px">お知らせ</h2>
+<section class="ann" aria-label="お知らせ">
+  <a class="an pri" href="./in/top/ebook-card/" target="_blank" rel="noopener"><small>専用オープンチャット｜第1話 11/9（月）21時</small><b>電子書籍を動画で配信（全3話）</b><span>書籍づくりの裏側も毎日お届けしています</span><em>オプチャで受け取る ›</em></a>
+  <a class="an pri" href="./in/top/yosou-card/" target="_blank" rel="noopener"><small>LINE オープンチャット</small><b>AI予想部屋</b><span>AIが出した買い目（有料note）の更新と、当たったレースの結果が届きます</span><em>LINEで受け取る ›</em></a>
+  <div class="an pri yt"><small>阿部より</small><b>YouTubeは11月末に再開します</b></div>
+  <a class="an upd" id="updL" href="./updates/" hidden><small id="updD">更新</small><span id="updT"></span></a>
+</section>
 
 <h2 class="sh chh" id="chHead" hidden><span id="chH2" style="font-size:16px;font-weight:800;color:var(--tx);letter-spacing:.06em">場の朝刊</span><span id="chSub"></span></h2>
 <div class="ch" id="chBox" hidden>
@@ -446,6 +452,7 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
     var gs=(GS&&GS.days&&GS.days[String(d["開催日"])])||{}, kaku=d["格"]||{}, lady=d["レディース"]||[];
     (d["レース"]||[]).forEach(function(r){(by[r["場コード"]]=by[r["場コード"]]||[]).push(r);n++;});
     var held=0, live=0, all=[], hlc=[], offs=[];
+    document.getElementById("grid").classList.remove("wait");
     document.getElementById("grid").innerHTML=V.map(function(v){
       var rs=by[v[0]]; if(!rs||!rs.length){ offs.push(v[1]); return ''; }
       held++; rs.sort(function(a,b){return parseInt(a["レース"])-parseInt(b["レース"]);});
@@ -516,13 +523,36 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
   var gsP=fetch("./data/gradeSchedule.json?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(j){GS=j;}).catch(function(){});
   fetch("./data/todayTop.json?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():Promise.reject();})
     .then(function(d){D=d;return gsP.then(function(){render();setInterval(render,60000);});})
-    .catch(function(){document.getElementById("fail").hidden=false;});
+    .catch(function(){document.getElementById("grid").classList.remove("wait");document.getElementById("fail").hidden=false;});
 })();
 </script>
 <script>
 /* フォロー中の今日（2026-11-05 本番・けん裁定）。出走表で付けた 場（br_stadium）・推し（br_oshi）・気になる（br_watch）を、
    トップで今日の分だけ見せる。端末の中だけで完結し、外へは送らない。連続記録・残り時間・通知は使わない。
    行の数は端末の記録だけで先に決めて高さを確保し、今日の開催（todayTop.json）と出場予定（racerSchedule.json）が届いたら文字だけ埋める。 */
+/* 3行を超えたら折りたたむ（2026-11-10 けん裁定：3行ずつ・開いた状態は端末に覚える dz_foldOpen）。保存した買い目でも使う */
+window.dzFold=function(rows,key){
+  if(!rows||!rows.parentNode) return;
+  function st(){ try{ var v=JSON.parse(localStorage.getItem("dz_foldOpen")||"{}"); return v&&typeof v==="object"&&!Array.isArray(v)?v:{}; }catch(e){ return {}; } }
+  var btn=rows.nextElementSibling;
+  if(!btn||!btn.classList||!btn.classList.contains("fol-more")){
+    btn=document.createElement("button"); btn.type="button"; btn.className="fol-more";
+    btn.setAttribute("aria-controls",rows.id);
+    rows.parentNode.insertBefore(btn,rows.nextSibling);
+    btn.addEventListener("click",function(){
+      var s=st(); if(s[key]) delete s[key]; else s[key]=1;
+      try{ localStorage.setItem("dz_foldOpen",JSON.stringify(s)); }catch(e){}
+      window.dzFold(rows,key);
+    });
+  }
+  var n=rows.children.length;
+  if(n<=3){ rows.classList.remove("shut"); btn.hidden=true; return; }
+  var open=!!st()[key];
+  rows.classList.toggle("shut",!open);
+  btn.hidden=false;
+  btn.textContent=open?"閉じる":"ほか"+(n-3)+"件を表示";
+  btn.setAttribute("aria-expanded",open?"true":"false");
+};
 (function(){
   var box=document.getElementById("fol"), rows=document.getElementById("folRows");
   if(!box) return;
@@ -551,10 +581,24 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
   OM.forEach(function(o,i){ html+='<div class="fol-r" id="folM'+i+'"><span class="fol-k">モーター</span><span class="fol-n">'+esc(o.name)+'</span><span class="fol-v">…</span></div>'; });
   if(wToday.length||wPast.length) html+='<div class="fol-r" id="folW"><span class="fol-k">気になる</span><span class="fol-n">レース</span><span class="fol-v">…</span></div>';
   rows.innerHTML=html; box.hidden=false;
+  window.dzFold(rows,"fol");
+  /* 全行が埋まったら、今日動きのある行 → 次の予定・確かめる行 → 今日はなしの行 の順に並べ直す（行の数は変えないので高さは動かない） */
+  var nRow=rows.children.length, nPut=0, sorted=false;
+  function sortRows(){
+    if(sorted) return; sorted=true;
+    var a=Array.prototype.slice.call(rows.children).map(function(el,i){ return {el:el,i:i,r:+(el.getAttribute("data-rk")||1)}; });
+    a.sort(function(x,y){ return x.r-y.r||x.i-y.i; });
+    a.forEach(function(x){ rows.appendChild(x.el); });
+    window.dzFold(rows,"fol");
+  }
+  setTimeout(sortRows,6000);
   function put(id,text,href){
     var el=document.getElementById(id); if(!el) return;
     if(href){ var a=document.createElement("a"); a.className="fol-r"; a.id=id; a.href=href; a.innerHTML=el.innerHTML; el.parentNode.replaceChild(a,el); el=a; }
     el.querySelector(".fol-v").innerHTML=text;
+    var plain=String(text).replace(/<[^>]*>/g,"");
+    el.setAttribute("data-rk",/なし/.test(plain)?"2":(/^次は|確かめる|取れていません/.test(plain)?"1":"0"));
+    if(++nPut>=nRow) sortRows();
   }
   /* 気になる：端末の記録だけで出せる */
   if(wToday.length||wPast.length){
@@ -794,7 +838,12 @@ function lineBoxes(){
     return {k:k,j:m[1],hd:m[2],r:+m[3],d:d?e.d:"",t:t,b:bs};
   }).filter(Boolean);
   if(!xs.length) return;
-  var td=xs.filter(function(x){ return x.hd===today; }).sort(function(a,b){ return a.t-b.t||a.r-b.r; });
+  /* 今日の分は 締切前（締切の近い順）→ 締切済み（新しい順）。3件を超えたら折りたたむ（2026-11-10） */
+  var td=xs.filter(function(x){ return x.hd===today; }).sort(function(a,b){
+    var pa=a.t&&a.t<=now?1:0, pb=b.t&&b.t<=now?1:0;
+    if(pa!==pb) return pa-pb;
+    return (pa?b.t-a.t:a.t-b.t)||a.r-b.r;
+  });
   var show=td.length?td:xs.sort(function(a,b){ return b.hd.localeCompare(a.hd)||b.t-a.t; }).slice(0,3);
   /* 締切後のレースは答え合わせ（../assets/kotaeawase.js）。結果が届いたら「的中」「外れ」に変える */
   var RES={};
@@ -805,6 +854,7 @@ function lineBoxes(){
       if(window.DZK&&RES[x.k]){ var J=DZK.judge(DZK.entry(B[x.k])||{b:[]},RES[x.k]); if(J.state==="hit"){ st="的中"; hit=true; } else if(J.state==="miss") st="外れ"; }
       return '<a class="fol-r" href="./racers/#v'+x.j+'r'+x.r+'d'+x.hd+'"><span class="fol-k">'+x.r+'R</span><span class="fol-n">'+esc(VN[x.j]||x.j)+'</span><span class="fol-v"><b>'+n+'点</b>　'+(hit?'<b style="color:#7fb4ff">的中</b>':esc(st))+'</span></a>';
     }).join("");
+    if(window.dzFold) window.dzFold(document.getElementById("kbTopRows"),"kb");
   }
   draw();
   document.getElementById("kbTop").hidden=false;
