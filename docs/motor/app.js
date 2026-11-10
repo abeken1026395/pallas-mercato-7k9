@@ -963,6 +963,73 @@ function E30Badge({
 
 // 場カード。既定は上位3機だけ開いた状態。フォロー場は最初から全機、検索中は全機かつ畳みボタンを出さない
 //（絞り込んだ結果を勝手に隠さない）。
+/* 今節使っていない機（2026-11-10 けん裁定 A）。今節の抽選に入っていない機も、ここで見られて推しフォローできる。
+   一覧は docs/data/motorUsage.json（新替からの全機）から、今節の機を除いたもの。今節の2連率が無いので、並び（ランク）には入れない */
+function IdleMotors({
+  jcd,
+  list,
+  q
+}) {
+  const [open, setOpen] = useState(false);
+  if (!list || !list.length) return null;
+  const qn = /^\d{1,3}$/.test(String(q || "").trim()) ? String(Number(q)) : "";
+  if (q && !qn) return null;
+  const xs = qn ? list.filter(x => String(x.m) === qn) : list;
+  if (!xs.length) return null;
+  const show = open || !!qn;
+  return /*#__PURE__*/React.createElement("div", null, !qn && /*#__PURE__*/React.createElement(MoreBtn, {
+    onClick: () => setOpen(o => !o)
+  }, open ? "▲ 今節使っていない機を閉じる" : "▼ 今節使っていない機（" + list.length + "機）を見る"), show && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: F.xs,
+      color: C.muted,
+      padding: "6px 2px 4px",
+      lineHeight: 1.6
+    }
+  }, "\u4ECA\u7BC0\u306E\u62BD\u9078\u306B\u5165\u3063\u3066\u3044\u306A\u3044\u6A5F\u3067\u3059\u3002\u4ECA\u7BC0\u306E2\u9023\u7387\u304C\u7121\u3044\u306E\u3067\u3001\u4E0A\u306E\u4E26\u3073\u306B\u306F\u5165\u308C\u3066\u3044\u307E\u305B\u3093\u3002\u8D70\u6570\u306F\u65B0\u66FF\u304B\u3089\u3002"), xs.map(x => /*#__PURE__*/React.createElement("div", {
+    key: x.m,
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 10,
+      borderTop: "1px solid " + C.line,
+      minHeight: 48
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: "none",
+      width: 46,
+      fontSize: 22,
+      fontWeight: 800,
+      color: C.text,
+      fontVariantNumeric: "tabular-nums",
+      lineHeight: 1
+    }
+  }, x.m), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1,
+      minWidth: 0,
+      fontSize: F.sm,
+      color: C.sub,
+      fontVariantNumeric: "tabular-nums"
+    }
+  }, x.n != null ? "新替から" + x.n + "走" : "新替からの走数なし"), /*#__PURE__*/React.createElement("a", {
+    href: "../motor-maintenance/#m" + jcd + "-" + x.m,
+    style: {
+      flex: "none",
+      minHeight: 44,
+      display: "flex",
+      alignItems: "center",
+      color: C.sub,
+      fontSize: F.sm,
+      textDecoration: "underline",
+      textUnderlineOffset: 4
+    }
+  }, "\u6574\u5099\u306E\u8A18\u9332"), /*#__PURE__*/React.createElement(OmBtn, {
+    j: jcd,
+    m: x.m
+  })))));
+}
 function VenueCard({
   venue,
   rows,
@@ -981,7 +1048,9 @@ function VenueCard({
   usageFromFor,
   officialAsOfFor,
   usageSrcFor,
-  upd
+  upd,
+  idle,
+  q
 }) {
   const [open, setOpen] = useState(pinned);
   const showAll = searching || open || single;
@@ -1111,7 +1180,11 @@ function VenueCard({
     onClick: () => setOpen(true)
   }, "\u25BC \u6B8B\u308A", hidden, "\u6A5F\u3092\u898B\u308B") : /*#__PURE__*/React.createElement(MoreBtn, {
     onClick: () => setOpen(false)
-  }, "\u25B2 \u4E0A\u4F4D", TOP_N, "\u6A5F\u3060\u3051\u8868\u793A"))));
+  }, "\u25B2 \u4E0A\u4F4D", TOP_N, "\u6A5F\u3060\u3051\u8868\u793A")), /*#__PURE__*/React.createElement(IdleMotors, {
+    jcd: String(rows[0][CI.jcd]).padStart(2, "0"),
+    list: idle,
+    q: q
+  })));
 }
 
 // URL の末尾で場と機番を受け取る（#v24＝場、#m24-35＝場24の35号機）。読み込み後に1回だけ見る。無い場は何もしない。
@@ -1328,6 +1401,24 @@ function App() {
     if (ns >= 5) return null;
     return d.slice(0, 4) + "/" + Number(d.slice(4, 6)) + "/" + Number(d.slice(6, 8)) + "（" + ns + "節終了）";
   };
+  // 今節使っていない機：motorUsage.json の全機から、今節の一覧（検索で絞る前の全行）にある機番を除く。番号順
+  const idleFor = jcd => {
+    if (!usageMap) return [];
+    const j = String(jcd || "").padStart(2, "0");
+    const used = new Set(R.data.filter(r => String(r[CI.jcd]).padStart(2, "0") === j).map(r => String(parseInt(r[CI.mno], 10))));
+    const out = [];
+    for (const k in usageMap) {
+      if (k.slice(0, 3) !== j + "_") continue;
+      const m = parseInt(k.slice(3), 10);
+      if (!(m >= 1 && m <= 999) || used.has(String(m))) continue;
+      const u = usageMap[k];
+      out.push({
+        m: m,
+        n: u && typeof u["走"] === "number" ? u["走"] : null
+      });
+    }
+    return out.sort((a, b) => a.m - b.m);
+  };
   const usageFor = (jcd, mno) => {
     if (!usageMap) return null;
     return usageMap[String(jcd || "").padStart(2, "0") + "_" + String(mno || "").trim()] || null;
@@ -1480,11 +1571,11 @@ function App() {
       paddingLeft: 4,
       marginBottom: 8
     }
-  }, /*#__PURE__*/React.createElement("div", null, "\u300C\u6B8B\u308A\u25EF\u6A5F\u3092\u898B\u308B\u300D\u3067\u305D\u306E\u5834\u306E\u5168\u6A5F\u3092\u51FA\u3057\u307E\u3059\u3002", /*#__PURE__*/React.createElement("b", {
+  }, /*#__PURE__*/React.createElement("div", null, "\u300C\u6B8B\u308A\u25EF\u6A5F\u3092\u898B\u308B\u300D\u3067\u305D\u306E\u5834\u306E\u4ECA\u7BC0\u306E\u5168\u6A5F\u3092\u51FA\u3057\u307E\u3059\u3002", /*#__PURE__*/React.createElement("b", {
     style: {
       color: C.text
     }
-  }, "\u30D5\u30A9\u30ED\u30FC\u4E2D\u306E\u5834\u3068\u691C\u7D22\u4E2D"), "\u306F\u3001\u6700\u521D\u304B\u3089\u5168\u6A5F\u3092\u958B\u3044\u305F\u72B6\u614B\u306B\u3057\u307E\u3059\u3002")), /*#__PURE__*/React.createElement("div", {
+  }, "\u30D5\u30A9\u30ED\u30FC\u4E2D\u306E\u5834\u3068\u691C\u7D22\u4E2D"), "\u306F\u3001\u6700\u521D\u304B\u3089\u5168\u6A5F\u3092\u958B\u3044\u305F\u72B6\u614B\u306B\u3057\u307E\u3059\u3002\u4ECA\u7BC0\u306E\u62BD\u9078\u306B\u5165\u3063\u3066\u3044\u306A\u3044\u6A5F\u306F\u3001\u5404\u5834\u306E\u4E00\u756A\u4E0B\u300C\u4ECA\u7BC0\u4F7F\u3063\u3066\u3044\u306A\u3044\u6A5F\u300D\u304B\u3089\u898B\u3089\u308C\u307E\u3059\u3002")), /*#__PURE__*/React.createElement("div", {
     style: {
       color: "#8faabe",
       fontWeight: 700,
@@ -1650,7 +1741,9 @@ function App() {
     usageFromFor: usageFromFor,
     officialAsOfFor: officialAsOfFor,
     usageSrcFor: usageSrcFor,
-    upd: partsUpd
+    upd: partsUpd,
+    idle: idleFor(rows[0][CI.jcd]),
+    q: q
   })));
 }
 /* レイアウト計量テーブル */

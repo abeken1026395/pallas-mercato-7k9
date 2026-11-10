@@ -390,7 +390,36 @@ function E30Badge({info}){
 
 // 場カード。既定は上位3機だけ開いた状態。フォロー場は最初から全機、検索中は全機かつ畳みボタンを出さない
 //（絞り込んだ結果を勝手に隠さない）。
-function VenueCard({venue,rows,pinned,searching,single,hlMno,e30,meta,prevTop,repl,isPrev,females,partsFor,usageFor,usageFromFor,officialAsOfFor,usageSrcFor,upd}){
+/* 今節使っていない機（2026-11-10 けん裁定 A）。今節の抽選に入っていない機も、ここで見られて推しフォローできる。
+   一覧は docs/data/motorUsage.json（新替からの全機）から、今節の機を除いたもの。今節の2連率が無いので、並び（ランク）には入れない */
+function IdleMotors({jcd,list,q}){
+  const [open,setOpen]=useState(false);
+  if(!list || !list.length) return null;
+  const qn = /^\d{1,3}$/.test(String(q||"").trim()) ? String(Number(q)) : "";
+  if(q && !qn) return null;
+  const xs = qn ? list.filter(x=>String(x.m)===qn) : list;
+  if(!xs.length) return null;
+  const show = open || !!qn;
+  return (
+    <div>
+      {!qn && <MoreBtn onClick={()=>setOpen(o=>!o)}>{open?"▲ 今節使っていない機を閉じる":"▼ 今節使っていない機（"+list.length+"機）を見る"}</MoreBtn>}
+      {show && (
+        <div>
+          <div style={{fontSize:F.xs,color:C.muted,padding:"6px 2px 4px",lineHeight:1.6}}>今節の抽選に入っていない機です。今節の2連率が無いので、上の並びには入れていません。走数は新替から。</div>
+          {xs.map(x=>(
+            <div key={x.m} style={{display:"flex",alignItems:"center",gap:10,borderTop:"1px solid "+C.line,minHeight:48}}>
+              <div style={{flex:"none",width:46,fontSize:22,fontWeight:800,color:C.text,fontVariantNumeric:"tabular-nums",lineHeight:1}}>{x.m}</div>
+              <div style={{flex:1,minWidth:0,fontSize:F.sm,color:C.sub,fontVariantNumeric:"tabular-nums"}}>{x.n!=null?"新替から"+x.n+"走":"新替からの走数なし"}</div>
+              <a href={"../motor-maintenance/#m"+jcd+"-"+x.m} style={{flex:"none",minHeight:44,display:"flex",alignItems:"center",color:C.sub,fontSize:F.sm,textDecoration:"underline",textUnderlineOffset:4}}>整備の記録</a>
+              <OmBtn j={jcd} m={x.m}/>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+function VenueCard({venue,rows,pinned,searching,single,hlMno,e30,meta,prevTop,repl,isPrev,females,partsFor,usageFor,usageFromFor,officialAsOfFor,usageSrcFor,upd,idle,q}){
   const [open,setOpen] = useState(pinned);
   const showAll = searching || open || single;
   // 新替から5節の場は率の順に並べない（並びが序列に見えるため）。機番順にする。
@@ -441,6 +470,7 @@ function VenueCard({venue,rows,pinned,searching,single,hlMno,e30,meta,prevTop,re
             ? <MoreBtn onClick={()=>setOpen(true)}>▼ 残り{hidden}機を見る</MoreBtn>
             : <MoreBtn onClick={()=>setOpen(false)}>▲ 上位{TOP_N}機だけ表示</MoreBtn>
         )}
+        <IdleMotors jcd={String(rows[0][CI.jcd]).padStart(2,"0")} list={idle} q={q}/>
       </div>
     </div>
   );
@@ -579,6 +609,20 @@ function App(){
     if(ns>=5) return null;
     return d.slice(0,4)+"/"+Number(d.slice(4,6))+"/"+Number(d.slice(6,8))+"（"+ns+"節終了）";
   };
+  // 今節使っていない機：motorUsage.json の全機から、今節の一覧（検索で絞る前の全行）にある機番を除く。番号順
+  const idleFor = (jcd) => {
+    if(!usageMap) return [];
+    const j=String(jcd||"").padStart(2,"0");
+    const used=new Set(R.data.filter(r=>String(r[CI.jcd]).padStart(2,"0")===j).map(r=>String(parseInt(r[CI.mno],10))));
+    const out=[];
+    for(const k in usageMap){
+      if(k.slice(0,3)!==j+"_") continue;
+      const m=parseInt(k.slice(3),10);
+      if(!(m>=1&&m<=999) || used.has(String(m))) continue;
+      const u=usageMap[k]; out.push({m:m, n:(u&&typeof u["走"]==="number")?u["走"]:null});
+    }
+    return out.sort((a,b)=>a.m-b.m);
+  };
   const usageFor = (jcd, mno) => {
     if(!usageMap) return null;
     return usageMap[String(jcd||"").padStart(2,"0")+"_"+String(mno||"").trim()] || null;
@@ -644,7 +688,7 @@ function App(){
           <div style={{color:"#8faabe",fontWeight:700,marginBottom:4}}>表示のしかた</div>
           <div style={{paddingLeft:4,marginBottom:8}}>
             {/* 既定が上位3機であること・行タップで開くことは地の文で言っているので、ここでは繰り返さず例外だけ書く。 */}
-            <div>「残り◯機を見る」でその場の全機を出します。<b style={{color:C.text}}>フォロー中の場と検索中</b>は、最初から全機を開いた状態にします。</div>
+            <div>「残り◯機を見る」でその場の今節の全機を出します。<b style={{color:C.text}}>フォロー中の場と検索中</b>は、最初から全機を開いた状態にします。今節の抽選に入っていない機は、各場の一番下「今節使っていない機」から見られます。</div>
           </div>
           {/* ランクと目盛で見出しを分ける。ランクは場内の相対評価（他場と比べない）、
               目盛は全場共通（他場と比べられる）で、かかる範囲が逆。同じ見出しの下に並べると
@@ -684,7 +728,8 @@ function App(){
           prevTop={prevTopFor(rows[0][CI.jcd], rows[0][CI.hd])}
           repl={replFor(rows[0][CI.jcd])}
           isPrev={isPrevSetsu(rows[0][CI.hd])}
-          females={females} partsFor={partsFor} usageFor={usageFor} usageFromFor={usageFromFor} officialAsOfFor={officialAsOfFor} usageSrcFor={usageSrcFor} upd={partsUpd}/>
+          females={females} partsFor={partsFor} usageFor={usageFor} usageFromFor={usageFromFor} officialAsOfFor={officialAsOfFor} usageSrcFor={usageSrcFor} upd={partsUpd}
+          idle={idleFor(rows[0][CI.jcd])} q={q}/>
       ))}
     </div>
   );
