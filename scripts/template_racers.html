@@ -2070,7 +2070,7 @@ function kbBox(v,rno,rc,chR){
     }).join("")+'</ul>';
   }
   h+='<button type="button" class="kb-rec" data-kbm="1"><span>購入 '+(e&&e.a!=null?kbYen(e.a):'—')+'</span><span>払戻 '+(e&&e.p!=null?kbYen(e.p):'—')+'</span></button>';
-  h+='<a class="kb-all" href="../note/#bets"><span>保存した買い目とメモの一覧（観戦ノート）</span><span aria-hidden="true">›</span></a>';
+  h+='<a class="kb-all" href="../note/#bets"><span>保存した買い目とメモの一覧（自分の記録）</span><span aria-hidden="true">›</span></a>';
   KB_JUST="";
   return h+'</section>';
 }
@@ -2192,7 +2192,7 @@ function kbOpen(){
       +'<div><label class="kb-lb" for="kbP">払戻</label><div class="kb-in"><input id="kbP" type="text" inputmode="numeric" autocomplete="off" placeholder="0"><span>円</span></div></div></div>'
       +'<div class="kb-qk" aria-label="購入額に足す"><button type="button" data-kbq="100">+100</button><button type="button" data-kbq="500">+500</button><button type="button" data-kbq="1000">+1,000</button><button type="button" data-kbq="0">0に戻す</button></div>'
       +'<label class="kb-lb" for="kbM">このレースのメモ</label><textarea id="kbM" rows="3" maxlength="400" placeholder="例：展示で4号艇が伸びていた"></textarea>'
-      +'<div class="kb-lb">選手のメモ（観戦ノートに書く）</div><div class="kb-pm" id="kbPm"></div>'
+      +'<div class="kb-lb">選手のメモ（自分の記録に書く）</div><div class="kb-pm" id="kbPm"></div>'
       +'</div>'
       +'<div class="kb-shf"><button type="button" class="kb-save" id="kbDlgOk">記録する</button></div>';
     document.body.appendChild(KB_DLG);
@@ -2366,7 +2366,7 @@ setInterval(function(){
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics --><script src=/assets/raihou.js defer></script>
 <!-- kata6:body -->
 <script src="../assets/kata/kata.js?v=ecd47e51"></script>
-<script src="../assets/siteFrame.js?v=ef2e6ec7"></script>
+<script src="../assets/siteFrame.js?v=cede91d2"></script>
 <script src="../assets/ugoki.js?v=e40e8a0a"></script>
 <!-- /kata6:body -->
 </body>
