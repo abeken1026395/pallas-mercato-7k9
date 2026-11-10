@@ -1120,6 +1120,24 @@ function render(){
   renderBody();
   nsRestoreDetails();
   kbBar();
+  RACE_SIG=raceSig();
+}
+/* 締切までの表示（レース画面の見出し）。{cls,txt} を返す */
+function raceCd(v,rc,chR){
+  if(chR) return {cls:"cd-chushi",txt:"中止"};
+  function fmtMins(m){ if(m<60) return m+"分"; return Math.floor(m/60)+"時間"+(m%60)+"分"; }
+  var mins=minsToClose(v.hd,rc.deadline);
+  if(mins===null) return {cls:"cd-open",txt:""};
+  if(mins<0) return {cls:"cd-closed",txt:"締切済み"};
+  if(mins>=9999) return {cls:"cd-open",txt:"翌日開催"};
+  return {cls:mins<=15?"cd-soon":"cd-open",txt:"締切まで"+fmtMins(mins)};
+}
+/* レース画面の「作り直しが要る状態」の印。締切をまたぐ・日付が変わる・別のレースに移ると変わる */
+var RACE_SIG="";
+function raceSig(){
+  if(view.page!=="race") return "";
+  var v=venues[view.key], rc=v&&v.races[view.rno]; if(!rc) return "";
+  return view.key+"|"+view.rno+"|"+(isClosed(v.hd,rc.deadline)?1:0)+"|"+(isChushi(v,view.rno)?1:0)+"|"+curYmd();
 }
 function renderBody(){
   var _s=calcViewport(); if(!_s) return;
@@ -1824,16 +1842,9 @@ function renderRace(app,crumb,v){
   var chR=isChushi(v,view.rno);
   if(chR) hl=null;
 
-  /* ヘッダ＋締切カウントダウン */
-  function fmtMins(m){ if(m<60) return m+"分"; return Math.floor(m/60)+"時間"+(m%60)+"分"; }
-  var mins=minsToClose(v.hd,rc.deadline), cdCls="cd-open", cdTxt="";
-  if(mins===null){ cdTxt=""; }
-  else if(mins<0){ cdCls="cd-closed"; cdTxt="締切済み"; }
-  else if(mins>=9999){ cdCls="cd-open"; cdTxt="翌日開催"; }
-  else if(mins<=15){ cdCls="cd-soon"; cdTxt="締切まで"+fmtMins(mins); }
-  else { cdCls="cd-open"; cdTxt="締切まで"+fmtMins(mins); }
-  var cdHtml=cdTxt?'<span class="cd '+cdCls+'">'+esc(cdTxt)+'</span>':'';
-  if(chR) cdHtml='<span class="cd cd-chushi">中止</span>';
+  /* ヘッダ＋締切カウントダウン（文字と色は raceCd。15秒ごとの更新もここと同じ関数を使う） */
+  var cd=raceCd(v,rc,chR);
+  var cdHtml=cd.txt?'<span class="cd '+cd.cls+'">'+esc(cd.txt)+'</span>':'';
 
   /* 気になる（記憶）＋公式リンク（出走表・結果） */
   var wOn=isWatched(v.jcd,v.hd,view.rno);
@@ -2301,7 +2312,18 @@ function boatCard(row,v,hl,minST,maxST,maxMotor){
 function rerender(){ render(); }
 render();
 /* 締切カウントダウンを毎分更新（race画面のみ再描画） */
-setInterval(function(){ if(view.page==="race") render(); }, 30000);
+/* レース画面の時間の更新（2026-11-10）。以前は30秒ごとに画面を丸ごと作り直していて、iPhone でちらついた。
+   いまは15秒ごとに「締切まで○分」の文字だけを書き換え、締切をまたいだとき・日付が変わったときだけ作り直す
+   （締切で切り替わる所＝読み・買い目の保存・公式結果リンク） */
+setInterval(function(){
+  if(view.page!=="race") return;
+  if(raceSig()!==RACE_SIG){ render(); return; }
+  var v=venues[view.key], rc=v&&v.races[view.rno]; if(!rc) return;
+  var el=document.querySelector("#app .race-head .cd"); if(!el) return;
+  var c=raceCd(v,rc,isChushi(v,view.rno)), cls="cd "+c.cls;
+  if(el.className!==cls) el.className=cls;
+  if(el.textContent!==c.txt) el.textContent=c.txt;
+}, 15000);
 </script>
 <script>
 /* PWA: Service Worker 登録 ＋「ホーム画面に追加」導線 */
