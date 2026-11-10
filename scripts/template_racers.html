@@ -736,12 +736,14 @@ var view={page:"venues", key:null, rno:null, sort:"枠"};
 var VDATE="";  /* 場の一覧で選んでいる開催日。レースを開いて戻ったときも同じ日を出す（端末には保存しない） */
 /* 整備ページなどから #v24 で来たとき、その場のレース一覧から始める（本日の開催を優先） */
 (function(){
-  var m=/^#v(\d{2})$/.exec(location.hash||""); if(!m) return;
+  /* #v12r5d20261110 の形なら、その日のそのレースを開く（トップの「保存した買い目」から来たとき） */
+  var m=/^#v(\d{2})(?:r(\d{1,2}))?(?:d(\d{8}))?$/.exec(location.hash||""); if(!m) return;
   var ks=Object.keys(venues).filter(function(k){ return venues[k].jcd===m[1]; }).sort();
   if(!ks.length) return;
-  var n=nowJST(), t=n.getUTCFullYear()+("0"+(n.getUTCMonth()+1)).slice(-2)+("0"+n.getUTCDate()).slice(-2);
+  var n=nowJST(), t=m[3]||(n.getUTCFullYear()+("0"+(n.getUTCMonth()+1)).slice(-2)+("0"+n.getUTCDate()).slice(-2));
   var k=ks.filter(function(x){ return venues[x].hd===t; })[0]||ks[0];
-  view={page:"races", key:k, rno:null, sort:"枠"};
+  var r=m[2]?parseInt(m[2],10):0;
+  view=(r&&venues[k].hd===t&&venues[k].races[r])?{page:"race", key:k, rno:r, sort:"枠"}:{page:"races", key:k, rno:null, sort:"枠"};
 })();
 /* レースの行き来を、端末の「戻る」（iPhone の左端からのスワイプ・Android の戻るボタン）と合わせる。
    画面を変えるたびに履歴を1つ積み、「戻る」で前の画面（レース→レース一覧→場一覧）に戻す（2026-10-24 けん「各レースから戻りにくい」） */
@@ -2323,7 +2325,7 @@ setInterval(function(){ if(view.page==="race") render(); }, 30000);
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics --><script src=/assets/raihou.js defer></script>
 <!-- kata6:body -->
 <script src="../assets/kata/kata.js?v=ecd47e51"></script>
-<script src="../assets/siteFrame.js?v=3d468365"></script>
+<script src="../assets/siteFrame.js?v=511a1ac0"></script>
 <script src="../assets/ugoki.js?v=e40e8a0a"></script>
 <!-- /kata6:body -->
 </body>
