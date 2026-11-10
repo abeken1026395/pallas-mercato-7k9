@@ -53,7 +53,7 @@ textarea{min-height:96px;resize:vertical;line-height:1.7}
 .row>div,.row3>div{min-width:0}
 .btn{min-height:46px;padding:0 18px;border-radius:0;border:1px solid #eef3f8;background:#eef3f8;color:#0b1726;font:700 15px var(--font);cursor:pointer;margin-top:12px}
 .btn.sub{background:none;border-color:var(--line2);color:var(--sub);font-weight:600}
-.btn.small{min-height:38px;padding:0 12px;font-size:13px;margin-top:0}
+.btn.small{min-height:44px;padding:0 12px;font-size:13px;margin-top:0}
 .hits{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .hits button{min-height:40px;padding:0 12px;border-radius:0;border:1px solid var(--line2);background:none;color:var(--fg);font:14px var(--font);cursor:pointer}
 .picked{font-size:14px;margin-top:8px}
@@ -68,7 +68,7 @@ textarea{min-height:96px;resize:vertical;line-height:1.7}
 .bet{border-top:1px solid var(--line);padding:12px 0}
 .bet:first-child{border-top:none}
 .bet .h{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
-.bet .h a{font-size:16px;font-weight:700;text-decoration:none}
+.bet .h a{display:inline-flex;align-items:center;min-height:44px;font-size:16px;font-weight:700;text-decoration:none}
 .bet .h small{color:var(--dim);font-size:12px;white-space:nowrap}
 .bet ul{list-style:none;margin:6px 0 0}
 .bet li{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:baseline;padding:2px 0;font-size:14px;line-height:1.6}
@@ -87,7 +87,7 @@ textarea{min-height:96px;resize:vertical;line-height:1.7}
 .sum .v small{font:400 13px var(--font);color:var(--dim);margin-left:3px}
 .plus{color:var(--plus)} .minus{color:var(--minus)}
 .per{display:flex;border:1px solid var(--line2);margin-top:4px}
-.per button{flex:1;min-height:42px;border:none;border-right:1px solid var(--line2);background:none;color:var(--sub);font:600 14px var(--font);cursor:pointer}
+.per button{flex:1;min-height:44px;border:none;border-right:1px solid var(--line2);background:none;color:var(--sub);font:600 14px var(--font);cursor:pointer}
 .per button:last-child{border-right:none}
 .per button[aria-pressed="true"]{color:#111;background:var(--goldBg)}
 table.log{width:100%;border-collapse:collapse;font-size:14px;margin-top:10px}
@@ -290,7 +290,11 @@ function inBPer(hd){if(BPER==="all")return true;var t=today(),y=+t.slice(0,4),m=
 function betRows(){
   var B=loadO("dz_bets"),M=loadO("dz_rmemo"),ks={};Object.keys(B).concat(Object.keys(M)).forEach(function(k){if(/^\d{2}_\d{8}_\d{1,2}$/.test(k))ks[k]=1});
   return Object.keys(ks).map(function(k){var p=k.split("_"),e=B[k]&&typeof B[k]==="object"?B[k]:{},m=M[k]&&typeof M[k]==="object"?M[k]:{};
-    return {k:k,j:p[0],hd:p[1],r:+p[2],d:e.d||"",b:Array.isArray(e.b)?e.b:[],a:typeof e.a==="number"?e.a:null,p:typeof e.p==="number"?e.p:null,t:typeof m.t==="string"?m.t:""}})
+    /* 引き継ぎなどで壊れた値が入っていても、ページを止めずに捨てる */
+    var okN=function(x){return typeof x==="number"&&isFinite(x)&&x>=0&&x<1e9};
+    var bs=(Array.isArray(e.b)?e.b:[]).filter(function(x){return x&&typeof x==="object"&&BT[x.t]&&Array.isArray(x.k)}).map(function(x){
+      return {t:x.t,m:x.m==="b"?"b":"",s:Array.isArray(x.s)?x.s.filter(function(n){return n>=1&&n<=6&&n===Math.floor(n)}):[],k:x.k.filter(function(s){return typeof s==="string"&&/^[1-6]([-=][1-6]){0,2}$/.test(s)})}}).filter(function(x){return x.k.length});
+    return {k:k,j:p[0],hd:p[1],r:+p[2],d:typeof e.d==="string"&&/^\d{1,2}:\d{2}$/.test(e.d)?e.d:"",b:bs,a:okN(e.a)?e.a:null,p:okN(e.p)?e.p:null,t:typeof m.t==="string"?m.t:""}})
     .sort(function(x,y){return y.hd.localeCompare(x.hd)||(y.d||"").localeCompare(x.d||"")||y.r-x.r});
 }
 function drawBets(){
@@ -306,7 +310,7 @@ function drawBets(){
   $("b-list").innerHTML=xs.length?xs.map(function(x){
     var dd=+x.hd.slice(4,6)+"/"+(+x.hd.slice(6,8));
     return '<div class="bet"><div class="h"><a href="../racers/#v'+esc(x.j)+'">'+dd+" "+esc(V[+x.j]||x.j)+" "+x.r+"R</a><small>"+(x.d?"締切 "+esc(x.d):"")+"</small></div>"
-      +(x.b.length?"<ul>"+x.b.map(function(b){var k=Array.isArray(b.k)?b.k:[];return "<li><b>"+esc((BT[b.t]||b.t)+(b.m==="b"?"ボックス":""))+"</b><span>"+esc(b.m==="b"&&Array.isArray(b.s)?b.s.join("・"):k.join("　"))+"</span><i>"+k.length+"点</i></li>"}).join("")+"</ul>":"")
+      +(x.b.length?"<ul>"+x.b.map(function(b){var k=Array.isArray(b.k)?b.k:[];return "<li><b>"+esc((BT[b.t]||b.t)+(b.m==="b"?"ボックス":""))+"</b><span>"+esc(b.m==="b"&&b.s.length?b.s.join("・"):k.join("　"))+"</span><i>"+k.length+"点</i></li>"}).join("")+"</ul>":"")
       +((x.a!=null||x.p!=null)?'<div class="m"><span>購入 '+(x.a!=null?x.a.toLocaleString()+"円":"—")+"</span><span>払戻 "+(x.p!=null?x.p.toLocaleString()+"円":"—")+"</span></div>":"")
       +(x.t?'<div class="t">'+esc(x.t)+"</div>":"")
       +'<div class="memo ops" style="border:0;padding:0"><button class="btn small sub" type="button" data-bd="'+esc(x.k)+'">このレースを消す</button></div></div>';

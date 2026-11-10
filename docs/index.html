@@ -741,22 +741,24 @@ function lineBoxes(){
   var now=Date.now(), today=new Date(now+9*3600e3).toISOString().slice(0,10).replace(/-/g,"");
   var xs=Object.keys(B).map(function(k){
     var m=/^(\d{2})_(\d{8})_(\d{1,2})$/.exec(k), e=B[k];
-    if(!m||!e||typeof e!=="object"||!Array.isArray(e.b)||!e.b.length) return null;
+    if(!m||!e||typeof e!=="object"||!Array.isArray(e.b)) return null;
+    var bs=e.b.filter(function(x){ return x&&typeof x==="object"&&Array.isArray(x.k)&&x.k.length; });
+    if(!bs.length) return null;
     var d=typeof e.d==="string"&&/^(\d{1,2}):(\d{2})$/.exec(e.d), t=d?Date.UTC(+m[2].slice(0,4),+m[2].slice(4,6)-1,+m[2].slice(6,8),+d[1]-9,+d[2]):0;
-    return {j:m[1],hd:m[2],r:+m[3],d:e.d||"",t:t,b:e.b};
+    return {j:m[1],hd:m[2],r:+m[3],d:d?e.d:"",t:t,b:bs};
   }).filter(Boolean);
   if(!xs.length) return;
   var td=xs.filter(function(x){ return x.hd===today; }).sort(function(a,b){ return a.t-b.t||a.r-b.r; });
   var show=td.length?td:xs.sort(function(a,b){ return b.hd.localeCompare(a.hd)||b.t-a.t; }).slice(0,3);
   document.getElementById("kbTopRows").innerHTML=show.map(function(x){
-    var n=0; x.b.forEach(function(b){ n+=Array.isArray(b.k)?b.k.length:0; });
+    var n=0; x.b.forEach(function(b){ n+=b.k.length; });
     var st=x.hd!==today?(+x.hd.slice(4,6)+"/"+(+x.hd.slice(6,8))):(x.t&&x.t<=now?"締切済み":"締切 "+x.d);
     return '<a class="fol-r" href="./racers/#v'+x.j+'r'+x.r+'d'+x.hd+'"><span class="fol-k">'+x.r+'R</span><span class="fol-n">'+esc(VN[x.j]||x.j)+'</span><span class="fol-v"><b>'+n+'点</b>　'+esc(st)+'</span></a>';
   }).join("");
   document.getElementById("kbTop").hidden=false;
 })();
 </script>
-<script src="./assets/shinchaku.js?v=1" defer></script>
+<script src="./assets/shinchaku.js?v=2" defer></script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics --><script src=/assets/raihou.js defer></script>
 <script>if("serviceWorker" in navigator){ window.addEventListener("load",function(){ navigator.serviceWorker.register("./sw.js").catch(function(){}); }); }</script>
 <script src="./assets/ugoki.js?v=e40e8a0a"></script>

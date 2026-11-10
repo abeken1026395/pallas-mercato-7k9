@@ -14,7 +14,7 @@
   var now=Date.now(), rsNew=false, B=obj("dz_bets");
   Object.keys(B).forEach(function(k){
     var m=/^\d{2}_(\d{4})(\d{2})(\d{2})_\d{1,2}$/.exec(k), e=B[k], d=e&&typeof e.d==="string"?/^(\d{1,2}):(\d{2})$/.exec(e.d):null;
-    if(!m||!d||!e||!Array.isArray(e.b)||!e.b.length) return;
+    if(!m||!d||!e||!Array.isArray(e.b)||!e.b.some(function(x){ return x&&typeof x==="object"; })) return;
     var t=Date.UTC(+m[1],+m[2]-1,+m[3],+d[1]-9,+d[2])+15*60e3;
     if(t<=now&&now-t<2*864e5&&(+S.rs||0)<t) rsNew=true;
   });
