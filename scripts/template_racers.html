@@ -66,16 +66,20 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .dot-高 { background:#f2b155; } .dot-中 { background:transparent; box-shadow:inset 0 0 0 2px #f2b155; } .dot-低 { background:#5cc8b0; }
 
 /* レースヘッダ */
-.rnav { position:fixed; left:0; right:0; bottom:0; z-index:50; display:flex; gap:6px; padding:8px 10px calc(8px + env(safe-area-inset-bottom)); background:rgba(10,20,34,.97); border-top:1px solid #3d5a80; }
-.rnav-b { flex:1; min-height:48px; display:flex; align-items:center; justify-content:center; gap:6px; background:#12233a; border:1px solid #3d5a80; color:#eef2f5; font:inherit; font-size:14px; line-height:1.2; cursor:pointer; padding:4px 6px; }
-.rnav-b small { display:block; font-size:11px; color:#9fb0c3; font-weight:normal; }
+/* 前後のレース（2026-11-10 下部の固定帯と重なって見えなくなったため、頭と末尾に置き直す） */
+.rnav { display:flex; gap:4px; margin:20px 0 8px; }
+.rnav-b { flex:1; min-height:56px; display:flex; align-items:center; justify-content:center; gap:6px; background:#13233a; border:1px solid #2c3e55; border-radius:0; color:#eef3f8; font:inherit; font-size:14px; font-weight:700; line-height:1.2; cursor:pointer; padding:4px 6px; touch-action:manipulation; font-variant-numeric:tabular-nums; }
+.rnav-b small { display:block; font-size:12px; color:#a3b4c6; font-weight:normal; }
 .rnav-t { display:flex; flex-direction:column; align-items:center; }
 .rnav-t b { font-size:16px; }
-.rnav-ar { font-size:12px; color:#c8a45e; }
+.rnav-ar { font-size:12px; color:#d4b06a; }
 .rnav-list { flex:1.2; text-align:center; flex-direction:column; gap:0; }
-.rnav-off { background:#0a1422 !important; border:1px dashed #2b4568; cursor:default; }
-.rnav { background:#0a1422 !important; }
-#app:has(.rnav) { padding-bottom:76px; }
+.rnav-off { background:none; border:1px dashed #2c3e55; cursor:default; }
+.rh-pg { display:grid; grid-template-columns:1fr 1fr; gap:4px; margin:0 0 12px; }
+.rh-pb { min-height:44px; padding:0 10px; display:flex; align-items:center; gap:6px; background:#13233a; border:1px solid #2c3e55; border-radius:0; color:#eef3f8; font:inherit; font-size:14px; font-weight:700; cursor:pointer; touch-action:manipulation; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.rh-pb small { font-size:12px; font-weight:normal; color:#a3b4c6; }
+.rh-pb.rh-nx { justify-content:flex-end; }
+.rh-pb[hidden] { display:flex; visibility:hidden; }
 .race-head { background:#121c28; border:1px solid #1f2b3a; border-radius:10px; padding:12px 14px; margin-top:10px; }
 .race-head .line1 { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
 .race-head .rt { font-size:18px; font-weight:bold; color:#e0e6ed; }
@@ -1819,10 +1823,27 @@ function downFactorPanel(df){
   return '<div class="panel panel-down"><div class="ttl">①の下振れ要因（'+n+'つ）</div>'+list+'</div>';
 }
 
-/* レース画面の下に固定する行き来のバー：前のR／レース一覧／次のR */
+/* 前後のレース番号（無ければ null） */
+function raceSide(v,rno){
+  var rs=Object.keys(v.races).map(Number).filter(function(n){return !isNaN(n);}).sort(function(a,b){return a-b;});
+  var i=rs.indexOf(rno);
+  return {pv:i>0?rs[i-1]:null, nx:(i>=0&&i<rs.length-1)?rs[i+1]:null};
+}
+/* レースの頭に置く前後の送り：◀ 5R 締切 ／ 7R 締切 ▶ */
+function raceHeadPager(v,rno){
+  var s=raceSide(v,rno);
+  function b(r,dir){
+    if(r===null) return '<button type="button" class="rh-pb" hidden tabindex="-1" aria-hidden="true"></button>';
+    var dl=(v.races[r]&&v.races[r].deadline)||"";
+    var t=r+'R'+(dl?' <small>'+esc(dl)+'</small>':'');
+    return '<button type="button" class="rh-pb'+(dir==="next"?' rh-nx':'')+'" data-go="'+r+'" aria-label="'+(dir==="prev"?"前":"次")+'の'+r+'R">'
+      +(dir==="prev"?'<span class="rnav-ar">◀</span>'+t:t+'<span class="rnav-ar">▶</span>')+'</button>';
+  }
+  return '<div class="rh-pg">'+b(s.pv,"prev")+b(s.nx,"next")+'</div>';
+}
+/* レース画面の末尾に置く行き来の帯：前のR／レース一覧／次のR */
 function raceNavBar(v,rno){
-  var rs=Object.keys(v.races).map(Number).sort(function(a,b){return a-b;});
-  var i=rs.indexOf(rno), pv=i>0?rs[i-1]:null, nx=(i>=0&&i<rs.length-1)?rs[i+1]:null;
+  var s=raceSide(v,rno), pv=s.pv, nx=s.nx;
   function side(r,dir){
     if(r===null) return '<span class="rnav-b rnav-off"></span>';
     var dl=(v.races[r]&&v.races[r].deadline)||"";
@@ -1886,7 +1907,7 @@ function renderRace(app,crumb,v){
   var uranai='<a class="offlink offlink-card" href="../uranai/?jcd='+v.jcd+'&hd='+v.hd+'&rno='+view.rno+'R&from=racers">🔮 この6艇を占う</a>';
   var ichi=MAE_DAYS.indexOf(v.hd)>=0?'<a class="offlink offlink-card" href="../ichimark/?d='+v.hd+'&j='+v.jcd+'&r='+view.rno+'">1マークの見立て</a>':'';
   var links='<div class="race-links">'+wbtn+off+ichi+uranai+'</div>';
-  var html='<div class="race-head"><div class="line1"><span class="rt">'+esc(v.name)+' '+view.rno+'R</span><span class="kikaku">'+esc(rc.kikaku)+'</span></div>'
+  var html='<div class="race-head">'+raceHeadPager(v,view.rno)+'<div class="line1"><span class="rt">'+esc(v.name)+' '+view.rno+'R</span><span class="kikaku">'+esc(rc.kikaku)+'</span></div>'
     +'<div class="dl">'+cdHtml+(chR?'':'<span>締切 '+esc(rc.deadline||"-")+'</span>')+'<span>'+esc(v.setsu)+' '+esc(v.day)+'</span></div>'
     +links+'</div>';
 
@@ -1974,9 +1995,9 @@ function renderRace(app,crumb,v){
 
   html+=yomiBox(v,view.rno);
   html+=kbBox(v,view.rno,rc,chR);
+  html+=raceNavBar(v,view.rno);
   html+='<div class="legend-note">出典: BOATRACE公式出走表（勝率・2連率・3連率・モーター・ボート・今節成績。モーターとボートは勝率なし）｜決まり手構成は直近183日集計｜1号艇の決着は枠別成績と同じ期間｜機力評価・展開・荒れ指数は当ポータル生成｜風はOpen-Meteo。<br>本ページは水面傾向・展開の可視化に留め、勝敗の断定・買い目・確率は提示しません。</div>';
 
-  html+=raceNavBar(v,view.rno);
   /* レースの帯：レースの頭が画面の上に消えたら出る。艇番の札は枠の色・押すとその艇へ */
   html+='<div class="rbar" id="rbar" hidden><div class="rbar-in"><span class="rbar-t">'+esc(v.name)+' '+view.rno+'R</span><span class="rbar-d">'+(chR?'中止':esc(rc.deadline||''))+'</span><span class="rbar-l">'
     +rc.boats.map(function(r){ var ln=parseInt(g(r,"枠")); var c=LANE_COLOR[ln]||["#333","#fff"]; return isNaN(ln)?'':'<a class="rbar-b wk'+ln+'" href="#bt'+ln+'" data-ln="'+ln+'" aria-label="'+ln+'号艇へ" style="background:'+c[0]+';color:'+c[1]+'">'+ln+'</a>'; }).sort().join("")
