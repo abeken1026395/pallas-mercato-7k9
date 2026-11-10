@@ -324,7 +324,7 @@ function MotorRow({row,rk,fem,parts,upd,usage,usageFrom,median,officialAsOf,usag
   const toggle = ()=>{ if(hasDeep){ if(window.__loadKarte) window.__loadKarte(); setOpen(o=>!o); } };
   // 1行の並び：機番｜選手名（下に級別・ランク）｜2連率（大きく）｜開閉。その下に細いバー。
   return (
-    <div style={{borderTop:"1px solid "+C.line}}>
+    <div style={{borderTop:"1px solid "+C.line,position:"relative"}}>
       <div role={hasDeep?"button":undefined} tabIndex={hasDeep?0:undefined} aria-expanded={hasDeep?open:undefined}
         data-motor-row="1" data-hl={hl?"1":undefined}
         onClick={toggle}
@@ -352,11 +352,13 @@ function MotorRow({row,rk,fem,parts,upd,usage,usageFrom,median,officialAsOf,usag
           <div style={{flex:"none",textAlign:"right",fontVariantNumeric:"tabular-nums",lineHeight:1}}>
             <div style={{fontSize:22,fontWeight:800,color:rk.key==="top"?C.top:C.text}}>{isNaN(n)?"-":n.toFixed(1)}<span style={{fontSize:13,fontWeight:700,marginLeft:1}}>%</span></div>
           </div>
-          <OmBtn j={row[CI.jcd]} m={row[CI.mno]}/>
+          {window.DZOM && <div aria-hidden="true" style={{flex:"none",width:44}}/>}
           {hasDeep && <div aria-hidden="true" style={{flex:"none",width:20,textAlign:"center",fontSize:12,color:C.muted}}>{open?"▲":"▼"}</div>}
         </div>
         <Bar v={v} c={rk.color} median={median}/>
       </div>
+      {/* 推しのボタンは行のボタン（開閉）の外に置く（ボタンの入れ子にしない）。行の中の44px の空きに重ねる（上下は行の1段目に合わせる：上9px・下はバーの分21px） */}
+      {window.DZOM && <div style={{position:"absolute",top:9,bottom:21,right:hasDeep?32:2,display:"flex",alignItems:"center"}}><OmBtn j={row[CI.jcd]} m={row[CI.mno]}/></div>}
       {open && hasDeep && (
         <div style={{padding:"4px 2px 12px 56px"}}>
           <MotorUsageLine usage={usage} from={usageFrom} officialAsOf={officialAsOf} src={usageSrc}/>

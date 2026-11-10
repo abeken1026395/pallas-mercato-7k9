@@ -349,6 +349,7 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .oshi-follow.on{background:#ffd166;color:#0b1219;border-color:#ffd166}
 .oshi-follow:focus-visible{outline:2px solid #ffd166;outline-offset:2px}
 .oshi-slot{display:contents}
+.om-slot{display:contents}
 .oshi-badge{font-size:12px;font-weight:700;color:#0b1219;background:#ffd166;border-radius:6px;padding:1px 7px;white-space:nowrap}
 .oshi-mk{color:#ffd166;font-size:12px;margin-left:3px}
 .oshi-note{color:#7a6c44;font-size:12px;line-height:1.7}
@@ -587,7 +588,17 @@ function motorNote(r){
 /* 推しモーターの印（共有 ../assets/oshiMotor.js ／ 保存 dz_oshiMotor）。付け外しは出走表・モーター・整備で行い、ここは印だけ */
 function omMark(jc, no){ return (window.DZOM&&jc)?DZOM.mark(jc,no):''; }
 /* 閉じたレースでも分かるように、見出しにも出す（推しモーターが1機でも出るレース） */
-function omRaceBadge(r){ return (window.DZOM&&DZOM.anyIn(r['場コード'],(r['艇']||[]).map(function(b){ return b&&b['機番']; })))?'<span class="om-badge">'+DZOM.icon()+'推しモーター</span>':''; }
+function omRaceBadgeIn(r){ return (window.DZOM&&DZOM.anyIn(r['場コード'],(r['艇']||[]).map(function(b){ return b&&b['機番']; })))?'<span class="om-badge">'+DZOM.icon()+'推しモーター</span>':''; }
+function omRaceBadge(r){ return '<span class="om-slot">'+omRaceBadgeIn(r)+'</span>'; }
+/* 別のタブ・別の画面でフォローを変えたとき（共有ファイルが dzom:change を出す）に、見出しの札を描き直す */
+document.addEventListener('dzom:change', function(){
+  document.querySelectorAll('.race[data-uid]').forEach(function(el){
+    var slot=el.querySelector('.om-slot'); if(!slot) return;
+    var uid=el.dataset.uid, r=null;
+    for(var i=0;i<RACES.length;i++){ if(RACES[i]['場コード']+'_'+RACES[i]['レース']===uid){ r=RACES[i]; break; } }
+    slot.innerHTML = r ? omRaceBadgeIn(r) : '';
+  });
+});
 function boatRow(b, ba, jc){
   let fl=''; if(b['F']) fl+='<span class="flag fF">F</span>'; if(b['鋭ST']) fl+='<span class="flag fST">ST</span>';
   const mev = b['機力評価'];

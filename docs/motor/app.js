@@ -743,7 +743,8 @@ function MotorRow({
   // 1行の並び：機番｜選手名（下に級別・ランク）｜2連率（大きく）｜開閉。その下に細いバー。
   return /*#__PURE__*/React.createElement("div", {
     style: {
-      borderTop: "1px solid " + C.line
+      borderTop: "1px solid " + C.line,
+      position: "relative"
     }
   }, /*#__PURE__*/React.createElement("div", {
     role: hasDeep ? "button" : undefined,
@@ -859,9 +860,12 @@ function MotorRow({
       fontWeight: 700,
       marginLeft: 1
     }
-  }, "%"))), /*#__PURE__*/React.createElement(OmBtn, {
-    j: row[CI.jcd],
-    m: row[CI.mno]
+  }, "%"))), window.DZOM && /*#__PURE__*/React.createElement("div", {
+    "aria-hidden": "true",
+    style: {
+      flex: "none",
+      width: 44
+    }
   }), hasDeep && /*#__PURE__*/React.createElement("div", {
     "aria-hidden": "true",
     style: {
@@ -875,6 +879,18 @@ function MotorRow({
     v: v,
     c: rk.color,
     median: median
+  })), window.DZOM && /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "absolute",
+      top: 9,
+      bottom: 21,
+      right: hasDeep ? 32 : 2,
+      display: "flex",
+      alignItems: "center"
+    }
+  }, /*#__PURE__*/React.createElement(OmBtn, {
+    j: row[CI.jcd],
+    m: row[CI.mno]
   })), open && hasDeep && /*#__PURE__*/React.createElement("div", {
     style: {
       padding: "4px 2px 12px 56px"
