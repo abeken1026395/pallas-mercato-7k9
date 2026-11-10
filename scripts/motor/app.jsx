@@ -288,6 +288,33 @@ function MotorUsageLine({usage,from,officialAsOf,src}){
 // 走行数と整備履歴は行タップで開く深層に置く（無くても今日の判断はできる＝表層に要らない）。
 // 閉じている間は深層のDOMを作らない。全場表示では1,000機超あり、常時描くと
 // 場の切り替え（unmount）でメインスレッドが数秒止まっていた。表示件数ではなく破棄ノード数が効く。
+/* 推しモーター（共有 ../assets/oshiMotor.js ／ 保存 dz_oshiMotor）。押したときの処理と表示の切り替えは共有ファイルが受け持つ
+   （document の capture で受けるので、行を開く onClick は動かない） */
+function OmBtn({j,m}){
+  if(!window.DZOM) return null;
+  const h=window.DZOM.btn(j,m,"icon");
+  return h ? <span style={{display:"inline-flex",flex:"none"}} dangerouslySetInnerHTML={{__html:h}}/> : null;
+}
+function OshiMotorList(){
+  const [,setN]=useState(0);
+  useEffect(()=>{ const f=()=>setN(x=>x+1); document.addEventListener("dzom:change",f); return ()=>document.removeEventListener("dzom:change",f); },[]);
+  if(!window.DZOM) return null;
+  const L=window.DZOM.list();
+  if(!L.length) return null;
+  return (
+    <div style={{borderTop:"1px solid "+C.line,borderBottom:"1px solid "+C.line,marginBottom:12}}>
+      <div style={{fontSize:F.sm,fontWeight:700,color:C.sub,padding:"8px 2px 6px"}}>推しモーター <span style={{fontVariantNumeric:"tabular-nums"}}>{L.length}</span>機<span style={{fontWeight:400,color:C.muted,marginLeft:8}}>この端末だけに保存</span></div>
+      {L.map(x=>(
+        <div key={x.k} style={{display:"flex",alignItems:"center",gap:8,borderTop:"1px solid "+C.line}}>
+          <a href={"../motor-maintenance/#m"+x.j+"-"+x.m} style={{flex:1,minWidth:0,minHeight:44,display:"flex",alignItems:"center",gap:8,color:C.text,textDecoration:"none",fontSize:F.md}}>
+            <span style={{fontWeight:700}}>{x.name}</span><span style={{color:C.muted,fontSize:F.sm,textDecoration:"underline",textUnderlineOffset:4}}>整備の記録</span>
+          </a>
+          <OmBtn j={x.j} m={x.m}/>
+        </div>
+      ))}
+    </div>
+  );
+}
 function MotorRow({row,rk,fem,parts,upd,usage,usageFrom,median,officialAsOf,usageSrc,hl,fresh}){
   const [open,setOpen] = useState(false);
   const v=row[CI.rate], g=row[CI.grade];
@@ -301,7 +328,7 @@ function MotorRow({row,rk,fem,parts,upd,usage,usageFrom,median,officialAsOf,usag
       <div role={hasDeep?"button":undefined} tabIndex={hasDeep?0:undefined} aria-expanded={hasDeep?open:undefined}
         data-motor-row="1" data-hl={hl?"1":undefined}
         onClick={toggle}
-        onKeyDown={e=>{ if(hasDeep && (e.key==="Enter"||e.key===" ")){ e.preventDefault(); toggle(); } }}
+        onKeyDown={e=>{ if(e.target!==e.currentTarget) return; if(hasDeep && (e.key==="Enter"||e.key===" ")){ e.preventDefault(); toggle(); } }}
         style={{padding:"9px 2px 10px",cursor:hasDeep?"pointer":"default",
           background:hl?"rgba(242,194,0,.10)":"transparent"}}>
         <div style={{display:"flex",alignItems:"center",gap:10}}>
@@ -325,6 +352,7 @@ function MotorRow({row,rk,fem,parts,upd,usage,usageFrom,median,officialAsOf,usag
           <div style={{flex:"none",textAlign:"right",fontVariantNumeric:"tabular-nums",lineHeight:1}}>
             <div style={{fontSize:22,fontWeight:800,color:rk.key==="top"?C.top:C.text}}>{isNaN(n)?"-":n.toFixed(1)}<span style={{fontSize:13,fontWeight:700,marginLeft:1}}>%</span></div>
           </div>
+          <OmBtn j={row[CI.jcd]} m={row[CI.mno]}/>
           {hasDeep && <div aria-hidden="true" style={{flex:"none",width:20,textAlign:"center",fontSize:12,color:C.muted}}>{open?"▲":"▼"}</div>}
         </div>
         <Bar v={v} c={rk.color} median={median}/>
@@ -635,6 +663,7 @@ function App(){
         </div>
       )}
 
+      <OshiMotorList/>
       <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:10}}>
         <select value={vf} onChange={e=>setVf(e.target.value)} style={{minHeight:44,padding:"8px",background:"#0d1c2f",color:C.text,border:"1px solid #55708f",borderRadius:0,fontSize:F.input,fontFamily:"inherit"}}>
           <option value="ALL">全場</option>

@@ -91,7 +91,7 @@ textarea[readonly]{color:var(--dim);font-size:12px}
   function pj(v){ try{ return JSON.parse(v); }catch(e){ return undefined; } }
   function cnt(k){ var v=pj(get(k)); if(Array.isArray(v)) return v.length; if(v&&typeof v==="object") return Object.keys(v).length; return 0; }
   function have(){
-    var L=[["br_oshi","推し","人"],["br_stadium","場","場"],["br_watch","気になる","件"],["br_memo","メモ","件"],["dz_bets","買い目","レース"],["dz_rmemo","レースのメモ","件"]];
+    var L=[["br_oshi","推し","人"],["br_stadium","場","場"],["br_watch","気になる","件"],["br_memo","メモ","件"],["dz_bets","買い目","レース"],["dz_rmemo","レースのメモ","件"],["dz_oshiMotor","推しモーター","機"]];
     $("have").innerHTML=L.map(function(x){ return '<div><span>'+x[1]+'</span><b>'+cnt(x[0])+'<small>'+x[2]+'</small></b></div>'; }).join("");
   }
   have();

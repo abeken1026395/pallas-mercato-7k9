@@ -621,6 +621,94 @@ function MotorUsageLine({
 // 走行数と整備履歴は行タップで開く深層に置く（無くても今日の判断はできる＝表層に要らない）。
 // 閉じている間は深層のDOMを作らない。全場表示では1,000機超あり、常時描くと
 // 場の切り替え（unmount）でメインスレッドが数秒止まっていた。表示件数ではなく破棄ノード数が効く。
+/* 推しモーター（共有 ../assets/oshiMotor.js ／ 保存 dz_oshiMotor）。押したときの処理と表示の切り替えは共有ファイルが受け持つ
+   （document の capture で受けるので、行を開く onClick は動かない） */
+function OmBtn({
+  j,
+  m
+}) {
+  if (!window.DZOM) return null;
+  const h = window.DZOM.btn(j, m, "icon");
+  return h ? /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: "inline-flex",
+      flex: "none"
+    },
+    dangerouslySetInnerHTML: {
+      __html: h
+    }
+  }) : null;
+}
+function OshiMotorList() {
+  const [, setN] = useState(0);
+  useEffect(() => {
+    const f = () => setN(x => x + 1);
+    document.addEventListener("dzom:change", f);
+    return () => document.removeEventListener("dzom:change", f);
+  }, []);
+  if (!window.DZOM) return null;
+  const L = window.DZOM.list();
+  if (!L.length) return null;
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      borderTop: "1px solid " + C.line,
+      borderBottom: "1px solid " + C.line,
+      marginBottom: 12
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: F.sm,
+      fontWeight: 700,
+      color: C.sub,
+      padding: "8px 2px 6px"
+    }
+  }, "\u63A8\u3057\u30E2\u30FC\u30BF\u30FC ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontVariantNumeric: "tabular-nums"
+    }
+  }, L.length), "\u6A5F", /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontWeight: 400,
+      color: C.muted,
+      marginLeft: 8
+    }
+  }, "\u3053\u306E\u7AEF\u672B\u3060\u3051\u306B\u4FDD\u5B58")), L.map(x => /*#__PURE__*/React.createElement("div", {
+    key: x.k,
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 8,
+      borderTop: "1px solid " + C.line
+    }
+  }, /*#__PURE__*/React.createElement("a", {
+    href: "../motor-maintenance/#m" + x.j + "-" + x.m,
+    style: {
+      flex: 1,
+      minWidth: 0,
+      minHeight: 44,
+      display: "flex",
+      alignItems: "center",
+      gap: 8,
+      color: C.text,
+      textDecoration: "none",
+      fontSize: F.md
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontWeight: 700
+    }
+  }, x.name), /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: C.muted,
+      fontSize: F.sm,
+      textDecoration: "underline",
+      textUnderlineOffset: 4
+    }
+  }, "\u6574\u5099\u306E\u8A18\u9332")), /*#__PURE__*/React.createElement(OmBtn, {
+    j: x.j,
+    m: x.m
+  }))));
+}
 function MotorRow({
   row,
   rk,
@@ -665,6 +753,7 @@ function MotorRow({
     "data-hl": hl ? "1" : undefined,
     onClick: toggle,
     onKeyDown: e => {
+      if (e.target !== e.currentTarget) return;
       if (hasDeep && (e.key === "Enter" || e.key === " ")) {
         e.preventDefault();
         toggle();
@@ -770,7 +859,10 @@ function MotorRow({
       fontWeight: 700,
       marginLeft: 1
     }
-  }, "%"))), hasDeep && /*#__PURE__*/React.createElement("div", {
+  }, "%"))), /*#__PURE__*/React.createElement(OmBtn, {
+    j: row[CI.jcd],
+    m: row[CI.mno]
+  }), hasDeep && /*#__PURE__*/React.createElement("div", {
     "aria-hidden": "true",
     style: {
       flex: "none",
@@ -1465,7 +1557,7 @@ function App() {
       paddingTop: 6,
       marginTop: 8
     }
-  }, "\u30C7\u30FC\u30BF\u63D0\u4F9B\uFF1Aboatrace.jp \u516C\u5F0F")), /*#__PURE__*/React.createElement("div", {
+  }, "\u30C7\u30FC\u30BF\u63D0\u4F9B\uFF1Aboatrace.jp \u516C\u5F0F")), /*#__PURE__*/React.createElement(OshiMotorList, null), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       gap: 6,

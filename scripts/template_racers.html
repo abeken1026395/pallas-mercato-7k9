@@ -60,6 +60,8 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .rbtn.closed { background:#0e1620; }
 .rbtn.closed .rno { color:#8a94a3; }
 .rbtn .rdone { font-size:13px; color:#8a94a3; margin-top:1px; }
+.rbtn .rbtn-om { position:absolute; top:5px; left:6px; color:#7fb4ff; }
+.omrow { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:6px; font-size:13px; color:#a9c6dd; }
 .rbtn .dot { position:absolute; top:6px; right:6px; width:7px; height:7px; border-radius:50%; }
 .dot-高 { background:#f2b155; } .dot-中 { background:transparent; box-shadow:inset 0 0 0 2px #f2b155; } .dot-低 { background:#5cc8b0; }
 
@@ -587,6 +589,7 @@ body.kb-has{padding-bottom:calc(118px + env(safe-area-inset-bottom))!important}
 </div>
 
 <script src="../assets/haranLv.js"></script>
+<script src="../assets/oshiMotor.js?v=3d45c2ae"></script>
 <script>
 var RAW = __DATA_PLACEHOLDER__;
 /* 誕生日マーク {開催日:{登録番号:1}}。該当者のみ。判定は scripts/birthdayMark.py */
@@ -1341,7 +1344,8 @@ function renderRaces(app,crumb,v){
     var hlR=(HL[v.jcd+"_"+r+"R"]&&HL_META.hd===v.hd)?HL[v.jcd+"_"+r+"R"]:null;
     var dfN=(hlR&&hlR.df)?(hlR.df.count||0):0;
     var dfBadge=dfN>=1?'<div class="chip chip-down-'+(dfN>=2?2:1)+' rbtn-down">下振れ要因 <b>'+dfN+'</b></div>':'';
-    return '<div class="rbtn'+cl+'" data-r="'+r+'">'+dot+'<div class="rno">'+r+'R</div><div class="dl">'+esc(rc.deadline||"")+'</div>'+(cl?'<div class="rdone">済み</div>':'')+dfBadge+'</div>';
+    var omIn=window.DZOM&&DZOM.anyIn(v.jcd,(rc.boats||[]).map(function(b){return g(b,"モーターNo");}));
+    return '<div class="rbtn'+cl+'" data-r="'+r+'">'+dot+(omIn?'<span class="rbtn-om" role="img" aria-label="推しモーターが出る">'+DZOM.icon()+'</span>':'')+'<div class="rno">'+r+'R</div><div class="dl">'+esc(rc.deadline||"")+'</div>'+(cl?'<div class="rdone">済み</div>':'')+dfBadge+'</div>';
   }).join("");
   var legend=anyDot
     ?'<div class="legend-note">右上のドット＝荒れ指数（<span class="lv-高">高</span>/<span class="lv-中">中</span>/<span class="lv-低">低</span>）</div>'
@@ -1685,6 +1689,12 @@ function shinkaeLabel(row){
   var d=String(rep["新替日"]||"");
   if(!/^\d{8}$/.test(d)) return "";
   return '<span class="km-shinkae">新替 '+d.slice(0,4)+'/'+(+d.slice(4,6))+'/'+(+d.slice(6,8))+'</span>';
+}
+/* 推しモーター（共有 ../assets/oshiMotor.js ／ 保存 dz_oshiMotor）。画面を作り直しても、押した結果は端末の保存から描き直す */
+function omRow(row){
+  var no=g(row,"モーターNo"), j=g(row,"場コード");
+  if(!window.DZOM||!/^\d{1,3}$/.test(String(no).trim())) return "";
+  return '<div class="omrow"><span class="omrow-l">モーターのフォロー</span>'+DZOM.btn(j,no,"text")+'</div>';
 }
 function kinMotorLine(row){
   var tsu=g(row,"モーター2連率"), moNo=g(row,"モーターNo");
@@ -2297,6 +2307,7 @@ function boatCard(row,v,hl,minST,maxST,maxMotor){
     +'<span class="l">2連率%</span><span class="v">'+numPct(g(row,"全国2連率"))+'</span><span class="v">'+numPct(g(row,"当地2連率"))+'</span><span class="v">'+numPct(g(row,"モーター2連率"))+'</span><span class="v">'+numPct(g(row,"ボート2連率"))+'</span>'
     +'<span class="l">3連率%</span><span class="v">'+numPct(g(row,"全国3連率"))+'</span><span class="v">'+numPct(g(row,"当地3連率"))+'</span><span class="v">'+numPct(g(row,"モーター3連率"))+'</span><span class="v">'+numPct(g(row,"ボート3連率"))+'</span>'
     +'</div>'
+    +omRow(row)
     +kinMotorLine(row)
     +kimariteBar(km)
     +tenjiBlock(toban)

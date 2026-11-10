@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <script src="./assets/guard.js"></script>
+<script src="./assets/oshiMotor.js?v=3d45c2ae"></script>
 <title>データ攻め｜今日も、読んでから。</title>
 <meta name="author" content="阿部（データ攻め）">
 <link rel="canonical" href="https://abeken1026395.github.io/pallas-mercato-7k9/">
@@ -512,17 +513,19 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
   function toMin(t){ var m=/^(\d{1,2}):(\d{2})$/.exec(t||""); return m?(+m[1])*60+(+m[2]):null; }
   var PIN=(get("br_stadium",[])||[]).filter(function(p){return p&&p.code;}).slice(0,3);
   var OSHI=(get("br_oshi",[])||[]).filter(function(o){return o&&o.toban;}).slice(0,3);
+  var OM=(window.DZOM?DZOM.list():[]).slice(0,3); /* 推しモーター（dz_oshiMotor・../assets/oshiMotor.js）。新しく付けた順に3機まで */
   var WATCH=get("br_watch",[])||[], COL=get("br_collected",[])||[];
   var wToday=WATCH.filter(function(x){return String(x.hd)===today;});
   var wPast=WATCH.filter(function(x){ return String(x.hd)<today && COL.indexOf(x.jcd+"_"+x.hd+"_"+x.rno)<0; });
   var visited=(get("dzRaihou",{d:[]})||{}).d||[];
   var back=visited.some(function(d){ return d!==today.slice(0,4)+"-"+today.slice(4,6)+"-"+today.slice(6,8); });
 
-  if(!PIN.length && !OSHI.length && !wToday.length && !wPast.length) return; /* 付けていない人には何も出さない（2026-11-06） */
+  if(!PIN.length && !OSHI.length && !OM.length && !wToday.length && !wPast.length) return; /* 付けていない人には何も出さない（2026-11-06） */
   /* 行を先に作る（高さの確保） */
   var html="";
   PIN.forEach(function(p,i){ html+='<div class="fol-r" id="folP'+i+'"><span class="fol-k">場</span><span class="fol-n">'+esc(p.name)+'</span><span class="fol-v">…</span></div>'; });
   OSHI.forEach(function(o,i){ html+='<div class="fol-r" id="folO'+i+'"><span class="fol-k">推し</span><span class="fol-n">'+esc(o.name||o.toban)+'</span><span class="fol-v">…</span></div>'; });
+  OM.forEach(function(o,i){ html+='<div class="fol-r" id="folM'+i+'"><span class="fol-k">モーター</span><span class="fol-n">'+esc(o.name)+'</span><span class="fol-v">…</span></div>'; });
   if(wToday.length||wPast.length) html+='<div class="fol-r" id="folW"><span class="fol-k">気になる</span><span class="fol-n">レース</span><span class="fol-v">…</span></div>';
   rows.innerHTML=html; box.hidden=false;
   function put(id,text,href){
@@ -537,6 +540,21 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
     if(wToday.length) t.push('今日 <b class="num">'+wToday.length+'</b>件'+(done?'（結果が出た <b class="num">'+done+'</b>件）':''));
     if(wPast.length) t.push('結果を見ていない <b class="num">'+wPast.length+'</b>件');
     put("folW",t.join("・"),"./racers/");
+  }
+  /* 推しモーター：今日の開催（todayTop.json）の各レースの機番から、そのモーターの出るレースを探す */
+  if(OM.length){
+    (window.__dzTT||(window.__dzTT=fetch("./data/todayTop.json?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():Promise.reject();}))).then(function(d){
+      var hd=String(d["開催日"]||""), R=d["レース"]||[];
+      var lab= hd===today?"今日":md(hd);
+      var hasKiban=R.some(function(r){ return Array.isArray(r["機番"]); });
+      OM.forEach(function(o,i){
+        if(!hasKiban){ put("folM"+i,"出走表で確かめる","./racers/#v"+o.j); return; }
+        var rs=R.filter(function(r){ return pad(r["場コード"])===o.j && Array.isArray(r["機番"]) && r["機番"].indexOf(o.m)>=0; });
+        if(!rs.length){ put("folM"+i,lab+"は出走なし",null); return; }
+        rs.sort(function(a,b){return a["締切時刻"]>b["締切時刻"]?1:-1;});
+        put("folM"+i,lab+' <b class="num">'+rs.map(function(r){return esc(r["レース"]);}).join("・")+'</b>',"./racers/#v"+o.j);
+      });
+    }).catch(function(){ OM.forEach(function(o,i){ put("folM"+i,"出走表で確かめる","./racers/"); }); });
   }
   /* 場：今日の開催（トップと同じ todayTop.json） */
   if(PIN.length){
