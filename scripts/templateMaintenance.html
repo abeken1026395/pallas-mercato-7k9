@@ -76,6 +76,11 @@ input[type=search]{width:min(320px,100%)}
 .mbtn[aria-pressed="true"] i{color:#fff}
 .karte{margin-top:14px;scroll-margin-top:72px}
 .khead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.khead .dzom-btn{margin-left:auto;align-self:center}
+.mbtn{position:relative}
+.mbtn .dzom-mk{position:absolute;top:3px;right:3px;margin:0}
+.mbtn[aria-pressed="true"] .dzom-mk{color:#fff}
+.mno .dzom-mk{margin:2px 0 0}
 .khead h2{font-size:20px;font-weight:800}
 .xl{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 .xl a{display:inline-flex;align-items:center;min-height:36px;padding:0 12px;border:1px solid var(--line2);border-radius:18px;font-size:13px;font-weight:700;color:var(--steel);text-decoration:none;background:var(--panel)}
@@ -189,6 +194,7 @@ footer{margin-top:18px;font-size:12px;color:var(--dim)}
 <footer id="foot"></footer>
 </div>
 
+<script src="../assets/oshiMotor.js?v=6e528453"></script>
 <script>window.__D = __DATA_PLACEHOLDER__;</script>
 <script>
 (function(){
@@ -253,7 +259,7 @@ function drawRecent(){
     return '<div class="vhead" id="vh'+j+'">'+esc(V[j])+"<small>"+xs.length+'件</small><a class="xs" href="../highlights/#v'+j+'">見どころ</a><a class="xs" style="margin-left:10px" href="../racers/#v'+j+'">出走表</a></div>'+'<div class="card">'+xs.map(function(x){
       var r=x.r,w=x.pera?'<span class="p pera">ペラ新</span>':chips(x.parts);
       var when=dayLabel(dayOf(x.r,x.d))+(x.rno?x.rno+"R の直前情報":"");
-      return '<button class="ev" data-j="'+r[0]+'" data-m="'+r[8]+'"><span class="mno">'+r[8]+"<small>号機</small></span>"
+      return '<button class="ev" data-j="'+r[0]+'" data-m="'+r[8]+'"><span class="mno">'+r[8]+"<small>号機</small>"+om("mark",r[0],r[8])+"</span>"
         +'<span class="who">'+esc(r[7])+grHtml(r[6],r[1])+'<span class="tb">'+r[6]+"</span></span>"
         +'<span class="what">'+w+(when?' <span class="note1" style="display:inline">'+esc(when)+"</span>":"")+"</span></button>";
     }).join("")+"</div>";
@@ -277,7 +283,7 @@ function drawGrid(){
   $("mgrid").innerHTML=ms.map(function(m){
     var ss=setsuOf(byMotor[curJ+"-"+m]),n=0,big=0;
     ss.forEach(function(g){var has=g.some(function(r){return r[15].length});if(has)n++;if(g.some(function(r){return r[14]==="大掛かり"}))big=1});
-    return '<button class="mbtn'+(n?" has":"")+(big?" hasbig":"")+'" data-m="'+m+'" aria-pressed="'+(m===curM)+'" aria-label="'+m+'号機 交換のあった節 '+n+'">'+m+"<i>"+"●".repeat(Math.min(n,5))+"</i></button>";
+    return '<button class="mbtn'+(n?" has":"")+(big?" hasbig":"")+'" data-m="'+m+'" aria-pressed="'+(m===curM)+'" aria-label="'+m+'号機'+(omHas(curJ,m)?' 推しモーター':'')+' 交換のあった節 '+n+'">'+m+om("mark",curJ,m)+"<i>"+"●".repeat(Math.min(n,5))+"</i></button>";
   }).join("");
 }
 $("vjump").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;$("vh"+b.dataset.j).scrollIntoView({behavior:"smooth",block:"start"})});
@@ -310,7 +316,7 @@ function drawKarte(scroll){
   if(curM==null){$("karte").innerHTML="";return}
   var rows=byMotor[curJ+"-"+curM]||[],all=setsuOf(rows),rn=((M.renewInfo||{})[curJ]||[])[0],ss=rn?all.filter(function(g){return g[0][1]>=rn}):all,old=all.length-ss.length,nEx=0;
   ss.forEach(function(g){if(g.some(function(r){return r[15].length}))nEx++});
-  var h='<div class="khead"><h2>'+esc(V[curJ])+" "+curM+'号機</h2><span class="s">'+ss.length+"節のうち交換あり "+nEx+"節</span></div>";
+  var h='<div class="khead"><h2>'+esc(V[curJ])+" "+curM+'号機</h2><span class="s">'+ss.length+"節のうち交換あり "+nEx+"節</span>"+om("btn",curJ,curM)+"</div>";
   h+='<div class="xl"><a href="../highlights/#v'+curJ+'">'+esc(V[curJ])+'の見どころ</a><a href="../racers/#v'+curJ+'">'+esc(V[curJ])+'の出走表</a></div>';
   var ri=(M.renewInfo||{})[curJ],run=(M.usage||{})[curJ+"-"+curM];
   if(ri&&run!=null)h+='<div class="runs"><span class="rn">'+run.toLocaleString()+'</span><span class="ru">走</span><span class="rs">新替 '+md(ri[0])+"（"+(ri[1]==="記録"?"手元の記録":ri[1])+"）から "+md(M.usageTo)+" まで</span></div>";
@@ -337,6 +343,10 @@ function drawKarte(scroll){
   if(scroll)$("karte").scrollIntoView({behavior:"smooth",block:"start"});
 }
 function openMotor(j,m){curJ=j;curM=m;show("motor");drawGrid();drawKarte(true)}
+// 推しモーター（共有 ../assets/oshiMotor.js ／ 保存 dz_oshiMotor）。読めないときは何も出さない
+function om(kind,j,m){if(!window.DZOM)return "";return kind==="btn"?DZOM.btn(j,m,"text"):DZOM.mark(j,m)}
+function omHas(j,m){return !!(window.DZOM&&DZOM.has(j,m))}
+document.addEventListener("dzom:change",function(){if(!$("v-motor").hidden)drawGrid()});
 
 // ---------- 選手で探す ----------
 var NOTES={"毒島誠":"本人がエンジン調整の経緯を語ったインタビュー（マクール・一次）","峰竜太":"本人が整備の考え方を解説した動画（本人YouTube・一次）","赤岩善生":"深谷知博・渡邉雄朗が整備で尊敬する選手として言及（二次）"};

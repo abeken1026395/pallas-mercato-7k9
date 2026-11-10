@@ -229,6 +229,9 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .mtr{font-size:12px;font-weight:700;padding:1px 5px;border-radius:4px;background:var(--panel2);border:1px solid var(--line);color:var(--sub);flex-shrink:0}
 .mtr.hi{color:#3aab5a;border-color:rgba(58,171,90,.5)}
 .mtr.lo{color:#ff8a7a;border-color:rgba(255,138,122,.45)}
+.boat .dzom-mk{margin-left:-3px}
+.om-badge{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:700;color:#7fb4ff;border:1px solid #3a5a85;border-radius:6px;padding:1px 6px;white-space:nowrap}
+.om-badge .dzom-ic{width:12px;height:12px}
     .mtr.na{border-style:dashed}
 .mtr-legend{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-top:10px;padding-top:9px;border-top:1px solid var(--line);font-size:12px;color:var(--sub)}
 .mtr-legend.sym-legend{margin-top:8px}
@@ -446,6 +449,7 @@ html[data-vr] body::after{content:none;margin:0}
 </div>
 
 <script src="../assets/haranLv.js"></script>
+<script src="../assets/oshiMotor.js?v=6e528453"></script>
 <script>
   function stemWidth(v){
     var c = document.querySelector('link[rel="canonical"]');
@@ -580,6 +584,10 @@ function motorNote(r){
   return '';
 }
 
+/* 推しモーターの印（共有 ../assets/oshiMotor.js ／ 保存 dz_oshiMotor）。付け外しは出走表・モーター・整備で行い、ここは印だけ */
+function omMark(jc, no){ return (window.DZOM&&jc)?DZOM.mark(jc,no):''; }
+/* 閉じたレースでも分かるように、見出しにも出す（推しモーターが1機でも出るレース） */
+function omRaceBadge(r){ return (window.DZOM&&DZOM.anyIn(r['場コード'],(r['艇']||[]).map(function(b){ return b&&b['機番']; })))?'<span class="om-badge">'+DZOM.icon()+'推しモーター</span>':''; }
 function boatRow(b, ba, jc){
   let fl=''; if(b['F']) fl+='<span class="flag fF">F</span>'; if(b['鋭ST']) fl+='<span class="flag fST">ST</span>';
   const mev = b['機力評価'];
@@ -594,7 +602,7 @@ function boatRow(b, ba, jc){
     <span class="wk wk${b['枠']}">${b['枠']}</span>
     <span class="lv lv${b['級別']}">${b['級別']}</span>
     <span class="nm${fem?' fem-nm':''}"><span class="nmline"><a href="../players/?toban=${no}" onclick="event.stopPropagation()" style="color:inherit;text-decoration:none;border-bottom:1px dotted #4a6a8a">${b['氏名']}</a>${jim?'<span class="jimoto">地元</span>':''}${b['誕生日']?'<span class="bdmk">誕</span>':''}${fl}${isOshi(no)?'<span class="oshi-mk">⭐</span>':''}</span>${b['氏名カナ']?`<span class="nmkana">${b['氏名カナ']}</span>`:''}</span>
-    ${(/^\d+$/.test(String(mtxt))&&jc)?`<a class="mtr${mc}" href="../motor-maintenance/#m${jc}-${mtxt}" onclick="event.stopPropagation()" style="text-decoration:none;border-bottom:1px dotted #4a6a8a" aria-label="${mtxt}号機の整備の記録">機${mtxt}</a>`:`<span class="mtr${mc}">機${mtxt}</span>`}
+    ${(/^\d+$/.test(String(mtxt))&&jc)?`<a class="mtr${mc}" href="../motor-maintenance/#m${jc}-${mtxt}" onclick="event.stopPropagation()" style="text-decoration:none;border-bottom:1px dotted #4a6a8a" aria-label="${mtxt}号機の整備の記録">機${mtxt}</a>${omMark(jc,mtxt)}`:`<span class="mtr${mc}">機${mtxt}</span>`}
     <span class="stat">全${b['全国勝率'].toFixed(2)}／当${up?'<span class="up">':''}${b['当地勝率']>0?b['当地勝率'].toFixed(2):'－'}${up?'▲</span>':''}</span>
     <span class="bchev">▶</span>
   </div><div class="bprof" id="bp-${rid}"></div>`;
@@ -719,7 +727,7 @@ function renderCard(r, ctx){
   const resRow=res?`<div class="rresult-row">🏁 <span>結果 <b>${res.finish}</b></span>${res.payout!=null?`<span>3連単 <b class="${res.payout>=10000?'man':''}">${(res.payout).toLocaleString()}円</b></span>`:''}<span class="src">出典：results（確定成績）</span></div>`:'';
   return `<div class="race${open?' open':''}" data-uid="${uid}" data-dl="${dl2min(r['締切時刻'])}">
     <div class="rhead" role="button" tabindex="0" aria-expanded="${open?'true':'false'}" aria-controls="rb-${uid}" data-uid="${uid}">
-      <div class="rtop"><span class="rname">${title}</span>${r['日目']?`<span class="nichi">${r['日目']}</span>`:''}${r['企画名']?`<span class="kikaku">${r['企画名']}</span>`:''}${badge(r)}<span class="oshi-slot">${oshiRaceBadge(r)}</span><span class="soon-badge" aria-hidden="true">まもなく</span>${resHead}${r['締切時刻']?`<span class="deadline">締切 ${r['締切時刻']}</span>`:''}<span class="rchev" aria-hidden="true">▼</span></div>
+      <div class="rtop"><span class="rname">${title}</span>${r['日目']?`<span class="nichi">${r['日目']}</span>`:''}${r['企画名']?`<span class="kikaku">${r['企画名']}</span>`:''}${badge(r)}<span class="oshi-slot">${oshiRaceBadge(r)}</span>${omRaceBadge(r)}<span class="soon-badge" aria-hidden="true">まもなく</span>${resHead}${r['締切時刻']?`<span class="deadline">締切 ${r['締切時刻']}</span>`:''}<span class="rchev" aria-hidden="true">▼</span></div>
       <div class="rmitate"><span class="lbl">見立て</span><span class="mt-txt">${r['見立て']}</span></div>
     </div>
     <div class="rbody" id="rb-${uid}"${open?'':' hidden'}>
