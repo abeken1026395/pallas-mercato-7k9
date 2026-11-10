@@ -76,6 +76,7 @@ input[type=search]{width:min(320px,100%)}
 .mbtn[aria-pressed="true"] i{color:#fff}
 .karte{margin-top:14px;scroll-margin-top:72px}
 .khead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.mcount{font-size:14px;color:var(--dim);margin:6px 0 8px;font-variant-numeric:tabular-nums}
 .khead .dzom-btn{margin-left:auto;align-self:center}
 .mbtn{position:relative}
 .mbtn .dzom-mk{position:absolute;top:3px;right:3px;margin:0}
@@ -171,6 +172,7 @@ footer{margin-top:18px;font-size:12px;color:var(--dim)}
     <label for="m-no">機番を入力<input type="number" id="m-no" inputmode="numeric" min="1" max="99" placeholder="例：36" style="width:110px"></label>
   </div>
   <div class="legend"><span>番号の下の点＝期間内に交換があった節の数</span><span style="color:var(--big)">●＝大掛かりあり</span></div>
+  <div class="mcount" id="mcount" aria-live="polite"></div>
   <div class="grid" id="mgrid"></div>
   <div class="karte" id="karte"></div>
 </section>
@@ -279,15 +281,19 @@ function setsuOf(rows){ // 節ごとにまとめる
 }
 function drawGrid(){
   $("m-venue").value=curJ;
-  var ms=Object.keys(byMotor).filter(function(k){return k.split("-")[0]===curJ}).map(function(k){return +k.split("-")[1]}).sort(function(a,b){return a-b});
+  var ms=Object.keys(byMotor).filter(function(k){return k.split("-")[0]===curJ}).map(function(k){return +k.split("-")[1]});
+  // 整備の記録が無い機も出す（2026-11-10 けん裁定：全機を見られるように）。全機の一覧は motorUsage.json（届いた後に描き直す）
+  Object.keys(M.usage||{}).forEach(function(k){var p=k.split("-");if(p[0]===curJ&&ms.indexOf(+p[1])<0)ms.push(+p[1])});
+  ms.sort(function(a,b){return a-b});
+  $("mcount").textContent=V[curJ]?V[curJ]+" 全"+ms.length+"機（番号を押すと経歴）":"";
   $("mgrid").innerHTML=ms.map(function(m){
-    var ss=setsuOf(byMotor[curJ+"-"+m]),n=0,big=0;
+    var ss=setsuOf(byMotor[curJ+"-"+m]||[]),n=0,big=0;
     ss.forEach(function(g){var has=g.some(function(r){return r[15].length});if(has)n++;if(g.some(function(r){return r[14]==="大掛かり"}))big=1});
     return '<button class="mbtn'+(n?" has":"")+(big?" hasbig":"")+'" data-m="'+m+'" aria-pressed="'+(m===curM)+'" aria-label="'+m+'号機'+(omHas(curJ,m)?' 推しモーター':'')+' 交換のあった節 '+n+'">'+m+om("mark",curJ,m)+"<i>"+"●".repeat(Math.min(n,5))+"</i></button>";
   }).join("");
 }
 $("vjump").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;$("vh"+b.dataset.j).scrollIntoView({behavior:"smooth",block:"start"})});
-$("m-no").addEventListener("input",function(){var m=+this.value;if(byMotor[curJ+"-"+m]){curM=m;drawGrid();drawKarte(false)}});
+$("m-no").addEventListener("input",function(){var m=+this.value;if(byMotor[curJ+"-"+m]||(curJ+"-"+m) in (M.usage||{})){curM=m;drawGrid();drawKarte(false)}});
 $("m-venue").addEventListener("change",function(){curJ=this.value;curM=null;drawGrid();$("karte").innerHTML=""});
 $("mgrid").addEventListener("click",function(e){var b=e.target.closest(".mbtn");if(!b)return;curM=+b.dataset.m;drawGrid();drawKarte(true)});
 function spark(ss){
@@ -316,13 +322,14 @@ function drawKarte(scroll){
   if(curM==null){$("karte").innerHTML="";return}
   var rows=byMotor[curJ+"-"+curM]||[],all=setsuOf(rows),rn=((M.renewInfo||{})[curJ]||[])[0],ss=rn?all.filter(function(g){return g[0][1]>=rn}):all,old=all.length-ss.length,nEx=0;
   ss.forEach(function(g){if(g.some(function(r){return r[15].length}))nEx++});
-  var h='<div class="khead"><h2>'+esc(V[curJ])+" "+curM+'号機</h2><span class="s">'+ss.length+"節のうち交換あり "+nEx+"節</span>"+om("btn",curJ,curM)+"</div>";
+  var h='<div class="khead"><h2>'+esc(V[curJ])+" "+curM+'号機</h2><span class="s">'+(rows.length?ss.length+"節のうち交換あり "+nEx+"節":"整備の記録なし")+"</span>"+om("btn",curJ,curM)+"</div>";
   h+='<div class="xl"><a href="../highlights/#v'+curJ+'">'+esc(V[curJ])+'の見どころ</a><a href="../racers/#v'+curJ+'">'+esc(V[curJ])+'の出走表</a></div>';
   var ri=(M.renewInfo||{})[curJ],run=(M.usage||{})[curJ+"-"+curM];
   if(ri&&run!=null)h+='<div class="runs"><span class="rn">'+run.toLocaleString()+'</span><span class="ru">走</span><span class="rs">新替 '+md(ri[0])+"（"+(ri[1]==="記録"?"手元の記録":ri[1])+"）から "+md(M.usageTo)+" まで</span></div>";
   var ns=(M.setsuSince||{})[curJ];
   if(ns!=null&&ns<5)h+='<div class="fresh">新替から'+ns+'節目まで終了（5節までは各機の走った数が少なく、2連率の比べ合いは参考程度）</div>';
   if(rn&&old)h+='<div class="note1">'+md(rn)+"にモーター新替。それより前の"+old+"節は別のモーターなので省いています。</div>";
+  if(!rows.length)h+='<div class="note1">7/15より後、この機の整備の記録はありません（今節の抽選に入っていない機など）。</div>';
   h+=spark(ss);
   h+='<div class="card" style="margin-top:10px">'+ss.slice().reverse().map(function(g){
     var r0=g[0],v=null;g.forEach(function(r){if(r[10]!=null)v=r[10]});
@@ -437,6 +444,7 @@ Promise.all([
       Object.keys(M.renewInfo).forEach(function(j){var d=M.renewInfo[j][0];M.setsuSince[j]=h.sessions.filter(function(s){return String(s.jcd).padStart(2,"0")===j&&String(s["開催日"]||"")>=d}).length});
     }
     if(curM!=null)drawKarte(false);
+    if(!$("v-motor").hidden)drawGrid();
   }
 });
 })();
