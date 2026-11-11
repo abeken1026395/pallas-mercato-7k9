@@ -292,7 +292,16 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
 
 .prb.p2{background:#152235}
 .prb + .prb{border-top:0}
-.an.pri.yt b{font-size:16px}
+/* 1画面目の一番上：YouTube 新チャンネルの告知（2026-11-11 けん「新チャンネル公開を認知してもらいたい」）。金は電子書籍の帯に譲り、ここは赤い再生の印だけで見分ける */
+.yto{display:flex;align-items:center;gap:12px;min-height:56px;margin:8px 0 0;padding:8px 12px;border:1px solid var(--line);background:#1a2638;color:var(--tx);text-decoration:none}
+.yto-av{flex:none;position:relative;width:44px;height:44px}
+.yto-av img{display:block;width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
+.yto-ic{position:absolute;right:-5px;bottom:-3px;width:22px;height:16px;display:flex;align-items:center;justify-content:center;background:#e0261b;border-radius:4px;box-shadow:0 0 0 2px #1a2638}
+.yto-ic svg{width:8px;height:8px;fill:#fff}
+.yto-b{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.yto-l{font-size:12px;font-weight:700;color:#d6e0ea;letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.yto-t{font-size:16px;font-weight:800;line-height:1.3;color:#fff;overflow-wrap:anywhere}
+.yto-go{flex:none;font-size:14px;font-weight:700;color:var(--blue);white-space:nowrap}
 </style>
 <link rel="stylesheet" href="./assets/ugoki.css?v=a0c08edf">
 </head>
@@ -309,6 +318,7 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
 <script>/* 日付は最初の描画の前に入れる（後から入ると帯の高さが変わって下が全部ずれる・2026-11-10） */(function(){var d=new Date(Date.now()+9*3600e3);document.getElementById("capD").textContent=(d.getUTCMonth()+1)+"月"+d.getUTCDate()+"日（"+"日月火水木金土".charAt(d.getUTCDay())+"）";})();</script>
 
 <div class="wrap">
+<a class="yto" href="./in/top/youtube-obi/" target="_blank" rel="noopener"><span class="yto-av" aria-hidden="true"><img src="./assets/youtubeIcon.jpg" width="44" height="44" alt=""><span class="yto-ic"><svg viewBox="0 0 14 14"><path d="M3 1.5v11l9.5-5.5z"/></svg></span></span><span class="yto-b"><span class="yto-l">YouTube｜新チャンネル開設</span><span class="yto-t">あべけんいち</span></span><span class="yto-go">見に行く ›</span></a>
 <a class="obi" id="ebObi" href="./in/top/ebook-obi/" target="_blank" rel="noopener"><img class="obi-im" src="./assets/ebookEp2.jpg" width="56" height="56" alt=""><span class="obi-b"><span class="obi-l"><span id="ebObiL">第2話 11日（水）21時</span><span class="obi-dots" id="ebObiD" aria-label="全3話のうち第2話"><i class="on"></i><i class="nx"></i><i></i></span><span class="obi-free">無料</span></span><span class="obi-t"><span class="obi-p">第1話は、僕の話でした。</span>第2話からは、あなたの話です。</span><span class="obi-m"><span>340人以上が登録</span><span class="obi-go">受け取る ›</span></span></span></a>
 <script>/* 電子書籍の動画（全3話・無料）の告知。日本時間で今どの話の前後かで文面を変える。第2話 11/11 21時・第3話 11/12 21時（2026-11-10 けん）。11/14 0時で帯を消す。
    ねらい（2026-11-11 けん「好奇心や心理に何の作用もない」）：続きの話（第2話からは、あなたの話）・全3話のどこか（●●○）・無料と実際の登録人数・表紙の画像で、ほかの枠と見分けがつくようにする。人数は けん申告の実数（11/11 350人）から減る見込みのぶん余裕を取り「340人以上」（けん 11/11） */
@@ -422,9 +432,7 @@ window.dzFold=function(rows,key){
   <h2 class="sh" style="margin-top:14px">お知らせ</h2>
 <section class="ann" aria-label="お知らせ">
   <a class="an pri" href="./in/top/ebook-card/" target="_blank" rel="noopener"><small id="ebCardS">専用オープンチャット｜第2話 11/11（水）21時</small><b>電子書籍を動画で配信（全3話）</b><span>書籍づくりの裏側も毎日お届けしています</span><em>オプチャで受け取る ›</em></a><script>(function(){try{document.getElementById("ebCardS").textContent=window.dzEb().card;}catch(e){}})();</script>
-  <a class="an pri" href="./in/top/yosou-card/" target="_blank" rel="noopener"><small>LINE オープンチャット</small><b>AI予想部屋</b><span>AIが出した買い目（有料note）の更新と、当たったレースの結果が届きます</span><em>LINEで受け取る ›</em></a>
-  <div class="an pri yt"><small>阿部より</small><b>YouTubeは11月末に再開します</b></div>
-  <a class="an upd" id="updL" href="./updates/" hidden><small id="updD">更新</small><span id="updT"></span></a>
+  <a class="an pri" href="./in/top/yosou-card/" target="_blank" rel="noopener"><small>LINE オープンチャット</small><b>AI予想部屋</b><span>AIが出した買い目（有料note）の更新と、当たったレースの結果が届きます</span><em>LINEで受け取る ›</em></a>  <a class="an upd" id="updL" href="./updates/" hidden><small id="updD">更新</small><span id="updT"></span></a>
 </section>
 
 <h2 class="sh chh" id="chHead" hidden><span id="chH2" style="font-size:16px;font-weight:800;color:var(--tx);letter-spacing:.06em">場の朝刊</span><span id="chSub"></span></h2>
