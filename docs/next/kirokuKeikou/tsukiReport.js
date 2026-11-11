@@ -70,9 +70,49 @@ function draw(R){
   scTxt(c,"データ攻め",1040,1296,26,INK,"ra");
   return cv;
 }
+
+/* 称号カード（1080×1350）。名乗りと同じ作り：黒の札・白い左の帯・赤い名前に白い縁・下の赤い斜めの帯
+   T={title,tags:[],big,bigUnit,desc,cmp,rows:[[項目,あなた,あなたの分母,結果,結果の分母]],range}
+   大きく出した数字は表に入れない（同じ数字を2回出さない） */
+const SH_RULE={"本命派":"1着に選んだ艇の平均人気が2.0番人気以内","穴党":"1着に選んだ艇の平均人気が3.5番人気より外","イン信者":"1着に1号艇を選んだ割合が70%以上","場読み":"1つの場が半分以上（10レース以上）"};
+function drawShogo(T){
+  const pal=scPal(true),INK=pal.INK,SUB=pal.SUB,LN=pal.LN;
+  const cv=document.createElement("canvas");cv.width=1080;cv.height=1350;const c=cv.getContext("2d");
+  c.fillStyle=pal.WATER;c.fillRect(0,0,1080,1350);
+  const x0=0,y0=0,w=1080,h=380;
+  c.fillStyle="#0d0d0d";c.fillRect(x0,y0,w,h);
+  c.strokeStyle="rgba(255,255,255,.028)";c.lineWidth=1;
+  for(let k=-h;k<w;k+=27){c.beginPath();c.moveTo(x0+k,y0+h);c.lineTo(x0+k+Math.round(h*0.47),y0);c.stroke();}
+  const bw=220;c.fillStyle="#f4f2ea";c.beginPath();c.moveTo(0,0);c.lineTo(bw+27,0);c.lineTo(bw-8,h);c.lineTo(0,h);c.fill();
+  scKg(c,"称号",bw/2,h/2-44,44,"#5a5a5a",{anchor:"mm"});
+  scTxt(c,"自分の記録",bw/2-6,h/2+20,26,"#0d0d0d","ma");
+  const nx=bw+40,avail=w-nx-40;let size=200;while(scKgW(T.title,size,-size*0.02)>avail&&size>60)size-=4;
+  scKg(c,T.title,nx,(T.tags.length?70:96),size,pal.NAME,{ls:-size*0.02,stroke:3,sf:"#fff"});
+  if(T.tags.length){const tg=T.tags.join("　");let tz=40;while(scKgW(tg,tz)>avail&&tz>20)tz-=2;scKg(c,tg,w-40,h-tz-34,tz,"#fff",{anchor:"ra"});}
+  const sk=Math.round(w*0.024);c.fillStyle="#e2353b";c.beginPath();c.moveTo(0,h+sk);c.lineTo(w,h);c.lineTo(w,h+12);c.lineTo(0,h+sk+12);c.fill();
+  c.fillStyle="#0d0d0d";c.beginPath();c.moveTo(0,h);c.lineTo(w,h);c.lineTo(0,h+sk);c.fill();
+  let y=460;
+  scTxt(c,"根 拠",40,y,22,SUB);scTxt(c,T.range,1040,y,22,SUB,"ra");
+  const bz=scFit(T.big,700,120),bwid=scKg(c,T.big,40,y+40,bz,INK);if(T.bigUnit)scTxt(c,T.bigUnit,52+bwid,y+40+bz-44,34,SUB);
+  const sy=y+40+bz+14;c.fillStyle="#e2353b";c.beginPath();c.moveTo(46,sy+12);c.lineTo(1034,sy+12);c.lineTo(1040,sy);c.lineTo(52,sy);c.fill();
+  scFitTxt0(c,T.desc,40,sy+30,28,INK,1000);
+  if(T.cmp)scFitTxt0(c,T.cmp,40,sy+76,26,SUB,1000);
+  y=sy+140;scLine(c,40,y,1040,y,LN);
+  scTxt(c,"あなた",700,y+20,22,SUB,"ra");scTxt(c,"同じレースの結果",1040,y+20,22,SUB,"ra");y+=60;
+  T.rows.forEach(r=>{scTxt(c,r[0],40,y+18,30,INK);
+    scKg(c,r[1],700,y,64,INK,{anchor:"ra"});scTxt(c,r[2],700,y+76,20,SUB,"ra");
+    scKg(c,r[3],1040,y,64,SUB,{anchor:"ra"});scTxt(c,r[4],1040,y+76,20,SUB,"ra");
+    y+=120;scLine(c,40,y-10,1040,y-10,"rgba(255,255,255,.094)");});
+  y+=10;scTxt(c,"「"+T.title+"」は、"+SH_RULE[T.title]+"の人に付く称号です。",40,y,24,SUB);
+  scTxt(c,"着順のある買い目（単勝・2連単・3連単）を残したレースで判定。人気は締切前の単勝オッズの順位。",40,y+38,20,SUB);
+  scTxt(c,"本人がこの端末に残した記録から作成。",40,1262,22,SUB);
+  scTxt(c,"データ攻め",1040,1296,26,INK,"ra");
+  return cv;
+}
 function scFitTxt0(c,s,x,y,px,fill,max){let z=px;while(z>14&&scTw(c,s,z)>max)z-=1;scTxt(c,s,x,y,z,fill);}
 let KP=null;
 function loadK(url){ if(!KP) KP=fetch(url).then(r=>{if(!r.ok)throw 0;return r.json();}).then(k=>{K=k;return k;}).catch(e=>{KP=null;throw e;}); return KP; }
 /* 画像の Blob を返す。書体が読めないときは失敗にする（ゴシック体だけの画像は出さない） */
-window.dzTsuki={make:function(R,kgUrl){return loadK(kgUrl).then(()=>new Promise((ok,ng)=>{const cv=draw(R);cv.toBlob(b=>b?ok(b):ng(0),"image/png");}));}};
+function blob(f,R,kgUrl){return loadK(kgUrl).then(()=>new Promise((ok,ng)=>{const cv=f(R);cv.toBlob(b=>b?ok(b):ng(0),"image/png");}));}
+window.dzTsuki={make:function(R,kgUrl){return blob(draw,R,kgUrl);},shogo:function(T,kgUrl){return blob(drawShogo,T,kgUrl);}};
 })();
