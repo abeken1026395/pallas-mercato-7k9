@@ -109,6 +109,31 @@ table.log td.x button{min-width:40px;min-height:40px;border:none;background:none
 .danger{border-color:#8a4a44 !important;color:#ffb3aa !important}
 .confirm{margin-top:8px;font-size:14px;color:var(--sub)}
 .confirm .btn{margin-right:6px}
+/* 予想の傾向・月ごとのまとめ・note の入口（再訪設計書 段階3） */
+.shogo{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 12px;margin-top:8px}
+.shogo b{font:400 24px/1.4 "Dela Gothic One",var(--font);color:#fff}
+.shogo span{font-size:14px;color:var(--sub);font-variant-numeric:tabular-nums}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tags span{font-size:13px;line-height:1.6;padding:2px 8px;border:1px solid var(--line2);color:var(--fg);font-variant-numeric:tabular-nums}
+table.kk{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
+table.kk caption{text-align:left;font-size:13px;color:var(--sub);padding-bottom:4px;line-height:1.6}
+table.kk th,table.kk td{padding:8px 4px;border-bottom:1px solid var(--line);line-height:1.4;vertical-align:baseline}
+table.kk thead th{font-size:12px;color:var(--sub);font-weight:600;text-align:right}
+table.kk thead th:first-child,table.kk tbody th{text-align:left}
+table.kk tbody th{font-weight:400;color:var(--fg);white-space:nowrap}
+.nw{white-space:nowrap}
+table.kk td{text-align:right;font:600 18px var(--num);font-variant-numeric:tabular-nums;white-space:nowrap}
+table.kk td small{display:block;font:400 12px var(--font);color:var(--dim)}
+.toRow{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:56px;padding:10px 0;border:0;border-top:1px solid var(--line);background:none;color:var(--fg);font:15px/1.6 var(--font);text-align:left;text-decoration:none;cursor:pointer}
+.toRow:first-child{border-top:0}
+.toRow small{display:block;font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
+.toRow i{font-style:normal;color:var(--gold);font-size:14px;white-space:nowrap}
+#sh-open{margin-top:12px}
+dialog.rep{width:min(100% - 24px,560px);max-height:calc(100% - 24px);margin:auto;padding:16px;background:#132b46;color:var(--fg);border:1px solid var(--line2)}
+dialog.rep::backdrop{background:rgba(5,12,22,.7)}
+dialog.rep h2{display:flex;justify-content:space-between;align-items:center;gap:8px}
+dialog.rep .x{min-width:44px;min-height:44px;border:0;background:none;color:var(--sub);font-size:20px;cursor:pointer}
+dialog.rep img{display:block;width:100%;height:auto;margin-top:8px;border:1px solid var(--line)}
 footer{margin-top:24px;font-size:13px;color:var(--dim);line-height:1.85}
 </style>
 </head>
@@ -138,11 +163,26 @@ footer{margin-top:24px;font-size:13px;color:var(--dim);line-height:1.85}
     <div class="sum" id="bsum"></div>
     <p class="note" id="bnote"></p>
   </div>
+  <div class="card" id="keikou">
+    <h2>予想の傾向 <small style="color:var(--sub);font-weight:400;font-size:12px">これまでの全記録</small></h2>
+    <div id="kk-body"></div>
+  </div>
+  <div class="card">
+    <h2>月ごとのまとめ</h2>
+    <div id="mo-list"></div>
+  </div>
   <div class="card">
     <h2>レースごと <small id="b-count" style="color:var(--sub);font-weight:400;font-size:12px"></small></h2>
     <div id="b-list"></div>
   </div>
+  <div class="card"><a class="toRow" href="https://note.com/abeken2000" target="_blank" rel="noopener"><span>阿部の買い目は note で公開しています<small>1レース780円・note.com に移ります</small></span><i>開く</i></a></div>
 </section>
+<dialog class="rep" id="rep" aria-labelledby="rep-h">
+  <h2><span id="rep-h">まとめ</span><button class="x" type="button" id="rep-x" aria-label="閉じる">×</button></h2>
+  <div id="rep-img"></div>
+  <button class="btn" type="button" id="rep-share">画像を共有・保存</button>
+  <p class="note" id="rep-msg" role="status"></p>
+</dialog>
 
 <!-- ===== 選手メモ ===== -->
 <section id="v-memo">
@@ -205,7 +245,7 @@ footer{margin-top:24px;font-size:13px;color:var(--dim);line-height:1.85}
 <footer>舟券の購入は20歳になってから。<br>ここに書いた内容は、この端末のブラウザにだけ保存されます（データ攻めのサーバーには届きません）。</footer>
 </div>
 
-<script src="../assets/kotaeawase.js?v=1"></script>
+<script src="../assets/kotaeawase.js?v=2"></script>
 <script>
 (function(){
 var V=["","桐生","戸田","江戸川","平和島","多摩川","浜名湖","蒲郡","常滑","津","三国","びわこ","住之江","尼崎","鳴門","丸亀","児島","宮島","徳山","下関","若松","芦屋","福岡","唐津","大村"];
@@ -313,7 +353,8 @@ function betRows(){
 function needResults(xs){
   if(!window.DZK)return;
   var days={};xs.forEach(function(x){if((x.en.b.length||x.skip)&&!RESDAY[x.hd])days[x.hd]=1});
-  Object.keys(days).forEach(function(hd){RESDAY[hd]=1;DZK.day(hd).then(function(m){var ch=false;Object.keys(m).forEach(function(k){if(!RES[k]){RES[k]=m[k];ch=true}});if(ch)drawBets()})});
+  var old=new Date(Date.now()+9*3600e3-35*864e5).toISOString().slice(0,10).replace(/-/g,"");
+  Object.keys(days).forEach(function(hd){RESDAY[hd]=1;if(hd<old&&DZK.kkRace){xs.forEach(function(x){if(x.hd===hd&&!RES[x.k]){var r=DZK.kkRace(x.k);if(r)RES[x.k]=r}});return}DZK.day(hd).then(function(m){var ch=false;Object.keys(m).forEach(function(k){if(!RES[k]){RES[k]=m[k];ch=true}});if(ch)drawBets()})});
 }
 /* 回収率リング：100%で一周。100%を超えても輪は一周のまま、数字は実際の値（izonSekkei 段階2） */
 function ring(pct,n){
@@ -357,6 +398,7 @@ function drawBets(){
       +'<div class="memo ops" style="border:0;padding:0"><button class="btn small sub" type="button" data-bd="'+esc(x.k)+'">このレースを消す</button></div></div>';
   }).join("")+(xs.length>BSHOW?'<div class="more" id="b-more"><button class="btn small sub" type="button" id="b-moreb">続きを表示（残り '+(xs.length-BSHOW)+' レース）</button></div>':""):'<div class="empty">'+(BPER==="all"?"まだ保存した買い目はありません。出走表のレース画面で、艇番を押して「保存」を押すとここに並びます。":"この期間に保存した買い目はありません。")+"</div>";
   watchMore();
+  drawKeikou();
 }
 var BSHOW=20, BXS=[], BJ=[], BIO=null;
 function moreBets(){ BSHOW+=20; drawBets(); }
@@ -369,6 +411,131 @@ function watchMore(){
 $("b-list").addEventListener("click",function(e){var b=e.target.closest("button");if(!b||!b.dataset.bd)return;
   if(!b.dataset.armed){b.dataset.armed="1";b.textContent="もう一度押すと消えます";return}
   var B=loadO("dz_bets"),M=loadO("dz_rmemo"),S=loadO("dz_skip");delete B[b.dataset.bd];delete M[b.dataset.bd];delete S[b.dataset.bd];saveO("dz_bets",B);saveO("dz_rmemo",M);saveO("dz_skip",S);drawBets()});
+
+/* ---------- 予想の傾向・称号・月ごとのまとめ（再訪設計書 段階3・v5 9章の裁定） ----------
+   着順のある券種（単勝・2連単・3連単）だけで数える。1着に複数の艇を選んだレースは、そのレースの中で平均してから全レースで平均する（1レース＝1票）。
+   人気は締切前の単勝オッズの順位（DZK.ninki が dz_kekka に写す）。称号は20レースから、しきい値は v5 9章の8 */
+var ORD={tn:1,"2t":1,"3t":1}, ALLD={}, NKDAY={};
+function firsts(en){var f={};en.b.forEach(function(b){if(ORD[b.t])b.k.forEach(function(k){f[k.charAt(0)]=1})});return Object.keys(f)}
+function stats(rows){
+  var S={n:0,nOrd:0,s1:0,nRank:0,rk:0,nF:0,w1:0,nWR:0,wr:0,ven:{},hit:0,judged:0,buy:0,pay:0,nA:0,vA:{},last:""};
+  rows.forEach(function(x){
+    if(!x.en.b.length)return;
+    S.n++;
+    var j=window.DZK?DZK.judge(x.en,RES[x.k]||null):{state:"pending",a:x.en.a,p:x.en.p};
+    if(j.state==="hit"||j.state==="miss"){S.judged++;if(j.state==="hit")S.hit++}
+    var pp=j.p!=null?j.p:(j.state==="miss"?0:null);
+    if(j.a!=null&&pp!=null&&j.state!=="pending"){S.nA++;S.buy+=j.a;S.pay+=pp;var v=S.vA[x.j]||(S.vA[x.j]={n:0,b:0,p:0});v.n++;v.b+=j.a;v.p+=pp}
+    var fs=firsts(x.en);if(!fs.length)return;
+    S.nOrd++;S.ven[x.j]=(S.ven[x.j]||0)+1;
+    S.s1+=fs.filter(function(d){return d==="1"}).length/fs.length;
+    var e=window.DZK&&DZK.kkGet?DZK.kkGet(x.k):null,o=e&&typeof e.o==="string"&&/^[0-6]{6}$/.test(e.o)?e.o:"";
+    if(o){var rs=fs.map(function(d){return +o.charAt(+d-1)}).filter(function(r){return r>0});if(rs.length){S.nRank++;S.rk+=rs.reduce(function(a,b){return a+b},0)/rs.length;if(x.hd>S.last)S.last=x.hd}}
+    var r=RES[x.k],w=r&&r["1着"]>=1&&r["1着"]<=6?r["1着"]:(e&&Array.isArray(e.f)&&e.f[0]>=1&&e.f[0]<=6?e.f[0]:0);
+    if(w){S.nF++;if(w===1)S.w1++;if(o&&+o.charAt(w-1)>0){S.nWR++;S.wr+=+o.charAt(w-1)}}
+  });
+  S.share1=S.nOrd?S.s1/S.nOrd:null;S.rank=S.nRank?S.rk/S.nRank:null;S.wRank=S.nWR?S.wr/S.nWR:null;
+  var tv="",tc=0;Object.keys(S.ven).forEach(function(k){if(S.ven[k]>tc){tc=S.ven[k];tv=k}});S.topV=tv;S.topC=tc;
+  S.roi=S.buy?Math.round(S.pay/S.buy*100):null;
+  /* 称号：本命派・穴党は人気の分かる20レースから、イン信者・場読みは着順のある20レースから */
+  var T=[];
+  if(S.nRank>=20){if(S.rank<=2.0)T.push("本命派");else if(S.rank>=3.5)T.push("穴党")}
+  if(S.nOrd>=20&&S.share1>=0.7)T.push("イン信者");
+  if(S.nOrd>=20&&tc>=10&&tc/S.nOrd>=0.5)T.push("場読み");
+  S.titles=T;
+  return S;
+}
+function pct(x){return Math.round(x*100)+"%"}
+function drawKeikou(){
+  var all=betRows();ALLD={};
+  needResults(all);
+  /* 人気は翌日の昼過ぎに入る。今日の分は読まない。1日1回まで */
+  var td=today().replace(/-/g,"");
+  if(window.DZK&&DZK.ninki){var ds={};all.forEach(function(x){if(x.hd<td&&!NKDAY[x.hd]&&firsts(x.en).length){var e=DZK.kkGet(x.k);if(!(e&&e.o))ds[x.hd]=1}});
+    Object.keys(ds).sort().reduce(function(p,hd){NKDAY[hd]=1;return p.then(function(){return DZK.ninki(hd)}).then(function(ch){if(ch)ALLD.ch=1})},Promise.resolve()).then(function(){if(ALLD.ch){ALLD.ch=0;drawKeikou()}});}
+  var S=stats(all);KS={S:S,rows:all};
+  if(!S.nOrd){$("kk-body").innerHTML='<div class="empty">単勝・2連単・3連単の買い目を保存すると、1着に選んだ艇の傾向がここに出ます。</div>'}
+  else{
+    var tg=[],main=S.titles[0]||"";
+    S.titles.slice(1).forEach(function(t){tg.push(t==="場読み"?"場読み："+esc(V[+S.topV]||"")+" "+S.topC+"/"+S.nOrd:esc(t))});
+    if(main==="場読み"){main="場読み";}
+    $("kk-body").innerHTML=(main?'<div class="shogo"><b>'+esc(main)+"</b><span>"+(main==="本命派"||main==="穴党"?"1着に選んだ艇の人気 平均"+S.rank.toFixed(1)+'番人気<span class="nw">（'+S.nRank+"レース）</span>":main==="イン信者"?"1着に1号艇 "+pct(S.share1)+'<span class="nw">（'+S.nOrd+"レース）</span>":esc(V[+S.topV]||"")+" "+S.topC+"/"+S.nOrd+"レース")+"</span></div>"
+        :'<p class="note" style="margin-top:4px">'+(S.nOrd<20?"称号は着順のある買い目が20レースになると出ます（今 "+S.nOrd+" レース）。":"どの称号の基準にも届いていません。")+"</p>")
+      +(tg.length?'<div class="tags">'+tg.map(function(t){return "<span>"+t+"</span>"}).join("")+"</div>":"")
+      +'<table class="kk"><caption>着順のある買い目（単勝・2連単・3連単）を残したレースだけ</caption>'
+      +'<thead><tr><th scope="col">項目</th><th scope="col">あなた</th><th scope="col">同じレースの結果</th></tr></thead><tbody>'
+      +'<tr><th scope="row">1着に1号艇</th><td>'+pct(S.share1)+"<small>"+S.nOrd+"レース</small></td><td>"+(S.nF?pct(S.w1/S.nF)+"<small>"+S.w1+"/"+S.nF+"</small>":"—")+"</td></tr>"
+      +'<tr><th scope="row">1着の平均人気</th><td>'+(S.rank!=null?S.rank.toFixed(1)+"<small>"+S.nRank+"レース</small>":"—")+"</td><td>"+(S.wRank!=null?S.wRank.toFixed(1)+"<small>"+S.nWR+"レース</small>":"—")+"</td></tr>"
+      +"</tbody></table>"
+      +'<p class="note">1着に1号艇は、1着に選んだ艇のうち1号艇の割合をレースごとに出して平均したものです。平均人気は、締切前の単勝オッズで何番人気だったかの平均です。人気は'+(S.last?(+S.last.slice(4,6))+"/"+(+S.last.slice(6,8))+"分まで入っています（翌日の昼過ぎに更新）":"翌日の昼過ぎに入ります")+"。</p>"+(S.titles.length?'<button class="btn" type="button" id="sh-open">称号カードを作る</button>':"");
+  }
+  /* 月ごと：保存した買い目のある月を新しい順に */
+  var ms={};all.forEach(function(x){if(x.en.b.length){var m=x.hd.slice(0,6);ms[m]=(ms[m]||0)+1}});
+  var cur=td.slice(0,6);
+  $("mo-list").innerHTML=Object.keys(ms).length?Object.keys(ms).sort().reverse().map(function(m){
+    return '<button class="toRow" type="button" data-mo="'+m+'"><span>'+(+m.slice(0,4))+"年"+(+m.slice(4,6))+"月のまとめ"+(m===cur?"（途中）":"")+"<small>"+ms[m]+"レース・共有用の画像</small></span><i>開く</i></button>"}).join("")
+    :'<div class="empty">買い目を保存した月ができると、ここに並びます。</div>';
+}
+function repStats(m){
+  var all=betRows(),rows=all.filter(function(x){return x.hd.slice(0,6)===m}),S=stats(rows),A=stats(all);
+  var vs=Object.keys(S.vA).filter(function(k){return S.vA[k].n>=5&&S.vA[k].b>0}).map(function(k){var v=S.vA[k];return {name:V[+k]||k,n:v.n,roi:Math.round(v.p/v.b*100)}}).sort(function(a,b){return b.roi-a.roi});
+  var out=[];if(vs.length){out.push(Object.assign({label:vs.length>1&&vs[vs.length-1].roi!==vs[0].roi?"回収率がいちばん高い場":"5レース以上の場"},vs[0]));if(vs.length>1&&vs[vs.length-1].roi!==vs[0].roi)out.push(Object.assign({label:"回収率がいちばん低い場"},vs[vs.length-1]))}
+  var y=+m.slice(0,4),mo=+m.slice(4,6),last=new Date(Date.UTC(y,mo,0)).getUTCDate(),td=today().replace(/-/g,""),now=td.slice(0,6)===m;
+  if(now)last=+td.slice(6,8);
+  var t=S.titles.filter(function(x){return x==="本命派"||x==="穴党"})[0]||S.titles[0]||"";
+  return {m:mo,range:y+"年"+mo+"月1日から"+last+"日"+(now?"（途中）":""),title:t,rank:S.rank,nOrd:S.nOrd,nRank:S.nRank,n:S.n,hit:S.hit,judged:S.judged,roi:S.roi,nA:S.nA,roiAll:A.roi,nAAll:A.nA,venues:out};
+}
+var KS=null;
+/* 称号カード（v5 9章・裁定14・15）。称号が無い人にはボタンを出さない。大きく出した数字は表に入れない */
+function shogoData(){
+  var S=KS.S,t=S.titles[0],ds=KS.rows.filter(function(x){return firsts(x.en).length}).map(function(x){return x.hd}).sort();
+  var f=function(d){return (+d.slice(4,6))+"月"+(+d.slice(6,8))+"日"},a=ds[0],b=ds[ds.length-1];
+  var T={title:t,tags:S.titles.slice(1),range:(+a.slice(0,4))+"年"+f(a)+"から"+(a.slice(0,4)!==b.slice(0,4)?(+b.slice(0,4))+"年":"")+f(b),cmp:""};
+  var r1=["1着に1号艇",pct(S.share1),S.nOrd+"レース",S.nF?pct(S.w1/S.nF):"—",S.nF?S.w1+"/"+S.nF:""];
+  if(t==="本命派"||t==="穴党"){T.big=S.rank.toFixed(1);T.bigUnit="番人気";T.desc="1着に選んだ艇の単勝人気の平均（人気の分かる"+S.nRank+"レース）";
+    if(S.wRank!=null)T.cmp="同じレースで実際に1着になった艇は、平均"+S.wRank.toFixed(1)+"番人気（"+S.nWR+"レース）";T.rows=[r1];}
+  else if(t==="イン信者"){T.big=String(Math.round(S.share1*100));T.bigUnit="%";T.desc="1着に1号艇を選んだ割合（着順のある"+S.nOrd+"レース）";
+    if(S.nF)T.cmp="同じレースで実際に1号艇が1着になったのは "+pct(S.w1/S.nF)+"（"+S.w1+"/"+S.nF+"）";
+    T.rows=[["1着の平均人気",S.rank!=null?S.rank.toFixed(1):"—",S.nRank+"レース",S.wRank!=null?S.wRank.toFixed(1):"—",S.nWR+"レース"]];}
+  else{T.big=V[+S.topV]||"";T.bigUnit="";T.desc="着順のある"+S.nOrd+"レースのうち "+S.topC+" レース（"+pct(S.topC/S.nOrd)+"）";T.rows=[r1];}
+  return T;
+}
+function openShogo(){
+  if(!KS||!KS.S.titles.length)return;
+  var d=$("rep"),T=shogoData(),m="sh";REPM=m;REPBLOB=null;
+  $("rep-h").textContent="称号カード";$("rep-msg").textContent="画像を作っています。";$("rep-img").innerHTML="";
+  if(d.showModal)d.showModal();else d.setAttribute("open","");
+  loadTsuki().then(function(){return dzTsuki.shogo(T,KGURL)}).then(function(b){
+    if(REPM!==m)return;REPBLOB=b;if(REPURL)URL.revokeObjectURL(REPURL);REPURL=URL.createObjectURL(b);
+    var im=document.createElement("img");im.src=REPURL;im.alt="称号 "+T.title+"："+T.desc.replace(/（.*/,"")+" "+T.big+T.bigUnit;
+    $("rep-img").appendChild(im);$("rep-msg").textContent="";
+  }).catch(function(){if(REPM===m)$("rep-msg").textContent="画像を作れませんでした。通信のよいところで、もう一度開いてください。"});
+}
+$("kk-body").addEventListener("click",function(e){if(e.target.closest("#sh-open"))openShogo()});
+var KGURL="../players/card/kgOutline.json",REPURL=null,REPBLOB=null,REPM="";
+function loadTsuki(){return new Promise(function(ok,ng){if(window.dzTsuki)return ok();var sc=document.createElement("script");sc.src="../assets/tsukiReport.js?v=1";sc.onload=function(){window.dzTsuki?ok():ng()};sc.onerror=ng;document.head.appendChild(sc)})}
+function openRep(m){
+  var d=$("rep"),R=repStats(m);REPM=m;REPBLOB=null;
+  $("rep-h").textContent=(+m.slice(0,4))+"年"+R.m+"月のまとめ";
+  $("rep-msg").textContent="画像を作っています。";$("rep-img").innerHTML="";
+  if(d.showModal)d.showModal();else d.setAttribute("open","");
+  loadTsuki().then(function(){return dzTsuki.make(R,KGURL)}).then(function(b){
+    if(REPM!==m)return;REPBLOB=b;if(REPURL)URL.revokeObjectURL(REPURL);REPURL=URL.createObjectURL(b);
+    var im=document.createElement("img");im.src=REPURL;im.alt=R.m+"月のまとめ：記録したレース"+R.n+"、的中"+R.hit+"（"+R.judged+"レース中）、回収率"+(R.roi!=null?R.roi+"%":"不明")+(R.title?"、称号 "+R.title:"");
+    $("rep-img").appendChild(im);$("rep-msg").textContent="";
+  }).catch(function(){if(REPM===m)$("rep-msg").textContent="画像を作れませんでした。通信のよいところで、もう一度開いてください。"});
+}
+function closeRep(){var d=$("rep");REPM="";if(d.close)d.close();else d.removeAttribute("open")}
+$("mo-list").addEventListener("click",function(e){var b=e.target.closest("button");if(b&&/^\d{6}$/.test(b.dataset.mo||""))openRep(b.dataset.mo)});
+$("rep-x").onclick=closeRep;
+$("rep").addEventListener("click",function(e){if(e.target===this)closeRep()});
+$("rep-share").onclick=function(){
+  var msg=$("rep-msg");if(!REPBLOB){msg.textContent="画像を作っています。少し待ってからもう一度押してください。";return}
+  var file=new File([REPBLOB],(REPM==="sh"?"shogo":"matome"+REPM)+".png",{type:"image/png"});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){msg.textContent="";navigator.share({files:[file]}).catch(function(err){if(err&&err.name!=="AbortError")msg.textContent="共有メニューを開けませんでした。上の画像を長押しして保存してください。"});return}
+  if(/iPhone|iPad|Android/.test(navigator.userAgent)){msg.textContent="この画面では共有メニューを開けません。上の画像を長押しして保存してください。";return}
+  var a=document.createElement("a");a.href=REPURL;a.download=file.name;document.body.appendChild(a);a.click();a.remove();msg.textContent="画像を保存しました。";
+};
 
 /* ---------- データの管理 ---------- */
 $("x-out").onclick=function(){
