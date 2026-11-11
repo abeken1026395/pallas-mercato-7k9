@@ -274,7 +274,9 @@ def other_run_active():
     rc, out = gh_api(["repos/%s/actions/workflows/%s/runs?per_page=40" % (os.environ.get("GITHUB_REPOSITORY"), WF_FILE),
                       "--jq", '.workflow_runs[]|select(.status!="completed")|.id'])
     if rc != 0 or not me.isdigit():
+        log("二重起動の確認ができなかった（走る側に倒す）:", out[-200:].strip())
         return None
+    log("二重起動の確認: 終わっていない便", " ".join(out.split()) or "なし", "/ 自分", me)
     for line in out.split():
         if line.isdigit() and line not in skip and int(line) < int(me):
             return line
