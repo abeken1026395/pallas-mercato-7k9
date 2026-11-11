@@ -437,9 +437,9 @@ function stats(rows){
   S.share1=S.nOrd?S.s1/S.nOrd:null;S.rank=S.nRank?S.rk/S.nRank:null;S.wRank=S.nWR?S.wr/S.nWR:null;
   var tv="",tc=0;Object.keys(S.ven).forEach(function(k){if(S.ven[k]>tc){tc=S.ven[k];tv=k}});S.topV=tv;S.topC=tc;
   S.roi=S.buy?Math.round(S.pay/S.buy*100):null;
-  /* 称号：本命派・穴党は人気の分かる20レースから、イン信者・場読みは着順のある20レースから */
+  /* 称号：本命派・中穴派・穴党は人気の分かる20レースから（中穴派は 2026-11-12 けん裁定A：平均人気が2.0と3.5の間）、イン信者・場読みは着順のある20レースから */
   var T=[];
-  if(S.nRank>=20){if(S.rank<=2.0)T.push("本命派");else if(S.rank>=3.5)T.push("穴党")}
+  if(S.nRank>=20){if(S.rank<=2.0)T.push("本命派");else if(S.rank>=3.5)T.push("穴党");else T.push("中穴派")}
   if(S.nOrd>=20&&S.share1>=0.7)T.push("イン信者");
   if(S.nOrd>=20&&tc>=10&&tc/S.nOrd>=0.5)T.push("場読み");
   S.titles=T;
@@ -459,7 +459,7 @@ function drawKeikou(){
     var tg=[],main=S.titles[0]||"";
     S.titles.slice(1).forEach(function(t){tg.push(t==="場読み"?"場読み："+esc(V[+S.topV]||"")+" "+S.topC+"/"+S.nOrd:esc(t))});
     if(main==="場読み"){main="場読み";}
-    $("kk-body").innerHTML=(main?'<div class="shogo"><b>'+esc(main)+"</b><span>"+(main==="本命派"||main==="穴党"?"1着に選んだ艇の人気 平均"+S.rank.toFixed(1)+'番人気<span class="nw">（'+S.nRank+"レース）</span>":main==="イン信者"?"1着に1号艇 "+pct(S.share1)+'<span class="nw">（'+S.nOrd+"レース）</span>":esc(V[+S.topV]||"")+" "+S.topC+"/"+S.nOrd+"レース")+"</span></div>"
+    $("kk-body").innerHTML=(main?'<div class="shogo"><b>'+esc(main)+"</b><span>"+(main==="本命派"||main==="穴党"||main==="中穴派"?"下の表の「1着の平均人気」で判定（2.0以内は本命派、3.5以上は穴党、その間は中穴派）":main==="イン信者"?"下の表の「1着に1号艇」で判定（70%以上）":esc(V[+S.topV]||"")+" "+S.topC+"/"+S.nOrd+"レース")+"</span></div>"
         :'<p class="note" style="margin-top:4px">'+(S.nOrd<20?"称号は着順のある買い目が20レースになると出ます（今 "+S.nOrd+" レース）。":"どの称号の基準にも届いていません。")+"</p>")
       +(tg.length?'<div class="tags">'+tg.map(function(t){return "<span>"+t+"</span>"}).join("")+"</div>":"")
       +'<table class="kk"><caption>着順のある買い目（単勝・2連単・3連単）を残したレースだけ</caption>'
@@ -482,7 +482,7 @@ function repStats(m){
   var out=[];if(vs.length){out.push(Object.assign({label:vs.length>1&&vs[vs.length-1].roi!==vs[0].roi?"回収率がいちばん高い場":"5レース以上の場"},vs[0]));if(vs.length>1&&vs[vs.length-1].roi!==vs[0].roi)out.push(Object.assign({label:"回収率がいちばん低い場"},vs[vs.length-1]))}
   var y=+m.slice(0,4),mo=+m.slice(4,6),last=new Date(Date.UTC(y,mo,0)).getUTCDate(),td=today().replace(/-/g,""),now=td.slice(0,6)===m;
   if(now)last=+td.slice(6,8);
-  var t=S.titles.filter(function(x){return x==="本命派"||x==="穴党"})[0]||S.titles[0]||"";
+  var t=S.titles.filter(function(x){return x==="本命派"||x==="穴党"||x==="中穴派"})[0]||S.titles[0]||"";
   return {m:mo,range:y+"年"+mo+"月1日から"+last+"日"+(now?"（途中）":""),title:t,rank:S.rank,nOrd:S.nOrd,nRank:S.nRank,n:S.n,hit:S.hit,judged:S.judged,roi:S.roi,nA:S.nA,roiAll:A.roi,nAAll:A.nA,venues:out};
 }
 var KS=null;
@@ -492,7 +492,7 @@ function shogoData(){
   var f=function(d){return (+d.slice(4,6))+"月"+(+d.slice(6,8))+"日"},a=ds[0],b=ds[ds.length-1];
   var T={title:t,tags:S.titles.slice(1),range:(+a.slice(0,4))+"年"+f(a)+"から"+(a.slice(0,4)!==b.slice(0,4)?(+b.slice(0,4))+"年":"")+f(b),cmp:""};
   var r1=["1着に1号艇",pct(S.share1),S.nOrd+"レース",S.nF?pct(S.w1/S.nF):"—",S.nF?S.w1+"/"+S.nF:""];
-  if(t==="本命派"||t==="穴党"){T.big=S.rank.toFixed(1);T.bigUnit="番人気";T.desc="1着に選んだ艇の単勝人気の平均（人気の分かる"+S.nRank+"レース）";
+  if(t==="本命派"||t==="穴党"||t==="中穴派"){T.big=S.rank.toFixed(1);T.bigUnit="番人気";T.desc="1着に選んだ艇の単勝人気の平均（人気の分かる"+S.nRank+"レース）";
     if(S.wRank!=null)T.cmp="同じレースで実際に1着になった艇は、平均"+S.wRank.toFixed(1)+"番人気（"+S.nWR+"レース）";T.rows=[r1];}
   else if(t==="イン信者"){T.big=String(Math.round(S.share1*100));T.bigUnit="%";T.desc="1着に1号艇を選んだ割合（着順のある"+S.nOrd+"レース）";
     if(S.nF)T.cmp="同じレースで実際に1号艇が1着になったのは "+pct(S.w1/S.nF)+"（"+S.w1+"/"+S.nF+"）";
@@ -513,7 +513,7 @@ function openShogo(){
 }
 $("kk-body").addEventListener("click",function(e){if(e.target.closest("#sh-open"))openShogo()});
 var KGURL="../players/card/kgOutline.json",REPURL=null,REPBLOB=null,REPM="";
-function loadTsuki(){return new Promise(function(ok,ng){if(window.dzTsuki)return ok();var sc=document.createElement("script");sc.src="../assets/tsukiReport.js?v=1";sc.onload=function(){window.dzTsuki?ok():ng()};sc.onerror=ng;document.head.appendChild(sc)})}
+function loadTsuki(){return new Promise(function(ok,ng){if(window.dzTsuki)return ok();var sc=document.createElement("script");sc.src="../assets/tsukiReport.js?v=2";sc.onload=function(){window.dzTsuki?ok():ng()};sc.onerror=ng;document.head.appendChild(sc)})}
 function openRep(m){
   var d=$("rep"),R=repStats(m);REPM=m;REPBLOB=null;
   $("rep-h").textContent=(+m.slice(0,4))+"年"+R.m+"月のまとめ";
