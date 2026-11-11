@@ -32,6 +32,16 @@ E30該当期間のレースに絞り、選手(登番)×進入コース別の「�
     E30_OUT       出力先（既定 docs/data/e30PlayerStats.json）
     E30_END       集計最終日 YYYYMMDD（既定=当日JST）
     E30_MIN_N     出力に載せる最低出走数（既定 1=全件。司令塔判定用に可変）
+    E30_CACHE     日次JSONの置き場（任意）。置いてある日は通信しない。
+    E30_CACHE_FRESH_DAYS  当日からこの日数ぶんは置き場を使わず毎回取り直す（既定 3）。
+
+取り直しを減らす（2026-11-12）:
+  以前は毎晩、全期間（485日ぶん・1回485リクエスト）をミラーから取り直していた。
+  updateE30Stats.yml が E30_CACHE を actions/cache で持ち越すので、取りに行くのは
+  直近 E30_CACHE_FRESH_DAYS 日と、置き場に無い日だけになる。
+  置き場の鍵は月ごとに変わる（月に1回は全期間を取り直す＝ミラーが過去日を直した分を拾う）。
+  results/ から読む形にはしていない。results/ は3連単が成立しなかったレースを丸ごと
+  持たないため、置き換えると出走数が減る（2025-07-15〜2026-11-10 で延べ 101,591 → 101,532）。
 """
 import os, io, sys, json, time, datetime, urllib.request
 
@@ -45,6 +55,8 @@ SCHEDULE = os.environ.get("E30_SCHEDULE", "e30Schedule.json")
 OUT      = os.environ.get("E30_OUT", "docs/data/e30PlayerStats.json")
 MIN_N    = int(os.environ.get("E30_MIN_N", "1"))
 CACHE    = os.environ.get("E30_CACHE", "")   # 任意: 日次JSONのキャッシュディレクトリ
+FRESH_DAYS = int(os.environ.get("E30_CACHE_FRESH_DAYS", "3"))
+STAT = {"cache": 0, "fetch": 0, "miss": 0}   # ログ用: 置き場から読んだ日 / 取りに行った日 / 取れなかった日
 
 
 def jst_today():
@@ -62,26 +74,39 @@ def load_schedule():
     return venues
 
 
+def cache_usable(hd):
+    """置き場の版を使ってよい日か。直近 FRESH_DAYS 日は途中版のおそれがあるので使わない。"""
+    limit = (jst_today() - datetime.timedelta(days=FRESH_DAYS)).strftime("%Y%m%d")
+    return hd <= limit
+
+
 def fetch_json(hd):
-    if CACHE:
+    if CACHE and cache_usable(hd):
         cp = os.path.join(CACHE, hd + ".json")
         if os.path.exists(cp):
             try:
                 with io.open(cp, encoding="utf-8") as f:
-                    return json.load(f)
+                    data = json.load(f)
+                STAT["cache"] += 1
+                return data
             except Exception:
                 pass
+    time.sleep(0.15)
     url = "{0}{1}/{2}.json".format(BASE, hd[:4], hd)
     try:
         raw = urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=15).read()
     except Exception:
+        STAT["miss"] += 1
         return None
     if not raw or len(raw) < 50:
+        STAT["miss"] += 1
         return None
     try:
         data = json.loads(raw.decode("utf-8"))
     except Exception:
+        STAT["miss"] += 1
         return None
+    STAT["fetch"] += 1
     if CACHE:
         try:
             os.makedirs(CACHE, exist_ok=True)
@@ -115,7 +140,6 @@ def main():
     first_seen = None; last_seen = None; race_cnt = 0; day_cnt = 0
     for hd in daterange(span_start, end):
         data = fetch_json(hd)
-        time.sleep(0.15)
         if not data:
             continue
         day_used = False
@@ -209,6 +233,7 @@ def main():
     print("  対象場", list(venues.keys()), "集計期間", first_seen, "〜", last_seen,
           "開催日", day_cnt, "延べ出走", race_cnt, "選手", total_kept,
           ("(先頭切詰め)" if truncated else ""))
+    print("  置き場から", STAT["cache"], "日 / 取得", STAT["fetch"], "日 / 取れず", STAT["miss"], "日")
 
 
 if __name__ == "__main__":

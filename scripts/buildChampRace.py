@@ -18,6 +18,7 @@
 import os
 import csv
 import glob
+import gzip
 import json
 import time
 import datetime
@@ -29,6 +30,10 @@ OUT = os.path.join(PAYDIR, "champRace.json")
 PROG = "https://raw.githubusercontent.com/BoatraceOpenAPI/programs/gh-pages/docs/v2/{y}/{ymd}.json"
 UA = "Mozilla/5.0 boatrace-data-collector"
 TIMEOUT = 30
+# 番組表の写し（dailyM8.yml が毎日、生のまま gzip で足している。同じ取得元の同じファイル）。
+# 2026-11-12: 毎回 全期間ぶん（1回485リクエスト）を取り直すのをやめ、写しがある日は通信しない。
+# 写しが無い日だけ従来どおり取得元へ取りに行く。
+PV2_PROGRAMS = os.environ.get("CHAMP_PV2_DIR", os.path.join("pv2", "programs"))
 
 SLUG2VENUE = {
     "kiryu": (1, "桐生"), "toda": (2, "戸田"), "edogawa": (3, "江戸川"),
@@ -41,6 +46,7 @@ SLUG2VENUE = {
     "fukuoka": (22, "福岡"), "karatsu": (23, "唐津"), "omura": (24, "大村"),
 }
 JCD2VENUE = {jcd: (slug, name) for slug, (jcd, name) in SLUG2VENUE.items()}
+FETCHED = []   # 写しが無く取得元へ取りに行った日（ログ用）
 
 
 def load_combo_map():
@@ -62,7 +68,25 @@ def load_combo_map():
     return m
 
 
+def local_programs(ymd):
+    """pv2/programs/YYYYMMDD.json.gz があれば読む。無い・読めないなら None。"""
+    path = os.path.join(PV2_PROGRAMS, ymd + ".json.gz")
+    if not os.path.exists(path):
+        return None
+    try:
+        with gzip.open(path, "rt", encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError, EOFError):
+        print("pv2 unreadable (fallback to mirror):", path)
+        return None
+
+
 def fetch_programs(ymd):
+    doc = local_programs(ymd)
+    if doc is not None:
+        return doc
+    FETCHED.append(ymd)
+    time.sleep(0.03)
     url = PROG.format(y=ymd[:4], ymd=ymd)
     req = urllib.request.Request(url, headers={"User-Agent": UA})
     try:
@@ -117,7 +141,6 @@ def main():
                 "date": fmt(ymd), "rno": rno, "combo": combo,
                 "title": (p.get("race_title") or "").strip(),
             })
-        time.sleep(0.03)
 
     venues = {}
     for jcd in range(1, 25):
@@ -153,6 +176,7 @@ def main():
     with open(OUT, "w", encoding="utf-8") as f:
         f.write(json.dumps(out, ensure_ascii=False, indent=2))
     print("venues:", len(venues), " combo未取得:", missing_combo, " 優勝戦のあった日:", len(days_seen))
+    print("取得元へ取りに行った日:", len(FETCHED), " ".join(FETCHED[:20]))
     for code in sorted(venues):
         v = venues[code]
         top = v["ranking"][0] if v["ranking"] else {}

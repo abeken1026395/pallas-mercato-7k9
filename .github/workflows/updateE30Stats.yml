@@ -20,9 +20,23 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      # ミラーの日次JSONを実行をまたいで持ち越す（2026-11-12）。
+      # 以前は毎晩 全期間（485日ぶん）を取り直していた。持ち越した日は通信せず、
+      # 取りに行くのは直近3日（E30_CACHE_FRESH_DAYS）と置き場に無い日だけ。
+      # 鍵は月ごと。月が替わった最初の回は置き場が空＝全期間を取り直す（ミラーが過去日を直した分を拾う）。
+      # 置き場はリポジトリの外（コミットされない）。持ち越しが無くても結果は同じで、通信が増えるだけ。
+      - name: cache month
+        id: ym
+        run: echo "ym=$(date -u +%Y%m)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/e30v2
+          key: e30v2-${{ steps.ym.outputs.ym }}-${{ github.run_id }}
+          restore-keys: |
+            e30v2-${{ steps.ym.outputs.ym }}-
       # 生データ集計。データ源=BoatraceOpenAPI/resultsミラー(GitHub配信,Actions到達可)
       # e30Schedule.json（確定10場）参照。標準ライブラリのみ＝pip不要。
-      - run: python scripts/buildE30Stats.py
+      - run: E30_CACHE="$HOME/.cache/e30v2" python scripts/buildE30Stats.py
       - name: commit and push
         if: always()
         run: |
