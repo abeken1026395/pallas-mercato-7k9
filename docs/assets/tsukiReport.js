@@ -74,7 +74,7 @@ function draw(R){
 /* 称号カード（1080×1350）。名乗りと同じ作り：黒の札・白い左の帯・赤い名前に白い縁・下の赤い斜めの帯
    T={title,tags:[],big,bigUnit,desc,cmp,rows:[[項目,あなた,あなたの分母,結果,結果の分母]],range}
    大きく出した数字は表に入れない（同じ数字を2回出さない） */
-const SH_RULE={"本命派":"1着に選んだ艇の平均人気が2.0番人気以内","穴党":"1着に選んだ艇の平均人気が3.5番人気より外","イン信者":"1着に1号艇を選んだ割合が70%以上","場読み":"1つの場が半分以上（10レース以上）"};
+const SH_RULE={"本命派":"1着に選んだ艇の平均人気が2.0番人気以内","穴党":"1着に選んだ艇の平均人気が3.5番人気以上","中穴派":"1着に選んだ艇の平均人気が2.0番人気より外、3.5番人気より内","イン信者":"1着に1号艇を選んだ割合が70%以上","場読み":"1つの場が半分以上（10レース以上）"};
 function drawShogo(T){
   const pal=scPal(true),INK=pal.INK,SUB=pal.SUB,LN=pal.LN;
   const cv=document.createElement("canvas");cv.width=1080;cv.height=1350;const c=cv.getContext("2d");
@@ -103,7 +103,7 @@ function drawShogo(T){
     scKg(c,r[1],700,y,64,INK,{anchor:"ra"});scTxt(c,r[2],700,y+76,20,SUB,"ra");
     scKg(c,r[3],1040,y,64,SUB,{anchor:"ra"});scTxt(c,r[4],1040,y+76,20,SUB,"ra");
     y+=120;scLine(c,40,y-10,1040,y-10,"rgba(255,255,255,.094)");});
-  y+=10;scTxt(c,"「"+T.title+"」は、"+SH_RULE[T.title]+"の人に付く称号です。",40,y,24,SUB);
+  y+=10;scFitTxt0(c,"「"+T.title+"」は、"+SH_RULE[T.title]+"の人に付く称号です。",40,y,24,SUB,1000);
   scTxt(c,"着順のある買い目（単勝・2連単・3連単）を残したレースで判定。人気は締切前の単勝オッズの順位。",40,y+38,20,SUB);
   scTxt(c,"本人がこの端末に残した記録から作成。",40,1262,22,SUB);
   scTxt(c,"データ攻め",1040,1296,26,INK,"ra");
