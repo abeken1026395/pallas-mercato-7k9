@@ -70,6 +70,11 @@ OFFICIAL_HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) App
 OFFICIAL_SLEEP = 1.2
 OFFICIAL_MAX = int(os.environ.get("OFFICIAL_MAX", "60"))
 OFFICIAL_AFTER_MIN = 10   # 締切からこの分数がたったレースだけ取りに行く
+# v2 を取りに行くのは、締切からこの分数がたっても v1 に3連単が無いレースがあるときだけ(2026-11-12)。
+# 以前は「v1 に3連単が無いレースが1つでもあれば」取りに行っていたため、日中はまだ走っていないレースを
+# 欠けと数えて、取り込みのたびに v2(1日分 約0.25MB)を取っていた。v2 は1日2〜3回の一括更新なので、
+# 締切直後のレースは v2 にも無い。v1 に結果が載るのは締切から中央値19分・最大28分(2026-11-11 の144レースで測った)。
+V2_AFTER_MIN = 30
 
 # 公式ページの着の表記 → v1 の place_number(facts.md の着コード表と同じ)
 PLACE_CODE = {"妨": 7, "エ": 8, "転": 9, "落": 10, "沈": 11, "不": 12,
@@ -465,10 +470,32 @@ def to_races(data, fallback=None):
     return races
 
 
-def v2_fallback(data, hd):
-    """v1で欠けたレースがあるときだけv2を取りに行き、補えるレースを返す。"""
+def overdue_races(data, miss, after_min, now_jst=None):
+    """欠けレースのうち、締切から after_min 分以上たったもの。
+    締切が読めないレースは含める(分からないときは従来どおり取りに行く側に倒す)。"""
+    now_jst = now_jst or (datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
+                          + datetime.timedelta(hours=9))
+    stadiums = ((data.get("programs") or {}).get("stadiums") or {})
+    out = []
+    for sn, rn in miss:
+        race = (((stadiums.get(str(sn)) or {}).get("races") or {}).get(str(rn))) or {}
+        try:
+            closed = datetime.datetime.strptime(race.get("closed_at") or "", "%Y-%m-%d %H:%M:%S")
+        except Exception:
+            out.append((sn, rn))
+            continue
+        if now_jst >= closed + datetime.timedelta(minutes=after_min):
+            out.append((sn, rn))
+    return out
+
+
+def v2_fallback(data, hd, now_jst=None):
+    """v1で欠けたレースのうち締切から V2_AFTER_MIN 分たったものがあるときだけv2を取りに行き、補えるレースを返す。"""
     miss = missing_races(data)
     if not miss:
+        return {}
+    if not overdue_races(data, miss, V2_AFTER_MIN, now_jst):
+        print("v2 fallback: skip", hd, "/ v1 missing", len(miss), "(締切から%d分たったレースなし)" % V2_AFTER_MIN)
         return {}
     data2 = fetch_json(hd, BASE_V2)
     if not data2:

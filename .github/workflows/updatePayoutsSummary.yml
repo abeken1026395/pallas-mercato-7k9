@@ -38,10 +38,10 @@ jobs:
       # 他3本の更新と検算は続けたいから。落ちたことは verify で NG になり、最後の gate で
       # ジョブを赤にする（continue-on-error の緑をそのまま結果にしない）。
 
-      # 全24場を BoatraceOpenAPI(v2) から横断集計（mbrace非依存）
+      # 全24場をリポジトリ内の results/ から横断集計（2026-11-12 から外部への通信なし。以前はミラーを毎回 全期間 取り直していた）
       - name: build payouts summary (all 24 venues)
         id: summary
-        continue-on-error: true   # 残す: 入力はミラーAPI。CSV集計3本とは独立
+        continue-on-error: true   # 残す: CSV集計3本とは独立
         env:
           START: ${{ github.event.inputs.START }}
           END: ${{ github.event.inputs.END }}

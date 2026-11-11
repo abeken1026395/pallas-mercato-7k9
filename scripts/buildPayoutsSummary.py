@@ -1,8 +1,14 @@
 # -*- coding: utf-8 -*-
 """
 万舟のツボ 総合（全24場横断）集計。
-到達可能な非公式ミラー BoatraceOpenAPI(v2) から全24場の3連単払戻を集計し、
+リポジトリ内の results/YYYYMMDD.json（buildResults.py の出力）から全24場の3連単払戻を集計し、
 docs/payouts/summary.json を生成する。
+
+2026-11-12: 外部ミラー BoatraceOpenAPI(v2) を毎回 全期間ぶん取り直すのをやめた（1回485リクエスト）。
+results/ に同じ期間の同じ中身がある。2025-07-15〜2026-11-10 の全レースを突き合わせ、3連単の組番と配当は
+73,299レースで一致、違いはミラーにだけある1レース（2025-08-16 大村12R）だった。このレースは results/ と
+24場の払戻CSVのどちらにも無い（24場別の万舟率とはこの形でそろう）。
+外部への通信はしない。
 
 出力スキーマ:
   period: {from,to,days}          … 対象期間（実データのある日）
@@ -16,16 +22,11 @@ docs/payouts/summary.json を生成する。
 """
 import os
 import json
-import time
 import datetime
-import urllib.request
-import urllib.error
 
 MAN = 10000  # 万舟の閾値（1万円以上）
-RAW = "https://raw.githubusercontent.com/BoatraceOpenAPI/results/gh-pages/docs/v2/{y}/{ymd}.json"
+RESULTS_DIR = os.environ.get("SUMMARY_RESULTS_DIR", "results")
 OUT = os.path.join("docs", "payouts", "summary.json")
-UA = "Mozilla/5.0 boatrace-data-collector"
-TIMEOUT = 30
 
 NAMES = {1:"桐生",2:"戸田",3:"江戸川",4:"平和島",5:"多摩川",6:"浜名湖",7:"蒲郡",8:"常滑",
 9:"津",10:"三国",11:"びわこ",12:"住之江",13:"尼崎",14:"鳴門",15:"丸亀",16:"児島",
@@ -39,16 +40,28 @@ SLUG = {1:"kiryu",2:"toda",3:"edogawa",4:"heiwajima",5:"tamagawa",6:"hamanako",
 
 
 def fetch_day(d):
-    ymd = d.strftime("%Y%m%d")
-    url = RAW.format(y=d.strftime("%Y"), ymd=ymd)
-    req = urllib.request.Request(url, headers={"User-Agent": UA})
+    """results/YYYYMMDD.json を読み、集計に使う項目だけを旧ミラー(v2)と同じ形で返す。
+    ファイルが無い日（非開催・未取得）と読めない日は None（その日は数えない）。"""
+    path = os.path.join(RESULTS_DIR, d.strftime("%Y%m%d") + ".json")
+    if not os.path.exists(path):
+        return None
     try:
-        with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
-            return json.loads(r.read().decode("utf-8", "ignore"))
-    except urllib.error.HTTPError as e:
-        if e.code == 404:
-            return None
-        raise
+        with open(path, encoding="utf-8") as f:
+            doc = json.load(f)
+    except (OSError, ValueError):
+        print("skip (unreadable):", path)
+        return None
+    out = []
+    for r in doc.get("結果") or []:
+        try:
+            j = int(r.get("場コード"))
+            rno = int(str(r.get("レース")).rstrip("R"))
+        except (TypeError, ValueError):
+            continue
+        out.append({"race_stadium_number": j, "race_number": rno,
+                    "payouts": {"trifecta": [{"combination": r.get("着順"),
+                                              "payout": r.get("三連単配当")}]}})
+    return {"results": out}
 
 
 def main():
@@ -88,7 +101,6 @@ def main():
                 s[3] = (ymd, rno, combo)
             days[j].add(ymd)
             all_alldays.add(ymd)
-        time.sleep(0.05)
 
     arare = []
     mx = []
