@@ -128,6 +128,7 @@ table.kk td small{display:block;font:400 12px var(--font);color:var(--dim)}
 .toRow:first-child{border-top:0}
 .toRow small{display:block;font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
 .toRow i{font-style:normal;color:var(--gold);font-size:14px;white-space:nowrap}
+#sh-open{margin-top:12px}
 dialog.rep{width:min(100% - 24px,560px);max-height:calc(100% - 24px);margin:auto;padding:16px;background:#132b46;color:var(--fg);border:1px solid var(--line2)}
 dialog.rep::backdrop{background:rgba(5,12,22,.7)}
 dialog.rep h2{display:flex;justify-content:space-between;align-items:center;gap:8px}
@@ -470,7 +471,7 @@ function drawKeikou(){
   var td=today().replace(/-/g,"");
   if(window.DZK&&DZK.ninki){var ds={};all.forEach(function(x){if(x.hd<td&&!NKDAY[x.hd]&&firsts(x.en).length){var e=DZK.kkGet(x.k);if(!(e&&e.o))ds[x.hd]=1}});
     Object.keys(ds).sort().reduce(function(p,hd){NKDAY[hd]=1;return p.then(function(){return DZK.ninki(hd)}).then(function(ch){if(ch)ALLD.ch=1})},Promise.resolve()).then(function(){if(ALLD.ch){ALLD.ch=0;drawKeikou()}});}
-  var S=stats(all);
+  var S=stats(all);KS={S:S,rows:all};
   if(!S.nOrd){$("kk-body").innerHTML='<div class="empty">単勝・2連単・3連単の買い目を保存すると、1着に選んだ艇の傾向がここに出ます。</div>'}
   else{
     var tg=[],main=S.titles[0]||"";
@@ -484,7 +485,7 @@ function drawKeikou(){
       +'<tr><th scope="row">1着に1号艇</th><td>'+pct(S.share1)+"<small>"+S.nOrd+"レース</small></td><td>"+(S.nF?pct(S.w1/S.nF)+"<small>"+S.w1+"/"+S.nF+"</small>":"—")+"</td></tr>"
       +'<tr><th scope="row">1着の平均人気</th><td>'+(S.rank!=null?S.rank.toFixed(1)+"<small>"+S.nRank+"レース</small>":"—")+"</td><td>"+(S.wRank!=null?S.wRank.toFixed(1)+"<small>"+S.nWR+"レース</small>":"—")+"</td></tr>"
       +"</tbody></table>"
-      +'<p class="note">1着に1号艇は、1着に選んだ艇のうち1号艇の割合をレースごとに出して平均したものです。平均人気は、締切前の単勝オッズで何番人気だったかの平均です。人気は'+(S.last?(+S.last.slice(4,6))+"/"+(+S.last.slice(6,8))+"分まで入っています（翌日の昼過ぎに更新）":"翌日の昼過ぎに入ります")+"。</p>";
+      +'<p class="note">1着に1号艇は、1着に選んだ艇のうち1号艇の割合をレースごとに出して平均したものです。平均人気は、締切前の単勝オッズで何番人気だったかの平均です。人気は'+(S.last?(+S.last.slice(4,6))+"/"+(+S.last.slice(6,8))+"分まで入っています（翌日の昼過ぎに更新）":"翌日の昼過ぎに入ります")+"。</p>"+(S.titles.length?'<button class="btn" type="button" id="sh-open">称号カードを作る</button>':"");
   }
   /* 月ごと：保存した買い目のある月を新しい順に */
   var ms={};all.forEach(function(x){if(x.en.b.length){var m=x.hd.slice(0,6);ms[m]=(ms[m]||0)+1}});
@@ -502,6 +503,33 @@ function repStats(m){
   var t=S.titles.filter(function(x){return x==="本命派"||x==="穴党"})[0]||S.titles[0]||"";
   return {m:mo,range:y+"年"+mo+"月1日から"+last+"日"+(now?"（途中）":""),title:t,rank:S.rank,nOrd:S.nOrd,nRank:S.nRank,n:S.n,hit:S.hit,judged:S.judged,roi:S.roi,nA:S.nA,roiAll:A.roi,nAAll:A.nA,venues:out};
 }
+var KS=null;
+/* 称号カード（v5 9章・裁定14・15）。称号が無い人にはボタンを出さない。大きく出した数字は表に入れない */
+function shogoData(){
+  var S=KS.S,t=S.titles[0],ds=KS.rows.filter(function(x){return firsts(x.en).length}).map(function(x){return x.hd}).sort();
+  var f=function(d){return (+d.slice(4,6))+"月"+(+d.slice(6,8))+"日"},a=ds[0],b=ds[ds.length-1];
+  var T={title:t,tags:S.titles.slice(1),range:(+a.slice(0,4))+"年"+f(a)+"から"+(a.slice(0,4)!==b.slice(0,4)?(+b.slice(0,4))+"年":"")+f(b),cmp:""};
+  var r1=["1着に1号艇",pct(S.share1),S.nOrd+"レース",S.nF?pct(S.w1/S.nF):"—",S.nF?S.w1+"/"+S.nF:""];
+  if(t==="本命派"||t==="穴党"){T.big=S.rank.toFixed(1);T.bigUnit="番人気";T.desc="1着に選んだ艇の単勝人気の平均（人気の分かる"+S.nRank+"レース）";
+    if(S.wRank!=null)T.cmp="同じレースで実際に1着になった艇は、平均"+S.wRank.toFixed(1)+"番人気（"+S.nWR+"レース）";T.rows=[r1];}
+  else if(t==="イン信者"){T.big=String(Math.round(S.share1*100));T.bigUnit="%";T.desc="1着に1号艇を選んだ割合（着順のある"+S.nOrd+"レース）";
+    if(S.nF)T.cmp="同じレースで実際に1号艇が1着になったのは "+pct(S.w1/S.nF)+"（"+S.w1+"/"+S.nF+"）";
+    T.rows=[["1着の平均人気",S.rank!=null?S.rank.toFixed(1):"—",S.nRank+"レース",S.wRank!=null?S.wRank.toFixed(1):"—",S.nWR+"レース"]];}
+  else{T.big=V[+S.topV]||"";T.bigUnit="";T.desc="着順のある"+S.nOrd+"レースのうち "+S.topC+" レース（"+pct(S.topC/S.nOrd)+"）";T.rows=[r1];}
+  return T;
+}
+function openShogo(){
+  if(!KS||!KS.S.titles.length)return;
+  var d=$("rep"),T=shogoData(),m="sh";REPM=m;REPBLOB=null;
+  $("rep-h").textContent="称号カード";$("rep-msg").textContent="画像を作っています。";$("rep-img").innerHTML="";
+  if(d.showModal)d.showModal();else d.setAttribute("open","");
+  loadTsuki().then(function(){return dzTsuki.shogo(T,KGURL)}).then(function(b){
+    if(REPM!==m)return;REPBLOB=b;if(REPURL)URL.revokeObjectURL(REPURL);REPURL=URL.createObjectURL(b);
+    var im=document.createElement("img");im.src=REPURL;im.alt="称号 "+T.title+"："+T.desc.replace(/（.*/,"")+" "+T.big+T.bigUnit;
+    $("rep-img").appendChild(im);$("rep-msg").textContent="";
+  }).catch(function(){if(REPM===m)$("rep-msg").textContent="画像を作れませんでした。通信のよいところで、もう一度開いてください。"});
+}
+$("kk-body").addEventListener("click",function(e){if(e.target.closest("#sh-open"))openShogo()});
 var KGURL="kirokuKeikou/kgOutline.json",REPURL=null,REPBLOB=null,REPM="";
 function loadTsuki(){return new Promise(function(ok,ng){if(window.dzTsuki)return ok();var sc=document.createElement("script");sc.src="kirokuKeikou/tsukiReport.js?v=1";sc.onload=function(){window.dzTsuki?ok():ng()};sc.onerror=ng;document.head.appendChild(sc)})}
 function openRep(m){
@@ -521,7 +549,7 @@ $("rep-x").onclick=closeRep;
 $("rep").addEventListener("click",function(e){if(e.target===this)closeRep()});
 $("rep-share").onclick=function(){
   var msg=$("rep-msg");if(!REPBLOB){msg.textContent="画像を作っています。少し待ってからもう一度押してください。";return}
-  var file=new File([REPBLOB],"matome"+REPM+".png",{type:"image/png"});
+  var file=new File([REPBLOB],(REPM==="sh"?"shogo":"matome"+REPM)+".png",{type:"image/png"});
   if(navigator.canShare&&navigator.canShare({files:[file]})){msg.textContent="";navigator.share({files:[file]}).catch(function(err){if(err&&err.name!=="AbortError")msg.textContent="共有メニューを開けませんでした。上の画像を長押しして保存してください。"});return}
   if(/iPhone|iPad|Android/.test(navigator.userAgent)){msg.textContent="この画面では共有メニューを開けません。上の画像を長押しして保存してください。";return}
   var a=document.createElement("a");a.href=REPURL;a.download=file.name;document.body.appendChild(a);a.click();a.remove();msg.textContent="画像を保存しました。";
