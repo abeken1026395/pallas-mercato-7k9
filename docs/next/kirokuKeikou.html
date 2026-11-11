@@ -1,0 +1,563 @@
+<!-- データ攻め by 阿部 https://abeken1026395.github.io/pallas-mercato-7k9/ -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="UTF-8">
+<meta name="author" content="阿部（データ攻め）">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>自分の記録 予想の傾向（実験場）｜データ攻め</title>
+<link rel="canonical" href="https://abeken1026395.github.io/pallas-mercato-7k9/next/kirokuKeikou.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="自分の記録 予想の傾向（実験場）｜データ攻め">
+<meta property="og:description" content="保存した買い目、選手のメモ、舟券の支出を、この端末の中だけに記録するノート。">
+<meta property="og:url" content="https://abeken1026395.github.io/pallas-mercato-7k9/next/kirokuKeikou.html">
+<!-- kata6:head -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&amp;family=Dela+Gothic+One&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/kata/kata.css?v=c853c8e7">
+<link rel="stylesheet" href="../assets/ugoki.css?v=a0c08edf">
+<!-- /kata6:head -->
+<style>
+/* 自分の記録：この端末の中だけに保存するメモと支出の記録。サーバーには送らない
+   本番の新しい型（assets/kata/kata.css・第6版）にそろえる：平らな紺・角は四角・暗い箱は罫線に・金の差し色・数字は Barlow Condensed */
+:root{--fg:#f2f2f0;--sub:#cdd7e0;--dim:#aebccb;--line:rgba(232,236,239,.18);--line2:rgba(232,236,239,.32);--gold:#dcbd78;--goldBg:#c8a45e;--rule:rgba(212,176,106,.6);--plus:#9be39b;--minus:#ff9c8f;
+  --font:-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;--num:"Barlow Condensed","Hiragino Sans",-apple-system,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:#0d1c2f}
+body{color:var(--fg);font-family:var(--font);font-size:15px;line-height:1.85;letter-spacing:.02em;-webkit-text-size-adjust:100%}
+.wrap{max-width:640px;margin:0 auto;padding-inline:16px;padding-block:0 64px}
+a{color:var(--fg);text-decoration-color:var(--gold);text-underline-offset:4px}
+.nav a{display:inline-flex;align-items:center;min-height:48px;font-size:14px;color:var(--sub);text-decoration:none}
+header{padding:10px 0 4px}
+h1{font-family:"Dela Gothic One",var(--font);font-weight:400;font-size:26px;line-height:1.4;color:#f2f2f0;padding-bottom:10px;border-bottom:1px solid var(--rule);margin-bottom:12px}
+.lead{color:var(--sub);font-size:14px}
+.tabs{display:flex;position:sticky;top:0;background:#132b46;z-index:5;margin-top:14px;border-bottom:1px solid var(--line)}
+.tab{flex:1;min-height:48px;border:none;border-bottom:2px solid transparent;background:none;color:var(--dim);font:700 15px var(--font);cursor:pointer}
+.tab[aria-selected="true"]{color:#fff;border-bottom-color:var(--gold)}
+.card{padding:14px 0;border-bottom:1px solid var(--line)}
+h2{font-size:16px;font-weight:800;margin-bottom:6px;color:#fff}
+label{display:block;font-size:13px;color:var(--sub);margin:10px 0 4px}
+input,select,textarea{width:100%;min-height:46px;background:#132b46;color:var(--fg);border:1px solid var(--line2);border-radius:0;padding:8px 10px;font:16px var(--font)}
+input,select,textarea{min-width:0;max-width:100%}
+input,textarea{-webkit-appearance:none;appearance:none}
+/* iPhone の日付欄は既定で横幅と高さを持ち、隣の欄に重なる。ほかの欄と同じ箱にそろえる */
+input[type=date]{display:block;height:46px;line-height:28px;text-align:left}
+input[type=date]::-webkit-date-and-time-value{text-align:left;margin:0}
+input[type=date]::-webkit-calendar-picker-indicator{margin:0}
+input[type=search]::-webkit-search-decoration{-webkit-appearance:none}
+.fileIn{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold)}
+textarea{min-height:96px;resize:vertical;line-height:1.7}
+.row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+.row3{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,.8fr);gap:8px}
+.row>div,.row3>div{min-width:0}
+.btn{min-height:46px;padding:0 18px;border-radius:0;border:1px solid #eef3f8;background:#eef3f8;color:#0b1726;font:700 15px var(--font);cursor:pointer;margin-top:12px}
+.btn.sub{background:none;border-color:var(--line2);color:var(--sub);font-weight:600}
+.btn.small{min-height:44px;padding:0 12px;font-size:13px;margin-top:0}
+.hits{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.hits button{min-height:40px;padding:0 12px;border-radius:0;border:1px solid var(--line2);background:none;color:var(--fg);font:14px var(--font);cursor:pointer}
+.picked{font-size:14px;margin-top:8px}
+.picked small{color:var(--dim)}
+.memo{border-top:1px solid var(--line);padding:12px 0}
+.memo:first-child{border-top:none}
+.memo .h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.memo .h b{font-size:16px}
+.memo .h small{color:var(--dim);font-size:12px}
+.memo .t{white-space:pre-wrap;word-break:break-word;margin-top:4px;font-size:15px}
+.memo .ops{display:flex;gap:6px;margin-top:8px}
+.bet{border-top:1px solid var(--line);padding:12px 0}
+.bet:first-child{border-top:none}
+.bet .h{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.bet .h a{display:inline-flex;align-items:center;min-height:44px;font-size:16px;font-weight:700;text-decoration:none}
+.bet .h small{color:var(--dim);font-size:12px;white-space:nowrap}
+.bet ul{list-style:none;margin:6px 0 0}
+.bet li{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:baseline;padding:2px 0;font-size:14px;line-height:1.6}
+.bet li b{font-size:12px;color:#0b1726;background:#eef3f8;padding:1px 6px;white-space:nowrap}
+.bet li span{font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.bet li i{font-style:normal;font-size:12px;color:var(--dim);white-space:nowrap}
+.bet .m{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:6px;font-size:14px;color:var(--sub);font-variant-numeric:tabular-nums}
+.ring{display:flex;align-items:center;gap:12px}
+.ring svg{flex:none}
+.ring .v small.n{display:block;font-size:12px;font-weight:400;color:var(--dim);margin-top:2px}
+.more{padding:12px 0;text-align:center}
+.bet .res{margin-top:6px;font-size:14px;line-height:1.6;color:var(--sub);font-variant-numeric:tabular-nums}
+.bet .res.hit{color:var(--fg)}
+.bet .res.hit b{color:#7fb4ff}
+.bet .t{white-space:pre-wrap;word-break:break-word;margin-top:6px;font-size:14px;color:var(--fg);border-left:2px solid var(--line2);padding-left:8px}
+.empty{color:var(--dim);font-size:13px;padding:6px 0}
+.sum{display:grid;grid-template-columns:repeat(2,1fr);margin-top:10px;border-top:1px solid var(--line)}
+.sum>div{padding:10px 0;border-bottom:1px solid var(--line)}
+.sum>div:nth-child(odd){padding-right:12px}
+.sum>div:nth-child(even){padding-left:12px;border-left:1px solid var(--line)}
+.sum .k{font-size:13px;color:var(--sub)}
+.sum .v{font:700 32px/1.1 var(--num);font-variant-numeric:tabular-nums}
+.sum .v small{font:400 13px var(--font);color:var(--dim);margin-left:3px}
+.plus{color:var(--plus)} .minus{color:var(--minus)}
+.per{display:flex;border:1px solid var(--line2);margin-top:4px}
+.per button{flex:1;min-height:44px;border:none;border-right:1px solid var(--line2);background:none;color:var(--sub);font:600 14px var(--font);cursor:pointer}
+.per button:last-child{border-right:none}
+.per button[aria-pressed="true"]{color:#111;background:var(--goldBg)}
+table.log{width:100%;border-collapse:collapse;font-size:14px;margin-top:10px}
+table.log th,table.log td{padding:8px 4px;border-bottom:1px solid var(--line);text-align:right}
+table.log td{font:600 18px var(--num);font-variant-numeric:tabular-nums}
+table.log td:first-child{font:15px var(--font)}
+table.log th{color:var(--sub);font-weight:600;font-size:12px}
+table.log td:first-child,table.log th:first-child{text-align:left}
+table.log td.x{width:44px;text-align:center}
+table.log td.x button{min-width:40px;min-height:40px;border:none;background:none;color:var(--dim);font-size:16px;cursor:pointer}
+.note{font-size:13px;color:var(--dim);margin-top:8px}
+.danger{border-color:#8a4a44 !important;color:#ffb3aa !important}
+.confirm{margin-top:8px;font-size:14px;color:var(--sub)}
+.confirm .btn{margin-right:6px}
+/* 予想の傾向・月ごとのまとめ・note の入口（再訪設計書 段階3） */
+.shogo{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 12px;margin-top:8px}
+.shogo b{font:400 24px/1.4 "Dela Gothic One",var(--font);color:#fff}
+.shogo span{font-size:14px;color:var(--sub);font-variant-numeric:tabular-nums}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tags span{font-size:13px;line-height:1.6;padding:2px 8px;border:1px solid var(--line2);color:var(--fg);font-variant-numeric:tabular-nums}
+table.kk{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
+table.kk caption{text-align:left;font-size:13px;color:var(--sub);padding-bottom:4px;line-height:1.6}
+table.kk th,table.kk td{padding:8px 4px;border-bottom:1px solid var(--line);line-height:1.4;vertical-align:baseline}
+table.kk thead th{font-size:12px;color:var(--sub);font-weight:600;text-align:right}
+table.kk thead th:first-child,table.kk tbody th{text-align:left}
+table.kk tbody th{font-weight:400;color:var(--fg);white-space:nowrap}
+.nw{white-space:nowrap}
+table.kk td{text-align:right;font:600 18px var(--num);font-variant-numeric:tabular-nums;white-space:nowrap}
+table.kk td small{display:block;font:400 12px var(--font);color:var(--dim)}
+.toRow{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:56px;padding:10px 0;border:0;border-top:1px solid var(--line);background:none;color:var(--fg);font:15px/1.6 var(--font);text-align:left;text-decoration:none;cursor:pointer}
+.toRow:first-child{border-top:0}
+.toRow small{display:block;font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
+.toRow i{font-style:normal;color:var(--gold);font-size:14px;white-space:nowrap}
+dialog.rep{width:min(100% - 24px,560px);max-height:calc(100% - 24px);margin:auto;padding:16px;background:#132b46;color:var(--fg);border:1px solid var(--line2)}
+dialog.rep::backdrop{background:rgba(5,12,22,.7)}
+dialog.rep h2{display:flex;justify-content:space-between;align-items:center;gap:8px}
+dialog.rep .x{min-width:44px;min-height:44px;border:0;background:none;color:var(--sub);font-size:20px;cursor:pointer}
+dialog.rep img{display:block;width:100%;height:auto;margin-top:8px;border:1px solid var(--line)}
+footer{margin-top:24px;font-size:13px;color:var(--dim);line-height:1.85}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="nav"><a href="./">実験場</a></div>
+<header>
+  <h1 class="kataTitle">自分の記録</h1>
+<div id="mihonBar" style="border:1px solid var(--line2);padding:12px;margin:12px 0">
+  <p style="font-size:14px;line-height:1.7">実験場：段階3（予想の傾向・称号・月ごとのまとめ・共有画像・noteの入口）の確認用です。<span id="mihonNow"></span></p>
+  <a class="btn small sub" id="mihonGo" style="display:inline-flex;align-items:center;margin-top:8px;text-decoration:none"></a>
+</div>
+  <p class="lead">保存した買い目と、選手のメモ、舟券の支出の記録。書いた内容はこの端末のブラウザの中だけに残り、データ攻めには送られません。</p>
+</header>
+
+<div class="tabs" role="tablist">
+  <button class="tab" role="tab" id="t-bets" aria-selected="false">買い目</button>
+  <button class="tab" role="tab" id="t-memo" aria-selected="true">選手メモ</button>
+  <button class="tab" role="tab" id="t-money" aria-selected="false">支出の記録</button>
+</div>
+
+<!-- ===== 保存した買い目（出走表で保存したもの） ===== -->
+<section id="v-bets" hidden>
+  <div class="card">
+    <h2>振り返り</h2>
+    <div class="per" id="bper">
+      <button type="button" data-p="m0" aria-pressed="true">今月</button>
+      <button type="button" data-p="m1" aria-pressed="false">先月</button>
+      <button type="button" data-p="all" aria-pressed="false">すべて</button>
+    </div>
+    <div class="sum" id="bsum"></div>
+    <p class="note" id="bnote"></p>
+  </div>
+  <div class="card" id="keikou">
+    <h2>予想の傾向 <small style="color:var(--sub);font-weight:400;font-size:12px">これまでの全記録</small></h2>
+    <div id="kk-body"></div>
+  </div>
+  <div class="card">
+    <h2>月ごとのまとめ</h2>
+    <div id="mo-list"></div>
+  </div>
+  <div class="card">
+    <h2>レースごと <small id="b-count" style="color:var(--sub);font-weight:400;font-size:12px"></small></h2>
+    <div id="b-list"></div>
+  </div>
+  <div class="card"><a class="toRow" href="https://note.com/abeken2000" target="_blank" rel="noopener"><span>阿部の買い目は note で公開しています<small>1レース780円・note.com に移ります</small></span><i>開く</i></a></div>
+</section>
+<dialog class="rep" id="rep" aria-labelledby="rep-h">
+  <h2><span id="rep-h">まとめ</span><button class="x" type="button" id="rep-x" aria-label="閉じる">×</button></h2>
+  <div id="rep-img"></div>
+  <button class="btn" type="button" id="rep-share">画像を共有・保存</button>
+  <p class="note" id="rep-msg" role="status"></p>
+</dialog>
+
+<!-- ===== 選手メモ ===== -->
+<section id="v-memo">
+  <div class="card">
+    <h2>メモを書く</h2>
+    <label for="m-q">選手（名前か登番。空でもよい）</label>
+    <input id="m-q" type="search" autocomplete="off" placeholder="例：毒島 / 4238">
+    <div class="hits" id="m-hits"></div>
+    <div class="picked" id="m-picked"></div>
+    <label for="m-text">メモ</label>
+    <textarea id="m-text" placeholder="例：住之江の1コースは2周目まで粘る。展示で伸びていたら買い"></textarea>
+    <button class="btn" type="button" id="m-save">保存する</button>
+    <button class="btn sub" type="button" id="m-cancel" hidden>書き直しをやめる</button>
+  </div>
+  <div class="card">
+    <h2>メモの一覧 <small id="m-count" style="color:var(--sub);font-weight:400;font-size:12px"></small></h2>
+    <input id="m-filter" type="search" placeholder="メモと選手名から探す">
+    <div id="m-list" style="margin-top:6px"></div>
+  </div>
+</section>
+
+<!-- ===== 支出の記録 ===== -->
+<section id="v-money" hidden>
+  <div class="card">
+    <h2>記録する</h2>
+    <div class="row3">
+      <div><label for="e-date">日付</label><input id="e-date" type="date"></div>
+      <div><label for="e-jo">場</label><select id="e-jo"></select></div>
+      <div><label for="e-r">レース</label><select id="e-r"></select></div>
+    </div>
+    <div class="row">
+      <div><label for="e-buy">購入額（円）</label><input id="e-buy" type="number" inputmode="numeric" min="0" step="100" placeholder="0"></div>
+      <div><label for="e-pay">払戻額（円）</label><input id="e-pay" type="number" inputmode="numeric" min="0" step="10" placeholder="0"></div>
+    </div>
+    <button class="btn" type="button" id="e-save">記録する</button>
+    <div class="note" id="e-msg"></div>
+  </div>
+  <div class="card">
+    <h2>振り返り</h2>
+    <div class="per" id="per">
+      <button type="button" data-p="m0" aria-pressed="true">今月</button>
+      <button type="button" data-p="m1" aria-pressed="false">先月</button>
+      <button type="button" data-p="all" aria-pressed="false">すべて</button>
+    </div>
+    <div class="sum" id="sum"></div>
+    <table class="log" id="log"></table>
+  </div>
+  <div class="card">
+    <h2>データの管理</h2>
+    <p class="note" style="margin-top:0">ブラウザの履歴やサイトのデータを消すと、ここに書いたものも消えます。機種変更のときは書き出したファイルを読み込んでください。</p>
+    <button class="btn sub" type="button" id="x-out">書き出す（ファイル）</button>
+    <label class="btn sub" style="display:inline-flex;align-items:center;width:auto;margin:10px 0 0" for="x-in">読み込む</label>
+    <input id="x-in" class="fileIn" type="file" accept="application/json,.json">
+    <div><button class="btn sub danger" type="button" id="x-del">支出の記録をすべて消す</button></div>
+    <div class="confirm" id="x-confirm" hidden>支出の記録をすべて消します。元に戻せません。<br><button class="btn small danger" type="button" id="x-yes">消す</button><button class="btn small sub" type="button" id="x-no">やめる</button></div>
+    <div class="note" id="x-msg"></div>
+  </div>
+</section>
+
+<footer>舟券の購入は20歳になってから。<br>ここに書いた内容は、この端末のブラウザにだけ保存されます（データ攻めのサーバーには届きません）。</footer>
+</div>
+
+<script>
+/* 実験場：見本のデータ（2026年9月から11月の実際のレースに、試験用の買い目を付けたもの）を、端末に保存せずメモリの中だけで使う。
+   ?mihon=0 で自分の端末のデータ、?mihon=1 で見本。指定が無いときは、保存した買い目が無ければ見本 */
+(function(){
+  var MIHON={"dz_bets":{"08_20261020_4":{"v":1,"j":"08","h":"20261020","r":4,"d":"15:30","b":[{"t":"3t","k":["5-4-1","5-4-2","5-4-3","5-4-6","5-2-1","5-2-3","5-2-4","5-2-6"],"ts":1}],"u":100},"16_20261020_5":{"v":1,"j":"16","h":"20261020","r":5,"d":"15:30","b":[{"t":"3t","k":["2-3-1","2-3-4","2-3-5","2-3-6","2-6-1","2-6-3","2-6-4","2-6-5"],"ts":1}],"u":100},"17_20261020_8":{"v":1,"j":"17","h":"20261020","r":8,"d":"15:30","b":[{"t":"3f","k":["1=2=3"],"ts":1}],"u":100},"12_20261020_1":{"v":1,"j":"12","h":"20261020","r":1,"d":"15:30","b":[{"t":"3t","k":["3-4-1","3-4-2","3-4-5","3-4-6","3-6-1","3-6-2","3-6-4","3-6-5"],"ts":1}],"u":100},"09_20261021_4":{"v":1,"j":"09","h":"20261021","r":4,"d":"15:30","b":[{"t":"3t","k":["3-6-1","3-6-2","3-6-4","3-6-5","3-5-1","3-5-2","3-5-4","3-5-6"],"ts":1}],"u":100},"20_20261021_9":{"v":1,"j":"20","h":"20261021","r":9,"d":"15:30","b":[{"t":"3f","k":["1=2=3"],"ts":1}],"u":100},"20_20261021_6":{"v":1,"j":"20","h":"20261021","r":6,"d":"15:30","b":[{"t":"3t","k":["6-2-1","6-2-3","6-2-4","6-2-5","6-1-2","6-1-3","6-1-4","6-1-5"],"ts":1}],"u":100},"01_20261021_5":{"v":1,"j":"01","h":"20261021","r":5,"d":"15:30","b":[{"t":"tn","k":["2"],"ts":1}],"u":100},"17_20261022_11":{"v":1,"j":"17","h":"20261022","r":11,"d":"15:30","b":[{"t":"2t","k":["1-4","1-5"],"ts":1}],"u":100},"24_20261022_7":{"v":1,"j":"24","h":"20261022","r":7,"d":"15:30","b":[{"t":"3t","k":["3-1-2","3-1-4","3-1-5","3-1-6","3-2-1","3-2-4","3-2-5","3-2-6"],"ts":1}],"u":100},"23_20261022_5":{"v":1,"j":"23","h":"20261022","r":5,"d":"15:30","b":[{"t":"3t","k":["3-4-1","3-4-2","3-4-5","3-4-6","3-1-2","3-1-4","3-1-5","3-1-6"],"ts":1}],"u":100},"16_20261022_6":{"v":1,"j":"16","h":"20261022","r":6,"d":"15:30","b":[{"t":"3f","k":["1=2=3"],"ts":1}],"u":100},"08_20261025_7":{"v":1,"j":"08","h":"20261025","r":7,"d":"15:30","b":[{"t":"3t","k":["1-6-2","1-6-3","1-6-4","1-6-5","1-3-2","1-3-4","1-3-5","1-3-6"],"ts":1}],"u":100},"21_20261025_3":{"v":1,"j":"21","h":"20261025","r":3,"d":"15:30","b":[{"t":"2t","k":["3-4","3-6"],"ts":1}],"u":100},"05_20261025_7":{"v":1,"j":"05","h":"20261025","r":7,"d":"15:30","b":[{"t":"3t","k":["3-1-2","3-1-4","3-1-5","3-1-6","3-5-1","3-5-2","3-5-4","3-5-6"],"ts":1}],"u":100},"08_20261025_9":{"v":1,"j":"08","h":"20261025","r":9,"d":"15:30","b":[{"t":"3t","k":["6-3-1","6-3-2","6-3-4","6-3-5","6-1-2","6-1-3","6-1-4","6-1-5"],"ts":1}],"u":100},"02_20261101_12":{"v":1,"j":"02","h":"20261101","r":12,"d":"15:30","b":[{"t":"2t","k":["5-1","5-4"],"ts":1}],"u":100},"21_20261101_8":{"v":1,"j":"21","h":"20261101","r":8,"d":"15:30","b":[{"t":"3t","k":["5-2-1","5-2-3","5-2-4","5-2-6","5-6-1","5-6-2","5-6-3","5-6-4"],"ts":1}],"u":100},"24_20261101_8":{"v":1,"j":"24","h":"20261101","r":8,"d":"15:30","b":[{"t":"tn","k":["4"],"ts":1}],"u":100},"17_20261101_7":{"v":1,"j":"17","h":"20261101","r":7,"d":"15:30","b":[{"t":"3t","k":["6-4-1","6-4-2","6-4-3","6-4-5","6-3-1","6-3-2","6-3-4","6-3-5"],"ts":1}],"u":100},"03_20261101_1":{"v":1,"j":"03","h":"20261101","r":1,"d":"15:30","b":[{"t":"tn","k":["3"],"ts":1}],"u":100},"06_20261102_6":{"v":1,"j":"06","h":"20261102","r":6,"d":"15:30","b":[{"t":"3f","k":["1=2=3"],"ts":1}],"u":100},"06_20261102_10":{"v":1,"j":"06","h":"20261102","r":10,"d":"15:30","b":[{"t":"2t","k":["6-2","6-3"],"ts":1}],"u":100},"03_20261102_4":{"v":1,"j":"03","h":"20261102","r":4,"d":"15:30","b":[{"t":"3t","k":["6-1-2","6-1-3","6-1-4","6-1-5","6-4-1","6-4-2","6-4-3","6-4-5"],"ts":1}],"u":100},"03_20261102_8":{"v":1,"j":"03","h":"20261102","r":8,"d":"15:30","b":[{"t":"3t","k":["5-1-2","5-1-3","5-1-4","5-1-6","5-4-1","5-4-2","5-4-3","5-4-6"],"ts":1}],"u":100},"06_20261102_1":{"v":1,"j":"06","h":"20261102","r":1,"d":"15:30","b":[{"t":"2t","k":["6-1","6-5"],"ts":1}],"u":100},"19_20261103_4":{"v":1,"j":"19","h":"20261103","r":4,"d":"15:30","b":[{"t":"tn","k":["2"],"ts":1}],"u":100},"19_20261103_7":{"v":1,"j":"19","h":"20261103","r":7,"d":"15:30","b":[{"t":"tn","k":["6"],"ts":1}],"u":100},"10_20261103_7":{"v":1,"j":"10","h":"20261103","r":7,"d":"15:30","b":[{"t":"3f","k":["1=2=3"],"ts":1}],"u":100},"06_20261103_8":{"v":1,"j":"06","h":"20261103","r":8,"d":"15:30","b":[{"t":"2t","k":["2-3","2-5"],"ts":1}],"u":100},"06_20261103_9":{"v":1,"j":"06","h":"20261103","r":9,"d":"15:30","b":[{"t":"tn","k":["5"],"ts":1}],"u":100},"19_20261104_9":{"v":1,"j":"19","h":"20261104","r":9,"d":"15:30","b":[{"t":"3f","k":["1=2=3"],"ts":1}],"u":100},"17_20261104_4":{"v":1,"j":"17","h":"20261104","r":4,"d":"15:30","b":[{"t":"tn","k":["2"],"ts":1}],"u":100},"09_20261104_7":{"v":1,"j":"09","h":"20261104","r":7,"d":"15:30","b":[{"t":"3t","k":["4-2-1","4-2-3","4-2-5","4-2-6","4-6-1","4-6-2","4-6-3","4-6-5"],"ts":1}],"u":100},"17_20261104_5":{"v":1,"j":"17","h":"20261104","r":5,"d":"15:30","b":[{"t":"3t","k":["5-6-1","5-6-2","5-6-3","5-6-4","5-3-1","5-3-2","5-3-4","5-3-6"],"ts":1}],"u":100},"17_20261104_9":{"v":1,"j":"17","h":"20261104","r":9,"d":"15:30","b":[{"t":"tn","k":["5"],"ts":1}],"u":100},"15_20261105_1":{"v":1,"j":"15","h":"20261105","r":1,"d":"15:30","b":[{"t":"tn","k":["6"],"ts":1}],"u":100},"17_20261105_12":{"v":1,"j":"17","h":"20261105","r":12,"d":"15:30","b":[{"t":"tn","k":["5"],"ts":1}],"u":100},"22_20261105_5":{"v":1,"j":"22","h":"20261105","r":5,"d":"15:30","b":[{"t":"2t","k":["3-2","3-1"],"ts":1}],"u":100},"09_20261105_7":{"v":1,"j":"09","h":"20261105","r":7,"d":"15:30","b":[{"t":"2t","k":["4-1","4-6"],"ts":1}],"u":100},"22_20261105_12":{"v":1,"j":"22","h":"20261105","r":12,"d":"15:30","b":[{"t":"3f","k":["1=2=3"],"ts":1}],"u":100},"01_20261106_11":{"v":1,"j":"01","h":"20261106","r":11,"d":"15:30","b":[{"t":"2t","k":["6-3","6-2"],"ts":1}],"u":100},"02_20261106_1":{"v":1,"j":"02","h":"20261106","r":1,"d":"15:30","b":[{"t":"3t","k":["4-2-1","4-2-3","4-2-5","4-2-6","4-5-1","4-5-2","4-5-3","4-5-6"],"ts":1}],"u":100},"05_20261106_3":{"v":1,"j":"05","h":"20261106","r":3,"d":"15:30","b":[{"t":"3f","k":["1=2=3"],"ts":1}],"u":100},"05_20261106_12":{"v":1,"j":"05","h":"20261106","r":12,"d":"15:30","b":[{"t":"3t","k":["2-4-1","2-4-3","2-4-5","2-4-6","2-6-1","2-6-3","2-6-4","2-6-5"],"ts":1}],"u":100},"23_20261106_3":{"v":1,"j":"23","h":"20261106","r":3,"d":"15:30","b":[{"t":"tn","k":["5"],"ts":1}],"u":100},"23_20261107_1":{"v":1,"j":"23","h":"20261107","r":1,"d":"15:30","b":[{"t":"3f","k":["1=2=3"],"ts":1}],"u":100},"01_20261107_9":{"v":1,"j":"01","h":"20261107","r":9,"d":"15:30","b":[{"t":"tn","k":["3"],"ts":1}],"u":100},"14_20261107_5":{"v":1,"j":"14","h":"20261107","r":5,"d":"15:30","b":[{"t":"2t","k":["6-1","6-5"],"ts":1}],"u":100},"23_20261107_6":{"v":1,"j":"23","h":"20261107","r":6,"d":"15:30","b":[{"t":"3t","k":["6-2-1","6-2-3","6-2-4","6-2-5","6-5-1","6-5-2","6-5-3","6-5-4"],"ts":1}],"u":100},"23_20261107_7":{"v":1,"j":"23","h":"20261107","r":7,"d":"15:30","b":[{"t":"3f","k":["1=2=3"],"ts":1}],"u":100},"08_20261108_2":{"v":1,"j":"08","h":"20261108","r":2,"d":"15:30","b":[{"t":"2t","k":["2-6","2-1"],"ts":1}],"u":100},"11_20261108_3":{"v":1,"j":"11","h":"20261108","r":3,"d":"15:30","b":[{"t":"tn","k":["5"],"ts":1}],"u":100},"01_20261108_11":{"v":1,"j":"01","h":"20261108","r":11,"d":"15:30","b":[{"t":"tn","k":["6"],"ts":1}],"u":100},"19_20261108_3":{"v":1,"j":"19","h":"20261108","r":3,"d":"15:30","b":[{"t":"3t","k":["6-2-1","6-2-3","6-2-4","6-2-5","6-4-1","6-4-2","6-4-3","6-4-5"],"ts":1}],"u":100},"21_20261108_6":{"v":1,"j":"21","h":"20261108","r":6,"d":"15:30","b":[{"t":"3t","k":["6-2-1","6-2-3","6-2-4","6-2-5","6-1-2","6-1-3","6-1-4","6-1-5"],"ts":1}],"u":100},"11_20261109_2":{"v":1,"j":"11","h":"20261109","r":2,"d":"15:30","b":[{"t":"tn","k":["6"],"ts":1}],"u":100},"08_20261109_4":{"v":1,"j":"08","h":"20261109","r":4,"d":"15:30","b":[{"t":"3f","k":["1=2=3"],"ts":1}],"u":100},"07_20261109_5":{"v":1,"j":"07","h":"20261109","r":5,"d":"15:30","b":[{"t":"3t","k":["2-1-3","2-1-4","2-1-5","2-1-6","2-5-1","2-5-3","2-5-4","2-5-6"],"ts":1}],"u":100},"21_20261109_10":{"v":1,"j":"21","h":"20261109","r":10,"d":"15:30","b":[{"t":"3t","k":["3-1-2","3-1-4","3-1-5","3-1-6","3-5-1","3-5-2","3-5-4","3-5-6"],"ts":1}],"u":100},"19_20261109_7":{"v":1,"j":"19","h":"20261109","r":7,"d":"15:30","b":[{"t":"3t","k":["1-2-3","1-2-4","1-2-5","1-2-6","1-6-2","1-6-3","1-6-4","1-6-5"],"ts":1}],"u":100},"12_20260915_1":{"v":1,"j":"12","h":"20260915","r":1,"d":"12:00","b":[{"t":"3t","k":["4-1-2","4-1-3"]}],"u":200},"12_20260915_2":{"v":1,"j":"12","h":"20260915","r":2,"d":"12:00","b":[{"t":"3t","k":["4-1-2","4-1-3"]}],"u":200},"12_20260915_3":{"v":1,"j":"12","h":"20260915","r":3,"d":"12:00","b":[{"t":"3t","k":["4-1-2","4-1-3"]}],"u":200},"12_20260915_4":{"v":1,"j":"12","h":"20260915","r":4,"d":"12:00","b":[{"t":"3t","k":["4-1-2","4-1-3"]}],"u":200},"12_20260915_5":{"v":1,"j":"12","h":"20260915","r":5,"d":"12:00","b":[{"t":"3t","k":["4-1-2","4-1-3"]}],"u":200},"12_20260915_6":{"v":1,"j":"12","h":"20260915","r":6,"d":"12:00","b":[{"t":"3t","k":["4-1-2","4-1-3"]}],"u":200}},"dz_skip":{"13_20261020_11":{"d":"16:00"},"11_20261021_2":{"d":"16:00"},"11_20261022_2":{"d":"16:00"},"08_20261025_5":{"d":"16:00"},"19_20261101_6":{"d":"16:00"},"24_20261102_7":{"d":"16:00"},"09_20261103_2":{"d":"16:00"},"04_20261104_2":{"d":"16:00"},"08_20261105_1":{"d":"16:00"},"17_20261106_4":{"d":"16:00"},"01_20261107_7":{"d":"16:00"},"21_20261108_9":{"d":"16:00"},"14_20261109_11":{"d":"16:00"}},"dz_kekka":{"12_20260915_1":{"f":[4,1,2],"P":{"3連単":[["4-1-2",12340]]},"o":"123450"},"12_20260915_2":{"f":[4,1,2],"P":{"3連単":[["4-1-2",12340]]},"o":"143255"},"12_20260915_3":{"f":[1,2,3],"P":{"3連単":[["1-2-3",890]]},"o":"123456"},"12_20260915_4":{"f":[1,2,3],"P":{"3連単":[["1-2-3",890]]},"o":"125364"},"12_20260915_5":{"f":[1,2,3],"P":{"3連単":[["1-2-3",890]]},"o":"142563"},"12_20260915_6":{"f":[1,2,3],"P":{"3連単":[["1-2-3",890]]},"o":"154362"},"02_20261101_12":{"f":[1,2,5],"P":{"3連単":[["1-2-5",1320]],"2連単":[["1-2",200]]},"o":"135642"},"03_20261101_1":{"f":[2,1,3],"P":{"3連単":[["2-1-3",2190]],"単勝":[["2",220]]},"o":"123464"},"17_20261101_7":{"f":[5,4,6],"P":{"3連単":[["5-4-6",4640]]},"o":"155324"},"19_20261101_6":{"f":[1,3,6],"P":{"3連単":[["1-3-6",680]]}},"21_20261101_8":{"f":[1,6,2],"P":{"3連単":[["1-6-2",11620]]},"o":"214365"},"24_20261101_8":{"f":[3,1,5],"P":{"3連単":[["3-1-5",2640]],"単勝":[["3",580]]},"o":"123546"},"06_20261103_8":{"f":[2,5,6],"P":{"3連単":[["2-5-6",16090]],"2連単":[["2-5",4880]]},"o":"135452"},"06_20261103_9":{"f":[1,2,4],"P":{"3連単":[["1-2-4",1430]],"単勝":[["1",100]]},"o":"123456"},"09_20261103_2":{"f":[3,1,6],"P":{"3連単":[["3-1-6",31710]]}},"10_20261103_7":{"f":[1,3,6],"P":{"3連単":[["1-3-6",810]],"3連複":[["1=3=6",360]]},"o":"162344"},"19_20261103_4":{"f":[2,1,6],"P":{"3連単":[["2-1-6",1330]],"単勝":[["2",330]]},"o":"125543"},"19_20261103_7":{"f":[1,4,2],"P":{"3連単":[["1-4-2",1470]],"単勝":[["1",180]]},"o":"125346"},"04_20261104_2":{"f":[2,1,4],"P":{"3連単":[["2-1-4",4300]]}},"09_20261104_7":{"f":[1,3,2],"P":{"3連単":[["1-3-2",850]]},"o":"241356"},"17_20261104_4":{"f":[1,3,4],"P":{"3連単":[["1-3-4",2980]],"単勝":[["1",170]]},"o":"142562"},"17_20261104_5":{"f":[2,4,6],"P":{"3連単":[["2-4-6",4200]]},"o":"123455"},"17_20261104_9":{"f":[4,2,6],"P":{"3連単":[["4-2-6",29990]],"単勝":[["4",410]]},"o":"152345"},"19_20261104_9":{"f":[4,2,5],"P":{"3連単":[["4-2-5",33770]],"3連複":[["2=4=5",10080]]},"o":"142653"},"03_20261102_4":{"f":[1,4,3],"P":{"3連単":[["1-4-3",2550]]},"o":"162452"},"03_20261102_8":{"f":[1,5,3],"P":{"3連単":[["1-5-3",1190]]},"o":"152346"},"06_20261102_1":{"f":[1,4,5],"P":{"3連単":[["1-4-5",7020]],"2連単":[["1-4",2840]]},"o":"143526"},"06_20261102_6":{"f":[2,4,6],"P":{"3連単":[["2-4-6",1180]],"3連複":[["2=4=6",400]]},"o":"314265"},"06_20261102_10":{"f":[1,5,4],"P":{"3連単":[["1-5-4",4300]],"2連単":[["1-5",690]]},"o":"124536"},"24_20261102_7":{"f":[1,3,6],"P":{"3連単":[["1-3-6",990]]}},"01_20261107_7":{"f":[5,4,6],"P":{"3連単":[["5-4-6",29030]]}},"01_20261107_9":{"f":[1,2,5],"P":{"3連単":[["1-2-5",740]],"単勝":[["1",120]]},"o":"132546"},"14_20261107_5":{"f":[4,3,5],"P":{"3連単":[["4-3-5",8300]],"2連単":[["4-3",5190]]},"o":"143526"},"23_20261107_1":{"f":[1,5,2],"P":{"3連単":[["1-5-2",5240]],"3連複":[["1=2=5",920]]},"o":"123456"},"23_20261107_6":{"f":[2,1,3],"P":{"3連単":[["2-1-3",1830]]},"o":"124356"},"23_20261107_7":{"f":[3,1,4],"P":{"3連単":[["3-1-4",13950]],"3連複":[["1=3=4",2360]]},"o":"213540"},"08_20261105_1":{"f":[1,4,2],"P":{"3連単":[["1-4-2",520]]}},"09_20261105_7":{"f":[2,3,1],"P":{"3連単":[["2-3-1",4780]],"2連単":[["2-3",2330]]},"o":"231546"},"15_20261105_1":{"f":[1,4,2],"P":{"3連単":[["1-4-2",5850]],"単勝":[["1",200]]},"o":"132400"},"17_20261105_12":{"f":[1,5,4],"P":{"3連単":[["1-5-4",3140]],"単勝":[["1",110]]},"o":"135246"},"22_20261105_5":{"f":[1,4,2],"P":{"3連単":[["1-4-2",1460]],"2連単":[["1-4",720]]},"o":"125436"},"22_20261105_12":{"f":[2,3,1],"P":{"3連単":[["2-3-1",32160]],"3連複":[["1=2=3",310]]},"o":"135426"},"01_20261106_11":{"f":[1,5,2],"P":{"3連単":[["1-5-2",5300]],"2連単":[["1-5",1460]]},"o":"135246"},"02_20261106_1":{"f":[4,1,5],"P":{"3連単":[["4-1-5",4920]]},"o":"134256"},"05_20261106_3":{"f":[4,1,2],"P":{"3連単":[["4-1-2",2890]],"3連複":[["1=2=4",240]]},"o":"125364"},"05_20261106_12":{"f":[1,2,5],"P":{"3連単":[["1-2-5",1490]]},"o":"153426"},"17_20261106_4":{"f":[4,3,5],"P":{"3連単":[["4-3-5",5970]]}},"23_20261106_3":{"f":[1,6,4],"P":{"3連単":[["1-6-4",3590]],"単勝":[["1",130]]},"o":"134265"},"07_20261109_5":{"f":[2,1,3],"P":{"3連単":[["2-1-3",1340]]},"o":"124265"},"08_20261109_4":{"f":[3,2,5],"P":{"3連単":[["3-2-5",32910]],"3連複":[["2=3=5",2520]]},"o":"214350"},"11_20261109_2":{"f":[1,3,4],"P":{"3連単":[["1-3-4",1080]],"単勝":[["1",300]]},"o":"312564"},"14_20261109_11":{"f":[1,2,4],"P":{"3連単":[["1-2-4",1230]]}},"19_20261109_7":{"f":[3,1,6],"P":{"3連単":[["3-1-6",3070]]},"o":"132654"},"21_20261109_10":{"f":[3,5,1],"P":{"3連単":[["3-5-1",4270]]},"o":"352614"},"01_20261108_11":{"f":[1,2,3],"P":{"3連単":[["1-2-3",830]],"単勝":[["1",260]]},"o":"214356"},"08_20261108_2":{"f":[1,2,4],"P":{"3連単":[["1-2-4",1080]],"2連単":[["1-2",440]]},"o":"421305"},"11_20261108_3":{"f":[3,1,6],"P":{"3連単":[["3-1-6",4040]],"単勝":[["3",200]]},"o":"231405"},"19_20261108_3":{"f":[1,2,4],"P":{"3連単":[["1-2-4",280]]},"o":"142256"},"21_20261108_6":{"f":[1,3,4],"P":{"3連単":[["1-3-4",4800]]},"o":"125643"},"21_20261108_9":{"f":[2,1,5],"P":{"3連単":[["2-1-5",1400]]}},"08_20261020_4":{"f":[1,2,5],"P":{"3連単":[["1-2-5",970]]},"o":"124346"},"12_20261020_1":{"f":[3,1,4],"P":{"3連単":[["3-1-4",2040]]},"o":"153245"},"13_20261020_11":{"f":[3,2,5],"P":{"3連単":[["3-2-5",14430]]}},"16_20261020_5":{"f":[1,4,2],"P":{"3連単":[["1-4-2",1330]]},"o":"152346"},"17_20261020_8":{"f":[1,3,2],"P":{"3連単":[["1-3-2",1110]],"3連複":[["1=2=3",530]]},"o":"342146"},"01_20261021_5":{"f":[4,6,1],"P":{"3連単":[["4-6-1",2920]],"単勝":[["4",470]]},"o":"145362"},"09_20261021_4":{"f":[5,1,4],"P":{"3連単":[["5-1-4",11820]]},"o":"162345"},"11_20261021_2":{"f":[1,5,3],"P":{"3連単":[["1-5-3",8070]]}},"20_20261021_6":{"f":[1,3,4],"P":{"3連単":[["1-3-4",590]]},"o":"253164"},"20_20261021_9":{"f":[6,2,1],"P":{"3連単":[["6-2-1",3930]],"3連複":[["1=2=6",290]]},"o":"125643"},"05_20261025_7":{"f":[1,4,2],"P":{"3連単":[["1-4-2",910]]},"o":"156342"},"08_20261025_5":{"f":[4,1,3],"P":{"3連単":[["4-1-3",3410]]}},"08_20261025_7":{"f":[2,4,1],"P":{"3連単":[["2-4-1",5380]]},"o":"125436"},"08_20261025_9":{"f":[1,4,2],"P":{"3連単":[["1-4-2",1070]]},"o":"124300"},"21_20261025_3":{"f":[1,5,4],"P":{"3連単":[["1-5-4",2300]],"2連単":[["1-5",730]]},"o":"143256"},"11_20261022_2":{"f":[2,1,5],"P":{"3連単":[["2-1-5",1010]]}},"16_20261022_6":{"f":[3,4,2],"P":{"3連単":[["3-4-2",3600]],"3連複":[["2=3=4",650]]},"o":"142356"},"17_20261022_11":{"f":[1,4,6],"P":{"3連単":[["1-4-6",820]],"2連単":[["1-4",280]]},"o":"235164"},"23_20261022_5":{"f":[1,2,5],"P":{"3連単":[["1-2-5",1650]]},"o":"124436"},"24_20261022_7":{"f":[1,4,5],"P":{"3連単":[["1-4-5",1040]]},"o":"143256"}}};
+  var q=new URLSearchParams(location.search).get("mihon"),own=false;
+  try{var b=JSON.parse(localStorage.getItem("dz_bets")||"{}");own=!!b&&typeof b==="object"&&Object.keys(b).length>0}catch(e){}
+  var use=q==="1"||(q!=="0"&&!own);
+  if(use){var m={};Object.keys(MIHON).forEach(function(k){m[k]=JSON.stringify(MIHON[k])});
+    window.DZS={getItem:function(k){return Object.prototype.hasOwnProperty.call(m,k)?m[k]:null},setItem:function(k,v){m[k]=String(v)},removeItem:function(k){delete m[k]}};}
+  else window.DZS=localStorage;
+  window.DZS_MIHON=use;
+})();
+</script>
+<script src="kirokuKeikou/kotaeawase.js?v=1"></script>
+<script>
+(function(){
+var V=["","桐生","戸田","江戸川","平和島","多摩川","浜名湖","蒲郡","常滑","津","三国","びわこ","住之江","尼崎","鳴門","丸亀","児島","宮島","徳山","下関","若松","芦屋","福岡","唐津","大村"];
+var KM="dz_note_memo", KS="dz_note_money";
+function $(id){return document.getElementById(id)}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function load(k){try{var v=JSON.parse(DZS.getItem(k)||"[]");return Array.isArray(v)?v:[]}catch(e){return []}}
+function save(k,v){try{DZS.setItem(k,JSON.stringify(v));return true}catch(e){return false}}
+function today(){var n=new Date(Date.now()+9*3600e3);return n.toISOString().slice(0,10)}
+function md(d){return +d.slice(5,7)+"/"+(+d.slice(8,10))}
+function yen(n){return n.toLocaleString()+"円"}
+var memos=load(KM), money=load(KS), IDX=null, pick=null, editId=null;
+
+/* ---------- タブ ---------- */
+function show(v){["bets","memo","money"].forEach(function(k){$("t-"+k).setAttribute("aria-selected",k===v);$("v-"+k).hidden=k!==v});try{history.replaceState(null,"","#"+v)}catch(e){}}
+$("t-bets").onclick=function(){show("bets");drawBets()};
+$("t-memo").onclick=function(){show("memo")};
+$("t-money").onclick=function(){show("money");drawMoney()};
+
+/* ---------- 選手メモ ---------- */
+fetch("../players/card/index.json").then(function(r){return r.ok?r.json():null}).then(function(j){IDX=j;fromQuery()}).catch(function(){fromQuery()});
+function norm(s){return String(s||"").replace(/[\s　]/g,"")}
+function setPick(no){pick=no?{no:String(no),name:(IDX&&IDX[no])||""}:null;$("m-picked").innerHTML=pick?"選手："+esc(pick.name||"")+" <small>"+esc(pick.no)+'</small> <button class="btn small sub" type="button" id="m-unpick">外す</button>':"";
+  if(pick)$("m-unpick").onclick=function(){setPick(null)};$("m-hits").innerHTML="";$("m-q").value=""}
+$("m-q").addEventListener("input",function(){
+  var q=norm(this.value);if(!q||!IDX){$("m-hits").innerHTML="";return}
+  var hit=Object.keys(IDX).filter(function(no){return no.indexOf(q)===0||norm(IDX[no]).indexOf(q)>=0}).slice(0,8);
+  $("m-hits").innerHTML=hit.map(function(no){return '<button type="button" data-no="'+no+'">'+esc(IDX[no])+" "+no+"</button>"}).join("")||'<span class="empty">見つかりません</span>';
+});
+$("m-hits").addEventListener("click",function(e){var b=e.target.closest("button");if(b)setPick(b.dataset.no)});
+$("m-save").onclick=function(){
+  var t=$("m-text").value.trim();if(!t){$("m-text").focus();return}
+  var now=new Date().toISOString();
+  if(editId){memos.forEach(function(m){if(m.id===editId){m.text=t;m.no=pick?pick.no:"";m.name=pick?pick.name:"";m.upd=now}})}
+  else memos.unshift({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),no:pick?pick.no:"",name:pick?pick.name:"",text:t,at:now,upd:now});
+  save(KM,memos);editId=null;$("m-text").value="";$("m-cancel").hidden=true;$("m-save").textContent="保存する";setPick(null);drawMemos();
+};
+$("m-cancel").onclick=function(){editId=null;$("m-text").value="";this.hidden=true;$("m-save").textContent="保存する";setPick(null)};
+$("m-filter").addEventListener("input",drawMemos);
+function drawMemos(){
+  var q=norm($("m-filter").value).toLowerCase();
+  var xs=memos.slice().sort(function(a,b){return (b.upd||b.at).localeCompare(a.upd||a.at)}).filter(function(m){return !q||norm(m.text+m.name+m.no).toLowerCase().indexOf(q)>=0});
+  $("m-count").textContent=memos.length?memos.length+"件":"";
+  $("m-list").innerHTML=xs.length?xs.map(function(m){var d=(m.upd||m.at).slice(0,10);
+    return '<div class="memo"><div class="h">'+(m.no?'<b><a href="../players/card.html?toban='+esc(m.no)+'">'+esc(m.name||m.no)+"</a></b><small>"+esc(m.no)+"</small>":"<b>メモ</b>")+"<small>"+esc(d.replace(/-/g,"/"))+'</small></div><div class="t">'+esc(m.text)+'</div><div class="ops"><button class="btn small sub" type="button" data-e="'+m.id+'">書き直す</button><button class="btn small sub" type="button" data-d="'+m.id+'">消す</button></div></div>'}).join("")
+    :'<div class="empty">'+(memos.length?"当てはまるメモはありません。":"まだメモはありません。")+"</div>";
+}
+$("m-list").addEventListener("click",function(e){
+  var b=e.target.closest("button");if(!b)return;
+  if(b.dataset.d){if(b.dataset.armed){memos=memos.filter(function(m){return m.id!==b.dataset.d});save(KM,memos);drawMemos()}else{b.dataset.armed="1";b.textContent="もう一度押すと消えます"}}
+  if(b.dataset.e){var m=memos.filter(function(x){return x.id===b.dataset.e})[0];if(!m)return;editId=m.id;$("m-text").value=m.text;setPick(m.no||null);$("m-cancel").hidden=false;$("m-save").textContent="書き直しを保存";$("m-text").scrollIntoView({block:"center"})}
+});
+/* 選手カードなどから ?toban= で来たら、その選手を選んだ状態で開く */
+function fromQuery(){var p=new URLSearchParams(location.search),no=p.get("toban");if(no&&/^\d{4}$/.test(no)){show("memo");setPick(no);$("m-filter").value=IDX&&IDX[no]?IDX[no]:no;drawMemos();$("m-text").focus()}}
+
+/* ---------- 支出の記録 ---------- */
+$("e-date").value=today();
+$("e-jo").innerHTML='<option value="">—</option>'+V.slice(1).map(function(n,i){return '<option value="'+("0"+(i+1)).slice(-2)+'">'+n+"</option>"}).join("");
+$("e-r").innerHTML='<option value="">—</option>'+[1,2,3,4,5,6,7,8,9,10,11,12].map(function(r){return '<option value="'+r+'">'+r+"R</option>"}).join("");
+$("e-save").onclick=function(){
+  var d=$("e-date").value,b=Math.max(0,Math.round(+$("e-buy").value||0)),p=Math.max(0,Math.round(+$("e-pay").value||0));
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(d)){$("e-msg").textContent="日付を入れてください。";return}
+  if(!b&&!p){$("e-msg").textContent="購入額か払戻額を入れてください。";return}
+  money.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),d:d,jo:$("e-jo").value,r:$("e-r").value,buy:b,pay:p});
+  save(KS,money);$("e-buy").value="";$("e-pay").value="";$("e-msg").textContent=md(d)+"の分を記録しました。";drawMoney();
+};
+var PER="m0";
+$("per").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;PER=b.dataset.p;[].forEach.call($("per").children,function(x){x.setAttribute("aria-pressed",x===b)});drawMoney()});
+function inPer(d){if(PER==="all")return true;var t=today(),y=+t.slice(0,4),m=+t.slice(5,7);if(PER==="m1"){m-=1;if(!m){m=12;y-=1}}return d.slice(0,7)===y+"-"+("0"+m).slice(-2)}
+function drawMoney(){
+  var xs=money.filter(function(x){return inPer(x.d)}).sort(function(a,b){return b.d.localeCompare(a.d)||(+b.r||0)-(+a.r||0)});
+  var buy=0,pay=0;xs.forEach(function(x){buy+=x.buy;pay+=x.pay});
+  var diff=pay-buy;
+  $("sum").innerHTML='<div><div class="k">購入</div><div class="v">'+buy.toLocaleString()+"<small>円</small></div></div>"
+    +'<div><div class="k">払戻</div><div class="v">'+pay.toLocaleString()+"<small>円</small></div></div>"
+    +'<div><div class="k">差額（払戻−購入）</div><div class="v '+(diff>0?"plus":diff<0?"minus":"")+'">'+(diff>0?"+":"")+diff.toLocaleString()+"<small>円</small></div></div>"
+    +'<div><div class="k">記録した件数</div><div class="v">'+xs.length+"<small>件</small></div></div>";
+  $("log").innerHTML=xs.length?"<tr><th>日付・場</th><th>購入</th><th>払戻</th><th></th></tr>"+xs.map(function(x){return "<tr><td>"+md(x.d)+" "+esc(V[+x.jo]||"")+(x.r?" "+x.r+"R":"")+"</td><td>"+x.buy.toLocaleString()+"</td><td>"+x.pay.toLocaleString()+'</td><td class="x"><button type="button" aria-label="この行を消す" data-x="'+x.id+'">×</button></td></tr>'}).join("")
+    :'<tr><td class="empty">この期間の記録はありません。</td></tr>';
+}
+$("log").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;if(b.dataset.armed){money=money.filter(function(x){return x.id!==b.dataset.x});save(KS,money);drawMoney()}else{b.dataset.armed="1";b.textContent="消す"}});
+
+/* ---------- 保存した買い目・見送り（出走表の dz_bets／dz_rmemo／dz_skip。どれもレースIDキーのオブジェクト）
+   答え合わせは ../assets/kotaeawase.js（DZK）。結果データは表示している日の分だけ読み、届いたら描き直す ---------- */
+var BT={"3t":"3連単","3f":"3連複","2t":"2連単","2f":"2連複","kk":"拡連複","tn":"単勝","fk":"複勝"};
+function loadO(k){try{var v=JSON.parse(DZS.getItem(k)||"{}");return v&&typeof v==="object"&&!Array.isArray(v)?v:{}}catch(e){return {}}}
+function saveO(k,v){try{DZS.setItem(k,JSON.stringify(v));return true}catch(e){return false}}
+var BPER="m0", RES={}, RESDAY={};
+$("bper").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;BPER=b.dataset.p;BSHOW=20;[].forEach.call($("bper").children,function(x){x.setAttribute("aria-pressed",x===b)});drawBets()});
+function inBPer(hd){if(BPER==="all")return true;var t=today(),y=+t.slice(0,4),m=+t.slice(5,7);if(BPER==="m1"){m-=1;if(!m){m=12;y-=1}}return hd.slice(0,6)===String(y)+("0"+m).slice(-2)}
+function betRows(){
+  var B=loadO("dz_bets"),M=loadO("dz_rmemo"),S=loadO("dz_skip"),ks={};
+  Object.keys(B).concat(Object.keys(M),Object.keys(S)).forEach(function(k){if(/^\d{2}_\d{8}_\d{1,2}$/.test(k))ks[k]=1});
+  return Object.keys(ks).map(function(k){
+    var p=k.split("_"),m=M[k]&&typeof M[k]==="object"?M[k]:{};
+    /* 引き継ぎなどで壊れた値が入っていても、ページを止めずに捨てる（DZK.entry） */
+    var en=(window.DZK&&DZK.entry(B[k]))||{d:"",b:[],a:null,p:null,u:null};
+    var sk=S[k]&&typeof S[k]==="object"?S[k]:null;
+    var d=en.d||(sk&&typeof sk.d==="string"&&/^\d{1,2}:\d{2}$/.test(sk.d)?sk.d:"");
+    return {k:k,j:p[0],hd:p[1],r:+p[2],d:d,en:en,skip:!!sk&&!en.b.length,t:typeof m.t==="string"?m.t:""}})
+    .filter(function(x){return x.en.b.length||x.skip||x.t||x.en.a!=null||x.en.p!=null})
+    .sort(function(x,y){return y.hd.localeCompare(x.hd)||(y.d||"").localeCompare(x.d||"")||y.r-x.r});
+}
+/* 表示している日の結果を読み、届いたら1回だけ描き直す */
+function needResults(xs){
+  if(!window.DZK)return;
+  var days={};xs.forEach(function(x){if((x.en.b.length||x.skip)&&!RESDAY[x.hd])days[x.hd]=1});
+  var old=new Date(Date.now()+9*3600e3-35*864e5).toISOString().slice(0,10).replace(/-/g,"");
+  Object.keys(days).forEach(function(hd){RESDAY[hd]=1;if(hd<old&&DZK.kkRace){xs.forEach(function(x){if(x.hd===hd&&!RES[x.k]){var r=DZK.kkRace(x.k);if(r)RES[x.k]=r}});return}DZK.day(hd).then(function(m){var ch=false;Object.keys(m).forEach(function(k){if(!RES[k]){RES[k]=m[k];ch=true}});if(ch)drawBets()})});
+}
+/* 回収率リング：100%で一周。100%を超えても輪は一周のまま、数字は実際の値（izonSekkei 段階2） */
+function ring(pct,n){
+  var r=22,c=2*Math.PI*r,f=Math.max(0,Math.min(pct,100))/100;
+  return '<div class="ring"><svg viewBox="0 0 56 56" width="56" height="56" role="img" aria-label="回収率 '+pct+'%（'+n+'レース）"><circle cx="28" cy="28" r="'+r+'" fill="none" stroke="#2c3e55" stroke-width="6"/>'
+    +'<circle cx="28" cy="28" r="'+r+'" fill="none" stroke="#7fb4ff" stroke-width="6" stroke-dasharray="'+(c*f).toFixed(2)+' '+c.toFixed(2)+'" transform="rotate(-90 28 28)"/></svg>'
+    +'<div class="v">'+pct+'<small>%</small><small class="n">'+n+'レース</small></div></div>';
+}
+function drawBets(){
+  var xs=betRows().filter(function(x){return inBPer(x.hd)});
+  needResults(xs);
+  var buy=0,pay=0,nA=0,nHit=0,nMiss=0,nGood=0,nBets=0;
+  var J=xs.map(function(x){
+    nBets+=x.en.b.length;
+    if(x.skip){var s=window.DZK?DZK.skipJudge(RES[x.k]||null):{state:"pending"};if(s.state==="good")nGood++;return {skip:s}}
+    var j=window.DZK?DZK.judge(x.en,RES[x.k]||null):{state:"pending",a:x.en.a,p:x.en.p,hits:[]};
+    if(j.state==="hit")nHit++;else if(j.state==="miss")nMiss++;
+    /* 回収率に入れるのは、購入額と払戻が両方分かるレースだけ。結果待ち・払戻の分からない的中は入れない（外れは払戻0円として入れる） */
+    var pp=j.p!=null?j.p:(j.state==="miss"?0:null);
+    if(j.a!=null&&pp!=null&&j.state!=="pending"){nA++;buy+=j.a;pay+=pp}
+    return {j:j};
+  });
+  $("bsum").innerHTML='<div><div class="k">保存したレース</div><div class="v">'+xs.length+"<small>レース</small></div></div>"
+    +'<div><div class="k">回収率（払戻÷購入）</div>'+(buy?ring(Math.round(pay/buy*100),nA):'<div class="v">—</div>')+"</div>"
+    +'<div><div class="k">的中／外れ</div><div class="v">'+nHit+"<small>／</small>"+nMiss+"</div></div>"
+    +'<div><div class="k">見送り成功</div><div class="v">'+nGood+"<small>回</small></div></div>";
+  $("bnote").textContent=xs.length?"回収率は、購入額と払戻が分かる "+nA+" レースで計算しています（結果待ちと、払戻の分からない的中は入れません。購入 "+buy.toLocaleString()+" 円・払戻 "+pay.toLocaleString()+" 円）。見送り成功は、見送ったレースの3連単が "+(window.DZK?DZK.ARE:10000).toLocaleString()+" 円以上だった回数です。":"";
+  $("b-count").textContent=xs.length?xs.length+"レース・買い目"+nBets+"件":"";
+  /* 一覧は20レースずつ出し、下の目印が見えたら20ずつ足す（無限スクロール・再訪設計書 段階2）。振り返りの数字は全件で数える */
+  BXS=xs; BJ=J;
+  $("b-list").innerHTML=xs.length?xs.slice(0,BSHOW).map(function(x,i){
+    var dd=+x.hd.slice(4,6)+"/"+(+x.hd.slice(6,8)),R=J[i],st="";
+    if(R.skip) st=R.skip.state==="good"?'<div class="res hit"><b>見送り成功</b> 3連単 '+R.skip.san.toLocaleString()+'円</div>':R.skip.state==="plain"?'<div class="res">見送り（3連単 '+R.skip.san.toLocaleString()+'円）</div>':'<div class="res">見送り・結果待ち</div>';
+    else if(x.en.b.length) st=R.j.state==="hit"?'<div class="res hit"><b>的中</b> '+R.j.hits.map(function(h){return esc(BT[h.t]+" "+h.k)+" "+h.pay.toLocaleString()+"円"}).join("　")+"</div>":R.j.state==="miss"?'<div class="res">外れ</div>':'<div class="res">結果待ち</div>';
+    var j=R.j;
+    return '<div class="bet"><div class="h"><a href="../racers/#v'+esc(x.j)+"r"+x.r+"d"+esc(x.hd)+'">'+dd+" "+esc(V[+x.j]||x.j)+" "+x.r+"R</a><small>"+(x.d?"締切 "+esc(x.d):"")+"</small></div>"
+      +(x.en.b.length?"<ul>"+x.en.b.map(function(b){return "<li><b>"+esc((BT[b.t]||b.t)+(b.m==="b"?"ボックス":""))+"</b><span>"+esc(b.m==="b"&&b.s&&b.s.length?b.s.join("・"):b.k.join("　"))+"</span><i>"+b.k.length+"点</i></li>"}).join("")+"</ul>":"")
+      +st
+      +(j&&(j.a!=null||j.p!=null)?'<div class="m"><span>購入 '+(j.a!=null?j.a.toLocaleString()+"円"+(j.autoA?"（自動）":""):"—")+"</span><span>払戻 "+(j.p!=null?j.p.toLocaleString()+"円"+(j.autoP?"（自動）":""):"—")+"</span>"+(function(){var pp=j.p!=null?j.p:(j.state==="miss"?0:null);return (j.a>0&&pp!=null&&j.state!=="pending")?"<span>回収率 "+Math.round(pp/j.a*100)+"%</span>":""})()+"</div>":"")
+      +(x.t?'<div class="t">'+esc(x.t)+"</div>":"")
+      +'<div class="memo ops" style="border:0;padding:0"><button class="btn small sub" type="button" data-bd="'+esc(x.k)+'">このレースを消す</button></div></div>';
+  }).join("")+(xs.length>BSHOW?'<div class="more" id="b-more"><button class="btn small sub" type="button" id="b-moreb">続きを表示（残り '+(xs.length-BSHOW)+' レース）</button></div>':""):'<div class="empty">'+(BPER==="all"?"まだ保存した買い目はありません。出走表のレース画面で、艇番を押して「保存」を押すとここに並びます。":"この期間に保存した買い目はありません。")+"</div>";
+  watchMore();
+  drawKeikou();
+}
+var BSHOW=20, BXS=[], BJ=[], BIO=null;
+function moreBets(){ BSHOW+=20; drawBets(); }
+/* 目印（続きのボタン）が画面に入ったら自動で足す。IntersectionObserver が無い環境ではボタンを押して足す */
+function watchMore(){
+  var m=$("b-more"); if(BIO){BIO.disconnect();BIO=null} if(!m)return;
+  $("b-moreb").onclick=moreBets;
+  if("IntersectionObserver" in window){BIO=new IntersectionObserver(function(es){if(es.some(function(e){return e.isIntersecting})){BIO.disconnect();BIO=null;moreBets()}},{rootMargin:"200px 0px"});BIO.observe(m)}
+}
+$("b-list").addEventListener("click",function(e){var b=e.target.closest("button");if(!b||!b.dataset.bd)return;
+  if(!b.dataset.armed){b.dataset.armed="1";b.textContent="もう一度押すと消えます";return}
+  var B=loadO("dz_bets"),M=loadO("dz_rmemo"),S=loadO("dz_skip");delete B[b.dataset.bd];delete M[b.dataset.bd];delete S[b.dataset.bd];saveO("dz_bets",B);saveO("dz_rmemo",M);saveO("dz_skip",S);drawBets()});
+
+/* ---------- 予想の傾向・称号・月ごとのまとめ（再訪設計書 段階3・v5 9章の裁定） ----------
+   着順のある券種（単勝・2連単・3連単）だけで数える。1着に複数の艇を選んだレースは、そのレースの中で平均してから全レースで平均する（1レース＝1票）。
+   人気は締切前の単勝オッズの順位（DZK.ninki が dz_kekka に写す）。称号は20レースから、しきい値は v5 9章の8 */
+var ORD={tn:1,"2t":1,"3t":1}, ALLD={}, NKDAY={};
+function firsts(en){var f={};en.b.forEach(function(b){if(ORD[b.t])b.k.forEach(function(k){f[k.charAt(0)]=1})});return Object.keys(f)}
+function stats(rows){
+  var S={n:0,nOrd:0,s1:0,nRank:0,rk:0,nF:0,w1:0,nWR:0,wr:0,ven:{},hit:0,judged:0,buy:0,pay:0,nA:0,vA:{},last:""};
+  rows.forEach(function(x){
+    if(!x.en.b.length)return;
+    S.n++;
+    var j=window.DZK?DZK.judge(x.en,RES[x.k]||null):{state:"pending",a:x.en.a,p:x.en.p};
+    if(j.state==="hit"||j.state==="miss"){S.judged++;if(j.state==="hit")S.hit++}
+    var pp=j.p!=null?j.p:(j.state==="miss"?0:null);
+    if(j.a!=null&&pp!=null&&j.state!=="pending"){S.nA++;S.buy+=j.a;S.pay+=pp;var v=S.vA[x.j]||(S.vA[x.j]={n:0,b:0,p:0});v.n++;v.b+=j.a;v.p+=pp}
+    var fs=firsts(x.en);if(!fs.length)return;
+    S.nOrd++;S.ven[x.j]=(S.ven[x.j]||0)+1;
+    S.s1+=fs.filter(function(d){return d==="1"}).length/fs.length;
+    var e=window.DZK&&DZK.kkGet?DZK.kkGet(x.k):null,o=e&&typeof e.o==="string"&&/^[0-6]{6}$/.test(e.o)?e.o:"";
+    if(o){var rs=fs.map(function(d){return +o.charAt(+d-1)}).filter(function(r){return r>0});if(rs.length){S.nRank++;S.rk+=rs.reduce(function(a,b){return a+b},0)/rs.length;if(x.hd>S.last)S.last=x.hd}}
+    var r=RES[x.k],w=r&&r["1着"]>=1&&r["1着"]<=6?r["1着"]:(e&&Array.isArray(e.f)&&e.f[0]>=1&&e.f[0]<=6?e.f[0]:0);
+    if(w){S.nF++;if(w===1)S.w1++;if(o&&+o.charAt(w-1)>0){S.nWR++;S.wr+=+o.charAt(w-1)}}
+  });
+  S.share1=S.nOrd?S.s1/S.nOrd:null;S.rank=S.nRank?S.rk/S.nRank:null;S.wRank=S.nWR?S.wr/S.nWR:null;
+  var tv="",tc=0;Object.keys(S.ven).forEach(function(k){if(S.ven[k]>tc){tc=S.ven[k];tv=k}});S.topV=tv;S.topC=tc;
+  S.roi=S.buy?Math.round(S.pay/S.buy*100):null;
+  /* 称号：本命派・穴党は人気の分かる20レースから、イン信者・場読みは着順のある20レースから */
+  var T=[];
+  if(S.nRank>=20){if(S.rank<=2.0)T.push("本命派");else if(S.rank>=3.5)T.push("穴党")}
+  if(S.nOrd>=20&&S.share1>=0.7)T.push("イン信者");
+  if(S.nOrd>=20&&tc>=10&&tc/S.nOrd>=0.5)T.push("場読み");
+  S.titles=T;
+  return S;
+}
+function pct(x){return Math.round(x*100)+"%"}
+function drawKeikou(){
+  var all=betRows();ALLD={};
+  needResults(all);
+  /* 人気は翌日の昼過ぎに入る。今日の分は読まない。1日1回まで */
+  var td=today().replace(/-/g,"");
+  if(window.DZK&&DZK.ninki){var ds={};all.forEach(function(x){if(x.hd<td&&!NKDAY[x.hd]&&firsts(x.en).length){var e=DZK.kkGet(x.k);if(!(e&&e.o))ds[x.hd]=1}});
+    Object.keys(ds).sort().reduce(function(p,hd){NKDAY[hd]=1;return p.then(function(){return DZK.ninki(hd)}).then(function(ch){if(ch)ALLD.ch=1})},Promise.resolve()).then(function(){if(ALLD.ch){ALLD.ch=0;drawKeikou()}});}
+  var S=stats(all);
+  if(!S.nOrd){$("kk-body").innerHTML='<div class="empty">単勝・2連単・3連単の買い目を保存すると、1着に選んだ艇の傾向がここに出ます。</div>'}
+  else{
+    var tg=[],main=S.titles[0]||"";
+    S.titles.slice(1).forEach(function(t){tg.push(t==="場読み"?"場読み："+esc(V[+S.topV]||"")+" "+S.topC+"/"+S.nOrd:esc(t))});
+    if(main==="場読み"){main="場読み";}
+    $("kk-body").innerHTML=(main?'<div class="shogo"><b>'+esc(main)+"</b><span>"+(main==="本命派"||main==="穴党"?"1着に選んだ艇の人気 平均"+S.rank.toFixed(1)+'番人気<span class="nw">（'+S.nRank+"レース）</span>":main==="イン信者"?"1着に1号艇 "+pct(S.share1)+'<span class="nw">（'+S.nOrd+"レース）</span>":esc(V[+S.topV]||"")+" "+S.topC+"/"+S.nOrd+"レース")+"</span></div>"
+        :'<p class="note" style="margin-top:4px">'+(S.nOrd<20?"称号は着順のある買い目が20レースになると出ます（今 "+S.nOrd+" レース）。":"どの称号の基準にも届いていません。")+"</p>")
+      +(tg.length?'<div class="tags">'+tg.map(function(t){return "<span>"+t+"</span>"}).join("")+"</div>":"")
+      +'<table class="kk"><caption>着順のある買い目（単勝・2連単・3連単）を残したレースだけ</caption>'
+      +'<thead><tr><th scope="col">項目</th><th scope="col">あなた</th><th scope="col">同じレースの結果</th></tr></thead><tbody>'
+      +'<tr><th scope="row">1着に1号艇</th><td>'+pct(S.share1)+"<small>"+S.nOrd+"レース</small></td><td>"+(S.nF?pct(S.w1/S.nF)+"<small>"+S.w1+"/"+S.nF+"</small>":"—")+"</td></tr>"
+      +'<tr><th scope="row">1着の平均人気</th><td>'+(S.rank!=null?S.rank.toFixed(1)+"<small>"+S.nRank+"レース</small>":"—")+"</td><td>"+(S.wRank!=null?S.wRank.toFixed(1)+"<small>"+S.nWR+"レース</small>":"—")+"</td></tr>"
+      +"</tbody></table>"
+      +'<p class="note">1着に1号艇は、1着に選んだ艇のうち1号艇の割合をレースごとに出して平均したものです。平均人気は、締切前の単勝オッズで何番人気だったかの平均です。人気は'+(S.last?(+S.last.slice(4,6))+"/"+(+S.last.slice(6,8))+"分まで入っています（翌日の昼過ぎに更新）":"翌日の昼過ぎに入ります")+"。</p>";
+  }
+  /* 月ごと：保存した買い目のある月を新しい順に */
+  var ms={};all.forEach(function(x){if(x.en.b.length){var m=x.hd.slice(0,6);ms[m]=(ms[m]||0)+1}});
+  var cur=td.slice(0,6);
+  $("mo-list").innerHTML=Object.keys(ms).length?Object.keys(ms).sort().reverse().map(function(m){
+    return '<button class="toRow" type="button" data-mo="'+m+'"><span>'+(+m.slice(0,4))+"年"+(+m.slice(4,6))+"月のまとめ"+(m===cur?"（途中）":"")+"<small>"+ms[m]+"レース・共有用の画像</small></span><i>開く</i></button>"}).join("")
+    :'<div class="empty">買い目を保存した月ができると、ここに並びます。</div>';
+}
+function repStats(m){
+  var all=betRows(),rows=all.filter(function(x){return x.hd.slice(0,6)===m}),S=stats(rows),A=stats(all);
+  var vs=Object.keys(S.vA).filter(function(k){return S.vA[k].n>=5&&S.vA[k].b>0}).map(function(k){var v=S.vA[k];return {name:V[+k]||k,n:v.n,roi:Math.round(v.p/v.b*100)}}).sort(function(a,b){return b.roi-a.roi});
+  var out=[];if(vs.length){out.push(Object.assign({label:vs.length>1&&vs[vs.length-1].roi!==vs[0].roi?"回収率がいちばん高い場":"5レース以上の場"},vs[0]));if(vs.length>1&&vs[vs.length-1].roi!==vs[0].roi)out.push(Object.assign({label:"回収率がいちばん低い場"},vs[vs.length-1]))}
+  var y=+m.slice(0,4),mo=+m.slice(4,6),last=new Date(Date.UTC(y,mo,0)).getUTCDate(),td=today().replace(/-/g,""),now=td.slice(0,6)===m;
+  if(now)last=+td.slice(6,8);
+  var t=S.titles.filter(function(x){return x==="本命派"||x==="穴党"})[0]||S.titles[0]||"";
+  return {m:mo,range:y+"年"+mo+"月1日から"+last+"日"+(now?"（途中）":""),title:t,rank:S.rank,nOrd:S.nOrd,nRank:S.nRank,n:S.n,hit:S.hit,judged:S.judged,roi:S.roi,nA:S.nA,roiAll:A.roi,nAAll:A.nA,venues:out};
+}
+var KGURL="kirokuKeikou/kgOutline.json",REPURL=null,REPBLOB=null,REPM="";
+function loadTsuki(){return new Promise(function(ok,ng){if(window.dzTsuki)return ok();var sc=document.createElement("script");sc.src="kirokuKeikou/tsukiReport.js?v=1";sc.onload=function(){window.dzTsuki?ok():ng()};sc.onerror=ng;document.head.appendChild(sc)})}
+function openRep(m){
+  var d=$("rep"),R=repStats(m);REPM=m;REPBLOB=null;
+  $("rep-h").textContent=(+m.slice(0,4))+"年"+R.m+"月のまとめ";
+  $("rep-msg").textContent="画像を作っています。";$("rep-img").innerHTML="";
+  if(d.showModal)d.showModal();else d.setAttribute("open","");
+  loadTsuki().then(function(){return dzTsuki.make(R,KGURL)}).then(function(b){
+    if(REPM!==m)return;REPBLOB=b;if(REPURL)URL.revokeObjectURL(REPURL);REPURL=URL.createObjectURL(b);
+    var im=document.createElement("img");im.src=REPURL;im.alt=R.m+"月のまとめ：記録したレース"+R.n+"、的中"+R.hit+"（"+R.judged+"レース中）、回収率"+(R.roi!=null?R.roi+"%":"不明")+(R.title?"、称号 "+R.title:"");
+    $("rep-img").appendChild(im);$("rep-msg").textContent="";
+  }).catch(function(){if(REPM===m)$("rep-msg").textContent="画像を作れませんでした。通信のよいところで、もう一度開いてください。"});
+}
+function closeRep(){var d=$("rep");REPM="";if(d.close)d.close();else d.removeAttribute("open")}
+$("mo-list").addEventListener("click",function(e){var b=e.target.closest("button");if(b&&/^\d{6}$/.test(b.dataset.mo||""))openRep(b.dataset.mo)});
+$("rep-x").onclick=closeRep;
+$("rep").addEventListener("click",function(e){if(e.target===this)closeRep()});
+$("rep-share").onclick=function(){
+  var msg=$("rep-msg");if(!REPBLOB){msg.textContent="画像を作っています。少し待ってからもう一度押してください。";return}
+  var file=new File([REPBLOB],"matome"+REPM+".png",{type:"image/png"});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){msg.textContent="";navigator.share({files:[file]}).catch(function(err){if(err&&err.name!=="AbortError")msg.textContent="共有メニューを開けませんでした。上の画像を長押しして保存してください。"});return}
+  if(/iPhone|iPad|Android/.test(navigator.userAgent)){msg.textContent="この画面では共有メニューを開けません。上の画像を長押しして保存してください。";return}
+  var a=document.createElement("a");a.href=REPURL;a.download=file.name;document.body.appendChild(a);a.click();a.remove();msg.textContent="画像を保存しました。";
+};
+
+/* ---------- データの管理 ---------- */
+$("x-out").onclick=function(){
+  var blob=new Blob([JSON.stringify({kind:"dzKansenNote",v:1,at:new Date().toISOString(),memo:memos,money:money},null,1)],{type:"application/json"});
+  var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="kansenNote"+today().replace(/-/g,"")+".json";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},4000);
+  $("x-msg").textContent="メモ"+memos.length+"件・支出"+money.length+"件を書き出しました。";
+};
+$("x-in").addEventListener("change",function(){
+  var f=this.files&&this.files[0];if(!f)return;var rd=new FileReader();
+  rd.onload=function(){try{var j=JSON.parse(rd.result);if(j.kind!=="dzKansenNote")throw 0;
+    var have={};memos.forEach(function(m){have[m.id]=1});var nm=(j.memo||[]).filter(function(m){return m&&m.id&&!have[m.id]});memos=memos.concat(nm);
+    var hv={};money.forEach(function(x){hv[x.id]=1});var nx=(j.money||[]).filter(function(x){return x&&x.id&&!hv[x.id]});money=money.concat(nx);
+    save(KM,memos);save(KS,money);drawMemos();drawMoney();$("x-msg").textContent="メモ"+nm.length+"件・支出"+nx.length+"件を足しました（同じものは足していません）。";
+  }catch(e){$("x-msg").textContent="自分の記録のファイルではないようです。"}};
+  rd.readAsText(f);this.value="";
+});
+$("x-del").onclick=function(){$("x-confirm").hidden=false};
+$("x-no").onclick=function(){$("x-confirm").hidden=true};
+$("x-yes").onclick=function(){money=[];save(KS,money);$("x-confirm").hidden=true;$("x-msg").textContent="支出の記録を消しました。";drawMoney()};
+
+$("mihonNow").textContent=window.DZS_MIHON?"いまは見本のデータです（端末には保存しません）。":"いまはこの端末に保存したデータです。";
+$("mihonGo").textContent=window.DZS_MIHON?"自分のデータで見る":"見本のデータで見る";$("mihonGo").href="?mihon="+(window.DZS_MIHON?"0":"1")+"#bets";
+drawMemos();
+if(location.hash==="#money"){show("money");drawMoney()}
+else if(location.hash==="#bets"||(!location.hash&&!/[?&]toban=/.test(location.search)&&betRows().length)){show("bets");drawBets()}
+})();
+</script>
+<script src="../assets/guard.js" defer></script>
+<!-- kata6:body -->
+<script src="../assets/kata/kata.js?v=ecd47e51"></script>
+<script src="../assets/ugoki.js?v=e40e8a0a"></script>
+<!-- /kata6:body -->
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics --><script src=/assets/raihou.js defer></script>
+</body>
+</html>
