@@ -219,7 +219,7 @@ td の中身だけを取ると全件空になる。class を読むこと。
 
 |系統|データ源|WF|窓|
 |---|---|---|---|
-|`results/`|boatraceopenapi/api v1|`updateResultsLive.yml`（毎時 UTC `15 2-14`）＋`updateResults.yml`|`RESULTS_WINDOW=1`|
+|`results/`|boatraceopenapi/api v1（締切から15分たっても無いレースは公式の結果ページ）|`updateResultsLive.yml`（1日1本の見張り `scripts/resultsLoop.py`。起動は定時・相乗り・自分の中継。2026-11-12 から）＋`updateResults.yml`|見張りは当日と前日。夜は3日|
 |`preview/`|boatraceopenapi/api v1|`updatePreview.yml`（1日16回）|`PREVIEW_WINDOW=2`|
 |`odds/`|turnmark/api v1|`updateOdds.yml`（JST 07:00・13:00）|`ODDS_WINDOW=2`|
 

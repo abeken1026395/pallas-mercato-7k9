@@ -471,7 +471,7 @@ localdata/           Kファイル成果物のローカル保管。**.gitignore 
 | `heartbeat.yml` | `0 8-23 * * *` | 時刻帯で nightlyPipeline を workflow_dispatch | 起動失敗は `::error::` で run を落とす（次の発火で再試行） |
 | `nightlyPipeline.yml` | `3,23,43 8-16 * * *` | scrape_racers → buildMotorHistory → nightly_decide → build_highlights（当日/翌日） | 多重発火×冪等で吸収。push は `rebase -X theirs` で6回リトライ、尽きたら exit 1 |
 | `updateResults.yml` | `37 14` / `37 16` / `37 18` / `7 20` | buildResults → verifyPredictions → build_verify_summary → buildResultsSite → buildPlayerMonthly → buildInSurvival → buildKansenkiSource | 発火4重化で冪等吸収。観戦記素材は `always()` + `continue-on-error` でジョブを落とさない |
-| `updateResultsLive.yml` | `15 2-14 * * *` ＋ workflow_run | buildResults / buildResultsSite（日中随時） | 冪等（非null不変） |
+| `updateResultsLive.yml` | `40 20-23 * * *`・`15 2-14 * * *` ＋ workflow_run ＋ 自分の中継 | `resultsLoop.py`（1日1本の見張り。buildResults / buildResultsSite / 払戻CSV を、変わったときだけ作ってコミットし、配信WFを起動する。2026-11-12 から） | 冪等（非null不変）。先に起動した便が動いていれば後の便は何もしない |
 | `update_racers.yml` | 10本（`22 23` ほか） | scrape_racers / buildMotorHistory | 多重発火で吸収 |
 | `update_motors.yml` | 5本 | scrape_motors | 多重発火で吸収 |
 | `update_weather.yml` | `5 */3 * * *` | fetch_weather | — |
