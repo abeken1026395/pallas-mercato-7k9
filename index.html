@@ -16,10 +16,10 @@
   .hk textarea{width:100%;box-sizing:border-box;font-size:12px;padding:8px;background:transparent;color:#f2f5f8;border:1px solid rgba(255,255,255,.3)}
   .hk button{min-height:44px;padding:0 20px;font-weight:700;font-size:15px;border:0;border-radius:999px;background:#f2f5f8;color:#0b1a2b}
   a{display:inline-block;color:#fff;background:#c4302b;font-weight:700;text-decoration:none;padding:12px 22px;border-radius:999px}
-  .yt summary{display:inline-block;list-style:none;cursor:pointer;color:#fff;background:#c4302b;font-weight:700;padding:12px 22px;border-radius:999px}
-  .yt summary::-webkit-details-marker{display:none}
   .yt-cs{margin:18px 0 6px;font-size:26px;letter-spacing:.08em;font-weight:700}
-  .yt-m{margin:0;line-height:1.9;font-size:15px}
+  .yt-m{margin:0 0 12px;line-height:1.9;font-size:15px}
+  .yt-live{margin:0 0 16px;line-height:1.9;font-size:15px;font-weight:700}
+  .yt-live b{display:inline-block;margin-right:6px;padding:0 6px;background:#c4302b;color:#fff;font-size:13px}
 </style>
 </head>
 <body>
@@ -35,11 +35,12 @@
     <p><button type="button" id="hk-copy">コードをコピー</button></p>
     <p class="hk-d" id="hk-msg" role="status"></p>
   </div>
-  <details class="yt">
-    <summary>YouTube</summary>
-    <p class="yt-cs">coming soon</p>
-    <p class="yt-m">YouTubeは、新しいチャンネルで復活します。<br>復活を待て。</p>
-  </details>
+  <div class="yt">
+    <p class="yt-cs">YouTube 復活</p>
+    <p class="yt-m">新しいチャンネル<br>「あべけんいち」を開設しました。</p>
+    <p class="yt-live" id="ytLive" hidden></p>
+    <p><a href="https://www.youtube.com/@abekenichi_boatrace" target="_blank" rel="noopener">チャンネル登録はこちら</a></p>
+  </div>
 </div>
 <script>
 /* 前の住所に残っている保存内容を「DZ1.」＋base64 のコードにする（新しい住所は書かない・2026-10-26）。 */
@@ -60,6 +61,19 @@
     if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(code).then(done,function(){ box.select(); document.execCommand("copy"); done(); }); }
     else { box.select(); document.execCommand("copy"); done(); }
   });
+})();
+</script>
+<script>
+/* YouTube ライブ配信の告知（2026-11-11 けん）。日本時間の日付で文面を変え、11/14 0時からは出さない */
+(function(){
+  var n=Date.now(), day=function(t){return new Date(t+9*3600e3).toISOString().slice(0,10);},
+      L=[Date.UTC(2026,10,11,10),Date.UTC(2026,10,13,10)], lab=["11日（水）","13日（金）"], td=day(n), out=[];
+  for(var i=0;i<L.length;i++){ if(day(L[i])>=td) out.push((day(L[i])===td?"今夜":lab[i])+"19時から"); }
+  if(!out.length) return;
+  var p=document.getElementById("ytLive"), b=document.createElement("b"); b.textContent="LIVE";
+  p.appendChild(b); p.appendChild(document.createTextNode("ライブ配信"));
+  out.forEach(function(t){ p.appendChild(document.createElement("br")); p.appendChild(document.createTextNode(t)); });
+  p.hidden=false;
 })();
 </script>
 </body>
