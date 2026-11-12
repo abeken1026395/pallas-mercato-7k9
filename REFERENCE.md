@@ -347,7 +347,6 @@ docs/                GitHub Pages で公開する静的サイト＋データ本�
   {場名}-payouts/    24場の R別万舟率ページ（kiryu / toda / … / omura の24ディレクトリ）
   stadium/           24場 特性＆荒れサイン早見表（gourmet.json あり）
   glossary/ fan/ next/ updates/ announcers/ uranai/
-  aisho-suminoe/ shobuun-suminoe/
   probe/             beforeinfoProbe.html（生成物・調査用）
 predictions/         朝の見立て（YYYYMMDD.json・**write-once**）※git 追跡あり
 results/             夜に生成する結果データ（YYYYMMDD.json）※git 追跡あり
@@ -377,8 +376,6 @@ localdata/           Kファイル成果物のローカル保管。**.gitignore 
 | `updates/` | 更新履歴 | `docs/data/updates.json`（PR本文の `[updates]` 行から自動記録） |
 | `announcers/` | 実況アナ図鑑 | アナウンサー情報（`announcers.json`） |
 | `uranai/` | 選手占い（相性・勝負運） | 占い系コンテンツ |
-| `aisho-suminoe/` | 相性で選ぶ 住之江・女子戦 | 住之江女子戦の相性 |
-| `shobuun-suminoe/` | 勝負運ランキング 住之江・女子戦 | 住之江女子戦の勝負運 |
 | `probe/beforeinfoProbe.html` | 直前情報プローブ | 調査用 ※**生成物** |
 
 ---
