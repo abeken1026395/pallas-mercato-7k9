@@ -743,7 +743,7 @@ function App() {
                 {/* タップ領域は 24×24px 以上（WCAG 2.2 / 2.5.8）。絵文字は 18px のまま、当たり判定だけ広げる */}
                 {/* ☆の下に女子の♥。名前の横に置くと支部が次の行へ落ちてカードの高さが揃わないため */}
                 <div style={{display:"flex",flexDirection:"column",alignItems:"center",flexShrink:0,minWidth:24}}>
-                <button type="button" onClick={e=>{e.stopPropagation();toggleOshi(p.no,p.name);}} title="推しフォロー" aria-pressed={hasOshi(oshi,p.no)} aria-label={p.name+(hasOshi(oshi,p.no)?"のフォローを解除":"をフォロー")} style={{fontSize:18,lineHeight:1,color:hasOshi(oshi,p.no)?"#ffd166":"#8a94a3",cursor:"pointer",flexShrink:0,padding:0,minWidth:24,minHeight:24,display:"inline-flex",alignItems:"center",justifyContent:"center",background:"none",border:"none",fontFamily:"inherit",userSelect:"none"}}>{hasOshi(oshi,p.no)?"⭐":"☆"}</button>
+                <button type="button" onClick={e=>{e.stopPropagation();toggleOshi(p.no,p.name);}} title="推しフォロー" aria-pressed={hasOshi(oshi,p.no)} aria-label={p.name+(hasOshi(oshi,p.no)?"のフォローを解除":"をフォロー")} style={{fontSize:18,lineHeight:1,color:hasOshi(oshi,p.no)?"#ffd166":"#8a94a3",cursor:"pointer",flexShrink:0,padding:0,minWidth:44,minHeight:44,margin:-10,display:"inline-flex",alignItems:"center",justifyContent:"center",background:"none",border:"none",fontFamily:"inherit",userSelect:"none"}}>{hasOshi(oshi,p.no)?"⭐":"☆"}</button>
                 {p.female&&<span role="img" aria-label="女子選手" title="女子選手" style={{color:"#ff7eb6",fontSize:13,lineHeight:1,marginTop:2}}>♥</span>}
                 </div>
                 <span style={{fontSize:13,fontWeight:800,padding:"4px 9px",borderRadius:8,background:RANK_BADGE[p.rank],color:p.rank==="A2"?"#0b1726":"#fff",flexShrink:0}}>{p.rank}</span>
