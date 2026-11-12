@@ -283,7 +283,7 @@ h1{font-size:22px;font-weight:800;margin-top:4px;display:flex;align-items:baseli
 .bp-row .vl{font-size:12px;width:34px;text-align:right;flex-shrink:0;font-variant-numeric:tabular-nums}
 .bp-uns{font-size:13px;font-weight:800;color:#dcbd78}
 .daysw{display:flex;align-items:center;gap:6px;margin:10px 0 0}
-.dsw-btn{font-size:12px;font-weight:700;color:var(--sub);background:var(--panel2);border:1px solid var(--line);border-radius:18px;padding:5px 13px;cursor:pointer}
+.dsw-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;font-size:14px;font-weight:700;color:var(--sub);background:var(--panel2);border:1px solid var(--line);border-radius:18px;padding:0 14px;cursor:pointer}
 .dsw-btn.on{color:#10141a;background:#c8a45e;border-color:#dcbd78}
 .dsw-btn:active{opacity:.7}
 .viewguide{color:var(--sub);font-size:12px;line-height:1.65;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 11px;margin:10px 0 0}
@@ -627,6 +627,8 @@ function boatRow(b, ba, jc){
 // 波乱＝荒れ（琥珀）、堅め（青緑）。混戦と未保存はキーなし＝札を出さない。
 function bunruiTag(r){
   const b=r['分類'];
+  // 荒れ・堅めのタブでは、全てのレースが同じ分類なので札を出さない（場別のタブだけに出す）
+  if((VIEW==='hot'&&b==='波乱')||(VIEW==='firm'&&b==='堅め')) return '';
   if(b==='波乱') return `<span class="bunrui b-are">荒れ</span>`;
   if(b==='堅め') return `<span class="bunrui b-kata">堅め</span>`;
   return '';

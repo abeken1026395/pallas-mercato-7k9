@@ -218,7 +218,7 @@ function App() {
                 <span style={{fontSize:11,padding:"2px 8px",borderRadius:10,background:"#0b1219",border:"1px solid "+WATER_COLOR[s.water],color:WATER_COLOR[s.water]}}>{s.water}</span>
                 <span style={{fontSize:12,color:"#ffd166",fontWeight:700,fontVariantNumeric:"tabular-nums"}}>1コース {s.in1}</span>
                 {s.kikaku && <span title="通常時は企画レース込み" style={{fontSize:10,fontWeight:700,color:"#ffd166",background:"#ffd16615",border:"1px solid #ffd16655",borderRadius:5,padding:"1px 5px"}}>企</span>}
-                <span style={{marginLeft:"auto",fontSize:11,padding:"3px 10px",borderRadius:10,background:ARARE_COLOR[s.arare]+"22",border:"1px solid "+ARARE_COLOR[s.arare],color:ARARE_COLOR[s.arare],fontWeight:700}}>荒れ度 {s.arare}</span>
+                <span style={{marginLeft:"auto",fontSize:11,padding:"3px 10px",borderRadius:0,background:"#12233a",border:"1px solid "+ARARE_COLOR[s.arare],color:ARARE_COLOR[s.arare],fontWeight:700}}>荒れ度 {s.arare}</span>
                 <span style={{fontSize:12,color:"#6b7f95"}}>{isOpen?"▲":"▼"}</span>
               </div>
               {isOpen && (
