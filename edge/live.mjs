@@ -1,7 +1,8 @@
 // 今見ている人数とプッシュ通知の受け口（再訪設計 段階3・2026-11-13 けん「全てプロ仕様で」）。
 // 置き場所：Pages Functions（functions/api/now.js・functions/api/push.js）から呼ぶ。保存先は D1（バインディング名 DZ_DB）。
 // 人数：接続元を日替わりの鍵（DZ_SALT）で変換した16桁を、直近5分に合図があった数だけ数える。生の接続元は残さない。5人未満は0と返す。
-// 通知：通知をオンにした人の購読情報と、保存した買い目のレース番号・締切時刻だけを受け取る。金額・メモ・収支は受け取らない。
+// 通知：通知をオンにした人の購読情報と、出走表・見どころで選んだレースの番号・締切時刻・知らせる種類（10分前・結果）だけを受け取る。
+//       金額・メモ・収支は受け取らない（2026-11-13 けん「レースそのものに通知を付けよう」）。
 // D1 が無い・失敗したときは何もせず空の答えを返す（ページを止めない）。
 import { ipKey, jstDay } from "./junkai.mjs";
 
@@ -18,6 +19,13 @@ export const SCHEMA = [
   "CREATE TABLE IF NOT EXISTS races (sid TEXT NOT NULL, rid TEXT NOT NULL, dl INTEGER NOT NULL, sent INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (sid, rid))",
   "CREATE INDEX IF NOT EXISTS races_due ON races(sent, dl)",
   "CREATE TABLE IF NOT EXISTS daily (sid TEXT NOT NULL, day TEXT NOT NULL, n INTEGER NOT NULL, PRIMARY KEY (sid, day))",
+  // 2026-11-13 追加：m＝締切10分前に知らせる・k＝結果を知らせる・sr＝結果を送った。sent は10分前を送った印のまま
+  "ALTER TABLE races ADD COLUMN m INTEGER NOT NULL DEFAULT 1",
+  "ALTER TABLE races ADD COLUMN k INTEGER NOT NULL DEFAULT 0",
+  "ALTER TABLE races ADD COLUMN sr INTEGER NOT NULL DEFAULT 0",
+  // 公式の締切予定時刻の写し（場_日付 → {R番号:"HH:MM"}）と、送り役の小さな覚え書き
+  "CREATE TABLE IF NOT EXISTS offi (jh TEXT PRIMARY KEY, t INTEGER NOT NULL, j TEXT NOT NULL)",
+  "CREATE TABLE IF NOT EXISTS kv (k TEXT PRIMARY KEY, v TEXT NOT NULL)",
 ];
 
 function hex(buf) { return Array.from(new Uint8Array(buf), b => b.toString(16).padStart(2, "0")).join(""); }
@@ -65,7 +73,8 @@ export function okEndpoint(ep) {
   } catch (e) { return false; }
 }
 
-// レース番号（場_日付_R）と締切（ミリ秒）。日付は締切の日本時間の日付と一致し、締切は今から3日以内
+// レース番号（場_日付_R）・締切（ミリ秒）・知らせる種類（m＝10分前、k＝結果）。
+// 日付は締切の日本時間の日付と一致し、締切は今から3日以内。10分前は締切前だけ、結果は締切から3時間まで受け付ける
 export function cleanRaces(list, now = Date.now()) {
   if (!Array.isArray(list)) return null;
   const out = new Map();
@@ -74,11 +83,14 @@ export function cleanRaces(list, now = Date.now()) {
     const m = RID.exec(String(x.rid || ""));
     const dl = Number(x.dl);
     if (!m || !Number.isFinite(dl)) continue;
-    if (dl < now - 60000 || dl > now + 3 * 86400000) continue;
+    if (dl < now - 3 * 3600000 || dl > now + 3 * 86400000) continue;
     if (jstDay(dl).replace(/-/g, "") !== m[2]) continue;
-    out.set(x.rid, Math.floor(dl));
+    const mm = x.m === 1 || x.m === true ? (dl >= now - 60000 ? 1 : 0) : 0;
+    const kk = x.k === 1 || x.k === true ? 1 : 0;
+    if (!mm && !kk) continue;
+    out.set(x.rid, { rid: x.rid, dl: Math.floor(dl), m: mm, k: kk });
   }
-  return [...out.entries()].sort((a, b) => a[1] - b[1]).slice(0, MAX_RACES).map(([rid, dl]) => ({ rid, dl }));
+  return [...out.values()].sort((a, b) => a.dl - b.dl || (a.rid < b.rid ? -1 : 1)).slice(0, MAX_RACES);
 }
 
 export async function onPush(context, now = Date.now()) {
@@ -123,7 +135,8 @@ export async function onPush(context, now = Date.now()) {
       // 送り済みの印は残したまま、今回の一覧に無いレースを消し、新しいレースを足す
       db.prepare("DELETE FROM races WHERE sid = ?1 AND rid NOT IN (SELECT value FROM json_each(?2))").bind(id, JSON.stringify(races.map(r => r.rid))),
     ];
-    for (const r of races) st.push(db.prepare("INSERT INTO races (sid, rid, dl, sent) VALUES (?1, ?2, ?3, 0) ON CONFLICT(sid, rid) DO UPDATE SET dl = excluded.dl").bind(id, r.rid, r.dl));
+    // 締切は送り役が公式の時刻で直すので、2回目からは上書きしない（種類だけ直す）
+    for (const r of races) st.push(db.prepare("INSERT INTO races (sid, rid, dl, sent, m, k, sr) VALUES (?1, ?2, ?3, 0, ?4, ?5, 0) ON CONFLICT(sid, rid) DO UPDATE SET m = excluded.m, k = excluded.k").bind(id, r.rid, r.dl, r.m, r.k));
     await db.batch(st);
     return json({ ok: true, n: races.length });
   } catch (e) {
