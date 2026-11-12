@@ -191,7 +191,7 @@ footer{margin-top:24px;font-size:13px;color:var(--dim);line-height:1.85}
 <div class="nav"><a href="../">データ攻め</a></div>
 <header>
   <h1 class="kataTitle">自分の記録</h1>
-  <p class="lead">保存した買い目と、選手のメモ、舟券の支出の記録。書いた内容はこの端末のブラウザの中だけに残り、データ攻めには送られません（締切の通知をオンにしたときだけ、レースの番号と締切の時刻を送ります）。</p>
+  <p class="lead">保存した買い目と、選手のメモ、舟券の支出の記録。書いた内容はこの端末のブラウザの中だけに残り、データ攻めには送られません（通知をオンにしたときだけ、選んだレースの番号と締切の時刻を送ります）。</p>
 </header>
 
 <div class="tabs" role="tablist">
@@ -214,11 +214,11 @@ footer{margin-top:24px;font-size:13px;color:var(--dim);line-height:1.85}
     <p class="note" id="bnote"></p>
   </div>
   <div class="card" id="tsuchi">
-    <h2>締切10分前の通知</h2>
+    <h2>レースの通知</h2>
     <p class="tsu-st" id="tsu-st"></p>
     <div id="tsu-do"></div>
     <p class="note" id="tsu-msg" role="status" aria-live="polite"></p>
-    <p class="note">保存した買い目のあるレースだけ、締切の10分前に知らせます。1日3通まで。オンにすると、保存したレースの番号と締切の時刻だけをデータ攻めに送ります。金額・メモ・収支は送りません。締切が遅れたときは、もとの締切時刻で知らせます。</p>
+    <p class="note">出走表と見どころのレースで「10分前に知らせる」「結果を知らせる」を押したレースだけ知らせます。締切が遅れたときは、公式の締切予定時刻に合わせて10分前に知らせます。オンにすると、選んだレースの番号・締切の時刻・知らせる種類だけをデータ攻めに送ります。金額・メモ・収支は送りません。</p>
   </div>
   <div class="card" id="keikou">
     <h2>予想の傾向 <small style="color:var(--sub);font-weight:400;font-size:12px">これまでの全記録</small></h2>
@@ -697,7 +697,7 @@ if(location.hash==="#money"){show("money");drawMoney()}
 else if(location.hash==="#bets"||(!location.hash&&!/[?&]toban=/.test(location.search)&&betRows().length)){show("bets");drawBets()}
 })();
 </script>
-<script src="../assets/tsuchi.js?v=1"></script>
+<script src="../assets/tsuchi.js?v=2"></script>
 <script>
 /* 締切10分前の通知（再訪設計 段階3・2026-11-13）。状態ごとに1行と1つのボタンだけ出す */
 (function(){
