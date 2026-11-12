@@ -1,4 +1,4 @@
-/* 実験場の写し（docs/next/kirokuKeikou.html 用）。保存先を window.DZS に差し替えられるようにしただけで、中身は本番案と同じ。
+/* 実験場の写し（docs/next/kirokuKeikou.html 用）。保存先を window.DZS に差し替えられるようにしただけで、中身は本番と同じ。
    答え合わせ（再訪設計書 izonSekkei 段階2・2026-11-10）
    出走表で保存した買い目（dz_bets）・見送り（dz_skip）を、結果データ（/results/data/YYYYMMDD.json）と照らし合わせる。
    出走表・自分の記録・トップで共有する。保存データは引き継ぎなどで壊れていることがあるので、読むたびに形を確かめる。
@@ -105,8 +105,16 @@
      state：pending（結果待ち）／hit（的中）／miss（外れ）
      a・p は記録に使う額。手で入れた額があればそれを優先し、無ければ「1点あたり」から計算する */
   function judge(en,race){
-    var r={state:"pending",hits:[],pay100:0,pts:points(en),a:en.a,p:en.p,autoA:false,autoP:false,san:null};
-    if(en.a==null&&en.u){ r.a=r.pts*en.u; r.autoA=true; }
+    var r={state:"pending",hits:[],pay100:0,pts:points(en),a:en.a,p:en.p,autoA:false,autoP:false,san:null,dflt:false,even:null};
+    /* 金額を何も入れていないレースは、1点100円で均等に買ったとして出す（2026-11-12 けん裁定） */
+    var u=en.u;
+    if(!u&&en.a==null&&en.p==null){ u=100; r.dflt=true; }
+    /* 購入額がちょうど 100円×点数 なら、ボタンを押さなくても均等として払戻を出す */
+    if(!u&&en.a!=null&&en.p==null&&r.pts&&en.a===r.pts*100) u=100;
+    r.u=u||null;
+    if(en.a==null&&u){ r.a=r.pts*u; r.autoA=true; }
+    /* 購入額だけが入っていて、点数で割って100円単位なら「均等に買った」ボタンの候補 */
+    if(!u&&en.a!=null&&r.pts&&en.a>0&&en.a%r.pts===0&&(en.a/r.pts)%100===0) r.even=en.a/r.pts;
     if(!r.pts){ r.state="none"; return r; }  /* 金額やメモだけで、買い目が無いレース */
     if(!race) return r;
     var P=race["払戻"], s3=Array.isArray(P["3連単"])&&P["3連単"][0]&&okN(P["3連単"][0]["配当"])?P["3連単"][0]["配当"]:null;
@@ -118,7 +126,7 @@
       });
     });
     r.state=r.hits.length?"hit":"miss";
-    if(en.p==null&&en.u){ r.p=Math.round(r.pay100*en.u/100); r.autoP=true; }
+    if(en.p==null&&u){ r.p=Math.round(r.pay100*u/100); r.autoP=true; }
     return r;
   }
   /* 見送ったレースの判定：結果があり、3連単の配当が基準以上なら成功 */
