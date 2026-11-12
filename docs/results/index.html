@@ -151,6 +151,62 @@ html[data-vr] body::after{content:none;margin:0}
 /* 読み込み時のレイアウトずれ防止：日付の選択肢と結果が入る前から高さを確保（.bar は幅390pxの実測値） */
 .bar{min-height:101px}
 #out{min-height:100vh}
+/* 買い目で絞り込む（2026-11-12）。選んでいる札は白地に紺（siteFrame.js の .chipbtn と同じ）、角は四角、枠番は6色 */
+details.hf{margin:14px 0 6px;border-top:1px solid #2b4568;border-bottom:1px solid #2b4568}
+details.hf>summary{min-height:48px;padding:0 2px;font-size:1rem;font-weight:700;color:#eef3f8;display:flex;align-items:center;gap:8px}
+details.hf>summary::after{content:"＋";margin-left:auto;color:#8fa3b8;font-weight:400}
+details.hf[open]>summary::after{content:"－"}
+details.hf>summary:hover{background:none}
+.hfIn{padding:4px 0 16px}
+.hfQ{margin-top:12px}
+.hfQ>.hfL{display:block;font-size:.875rem;color:#c3d0dd;margin-bottom:6px;line-height:1.5}
+.hfRow{display:flex;flex-wrap:wrap;gap:6px}
+.hfRow button,.hfPos button{min-height:44px;min-width:44px;padding:0 12px;font:700 15px/1 -apple-system,"Hiragino Sans",sans-serif;background:none;color:#e3e9ee;border:1px solid #4a6585;cursor:pointer;touch-action:manipulation;border-radius:0}
+.hfRow button:focus-visible,.hfPos button:focus-visible,.hfSel:focus-visible,.hfDate:focus-visible,.hfMore:focus-visible,.hfList a:focus-visible{outline:2px solid #eef3f8;outline-offset:2px}
+.hfPos{margin-top:10px}
+.hfPH{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.hfPH .hfPL{font-size:.875rem;color:#c3d0dd;white-space:nowrap}
+.hfGrid{display:grid;grid-template-columns:repeat(6,minmax(44px,1fr));gap:4px;margin-top:4px;padding:0 5px 5px}
+.hfPos button{min-width:44px;padding:0;font-size:17px}
+.hfPos button.hfAny{font-size:14px;padding:0 12px}
+.hfPos button.hfB{border:0}
+.hfPos button.hfB1{background:#f4f4f4;color:#0b1726}
+.hfPos button.hfB2{background:#000;color:#fff;box-shadow:inset 0 0 0 1px #7d8da0}
+.hfPos button.hfB3{background:#d82a33;color:#fff}
+.hfPos button.hfB4{background:#2b6fdc;color:#fff}
+.hfPos button.hfB5{background:#f2d02e;color:#0b1726}
+.hfPos button.hfB6{background:#1f8540;color:#fff}
+.hfPos button.hfB[aria-pressed="true"]{box-shadow:0 0 0 3px #0d1c2f,0 0 0 5px #eef3f8}
+.hfPos button.hfB[aria-pressed="true"]::after{content:"✓";font-size:12px;margin-left:2px}
+.hfPos button:disabled{opacity:.25;cursor:not-allowed}
+.hfNote{font-size:.875rem;color:#c3d0dd;margin-top:6px;line-height:1.6}
+.hfSel,.hfDate{min-height:44px;background:#132b46;color:#eef3f8;border:1px solid #4a6585;border-radius:0;padding:0 10px;font:16px -apple-system,"Hiragino Sans",sans-serif;max-width:100%}
+.hfDates{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:8px}
+.hfDates .hfTo{color:#c3d0dd}
+.hfDate{width:10.5em}
+.hfOut{margin-top:18px;border-top:1px solid #2b4568;padding-top:12px;min-height:120px}
+.hfSum{font-size:1rem;line-height:1.6;color:#e3e9ee}
+.hfSum .hfBig{font-size:1.5rem;font-weight:700;color:#eef3f8;font-variant-numeric:tabular-nums;white-space:nowrap}
+.hfSum .hfN{font-variant-numeric:tabular-nums;white-space:nowrap}
+.hfCond{font-size:.875rem;color:#c3d0dd;margin-top:6px;line-height:1.6}
+.hfWarn{font-size:.875rem;color:#f2b155;margin-top:6px;line-height:1.6}
+.hfList{list-style:none;margin:12px 0 0;padding:0}
+.hfList li{border-top:1px solid #2b4568}
+.hfList li:last-child{border-bottom:1px solid #2b4568}
+.hfList a{display:flex;align-items:center;gap:8px;min-height:48px;padding:4px 2px;color:#e3e9ee;text-decoration:none}
+.hfList .hfLf{display:flex;flex-direction:column;width:5.2em;flex:none;line-height:1.35}
+.hfList .hfD{font-size:.875rem;color:#c3d0dd;font-variant-numeric:tabular-nums;white-space:nowrap}
+.hfList .hfV{font-size:.9375rem;white-space:nowrap;font-variant-numeric:tabular-nums}
+.hfList .hfC{display:flex;align-items:center;gap:2px;flex:none}
+.hfList .hfC .badge{width:22px;height:22px}
+.hfList .hfC .hfS{color:#c3d0dd;font-weight:700;font-size:12px}
+.hfList .hfRt{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;line-height:1.35}
+.hfList .hfY{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;color:#eef3f8}
+.hfList .hfX{font-size:11px;color:#c3d0dd}
+.hfMore{display:flex;align-items:center;justify-content:center;width:100%;min-height:44px;margin-top:10px;background:none;color:#e3e9ee;border:1px solid #4a6585;border-radius:0;font:700 15px -apple-system,"Hiragino Sans",sans-serif;cursor:pointer}
+.hfEmpty{font-size:1rem;color:#c3d0dd;line-height:1.7;padding:8px 0}
+@media (max-width:359px){.hfList a{gap:6px}.hfList .hfLf{width:4.9em}}
+@media (prefers-reduced-motion:reduce){details.hf *{transition:none!important;animation:none!important}}
 </style>
 <!-- kata6:head -->
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&amp;family=Dela+Gothic+One&amp;display=swap" rel="stylesheet">
@@ -172,6 +228,38 @@ html[data-vr] body::after{content:none;margin:0}
   <div class="lead">「枠」は抽選で決まった艇番、「コース」は実際に進入した位置です。ST はスタート合図からの秒数で、小さいほど早い通過。合図より前に出るとフライング（F）になります。</div>
   </details>
 </header>
+
+<details class="hf" id="hf">
+  <summary>買い目で絞り込む</summary>
+  <div class="hfIn">
+    <div class="hfQ">
+      <span class="hfL" id="hfTL">券種</span>
+      <div class="hfRow" id="hfType" role="group" aria-labelledby="hfTL"></div>
+    </div>
+    <div class="hfQ">
+      <span class="hfL" id="hfCL">組番</span>
+      <div id="hfCombo" role="group" aria-labelledby="hfCL"></div>
+      <p class="hfNote" id="hfCN"></p>
+    </div>
+    <div class="hfQ">
+      <label class="hfL" for="hfJcd">場</label>
+      <select class="hfSel" id="hfJcd"></select>
+    </div>
+    <div class="hfQ">
+      <span class="hfL" id="hfPL">期間</span>
+      <div class="hfRow" id="hfMode" role="group" aria-labelledby="hfPL"></div>
+      <div class="hfDates">
+        <label class="hfL" for="hfD1" id="hfD1L" style="margin:0">開始</label>
+        <input class="hfDate" type="date" id="hfD1">
+        <span class="hfTo" id="hfTo">から</span>
+        <label class="hfL" for="hfD2" id="hfD2L" style="margin:0">終了</label>
+        <input class="hfDate" type="date" id="hfD2">
+      </div>
+      <div class="hfRow" id="hfPre" style="margin-top:8px"></div>
+    </div>
+    <div class="hfOut" id="hfOut" aria-live="polite"></div>
+  </div>
+</details>
 
 <div class="bar">
   <label for="dsel">開催日</label>
@@ -277,6 +365,8 @@ function orderEls(combo){
   });
   return wrap;
 }
+// 取り込んだ文字列を HTML として解釈させない（2026-11-12）
+function hfEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
 function fmtYen(n){ return Number(n).toLocaleString('ja-JP')+'円'; }
 function fmtDate(hd){
   return hd.slice(0,4)+'/'+hd.slice(4,6)+'/'+hd.slice(6,8);
@@ -355,7 +445,7 @@ function renderRace(r, hd){
       c.innerHTML = '<div class="k">'+k+'</div>';
       rows.forEach(x=>{
         const row=document.createElement('div');row.className='row';
-        row.innerHTML='<span class="combo">'+x['組番']+'</span><span class="amt">'+Number(x['配当']).toLocaleString('ja-JP')+'</span>';
+        row.innerHTML='<span class="combo">'+hfEsc(x['組番'])+'</span><span class="amt">'+Number(x['配当']).toLocaleString('ja-JP')+'</span>';
         c.appendChild(row);
       });
       g.appendChild(c);
@@ -477,14 +567,15 @@ function renderDay(day){
   }
   day['場'].forEach((v,i)=>{
     const card = document.createElement('details'); card.className='venue';
+    card.dataset.jcd = String(v['場コード']);
     if(i===0) card.open = true; // 先頭場だけ開いておく
     const h = document.createElement('summary'); h.className='vhead';
-    h.innerHTML = '<span class="chev">›</span><span>'+v['場名']+'</span>'+
-      '<span class="jcd">['+v['場コード']+']</span>'+
+    h.innerHTML = '<span class="chev">›</span><span>'+hfEsc(v['場名'])+'</span>'+
+      '<span class="jcd">['+hfEsc(v['場コード'])+']</span>'+
       '<span class="rc">'+v['レース'].length+'R</span>';
     card.appendChild(h);
     const grid = document.createElement('div'); grid.className='grid';
-    v['レース'].forEach(r=>grid.appendChild(renderRace(r, day['開催日'])));
+    v['レース'].forEach(r=>{ const el = renderRace(r, day['開催日']); el.dataset.r = String(r['レース']); grid.appendChild(el); });
     card.appendChild(grid);
     out.appendChild(card);
   });
@@ -527,7 +618,393 @@ async function init(){
     document.getElementById('out').innerHTML=(window.dzfErrHtml?dzfErrHtml():'<div class="dzf-st" role="alert"><p>'+(navigator.onLine===false?'通信が切れています。つながったら、もう一度読み込んでください。':'データを読み込めませんでした。通信の良いところで、もう一度読み込んでください。')+'</p><button type="button" class="dzf-re" onclick="location.reload()">もう一度読み込む</button></div>');
   }
 }
+// ---- 買い目で絞り込む（2026-11-12）----
+// データ：data/hit/index.json と data/hit/YYYYMM.json（buildResultsSite.py が results/ から作る・全期間）。
+// いちばん新しい日（取り込み中）は月のファイルに入らないので、1日分の data/YYYYMMDD.json から足す。
+// 出すのは過去の事実（何レースで来たか・配当）だけ。回収率は出さない（期間の切り取りになるため）。
+const HF_TYPES = ['単勝','複勝','2連単','2連複','拡連複','3連複','3連単'];
+const HF_CODE = ['tan','fuku','2t','2f','kaku','3f','3t'];
+const HF_N = [1,1,2,2,2,3,3];
+const HF_UNORD = [false,false,false,true,true,true,false];
+const HF_VENUE = ['','桐生','戸田','江戸川','平和島','多摩川','浜名湖','蒲郡','常滑','津','三国','びわこ','住之江',
+  '尼崎','鳴門','丸亀','児島','宮島','徳山','下関','若松','芦屋','福岡','唐津','大村'];
+const HF_PAGE = 30;
+const hf = {t:6, c:[1,0,0], jcd:0, mode:'range', d1:'', d2:'', idx:null, idxReq:null, months:{}, today:null,
+  dayList:[], shown:HF_PAGE, last:null, seq:0, ready:false};
+
+function hfEl(tag, cls, txt){ const e=document.createElement(tag); if(cls) e.className=cls; if(txt!=null) e.textContent=txt; return e; }
+function hfIso(hd){ return hd.slice(0,4)+'-'+hd.slice(4,6)+'-'+hd.slice(6,8); }
+function hfHd(iso){ return /^\d{4}-\d{2}-\d{2}$/.test(iso||'') ? iso.replace(/-/g,'') : ''; }
+function hfShift(hd, days){
+  const t = Date.UTC(+hd.slice(0,4), +hd.slice(4,6)-1, +hd.slice(6,8)) + days*86400000;
+  const d = new Date(t);
+  return d.getUTCFullYear()+String(d.getUTCMonth()+1).padStart(2,'0')+String(d.getUTCDate()).padStart(2,'0');
+}
+function hfMD(hd){ return (+hd.slice(4,6))+'/'+(+hd.slice(6,8)); }
+function hfYMD(hd){ return hd.slice(0,4)+'/'+hd.slice(4,6)+'/'+hd.slice(6,8); }
+function hfNum(n){ return Number(n).toLocaleString('ja-JP'); }
+function hfMin(){ return hf.idx && hf.idx['最初'] || ''; }
+function hfMax(){ return hf.today || (hf.idx && hf.idx['最後']) || ''; }
+
+// 1日分の結果（ページの形）を、月のファイルと同じ行の形にする
+function hfFromDay(day){
+  const rows = [], hd = String(day['開催日']||'');
+  (day['場']||[]).forEach(v=>{
+    (v['レース']||[]).forEach(r=>{
+      const p = r['払戻']||{};
+      const row = [hd.slice(6,8), parseInt(r['場コード'],10)||0, parseInt(r['レース'],10)||0];
+      HF_TYPES.forEach((t,i)=>{
+        const lst = [];
+        (Array.isArray(p[t])?p[t]:[]).forEach(x=>{
+          let c = String((x&&x['組番'])||'').replace(/[^1-6]/g,'');
+          if(HF_UNORD[i]) c = c.split('').sort().join('');
+          const y = Number(x&&x['配当']);
+          if(c && isFinite(y) && y>0) lst.push([c,y]);
+        });
+        row.push(lst);
+      });
+      rows.push(row);
+    });
+  });
+  return rows;
+}
+
+function hfLoadIndex(){
+  if(!hf.idxReq){
+    hf.idxReq = Promise.all([
+      fetch('data/hit/index.json',{cache:'no-cache'}).then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); }),
+      fetch('data/index.json',{cache:'no-cache'}).then(r=>r.ok?r.json():null).catch(()=>null)
+    ]).then(([j, di])=>{
+      if(!j || !Array.isArray(j['月'])) throw new Error('index');
+      hf.idx = j;
+      hf.dayList = ((di&&di['日付'])||[]).filter(d=>(d['レース数']||0)>0).map(d=>String(d['開催日']));
+      const td = String(j['当日']||'');
+      hf.today = (/^\d{8}$/.test(td) && hf.dayList.indexOf(td)>=0) ? td : null;
+    }).catch(e=>{ hf.idxReq = null; throw e; });
+  }
+  return hf.idxReq;
+}
+function hfLoadMonth(ym){
+  if(!hf.months[ym]){
+    hf.months[ym] = fetch('data/hit/'+ym+'.json',{cache:'no-cache'})
+      .then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); })
+      .then(j=>{ if(!j || !Array.isArray(j['レース'])) throw new Error('bad'); return j['レース']; })
+      .catch(e=>{ delete hf.months[ym]; throw e; });
+  }
+  return hf.months[ym];
+}
+let hfTodayReq = null;
+function hfLoadToday(){
+  if(!hf.today) return Promise.resolve([]);
+  if(!hfTodayReq){
+    hfTodayReq = fetch('data/'+hf.today+'.json',{cache:'no-cache'})
+      .then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); })
+      .then(hfFromDay)
+      .catch(e=>{ hfTodayReq = null; throw e; });
+  }
+  return hfTodayReq;
+}
+
+function hfMatch(c, sel, unord){
+  if(unord){
+    for(const b of sel){ if(b && c.indexOf(String(b))<0) return false; }
+    return true;
+  }
+  for(let i=0;i<sel.length;i++){ if(sel[i] && c.charAt(i)!==String(sel[i])) return false; }
+  return true;
+}
+
+// ---- 入力部品 ----
+function hfDrawType(){
+  const box = document.getElementById('hfType'); box.textContent='';
+  HF_TYPES.forEach((t,i)=>{
+    const b = hfEl('button','chipbtn',t); b.type='button';
+    b.setAttribute('aria-pressed', String(i===hf.t));
+    b.addEventListener('click',()=>{
+      if(hf.t===i) return;
+      hf.t=i; const n=HF_N[i]; hf.c=hf.c.slice(0,n); while(hf.c.length<n) hf.c.push(0);
+      hfDrawType(); hfDrawCombo(); hfRun();
+    });
+    box.appendChild(b);
+  });
+}
+function hfPosLabel(i){
+  const t = hf.t;
+  if(t===1) return '2着以内';
+  if(HF_UNORD[t]) return '艇'+(HF_N[t]>1?(i+1):'');
+  return (i+1)+'着';
+}
+function hfDrawCombo(){
+  const box = document.getElementById('hfCombo'); box.textContent='';
+  const n = HF_N[hf.t];
+  for(let i=0;i<n;i++){
+    const pos = hfEl('div','hfPos'); pos.setAttribute('role','group');
+    const head = hfEl('div','hfPH');
+    const lab = hfEl('span','hfPL',hfPosLabel(i)); lab.id='hfPos'+i; head.appendChild(lab);
+    pos.setAttribute('aria-labelledby','hfPos'+i);
+    const any = hfEl('button','chipbtn hfAny','どれでも'); any.type='button';
+    any.setAttribute('aria-pressed', String(hf.c[i]===0));
+    any.addEventListener('click',()=>{ if(hf.c[i]===0) return; hf.c[i]=0; hfDrawCombo(); hfRun(); });
+    head.appendChild(any); pos.appendChild(head);
+    const grid = hfEl('div','hfGrid');
+    for(let b=1;b<=6;b++){
+      const bt = hfEl('button','hfB hfB'+b,String(b)); bt.type='button';
+      bt.setAttribute('aria-pressed', String(hf.c[i]===b));
+      bt.setAttribute('aria-label', b+'号艇');
+      const used = hf.c.some((x,j)=>j!==i && x===b);
+      if(used){ bt.disabled = true; }
+      bt.addEventListener('click',()=>{ if(hf.c[i]===b) return; hf.c[i]=b; hfDrawCombo(); hfRun(); });
+      grid.appendChild(bt);
+    }
+    pos.appendChild(grid); box.appendChild(pos);
+  }
+  document.getElementById('hfCN').textContent =
+    hf.t===1 ? '複勝は2着までに入れば的中です（出走が5艇以下のレースは1着だけ）。' :
+    HF_UNORD[hf.t] ? '着の順番は問いません。' : '「どれでも」の着は何号艇でも数えます。';
+}
+function hfDrawMode(){
+  const box = document.getElementById('hfMode'); box.textContent='';
+  [['day','1日'],['range','期間']].forEach(([m,l])=>{
+    const b = hfEl('button','chipbtn',l); b.type='button';
+    b.setAttribute('aria-pressed', String(hf.mode===m));
+    b.addEventListener('click',()=>{
+      if(hf.mode===m) return; hf.mode=m;
+      if(m==='day') hf.d1 = hf.d2 || hfMax();
+      if(m==='range' && !hf.d2) hf.d2 = hf.d1;
+      hfDrawMode(); hfDrawDates(); hfRun();
+    });
+    box.appendChild(b);
+  });
+  const pre = document.getElementById('hfPre'); pre.textContent='';
+  pre.hidden = hf.mode!=='range';
+  [['直近7日',7],['直近30日',30],['全期間',0]].forEach(([l,k])=>{
+    const b = hfEl('button','chipbtn',l); b.type='button';
+    const on = hf.mode==='range' && hf.d2===hfMax() && hf.d1===(k?hfShift(hfMax(),-(k-1)):hfMin());
+    b.setAttribute('aria-pressed', String(on));
+    b.addEventListener('click',()=>{ hf.d2=hfMax(); hf.d1 = k ? hfShift(hf.d2,-(k-1)) : hfMin(); if(hf.d1<hfMin()) hf.d1=hfMin(); hfDrawMode(); hfDrawDates(); hfRun(); });
+    pre.appendChild(b);
+  });
+}
+function hfDrawDates(){
+  const d1 = document.getElementById('hfD1'), d2 = document.getElementById('hfD2');
+  const mn = hfIso(hfMin()), mx = hfIso(hfMax());
+  [d1,d2].forEach(x=>{ x.min=mn; x.max=mx; });
+  d1.value = hfIso(hf.d1); d2.value = hfIso(hf.d2||hf.d1);
+  const day = hf.mode==='day';
+  document.getElementById('hfD1L').textContent = day ? '日付' : '開始';
+  ['hfTo','hfD2L','hfD2'].forEach(id=>{ document.getElementById(id).hidden = day; });
+}
+function hfDrawJcd(){
+  const s = document.getElementById('hfJcd'); s.textContent='';
+  const o0 = hfEl('option',null,'全場'); o0.value='0'; s.appendChild(o0);
+  for(let j=1;j<=24;j++){ const o=hfEl('option',null,HF_VENUE[j]); o.value=String(j); s.appendChild(o); }
+  s.value = String(hf.jcd);
+}
+
+// ---- URL（同じ絞り込みを共有・再訪できるように）----
+function hfWriteUrl(){
+  try{
+    const u = new URL(location.href);
+    u.searchParams.set('hb', HF_CODE[hf.t]);
+    u.searchParams.set('hc', hf.c.join('-'));
+    if(hf.jcd) u.searchParams.set('hj', String(hf.jcd)); else u.searchParams.delete('hj');
+    u.searchParams.set('h1', hf.d1);
+    if(hf.mode==='range') u.searchParams.set('h2', hf.d2); else u.searchParams.delete('h2');
+    history.replaceState(history.state, '', u.pathname+u.search+u.hash);
+  }catch(e){}
+}
+function hfReadUrl(){
+  let u; try{ u = new URL(location.href); }catch(e){ return false; }
+  const p = u.searchParams; if(!p.has('hb')) return false;
+  const t = HF_CODE.indexOf(p.get('hb')); if(t>=0) hf.t=t;
+  const n = HF_N[hf.t]; const c=[];
+  String(p.get('hc')||'').split('-').slice(0,n).forEach(x=>{ const v=parseInt(x,10); c.push(v>=1&&v<=6&&c.indexOf(v)<0?v:0); });
+  while(c.length<n) c.push(0); hf.c=c;
+  const j = parseInt(p.get('hj')||'0',10); hf.jcd = (j>=1&&j<=24)?j:0;
+  const a = String(p.get('h1')||''), b = String(p.get('h2')||'');
+  hf.d1 = /^\d{8}$/.test(a)?a:''; hf.d2 = /^\d{8}$/.test(b)?b:'';
+  hf.mode = hf.d2 ? 'range' : (hf.d1 ? 'day' : 'range');
+  return true;
+}
+
+// ---- 数える ----
+async function hfRun(){
+  if(!hf.ready) return;
+  const out = document.getElementById('hfOut');
+  const my = ++hf.seq;
+  // 日付の整え（範囲外・逆順を直す）
+  const mn=hfMin(), mx=hfMax();
+  if(!hf.d1 || hf.d1<mn || hf.d1>mx) hf.d1 = hf.mode==='day' ? mx : hfShift(mx,-29);
+  if(hf.d1<mn) hf.d1=mn;
+  if(hf.mode==='day') hf.d2='';
+  else{ if(!hf.d2 || hf.d2>mx) hf.d2=mx; if(hf.d2<hf.d1){ const x=hf.d1; hf.d1=hf.d2; hf.d2=x; } }
+  hfDrawDates(); hfDrawMode(); hfWriteUrl();
+  const from = hf.d1, to = hf.mode==='day' ? hf.d1 : hf.d2;
+  if(!hf.c.some(x=>x)){
+    out.textContent=''; out.appendChild(hfEl('p','hfEmpty','艇番を1つ以上選んでください。すべて「どれでも」では全レースが的中になります。'));
+    return;
+  }
+  const wait = setTimeout(()=>{ if(my===hf.seq){ out.textContent=''; out.appendChild(hfEl('div','dzf-st','読み込んでいます')).setAttribute('role','status'); } }, 500);
+  const yms = (hf.idx['月']||[]).map(m=>String(m['月'])).filter(ym=>ym>=from.slice(0,6) && ym<=to.slice(0,6));
+  const failed = [];
+  const parts = await Promise.all(yms.map(ym=>hfLoadMonth(ym).then(rows=>({ym,rows})).catch(()=>{ failed.push(ym); return null; })));
+  let todayRows = [];
+  if(hf.today && hf.today>=from && hf.today<=to){
+    try{ todayRows = await hfLoadToday(); }catch(e){ failed.push(hf.today); }
+  }
+  clearTimeout(wait);
+  if(my!==hf.seq) return;
+  const t = hf.t, sel = hf.c, unord = HF_UNORD[t], col = 3+t;
+  let total = 0; const hits = []; const hitRace = new Set();
+  const scan = (ym, rows)=>{
+    for(const r of rows){
+      if(!Array.isArray(r) || r.length<10 || !/^\d{2}$/.test(String(r[0]))) continue;
+      const hd = ym + String(r[0]);
+      if(hd<from || hd>to) continue;
+      const jcd = r[1]|0, rno = r[2]|0;
+      if(hf.jcd && jcd!==hf.jcd) continue;
+      const lst = r[col];
+      if(!Array.isArray(lst) || !lst.length) continue;
+      total++;
+      for(const e of lst){
+        if(!Array.isArray(e)) continue;
+        const c = String(e[0]); const y = Number(e[1]);
+        if(!/^[1-6]{1,3}$/.test(c) || !isFinite(y) || y<=0) continue;
+        if(c.length!==HF_N[t] && t!==1) continue;
+        if(hfMatch(c, sel, unord)){ hits.push({hd, jcd, rno, c, y}); hitRace.add(hd+'-'+jcd+'-'+rno); }
+      }
+    }
+  };
+  parts.forEach(p=>{ if(p) scan(p.ym, p.rows); });
+  if(todayRows.length) scan(hf.today.slice(0,6), todayRows);
+  hits.sort((a,b)=> a.hd!==b.hd ? (a.hd<b.hd?1:-1) : (a.jcd-b.jcd) || (a.rno-b.rno));
+  hf.last = {hits, total, hitN:hitRace.size, from, to, failed};
+  hf.shown = HF_PAGE;
+  hfDrawOut();
+}
+
+function hfComboEls(c){
+  const w = hfEl('span','hfC');
+  const t = hf.t;
+  c.split('').forEach((d,i)=>{
+    if(i) w.appendChild(hfEl('span','hfS', HF_UNORD[t]?'=':'-'));
+    w.appendChild(badge(d));
+  });
+  return w;
+}
+function hfComboText(){
+  const t = hf.t, sep = HF_UNORD[t] ? '=' : '-';
+  return HF_TYPES[t]+' '+hf.c.map(x=>x?String(x):'どれでも').join(sep);
+}
+function hfDrawOut(){
+  const out = document.getElementById('hfOut'); out.textContent='';
+  const L = hf.last; if(!L) return;
+  const sum = hfEl('div','hfSum');
+  if(!L.total){
+    out.appendChild(hfEl('p','hfEmpty', hf.mode==='day' ? 'この日は'+(hf.jcd?HF_VENUE[hf.jcd]+'の':'')+'確定したレースがありません。別の日か「期間」を選んでください。' : 'この期間・この場に確定したレースがありません。期間を広げるか、場を「全場」にしてください。'));
+  }else{
+    const big = hfEl('span','hfBig', '的中 '+hfNum(L.hitN)+'レース');
+    sum.appendChild(big); sum.appendChild(document.createElement('br'));
+    const pct = (L.hitN/L.total*100);
+    sum.appendChild(hfEl('span','hfN','対象 '+hfNum(L.total)+'レースのうち'));
+    sum.appendChild(document.createTextNode(' '));
+    sum.appendChild(hfEl('span','hfN',(pct<0.05&&L.hitN?'0.1%未満':pct.toFixed(1)+'%')));
+    if(L.hits.length){
+      const ys = L.hits.map(h=>h.y).sort((a,b)=>a-b);
+      const m = ys.length%2 ? ys[(ys.length-1)/2] : Math.round((ys[ys.length/2-1]+ys[ys.length/2])/2);
+      sum.appendChild(document.createElement('br'));
+      sum.appendChild(hfEl('span',null,'100円あたりの配当 '));
+      sum.appendChild(hfEl('span','hfN','中央値 '+hfNum(m)+'円'));
+      sum.appendChild(document.createTextNode(' ／ '));
+      sum.appendChild(hfEl('span','hfN','最高 '+hfNum(ys[ys.length-1])+'円'));
+      if(L.hits.length!==L.hitN) sum.appendChild(hfEl('span',null,'（的中した組は'+hfNum(L.hits.length)+'組。1レースで2組以上来ることがあります）'));
+    }
+    out.appendChild(sum);
+  }
+  const cond = hfEl('p','hfCond',
+    hfComboText()+' ／ '+(hf.jcd?HF_VENUE[hf.jcd]:'全場')+' ／ '+
+    (L.from===L.to ? hfYMD(L.from) : hfYMD(L.from)+'\u301c'+hfYMD(L.to))+'。'+
+    '対象は、その券種の払戻が確定したレース。'+(hf.today && hf.today>=L.from && hf.today<=L.to ? hfMD(hf.today)+'は確定したレースまで。' : ''));
+  out.appendChild(cond);
+  if(L.failed.length){
+    out.appendChild(hfEl('p','hfWarn','読み込めなかった分があります（'+L.failed.map(x=>x.length===6?x.slice(0,4)+'/'+x.slice(4):hfMD(x)).join('、')+'）。この分は数に入っていません。通信の良いところで条件を選び直してください。'));
+  }
+  if(!L.hits.length){
+    if(L.total) out.appendChild(hfEl('p','hfEmpty','この条件で的中したレースはありません。'));
+    return;
+  }
+  const ul = hfEl('ul','hfList');
+  L.hits.slice(0, hf.shown).forEach(h=>{
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.href = 'https://www.boatrace.jp/owpc/pc/race/raceresult?rno='+h.rno+'&jcd='+String(h.jcd).padStart(2,'0')+'&hd='+h.hd;
+    const local = hf.dayList.indexOf(h.hd)>=0;
+    if(local){
+      a.addEventListener('click', ev=>{ ev.preventDefault(); hfOpenRace(h); });
+    }else{
+      a.target='_blank'; a.rel='noopener';
+    }
+    const lf = hfEl('span','hfLf');
+    lf.appendChild(hfEl('span','hfD',hfMD(h.hd)));
+    lf.appendChild(hfEl('span','hfV',(HF_VENUE[h.jcd]||'')+' '+h.rno+'R'));
+    a.appendChild(lf);
+    a.appendChild(hfComboEls(h.c));
+    const rt = hfEl('span','hfRt');
+    rt.appendChild(hfEl('span','hfY',hfNum(h.y)+'円'));
+    a.appendChild(rt);
+    if(!local){ rt.appendChild(hfEl('span','hfX','公式')); a.setAttribute('aria-label', hfMD(h.hd)+' '+(HF_VENUE[h.jcd]||'')+' '+h.rno+'R '+hfNum(h.y)+'円 公式の結果を新しいタブで開く'); }
+    li.appendChild(a); ul.appendChild(li);
+  });
+  out.appendChild(ul);
+  const rest = L.hits.length - hf.shown;
+  if(rest>0){
+    const mb = hfEl('button','hfMore','さらに'+Math.min(HF_PAGE,rest)+'件を表示（残り'+hfNum(rest)+'件）'); mb.type='button';
+    mb.addEventListener('click',()=>{ hf.shown += HF_PAGE; hfDrawOut(); });
+    out.appendChild(mb);
+  }
+  if(L.hits.some(h=>hf.dayList.indexOf(h.hd)<0)){
+    out.appendChild(hfEl('p','hfCond','直近30日はこのページの結果を、それより前は公式の結果ページを開きます。'));
+  }
+}
+async function hfOpenRace(h){
+  const sel = document.getElementById('dsel');
+  if(sel.value!==h.hd){ sel.value = h.hd; await loadDay(h.hd); }
+  const card = document.querySelector('#out details.venue[data-jcd="'+String(h.jcd).padStart(2,'0')+'"]');
+  if(!card) return;
+  card.open = true;
+  const race = card.querySelector('details.race[data-r="'+h.rno+'R"]');
+  const target = race || card;
+  if(race) race.open = true;
+  target.scrollIntoView({block:'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});
+  const s = target.querySelector('summary'); if(s) s.focus({preventScroll:true});
+}
+
+async function hfStart(){
+  const out = document.getElementById('hfOut');
+  try{ await hfLoadIndex(); }
+  catch(e){
+    out.innerHTML = '<div class="dzf-st" role="alert"><p>絞り込み用のデータを読み込めませんでした。通信の良いところで、もう一度読み込んでください。</p><button type="button" class="dzf-re" id="hfRe">もう一度読み込む</button></div>';
+    document.getElementById('hfRe').addEventListener('click', hfStart);
+    return;
+  }
+  hf.ready = true;
+  if(!hf.d1){ hf.d2 = hfMax(); hf.d1 = hfShift(hf.d2,-29); }
+  hfDrawType(); hfDrawCombo(); hfDrawJcd(); hfDrawMode(); hfDrawDates();
+  hfRun();
+}
+function hfInit(){
+  const box = document.getElementById('hf'); if(!box) return;
+  const fromUrl = hfReadUrl();
+  document.getElementById('hfJcd').addEventListener('change', e=>{ hf.jcd = parseInt(e.target.value,10)||0; hfRun(); });
+  document.getElementById('hfD1').addEventListener('change', e=>{ const v=hfHd(e.target.value); if(v){ hf.d1=v; hfRun(); } });
+  document.getElementById('hfD2').addEventListener('change', e=>{ const v=hfHd(e.target.value); if(v){ hf.d2=v; hfRun(); } });
+  let started = false;
+  box.addEventListener('toggle', ()=>{ if(box.open && !started){ started = true; hfStart(); } });
+  if(fromUrl) box.open = true;
+}
+
 init();
+hfInit();
 </script>
 <footer style="margin:24px auto 8px;max-width:900px;text-align:center;font-size:10px;color:#8a94a3;letter-spacing:.3px;line-height:1.7;">© 2026 データ攻め ── 制作・運営 阿部</footer>
 <script src="../assets/guard.js" defer></script>
