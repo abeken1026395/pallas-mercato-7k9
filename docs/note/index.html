@@ -113,6 +113,15 @@ textarea{min-height:96px;resize:vertical;line-height:1.7}
 .sum>div:nth-child(odd){padding-right:12px}
 .sum>div:nth-child(even){padding-left:12px;border-left:1px solid var(--line)}
 .sum .k{font-size:13px;color:var(--sub)}
+.sum .v small.tg{display:block;font:400 12px var(--font);color:var(--dim);margin-top:2px}
+/* 収支の推移（2026-11-12 けん裁定19）：線は1色。マイナスでも赤にしない */
+.gr:empty{display:none}
+.gr{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.gr .gh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13px;color:var(--sub)}
+.gr .gh b{font:700 20px var(--num);color:var(--fg);font-variant-numeric:tabular-nums}
+.gr svg{display:block;width:100%;height:auto;margin-top:6px}
+.gr .ax{display:flex;justify-content:space-between;font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
+.band .st.tori{color:var(--sub)}
 .sum .v{font:700 32px/1.1 var(--num);font-variant-numeric:tabular-nums}
 .sum .v small{font:400 13px var(--font);color:var(--dim);margin-left:3px}
 .plus{color:var(--plus)} .minus{color:var(--minus)}
@@ -198,6 +207,7 @@ footer{margin-top:24px;font-size:13px;color:var(--dim);line-height:1.85}
       <button type="button" data-p="all" aria-pressed="false">すべて</button>
     </div>
     <div class="sum" id="bsum"></div>
+    <div class="gr" id="bgraph"></div>
     <p class="note" id="bnote"></p>
   </div>
   <div class="card" id="keikou">
@@ -417,10 +427,27 @@ function betBlock(b){
   return '<div class="bk"><div class="bh"><span><b>'+name+"</b>"+kind+"</span><i>"+b.k.length+"点</i></div>"+body+"</div>";
 }
 function finOf(rid){var r=RES[rid],f=[];if(r)f=[r["1着"],r["2着"],r["3着"]];if(!(f[0]>=1)){var e=window.DZK&&DZK.kkGet?DZK.kkGet(rid):null;if(e&&Array.isArray(e.f))f=e.f}return f.filter(function(n){return n>=1&&n<=6})}
+/* 収支の推移：購入額と払戻が分かるレースを締切の順に足していく（回収率と同じレースだけ） */
+function drawGraph(S){
+  var g=$("bgraph");
+  if(S.length<2){g.innerHTML="";return}
+  S.sort(function(a,b){return (a.hd+a.d)<(b.hd+b.d)?-1:1});
+  var c=0,pts=S.map(function(o){c+=o.v;return c}),mn=Math.min(0,Math.min.apply(null,pts)),mx=Math.max(0,Math.max.apply(null,pts)),W=320,H=120,P=6;
+  if(mx===mn)mx=mn+1;
+  var X=function(i){return P+(W-2*P)*i/(pts.length-1)},Y=function(v){return P+(H-2*P)*(mx-v)/(mx-mn)};
+  var d=pts.map(function(v,i){return (i?"L":"M")+X(i).toFixed(1)+" "+Y(v).toFixed(1)}).join("");
+  var fmt=function(v){return (v>0?"+":v<0?"−":"")+Math.abs(v).toLocaleString()+"円"},dd=function(h){return (+h.slice(4,6))+"/"+(+h.slice(6,8))};
+  g.innerHTML='<div class="gh"><span>収支の推移（'+S.length+'レース）</span><b>'+fmt(c)+"</b></div>"
+   +'<svg viewBox="0 0 '+W+" "+H+'" role="img" aria-label="累計の収支 '+fmt(c)+"、最高 "+fmt(Math.max.apply(null,pts))+"、最低 "+fmt(Math.min.apply(null,pts))+'">'
+   +'<line x1="'+P+'" x2="'+(W-P)+'" y1="'+Y(0).toFixed(1)+'" y2="'+Y(0).toFixed(1)+'" stroke="#5c6f86" stroke-width="1" stroke-dasharray="3 3"/>'
+   +'<path d="'+d+'" fill="none" stroke="#7fb4ff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'
+   +'<circle cx="'+X(pts.length-1).toFixed(1)+'" cy="'+Y(c).toFixed(1)+'" r="3" fill="#7fb4ff"/></svg>'
+   +'<div class="ax"><span>'+dd(S[0].hd)+"</span><span>点線は0円</span><span>"+dd(S[S.length-1].hd)+"</span></div>";
+}
 function drawBets(){
   var xs=betRows().filter(function(x){return inBPer(x.hd)});
   needResults(xs);
-  var buy=0,pay=0,nA=0,nHit=0,nMiss=0,nGood=0,nBets=0;
+  var buy=0,pay=0,nA=0,nHit=0,nMiss=0,nGood=0,nBets=0,nTori=0,SER=[];
   var J=xs.map(function(x){
     nBets+=x.en.b.length;
     if(x.skip){var s=window.DZK?DZK.skipJudge(RES[x.k]||null):{state:"pending"};if(s.state==="good")nGood++;return {skip:s}}
@@ -428,14 +455,15 @@ function drawBets(){
     if(j.state==="hit")nHit++;else if(j.state==="miss")nMiss++;
     /* 回収率に入れるのは、購入額と払戻が両方分かるレースだけ。結果待ち・払戻の分からない的中は入れない（外れは払戻0円として入れる） */
     var pp=j.p!=null?j.p:(j.state==="miss"?0:null);
-    if(j.a!=null&&pp!=null&&j.state!=="pending"){nA++;buy+=j.a;pay+=pp}
+    if(j.a!=null&&pp!=null&&j.state!=="pending"){nA++;buy+=j.a;pay+=pp;SER.push({hd:x.hd,d:x.d||"",v:pp-j.a});if(j.state==="hit"&&pp<j.a)nTori++}
     return {j:j};
   });
   $("bsum").innerHTML='<div><div class="k">保存したレース</div><div class="v">'+xs.length+"<small>レース</small></div></div>"
     +'<div><div class="k">回収率（払戻÷購入）</div>'+(buy?ring(Math.round(pay/buy*100),nA):'<div class="v">—</div>')+"</div>"
-    +'<div><div class="k">的中／外れ</div><div class="v">'+nHit+"<small>／</small>"+nMiss+"</div></div>"
+    +'<div><div class="k">的中／外れ</div><div class="v">'+nHit+"<small>／</small>"+nMiss+(nTori?'<small class="tg">的中のうちトリガミ '+nTori+"</small>":"")+"</div></div>"
     +'<div><div class="k">見送り成功</div><div class="v">'+nGood+"<small>回</small></div></div>";
   $("bnote").textContent=xs.length?"金額を入れていないレースは、1点100円で買ったとして計算します。回収率は、購入額と払戻が分かる "+nA+" レースで計算しています（結果待ちと、払戻の分からない的中は入れません。購入 "+buy.toLocaleString()+" 円・払戻 "+pay.toLocaleString()+" 円）。見送り成功は、見送ったレースの3連単が "+(window.DZK?DZK.ARE:10000).toLocaleString()+" 円以上だった回数です。":"";
+  drawGraph(SER);
   $("b-count").textContent=xs.length?xs.length+"レース・買い目"+nBets+"件":"";
   /* 一覧は20レースずつ出し、下の目印が見えたら20ずつ足す（無限スクロール・再訪設計書 段階2）。振り返りの数字は全件で数える */
   BXS=xs; BJ=J;
@@ -449,7 +477,7 @@ function drawBets(){
       +(x.en.b.length&&j?(function(){
         var pp=j.p!=null?j.p:(j.state==="miss"?0:null),fin=finOf(x.k);
         var amt='<div class="amt"><span>全'+j.pts+"点"+(j.autoA&&j.u?"　各"+j.u.toLocaleString()+"円"+(j.dflt?"（未入力のため）":""):"")+"</span><span>購入 <b>"+(j.a!=null?j.a.toLocaleString()+"円":"—")+"</b></span></div>";
-        var stl=j.state==="hit"?'<span class="st hit">的中</span>':j.state==="miss"?'<span class="st">外れ</span>':'<span class="st">結果待ち</span>';
+        var stl=j.state==="hit"?(pp!=null&&j.a>0&&pp<j.a?'<span class="st tori">的中（トリガミ）</span>':'<span class="st hit">的中</span>'):j.state==="miss"?'<span class="st">外れ</span>':'<span class="st">結果待ち</span>';
         var row2=j.state==="pending"?(j.u?'<small>結果が出たら払戻が入ります</small>':"")
           :'<div class="r"><span>払戻</span><b'+(j.state==="hit"&&pp>=10000?' class="man"':"")+'>'+(pp!=null?pp.toLocaleString()+"円":"未入力")+"</b></div>"
             +(j.state==="hit"?"<small>配当（100円あたり）</small>"+j.hits.map(function(h){return '<small class="nw">'+esc(BT[h.t]+" "+h.k)+" "+h.pay.toLocaleString()+"円</small>"}).join(""):"")
