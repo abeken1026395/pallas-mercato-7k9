@@ -133,6 +133,7 @@ def main():
         p for p in glob.glob(os.path.join(SRC_DIR, "*.json"))
         if re.match(r"^\d{8}$", os.path.basename(p)[:8])
     )
+    all_paths = paths
     paths = paths[-SITE_DAYS:]
     index = []
     for path in paths:
@@ -158,6 +159,110 @@ def main():
     with io.open(os.path.join(OUT_DIR, "index.json"), "w", encoding="utf-8") as f:
         json.dump({"件数": len(index), "日付": index}, f, ensure_ascii=False, separators=(",", ":"))
     print("wrote", len(index), "days to", OUT_DIR)
+    build_hit(all_paths)
+
+
+# ---- 買い目で絞り込む（結果ページ）用：全期間の払戻だけを月ごとにまとめる ----
+#   出力: docs/results/data/hit/YYYYMM.json … その月の全レースの払戻（7券種）
+#         docs/results/data/hit/index.json  … 月の一覧（新しい順）と全期間の範囲
+#   1レース＝[日(2桁), 場コード(数), レース番号(数), 券種ごとの [[組, 配当], ...] × 7]
+#   組は艇番の数字だけ。単式（単勝・2連単・3連単）は着順のまま、複式は小さい順に並べる。
+#   作り直すのは「直近 SITE_DAYS 日が入る月」と「まだファイルが無い月」だけ（毎回486日を読まない）。
+#   その月に読めない日が1日でもあれば、その月は書き換えない（前回のファイルを残す）。
+#   日時は入れない（中身が変わらない限りファイルが変わらないようにする）。
+#   いちばん新しい日（取り込み中の日）は入れない。その日はレースが確定するたびに変わるので、
+#   月のファイルに入れると1日150回ほど書き換わってリポジトリが膨らむ。ページは、その日を
+#   1日分の結果（docs/results/data/YYYYMMDD.json）から足す。index.json の「当日」がその日。
+HIT_DIR = os.path.join(OUT_DIR, "hit")
+HIT_TYPES = ["単勝", "複勝", "2連単", "2連複", "拡連複", "3連複", "3連単"]
+HIT_UNORDERED = {"2連複", "拡連複", "3連複"}
+
+
+def hit_combo(t, s):
+    ds = re.findall(r"[1-6]", str(s))
+    if t in HIT_UNORDERED:
+        ds = sorted(ds)
+    return "".join(ds)
+
+
+def hit_month(paths):
+    """その月の results を読み、(行の配列, 最初の日, 最後の日) を返す。読めない日があれば None。"""
+    rows = []
+    days = []
+    for path in paths:
+        hd = os.path.basename(path)[:8]
+        try:
+            d = json.load(io.open(path, encoding="utf-8"))
+            races = d.get("結果", []) or []
+            day_rows = []
+            for r in races:
+                p = r.get("払戻") or {}
+                row = [hd[6:8], int(str(r.get("場コード", "0"))), race_no(r)]
+                for t in HIT_TYPES:
+                    lst = []
+                    for x in p.get(t, []) or []:
+                        c = hit_combo(t, x.get("組番", ""))
+                        v = x.get("配当")
+                        if c and isinstance(v, int) and v > 0:
+                            lst.append([c, v])
+                    row.append(lst)
+                day_rows.append(row)
+        except Exception as e:
+            print("hit skip month: unreadable", hd, e)
+            return None
+        if day_rows:
+            rows.extend(day_rows)
+            days.append(hd)
+    rows.sort(key=lambda x: (x[0], x[1], x[2]))
+    if not days:
+        return [], None, None
+    return rows, days[0], days[-1]
+
+
+def build_hit(all_paths):
+    os.makedirs(HIT_DIR, exist_ok=True)
+    today = os.path.basename(all_paths[-1])[:8] if all_paths else None
+    done = all_paths[:-1]
+    by_month = {}
+    for p in done:
+        by_month.setdefault(os.path.basename(p)[:6], []).append(p)
+    recent = set(os.path.basename(p)[:6] for p in done[-SITE_DAYS:])
+    months = []
+    for ym in sorted(by_month.keys()):
+        out = os.path.join(HIT_DIR, "%s.json" % ym)
+        meta = None
+        if ym in recent or not os.path.exists(out):
+            got = hit_month(by_month[ym])
+            if got is not None and got[1]:
+                rows, first, last = got
+                body = {"月": ym, "券種": HIT_TYPES, "最初": first, "最後": last,
+                        "レース数": len(rows), "レース": rows}
+                text = json.dumps(body, ensure_ascii=False, separators=(",", ":"))
+                old = None
+                if os.path.exists(out):
+                    old = io.open(out, encoding="utf-8").read()
+                if old != text:
+                    with io.open(out, "w", encoding="utf-8") as f:
+                        f.write(text)
+                meta = {"月": ym, "最初": first, "最後": last, "レース数": len(rows)}
+        if meta is None and os.path.exists(out):
+            try:
+                o = json.load(io.open(out, encoding="utf-8"))
+                meta = {"月": ym, "最初": o["最初"], "最後": o["最後"], "レース数": o["レース数"]}
+            except Exception as e:
+                print("hit index skip", ym, e)
+        if meta:
+            months.append(meta)
+    months.sort(key=lambda x: x["月"], reverse=True)
+    idx = {"券種": HIT_TYPES,
+           "最初": months[-1]["最初"] if months else None,
+           "最後": months[0]["最後"] if months else None,
+           "レース数": sum(m["レース数"] for m in months),
+           "当日": today,
+           "月": months}
+    with io.open(os.path.join(HIT_DIR, "index.json"), "w", encoding="utf-8") as f:
+        json.dump(idx, f, ensure_ascii=False, separators=(",", ":"))
+    print("hit wrote", len(months), "months", idx["レース数"], "races")
 
 
 if __name__ == "__main__":
