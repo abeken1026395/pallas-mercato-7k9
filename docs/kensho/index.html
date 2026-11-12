@@ -36,17 +36,18 @@ header{margin:26px 0 30px}
 header .eyebrow{font-size:11px;color:var(--accent);letter-spacing:.18em;margin:0 0 8px}
 header h1{font-size:30px;line-height:1.45;color:#fff;margin:0 0 12px;font-weight:700}
 header .sub{font-size:13px;color:var(--dim);line-height:2;margin:0}
-.card{display:block;border:1px solid var(--line);background:var(--panel);
+.card{display:grid;grid-template-columns:1fr auto;align-items:baseline;column-gap:12px;border:1px solid var(--line);background:var(--panel);
   border-left:3px solid var(--accent);
-  border-radius:10px;padding:18px 18px 14px;color:inherit;text-decoration:none;
-  margin:0 0 14px}
-.card .no{font-size:11px;color:var(--accent);letter-spacing:.14em;margin:0 0 8px}
-.card .t{font-size:19px;font-weight:700;line-height:1.6;margin:0 0 8px;color:#fff}
-.card .d{font-size:13px;color:var(--dim);line-height:1.95;margin:0 0 10px}
-.card .num{font-size:12.5px;color:var(--fg);margin:0 0 12px;
+  border-radius:10px;padding:14px 16px 12px;color:inherit;text-decoration:none;
+  margin:0 0 10px}
+.card>*{grid-column:1/-1}
+.card .no{font-size:11px;color:var(--accent);letter-spacing:.14em;margin:0 0 4px}
+.card .t{font-size:17px;font-weight:700;line-height:1.5;margin:0 0 4px;color:#fff;word-break:auto-phrase;text-wrap:pretty}
+.card .d{font-size:13px;color:var(--dim);line-height:1.7;margin:0 0 6px;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden}
+.card .num{grid-column:1;font-size:12.5px;color:var(--fg);margin:0;
   font-variant-numeric:tabular-nums}
-.card .num b{font-size:17px;color:var(--accent);font-weight:700}
-.card .go{display:flex;justify-content:flex-end;font-size:13px;color:var(--accent);margin:0}
+.card .num b{font-size:16px;color:var(--accent);font-weight:700}
+.card .go{grid-column:2;display:flex;justify-content:flex-end;font-size:13px;color:var(--accent);margin:0;white-space:nowrap;align-self:end}
 .card .no .new{display:inline-block;margin-left:8px;padding:3px 4px;border-radius:3px;
   font-size:9px;line-height:1;letter-spacing:.06em;
   color:var(--bg);background:var(--accent);vertical-align:1px}
