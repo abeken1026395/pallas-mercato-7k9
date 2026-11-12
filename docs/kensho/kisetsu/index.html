@@ -97,6 +97,7 @@ details[open]>summary::after{content:"−"}
 .chart .replay{display:block;margin:10px auto 2px;min-height:44px;padding:0 20px;background:none;border:1px solid var(--line);border-radius:22px;color:var(--dim);font-size:13px;cursor:pointer}
 .chart .replay[hidden]{display:none}
 .chart .nw{display:inline-block;white-space:nowrap}
+.crumb{display:flex;align-items:center;gap:8px;min-height:48px;font-size:14px;color:var(--faint)}.crumb a{color:var(--dim);text-decoration:none;padding:12px 0}.crumb.end{margin-top:8px;border-top:1px solid var(--line)}.no{margin:0 0 10px;font-size:14px;color:var(--accent);font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:0}
 </style>
 <!-- kata6:head -->
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&amp;family=Dela+Gothic+One&amp;display=swap" rel="stylesheet">
@@ -108,11 +109,10 @@ details[open]>summary::after{content:"−"}
 <body>
 <div class="wrap">
 
-<a class="siteback" href="../../">← データ攻め トップ</a>
-<a class="siteback" href="../">← 検証の一覧</a>
+<nav class="crumb"><a href="../../">データ攻め</a><span>／</span><a href="../">検証の一覧</a></nav>
 
 <header>
-  <p class="eyebrow">検 証</p>
+  <p class="no">検証 07</p>
   <h1>冬は<br>インか</h1>
   <p class="sub">
     「冬はイン、夏はまくり」。公式サイトの入門ページにも書いてある話は、本当なのか。<br>
@@ -504,8 +504,7 @@ details[open]>summary::after{content:"−"}
   出典：公式サイト 競走成績（Kファイル）・当サイトの結果データ（気温・水温）。この期間の数字は固定で、更新されません。
 </p>
 
-<a class="siteback" href="../../">← データ攻め トップ</a>
-<a class="siteback" href="../">← 検証の一覧</a>
+<nav class="crumb end"><a href="../../">データ攻め</a><span>／</span><a href="../">検証の一覧</a></nav>
 
 </div>
 

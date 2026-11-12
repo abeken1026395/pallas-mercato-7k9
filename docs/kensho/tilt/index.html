@@ -101,6 +101,7 @@ details[open]>summary::after{content:"−"}
 .chart .steps{display:flex;gap:6px;margin-top:6px}
 .chart .steps button{flex:1 1 0;min-width:0;min-height:44px;background:none;border:1px solid var(--line);border-radius:10px;color:var(--dim);font-size:11px;line-height:1.25;padding:0 2px;cursor:pointer;font-family:inherit;font-variant-numeric:tabular-nums}
 .chart .steps button[aria-pressed="true"]{border-color:#e0a070;color:var(--fg);background:rgba(224,160,112,.14)}
+.crumb{display:flex;align-items:center;gap:8px;min-height:48px;font-size:14px;color:var(--faint)}.crumb a{color:var(--dim);text-decoration:none;padding:12px 0}.crumb.end{margin-top:8px;border-top:1px solid var(--line)}.no{margin:0 0 10px;font-size:14px;color:var(--accent);font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:0}
 </style>
 <!-- kata6:head -->
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&amp;family=Dela+Gothic+One&amp;display=swap" rel="stylesheet">
@@ -112,11 +113,10 @@ details[open]>summary::after{content:"−"}
 <body>
 <div class="wrap">
 
-<a class="siteback" href="../../">← データ攻め トップ</a>
-<a class="siteback" href="../">← 検証の一覧</a>
+<nav class="crumb"><a href="../../">データ攻め</a><span>／</span><a href="../">検証の一覧</a></nav>
 
 <header>
-  <p class="eyebrow">検 証</p>
+  <p class="no">検証 09</p>
   <h1>チルト3度の7艇に1艇は<br>菅章哉だった</h1>
   <p class="sub">
     「チルトを跳ねた艇は穴」。直前情報でよく聞く話を、9年半の直前情報と成績で数えました。3度の欄に一番多く出てくる名前から、話は始まります。
@@ -397,8 +397,7 @@ details[open]>summary::after{content:"−"}
   出典：BoatraceOpenAPI 直前情報の保管分・公式サイト 競走成績・番組表。この期間の数字は固定で、更新されません。
 </p>
 
-<a class="siteback" href="../../">← データ攻め トップ</a>
-<a class="siteback" href="../">← 検証の一覧</a>
+<nav class="crumb end"><a href="../../">データ攻め</a><span>／</span><a href="../">検証の一覧</a></nav>
 
 </div>
 
