@@ -79,6 +79,7 @@
 
 |期限|内容|
 |---|---|
+|**2026-11-14 朝**|YouTube の配信告知（#1085 トップの帯・#1086 旧URL「おかえりなさい」）が 11/14 0時 JST に自動で元に戻ったかを確かめる。トップの帯は「YouTube｜新チャンネル開設」「見に行く ›」、旧URLは配信の行が消えて「チャンネル登録はこちら」だけ。次の配信を告知するときは同じ作り（日時の配列）に足す|
 |**9月上旬**|`motorParts` 4日分の埋め戻し（20260812 / 0813 / 0814 / 0817・計4,307行）。材料は `preview/*.json` に全日存在。**復元→`backfillMotorPartsMotorNo.py`→`buildMotorMaintenance.py` 再ビルド**が必須工程。`anteiban` のみ復元不可。識別は `取得日時` が空の行。**ローカルCode限定**|
 |**2026-09-30 頃**|**決まり手CSVの鮮度警報が鳴る見込み**（`推定`：`racerKimarite.csv` 最終 2026-09-05＋しきい値25日）。ローカルタスク `boatrace-updateKimarite` が 09-16 の定時から成功しておらず、最後の起動（09-24 18:53）は終了コード `0xC000013A`（途中で打ち切り）。最終成功 2026-09-06（`health/status.json` 2026-09-25 22:00）。**ローカルCode限定**：ログを見て手動で1回回す。在庫読みへの切り替え（小さい残件の `scrapeKimarite.py` 32分→1分）で打ち切りの原因ごと消せる|
 |**2026-09-26 朝**|締切一覧（PR #517）の定時実行を確かめる。`updateDeadlineMessage.yml` の 09-25 夜の schedule run が緑、`docs/data/deadlines_tomorrow.txt` の見出しが 9/26 で中身あり、07:40 の `dataFreshnessAlarm` で「締切一覧」が OK。赤なら注記（`check-runs/<job>/annotations`）で対象日・場数・push 失敗のどれかを見る|
