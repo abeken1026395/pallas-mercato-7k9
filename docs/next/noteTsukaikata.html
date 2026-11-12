@@ -1,0 +1,239 @@
+<!-- データ攻め by 阿部 https://abeken1026395.github.io/pallas-mercato-7k9/ -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b1219">
+<title>【実験場】noteの買い目の使い方</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1219;--card:#111c27;--card2:#152331;--line:#2a3b4d;--tx:#eef3f8;--sub:#a3b5c6;--hi:#f2b155;--warn:#f0a08f}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg)}
+body{background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;font-size:16px;line-height:1.7;-webkit-text-size-adjust:100%;padding-bottom:48px}
+a{color:inherit}
+[hidden]{display:none!important}
+.wrap{max-width:680px;margin:0 auto;padding:8px 16px 0}
+.crumb{font-size:14px;color:var(--sub)}
+.crumb a{display:inline-block;padding:11px 0;min-height:44px}
+h1{font-size:26px;line-height:1.4;font-weight:700;margin:8px 0 12px;text-wrap:balance}
+h2{font-size:20px;line-height:1.4;font-weight:700;margin:48px 0 12px;text-wrap:balance}
+h2 .no{display:block;font-size:14px;font-weight:400;color:var(--hi);margin-bottom:4px}
+h3{font-size:16px;line-height:1.4;font-weight:700;margin:24px 0 8px}
+p{margin:0 0 12px;text-wrap:pretty}
+.lead{color:var(--sub)}
+.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.src{font-size:14px;color:var(--sub);margin-top:8px}
+
+/* 実測の2枚 */
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:24px 0 0}
+.fact{background:var(--card);border-radius:8px;padding:16px 12px}
+.fact dt{font-size:14px;color:var(--sub);line-height:1.4}
+.fact dd{margin-top:8px;font-size:14px;color:var(--sub);line-height:1.4}
+.fact dd b{display:block;font-size:26px;line-height:1.2;font-weight:700;color:var(--tx);font-variant-numeric:tabular-nums;white-space:nowrap}
+.fact dd s{text-decoration:none}
+
+/* 手順 */
+.step{background:var(--card);border-radius:8px;padding:16px;margin:12px 0}
+.step p:last-child{margin-bottom:0}
+.step .q{font-weight:700}
+ol.calc{list-style:none;counter-reset:c;margin:12px 0}
+ol.calc li{counter-increment:c;position:relative;padding:0 0 12px 36px}
+ol.calc li:before{content:counter(c);position:absolute;left:0;top:2px;width:24px;height:24px;border-radius:999px;background:var(--card2);color:var(--hi);font-size:14px;font-weight:700;line-height:24px;text-align:center}
+ol.calc b{font-weight:700}
+
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:15px}
+caption{text-align:left;font-size:14px;color:var(--sub);padding-bottom:8px}
+th,td{padding:8px 8px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;line-height:1.3}
+th{font-size:14px;font-weight:400;color:var(--sub)}
+th:first-child,td:first-child{text-align:left}
+tfoot td{font-weight:700;border-bottom:none}
+
+/* 計算機 */
+.tool{background:var(--card);border-radius:8px;padding:16px;margin:16px 0}
+.tool label{display:block;font-size:14px;color:var(--sub);margin-bottom:4px}
+.tool input{font:inherit;font-size:16px;color:var(--tx);background:var(--bg);border:1px solid #5b7087;border-radius:4px;padding:0 12px;height:48px;width:100%;font-variant-numeric:tabular-nums}
+.tool input:focus-visible,.tool button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--hi);outline-offset:2px}
+.row2{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end;margin-bottom:8px}
+.odds{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 8px}
+.btn{font:inherit;font-size:16px;min-height:48px;border-radius:8px;padding:0 16px;cursor:pointer;touch-action:manipulation}
+.btn:active{opacity:.6}
+.btn.sub{color:var(--tx);background:var(--card2);border:1px solid #5b7087}
+.btn.main{display:block;width:100%;color:#0b1219;background:var(--hi);border:none;font-weight:700;margin-top:8px}
+#out{margin-top:16px}
+.verdict{font-weight:700;margin:12px 0 4px}
+.verdict.ng{color:var(--warn)}
+.hint{font-size:14px;color:var(--sub)}
+
+details{background:var(--card);border-radius:8px;margin:16px 0;padding:0 16px}
+summary{cursor:pointer;min-height:48px;display:flex;align-items:center;font-weight:700;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary:after{content:"＋";margin-left:auto;color:var(--sub);font-weight:400}
+details[open] summary:after{content:"−"}
+details .in{padding:0 0 16px}
+.scroll{overflow-x:auto}
+
+.notes{margin:12px 0;padding-left:20px;color:var(--sub);font-size:15px}
+.notes li{margin-bottom:6px}
+.cta{display:block;text-decoration:none;text-align:center;background:var(--hi);color:#0b1219;border-radius:8px;padding:12px 16px;margin:32px 0 8px;font-weight:700;min-height:48px}
+.cta:active{opacity:.6}
+.cta small{display:block;font-size:14px;font-weight:400}
+@media (max-width:359px){h1{font-size:24px}.fact dd b{font-size:22px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="crumb" aria-label="現在地"><a href="./">実験場の一覧</a></nav>
+
+<main>
+<h1>noteの買い目は、全部買わなくていい</h1>
+<p class="lead">阿部の買い目は1レース最大16点。そのうち半分に絞り、金額を配分して買うと、当たったのに損になる回数が大きく減りました。記録をもとに、使い方を3つにまとめます。</p>
+
+<dl class="facts">
+  <div class="fact"><dt>買う点数（1レース平均）</dt><dd><b>8.7点</b>全部買うと <span class="num">15.6点</span></dd></div>
+  <div class="fact"><dt>当たったのに損になった割合</dt><dd><b>6%</b>全部を同じ額で買うと <span class="num">56%</span></dd></div>
+</dl>
+<p class="src">2026年8月24日（いまの買い目の作り方になった日）から11月10日までの79日、<span class="num">11,847レース</span>。確定オッズで配分したとして計算。払戻は公式の確定値。締切10分前のオッズで配分した別の <span class="num">525レース</span> では <span class="num">14%</span> でした。必ず勝てる方法ではありません。詳しい数字は下の「数字の出どころ」に。</p>
+
+<h2><span class="no">使い方 1</span>展示のあとに更新された買い目で買う</h2>
+<div class="step">
+  <p>買い目は、展示の前と後の2回出ます。展示の結果を入れた後の版のほうが当たります。</p>
+  <p>16点を全部買った場合の的中率は、展示前の版が <span class="num">39.7%</span>、展示後の版が <span class="num">58.7%</span> でした。</p>
+  <p class="hint">2026年8月24日から11月10日の <span class="num">11,902レース</span>。</p>
+</div>
+
+<h2><span class="no">使い方 2</span>【本線】のうち、<span class="num">40倍未満</span>の目だけ買う</h2>
+<div class="step">
+  <p>記事の【本線】に並ぶ目のうち、その時点のオッズが40倍未満のものだけを買います。【狙い目】【押さえ】と、40倍以上の目は買いません。</p>
+  <p>点数は平均 <span class="num">15.6点</span> から <span class="num">8.7点</span> に減ります。的中率は <span class="num">58.7%</span> から <span class="num">47.3%</span> に下がりますが、舟券代が半分近くになるぶん、戻ってくる割合は上がりました。</p>
+</div>
+
+<h2><span class="no">使い方 3</span>金額は<span class="num">「戻したい額 ÷ オッズ」</span>で決める</h2>
+<p>全部の目に同じ額を賭けると、オッズの低い目が当たったときに舟券代を下回ります。どの目が当たっても同じくらい戻るように、目ごとに金額を変えます。計算は割り算だけです。</p>
+<ol class="calc">
+  <li><b>当たったら戻したい金額を決める。</b>例：<span class="num">40,000円</span></li>
+  <li><b>目ごとに「戻したい金額 ÷ オッズ」を計算する。</b>それがその目に賭ける金額です。</li>
+  <li><b>賭ける金額を全部足す。</b>これが舟券代です。戻したい金額より小さければ、当たればプラスになります。</li>
+</ol>
+<div class="scroll">
+<table>
+  <caption>例：3点を買い、当たったら <span class="num">40,000円</span> 戻したいとき</caption>
+  <thead><tr><th scope="col">オッズ</th><th scope="col">計算</th><th scope="col">賭ける金額</th></tr></thead>
+  <tbody>
+    <tr><td>10倍</td><td>40,000 ÷ 10</td><td>4,000円</td></tr>
+    <tr><td>20倍</td><td>40,000 ÷ 20</td><td>2,000円</td></tr>
+    <tr><td>40倍</td><td>40,000 ÷ 40</td><td>1,000円</td></tr>
+  </tbody>
+  <tfoot><tr><td>舟券代の合計</td><td></td><td>7,000円</td></tr></tfoot>
+</table>
+</div>
+<p><span class="num">7,000円</span> で、どれが当たっても <span class="num">40,000円</span> 戻ります。<span class="num">40,000 ÷ 7,000</span> で約 <span class="num">5.7倍</span>。この「まとめて1点で買ったとしたら何倍か」が合成オッズです。</p>
+<p>合成オッズが1倍を下回るときは、当たっても舟券代に届きません。点数を減らすか、そのレースは買いません。</p>
+
+<h3>金額を計算する</h3>
+<section class="tool" aria-label="金額の計算">
+  <div class="row2">
+    <div><label for="tgt">当たったら戻したい金額（円）</label><input id="tgt" inputmode="numeric" value="10000" autocomplete="off"></div>
+  </div>
+  <p class="hint" id="oddsLab">買う目のオッズ（倍）。空の欄は数えません。</p>
+  <div class="odds" id="odds" role="group" aria-labelledby="oddsLab"></div>
+  <button type="button" class="btn sub" id="add">欄を2つ足す</button>
+  <button type="button" class="btn main" id="go">金額を計算する</button>
+  <div id="out" role="status" aria-live="polite"></div>
+</section>
+<p class="hint">入れた数字はこの画面の中だけで計算し、どこにも送りません。オッズは締切まで動くので、計算は買う直前に。</p>
+
+<details>
+  <summary>数字の出どころ</summary>
+  <div class="in">
+    <div class="scroll">
+    <table>
+      <caption>2026年8月24日から11月10日（79日）。確定オッズで判定、払戻は公式の確定値</caption>
+      <thead><tr><th scope="col">買い方</th><th scope="col">レース</th><th scope="col">平均点数</th><th scope="col">的中率</th><th scope="col">当たって損</th><th scope="col">戻った割合</th></tr></thead>
+      <tbody>
+        <tr><td>全部・同じ額</td><td>11,902</td><td>15.6</td><td>58.7%</td><td>56%</td><td>76.2%</td></tr>
+        <tr><td>絞る・同じ額</td><td>11,847</td><td>8.7</td><td>47.3%</td><td>37%</td><td>79.3%</td></tr>
+        <tr><td>絞る・配分</td><td>11,847</td><td>8.7</td><td>47.3%</td><td>6%</td><td>79.0%</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="scroll">
+    <table>
+      <caption>2026年11月7日から10日（4日）。締切10分前の買い目とオッズで判定、払戻は公式の確定値</caption>
+      <thead><tr><th scope="col">買い方</th><th scope="col">レース</th><th scope="col">平均点数</th><th scope="col">的中率</th><th scope="col">当たって損</th><th scope="col">戻った割合</th></tr></thead>
+      <tbody>
+        <tr><td>全部・同じ額</td><td>527</td><td>15.6</td><td>59.6%</td><td>58%</td><td>74.5%</td></tr>
+        <tr><td>絞る・同じ額</td><td>525</td><td>8.2</td><td>47.4%</td><td>35%</td><td>79.3%</td></tr>
+        <tr><td>絞る・配分</td><td>525</td><td>8.2</td><td>47.4%</td><td>14%</td><td>81.2%</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <ul class="notes">
+      <li>「戻った割合」は、舟券代に対して払戻が何%あったか（回収率）。どの買い方も100%を下回っています。</li>
+      <li>「当たって損」は、的中したレースのうち払戻が舟券代を下回った割合。上の表では、全部・同じ額が6,990回のうち3,890回、絞る・配分が5,601回のうち344回。</li>
+      <li>「絞る」は使い方2、「配分」は使い方3。上の表の配分は、戻したい額を10,000円として100円単位に切り上げて計算。</li>
+      <li>上の表は確定オッズ（締切後に決まる値）での計算です。買う時点のオッズは締切までに動くので、実際の数字は下の表に近くなります。</li>
+      <li>集計は、いまの買い目の作り方になった2026年8月24日から。それより前は作り方が違うので入れていません。</li>
+      <li>下の表は上の表の期間のうち、締切10分前の記録がある4日分。毎日レースを足していき、数字は月に1回出し直します。</li>
+    </ul>
+  </div>
+</details>
+
+<ul class="notes">
+  <li>必ず勝てる方法ではありません。舟券代を抑え、当たったときに損をしにくくする買い方です。</li>
+  <li>舟券の購入は20歳になってから。無理のない金額で。</li>
+  <li>買い目の販売は note の上で行います。</li>
+</ul>
+
+<a class="cta" href="https://note.com/abeken2000" rel="noopener">今日の買い目を note で見る<small>1レース780円・note.com に移ります</small></a>
+</main>
+</div>
+
+<script>
+(function(){
+  var box=document.getElementById('odds'),out=document.getElementById('out'),tgt=document.getElementById('tgt');
+  function addRow(){
+    var n=box.children.length+1,i=document.createElement('input');
+    i.inputMode='decimal';i.autocomplete='off';i.setAttribute('aria-label',n+'点目のオッズ');i.placeholder=n+'点目';
+    box.appendChild(i);
+  }
+  for(var k=0;k<6;k++)addRow();
+  document.getElementById('add').addEventListener('click',function(){
+    if(box.children.length>=20)return;addRow();addRow();
+    if(box.children.length>=20)this.hidden=true;
+  });
+  function num(s){
+    s=String(s==null?'':s).replace(/[０-９．]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-0xFEE0)}).replace(/[,，\s円倍]/g,'');
+    if(!/^\d+(\.\d+)?$/.test(s))return NaN;return parseFloat(s);
+  }
+  function yen(v){return Math.round(v).toLocaleString('ja-JP')+'円'}
+  function el(tag,text,cls){var e=document.createElement(tag);if(text!=null)e.textContent=text;if(cls)e.className=cls;return e}
+  function calc(){
+    out.textContent='';
+    var T=num(tgt.value),od=[],bad=0;
+    Array.prototype.forEach.call(box.children,function(i){
+      if(i.value.trim()==='')return;var v=num(i.value);
+      if(!(v>=1&&v<=99999))bad++;else od.push(v);
+    });
+    if(!(T>=100&&T<=100000000)){out.appendChild(el('p','戻したい金額を、100円以上の数字で入れてください。','verdict ng'));return}
+    if(bad){out.appendChild(el('p','オッズに数字でない欄があります。1.0 以上の数字で入れてください。','verdict ng'));return}
+    if(!od.length){out.appendChild(el('p','オッズを1つ以上入れてください。','verdict ng'));return}
+    var rows=od.map(function(o){var a=Math.max(100,Math.ceil(T/o/100)*100);return {o:o,a:a,p:a*o}});
+    var sum=rows.reduce(function(s,r){return s+r.a},0),minP=Math.min.apply(null,rows.map(function(r){return r.p}));
+    var tb=el('table'),cap=el('caption','賭ける金額（100円単位に切り上げ）'),th=el('thead'),tr=el('tr');
+    ['オッズ','賭ける金額','当たったときの払戻'].forEach(function(t){var h=el('th',t);h.scope='col';tr.appendChild(h)});
+    th.appendChild(tr);tb.appendChild(cap);tb.appendChild(th);
+    var bd=el('tbody');rows.forEach(function(r){var x=el('tr');x.appendChild(el('td',r.o+'倍'));x.appendChild(el('td',yen(r.a)));x.appendChild(el('td',yen(r.p)));bd.appendChild(x)});
+    tb.appendChild(bd);
+    var ft=el('tfoot'),fr=el('tr');fr.appendChild(el('td','舟券代の合計'));fr.appendChild(el('td',yen(sum)));fr.appendChild(el('td',''));ft.appendChild(fr);tb.appendChild(ft);
+    var sc=el('div',null,'scroll');sc.appendChild(tb);out.appendChild(sc);
+    var g=minP/sum,ok=g>=1;
+    out.appendChild(el('p','合成オッズ 約'+(Math.floor(g*10)/10).toFixed(1)+'倍。'+(ok?'当たれば、少なくとも '+yen(minP-sum)+' のプラスです。':'当たっても舟券代に '+yen(sum-minP)+' 届かない目があります。点数を減らすか、このレースは買いません。'),'verdict'+(ok?'':' ng')));
+  }
+  document.getElementById('go').addEventListener('click',calc);
+})();
+</script>
+<script src="../assets/guard.js" defer></script>
+</body>
+</html>
