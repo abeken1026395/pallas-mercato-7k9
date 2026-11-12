@@ -7,8 +7,22 @@
 (function(){
   var T={"3t":"3連単","3f":"3連複","2t":"2連単","2f":"2連複","kk":"拡連複","tn":"単勝","fk":"複勝"};
   var ARE=10000; /* 見送り成功の基準：3連単の配当がこれ以上（裁定B 2026-11-10） */
-  var cache={}; /* hd -> {at, p(Promise), map} */
+  var cache={}; /* hd -> {at, p(Promise), sig} */
   var TTL=5*60*1000;
+  /* 更新の印（/results/data/now.json・直近2日の「取得時刻」とレース数・約100バイト）。2026-11-12
+     結果データ（1日約0.2MB）を何度も読む代わりに、この印だけを15秒ごとに読み、変わった日だけ読み直す。
+     印が読めないときは、従来どおり5分ごとに結果データを読み直す */
+  var STTL=15*1000, stampC=null;
+  function stamp(){
+    var now=Date.now();
+    if(stampC&&now-stampC.at<STTL) return stampC.p;
+    var p=fetch("/results/data/now.json?_="+Math.floor(now/STTL),{cache:"no-store"}).then(function(r){ return r.ok?r.json():null; }).then(function(d){
+      var o={}; if(d&&d.d&&typeof d.d==="object") Object.keys(d.d).forEach(function(hd){ var v=d.d[hd]; if(/^\d{8}$/.test(hd)&&v&&typeof v==="object") o[hd]=String(v.t||"")+"|"+String(v.n||""); });
+      return o;
+    }).catch(function(){ return null; });
+    stampC={at:now,p:p};
+    return p;
+  }
   function okN(x){ return typeof x==="number"&&isFinite(x)&&x>=0&&x<1e9; }
   function obj(k){ try{ var v=JSON.parse(localStorage.getItem(k)||"{}"); return (v&&typeof v==="object"&&!Array.isArray(v))?v:{}; }catch(e){ return {}; } }
   /* 保存データ1レースぶんを、壊れた要素を捨てた形にそろえる */
@@ -78,12 +92,18 @@
   /* 1レースの写し（人気・1着）。無ければ null */
   function kkGet(rid){ var e=kk()[rid]; return e&&typeof e==="object"?e:null; }
   function points(en){ var n=0; en.b.forEach(function(x){ n+=x.k.length; }); return n; }
-  /* その日の結果を読む（同じ日は5分のあいだ使い回す）。返すのは {"12_20261110_5": レース, …} */
+  /* その日の結果を読む。返すのは {"12_20261110_5": レース, …}
+     更新の印が前回と同じなら使い回し、変わっていたらすぐ読み直す。印に載らない日（3日以上前）は5分のあいだ使い回す */
   function day(hd){
     if(!/^\d{8}$/.test(hd)) return Promise.resolve({});
-    var c=cache[hd], now=Date.now();
-    if(c&&(now-c.at<TTL)) return c.p;
-    var p=fetch("/results/data/"+hd+".json?_="+Math.floor(now/TTL),{cache:"no-store"}).then(function(r){ return r.ok?r.json():null; }).then(function(d){
+    return stamp().then(function(s){
+      var sig=s&&s[hd]?s[hd]:null, c=cache[hd], now=Date.now();
+      if(c&&(sig?c.sig===sig:(now-c.at<TTL))) return c.p;
+      return load(hd,sig,now);
+    });
+  }
+  function load(hd,sig,now){
+    var p=fetch("/results/data/"+hd+".json?_="+encodeURIComponent(sig||String(Math.floor(now/TTL))),{cache:"no-store"}).then(function(r){ return r.ok?r.json():null; }).then(function(d){
       var m={};
       if(d&&Array.isArray(d["場"])) d["場"].forEach(function(v){
         if(!v||!Array.isArray(v["レース"])) return;
@@ -97,9 +117,21 @@
       var K=kk(); Object.keys(K).forEach(function(rid){ if(rid.split("_")[1]===hd&&!m[rid]){ var r=fromKK(K[rid]); if(r) m[rid]=r; } });
       return m;
     }).catch(function(){ var m={},K=kk(); Object.keys(K).forEach(function(rid){ if(rid.split("_")[1]===hd){ var r=fromKK(K[rid]); if(r) m[rid]=r; } }); return m; });
-    cache[hd]={at:now,p:p};
+    cache[hd]={at:now,p:p,sig:sig};
     return p;
   }
+  /* 画面が見えているあいだ fn を15秒ごとに呼ぶ。別のアプリやタブから戻ったときはすぐ呼ぶ。
+     fn が false を返したら（結果待ちのレースが無い）止める。後で live(fn) をまた呼べば動き出す */
+  var lives=[];
+  function tick(){ lives=lives.filter(function(f){ try{ return f()!==false; }catch(e){ return false; } }); if(!lives.length&&liveT){ clearInterval(liveT); liveT=0; } }
+  var liveT=0;
+  function live(fn){
+    if(typeof fn!=="function") return;
+    if(lives.indexOf(fn)<0) lives.push(fn);
+    if(!liveT) liveT=setInterval(function(){ if(document.visibilityState==="visible") tick(); },STTL);
+  }
+  document.addEventListener("visibilitychange",function(){ if(document.visibilityState==="visible"&&lives.length) tick(); });
+  window.addEventListener("pageshow",function(e){ if(e.persisted&&lives.length) tick(); });
   /* 1レースの答え合わせ。race は day() のレース（無ければ null）
      state：pending（結果待ち）／hit（的中）／miss（外れ）
      a・p は記録に使う額。手で入れた額があればそれを優先し、無ければ「1点あたり」から計算する */
@@ -134,5 +166,5 @@
     var P=race["払戻"], s3=Array.isArray(P["3連単"])&&P["3連単"][0]&&okN(P["3連単"][0]["配当"])?P["3連単"][0]["配当"]:null;
     return {state:s3==null?"pending":(s3>=ARE?"good":"plain"),san:s3};
   }
-  window.DZK={T:T,ARE:ARE,obj:obj,entry:entry,points:points,day:day,judge:judge,skipJudge:skipJudge,okN:okN,ninki:ninki,kkGet:kkGet,ranks:ranks,kkRace:function(rid){ return fromKK(kk()[rid]); }};
+  window.DZK={T:T,ARE:ARE,obj:obj,entry:entry,points:points,day:day,live:live,judge:judge,skipJudge:skipJudge,okN:okN,ninki:ninki,kkGet:kkGet,ranks:ranks,kkRace:function(rid){ return fromKK(kk()[rid]); }};
 })();
