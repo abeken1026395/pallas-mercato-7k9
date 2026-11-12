@@ -69,7 +69,7 @@ OFFICIAL_HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) App
                     "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
 OFFICIAL_SLEEP = 1.2
 OFFICIAL_MAX = int(os.environ.get("OFFICIAL_MAX", "60"))
-OFFICIAL_AFTER_MIN = 10   # 締切からこの分数がたったレースだけ取りに行く
+OFFICIAL_AFTER_MIN = int(os.environ.get("OFFICIAL_AFTER_MIN", "10"))   # 締切からこの分数がたったレースだけ取りに行く
 # v2 を取りに行くのは、締切からこの分数がたっても v1 に3連単が無いレースがあるときだけ(2026-11-12)。
 # 以前は「v1 に3連単が無いレースが1つでもあれば」取りに行っていたため、日中はまだ走っていないレースを
 # 欠けと数えて、取り込みのたびに v2(1日分 約0.25MB)を取っていた。v2 は1日2〜3回の一括更新なので、
@@ -333,11 +333,15 @@ def fetch_official(hd, jcd, rno):
         return None
 
 
+def _now_jst():
+    """いまの日本時間（tz なし）。締切との比較に使う。"""
+    return datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None) + datetime.timedelta(hours=9)
+
+
 def official_targets(data, miss, now_jst=None, void=None):
     """欠けレースのうち、公式を見に行くもの。v1 に着順が1つも無く、締切から10分以上たったレースだけ。
     void(dict)を渡すと、着順はあるのに3連単が無いレース（不成立）を {(場,R): "不成立"} で書き足す。"""
-    now_jst = now_jst or (datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
-                          + datetime.timedelta(hours=9))
+    now_jst = now_jst or _now_jst()
     stadiums = ((data.get("programs") or {}).get("stadiums") or {})
     out = []
     for sn, rn in miss:
@@ -357,27 +361,59 @@ def official_targets(data, miss, now_jst=None, void=None):
     return out[:OFFICIAL_MAX]
 
 
-def official_fallback(data, hd, filled, void=None):
+def official_fallback(data, hd, filled, void=None, cache=None):
     """v1 で欠け、v2 でも補えなかったレースを公式の結果ページから補う。
-    void(dict)を渡すと、結果が出ないことが確定したレース（中止・不成立）を {(場,R): 理由} で書き足す。"""
+    void(dict)を渡すと、結果が出ないことが確定したレース（中止・不成立）を {(場,R): 理由} で書き足す。
+    cache(dict)を渡すと（resultsLoop.py が同じ日を何度も作り直すとき）、一度読めたレースは読み直さない。
+      cache[(hd,場,R)] = ("ok", v1形の結果) / ("void", 理由, 期限) / ("wait", 回数, 次に読む時刻)
+      読めなかったレースは 3分おきに3回、そのあと 6分・9分…（上限30分）と間をあけて読み直す。中止・不成立は30分おきに見直す。"""
     miss = [k for k in missing_races(data) if k not in filled]
     targets = official_targets(data, miss, void=void)
     if not targets:
         return {}
     fb = {}
-    for i, (sn, rn) in enumerate(targets):
-        if i:
+    fetched = 0
+    reused = 0
+    now = time.time()
+    for sn, rn in targets:
+        key = (hd, sn, rn)
+        hit = cache.get(key) if cache is not None else None
+        if hit is not None:
+            if hit[0] == "ok":
+                fb[(sn, rn)] = hit[1]
+                reused += 1
+                continue
+            if hit[0] == "void" and now < hit[2]:
+                if void is not None:
+                    void[(sn, rn)] = hit[1]
+                continue
+            if hit[0] == "wait" and now < hit[2]:
+                continue
+        if fetched:
             time.sleep(OFFICIAL_SLEEP)
+        fetched += 1
         page = fetch_official(hd, sn, rn)
         res = parse_official(page, hd, sn, rn)
+        reason = None
         if res and _has_trifecta(res):
             fb[(sn, rn)] = res
-        elif void is not None and page:
+            if cache is not None:
+                cache[key] = ("ok", res)
+            continue
+        if page:
             if "レース中止" in page:
-                void[(sn, rn)] = "中止"
+                reason = "中止"
             elif "不成立" in page:
-                void[(sn, rn)] = "不成立"
-    print("official fallback:", hd, "missing", len(miss), "tried", len(targets), "filled", len(fb),
+                reason = "不成立"
+        if reason and void is not None:
+            void[(sn, rn)] = reason
+        if cache is not None:
+            if reason:
+                cache[key] = ("void", reason, now + 30 * 60)
+            else:
+                n = (hit[1] if hit is not None and hit[0] == "wait" else 0) + 1
+                cache[key] = ("wait", n, now + 60 * min(3 * max(1, n - 2), 30) - 15)
+    print("official fallback:", hd, "missing", len(miss), "tried", fetched, "reused", reused, "filled", len(fb),
           " ".join("%02d-%dR" % k for k in sorted(fb)))
     return fb
 
@@ -473,8 +509,7 @@ def to_races(data, fallback=None):
 def overdue_races(data, miss, after_min, now_jst=None):
     """欠けレースのうち、締切から after_min 分以上たったもの。
     締切が読めないレースは含める(分からないときは従来どおり取りに行く側に倒す)。"""
-    now_jst = now_jst or (datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
-                          + datetime.timedelta(hours=9))
+    now_jst = now_jst or _now_jst()
     stadiums = ((data.get("programs") or {}).get("stadiums") or {})
     out = []
     for sn, rn in miss:
@@ -489,15 +524,25 @@ def overdue_races(data, miss, after_min, now_jst=None):
     return out
 
 
-def v2_fallback(data, hd, now_jst=None):
-    """v1で欠けたレースのうち締切から V2_AFTER_MIN 分たったものがあるときだけv2を取りに行き、補えるレースを返す。"""
+V2_MEMO_SEC = 30 * 60   # cache を渡されたとき、v2 を取り直すまでの間隔（v2 の更新は1日2〜3回）
+
+
+def v2_fallback(data, hd, now_jst=None, cache=None):
+    """v1で欠けたレースのうち締切から V2_AFTER_MIN 分たったものがあるときだけv2を取りに行き、補えるレースを返す。
+    cache(dict)を渡すと、同じ日の v2 は V2_MEMO_SEC 秒に1回しか取らない（resultsLoop.py 用）。"""
     miss = missing_races(data)
     if not miss:
         return {}
     if not overdue_races(data, miss, V2_AFTER_MIN, now_jst):
         print("v2 fallback: skip", hd, "/ v1 missing", len(miss), "(締切から%d分たったレースなし)" % V2_AFTER_MIN)
         return {}
-    data2 = fetch_json(hd, BASE_V2)
+    memo = cache.get(("v2", hd)) if cache is not None else None
+    if memo is not None and time.time() - memo[0] < V2_MEMO_SEC:
+        data2 = memo[1]
+    else:
+        data2 = fetch_json(hd, BASE_V2)
+        if cache is not None:
+            cache[("v2", hd)] = (time.time(), data2)
     if not data2:
         print("v2 fallback: no data for", hd, "/ v1 missing", len(miss))
         return {}
@@ -508,26 +553,35 @@ def v2_fallback(data, hd, now_jst=None):
     return fb
 
 
-def write_results(data, hd):
-    fb = v2_fallback(data, hd)
+def build_obj(data, hd, cache=None):
+    """results/YYYYMMDD.json に書く中身を作る（書かない）。cache は official_fallback にそのまま渡す。"""
+    fb = v2_fallback(data, hd, cache=cache)
     void = {}
-    for k, v in official_fallback(data, hd, fb, void).items():
+    for k, v in official_fallback(data, hd, fb, void, cache).items():
         fb.setdefault(k, v)   # v2 で補えたレースは上書きしない
     races = to_races(data, fb)
     have = {(int(x["場コード"]), int(str(x["レース"]).rstrip("R"))) for x in races}
     # 結果が出ないことが確定したレース（中止・不成立）。「全レースそろった」の判定で、そろった側に数える（2026-10-29 けん）
     seiritsu = [{"場コード": "%02d" % k[0], "レース": "%dR" % k[1], "理由": void[k]}
                 for k in sorted(void) if k not in have]
-    venues = len(set(x["場コード"] for x in races))
+    return {"開催日": hd,
+            "取得時刻": datetime.datetime.now().isoformat(timespec="seconds"),
+            "レース数": len(races), "結果": races, "成立せず": seiritsu}
+
+
+def write_obj(obj, hd):
     os.makedirs("results", exist_ok=True)
     outpath = os.path.join("results", "%s.json" % hd)
-    obj = {"開催日": hd,
-           "取得時刻": datetime.datetime.now().isoformat(timespec="seconds"),
-           "レース数": len(races), "結果": races, "成立せず": seiritsu}
     with io.open(outpath, "w", encoding="utf-8") as f:
         json.dump(obj, f, ensure_ascii=False, indent=1)
-    print("wrote", outpath, "races", len(races), "venues", venues)
-    return len(races)
+    venues = len(set(x["場コード"] for x in obj["結果"]))
+    print("wrote", outpath, "races", len(obj["結果"]), "venues", venues)
+
+
+def write_results(data, hd):
+    obj = build_obj(data, hd)
+    write_obj(obj, hd)
+    return obj["レース数"]
 
 
 def main():

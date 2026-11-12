@@ -1,21 +1,24 @@
 name: レース結果 随時更新（日中）
 
-# 当日分の確定レースを日中に随時取り込み、結果表ページを実質リアルタイム化する。
-# 元データ BoatraceOpenAPI はレース確定ごとに更新されるため、当日分を取得し直し、
-# 確定済みレースを順次 results/ と docs/results/data/ に反映する。
-# 見立て検証(verifyPredictions 等)は夜の updateResults.yml に任せ、ここでは触れない。
+# 当日の結果を、レースが終わるたびに取り込む。1回起動したら夜まで走り続ける見張り（scripts/resultsLoop.py）。
 #
-# 発火は二重化して取りこぼしを防ぐ:
-#   1) schedule(毎時) … 主。ただし GitHub の schedule は遅延・スキップが起きやすい。
-#   2) workflow_run … 既に高頻度で回る他ジョブ(気象=3時間毎/出走表/モーター/荒れ指数)の
-#      完了に相乗り。schedule が不発でも、これらが走るたびに結果更新も走る。
+# 2026-11-12 に作り直した。以前は「毎時の定時」と「他のWFの完了への相乗り」で1回ずつ取り込む形で、
+# 定時がほとんど飛ばされ（2026-11-11 は13回中2回）、日中に最大4時間46分あいた。
+# いまは起動のきっかけ（定時・相乗り・手動・自分の中継）のどれか1つが来れば、その便が
+#   取得元 v1 を読む → 締切から15分たっても v1 に無いレースだけ公式の結果ページを読む →
+#   変わったときだけコミットして配信WFを起動する
+# を、次のレースの時刻に合わせて繰り返す。先に起動した便が動いていれば、後から来た便は何もせず終わる。
+# ジョブの上限（6時間）の前に、自分で次の便を起動してから終わる。
+# 見立て検証(verifyPredictions 等)は夜の updateResults.yml に任せ、ここでは触れない。
 
 on:
   schedule:
-    # JST 11:15〜23:15 の毎時（UTC 02:15〜14:15）。デイ〜ナイター終了までをカバー。
+    # 朝の起動（JST 05:40〜08:40）。見張りは 08:00 まで待ってから始まる。
+    - cron: "40 20-23 * * *"
+    # JST 11:15〜23:15 の毎時（UTC 02:15〜14:15）。見張りが止まっていたときの起こし直し。
     - cron: "15 2-14 * * *"
   workflow_run:
-    # 高頻度で走る既存ジョブの完了に相乗りして発火機会を増やす(schedule 不発対策)。
+    # 高頻度で走る既存ジョブの完了に相乗りする(schedule 不発対策)。見張りが動いていれば何もしない。
     workflows:
       - "気象データ自動更新"
       - "出走表データ自動更新"
@@ -26,22 +29,33 @@ on:
   workflow_dispatch:
     inputs:
       hd:
-        description: "取得する日付(YYYYMMDD)。空欄なら当日(JST)。"
+        description: "取得する日付(YYYYMMDD)。指定するとその日だけ1回取り込んで終わる（穴埋め用）。空欄なら見張り。"
+        required: false
+        default: ""
+      relay_from:
+        description: "中継元の run id（見張りが自分で入れる。手では入れない）"
+        required: false
+        default: ""
+      dry_run:
+        description: "1 にするとコミット・push・配信の起動・中継をしない（確かめ用）"
+        required: false
+        default: ""
+      max_ticks:
+        description: "この回数だけ回って終わる（確かめ用。空欄なら制限なし）"
         required: false
         default: ""
 
 permissions:
   contents: write
+  actions: write   # 配信WFと次の便を起動するため
 
-concurrency:
-  # 夜の updateResults.yml と同一グループにして results/ への同時コミット衝突を防ぐ。
-  group: boatrace-results
-  cancel-in-progress: false
+# 順番待ちの列（concurrency）は置かない。置くと、見張りが走っているあいだ後から来た便が何時間も待ちになる。
+# 二重に走らせない判定は resultsLoop.py が自分で行う。results/ への同時コミットは commit の再試行で解く。
 
 jobs:
   live:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 355
     steps:
       - uses: actions/checkout@v4
 
@@ -49,50 +63,14 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: build results (当日分・OpenAPI)
-        run: python scripts/buildResults.py
+      - name: results loop (当日分・取得元 v1 と公式)
         env:
           HD: ${{ github.event.inputs.hd }}
-          RESULTS_WINDOW: "1"   # liveは当日のみ(軽量・高頻度)。確定日の窓照合は夜のupdateResultsが担当。
-
-      - name: build results site data (docs/results/)
-        run: python scripts/buildResultsSite.py
-
-      # 24場の3連単払戻CSVと万舟率を results/ から作る（外部取得なし・各レースのあとに反映）。
-      # 2026-10-01 に場ごとの update<場>Payouts.yml 24本を廃止してここへ統合した。
-      # 既存行は消さず足すだけ（lib/csv_guard）。失敗しても results のコミットは止めない（commit は always）。
-      - name: build payouts from results (docs/payouts/)
-        run: |
-          python scripts/buildPayoutsFromResults.py
-          for f in scripts/build*ManRate.py; do python "$f"; done
-
-      - name: commit
-        if: always()
-        env:
+          RELAY_FROM: ${{ github.event.inputs.relay_from }}
+          RESULTS_DRY_RUN: ${{ github.event.inputs.dry_run }}
+          RESULTS_MAX_TICKS: ${{ github.event.inputs.max_ticks }}
+          OFFICIAL_AFTER_MIN: "15"   # 公式に結果が出るのは締切の14〜15分後（2026-11-11 の記録から）。それより前に読んでも無い
+          GH_TOKEN: ${{ github.token }}
           BR: ${{ github.ref_name }}
-        run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-          git add results/ docs/results/data/ 2>/dev/null || true
-          # 払戻は別の add にする（まとめると1つ欠けただけで results まで0件 stage になる）
-          git add docs/payouts/*Payouts.csv docs/payouts/*ManRate.json 2>/dev/null || true
-          if git diff --staged --quiet; then
-            echo "no changes"; exit 0
-          fi
-          # 先にコミット（未コミット変更を残さない）→ autostash衝突でマーカーが混入する事故を防ぐ。
-          git commit -m "auto: results live update"
-          # 生成物はrun毎に取得時刻が変わるため既存コミットと必ず衝突する。
-          # rebase(-X theirs=自分の再生成データを優先)で機械的に解消し、衝突マーカーは絶対にコミットしない。
-          # push競合は指数的でなく短いランダム待機でリトライ。
-          for i in 1 2 3 4 5 6; do
-            git fetch origin "$BR" || true
-            if git rebase -X theirs "origin/$BR"; then
-              if git push origin "HEAD:$BR"; then
-                echo "pushed (try $i)"; exit 0
-              fi
-            else
-              git rebase --abort 2>/dev/null || true
-            fi
-            sleep $(( (RANDOM % 6) + 3 ))
-          done
-          echo "push retries exhausted"; exit 1
+          PYTHONUNBUFFERED: "1"
+        run: python scripts/resultsLoop.py
