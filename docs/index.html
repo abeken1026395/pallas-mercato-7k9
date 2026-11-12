@@ -191,7 +191,7 @@ a[href]:active,button:not(:disabled):active,summary:active,[role=button]:active,
 /* お知らせ */
 .ann{display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
 .an{display:flex;flex-direction:column;gap:2px;padding:12px 14px;background:var(--cell);border:1px solid var(--line)}
-.an[hidden]{display:none}
+.an[hidden],.ann[hidden],.sh[hidden]{display:none}
 .an small{font-size:12px;color:var(--mute);letter-spacing:.04em}
 .an b{font-size:16px;font-weight:800;color:var(--tx);line-height:1.3}
 .an span{font-size:14px;line-height:1.7;color:var(--dim)}
@@ -312,6 +312,7 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
 .yto-s[hidden]{display:none}
 .yto-t{font-size:16px;font-weight:800;line-height:1.3;color:#fff;overflow-wrap:anywhere}
 .yto-go{flex:none;font-size:14px;font-weight:700;color:var(--blue);white-space:nowrap}
+@media (max-width:359px){.obi-dots,.obiW,.ytoW{display:none}} /* 320px幅では帯の右の文言を縮め、全3話の印を省く（2026-11-13） */
 </style>
 <link rel="stylesheet" href="./assets/ugoki.css?v=a0c08edf">
 </head>
@@ -328,17 +329,17 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
 <script>/* 日付は最初の描画の前に入れる（後から入ると帯の高さが変わって下が全部ずれる・2026-11-10） */(function(){var d=new Date(Date.now()+9*3600e3);document.getElementById("capD").textContent=(d.getUTCMonth()+1)+"月"+d.getUTCDate()+"日（"+"日月火水木金土".charAt(d.getUTCDay())+"）";})();</script>
 
 <div class="wrap">
-<a class="yto" href="./in/top/youtube-obi/" target="_blank" rel="noopener"><span class="yto-av" aria-hidden="true"><img src="./assets/youtubeIcon.jpg" width="44" height="44" alt=""><span class="yto-ic"><svg viewBox="0 0 14 14"><path d="M3 1.5v11l9.5-5.5z"/></svg></span></span><span class="yto-b"><span class="yto-l" id="ytoL">YouTube｜新チャンネル開設</span><span class="yto-t">あべけんいち</span><span class="yto-s" id="ytoS" hidden></span></span><span class="yto-go" id="ytoG">見に行く ›</span></a>
-<script>/* ライブ配信の告知（2026-11-11 けん「今日の19時と13日の19時からライブやる事と登録を促してほしい」）。日本時間の日付で文面を変え、11/14 0時からは元の「新チャンネル開設」に戻す。配信中かどうかは分からないので「配信中」とは書かない */(function(){var n=Date.now(),day=function(t){return new Date(t+9*3600e3).toISOString().slice(0,10);},L=[Date.UTC(2026,10,11,10),Date.UTC(2026,10,13,10)],lab=["11日（水）","13日（金）"],td=day(n),i,nx=-1;for(i=0;i<L.length;i++){if(day(L[i])>=td){nx=i;break;}}if(nx<0)return;var l=document.getElementById("ytoL"),s=document.getElementById("ytoS");l.textContent="";var b=document.createElement("span");b.className="yto-lv";b.textContent="LIVE";l.appendChild(b);l.appendChild(document.createTextNode((day(L[nx])===td?"今夜":lab[nx].slice(0,3))+"19時から配信"));if(nx+1<L.length){s.textContent=lab[nx+1]+"19時も配信";s.hidden=false;}document.getElementById("ytoG").textContent="登録 ›";})();</script>
-<a class="obi" id="ebObi" href="./in/top/ebook-obi/" target="_blank" rel="noopener"><img class="obi-im" src="./assets/ebookEp2.jpg" width="56" height="56" alt=""><span class="obi-b"><span class="obi-l"><span id="ebObiL">第2話 11日（水）21時</span><span class="obi-dots" id="ebObiD" aria-label="全3話のうち第2話"><i class="on"></i><i class="nx"></i><i></i></span><span class="obi-free">無料</span></span><span class="obi-t"><span class="obi-p">第1話は、僕の話でした。</span>第2話からは、あなたの話です。</span><span class="obi-m"><span>340人以上が登録</span><span class="obi-go">受け取る ›</span></span></span></a>
-<script>/* 電子書籍の動画（全3話・無料）の告知。日本時間で今どの話の前後かで文面を変える。第2話 11/11 21時・第3話 11/12 21時（2026-11-10 けん）。11/14 0時で帯を消す。
+<a class="yto" href="./in/top/youtube-obi/" target="_blank" rel="noopener"><span class="yto-av" aria-hidden="true"><img src="./assets/youtubeIcon.jpg" width="44" height="44" alt=""><span class="yto-ic"><svg viewBox="0 0 14 14"><path d="M3 1.5v11l9.5-5.5z"/></svg></span></span><span class="yto-b"><span class="yto-l" id="ytoL">YouTube｜新チャンネル開設</span><span class="yto-t">あべけんいち</span><span class="yto-s" id="ytoS" hidden></span></span><span class="yto-go" id="ytoG"><span class="ytoW">チャンネル</span>登録 ›</span></a>
+<script>/* ライブ配信の告知（2026-11-11 けん「今日の19時と13日の19時からライブやる事と登録を促してほしい」）。日本時間の日付で文面を変え、11/14 0時からは元の「新チャンネル開設」に戻す。右の文言は常に「チャンネル登録」（けん 2026-11-13「チャンネル登録を促して」）。配信中かどうかは分からないので「配信中」とは書かない */(function(){var n=Date.now(),day=function(t){return new Date(t+9*3600e3).toISOString().slice(0,10);},L=[Date.UTC(2026,10,11,10),Date.UTC(2026,10,13,10)],lab=["11日（水）","13日（金）"],td=day(n),i,nx=-1;for(i=0;i<L.length;i++){if(day(L[i])>=td){nx=i;break;}}if(nx<0)return;var l=document.getElementById("ytoL"),s=document.getElementById("ytoS");l.textContent="";var b=document.createElement("span");b.className="yto-lv";b.textContent="LIVE";l.appendChild(b);l.appendChild(document.createTextNode((day(L[nx])===td?"今夜":lab[nx].slice(0,3))+"19時から配信"));if(nx+1<L.length){s.textContent=lab[nx+1]+"19時も配信";s.hidden=false;}})();</script>
+<a class="obi" id="ebObi" href="./in/top/ebook-obi/" target="_blank" rel="noopener"><img class="obi-im" src="./assets/ebookEp3.jpg" width="56" height="56" alt=""><span class="obi-b"><span class="obi-l"><span id="ebObiL">第3話 公開中</span><span class="obi-dots" id="ebObiD" aria-label="全3話を配信"><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="obi-free">無料</span></span><span class="obi-t">ついに最終回。</span></span><span class="obi-go"><span class="obiW">受け取る </span>›</span></a>
+<script>/* 電子書籍の動画（全3話・無料）の告知。日本時間で今どの話の前後かで文面を変える。第2話 11/11 21時・第3話 11/12 21時（2026-11-10 けん）。第3話の配信後は「第3話 公開中」と最終回の文面を出し、11/15 0時で帯を消す（けん 2026-11-13）。
    ねらい（2026-11-11 けん「好奇心や心理に何の作用もない」）：続きの話（第2話からは、あなたの話）・全3話のどこか（●●○）・無料と実際の登録人数・表紙の画像で、ほかの枠と見分けがつくようにする。人数は けん申告の実数（11/11 350人）から減る見込みのぶん余裕を取り「340人以上」（けん 11/11） */
-window.dzEb=function(){var n=Date.now(),t2=Date.UTC(2026,10,11,12),t3=Date.UTC(2026,10,12,12),te=Date.UTC(2026,10,13,15),
+window.dzEb=function(){var n=Date.now(),t2=Date.UTC(2026,10,11,12),t3=Date.UTC(2026,10,12,12),te=Date.UTC(2026,10,14,15),
 day=function(t){return new Date(t+9*3600e3).toISOString().slice(0,10);},
 w=function(t,lab){return (day(n)===day(t)?"今夜21時":lab);};
 if(n<t2) return {k:1,lab:"第2話 "+w(t2,"11日（水）21時"),card:"専用オープンチャット｜第2話 "+(day(n)===day(t2)?"今夜21時":"11/11（水）21時")};
 if(n<t3) return {k:2,lab:"第3話 "+w(t3,"12日（木）21時"),card:"専用オープンチャット｜第3話 "+(day(n)===day(t3)?"今夜21時":"11/12（木）21時")};
-if(n<te) return {k:3,lab:"全3話 配信済み",card:"専用オープンチャット｜全3話を配信しました"};
+if(n<te) return {k:3,lab:"第3話 公開中",card:"専用オープンチャット｜全3話を配信しました"};
 return {k:0,card:"専用オープンチャット｜全3話を配信しました"};};(function(){var e=window.dzEb(),a=document.getElementById("ebObi");if(!e.k){a.hidden=true;return;}document.getElementById("ebObiL").textContent=e.lab;var d=document.getElementById("ebObiD").children;for(var i=0;i<3;i++)d[i].className=(i<e.k?"on":(i===e.k?"nx":""));document.getElementById("ebObiD").setAttribute("aria-label",e.k<3?"全3話のうち"+e.k+"話まで配信":"全3話を配信");})();</script>
 <p class="raihou" id="raihouLine" hidden></p>
 <script>/* 来訪の1行は todayTop.json が届いてから入るので、出る行数ぶんの高さを先に空けておく（連続来訪が続く人は2行・2026-11-10） */(function(){var el=document.getElementById("raihouLine"),n=1;try{var V=JSON.parse(localStorage.getItem("dz_visit")||"{}")||{},j=new Date(Date.now()+9*3600e3),td=j.toISOString().slice(0,10).replace(/-/g,""),yd=new Date(j.getTime()-864e5).toISOString().slice(0,10).replace(/-/g,""),st=+V.streak||0;if((V.last===td&&st>=2)||(V.last===yd&&st>=1))n=2;}catch(e){}el.style.minHeight=(n*1.6)+"em";el.hidden=false;})();</script>
@@ -445,10 +446,9 @@ window.dzFold=function(rows,key){
   <div class="fol-box" id="folRows"></div>
 </section>
 
-  <h2 class="sh" style="margin-top:14px">お知らせ</h2>
-<section class="ann" aria-label="お知らせ">
-  <a class="an pri" href="./in/top/ebook-card/" target="_blank" rel="noopener"><small id="ebCardS">専用オープンチャット｜第2話 11/11（水）21時</small><b>電子書籍を動画で配信（全3話）</b><span>書籍づくりの裏側も毎日お届けしています</span><em>オプチャで受け取る ›</em></a><script>(function(){try{document.getElementById("ebCardS").textContent=window.dzEb().card;}catch(e){}})();</script>
-  <a class="an pri" href="./in/top/yosou-card/" target="_blank" rel="noopener"><small>LINE オープンチャット</small><b>AI予想部屋</b><span>AIが出した買い目（有料note）の更新と、当たったレースの結果が届きます</span><em>LINEで受け取る ›</em></a>  <a class="an upd" id="updL" href="./updates/" hidden><small id="updD">更新</small><span id="updT"></span></a>
+  <h2 class="sh" id="annH" style="margin-top:14px" hidden>お知らせ</h2>
+<section class="ann" id="annS" aria-label="お知らせ" hidden>
+    <a class="an upd" id="updL" href="./updates/" hidden><small id="updD">更新</small><span id="updT"></span></a>
 </section>
 
 <h2 class="sh chh" id="chHead" hidden><span id="chH2" style="font-size:16px;font-weight:800;color:var(--tx);letter-spacing:.06em">場の朝刊</span><span id="chSub"></span></h2>
@@ -927,6 +927,7 @@ function lineBoxes(){
     document.getElementById("updD").textContent="更新 "+parseInt(ds.slice(5,7),10)+"/"+parseInt(ds.slice(8,10),10)+(x.page?"｜"+String(x.page):"");
     document.getElementById("updT").textContent=String(x.text||"");
     document.getElementById("updL").hidden=false;
+    document.getElementById("annH").hidden=false; document.getElementById("annS").hidden=false;
   }).catch(function(){});
 })();
 </script>
