@@ -394,6 +394,14 @@ def motor_setsu_record(row):
     return {"runs": runs, "niren": niren, "rate": rate}
 
 
+def round1(v):
+    """率を小数1桁に四捨五入する（26.15→26.2）。記事の率は小数1桁にそろえる（kansenkiRules）。Noneはそのまま。"""
+    if v is None:
+        return None
+    from decimal import Decimal, ROUND_HALF_UP
+    return float(Decimal(str(v)).quantize(Decimal("0.1"), rounding=ROUND_HALF_UP))
+
+
 def motor_avg(venue_rows):
     vals = [to_float(r.get("モーター2連率")) for r in venue_rows]
     vals = [v for v in vals if v is not None]
@@ -417,7 +425,7 @@ def build_focus_racer(row, jcd, kimarite_map, profile, motor2avg):
         "finishTrail": trail,
         "motorNo": to_int(row.get("モーターNo")),
         # ※通算（出走表CSVの列）。今節の値ではない。旧名 motor2renSetsu は実体と食い違っていた。
-        "motor2renTsusan": to_float(row.get("モーター2連率")),
+        "motor2renTsusan": round1(to_float(row.get("モーター2連率"))),
         "motor2renTsusanAvg": motor2avg,
         # 今節の実数。rate だけを単独で使わず、必ず runs（分母）と一緒に扱う。
         "motorSetsu": motor_setsu_record(row),
