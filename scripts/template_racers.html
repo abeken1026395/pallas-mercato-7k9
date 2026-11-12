@@ -628,6 +628,7 @@ body.kb-has{padding-bottom:calc(118px + env(safe-area-inset-bottom))!important}
 <script src="../assets/haranLv.js"></script>
 <script src="../assets/oshiMotor.js?v=6e528453"></script>
 <script src="../assets/kotaeawase.js?v=4"></script>
+<script src="../assets/tsuchi.js?v=1" defer></script>
 <script>
 var RAW = __DATA_PLACEHOLDER__;
 /* 誕生日マーク {開催日:{登録番号:1}}。該当者のみ。判定は scripts/birthdayMark.py */
@@ -2075,7 +2076,9 @@ function kbEntry(e){
   }).filter(function(x){ return x.k.length; });
   return {v:typeof e.v==="string"?e.v:"",j:typeof e.j==="string"?e.j:"",h:typeof e.h==="string"?e.h:"",r:kbOkN(e.r)?e.r:0,d:typeof e.d==="string"?e.d:"",b:b,a:kbOkN(e.a)?e.a:null,p:kbOkN(e.p)?e.p:null,u:kbOkN(e.u)&&e.u>0?e.u:null};
 }
-function kbPut(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); return true; }catch(e){ return false; } }
+function kbPut(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); if(k==="dz_bets") kbTsuchi(); return true; }catch(e){ return false; } }
+/* 締切10分前の通知をオンにしている人だけ、保存したレースが変わったら送り直す（assets/tsuchi.js・2026-11-13）。続けて押したときは最後の1回だけ */
+var KB_TSU=0; function kbTsuchi(){ clearTimeout(KB_TSU); KB_TSU=setTimeout(function(){ if(window.dzTsuchi) window.dzTsuchi.sync(false).catch(function(){}); },1200); }
 function kbYen(n){ return Number(n).toLocaleString("ja-JP")+"円"; }
 /* 1レースの回収率。購入額と払戻が両方分かるときだけ出す */
 function kbRate(a,p){ return (a>0&&p!=null)?'<span class="kb-rr">回収率 <b>'+Math.round(p/a*100)+'%</b>（購入 '+kbYen(a)+'）</span>':''; }

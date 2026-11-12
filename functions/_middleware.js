@@ -8,6 +8,8 @@ import { visitorCookie, recordVisit, withCookie } from "../edge/junkai.mjs";
 
 export async function onRequest(context) {
   const { request } = context;
+  // 今見ている人数・プッシュ通知の受け口（/api/）は罠も記録も通さない（2026-11-13・ページの合図を来訪として数えない）
+  if (new URL(request.url).pathname.startsWith("/api/")) return context.next();
   const ua = request.headers.get("user-agent") || "";
   const asn = (request.cf && request.cf.asn) || 0;   // 回線の持ち主の番号（Cloudflare が付ける）
   const lang = request.headers.get("accept-language") || "";
