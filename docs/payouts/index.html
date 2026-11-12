@@ -61,9 +61,9 @@
   .rk .v{width:78px;text-align:right;flex:none;font-variant-numeric:tabular-nums;}
 
   .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;}
-  .links{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
-  .links a{font-size:.8rem;background:var(--panel2);border:1px solid var(--line);border-radius:8px;
-    padding:5px 10px;text-decoration:none;color:var(--acc);}
+  .links{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:8px;}
+  .links a{display:flex;align-items:center;justify-content:center;min-height:44px;font-size:14px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;
+    padding:0 4px;text-decoration:none;color:var(--acc);white-space:nowrap;}
   footer{margin-top:26px;font-size:.75rem;color:var(--sub);border-top:1px solid var(--line);padding-top:12px;}
   .err{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;color:var(--sub);font-size:.85rem;}
 .sitelink{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;margin:6px 0 2px;font-size:13px;line-height:1;color:inherit;text-decoration:underline;text-underline-offset:3px}
@@ -71,7 +71,7 @@
 .siteback{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;margin:6px 0 2px;font-size:13px;line-height:1;color:inherit;text-decoration:underline;text-underline-offset:3px}
 .siteback:focus-visible{outline:2px solid currentColor;outline-offset:2px}
   /* 読み込み時のレイアウトずれ防止：データで埋まるブロックの高さを先に確保（幅390pxの実測値） */
-  #period{min-height:38px;} #linksBody{min-height:235px;} #topBody{min-height:419px;}
+  #period{min-height:38px;} #linksBody{min-height:304px;} #topBody{min-height:419px;}
   #arareBody{min-height:744px;} #maxBody{min-height:744px;}
 </style>
 <!-- kata6:head -->
@@ -110,8 +110,10 @@
 </footer>
 
 <script>
-function yen(n){return n.toLocaleString()+'円';}
-function stdLink(s){ return s.slug ? '<a href="../'+s.slug+'-payouts/">'+s.stadium+'</a>' : s.stadium; }
+function yen(n){return Number(n||0).toLocaleString()+'円';}
+function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function slugOk(v){return /^[a-z0-9-]+$/.test(String(v||''));}
+function stdLink(s){ return slugOk(s.slug) ? '<a href="../'+s.slug+'-payouts/">'+esc(s.stadium)+'</a>' : esc(s.stadium); }
 
 function glyphRuns(){return [21983, 10015, 12487, 12540, 12479, 25915, 12417, 32, 9472, 9472, 32, 21046, 20316, 12539, 36939, 21942, 32, 12354, 12409, 12369, 12435];}
 function gridOffsets(){var g="44OH44O844K/5pS744KBIOKUgOKUgCDliLbkvZzjg7vpgYvllrYg44GC44G544GR44KT",b=atob(g),a=[];for(var i=0;i<b.length;i++)a.push(b.charCodeAt(i));return new TextDecoder("utf-8").decode(new Uint8Array(a));}
@@ -144,8 +146,8 @@ fetch('./summary.json?_=' + Date.now())
       return '<div class="pay"><div class="pos">'+(i+1)+'</div>'+
         '<div class="amt">'+yen(p.payout)+'</div>'+
         '<div class="body"><span class="std">'+stdLink(p)+'</span> '+
-        '<span class="combo">'+p.combo+'</span> '+
-        '<span class="meta2">'+p.date+' '+p.rno+'R</span></div></div>';
+        '<span class="combo">'+esc(p.combo)+'</span> '+
+        '<span class="meta2">'+esc(p.date)+' '+esc(p.rno)+'R</span></div></div>';
     }).join('');
 
     // 荒れ率ランキング
@@ -156,7 +158,7 @@ fetch('./summary.json?_=' + Date.now())
       return '<div class="rk'+(hi?' hi':'')+'"><div class="pos">'+(i+1)+'</div>'+
         '<div class="std">'+stdLink(s)+'</div>'+
         '<div class="barwrap"><i style="width:'+Math.round(s.manRate/amax*100)+'%"></i></div>'+
-        '<div class="v">'+s.manRate.toFixed(1)+'%</div></div>';
+        '<div class="v">'+Number(s.manRate||0).toFixed(1)+'%</div></div>';
     }).join('');
 
     // 最高配当ランキング
@@ -172,9 +174,9 @@ fetch('./summary.json?_=' + Date.now())
 
     // 各場ページへのリンク
     var seen={};
-    var links=(d.arareRanking||[]).filter(function(s){return s.slug && !seen[s.slug] && (seen[s.slug]=1);});
+    var links=(d.arareRanking||[]).filter(function(s){return slugOk(s.slug) && !seen[s.slug] && (seen[s.slug]=1);});
     document.getElementById(_I[4]).innerHTML = links.map(function(s){
-      return '<a href="../'+s.slug+'-payouts/">'+s.stadium+' →</a>';
+      return '<a href="../'+s.slug+'-payouts/">'+esc(s.stadium)+' →</a>';
     }).join('');
   })
   .catch(function(){
