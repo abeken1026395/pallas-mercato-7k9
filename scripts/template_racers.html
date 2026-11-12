@@ -627,7 +627,7 @@ body.kb-has{padding-bottom:calc(118px + env(safe-area-inset-bottom))!important}
 
 <script src="../assets/haranLv.js"></script>
 <script src="../assets/oshiMotor.js?v=6e528453"></script>
-<script src="../assets/kotaeawase.js?v=3"></script>
+<script src="../assets/kotaeawase.js?v=4"></script>
 <script>
 var RAW = __DATA_PLACEHOLDER__;
 /* 誕生日マーク {開催日:{登録番号:1}}。該当者のみ。判定は scripts/birthdayMark.py */
@@ -2056,7 +2056,7 @@ var TELEBOAT_URL="https://spweb.brtb.jp/";
 var KB_SEL={rid:"",t:"3t",m:"f",s:[[],[],[]]}, KB_CUR=null, KB_JUST="", KB_MSG="", KB_BACK=false, KB_BAR=null, KB_DLG=null;
 var KB_RACE={}; /* 答え合わせ用の結果。rid -> 結果のレース（まだ無ければ未定義）。assets/kotaeawase.js の DZK.day で読む */
 function kbSkipObj(){ return kbObj("dz_skip"); }
-/* 締切後、そのレースの結果を読みにいく。読めたら #kb だけ描き直す（5分のあいだは同じ結果を使い回す） */
+/* 締切後、そのレースの結果を読みにいく。読めたら #kb だけ描き直す（更新の印が変わったときだけ結果データを読み直す・2026-11-12） */
 function kbFetchResult(rid,hd){
   if(!window.DZK) return;
   DZK.day(hd).then(function(m){
@@ -2486,7 +2486,7 @@ setInterval(function(){
   var c=raceCd(v,rc,isChushi(v,view.rno)), cls="cd "+c.cls;
   if(el.className!==cls) el.className=cls;
   if(el.textContent!==c.txt) el.textContent=c.txt;
-  /* 締切後、買い目か見送りがあるレースは結果を読みにいく（届いたら #kb だけ描き直す。読み込みは5分に1回まで） */
+  /* 締切後、買い目か見送りがあるレースは結果を読みにいく（届いたら #kb だけ描き直す。読むのは15秒ごとの更新の印で、結果データは印が変わったときだけ） */
   if(KB_CUR&&KB_CUR.cl&&!KB_RACE[KB_CUR.rid]&&(kbObj("dz_bets")[KB_CUR.rid]||kbSkipObj()[KB_CUR.rid])) kbFetchResult(KB_CUR.rid,v.hd);
 }, 15000);
 </script>

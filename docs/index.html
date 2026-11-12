@@ -408,11 +408,16 @@ window.dzFold=function(rows,key){
   }
   draw();
   document.getElementById("kbTop").hidden=false;
-  function judge(){ if(!window.DZK) return; /* 答え合わせ（kotaeawase.js）は後で読み込まれるので、読み込み後に呼ぶ */
-    var days={}; show.forEach(function(x){ if(x.t&&x.t<=now) days[x.hd]=1; });
+  /* 結果待ちのレースがあるあいだは、画面が見えているかぎり読み直す（DZK.live・2026-11-12）。
+     読むのは更新の印だけで、結果データは印が変わった日だけ。結果待ちが無くなったら止まる */
+  function judge(){ if(!window.DZK) return false; /* 答え合わせ（kotaeawase.js）は後で読み込まれるので、読み込み後に呼ぶ */
+    var t=Date.now(), days={}, wait=false;
+    show.forEach(function(x){ if(RES[x.k]) return; if(x.t&&x.t<=t) days[x.hd]=1; wait=true; });
     Object.keys(days).forEach(function(hd){ DZK.day(hd).then(function(m){ var ch=false; show.forEach(function(x){ if(m[x.k]&&!RES[x.k]){ RES[x.k]=m[x.k]; ch=true; } }); if(ch) draw(); }); });
+    return wait;
   }
-  if(window.DZK) judge(); else document.addEventListener("DOMContentLoaded",judge);
+  function start(){ if(judge()&&window.DZK&&DZK.live) DZK.live(judge); }
+  if(window.DZK) start(); else document.addEventListener("DOMContentLoaded",start);
 })();
 </script>
   <div class="seg" role="tablist">
@@ -925,7 +930,7 @@ function lineBoxes(){
   }).catch(function(){});
 })();
 </script>
-<script src="./assets/kotaeawase.js?v=1"></script>
+<script src="./assets/kotaeawase.js?v=4"></script>
 <script src="./assets/shinchaku.js?v=3" defer></script>
 <script>
 /* 連続来訪と、今日見た場の数（izonSekkei 段階2・2026-11-10）。連続来訪は shinchaku.js が先に書き込むので、読み込み後に出す。

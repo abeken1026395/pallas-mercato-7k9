@@ -126,6 +126,32 @@ def prune(keep):
         print("prune", name[:8])
 
 
+def write_stamp(index):
+    """更新の印 now.json（2026-11-12）。直近2日の「取得時刻」とレース数だけを書く（約100バイト）。
+    画面（assets/kotaeawase.js）はこれを15秒ごとに読み、変わった日だけ結果データ（1日約0.2MB）を読み直す。
+    中身が同じなら書かない（コミットを増やさない）。"""
+    d = {}
+    for x in index[:2]:
+        hd = x["開催日"]
+        try:
+            with io.open(os.path.join(OUT_DIR, "%s.json" % hd), encoding="utf-8") as f:
+                t = json.load(f).get("取得時刻") or ""
+        except (OSError, ValueError):
+            t = ""
+        d[hd] = {"t": t, "n": x["レース数"]}
+    body = json.dumps({"d": d}, ensure_ascii=False, separators=(",", ":"))
+    path = os.path.join(OUT_DIR, "now.json")
+    try:
+        with io.open(path, encoding="utf-8") as f:
+            if f.read() == body:
+                return
+    except OSError:
+        pass
+    with io.open(path, "w", encoding="utf-8") as f:
+        f.write(body)
+    print("wrote", path, body)
+
+
 def main():
     os.makedirs(OUT_DIR, exist_ok=True)
     # 元データ results/ は全期間そのまま読み、公開するのは新しい方から SITE_DAYS 日分だけ。
@@ -159,6 +185,7 @@ def main():
     with io.open(os.path.join(OUT_DIR, "index.json"), "w", encoding="utf-8") as f:
         json.dump({"件数": len(index), "日付": index}, f, ensure_ascii=False, separators=(",", ":"))
     print("wrote", len(index), "days to", OUT_DIR)
+    write_stamp(index)
     build_hit(all_paths)
 
 
