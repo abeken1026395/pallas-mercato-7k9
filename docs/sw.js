@@ -47,3 +47,30 @@ self.addEventListener("fetch", function (e) {
     })
   );
 });
+
+/* プッシュ通知（再訪設計 段階3・2026-11-13）。送り役が送る中身は {t:題, b:本文, u:開くページ, g:まとめる印}。
+   押したら、そのページを開いているタブがあれば前に出し、無ければ開く */
+self.addEventListener("push", function (e) {
+  var d = {};
+  try { d = e.data ? e.data.json() : {}; } catch (err) { d = {}; }
+  var t = typeof d.t === "string" && d.t ? d.t.slice(0, 80) : "データ攻め";
+  var u = typeof d.u === "string" && d.u.charAt(0) === "/" && d.u.charAt(1) !== "/" ? d.u : "/";
+  e.waitUntil(self.registration.showNotification(t, {
+    body: typeof d.b === "string" ? d.b.slice(0, 200) : "",
+    tag: typeof d.g === "string" ? d.g.slice(0, 60) : "dz",
+    icon: "/icon192.png",
+    badge: "/icon192.png",
+    data: { u: u }
+  }));
+});
+
+self.addEventListener("notificationclick", function (e) {
+  e.notification.close();
+  var u = new URL((e.notification.data && e.notification.data.u) || "/", self.location.origin).href;
+  e.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(function (cs) {
+    for (var i = 0; i < cs.length; i++) {
+      if (cs[i].url.split("#")[0] === u.split("#")[0] && "focus" in cs[i]) { if ("navigate" in cs[i]) cs[i].navigate(u); return cs[i].focus(); }
+    }
+    return self.clients.openWindow ? self.clients.openWindow(u) : null;
+  }));
+});

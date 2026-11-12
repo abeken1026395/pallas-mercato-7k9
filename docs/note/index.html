@@ -54,6 +54,9 @@ textarea{min-height:96px;resize:vertical;line-height:1.7}
 .btn{min-height:46px;padding:0 18px;border-radius:0;border:1px solid #eef3f8;background:#eef3f8;color:#0b1726;font:700 15px var(--font);cursor:pointer;margin-top:12px}
 .btn.sub{background:none;border-color:var(--line2);color:var(--sub);font-weight:600}
 .btn.small{min-height:44px;padding:0 12px;font-size:13px;margin-top:0}
+.tsu-st{margin-top:8px;font-size:15px;line-height:1.7;color:var(--fg)}
+.tsu-st b{color:var(--gold);font-weight:700}
+.tsu-ol{margin:8px 0 0;padding-left:1.4em;font-size:14px;line-height:1.8;color:var(--sub)}
 .hits{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .hits button{min-height:40px;padding:0 12px;border-radius:0;border:1px solid var(--line2);background:none;color:var(--fg);font:14px var(--font);cursor:pointer}
 .picked{font-size:14px;margin-top:8px}
@@ -188,7 +191,7 @@ footer{margin-top:24px;font-size:13px;color:var(--dim);line-height:1.85}
 <div class="nav"><a href="../">データ攻め</a></div>
 <header>
   <h1 class="kataTitle">自分の記録</h1>
-  <p class="lead">保存した買い目と、選手のメモ、舟券の支出の記録。書いた内容はこの端末のブラウザの中だけに残り、データ攻めには送られません。</p>
+  <p class="lead">保存した買い目と、選手のメモ、舟券の支出の記録。書いた内容はこの端末のブラウザの中だけに残り、データ攻めには送られません（締切の通知をオンにしたときだけ、レースの番号と締切の時刻を送ります）。</p>
 </header>
 
 <div class="tabs" role="tablist">
@@ -209,6 +212,13 @@ footer{margin-top:24px;font-size:13px;color:var(--dim);line-height:1.85}
     <div class="sum" id="bsum"></div>
     <div class="gr" id="bgraph"></div>
     <p class="note" id="bnote"></p>
+  </div>
+  <div class="card" id="tsuchi">
+    <h2>締切10分前の通知</h2>
+    <p class="tsu-st" id="tsu-st"></p>
+    <div id="tsu-do"></div>
+    <p class="note" id="tsu-msg" role="status" aria-live="polite"></p>
+    <p class="note">保存した買い目のあるレースだけ、締切の10分前に知らせます。1日3通まで。オンにすると、保存したレースの番号と締切の時刻だけをデータ攻めに送ります。金額・メモ・収支は送りません。締切が遅れたときは、もとの締切時刻で知らせます。</p>
   </div>
   <div class="card" id="keikou">
     <h2>予想の傾向 <small style="color:var(--sub);font-weight:400;font-size:12px">これまでの全記録</small></h2>
@@ -685,6 +695,23 @@ $("x-yes").onclick=function(){money=[];save(KS,money);$("x-confirm").hidden=true
 drawMemos();
 if(location.hash==="#money"){show("money");drawMoney()}
 else if(location.hash==="#bets"||(!location.hash&&!/[?&]toban=/.test(location.search)&&betRows().length)){show("bets");drawBets()}
+})();
+</script>
+<script src="../assets/tsuchi.js?v=1"></script>
+<script>
+/* 締切10分前の通知（再訪設計 段階3・2026-11-13）。状態ごとに1行と1つのボタンだけ出す */
+(function(){
+  var g=function(i){return document.getElementById(i);},st=g("tsu-st"),box=g("tsu-do"),msg=g("tsu-msg"),T=window.dzTsuchi; if(!st||!T) return;
+  function btn(label,sub,fn){var b=document.createElement("button");b.type="button";b.className="btn"+(sub?" sub small":"");b.textContent=label;b.addEventListener("click",function(){b.disabled=true;msg.textContent="";fn().then(draw,function(e){var k=e&&e.message;msg.textContent=k==="denied"?"この端末で通知が止められています。設定アプリの通知から、データ攻めを許可してください。":k==="dismiss"?"通知の許可が出ませんでした。もう一度押すと聞き直します。":"登録できませんでした。通信の良いところで、もう一度押してください。";draw();});});return b;}
+  function draw(){
+    var s=T.state(); box.textContent=""; st.textContent="";
+    if(s==="on"){var n=T.count();st.appendChild(document.createTextNode("オン。いま知らせる予定のレース "));var b=document.createElement("b");b.textContent=n+"レース";st.appendChild(b);box.appendChild(btn("通知を止める",true,T.off));}
+    else if(s==="off"){st.textContent="オフ";box.appendChild(btn("通知を受け取る",false,T.on));}
+    else if(s==="home"){st.textContent="iPhone では、ホーム画面に追加したデータ攻めから使えます。";var ol=document.createElement("ol");ol.className="tsu-ol";["Safari の下の共有ボタンを押す","「ホーム画面に追加」を押す","追加したアイコンから開き、ここで「通知を受け取る」を押す"].forEach(function(t){var li=document.createElement("li");li.textContent=t;ol.appendChild(li);});box.appendChild(ol);}
+    else if(s==="denied"){st.textContent="この端末で通知が止められています。設定アプリの通知から、データ攻めを許可してください。";}
+    else{st.textContent="このブラウザは通知に対応していません。";}
+  }
+  draw();
 })();
 </script>
 <script src="../assets/guard.js" defer></script>

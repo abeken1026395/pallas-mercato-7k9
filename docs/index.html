@@ -172,6 +172,7 @@ a[href]:active,button:not(:disabled):active,summary:active,[role=button]:active,
 .raihou{margin:16px 0 0;font-size:14px;line-height:1.6;color:var(--sub,#a3b4c6);font-variant-numeric:tabular-nums}
 .raihou b{color:#eef3f8;font-weight:700}
 .raihou span{display:block}
+.raihou.ima{margin-top:4px}
 .sh a{margin-left:auto;display:inline-flex;align-items:center;min-height:44px;font-size:14px;font-weight:600;color:var(--blue);letter-spacing:0;padding:0 0 0 16px}
 /* 1画面目の帯（電子書籍の動画の告知・2026-11-10、11-11 作り直し：表紙・全3話の位置・無料と人数・続きの一文） */
 .obi{display:flex;align-items:center;gap:12px;margin:8px 0 0;padding:10px 12px;border:1px solid var(--gold);background:#1a2638;color:var(--tx);text-decoration:none}
@@ -342,6 +343,8 @@ if(n<te) return {k:3,lab:"全3話 配信済み",card:"専用オープンチャ�
 return {k:0,card:"専用オープンチャット｜全3話を配信しました"};};(function(){var e=window.dzEb(),a=document.getElementById("ebObi");if(!e.k){a.hidden=true;return;}document.getElementById("ebObiL").textContent=e.lab;var d=document.getElementById("ebObiD").children;for(var i=0;i<3;i++)d[i].className=(i<e.k?"on":(i===e.k?"nx":""));document.getElementById("ebObiD").setAttribute("aria-label",e.k<3?"全3話のうち"+e.k+"話まで配信":"全3話を配信");})();</script>
 <p class="raihou" id="raihouLine" hidden></p>
 <script>/* 来訪の1行は todayTop.json が届いてから入るので、出る行数ぶんの高さを先に空けておく（連続来訪が続く人は2行・2026-11-10） */(function(){var el=document.getElementById("raihouLine"),n=1;try{var V=JSON.parse(localStorage.getItem("dz_visit")||"{}")||{},j=new Date(Date.now()+9*3600e3),td=j.toISOString().slice(0,10).replace(/-/g,""),yd=new Date(j.getTime()-864e5).toISOString().slice(0,10).replace(/-/g,""),st=+V.streak||0;if((V.last===td&&st>=2)||(V.last===yd&&st>=1))n=2;}catch(e){}el.style.minHeight=(n*1.6)+"em";el.hidden=false;})();</script>
+<p class="raihou ima" id="imaLine" hidden></p>
+<script>/* 今見ている人数（assets/imaMiteru.js が入れる・5人以上のときだけ）。このタブで前に出ていたら、1行ぶんの高さを先に空けて下がずれないようにする（2026-11-13） */(function(){try{var v=JSON.parse(sessionStorage.getItem("dzIma")||"{}");if(v&&v.n>=5&&Date.now()-v.t<600000){var el=document.getElementById("imaLine");el.style.minHeight="1.6em";el.hidden=false;}}catch(e){}})();</script>
 <section class="fol" id="kbTop" hidden aria-label="保存した買い目">
   <h2 class="sh" style="margin-top:18px">保存した買い目<a href="./note/#bets">一覧</a></h2>
   <div class="fol-box" id="kbTopRows"></div>
@@ -932,6 +935,7 @@ function lineBoxes(){
 </script>
 <script src="./assets/kotaeawase.js?v=4"></script>
 <script src="./assets/shinchaku.js?v=3" defer></script>
+<script src="./assets/tsuchi.js?v=1" defer></script>
 <script>
 /* 連続来訪と、今日見た場の数（izonSekkei 段階2・2026-11-10）。連続来訪は shinchaku.js が先に書き込むので、読み込み後に出す。
    見た場は出走表の「最近見た」（br_viewed）のうち今日のレース。今日の開催場は todayTop.json */

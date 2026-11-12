@@ -5,6 +5,8 @@
    外の LINE へ出る入口（/in/top/… ・ /in/yosou/）は、入口ページ自身が数えてから移る（2026-11-11。押した側で数える形はスマホで取りこぼすためやめた）
    保存できない環境では何もしない。 */
 (function () {
+  /* 今見ている人数の合図（assets/imaMiteru.js・2026-11-13）。どのページでも読むよう、ここから読み込む。来訪の計測とは別物 */
+  try { if (window.top === window && !document.querySelector('script[src*="assets/imaMiteru.js"]')) { var im = document.createElement("script"); im.src = "/assets/imaMiteru.js?v=1"; im.defer = true; document.head.appendChild(im); } } catch (e) {}
   var opens = [];
   function frame(p) {
     var f = document.createElement("iframe");
