@@ -57,7 +57,6 @@ PAGES = [
     ("tsu-payouts/index.html", "payoutsTsu"),
     ("wakamatsu-payouts/index.html", "payoutsWakamatsu"),
     ("kensho/tenji/index.html", "kenshoTenji"),
-    ("aisho-suminoe/index.html", "aishoSuminoe"), ("shobuun-suminoe/index.html", "shobuunSuminoe"),
 ]
 # 占いは型をかけない（けん 10-23「占いページの見た目は元のページの方が良かった。戻せ」）。動きだけ
 LINK_ONLY = {"uranai", "aishoSuminoe", "shobuunSuminoe"}  # 占いの住之江版も占いと同じ扱い
