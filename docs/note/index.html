@@ -100,6 +100,8 @@ textarea{min-height:96px;resize:vertical;line-height:1.7}
 .band .st.hit{color:#7fb4ff}
 .band .r>span:not(.st){font-size:13px;color:var(--sub)}
 .band .r b{font:700 22px var(--num);color:var(--fg);white-space:nowrap}
+/* 払戻が1万円以上の的中は赤（2026-11-12 けん裁定：テレボートの見せ方に合わせる。赤の決まりの例外はこの1か所だけ） */
+.band .r b.man{color:#ff7b7b}
 .band small{display:block;text-align:right;font-size:12px;line-height:1.6;color:var(--dim);overflow-wrap:anywhere}
 .bet .res{margin-top:6px;font-size:14px;line-height:1.6;color:var(--sub);font-variant-numeric:tabular-nums}
 .bet .res.hit{color:var(--fg)}
@@ -449,7 +451,7 @@ function drawBets(){
         var amt='<div class="amt"><span>全'+j.pts+"点"+(j.autoA&&j.u?"　各"+j.u.toLocaleString()+"円"+(j.dflt?"（未入力のため）":""):"")+"</span><span>購入 <b>"+(j.a!=null?j.a.toLocaleString()+"円":"—")+"</b></span></div>";
         var stl=j.state==="hit"?'<span class="st hit">的中</span>':j.state==="miss"?'<span class="st">外れ</span>':'<span class="st">結果待ち</span>';
         var row2=j.state==="pending"?(j.u?'<small>結果が出たら払戻が入ります</small>':"")
-          :'<div class="r"><span>払戻</span><b>'+(pp!=null?pp.toLocaleString()+"円":"未入力")+"</b></div>"
+          :'<div class="r"><span>払戻</span><b'+(j.state==="hit"&&pp>=10000?' class="man"':"")+'>'+(pp!=null?pp.toLocaleString()+"円":"未入力")+"</b></div>"
             +(j.state==="hit"?"<small>配当（100円あたり）</small>"+j.hits.map(function(h){return '<small class="nw">'+esc(BT[h.t]+" "+h.k)+" "+h.pay.toLocaleString()+"円</small>"}).join(""):"")
             +(j.a>0&&pp!=null?"<small>回収率 "+Math.round(pp/j.a*100)+"%</small>":"");
         return amt+'<div class="band"><div class="r"><div class="fin">結果'+(fin.length?" "+fin.map(function(n){return chips([n])}).join("<em>›</em>"):" —")+"</div>"+stl+"</div>"+row2+"</div>"

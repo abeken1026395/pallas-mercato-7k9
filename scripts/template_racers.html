@@ -559,6 +559,7 @@ body.kb-has{padding-bottom:calc(118px + env(safe-area-inset-bottom))!important}
 .kb-out div:first-child{border-top:0}
 .kb-out dt{font-size:13px;color:#a3b4c6}
 .kb-out dd{margin:0;text-align:right;font-size:20px;font-weight:700;color:#eef3f8;font-variant-numeric:tabular-nums}
+.kb-out dd.kb-man{color:#ff7b7b}
 .kb-out dd small{display:block;font-size:12px;line-height:1.5;font-weight:400;color:#a3b4c6}
 .kb-out .kb-dim{font-size:15px;font-weight:400;color:#a3b4c6}
 .kb-even{display:block;width:100%;min-height:48px;margin:0 0 8px;font-size:15px;font-weight:700;color:#eef3f8;background:none;border:1px solid #7fb4ff;border-radius:0;cursor:pointer;touch-action:manipulation}
@@ -2377,7 +2378,7 @@ function kbCalc(){
   else if(st==="miss") pay=(J.p!=null&&J.p>0?kbYen(J.p):"0円")+"<small>外れ</small>";
   else pay=J.p!=null?kbYen(J.p):'<span class="kb-dim">'+(pts?"結果待ち":"—")+"</span>"+(pts&&even?"<small>結果が出たら自動で入ります</small>":"");
   var pp=J.p!=null?J.p:(st==="miss"?0:null), rate=(J.a>0&&pp!=null&&st!=="pending")?Math.round(pp/J.a*100)+"%":"";
-  out.innerHTML="<div><dt>購入額</dt><dd>"+buy+"</dd></div><div><dt>払戻</dt><dd>"+pay+"</dd></div>"+(rate?"<div><dt>回収率</dt><dd>"+rate+"</dd></div>":"");
+  out.innerHTML="<div><dt>購入額</dt><dd>"+buy+"</dd></div><div><dt>払戻</dt><dd"+(st==="hit"&&J.p>=10000?' class="kb-man"':"")+">"+pay+"</dd></div>"+(rate?"<div><dt>回収率</dt><dd>"+rate+"</dd></div>":"");
   var hint=document.getElementById("kbHint"), ev=document.getElementById("kbEven");
   hint.textContent=st==="pending"?"払戻は、結果が出たあとにここを開いて入れます。":st==="hit"?"払戻は、的中した組の配当（100円あたり）に買った口数を掛けた金額です。":"";
   var q=(pts&&a!=null&&a>0&&a%pts===0&&(a/pts)%100===0)?a/pts:0;
