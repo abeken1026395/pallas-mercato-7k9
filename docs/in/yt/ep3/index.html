@@ -19,7 +19,7 @@
 <!-- YouTube の動画への中継（2026-11-13 けん「カード作れ」）。
      LINE のトークでカードを押すと LINE の中の画面で開き、YouTube アプリへ移れない。
      1) LINE の中で開かれたら、同じページを ?openExternalBrowser=1 付きで開き直して外のブラウザ（Safari など）へ出す
-     2) 外のブラウザでは YouTube アプリを開く。アプリが無い・断られたときのために、押せるボタンと動画のURLを画面に出す
+     2) 外のブラウザでは待たずに YouTube アプリを開く。開けなければ 1.2秒後にブラウザの YouTube へ移る。パソコンではすぐブラウザの YouTube へ。念のため押せるボタンも画面に出す
      開いた回数は Cloudflare Web Analytics の表示数（このページ）で数える -->
 <style>
 html,body{margin:0;background:#0b1726;color:#e8edf3;font-family:-apple-system,'Hiragino Sans','Noto Sans JP',sans-serif}
@@ -32,15 +32,21 @@ p{font-size:14px;line-height:1.6;color:#c9d4e0;margin:0 0 20px}
 </style>
 <script>
 (function(){
+  /* 待ち時間を作らない（けん 11/13「限りなく0秒で」）：読み込みを待たず、頭の時点ですぐ移る */
   var V = "5qJUnjHq_AM";
   try {
-    var inLine = / Line\//i.test(navigator.userAgent);
+    var ua = navigator.userAgent, inLine = / Line\//i.test(ua);
     if (inLine && location.search.indexOf("openExternalBrowser=1") < 0) {
       location.replace(location.pathname + "?openExternalBrowser=1");
       return;
     }
-    if (!inLine && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-      setTimeout(function () { location.href = "youtube://www.youtube.com/watch?v=" + V; }, 150);
+    if (inLine) return;
+    if (/iPhone|iPad|iPod|Android/i.test(ua)) {
+      location.href = "youtube://www.youtube.com/watch?v=" + V;
+      /* アプリが無い・断られたときだけ、1.2秒後にブラウザの YouTube へ。アプリへ移れたら（ページが隠れたら）何もしない */
+      setTimeout(function () { if (!document.hidden) location.replace("https://www.youtube.com/watch?v=" + V); }, 1200);
+    } else {
+      location.replace("https://www.youtube.com/watch?v=" + V);
     }
   } catch (e) { /* 何もしない。画面のボタンから開ける */ }
 })();
