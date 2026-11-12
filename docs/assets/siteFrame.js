@@ -33,7 +33,7 @@
   var css = ":root{--dzf-bar:#0e1d30;--dzf-line:rgba(255,255,255,.09);--dzf-tx:#eef3f8;--dzf-dim:#a3b4c6}"
   + ".dzf-bar{position:relative;z-index:60;background:var(--dzf-bar);border-bottom:1px solid var(--dzf-line);margin:0 0 4px}"
   + ".dzf-in{max-width:600px;height:52px;margin:0 auto;display:flex;align-items:center;padding:0 16px;box-sizing:border-box}"
-  + ".dzf-brand{display:flex;align-items:center;gap:9px;text-decoration:none!important;color:var(--dzf-tx)!important;border:0!important;background:none!important;padding:0!important;margin:0!important}"
+  + ".dzf-brand{display:flex;align-items:center;min-height:44px;gap:9px;text-decoration:none!important;color:var(--dzf-tx)!important;border:0!important;background:none!important;padding:0!important;margin:0!important}"
   + ".dzf-brand svg{height:30px;width:auto;display:block}"
   + ".dzf-wm{display:flex;flex-direction:column;gap:4px;line-height:1}"
   + ".dzf-wm b{font:400 19px/1 'Dela Gothic One',sans-serif!important;letter-spacing:.04em;color:var(--dzf-tx)!important;white-space:nowrap}"
