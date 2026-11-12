@@ -39,7 +39,7 @@
   + ".dzf-wm b{font:400 19px/1 'Dela Gothic One',sans-serif!important;letter-spacing:.04em;color:var(--dzf-tx)!important;white-space:nowrap}"
   + ".dzf-wm i{font:400 9px/1 'Dela Gothic One',sans-serif!important;font-style:normal!important;letter-spacing:.42em;color:var(--dzf-dim)!important;white-space:nowrap}"
   + ".dzf-sp{flex:1}"
-  + ".dzf-sr{display:flex;align-items:center;justify-content:center;width:44px;height:44px;margin-right:-10px;border:0!important;background:none!important}"
+  + ".dzf-sr{display:flex;align-items:center;justify-content:center;width:44px;height:44px;margin-right:-10px;padding:0!important;border:0!important;background:none!important;cursor:pointer;border-radius:0!important}"
   + ".dzf-sr svg,.dzf-tb svg,.dzf-sh svg{fill:none;stroke-linecap:round;stroke-linejoin:round}"
   + ".dzf-sr svg{width:22px;height:22px;stroke:#dfe7ef;stroke-width:1.6}"
   + ".dzf-waku{display:flex;height:3px}.dzf-waku i{flex:1}"
@@ -89,6 +89,13 @@
     + ".dzf-sh:is(#dzfZ,.dzf-sh) a:nth-of-type(odd){border-right:1px solid var(--dzf-line)!important}.dzf-sh:is(#dzfZ,.dzf-sh) a.full{border-right:0!important}"
     + ".dzf-sh:is(#dzfZ,.dzf-sh) .sh2{color:var(--dzf-dim)!important;-webkit-text-fill-color:currentColor!important;background:none!important}"
     + ".dzf-bar:is(#dzfZ,.dzf-bar) a{-webkit-text-fill-color:currentColor!important;text-shadow:none!important;box-shadow:none!important}.dzf-bar:is(#dzfZ,.dzf-bar) .dzf-brand{color:var(--dzf-tx)!important;background:none!important;border:0!important}.dzf-bar:is(#dzfZ,.dzf-bar) .dzf-wm b{color:var(--dzf-tx)!important}.dzf-bar:is(#dzfZ,.dzf-bar) .dzf-wm i{color:var(--dzf-dim)!important}.dzf-bar:is(#dzfZ,.dzf-bar) .dzf-sr{background:none!important;border:0!important}";
+  /* 右上のメニュー（2026-11-12 けん「A」）：虫眼鏡をやめて、右上から同じメニューを出す。一番上に選手を探す欄 */
+  css += ".dzf-sh.dzf-top{bottom:auto;border-top:0;border-bottom:1px solid var(--dzf-line);transform:translateY(-10px)}.dzf-sh.dzf-top.in{transform:none}"
+    + ".dzf-q{grid-column:1/-1;display:flex;align-items:center;gap:8px;padding:10px 12px 10px 18px;border-bottom:1px solid var(--dzf-line)}"
+    + ".dzf-q input{flex:1;min-width:0;height:44px;box-sizing:border-box;padding:0 12px;border:1px solid rgba(255,255,255,.28)!important;border-radius:0!important;background:#0b1726!important;color:var(--dzf-tx)!important;-webkit-text-fill-color:var(--dzf-tx)!important;font:400 16px/1 -apple-system,'Hiragino Sans','Noto Sans JP',sans-serif!important}"
+    + ".dzf-q input::placeholder{color:#8fa3b8;-webkit-text-fill-color:#8fa3b8;opacity:1}"
+    + ".dzf-q button{flex:none;display:flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0!important;border:1px solid rgba(255,255,255,.28)!important;background:none!important;cursor:pointer}"
+    + ".dzf-q svg{width:20px;height:20px;fill:none;stroke:#dfe7ef;stroke-width:1.6;stroke-linecap:round}";
   var st = document.createElement("style"); st.id = "dzfCss"; st.textContent = css; document.head.appendChild(st);
   // 押したときの反応（2026-11-09）：指が触れたら札・ボタン・リンクを少し薄くして「押せた」と分かるようにする。
   // 0.05秒待ってから薄くするので、スクロールのつもりで触れただけのときはちらつかない。iPhone は touchstart の受け手が無いと :active が効かないので空の受け手を置く
@@ -109,7 +116,7 @@
   var path = here.slice(ROOT.length);
   var cur = /^racers\//.test(path) ? "racers" : /^highlights\//.test(path) ? "highlights" : /^results\//.test(path) ? "results" : "more";
   var bar = document.createElement("div"); bar.className = "dzf-bar";
-  bar.innerHTML = '<div class="dzf-in"><a class="dzf-brand" href="' + ROOT + '" aria-label="データ攻め トップ"><svg viewBox="49 676 1917 955" aria-hidden="true"><path fill="#e9b45a" fill-rule="evenodd" d="' + LOGO + '"/></svg><span class="dzf-wm"><b>データ攻め</b><i>DATA ZEME</i></span></a><span class="dzf-sp"></span><a class="dzf-sr" href="' + ROOT + 'players/" aria-label="選手を探す"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5l5 5"/></svg></a></div><div class="dzf-waku" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>';
+  bar.innerHTML = '<div class="dzf-in"><a class="dzf-brand" href="' + ROOT + '" aria-label="データ攻め トップ"><svg viewBox="49 676 1917 955" aria-hidden="true"><path fill="#e9b45a" fill-rule="evenodd" d="' + LOGO + '"/></svg><span class="dzf-wm"><b>データ攻め</b><i>DATA ZEME</i></span></a><span class="dzf-sp"></span><button type="button" class="dzf-sr" id="dzfMenuTop" aria-label="メニュー" aria-expanded="false" aria-controls="dzfSheet"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button></div><div class="dzf-waku" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>';
   document.body.insertBefore(bar, document.body.firstChild);
   // 題字の頭の「BOATRACE」を外す（題字の印が後から付くページがあるので、読み込み後にもう一度）
   var cutBR = function(){ Array.prototype.forEach.call(document.querySelectorAll(".kataTitle,h1"), function(h){ var w = document.createTreeWalker(h, NodeFilter.SHOW_TEXT, null), n; while ((n = w.nextNode())) { if (/^\s*BOATRACE\s+/.test(n.nodeValue)) { n.nodeValue = n.nodeValue.replace(/^\s*BOATRACE\s+/, ""); break; } } }); };
@@ -176,7 +183,7 @@
   // メニューの中身：用途ごとに4つに分け、ページ名の下に何のページかを1行添える（2026-11-10 けん「並べてるだけで何のページか分からない」）
   var G = [["今日のレースに使う",[["motor/","モーター","各場のモーター成績"],["motor-maintenance/","モーター整備","部品交換と整備の記録"],["ichimark/","1マークの見立て","展示前の1周目の見立て図"],["note/","自分の記録","買い目・メモ・収支の記録"]]],["選手と場を調べる",[["players/","選手図鑑","全選手の成績と経歴"],["players/card.html","選手カード","全選手の中での位置"],["stadium/","24場","水面・風・潮の特性"],["banzuke/","24場番付","10年分で並べた場の格"],["payouts/","万舟のツボ","場別の荒れ率と高配当"]]],["読む・楽しむ",[["kensho/","検証","定説をデータで確かめる"],["fan/","場の文化","締切BGM・予想屋"],["announcers/","実況アナ図鑑","24場の実況アナ"],["uranai/","選手占い","暦で見る今日の勝負運"],["https://note.com/abeken2000","有料note（外部）","買い目の販売ページ"]]],["使い方と設定",[["torisetsu/","トリセツ","このサイトの使い方"],["glossary/","用語辞典","競艇の言葉の意味"],["updates/","更新履歴","最近変わったところ"],["hikae/","フォローの控え","機種変更で記録を移す"]]]];
   var sh = document.createElement("div"); sh.className = "dzf-sh"; sh.id = "dzfSheet"; sh.hidden = true;
-  sh.innerHTML = '<div class="dzf-shi">' + G.map(function(g){ return '<div class="sh2">' + g[0] + '</div><div class="dzf-g2">' + g[1].map(function(x){ var ext = /^https?:/.test(x[0]); return '<a href="' + (ext ? x[0] : ROOT + x[0]) + '"' + (ext ? ' target="_blank" rel="noopener"' : '') + '><b>' + x[1] + '</b><small>' + x[2] + '</small></a>'; }).join("") + '</div>'; }).join("") + '</div>';
+  sh.innerHTML = '<div class="dzf-shi"><form class="dzf-q" role="search" action="' + ROOT + 'players/"><input type="search" name="toban" placeholder="選手名・登番で探す" aria-label="選手名・登番で探す" enterkeyhint="search" autocomplete="off"><button type="submit" aria-label="探す"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5l5 5"/></svg></button></form>' + G.map(function(g){ return '<div class="sh2">' + g[0] + '</div><div class="dzf-g2">' + g[1].map(function(x){ var ext = /^https?:/.test(x[0]); return '<a href="' + (ext ? x[0] : ROOT + x[0]) + '"' + (ext ? ' target="_blank" rel="noopener"' : '') + '><b>' + x[1] + '</b><small>' + x[2] + '</small></a>'; }).join("") + '</div>'; }).join("") + '</div>';
   var tb = document.createElement("nav"); tb.className = "dzf-tb"; tb.setAttribute("aria-label", "ページ");
   function t(k, h, n){ return '<a href="' + ROOT + h + '"' + (cur === k ? ' class="on" aria-current="page"' : '') + '>' + I[k] + n + '</a>'; }
   tb.innerHTML = '<div class="dzf-tbi">' + t("top", "", "トップ") + t("racers", "racers/", "出走表") + t("highlights", "highlights/", "見どころ") + t("results", "results/", "結果") + '<button type="button" id="dzfMore" aria-expanded="false" aria-controls="dzfSheet"' + (cur === "more" ? ' class="on"' : '') + '>' + I.more + 'メニュー</button></div>';
@@ -190,9 +197,16 @@
   function unlock(){ bs.position = ""; bs.top = ""; bs.left = ""; bs.right = ""; bs.width = ""; window.scrollTo(0, keepY); }
   // 「その他」を開いたら履歴に1つ積む。戻る操作（戻るボタン・端からのスワイプ）では前のページへ戻らず、メニューだけ閉じる（2026-11-09）
   function shState(){ try { return !!(history.state && history.state.dzfSh); } catch (e) { return false; } }
-  function openSh(){ try { if (!shState()) { var st = {}; if (history.state && typeof history.state === "object") for (var k in history.state) st[k] = history.state[k]; st.dzfSh = 1; history.pushState(st, ""); } } catch (e) {} sh.hidden = false; bd.hidden = false; mb.setAttribute("aria-expanded", "true"); mb.classList.add("dzf-op"); lock(); sh.classList.remove("in"); void sh.offsetWidth; sh.classList.add("in"); }
-  function closeSh(fromPop){ if (sh.hidden) return; sh.hidden = true; bd.hidden = true; sh.classList.remove("in"); mb.setAttribute("aria-expanded", "false"); mb.classList.remove("dzf-op"); unlock(); if (fromPop !== true && shState()) { try { history.back(); } catch (e) {} } }
-  mb.addEventListener("click", function(){ if (sh.hidden) openSh(); else closeSh(); });
+  var mt = document.getElementById("dzfMenuTop"), shFrom = "", MSVG = '<svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>', XSVG = '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+  // 開いた回数と、選手を探した回数を数える（どちらから開いたか。中身は送らない）
+  function cnt(k){ try { var f = document.createElement("iframe"); f.src = ROOT + "in/c/menu/" + k + "/"; f.title = ""; f.setAttribute("aria-hidden", "true"); f.tabIndex = -1; f.style.cssText = "position:absolute;width:1px;height:1px;border:0;left:-9999px;top:0;visibility:hidden"; document.body.appendChild(f); setTimeout(function(){ if (f.parentNode) f.parentNode.removeChild(f); }, 15000); } catch (e) {} }
+  function openSh(from){ shFrom = from === "top" ? "top" : "bottom"; if (shFrom === "top") { sh.classList.add("dzf-top"); sh.style.top = Math.max(0, Math.round(bar.getBoundingClientRect().bottom)) + "px"; sh.style.maxHeight = "calc(100dvh - " + Math.max(0, Math.round(bar.getBoundingClientRect().bottom)) + "px - 58px - env(safe-area-inset-bottom))"; } else { sh.classList.remove("dzf-top"); sh.style.top = ""; sh.style.maxHeight = ""; } cnt(shFrom); try { if (!shState()) { var st = {}; if (history.state && typeof history.state === "object") for (var k in history.state) st[k] = history.state[k]; st.dzfSh = 1; history.pushState(st, ""); } } catch (e) {} sh.hidden = false; bd.hidden = false; (shFrom === "top" ? mt : mb).setAttribute("aria-expanded", "true"); if (shFrom === "top") { mt.innerHTML = XSVG; mt.setAttribute("aria-label", "メニューを閉じる"); } if (shFrom !== "top") mb.classList.add("dzf-op"); lock(); sh.classList.remove("in"); void sh.offsetWidth; sh.classList.add("in"); }
+  function closeSh(fromPop){ if (sh.hidden) return; sh.hidden = true; bd.hidden = true; sh.classList.remove("in"); mb.setAttribute("aria-expanded", "false"); if (mt) { mt.setAttribute("aria-expanded", "false"); mt.innerHTML = MSVG; mt.setAttribute("aria-label", "メニュー"); } mb.classList.remove("dzf-op"); unlock(); if (fromPop !== true && shState()) { try { history.back(); } catch (e) {} } }
+  mb.addEventListener("click", function(){ if (sh.hidden) openSh("bottom"); else closeSh(); });
+  if (mt) mt.addEventListener("click", function(){ if (sh.hidden) openSh("top"); else closeSh(); });
+  // 選手を探す：選手図鑑を、入れた文字で絞った形で開く（空なら一覧のまま）。探した回数は移った先で数える
+  var qf = sh.querySelector(".dzf-q");
+  if (qf) qf.addEventListener("submit", function(e){ e.preventDefault(); var v = (qf.querySelector("input").value || "").trim().slice(0, 40); try { sessionStorage.setItem("dzIn", "menu/kensaku"); } catch (x) {} closeSh(true); location.href = ROOT + "players/" + (v ? "?toban=" + encodeURIComponent(v) : ""); });
   bd.addEventListener("click", closeSh);
   window.addEventListener("popstate", function(){ if (!sh.hidden) closeSh(true); });
   // メニューの中のリンクは、積んだ1つを置き換えて進む（戻ったときに、閉じたメニューの分だけ余計に戻らずに済むように）
