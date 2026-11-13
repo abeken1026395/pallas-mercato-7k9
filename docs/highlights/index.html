@@ -725,6 +725,12 @@ function uranaiCard(r){
   const u=`../uranai/?jcd=${encodeURIComponent(r['場コード'])}&hd=${encodeURIComponent(KAISAI)}&rno=${encodeURIComponent(r['レース'])}&from=highlights`;
   return `<div class="uranai-card"><a class="uranai-link" href="${esc(u)}">🔮 この6艇を占う</a><span class="uranai-cav">星座・干支・血液型だけのあそび。見立てとは関係ありません。</span></div>`;
 }
+// レースごとの通知（10分前・結果）の置き場所。ボタンは ../assets/tsuchi.js が入れる（2026-11-13 けん）
+function dztHtml(r){
+  const rn=parseInt(r['レース'],10), dl=r['締切時刻']||'';
+  if(!/^\d{8}$/.test(KAISAI)||!/^\d{2}$/.test(r['場コード']||'')||!(rn>=1&&rn<=12)||!/^\d{1,2}:\d{2}$/.test(dl)) return '';
+  return `<div class="dzt" data-rid="${r['場コード']}_${KAISAI}_${rn}" data-t="${dl}" hidden></div>`;
+}
 // 中止のレースは「中止」だけを出す。締切（中止後は公式が実在しない時刻を出す）・見立て・波乱は出さない。
 function chushiCard(r, ctx){
   const uid = r['場コード']+'_'+r['レース'];
@@ -748,6 +754,7 @@ function renderCard(r, ctx){
       <div class="rmitate"><span class="lbl">見立て</span><span class="mt-txt">${esc(r['見立て'])}</span></div>
     </div>
     <div class="rbody" id="rb-${esc(uid)}"${open?'':' hidden'}>
+      ${dztHtml(r)}
       ${resRow}
       ${wx}
       ${e30Info(r)}
@@ -1626,6 +1633,7 @@ fetch(SRC+'?_='+Date.now())
 loadHL();
 </script>
 <footer style="margin:24px auto 8px;max-width:900px;text-align:center;font-size:12px;color:#8a94a3;letter-spacing:.3px;line-height:1.7;">© 2026 データ攻め ── 制作・運営 阿部</footer>
+<script src="../assets/tsuchi.js?v=2" defer></script>
 <script src="../assets/guard.js" defer></script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics --><script src=/assets/raihou.js defer></script>
 <!-- kata6:body -->
