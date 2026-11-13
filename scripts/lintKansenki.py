@@ -145,14 +145,19 @@ def check_numbers(body, venue):
         if m not in combos:
             fails.append(("組番", m))
 
-    # (2) 円 配当（"13170円" / "4万円"）: 素材の配当(int)に直値一致。
+    # (2) 円 配当（"11,850円" / "13170円" / "4万円"）: 素材の配当(int)に直値一致。
+    #     3桁区切り（2026-11-13〜）は区切りを外した値で照合する。区切りなしの古い記事もそのまま通す。
     for m in re.findall(r"(\d+)\s*万円", body):
         val = int(m) * 10000
         # "4万円超" 等の概数は素材配当を万位で丸めた表現→[val, val+9999]に実配当があれば許容
         near = any(val <= p <= val + 9999 for p in ints)
         if val not in ints and not near:
             fails.append(("円(万)", m + "万円"))
-    for m in re.findall(r"(?<!万)(\d{3,7})\s*円", body):
+    for m in re.findall(r"(?<![\d,万])(\d{1,3}(?:,\d{3})+)\s*円", body):
+        val = int(m.replace(",", ""))
+        if val not in ints:
+            fails.append(("円", m + "円"))
+    for m in re.findall(r"(?<![\d,万])(\d{3,7})\s*円", body):
         val = int(m)
         if val not in ints:
             fails.append(("円", m + "円"))
@@ -172,8 +177,8 @@ def check_numbers(body, venue):
         fails.append(("整数%", m + "%"))
 
     # 大整数（>=100）: 素材直値 or 整数2値の和差。年間n(2171等)は ints に直在。
-    for m in re.findall(r"(?<![\d.\-])(\d{3,})(?!\s*円)(?![\d.\-%])", body):
-        v = int(m)
+    for m in re.findall(r"(?<![\d.\-,])(\d{1,3}(?:,\d{3})+|\d{3,})(?![\d.\-%,])(?!\s*円)", body):
+        v = int(m.replace(",", ""))
         if v in ints or derive_intsum(v, ints):
             continue
         fails.append(("大整数", m))
@@ -352,6 +357,7 @@ def _dup_norm(sent, names):
     for p in sorted(DUP_PREFS, key=len, reverse=True):
         x = x.replace(p, "〈県〉")
     x = re.sub(r"[ABＡＢ][12１２]", "〈級〉", x)
+    x = re.sub(r"(?<=\d),(?=\d{3}(?!\d))", "", x)   # 3桁区切りの有無で形が変わらないように
     return re.sub(r"[0-9０-９.．]+", "〈数〉", x)
 
 
