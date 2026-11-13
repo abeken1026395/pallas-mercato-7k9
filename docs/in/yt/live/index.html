@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>【ライブ】11/14（土）20:30〜｜あべけんいち</title>
+<meta property="og:type" content="video.other">
+<meta property="og:title" content="【ライブ】11/14（土）20:30〜｜あべけんいち">
+<meta property="og:description" content="YouTubeライブ。押すとYouTubeアプリで開くので、ログインしたままチャットにコメントできます。">
+<meta property="og:image" content="https://i.ytimg.com/vi/XDKzdW93d84/maxresdefault_live.jpg">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="720">
+<meta property="og:url" content="https://abeken1026395.github.io/pallas-mercato-7k9/in/yt/live/">
+<meta property="og:site_name" content="あべけんいち">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0c1520">
+<meta name="referrer" content="no-referrer">
+<!-- YouTube ライブ（11/14 20:30）への中継（2026-11-13 けん。#1117 第3話と同じ仕組み。LINE の中ではログインできずコメントできないため）。
+     LINE のトークでカードを押すと LINE の中の画面で開き、YouTube アプリへ移れない。
+     1) LINE の中で開かれたら、同じページを ?openExternalBrowser=1 付きで開き直して外のブラウザ（Safari など）へ出す
+     2) 外のブラウザでは待たずに YouTube アプリを開く。開けなければ 1.2秒後にブラウザの YouTube へ移る。パソコンではすぐブラウザの YouTube へ。念のため押せるボタンも画面に出す
+     開いた回数は Cloudflare Web Analytics の表示数（このページ）で数える -->
+<style>
+html,body{margin:0;background:#0b1726;color:#e8edf3;font-family:-apple-system,'Hiragino Sans','Noto Sans JP',sans-serif}
+main{max-width:480px;margin:0 auto;padding:24px 16px 40px}
+img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;border:1px solid rgba(233,180,90,.5)}
+h1{font-size:18px;line-height:1.5;margin:16px 0 8px}
+p{font-size:14px;line-height:1.6;color:#c9d4e0;margin:0 0 20px}
+.go{display:flex;align-items:center;justify-content:center;min-height:52px;background:#e9b45a;color:#0b1726;font-size:16px;font-weight:700;text-decoration:none}
+.sub{display:flex;align-items:center;justify-content:center;min-height:44px;margin-top:8px;color:#9fc3ff;font-size:14px}
+</style>
+<script>
+(function(){
+  /* 待ち時間を作らない（けん 11/13「限りなく0秒で」）：読み込みを待たず、頭の時点ですぐ移る */
+  var V = "XDKzdW93d84";
+  try {
+    var ua = navigator.userAgent, inLine = / Line\//i.test(ua);
+    if (inLine && location.search.indexOf("openExternalBrowser=1") < 0) {
+      location.replace(location.pathname + "?openExternalBrowser=1");
+      return;
+    }
+    if (inLine) return;
+    if (/iPhone|iPad|iPod|Android/i.test(ua)) {
+      location.href = "youtube://www.youtube.com/watch?v=" + V;
+      /* アプリが無い・断られたときだけ、1.2秒後にブラウザの YouTube へ。アプリへ移れたら（ページが隠れたら）何もしない */
+      setTimeout(function () { if (!document.hidden) location.replace("https://www.youtube.com/watch?v=" + V); }, 1200);
+    } else {
+      location.replace("https://www.youtube.com/watch?v=" + V);
+    }
+  } catch (e) { /* 何もしない。画面のボタンから開ける */ }
+})();
+</script>
+</head>
+<body>
+<main>
+<img src="https://i.ytimg.com/vi/XDKzdW93d84/maxresdefault_live.jpg" width="1280" height="720" alt="">
+<h1>【ライブ】11/14（土）20:30〜</h1>
+<p>YouTubeアプリで開くと、チャットにコメントできます</p>
+<a class="go" href="https://youtu.be/XDKzdW93d84">YouTubeアプリで開く</a>
+<a class="sub" href="https://www.youtube.com/watch?v=XDKzdW93d84">ブラウザで見る</a>
+</main>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>
