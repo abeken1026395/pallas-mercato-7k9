@@ -17,8 +17,10 @@ docs 配下の全HTMLを4分類のいずれかに割り当て、防御の抜け�
 """
 
 import glob
+import hashlib
 import io
 import os
+import re
 import sys
 
 GUARD_REF = "assets/guard.js"
@@ -150,8 +152,6 @@ GUARD = [
 
 # L2トラップ（判定式ハードコード）で守られているページ
 L2 = [
-    "docs/fan/index.html",
-    "docs/stadium/index.html",
     "docs/racers/index.html",       # 生成物。正本 scripts/template_racers.html
     "docs/next/stadiumPreview.html",
 ]
@@ -163,6 +163,9 @@ L2_ALSO = ["docs/index.html", "docs/payouts/index.html"]
 APPJS = {
     "docs/players/index.html": "docs/players/app.js",
     "docs/motor/index.html": "docs/motor/app.js",   # 生成物。正本 scripts/template.html＋scripts/motor/app.jsx
+    # 2026-11-13 babel-standalone（cdnjs）廃止で判定式が app.js 側へ移った。正本 scripts/<ページ>/app.jsx（scripts/buildPageApps.mjs）
+    "docs/stadium/index.html": "docs/stadium/app.js",
+    "docs/fan/index.html": "docs/fan/app.js",
 }
 
 # クレジット層（canonical照合）。判定関数がトップレベル定数を包んでいる。関数名が消えたら検知する
@@ -231,6 +234,14 @@ def main():
             fails.append("app.js が無い: " + appjs)
         elif JUDGE not in read(appjs):
             fails.append("app.js に判定式が無い: " + appjs)
+        else:
+            # 1行目に正本の sha256 を持つ app.js は、正本と照合する（変換し忘れの検知）
+            m = re.match(r"// .*正本は (scripts/\S+\.jsx) sha256=([0-9a-f]{64})", read(appjs).split("\n", 1)[0])
+            if m:
+                if not os.path.exists(m.group(1)):
+                    fails.append("app.js の正本が無い: " + m.group(1))
+                elif hashlib.sha256(read(m.group(1)).encode("utf-8")).hexdigest() != m.group(2):
+                    fails.append("app.js が正本と合わない（node scripts/buildPageApps.mjs で作り直す）: " + appjs)
 
     # 5) クレジット層に canonical と判定関数が残っているか
     for p, fn in CREDIT.items():
