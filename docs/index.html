@@ -179,6 +179,7 @@ a[href]:active,button:not(:disabled):active,summary:active,[role=button]:active,
 .alert-h{display:block;font-size:16px;font-weight:800;line-height:1.45;color:#fff;margin:0 0 6px}
 .alert p{margin:0;font-size:14px;line-height:1.65}
 .alert-d{display:block;margin-top:4px;font-size:12px;color:#d9b8bb}
+.alert-go{display:flex;align-items:center;justify-content:center;min-height:44px;margin-top:10px;background:#037a35;color:#fff;font-size:15px;font-weight:700;text-decoration:none}
 /* 1画面目の帯（電子書籍の動画の告知・2026-11-10、11-11 作り直し：表紙・全3話の位置・無料と人数・続きの一文） */
 .obi{display:flex;align-items:center;gap:12px;margin:8px 0 0;padding:10px 12px;border:1px solid var(--gold);background:#1a2638;color:var(--tx);text-decoration:none}
 .obi[hidden]{display:none}
@@ -335,8 +336,8 @@ a.fol-r .fol-v::after{content:" \203A";color:var(--mute)}
 <script>/* 日付は最初の描画の前に入れる（後から入ると帯の高さが変わって下が全部ずれる・2026-11-10） */(function(){var d=new Date(Date.now()+9*3600e3);document.getElementById("capD").textContent=(d.getUTCMonth()+1)+"月"+d.getUTCDate()+"日（"+"日月火水木金土".charAt(d.getUTCDay())+"）";})();</script>
 
 <div class="wrap">
-<!-- 重大なお知らせ（2026-11-13 けん「旧あべけん公式LINEが乗っ取られた。緊急で」）。消すときはこの div と .alert の CSS をまとめて消す -->
-<div class="alert" role="alert"><b class="alert-h">重大なお知らせ｜旧「あべけん公式LINE」が乗っ取られました</b><p>旧アカウントから届くメッセージやリンクは開かないでください。お金・個人情報・パスワードを求められても応じず、ブロックと通報をお願いします。データ攻めからのご案内は、このサイトで行います。<span class="alert-d">2026年11月13日</span></p></div>
+<!-- 重大なお知らせ（2026-11-13 けん「旧あべけん公式LINEが乗っ取られた。緊急で」）。新しい公式LINEの入口は けん支給の https://api.l7nana.com/a/L7-396n8g（line.me/R/ti/p/@108cpgjq へ移ることを確認）。消すときはこの div と .alert の CSS をまとめて消す -->
+<div class="alert" role="alert"><b class="alert-h">重大なお知らせ｜旧「あべけん公式LINE」が乗っ取られました</b><p>旧アカウントから届くメッセージやリンクは開かないでください。お金・個人情報・パスワードを求められても応じず、ブロックと通報をお願いします。データ攻めからのご案内は、このサイトで行います。<span class="alert-d">2026年11月13日</span></p><a class="alert-go" href="https://api.l7nana.com/a/L7-396n8g" target="_blank" rel="noopener">新しい公式LINEはこちら ›</a></div>
 <a class="yto" href="./in/top/youtube-obi/" target="_blank" rel="noopener"><span class="yto-av" aria-hidden="true"><img src="./assets/youtubeIcon.jpg" width="44" height="44" alt=""><span class="yto-ic"><svg viewBox="0 0 14 14"><path d="M3 1.5v11l9.5-5.5z"/></svg></span></span><span class="yto-b"><span class="yto-l" id="ytoL">YouTube｜新チャンネル開設</span><span class="yto-t">あべけんいち</span><span class="yto-s" id="ytoS" hidden></span></span><span class="yto-go" id="ytoG"><span class="ytoW">チャンネル</span>登録 ›</span></a>
 <script>/* ライブ配信の告知（2026-11-11 けん「今日の19時と13日の19時からライブやる事と登録を促してほしい」）。日本時間の日付で文面を変え、11/14 0時からは元の「新チャンネル開設」に戻す。右の文言は常に「チャンネル登録」（けん 2026-11-13「チャンネル登録を促して」）。配信中かどうかは分からないので「配信中」とは書かない */(function(){var n=Date.now(),day=function(t){return new Date(t+9*3600e3).toISOString().slice(0,10);},L=[Date.UTC(2026,10,11,10),Date.UTC(2026,10,13,10)],lab=["11日（水）","13日（金）"],td=day(n),i,nx=-1;for(i=0;i<L.length;i++){if(day(L[i])>=td){nx=i;break;}}if(nx<0)return;var l=document.getElementById("ytoL"),s=document.getElementById("ytoS");l.textContent="";var b=document.createElement("span");b.className="yto-lv";b.textContent="LIVE";l.appendChild(b);l.appendChild(document.createTextNode((day(L[nx])===td?"今夜":lab[nx].slice(0,3))+"19時から配信"));if(nx+1<L.length){s.textContent=lab[nx+1]+"19時も配信";s.hidden=false;}})();</script>
 <a class="obi" id="ebObi" href="./in/top/ebook-obi/" target="_blank" rel="noopener"><img class="obi-im" src="./assets/ebookEp3.jpg" width="56" height="56" alt=""><span class="obi-b"><span class="obi-l"><span id="ebObiL">第3話 公開中</span><span class="obi-dots" id="ebObiD" aria-label="全3話を配信"><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="obi-free">無料</span></span><span class="obi-t">ついに最終回。</span></span><span class="obi-go"><span class="obiW">受け取る </span>›</span></a>
