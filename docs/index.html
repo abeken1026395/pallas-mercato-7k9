@@ -151,7 +151,7 @@ a[href]:active,button:not(:disabled):active,summary:active,[role=button]:active,
 .cont{display:block;margin:22px 0 0;padding:14px;border:1px dashed var(--line);font-size:14px;color:var(--dim);text-align:center}
 
 /* 画面下の固定タブ */
-.tb{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--bar);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+.tb{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--bar);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);-webkit-transform:translateZ(0);transform:translateZ(0)}
 .tb-in{max-width:600px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);height:58px}
 .tb a,.tb button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:none;border:0;font-size:12px;font-weight:600;color:var(--dim);cursor:pointer}
 .tb .on{color:var(--tx)}

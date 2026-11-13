@@ -26,10 +26,14 @@
 .ugSwCover{position:absolute !important;inset:0 !important;display:block !important;margin:0 !important;padding:0 !important;background:none !important;border:0 !important;z-index:50 !important;cursor:inherit;touch-action:manipulation !important;-webkit-tap-highlight-color:transparent}
 .ugSwCover input{position:absolute !important;left:0 !important;top:0 !important;width:1px !important;height:1px !important;margin:0 !important;visibility:hidden !important}
 
-/* ③ ページ送り */
-html.ugLeave body{transition:transform .18s ease-in,opacity .18s ease-in;transform:translateX(-28px);opacity:0}
-html.ugEnter body{animation:ugIn .22s ease-out both}
+/* ③ ページ送り
+   動かすのは本文だけ。下のタブ（.dzf-tb・トップの .tb）・メニュー（.dzf-sh .dzf-bd・トップの .sheet .shbd）・出走表の記録シートの帯（.kb-bar）は止めたまま。
+   body ごと動かすと、画面に固定した下のタブが body の下端へ飛んで一瞬消え、ページを移るたびにちらついた（2026-11-13） */
+html.ugLeave body>:not(.dzf-tb):not(.dzf-sh):not(.dzf-bd):not(.tb):not(.sheet):not(.shbd):not(.kb-bar){transition:transform .18s ease-in,opacity .18s ease-in;transform:translateX(-28px);opacity:0}
+html.ugEnter body>:not(.dzf-tb):not(.dzf-sh):not(.dzf-bd):not(.tb):not(.sheet):not(.shbd):not(.kb-bar){animation:ugIn .22s ease-out both}
 @keyframes ugIn{from{transform:translateX(24px);opacity:0}to{transform:none;opacity:1}}
+/* 横へずらした分で画面の幅が一瞬広がり、下のタブの位置が動かないように、動いている間だけ横のはみ出しを切る */
+html.ugLeave,html.ugEnter,html.ugLeave body,html.ugEnter body{overflow-x:clip}
 
 /* ④ パタパタ：数字1字ずつが、上半分が倒れ、下半分が起き上がってめくれる。
    止まったあとの普通の文字と見た目がずれないよう、札の地は周りの背景色（--ugBg）、幅は元の数字の幅、書体と行の高さは元のまま */
@@ -46,8 +50,9 @@ html.ugEnter body{animation:ugIn .22s ease-out both}
 @keyframes ugRise{from{transform:perspective(180px) rotateX(90deg)}to{transform:perspective(180px) rotateX(0)}}
 
 @media (prefers-reduced-motion:reduce){
-  .ugBand i,.ugFall,.ugRise,html.ugEnter body{animation:none !important}
-  html.ugLeave body{transition:none;transform:none;opacity:1}
+  .ugBand i,.ugFall,.ugRise{animation:none !important}
+  html.ugEnter body>:not(.dzf-tb):not(.dzf-sh):not(.dzf-bd):not(.tb):not(.sheet):not(.shbd):not(.kb-bar){animation:none}
+  html.ugLeave body>:not(.dzf-tb):not(.dzf-sh):not(.dzf-bd):not(.tb):not(.sheet):not(.shbd):not(.kb-bar){transition:none;transform:none;opacity:1}
   .ugP.ugDown{transform:none}
 }
 
