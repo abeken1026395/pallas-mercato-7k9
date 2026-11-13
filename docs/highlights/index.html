@@ -613,14 +613,14 @@ function boatRow(b, ba, jc){
   const fem=FEMALE.has(no);
   const jim=isJimoto(b, ba);
   const rid=ba+'_'+b['枠']+'_'+no;
-  return `<div class="boat" data-rid="${rid}" data-no="${no}">
-    <span class="wk wk${b['枠']}">${b['枠']}</span>
-    <span class="lv lv${b['級別']}">${b['級別']}</span>
-    <span class="nm${fem?' fem-nm':''}"><span class="nmline"><a href="../players/?toban=${no}" onclick="event.stopPropagation()" style="color:inherit;text-decoration:none;border-bottom:1px dotted #4a6a8a">${b['氏名']}</a>${jim?'<span class="jimoto">地元</span>':''}${b['誕生日']?'<span class="bdmk">誕</span>':''}${fl}${isOshi(no)?'<span class="oshi-mk">⭐</span>':''}</span>${b['氏名カナ']?`<span class="nmkana">${b['氏名カナ']}</span>`:''}</span>
-    ${(/^\d+$/.test(String(mtxt))&&jc)?`<a class="mtr${mc}" href="../motor-maintenance/#m${jc}-${mtxt}" onclick="event.stopPropagation()" style="text-decoration:none;border-bottom:1px dotted #4a6a8a" aria-label="${mtxt}号機の整備の記録">機${mtxt}</a>${omMark(jc,mtxt)}`:`<span class="mtr${mc}">機${mtxt}</span>`}
-    <span class="stat">全${b['全国勝率'].toFixed(2)}／当${up?'<span class="up">':''}${b['当地勝率']>0?b['当地勝率'].toFixed(2):'－'}${up?'▲</span>':''}</span>
+  return `<div class="boat" data-rid="${esc(rid)}" data-no="${esc(no)}">
+    <span class="wk wk${esc(b['枠'])}">${esc(b['枠'])}</span>
+    <span class="lv lv${esc(b['級別'])}">${esc(b['級別'])}</span>
+    <span class="nm${fem?' fem-nm':''}"><span class="nmline"><a href="../players/?toban=${esc(no)}" onclick="event.stopPropagation()" style="color:inherit;text-decoration:none;border-bottom:1px dotted #4a6a8a">${esc(b['氏名'])}</a>${jim?'<span class="jimoto">地元</span>':''}${b['誕生日']?'<span class="bdmk">誕</span>':''}${fl}${isOshi(no)?'<span class="oshi-mk">⭐</span>':''}</span>${b['氏名カナ']?`<span class="nmkana">${esc(b['氏名カナ'])}</span>`:''}</span>
+    ${(/^\d+$/.test(String(mtxt))&&jc)?`<a class="mtr${mc}" href="../motor-maintenance/#m${esc(jc)}-${esc(mtxt)}" onclick="event.stopPropagation()" style="text-decoration:none;border-bottom:1px dotted #4a6a8a" aria-label="${mtxt}号機の整備の記録">機${mtxt}</a>${omMark(jc,mtxt)}`:`<span class="mtr${mc}">機${esc(mtxt)}</span>`}
+    <span class="stat">全${fx(b['全国勝率'],2)}／当${up?'<span class="up">':''}${b['当地勝率']>0?fx(b['当地勝率'],2):'－'}${up?'▲</span>':''}</span>
     <span class="bchev">▶</span>
-  </div><div class="bprof" id="bp-${rid}"></div>`;
+  </div><div class="bprof" id="bp-${esc(rid)}"></div>`;
 }
 
 // 朝の分類（highlights.json の「分類」。predictions/ に保存した判定と同じ・トップの答え合わせの対象）。
@@ -636,7 +636,7 @@ function bunruiTag(r){
 function badge(r){
   const lv=haranLv(r);
   const cls=lv>=4?'b-hot':(lv>=2?'b-mid':'b-in');
-  return bunruiTag(r)+`<span class="badge ${cls}">①着外${lv}</span>`;
+  return bunruiTag(r)+`<span class="badge ${cls}">①着外${esc(lv)}</span>`;
 }
 // その日のデータに「分類」があるか（9/30より前の前日・前々日や、明日の前夜プレビューには無い）。
 function hasBunrui(arr){ return arr.some(r=>r['分類']==='波乱'||r['分類']==='堅め'); }
@@ -650,30 +650,30 @@ function haranKey(r){ const v=hidx(r); return v===null?(r['波乱']||0):v; }
 function liveWx(code){
   const w=LIVEW[code]; if(!w) return '';
   const it=[];
-  if(w['天候']) it.push(`天候 ${w['天候']}`);
-  if(w['風速']!=null) it.push(`風 ${w['風速']}m`);   // ※風向は未検証のため非表示
-  if(w['波高']!=null) it.push(`波 ${w['波高']}cm`);
-  if(w['気温']!=null) it.push(`気温 ${w['気温']}℃`);
-  if(w['水温']!=null) it.push(`水温 ${w['水温']}℃`);
+  if(w['天候']) it.push(`天候 ${esc(w['天候'])}`);
+  if(w['風速']!=null) it.push(`風 ${esc(w['風速'])}m`);   // ※風向は未検証のため非表示
+  if(w['波高']!=null) it.push(`波 ${esc(w['波高'])}cm`);
+  if(w['気温']!=null) it.push(`気温 ${esc(w['気温'])}℃`);
+  if(w['水温']!=null) it.push(`水温 ${esc(w['水温'])}℃`);
   if(!it.length) return '';
-  const t=w['時刻']?`${w['時刻']}現在`:'直近';
-  return `<div class="livewx">🌊 実況（${t}・${w['レース']||''}時点の水面気象）｜ ${it.join(' ／ ')}</div>`;
+  const t=w['時刻']?`${esc(w['時刻'])}現在`:'直近';
+  return `<div class="livewx">🌊 実況（${t}・${esc(w['レース']||'')}時点の水面気象）｜ ${it.join(' ／ ')}</div>`;
 }
 function windSignal(code){
   const w=LIVEW[code]; const th=(WINDTEND&&WINDTEND['閾値'])||5;
   const t=WINDTEND&&WINDTEND['場']&&WINDTEND['場'][code];
   if(!w||w['風速']==null||!t||w['風速']<th) return '';
-  return `<div class="windsig">🌀 実測傾向：この水面は強風（${th}m/s〜）時に万舟率が高め（${t['平均万舟率']}%→<b>${t['強風時万舟率']}%</b>／過去${t['件数']}レース・場平均比）。ただいま実況${w['風速']}m。<span class="cav">傾向であり予想・断定ではありません。判定には使っていません。</span></div>`;
+  return `<div class="windsig">🌀 実測傾向：この水面は強風（${esc(th)}m/s〜）時に万舟率が高め（${esc(t['平均万舟率'])}%→<b>${esc(t['強風時万舟率'])}%</b>／過去${esc(t['件数'])}レース・場平均比）。ただいま実況${esc(w['風速'])}m。<span class="cav">傾向であり予想・断定ではありません。判定には使っていません。</span></div>`;
 }
 function tideInfo(code){
   const s=TIDE&&TIDE['stadiums']&&TIDE['stadiums'][code];
   if(!s) return '';
   const parts=[];
-  if(TIDE['潮回り']) parts.push(TIDE['潮回り']);
-  if(s['干満差']!=null) parts.push(`干満差 ${s['干満差']}m`);
-  if(s['現在潮位']!=null) parts.push(`現在 ${s['現在潮位']}m`);
-  if(s['満潮']&&s['満潮'].length) parts.push(`満潮 ${s['満潮'].join('・')}`);
-  if(s['干潮']&&s['干潮'].length) parts.push(`干潮 ${s['干潮'].join('・')}`);
+  if(TIDE['潮回り']) parts.push(esc(TIDE['潮回り']));
+  if(s['干満差']!=null) parts.push(`干満差 ${esc(s['干満差'])}m`);
+  if(s['現在潮位']!=null) parts.push(`現在 ${esc(s['現在潮位'])}m`);
+  if(s['満潮']&&s['満潮'].length) parts.push(`満潮 ${esc([].concat(s['満潮']).join('・'))}`);
+  if(s['干潮']&&s['干潮'].length) parts.push(`干潮 ${esc([].concat(s['干潮']).join('・'))}`);
   if(!parts.length) return '';
   return `<div class="tideinfo">🌊 潮（水面コンディションの事実）｜ ${parts.join(' ／ ')}<span class="cav">。事実の提示のみ。勝敗・荒れ予想には用いません。</span></div>`;
 }
@@ -689,13 +689,13 @@ function e30Info(r){
   const cells=(r['艇']||[]).slice().sort((a,b)=>(a['枠']-b['枠'])).map(b=>{
     const no=String(b['登録番号']);
     const ep=stats[no];
-    if(!ep) return `<span class="e30p"><span class="w2"></span>${b['枠']} ${b['氏名']} <span style="opacity:.6">—</span></span>`;
+    if(!ep) return `<span class="e30p"><span class="w2"></span>${esc(b['枠'])} ${esc(b['氏名'])} <span style="opacity:.6">—</span></span>`;
     let w1=0,w2=0; const cs=ep['コース別']||{};
     Object.keys(cs).forEach(c=>{ w1+=cs[c]['1着数']; w2+=cs[c]['2連対数']; });
     const N=ep['総出走数'];
-    return `<span class="e30p">${b['枠']} ${b['氏名']}　${N}走 <span class="w">1着${w1}</span> <span class="r2">2連対${w2}</span>${N<10?' <span class="few">N少</span>':''}</span>`;
+    return `<span class="e30p">${esc(b['枠'])} ${esc(b['氏名'])}　${esc(N)}走 <span class="w">1着${esc(w1)}</span> <span class="r2">2連対${esc(w2)}</span>${N<10?' <span class="few">N少</span>':''}</span>`;
   }).join('');
-  return `<div class="e30fact"><span class="e30h">⚙ ${vn['場名']} はE30ガソリン使用</span>（${intro}導入・出典 ${E30STATS['出典']||'BoatraceOpenAPI/resultsミラー（mbrace由来）'}）`
+  return `<div class="e30fact"><span class="e30h">⚙ ${esc(vn['場名'])} はE30ガソリン使用</span>（${esc(intro)}導入・出典 ${esc(E30STATS['出典']||'BoatraceOpenAPI/resultsミラー（mbrace由来）')}）`
     +`<div class="e30grid">${cells}</div>`
     +`<span class="cav">該当場通算の生データ（総出走数・1着数・2連対数）。評価・推測は含みません。判定には使っていません。N&lt;10は参考値。</span></div>`;
 }
@@ -722,8 +722,8 @@ function fcstWx(r){
 // 占い（あそび）への導線。当日タブのみ＝勝負運は日運で毎朝並び替わるため、過去日・未来日には出さない。
 function uranaiCard(r){
   if(SRC!=='highlights.json' || ISNEXT) return '';
-  const u=`../uranai/?jcd=${r['場コード']}&hd=${KAISAI}&rno=${r['レース']}&from=highlights`;
-  return `<div class="uranai-card"><a class="uranai-link" href="${u}">🔮 この6艇を占う</a><span class="uranai-cav">星座・干支・血液型だけのあそび。見立てとは関係ありません。</span></div>`;
+  const u=`../uranai/?jcd=${encodeURIComponent(r['場コード'])}&hd=${encodeURIComponent(KAISAI)}&rno=${encodeURIComponent(r['レース'])}&from=highlights`;
+  return `<div class="uranai-card"><a class="uranai-link" href="${esc(u)}">🔮 この6艇を占う</a><span class="uranai-cav">星座・干支・血液型だけのあそび。見立てとは関係ありません。</span></div>`;
 }
 // レースごとの通知（10分前・結果）の置き場所。ボタンは ../assets/tsuchi.js が入れる（2026-11-13 けん）
 function dztHtml(r){
@@ -735,7 +735,7 @@ function dztHtml(r){
 function chushiCard(r, ctx){
   const uid = r['場コード']+'_'+r['レース'];
   const title = (ctx==='venue') ? r['レース'] : `${r['場名']} ${r['レース']}`;
-  return `<div class="race chushi" data-uid="${uid}"><div class="chushi-h"><div class="rtop"><span class="rname">${title}</span>${r['企画名']?`<span class="kikaku">${r['企画名']}</span>`:''}<span class="chushi-b">中止</span></div></div></div>`;
+  return `<div class="race chushi" data-uid="${esc(uid)}"><div class="chushi-h"><div class="rtop"><span class="rname">${esc(title)}</span>${r['企画名']?`<span class="kikaku">${esc(r['企画名'])}</span>`:''}<span class="chushi-b">中止</span></div></div></div>`;
 }
 function renderCard(r, ctx){
   if(isChushi(r)) return chushiCard(r, ctx);
@@ -746,22 +746,22 @@ function renderCard(r, ctx){
   const title = (ctx==='venue') ? r['レース'] : `${r['場名']} ${r['レース']}`;  // 場別=R番号のみ／波乱堅め=場名+R
   const isPrev=(SRC==='highlights_prev.json'||SRC==='highlights_prev2.json');  // 前日/前々日のみ結果併記
   const res=isPrev?RESULTS[uid]:null;
-  const resHead=res?`<span class="rresult">結果 ${res.finish}${res.payout!=null?` <b class="${res.payout>=10000?'man':''}">${(res.payout).toLocaleString()}円</b>`:''}</span>`:'';
-  const resRow=res?`<div class="rresult-row">🏁 <span>結果 <b>${res.finish}</b></span>${res.payout!=null?`<span>3連単 <b class="${res.payout>=10000?'man':''}">${(res.payout).toLocaleString()}円</b></span>`:''}<span class="src">出典：results（確定成績）</span></div>`:'';
-  return `<div class="race${open?' open':''}" data-uid="${uid}" data-dl="${dl2min(r['締切時刻'])}">
-    <div class="rhead" role="button" tabindex="0" aria-expanded="${open?'true':'false'}" aria-controls="rb-${uid}" data-uid="${uid}">
-      <div class="rtop"><span class="rname">${title}</span>${r['日目']?`<span class="nichi">${r['日目']}</span>`:''}${r['企画名']?`<span class="kikaku">${r['企画名']}</span>`:''}${badge(r)}<span class="oshi-slot">${oshiRaceBadge(r)}</span>${omRaceBadge(r)}<span class="soon-badge" aria-hidden="true">まもなく</span>${resHead}${r['締切時刻']?`<span class="deadline">締切 ${r['締切時刻']}</span>`:''}<span class="rchev" aria-hidden="true">▼</span></div>
-      <div class="rmitate"><span class="lbl">見立て</span><span class="mt-txt">${r['見立て']}</span></div>
+  const resHead=res?`<span class="rresult">結果 ${esc(res.finish)}${res.payout!=null?` <b class="${res.payout>=10000?'man':''}">${esc((res.payout).toLocaleString())}円</b>`:''}</span>`:'';
+  const resRow=res?`<div class="rresult-row">🏁 <span>結果 <b>${esc(res.finish)}</b></span>${res.payout!=null?`<span>3連単 <b class="${res.payout>=10000?'man':''}">${esc((res.payout).toLocaleString())}円</b></span>`:''}<span class="src">出典：results（確定成績）</span></div>`:'';
+  return `<div class="race${open?' open':''}" data-uid="${esc(uid)}" data-dl="${esc(dl2min(r['締切時刻']))}">
+    <div class="rhead" role="button" tabindex="0" aria-expanded="${open?'true':'false'}" aria-controls="rb-${esc(uid)}" data-uid="${esc(uid)}">
+      <div class="rtop"><span class="rname">${esc(title)}</span>${r['日目']?`<span class="nichi">${esc(r['日目'])}</span>`:''}${r['企画名']?`<span class="kikaku">${esc(r['企画名'])}</span>`:''}${badge(r)}<span class="oshi-slot">${oshiRaceBadge(r)}</span>${omRaceBadge(r)}<span class="soon-badge" aria-hidden="true">まもなく</span>${resHead}${r['締切時刻']?`<span class="deadline">締切 ${esc(r['締切時刻'])}</span>`:''}<span class="rchev" aria-hidden="true">▼</span></div>
+      <div class="rmitate"><span class="lbl">見立て</span><span class="mt-txt">${esc(r['見立て'])}</span></div>
     </div>
-    <div class="rbody" id="rb-${uid}"${open?'':' hidden'}>
+    <div class="rbody" id="rb-${esc(uid)}"${open?'':' hidden'}>
       ${dztHtml(r)}
       ${resRow}
       ${wx}
       ${e30Info(r)}
       ${nigeSecondFact(r)}
       <div class="boats">${r['艇'].map(b=>boatRow(b, r['場名'], r['場コード'])).join('')}</div>
-      <div class="tenkai"><div class="t">展開の筋</div>${r['展開'].map(p=>`<p>${p}</p>`).join('')}</div>
-      <div class="suji"><b>波及の連鎖</b>：${r['波及']}</div>
+      <div class="tenkai"><div class="t">展開の筋</div>${r['展開'].map(p=>`<p>${esc(p)}</p>`).join('')}</div>
+      <div class="suji"><b>波及の連鎖</b>：${esc(r['波及'])}</div>
       ${inRateHtml(r)}
       ${trailHtml(r)}
       ${tenjiHtml(r)}
@@ -776,7 +776,7 @@ function renderCard(r, ctx){
 
 function sw(v){VIEW=v;document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.v===v));render();}
 function ss(s){SORT=s;document.querySelectorAll('.sortbtn').forEach(t=>t.classList.toggle('on',t.dataset.s===s));render();}
-function dl2min(hhmm){if(!hhmm||hhmm.indexOf(':')<0)return 99999;const p=hhmm.split(':');return (+p[0])*60+(+p[1]);}
+function dl2min(hhmm){if(!hhmm||typeof hhmm!=='string'||hhmm.indexOf(':')<0)return 99999;const p=hhmm.split(':');return (+p[0])*60+(+p[1]);}
 // 締切順の並べ替えキー。当日タブでは締切を過ぎたレースを後ろに回し、締切間近が常に上に来る。
 function dlSortKey(r){
   const d=dl2min(r['締切時刻']);
@@ -807,7 +807,7 @@ function refreshDeadlineState(){
     const nx=pairs.filter(x=>x.d<99999 && x.d>=nm).sort((a,b)=>a.d-b.d)[0];
     if(!nx){ el.textContent=''; return; }
     const hh=String(Math.floor(nx.d/60)).padStart(2,'0'), mm=String(nx.d%60).padStart(2,'0'), rem=nx.d-nm;
-    el.innerHTML=`次 ${nx.r} <span class="vnext-t">締切 ${hh}:${mm}</span>`;
+    el.innerHTML=`次 ${esc(nx.r)} <span class="vnext-t">締切 ${hh}:${mm}</span>`;
     if(rem<=10) el.classList.add('urgent'); else if(rem<=30) el.classList.add('soon');
   });
 }
@@ -838,7 +838,7 @@ document.addEventListener('click',function(e){
   const chip=e.target.closest('.rchip');
   if(!chip) return;
   const uid=chip.dataset.target;
-  const race=document.querySelector('.race[data-uid="'+uid+'"]');
+  const race=document.querySelector('.race[data-uid="'+CSS.escape(uid||'')+'"]');
   if(!race) return;
   if(!OPEN_RACES.has(uid)) toggleRace(uid, race);   // 未展開なら既存トグルで展開
   race.scrollIntoView({behavior:'smooth', block:'start'});  // 既に開いていればスクロールのみ
@@ -865,13 +865,17 @@ function loadKansenki(){
   if(!/^\d{8}$/.test(KAISAI)) return gp;
   const codes=[...new Set(RACES.map(r=>r['場コード']))];
   return Promise.all([gp, ...codes.map(c=>
-    fetch(`../data/kansenki/articles/${KAISAI}-${c}.json?_=`+Date.now())
+    fetch(`../data/kansenki/articles/${KAISAI}-${encodeURIComponent(c)}.json?_=`+Date.now())
       .then(r=>r.ok?r.json():null)
       .then(a=>{ if(a) KANSENKI[c]=a; })
       .catch(()=>{})
   )]);
 }
 function kEsc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+/* データの文字列を HTML に入れるときは必ず esc() を通す（/payouts/ と同じ）。onclick の '…' の中は jsq() */
+function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function fx(v,d){return (typeof v==='number')?v.toFixed(d):'－';}
+function jsq(v){return esc(String(v==null?'':v).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\r/g,'\\r').replace(/\n/g,'\\n').replace(/\u2028/g,'\\u2028').replace(/\u2029/g,'\\u2029'));}
 // 用語解決: 見出し直ヒット優先→無ければ各見出しのalias（表記ゆれ吸収）を逆引き。
 // 定義・ふりがなは寄せ先の見出しのものを使う（チップ表記は記事の語のまま）。辞書・記事JSONには不介入。
 function kGlo(t){
@@ -892,10 +896,10 @@ function renderKansenki(a, jcd){
     const g=kGlo(t);
     if(!g) return `<span class="ksk-chip is-plain">${kEsc(t)}</span>`;  // 辞書に無い語=tap無効
     const cid=`kg-${jcd}-${i}`;
-    const def=`<span class="ksk-def" id="${cid}" style="display:none"><b>${kEsc(t)}</b>`+
+    const def=`<span class="ksk-def" id="${esc(cid)}" style="display:none"><b>${kEsc(t)}</b>`+
       `<span class="yomi">（${kEsc(g['yomi']||'')}）</span> ${kEsc(g['desc']||'')}</span>`;
-    return `<span class="ksk-chip is-tap" id="c-${cid}" role="button" tabindex="0" `+
-      `onclick="kskTerm('${cid}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();kskTerm('${cid}')}">`+
+    return `<span class="ksk-chip is-tap" id="c-${esc(cid)}" role="button" tabindex="0" `+
+      `onclick="kskTerm('${jsq(cid)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();kskTerm('${jsq(cid)}')}">`+
       `${kEsc(t)}<span class="ksk-chip-mk">？</span></span>${def}`;
   }).join('');
   const terms=chips?`<div class="ksk-terms">用語　${chips}</div>`:'';
@@ -903,12 +907,12 @@ function renderKansenki(a, jcd){
     <div class="ksk-tag">場の朝刊</div>
     <div class="ksk-title">${kEsc(a['title']||'')}</div>
     <div class="ksk-lead">${lead}</div>
-    <button class="ksk-btn" id="kskb-${jcd}" onclick="kskToggle('${jcd}')">場の朝刊を読む ▼</button>
-    <div class="ksk-full" id="kskf-${jcd}" style="display:none">
+    <button class="ksk-btn" id="kskb-${esc(jcd)}" onclick="kskToggle('${jsq(jcd)}')">場の朝刊を読む ▼</button>
+    <div class="ksk-full" id="kskf-${esc(jcd)}" style="display:none">
       <div class="ksk-body">${full.split(/\n+/).filter(x=>x.trim()).map(x=>{const m=x.match(/^■\s*(.+)$/);return m?'<p class="ksk-sh">'+m[1]+'</p>':'<p>'+x+'</p>';}).join('')}</div>
       ${terms}
     </div>
-    <div class="ksk-note">場の朝刊｜前日までの確定データのみで書いています。予想・買い目は扱いません。<a class="ksk-link" href="../choukan/?d=${KAISAI}&j=${String(a.jcd||'').replace(/[^0-9]/g,'')}">1ページで読む →</a></div>
+    <div class="ksk-note">場の朝刊｜前日までの確定データのみで書いています。予想・買い目は扱いません。<a class="ksk-link" href="../choukan/?d=${esc(KAISAI)}&j=${String(a.jcd||'').replace(/[^0-9]/g,'')}">1ページで読む →</a></div>
   </div>`;
 }
 function kskToggle(jcd){
@@ -1003,13 +1007,13 @@ function renderVenues(){
     const first=v.list[0]||{};
     const setsu=first['節名']||''; const nichi=first['日目']||'';
     const gb=gradeBadges(gradeInfo(v.code,KAISAI));
-    const setsuLine=(setsu||gb.html)?`<div class="vsetsu">${gb.html}${setsu}${nichi?`（${nichi}）`:''}</div>`:'';
+    const setsuLine=(setsu||gb.html)?`<div class="vsetsu">${gb.html}${esc(setsu)}${nichi?`（${esc(nichi)}）`:''}</div>`:'';
     // 明日タブ: 各場の鮮度（更新時刻）＋部分公開バッジ。欠けを誤解させないため部分は明示。
     let nextLine='';
     if(ISNEXT){ const m=NEXTMETA[v.code]||{};
       const up=m['generatedAt']?`更新 ${kEsc(m['generatedAt'])}`:'';
       const nR=(m['レース数']!=null)?m['レース数']:v.list.length;  // 実取得レース数
-      const pr=m['partial']?`<span class="part-badge">取得済 ${nR}R／深夜に追加される場合があります</span>`:'';
+      const pr=m['partial']?`<span class="part-badge">取得済 ${esc(nR)}R／深夜に追加される場合があります</span>`:'';
       if(up||pr) nextLine=`<div class="vnext">${up?`<span>${up}</span>`:''}${pr}</div>`;
     }
     const kskCard=(KANSENKI&&KANSENKI[v.code])?renderKansenki(KANSENKI[v.code], v.code):'';  // 記事が無い場は静かに欠番
@@ -1019,20 +1023,20 @@ function renderVenues(){
       const maxH=Math.max.apply(null, live.map(haranKey));
       const hotOk=live.some(r=>hidx(r)!==null) ? maxH>=HI_MIN : maxH>=2;  // 波乱注目タブに載る水準のときだけ⚡
       let hotDone=false;
-      chipBar=`<div class="rchips" role="group" aria-label="${ba} レース頭出し">`+races.map(r=>{
+      chipBar=`<div class="rchips" role="group" aria-label="${esc(ba)} レース頭出し">`+races.map(r=>{
         const n=parseInt(r['レース']);
         const uid=r['場コード']+'_'+r['レース'];
-        if(isChushi(r)) return `<button class="rchip chushi" data-target="${uid}" aria-label="${n}R 中止">${n}</button>`;
+        if(isChushi(r)) return `<button class="rchip chushi" data-target="${esc(uid)}" aria-label="${n}R 中止">${n}</button>`;
         const isHot=(!hotDone && hotOk && haranKey(r)===maxH);  // その場で波乱指数が最も高い1Rだけ⚡
         if(isHot) hotDone=true;
-        return `<button class="rchip${isHot?' hot':''}" data-target="${uid}" data-dl="${dl2min(r['締切時刻'])}" aria-label="${n}Rへ移動">${n}${isHot?'<span class="rchip-mk" aria-hidden="true">⚡</span>':''}</button>`;
+        return `<button class="rchip${isHot?' hot':''}" data-target="${esc(uid)}" data-dl="${esc(dl2min(r['締切時刻']))}" aria-label="${n}Rへ移動">${n}${isHot?'<span class="rchip-mk" aria-hidden="true">⚡</span>':''}</button>`;
       }).join('')+`</div>`;
     }
-    return `<div class="venue" id="v-${v.code}">
-      <div class="vhead${gb.cls}${open?' open':''}" onclick="toggleVenue('${ba}')">
-        <span class="vname">${hasPin(PIN,v.code)?'<span class="pin-mk">📍</span>':''}${ba}</span>
+    return `<div class="venue" id="v-${esc(v.code)}">
+      <div class="vhead${gb.cls}${open?' open':''}" onclick="toggleVenue('${jsq(ba)}')">
+        <span class="vname">${hasPin(PIN,v.code)?'<span class="pin-mk">📍</span>':''}${esc(ba)}</span>
         <span class="vmeta">${v.list.length}R${hot?` ・波乱${hot}`:''}</span>${ch?`<span class="vchushi">${kEsc(ch['表記'])}</span>`:''}
-        <span class="vnext" data-nx="${nx}"></span>
+        <span class="vnext" data-nx="${esc(nx)}"></span>
         <span class="varrow">${open?'▲':'▼'}</span>
       </div>
       ${setsuLine}${nextLine}
@@ -1119,21 +1123,21 @@ function downFactorHtml(r){
   const cp  = r['collapse']||{};
   const cmp = (it)=>{
     if(/1着率/.test(it) && base && base['中央値']!=null){
-      const nn = in1['inN']!=null ? `・${in1['inN']}走` : '';
+      const nn = in1['inN']!=null ? `・${esc(in1['inN'])}走` : '';
       return `<span class="df-cmp">全体の真ん中は${Math.round(base['中央値'])}%${nn}</span>`;
     }
     if(/モーター2連率/.test(it) && r['モーター場平均']!=null){
       return `<span class="df-cmp">6艇平均は${Math.round(r['モーター場平均'])}%</span>`;
     }
     if(/着外率/.test(it) && cp['inOutRate']!=null && cp['n']!=null && cp['total']!=null){
-      return `<span class="df-cmp">${cp['inOutRate']}%（${cp['total']}レース中${cp['n']}レース）</span>`;
+      return `<span class="df-cmp">${esc(cp['inOutRate'])}%（${esc(cp['total'])}レース中${esc(cp['n'])}レース）</span>`;
     }
     return '';
   };
   const list = n>0
-    ? `<ul class="df-list">${items.map(it=>`<li>${it}${cmp(it)}</li>`).join('')}</ul>`
+    ? `<ul class="df-list">${items.map(it=>`<li>${esc(it)}${cmp(String(it))}</li>`).join('')}</ul>`
     : '<div class="df-ref">①が崩れやすいと言える材料は、この3つの条件では出ていません。</div>';
-  return fold(n>0 ? `①の下振れ要因 ${n}つ該当` : '①の下振れ要因 該当なし', '', `<div class="downfactor">${list}</div>`);
+  return fold(n>0 ? `①の下振れ要因 ${esc(n)}つ該当` : '①の下振れ要因 該当なし', '', `<div class="downfactor">${list}</div>`);
 }
 
 // 今節の走り（前日まで）を6艇ぶん並べる（深層）。着順・ST・進入コースの時系列。
@@ -1146,12 +1150,12 @@ function todayRunHtml(b, r){
   const list=(TODAYRUN[no]||[]).filter(x=>!(x['場']===r['場名'] && x['レース']===r['レース']));
   if(!list.length) return '';
   return list.map(x=>{
-    const ch=(typeof x['着']==='number' && x['着']>=1 && x['着']<=6) ? `${x['着']}着` : (x['着']!=null?String(x['着']):'—');
+    const ch=(typeof x['着']==='number' && x['着']>=1 && x['着']<=6) ? `${x['着']}着` : (x['着']!=null?esc(x['着']):'—');
     const cls=(x['着']===1)?'win':((typeof x['着']==='number' && x['着']>=4 && x['着']<=6)?'lose':'');
     const st=(x['ST']!=null)?` ST${(x['ST']<0?'-':'')+Math.abs(x['ST']).toFixed(2).replace(/^0/,'')}`:'';
-    const co=(x['コース']!=null)?` ${x['コース']}コース`:'';
+    const co=(x['コース']!=null)?` ${esc(x['コース'])}コース`:'';
     const dv=(typeof x['展示偏差']==='number')?` 展示${x['展示偏差']>0?'+':''}${x['展示偏差'].toFixed(3)}`:'';
-    return `<span class="tr-one"><b class="${cls}">${ch}</b> 本日${x['レース']}${st}${co}${dv}</span>`;
+    return `<span class="tr-one"><b class="${cls}">${ch}</b> 本日${esc(x['レース'])}${st}${co}${dv}</span>`;
   }).join('');
 }
 
@@ -1165,14 +1169,14 @@ function trailHtml(r){
     const t = b['今節の走り']||[];
     const w = WNUM[(+b['枠'])-1];
     const td = todayRunHtml(b, r);
-    if(!t.length && !td) return `<tr><th>${w}${b['氏名']}</th><td class="tr-run dim">—</td></tr>`;
+    if(!t.length && !td) return `<tr><th>${w}${esc(b['氏名'])}</th><td class="tr-run dim">—</td></tr>`;
     const runs = t.map(x=>{
-      const ch = (typeof x['着']==='number') ? `${x['着']}着` : x['着'];
+      const ch = (typeof x['着']==='number') ? `${x['着']}着` : esc(x['着']);
       const cls = (x['着']===1) ? 'win' : ((typeof x['着']==='number' && x['着']>=4) ? 'lose' : '');
-      return `<span class="tr-one"><b class="${cls}">${ch}</b> ${x['日']}日目${x['レース']}`
-           + ` ST${x['ST']} ${x['コース']}コース</span>`;
+      return `<span class="tr-one"><b class="${cls}">${ch}</b> ${esc(x['日'])}日目${esc(x['レース'])}`
+           + ` ST${esc(x['ST'])} ${esc(x['コース'])}コース</span>`;
     }).join('');
-    return `<tr><th>${w}${b['氏名']}</th><td class="tr-run">${runs}${td}</td></tr>`;
+    return `<tr><th>${w}${esc(b['氏名'])}</th><td class="tr-run">${runs}${td}</td></tr>`;
   }).join('');
   return fold('今節の走り', hasToday?'（6艇・前日まで＋本日）':'（6艇・前日まで）',
       `<div class="trail-fact">`
@@ -1198,15 +1202,15 @@ function inRateHtml(r){
   if(!base || base['中央値']==null) return '';
   const in1 = r && r['艇'] && r['艇'][0];
   if(!in1 || in1['inWinRate']==null) return '';
-  const nn = in1['inN']!=null ? `${in1['inN']}走` : '—';
+  const nn = in1['inN']!=null ? `${esc(in1['inN'])}走` : '—';
   return fold(`1コース1着率 ${Math.round(in1['inWinRate'])}%`, `（${nn}・過去1年）`,
       `<div class="inrate-fact">`
     + `<table class="ir-t"><tbody>`
-    + `<tr><th>①${in1['氏名']}（${in1['級別']}）</th><td class="n">${Math.round(in1['inWinRate'])}%</td><td class="n">${nn}</td></tr>`
-    + `<tr><th>1コース1着率を持つ選手の真ん中</th><td class="n">${Math.round(base['中央値'])}%</td><td class="n">${base['人数'].toLocaleString()}人</td></tr>`
+    + `<tr><th>①${esc(in1['氏名'])}（${esc(in1['級別'])}）</th><td class="n">${Math.round(in1['inWinRate'])}%</td><td class="n">${nn}</td></tr>`
+    + `<tr><th>1コース1着率を持つ選手の真ん中</th><td class="n">${Math.round(base['中央値'])}%</td><td class="n">${esc(base['人数'].toLocaleString())}人</td></tr>`
     + `</tbody></table>`
-    + `<div class="ir-note">1コースに${base['最低走数']}走以上入った選手だけを数えています。${base['最低走数']}走に満たない選手は率を出していません。</div>`
-    + `<div class="ir-src">出典：${base['出典']}／集計 ${base['集計日']}</div>`
+    + `<div class="ir-note">1コースに${esc(base['最低走数'])}走以上入った選手だけを数えています。${esc(base['最低走数'])}走に満たない選手は率を出していません。</div>`
+    + `<div class="ir-src">出典：${esc(base['出典'])}／集計 ${esc(base['集計日'])}</div>`
     + `</div>`);
 }
 
@@ -1221,10 +1225,10 @@ function tenjiHtml(r){
     const t = b['今節展示']||{};
     const d = t['偏差'];
     const n = t['本数']||0;
-    if(d==null) return `<tr><th>${WNUM[(+b['枠'])-1]}${b['氏名']}</th><td class="n dim">—</td><td class="n">${n}本</td></tr>`;
+    if(d==null) return `<tr><th>${WNUM[(+b['枠'])-1]}${esc(b['氏名'])}</th><td class="n dim">—</td><td class="n">${esc(n)}本</td></tr>`;
     const sign = d<0 ? '−' : '+';
     const cls = d<=-0.03 ? 'fast' : (d>=0.03 ? 'slow' : '');
-    return `<tr><th>${WNUM[(+b['枠'])-1]}${b['氏名']}</th><td class="n ${cls}">${sign}${Math.abs(d).toFixed(2)}</td><td class="n">${n}本</td></tr>`;
+    return `<tr><th>${WNUM[(+b['枠'])-1]}${esc(b['氏名'])}</th><td class="n ${cls}">${sign}${Math.abs(d).toFixed(2)}</td><td class="n">${esc(n)}本</td></tr>`;
   }).join('');
   return fold('今節の展示タイム', '（6艇・6艇平均との差）',
       `<div class="tenji-fact">`
@@ -1249,13 +1253,13 @@ function tenjiStatsHtml(r){
     const no=String(b['登録番号']), p=TJS.r[no];
     const nm=String(b['氏名']||'').replace(/\u3000+/g,'');
     const s=p?String(p.s||''):'', since=/^\d{6}$/.test(s)?(s.slice(0,4)+'年'+parseInt(s.slice(4),10)+'月から'):'';
-    const head=`<td><span class="tjs-nm">${WNUM[(+b['枠'])-1]}${nm}</span>${since?`<span class="tjs-s">${since}</span>`:''}</td>`;
+    const head=`<td><span class="tjs-nm">${WNUM[(+b['枠'])-1]}${esc(nm)}</span>${since?`<span class="tjs-s">${since}</span>`:''}</td>`;
     if(!p||ks.every(k=>!p[k]||p[k][0]<TJS_MIN)) return `<tr>${head}<td class="tjs-few" colspan="3">走数が少ないため省略</td></tr>`;
     any=true;
     const tds=ks.map(k=>{
       const v=p[k]||[0,0,0,0,0,0,0], n=v[0];
-      if(n<TJS_MIN) return `<td><span class="tjs-p dim">—</span><span class="tjs-k">${n}走</span></td>`;
-      return `<td><span class="tjs-p">${Math.round(v[t+1]/n*100)}%</span><span class="tjs-k">${n.toLocaleString()}走</span><span class="tjs-k">平均${Math.round(v[t+4]/n*100)}%</span></td>`;
+      if(n<TJS_MIN) return `<td><span class="tjs-p dim">—</span><span class="tjs-k">${esc(n)}走</span></td>`;
+      return `<td><span class="tjs-p">${Math.round(v[t+1]/n*100)}%</span><span class="tjs-k">${esc(n.toLocaleString())}走</span><span class="tjs-k">平均${Math.round(v[t+4]/n*100)}%</span></td>`;
     }).join('');
     return `<tr>${head}${tds}</tr>`;
   }).join('');
@@ -1264,7 +1268,7 @@ function tenjiStatsHtml(r){
   const op=TJSOPEN[rid]?' open':'';
   const tabs=`<div class="nstab">`+['t1','t2','t3'].map(k=>
     `<button type="button" class="nstab-b${k===TJSK?' on':''}" data-tjk="${k}">${TJSLBL[k]}</button>`).join('')+`</div>`;
-  return `<details class="dfold tjs" data-dk="tjs-${rid}"${op}><summary><span class="df-t">展示タイム別の成績</span>`
+  return `<details class="dfold tjs" data-dk="tjs-${esc(rid)}"${op}><summary><span class="df-t">展示タイム別の成績</span>`
     + `<span class="df-s">（${bs.length}艇・${TJSLBL[TJSK]}）</span></summary><div class="dfbody"><div class="tjs-fact">`
     + tabs
     + `<div class="tjs-d">良い＝2位に0.03秒差の単独トップ／悪い＝平均より0.03秒遅い。下段の平均は、同じ進入コースの全選手平均</div>`
@@ -1297,14 +1301,14 @@ function collapseHtml(r){
   if(!cp) return '';                          // 未搭載の旧データは非表示（後方互換）
   const pats = cp['patterns'];
   if(!pats || !pats.length) return '';        // 母数不足（patterns=null）の場は非表示
-  const lines = pats.map(p=>`<span class="cf-p"><b>${p.boat}号艇の${p.kimarite}</b> ${Math.round(p.pct)}%</span>`).join('');
-  const note = `※①が着外だった${cp.n}レースの内訳。①が着外になるのは全体の${cp.inOutRate}%`;
+  const lines = pats.map(p=>`<span class="cf-p"><b>${esc(p.boat)}号艇の${esc(p.kimarite)}</b> ${Math.round(p.pct)}%</span>`).join('');
+  const note = `※①が着外だった${esc(cp.n)}レースの内訳。①が着外になるのは全体の${esc(cp.inOutRate)}%`;
   // B案：最多パターンの艇の“今日の勝ち方の内訳”を事実併記（実数のみ・因果は示唆しない）。
   //   まくり率は「勝ち方の内訳」であり「仕掛ける頻度」ではない誤解を避けるため、分母(1着数)を必ず見せる。
   //   母数不足(1着数<10)やデータ無しは build 側で todayRival=null → 非表示。
   const tv = cp['todayRival'];
   const today = (tv && tv.wins!=null && tv.num!=null)
-    ? `<div class="cf-today">今日の${tv.boat}号艇は${tv.wins}勝中${tv.num}勝が${tv.kimarite}</div>` : '';
+    ? `<div class="cf-today">今日の${esc(tv.boat)}号艇は${esc(tv.wins)}勝中${esc(tv.num)}勝が${esc(tv.kimarite)}</div>` : '';
   return fold('①が崩れるときの形', '（当場・過去1年）', `<div class="collapse-fact"><div class="cf-list">${lines}</div>${today}<div class="cf-note">${note}</div></div>`);
 }
 
@@ -1335,17 +1339,17 @@ function bProfHTML(no, boat){
   // 誕生日の日は年齢を当日計算値に差し替える。p.age は期別データの期首固定値で、
   // 誕生日当日は1つ古い。同じ画面に食い違う年齢を2つ出さないため差し替える。
   const bdm=boat['誕生日'];
-  const ageTxt=bdm?`<b>${bdm['歳']}</b>歳（本日誕生日${bdm['注記']?'・'+bdm['注記']:''}）`:`<b>${p.age}</b>歳`;
-  return `<div class="bp-top"><b>${p.rank}</b>級 / <b>${p.branch}</b>支部・${p.home}出身 / ${ageTxt} / ${p.ht}cm ${p.wt}kg / <b>${p.blood}</b>型</div>
+  const ageTxt=bdm?`<b>${esc(bdm['歳'])}</b>歳（本日誕生日${bdm['注記']?'・'+esc(bdm['注記']):''}）`:`<b>${esc(p.age)}</b>歳`;
+  return `<div class="bp-top"><b>${esc(p.rank)}</b>級 / <b>${esc(p.branch)}</b>支部・${esc(p.home)}出身 / ${ageTxt} / ${esc(p.ht)}cm ${esc(p.wt)}kg / <b>${esc(p.blood)}</b>型</div>
   <div class="bp-grid">
-   <div class="bp-c"><div class="l">全国勝率</div><div class="v">${nat.toFixed(2)}</div></div>
-   <div class="bp-c ${locHi?'hl':''}"><div class="l">当地勝率</div><div class="v">${loc>0?loc.toFixed(2):'－'}</div><div class="s">${locHi?'当地↑':'\u00a0'}</div></div>
-   <div class="bp-c"><div class="l">平均ST</div><div class="v">${p.avgst}</div></div>
-   <div class="bp-c"><div class="l">出走</div><div class="v">${p.syutsu}</div></div>
-   <div class="bp-c"><div class="l">1着/2着</div><div class="v" style="font-size:12px">${p.w1}/${p.w2}</div></div>
-   <div class="bp-c"><div class="l">優勝</div><div class="v">${p.yusyo}</div></div>
-   <div class="bp-c"><div class="l">F数</div><div class="v">${p.f}</div></div>
-   <div class="bp-c"><div class="l">アウト戦</div><div class="v">${(p.out||0).toFixed?p.out.toFixed(1):p.out}<span style="font-size:12px">%</span></div></div>
+   <div class="bp-c"><div class="l">全国勝率</div><div class="v">${fx(nat,2)}</div></div>
+   <div class="bp-c ${locHi?'hl':''}"><div class="l">当地勝率</div><div class="v">${loc>0?fx(loc,2):'－'}</div><div class="s">${locHi?'当地↑':'\u00a0'}</div></div>
+   <div class="bp-c"><div class="l">平均ST</div><div class="v">${esc(p.avgst)}</div></div>
+   <div class="bp-c"><div class="l">出走</div><div class="v">${esc(p.syutsu)}</div></div>
+   <div class="bp-c"><div class="l">1着/2着</div><div class="v" style="font-size:12px">${esc(p.w1)}/${esc(p.w2)}</div></div>
+   <div class="bp-c"><div class="l">優勝</div><div class="v">${esc(p.yusyo)}</div></div>
+   <div class="bp-c"><div class="l">F数</div><div class="v">${esc(p.f)}</div></div>
+   <div class="bp-c"><div class="l">アウト戦</div><div class="v">${esc((p.out||0).toFixed?p.out.toFixed(1):p.out)}<span style="font-size:12px">%</span></div></div>
    <div class="bp-c"><div class="l">2連率</div><div class="v">${p.fuku!=null?(p.fuku*10).toFixed(1)+'<span style="font-size:12px">%</span>':'-'}</div></div>
   </div>
   ${kinMotorFact(no)}
@@ -1354,10 +1358,10 @@ function bProfHTML(no, boat){
 // 今節モーター2連率（racers_today.csv由来・生データのみ・評価語なし）。
 function kinMotorFact(no){
   const k=KINMOTOR[no]; if(!k) return '';
-  const tsu=(k.tsu!=null&&k.tsu!=='')?`<span class="tsu">／通算2連率 ${k.tsu}%</span>`:'';
-  if(!k.n) return `<div class="bp-kinmotor">今節モーター${k.moNo?` No.${k.moNo}`:''}：<span class="none">今節データなし</span>${tsu}</div>`;
+  const tsu=(k.tsu!=null&&k.tsu!=='')?`<span class="tsu">／通算2連率 ${esc(k.tsu)}%</span>`:'';
+  if(!k.n) return `<div class="bp-kinmotor">今節モーター${k.moNo?` No.${esc(k.moNo)}`:''}：<span class="none">今節データなし</span>${tsu}</div>`;
   const few=k.n<5?'<span class="few">N少</span>':'';
-  return `<div class="bp-kinmotor">今節モーター${k.moNo?` No.${k.moNo}`:''}：<b>${k.n}走</b> 2連対<b>${k.w2}</b>（${k.rate}%）${few}${tsu}</div>`;
+  return `<div class="bp-kinmotor">今節モーター${k.moNo?` No.${esc(k.moNo)}`:''}：<b>${k.n}走</b> 2連対<b>${k.w2}</b>（${k.rate}%）${few}${tsu}</div>`;
 }
 document.addEventListener('click',function(e){
   const bt=e.target.closest('.boat');
@@ -1478,7 +1482,7 @@ function nigeSecondFact(r){
   const tot=(NSDATA.meta.races&&NSDATA.meta.races[i])||0; if(!tot) return '';
   const bs=(r['艇']||[]).slice().sort((a,b)=>(a['枠']-b['枠'])); if(!bs.length) return '';
   const tabs=`<div class="nstab">`+ps.map(p=>
-    `<button type="button" class="nstab-b${p===NSPER?' on':''}" data-nsp="${p}">${NSPLBL[p]||p}</button>`).join('')+`</div>`;
+    `<button type="button" class="nstab-b${p===NSPER?' on':''}" data-nsp="${esc(p)}">${esc(NSPLBL[p]||p)}</button>`).join('')+`</div>`;
   const head=`<tr><th>枠・選手</th><th>該当</th>`+[2,3,4,5,6].map(x=>`<th>2着${x}</th>`).join('')+`</tr>`;
   const rows=bs.map(b=>{
     const lane=+b['枠'], no=String(b['登録番号']), lc=NSLANE[lane]||['#333','#fff'];
@@ -1489,24 +1493,24 @@ function nigeSecondFact(r){
     const tds=[2,3,4,5,6].map(x=>{
       const k=cell[x-1], s=nsShrinkH(i,lane,x,n,k);
       const pct=(s===null)?'—':Math.round(s*100)+'%';
-      return `<td class="${x===lane?'nsself':''}"><span class="nsp">${pct}</span><span class="nsk">${k}/${n}</span></td>`;
+      return `<td class="${x===lane?'nsself':''}"><span class="nsp">${pct}</span><span class="nsk">${esc(k)}/${esc(n)}</span></td>`;
     }).join('');
-    return `<tr class="${n&&n<20?'nsthin':''}"><td><span class="nslane" style="background:${lc[0]};color:${lc[1]};${(lane===1||lane===2)?'border:1px solid #445;':''}">${lane}</span><span class="nsnm">${nm}</span></td><td class="nsn">${n}</td>${tds}</tr>`;
+    return `<tr class="${n&&n<20?'nsthin':''}"><td><span class="nslane" style="background:${lc[0]};color:${lc[1]};${(lane===1||lane===2)?'border:1px solid #445;':''}">${lane}</span><span class="nsnm">${esc(nm)}</span></td><td class="nsn">${esc(n)}</td>${tds}</tr>`;
   }).join('');
   const bb=NSDATA.base[i]||[0,0,0,0,0];
-  const base=`<tr class="nsbase"><td>全体</td><td class="nsn">${tot}</td>`+[2,3,4,5,6].map(x=>{
-    const k=bb[x-2]; return `<td><span class="nsp">${Math.round(k/tot*100)}%</span><span class="nsk">${k}/${tot}</span></td>`;
+  const base=`<tr class="nsbase"><td>全体</td><td class="nsn">${esc(tot)}</td>`+[2,3,4,5,6].map(x=>{
+    const k=bb[x-2]; return `<td><span class="nsp">${Math.round(k/tot*100)}%</span><span class="nsk">${esc(k)}/${esc(tot)}</span></td>`;
   }).join('')+`</tr>`;
   const m=NSDATA.meta||{};
-  const per=(m.from&&m.to)?`${m.from.slice(0,4)}/${m.from.slice(4,6)}〜${m.to.slice(0,4)}/${m.to.slice(4,6)}`:'';
+  const per=(m.from&&m.to)?esc(`${String(m.from).slice(0,4)}/${String(m.from).slice(4,6)}〜${String(m.to).slice(0,4)}/${String(m.to).slice(4,6)}`):'';
   const rid=(r['場コード']||'')+'-'+String(r['レース']||'').replace('R','');
   const op=NSOPEN[rid]?' open':'';
-  return `<details class="nsfact" data-dk="nigefact-${rid}"${op}><summary><span class="nsh">逃げ時２着</span>`
+  return `<details class="nsfact" data-dk="nigefact-${esc(rid)}"${op}><summary><span class="nsh">逃げ時２着</span>`
     +`<span>1号艇が逃げたとき、2着はどのコースだったか</span>`
     +`<span class="nscar"></span></summary>`
-    +`<div class="nsb">${tabs}<div class="nsper">${per}のうち直近${NSPLBL[NSPER]||NSPER}・${tot}レース</div>`
+    +`<div class="nsb">${tabs}<div class="nsper">${per}のうち直近${esc(NSPLBL[NSPER]||NSPER)}・${esc(tot)}レース</div>`
     +`<table>${head}${rows}${base}</table>`
-    +`<details class="nshelp" data-dk="nigefact-help-${rid}"><summary>表の読み方</summary><dl>`
+    +`<details class="nshelp" data-dk="nigefact-help-${esc(rid)}"><summary>表の読み方</summary><dl>`
     +`<dt>この表は何か</dt><dd>1号艇が逃げて決まったレースだけを集めて、そのとき2着がどのコースだったかを数えたもの。1着の話はしていない。</dd>`
     +`<dt>上段の％</dt><dd>該当レースが少ない選手ほど全体平均に近づける補正をかけた値。少ない回数のたまたまを、その選手の特徴として読ませないため。</dd>`
     +`<dt>下段の分数</dt><dd>回数／該当レース数。補正前の実数。</dd>`
@@ -1620,8 +1624,8 @@ fetch(SRC+'?_='+Date.now())
     .catch(()=>{});  // 無ければ何も出さない
   }
   if(d.length===8) document.getElementById('date').textContent=`${d.slice(0,4)}年${+d.slice(4,6)}月${+d.slice(6,8)}日 ${doc['レース数']}レース${ISNEXT?'（明日・前夜プレビュー）':''}`;
-  const conf=(doc['確定イン率場']||[]).join('・');
-  document.getElementById('note').innerHTML=`イン1着率は目安値（${conf}は公式実数、他は暫定）。機＝モーター2連率（その節の機力目安で、選手の調子とは別物）。<br>波乱＝①が着外になりやすい度合いを1〜6の6段階で示したもの。①の級別・直近20走・外3艇の級別・場の実績など7項目から出しています。買い目・確率・勝者予想は出していません。<br>波乱注目タブは波乱の大きい順に並べています。この条件のレースは過去1年で34%が①着外（全レースでは19%）でした。<br><span style="opacity:.7">生成：${(doc['生成時刻']||'').replace('T',' ').slice(0,16)}</span>` + (OSHI.length?`<br><span class="oshi-note">⭐は推しフォロー中の選手。フォローはこの端末にのみ保存され、外部には送信されません。登録・解除は<a href="../racers/" style="color:#c8a24a">出走表</a>と<a href="../players/" style="color:#c8a24a">選手図鑑</a>から。</span>`:'');
+  const conf=esc([].concat(doc['確定イン率場']||[]).join('・'));
+  document.getElementById('note').innerHTML=`イン1着率は目安値（${conf}は公式実数、他は暫定）。機＝モーター2連率（その節の機力目安で、選手の調子とは別物）。<br>波乱＝①が着外になりやすい度合いを1〜6の6段階で示したもの。①の級別・直近20走・外3艇の級別・場の実績など7項目から出しています。買い目・確率・勝者予想は出していません。<br>波乱注目タブは波乱の大きい順に並べています。この条件のレースは過去1年で34%が①着外（全レースでは19%）でした。<br><span style="opacity:.7">生成：${esc(String(doc['生成時刻']||'').replace('T',' ').slice(0,16))}</span>` + (OSHI.length?`<br><span class="oshi-note">⭐は推しフォロー中の選手。フォローはこの端末にのみ保存され、外部には送信されません。登録・解除は<a href="../racers/" style="color:#c8a24a">出走表</a>と<a href="../players/" style="color:#c8a24a">選手図鑑</a>から。</span>`:'');
   loadKansenki().then(()=>{HL_READY=true;kskAllRender();render();});
 })
 .catch(()=>{ISNEXT=false;NEXTMETA={};KANSENKI={};kskAllRender();const nn=document.getElementById('nextnote');if(nn)nn.style.display='none';document.getElementById('list').innerHTML=(SRC==='highlights.json')?(window.dzfErrHtml?dzfErrHtml():'<div class="dzf-st" role="alert"><p>'+(navigator.onLine===false?'通信が切れています。つながったら、もう一度読み込んでください。':'データを読み込めませんでした。通信の良いところで、もう一度読み込んでください。')+'</p><button type="button" class="dzf-re" onclick="location.reload()">もう一度読み込む</button></div>'):'<div class="empty">'+(SRC==='highlights_next.json'?'明日の前夜プレビューはまだありません（各場のレース確定後、夜に順次追加されます）。':SRC!=='highlights.json'?'この日の見どころはまだありません（明日以降たまります）。':'')+'</div>';});
