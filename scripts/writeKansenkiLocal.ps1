@@ -371,7 +371,7 @@ try {
         $remaining = @($toWrite | Where-Object { $_ -notin $done })
         if ($remaining.Count -eq 0) { Log "全対象が生成済み → claude実行不要"; break }
         $targetStr = ($remaining -join ' ')
-        $header = "掲載日=$Pubdate。執筆対象の場コード(jcd)は次のみ: $targetStr。この対象場だけを執筆し、既存記事のある場は絶対に上書きしない。PR作成・push・mergeは行わない（公開はスクリプトが行う）。$($commentsNote)以下のランブックに厳密に従うこと。"
+        $header = "掲載日=$Pubdate。執筆対象の場コード(jcd)は次のみ: $targetStr。この対象場だけを執筆し、既存記事のある場は絶対に上書きしない。PR作成・push・mergeは行わない（公開はスクリプトが行う）。配当は3桁ごとに「,」で区切って書く（例：11,850円）。$($commentsNote)以下のランブックに厳密に従うこと。"
         $prompt = $header + "`r`n`r`n" + $runbook   # runbook はデータとして連結（再解釈させない）
         # 出力は試行ごとに別ファイルで残す（旧: 掲載日ごとに1つで、次の回に上書きされ原因を追えなかった。2026-10-03）
         $claudeOut = Join-Path $LogDir ("claudeOut_{0}_{1}_{2}.json" -f $Pubdate, (Get-Date -Format 'yyyyMMdd-HHmmss'), $attempt)
