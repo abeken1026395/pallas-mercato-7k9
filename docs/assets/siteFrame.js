@@ -44,7 +44,7 @@
   + ".dzf-sr svg{width:22px;height:22px;stroke:#dfe7ef;stroke-width:1.6}"
   + ".dzf-waku{display:flex;height:3px}.dzf-waku i{flex:1}"
   + ".dzf-waku i:nth-child(1){background:#f4f4f4}.dzf-waku i:nth-child(2){background:#000}.dzf-waku i:nth-child(3){background:#e2313a}.dzf-waku i:nth-child(4){background:#2b6fdc}.dzf-waku i:nth-child(5){background:#f2d02e}.dzf-waku i:nth-child(6){background:#2fa04f}"
-  + ".dzf-tb{position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--dzf-bar);border-top:1px solid var(--dzf-line);padding-bottom:env(safe-area-inset-bottom)}"
+  + ".dzf-tb{position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--dzf-bar);border-top:1px solid var(--dzf-line);padding-bottom:env(safe-area-inset-bottom);-webkit-transform:translateZ(0);transform:translateZ(0)}"
   + ".dzf-tbi{max-width:600px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);height:58px}"
   + ".dzf-tb a,.dzf-tb button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:none!important;border:0!important;margin:0!important;padding:0!important;font:600 11px/1 -apple-system,'Hiragino Sans','Noto Sans JP',sans-serif!important;color:var(--dzf-dim)!important;text-decoration:none!important;cursor:pointer;border-radius:0!important}"
   + ".dzf-tb .on{color:var(--dzf-tx)!important}"
@@ -121,7 +121,8 @@
   // 題字の頭の「BOATRACE」を外す（題字の印が後から付くページがあるので、読み込み後にもう一度）
   var cutBR = function(){ Array.prototype.forEach.call(document.querySelectorAll(".kataTitle,h1"), function(h){ var w = document.createTreeWalker(h, NodeFilter.SHOW_TEXT, null), n; while ((n = w.nextNode())) { if (/^\s*BOATRACE\s+/.test(n.nodeValue)) { n.nodeValue = n.nodeValue.replace(/^\s*BOATRACE\s+/, ""); break; } } }); };
   // 画面より広い表は、表だけ横に送れるようにする（ページ全体が横に動かないように）
-  var wideTable = function(){ Array.prototype.forEach.call(document.querySelectorAll("table"), function(t){ var p = t.parentElement; if (!p || p.classList.contains("dzf-scroll") || t.closest(".dzf-scroll")) return; if (t.getBoundingClientRect().right > document.documentElement.clientWidth + 1) { var w = document.createElement("div"); w.className = "dzf-scroll"; w.style.cssText = "overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;max-width:100%"; p.insertBefore(w, t); w.appendChild(t); } }); };
+  // 先に全部の幅を測ってから包む（測る・包むを交互にすると、表の数だけ画面の組み直しが起きて重い。2026-11-13）
+  var wideTable = function(){ var cw = document.documentElement.clientWidth + 1, wide = Array.prototype.filter.call(document.querySelectorAll("table"), function(t){ var p = t.parentElement; if (!p || p.classList.contains("dzf-scroll") || t.closest(".dzf-scroll") || t.closest("details:not([open])")) return false; return t.getBoundingClientRect().right > cw; }); wide.forEach(function(t){ var p = t.parentElement, w = document.createElement("div"); w.className = "dzf-scroll"; w.style.cssText = "overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;max-width:100%"; p.insertBefore(w, t); w.appendChild(t); }); };
   // 全角の英数字（公式データのまま「ＢＯＡＴＲＡＣＥ」「５日目」など）を半角にそろえる。入力欄・書式つきの中身は触らない
   var Z = /[\uFF10-\uFF19\uFF21-\uFF3A\uFF41-\uFF5A]/;
   var han = function(root){ if (!root || !root.nodeType) return; var w = document.createTreeWalker(root.nodeType === 3 ? root.parentNode || document.body : root, NodeFilter.SHOW_TEXT, { acceptNode: function(n){ var p = n.parentNode; if (!p || /^(SCRIPT|STYLE|TEXTAREA|INPUT|CODE|PRE)$/.test(p.nodeName) || p.isContentEditable) return 2; return Z.test(n.nodeValue) ? 1 : 2; } }), n, a = []; while ((n = w.nextNode())) a.push(n); a.forEach(function(n){ n.nodeValue = n.nodeValue.replace(/[\uFF10-\uFF19\uFF21-\uFF3A\uFF41-\uFF5A]/g, function(c){ return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); }); }); };
@@ -132,16 +133,21 @@
   var snapFs = function(px){ return px >= 26 ? px : px < 13 ? 12 : px < 15 ? 14 : px < 18 ? 16 : px < 22 ? 20 : 24; };
   var snapDecl = function(sty){ var m = /^([\d.]+)px$/.exec((sty.getPropertyValue("font-size") || "").trim()); if (!m) return; var px = +m[1], v = snapFs(px); if (v !== px) sty.setProperty("font-size", v + "px", sty.getPropertyPriority("font-size")); };
   var snapRules = function(rules){ for (var i = 0; i < rules.length; i++) { var r = rules[i]; if (r.cssRules && !r.style) { snapRules(r.cssRules); continue; } if (r.style && r.selectorText && !/dzf-|data-kata-skip/.test(r.selectorText) && r.style.fontSize) snapDecl(r.style); } };
-  var snapSheets = function(){ if (snapOff) return; Array.prototype.forEach.call(document.styleSheets, function(sh){ if (sh.ownerNode && sh.ownerNode.id === "dzfCss") return; if (sh.dzfSnap) return; try { snapRules(sh.cssRules); sh.dzfSnap = 1; } catch (e) {} }); };
+  var snapSheets = function(){ if (snapOff) return; Array.prototype.forEach.call(document.styleSheets, function(sh){ if (sh.ownerNode && sh.ownerNode.id === "dzfCss") return; if (sh.dzfSnap) return; try { snapRules(sh.cssRules); sh.dzfSnap = 1; if (typeof fsOk !== "undefined" && fsOk) fsOk = new WeakSet(); } catch (e) {} }); };
   var snapInline = function(root){ if (snapOff) return; if (!root || root.nodeType !== 1) return; var a = Array.prototype.slice.call(root.querySelectorAll('[style*="font-size"]')); if (root.matches('[style*="font-size"]')) a.push(root); a.forEach(function(el){ if (el.closest("[data-kata-skip],.dzf-bar,.dzf-tb,.dzf-sh")) return; snapDecl(el.style); }); };
   // em・% などで決まっていて段から外れた文字は、見えている大きさを段にそろえて上書きする（読んでから書く。2回目で入れ子も追いつく）
-  var snapEls = function(root){ if (snapOff) return; if (!root || root.nodeType !== 1) return; var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(n){ return n.nodeValue.trim() ? 1 : 2; } }), n, seen = [], todo = []; while ((n = w.nextNode())) { var el = n.parentElement; if (!el || el.dzfFs || seen.indexOf(el) >= 0 || /clamp|calc|vw|min\(|max\(/.test(el.style.fontSize) || /^(SCRIPT|STYLE)$/.test(el.nodeName) || el.closest("[data-kata-skip],.dzf-bar,.dzf-tb,.dzf-sh")) continue; seen.push(el); } seen.forEach(function(el){ var px = parseFloat(getComputedStyle(el).fontSize), v = snapFs(px); if (Math.abs(v - px) > 0.25) todo.push([el, v]); }); todo.forEach(function(t){ t[0].style.setProperty("font-size", t[1] + "px", "important"); t[0].dzfFs = 1; }); };
+  // 一度測って段に合っていた要素は覚えておき、次からは測らない（大きいページで毎回全部を測ると、読み込みの数秒間スクロールがカクつくため。2026-11-13）。
+  // 親の大きさを直したときは、その中の要素を測り直しの対象に戻す。新しい書式が読み込まれたときは全部を測り直す
+  var fsOk = typeof WeakSet === "function" ? new WeakSet() : null;
+  var snapEls = function(root){ if (snapOff) return; if (!root || root.nodeType !== 1) return; var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(n){ return n.nodeValue.trim() ? 1 : 2; } }), n, seen = [], mark = typeof Set === "function" ? new Set() : null, todo = []; while ((n = w.nextNode())) { var el = n.parentElement; if (!el || el.dzfFs || (fsOk && fsOk.has(el)) || (mark ? mark.has(el) : seen.indexOf(el) >= 0) || /clamp|calc|vw|min\(|max\(/.test(el.style.fontSize) || /^(SCRIPT|STYLE)$/.test(el.nodeName) || el.closest("[data-kata-skip],.dzf-bar,.dzf-tb,.dzf-sh")) continue; seen.push(el); if (mark) mark.add(el); } seen.forEach(function(el){ var px = parseFloat(getComputedStyle(el).fontSize), v = snapFs(px); if (Math.abs(v - px) > 0.25) todo.push([el, v]); else if (fsOk) fsOk.add(el); }); todo.forEach(function(t){ t[0].style.setProperty("font-size", t[1] + "px", "important"); t[0].dzfFs = 1; if (fsOk) Array.prototype.forEach.call(t[0].getElementsByTagName("*"), function(d){ fsOk.delete(d); }); }); };
   snapSheets(); snapInline(document.body);
   var hanQ = [], hanT = 0;
-  try { new MutationObserver(function(ms){ ms.forEach(function(m){ for (var k = 0; k < m.addedNodes.length; k++) hanQ.push(m.addedNodes[k]); if (m.type === "characterData") hanQ.push(m.target); }); /* 描く前に直す（120ms 待ってから直すと、いったん描いた文字が後から大きさを変えて画面がずれるため。2026-11-09） */ var q = hanQ; hanQ = []; q.forEach(function(x){ if (x.isConnected) { han(x); snapInline(x); snapEls(x); if (/^(STYLE|LINK)$/.test(x.nodeName)) snapSheets(); } }); }).observe(document.body, { childList: true, subtree: true, characterData: true }); } catch (e) {}
+  try { new MutationObserver(function(ms){ ms.forEach(function(m){ for (var k = 0; k < m.addedNodes.length; k++) hanQ.push(m.addedNodes[k]); if (m.type === "characterData") hanQ.push(m.target); }); /* 描く前に直す（120ms 待ってから直すと、いったん描いた文字が後から大きさを変えて画面がずれるため。2026-11-09） */ var q = hanQ; hanQ = []; q.forEach(function(x){ if (x.isConnected && !(x.classList && x.classList.contains("ugSwCover"))) { han(x); snapInline(x); snapEls(x); if (/^(STYLE|LINK)$/.test(x.nodeName)) snapSheets(); } }); }).observe(document.body, { childList: true, subtree: true, characterData: true }); } catch (e) {}
   han(document.body);
   var onLoad = function(){ snapSheets(); snapInline(document.body); snapEls(document.body); cutBR(); wideTable(); setTimeout(function(){ snapSheets(); snapInline(document.body); snapEls(document.body); cutBR(); wideTable(); }, 1500); setTimeout(function(){ snapSheets(); snapEls(document.body); }, 4000); };
   cutBR(); if (document.readyState === "complete") onLoad(); else window.addEventListener("load", onLoad);
+  // 閉じた開閉の中の表は、開いたときに幅を測る（2026-11-13）
+  var wtT = 0; document.addEventListener("toggle", function(e){ if (e.target && e.target.open && !wtT) wtT = setTimeout(function(){ wtT = 0; wideTable(); }, 50); }, true);
   // 押す場所を指の大きさ（44px）まで広げる（見た目は変えない。透明の ::after で当たりだけ広げる。2026-11-09）
   // 隣の押せる部品と当たりが重ならない分だけ広げる。::after を自分で使っている部品・入力欄・文中のリンクは触らない
   var HIT = 44, hitT = 0, HSEL = 'a[href],button,summary,[role="button"],[role="tab"]';
@@ -149,11 +155,15 @@
   function hitPass(){
     hitT = 0;
     var els = Array.prototype.filter.call(document.querySelectorAll(HSEL), function(e){ return !e.closest(".dzf-bar,.dzf-tb,.dzf-sh,.dzf-bd") && !(e.tagName === "A" && e.closest("p,li") && getComputedStyle(e).display === "inline"); });
+    // 閉じた開閉の中の部品は見えない（大きさ0）ので測らない。測ると開閉1つごとに組み直しが起きて重い。開いたときは押した時点で測り直す（2026-11-13）
+    els = els.filter(function(e){ var d = e.closest("details:not([open])"); if (!d) return true; var s = d.querySelector("summary"); return !!(s && s.parentElement === d && s.contains(e)) && !(d.parentElement && d.parentElement.closest("details:not([open])")); });
     var R = els.map(function(e){ return e.getBoundingClientRect(); });
+    // 書き換えは最後にまとめて行う（測る途中で書くと、そのたびに画面の組み直しが起きる。値が同じなら書かない。2026-11-13）
+    var W = [];
     els.forEach(function(e, i){
       var r = R[i]; if (!r.width || !r.height) return;
       var needY = Math.max(0, (HIT - r.height) / 2), needX = Math.max(0, (HIT - r.width) / 2);
-      if (!needY && !needX) { if (e.classList.contains("dzf-hit")) e.classList.remove("dzf-hit"); return; }
+      if (!needY && !needX) { if (e.classList.contains("dzf-hit")) W.push([e, 0]); return; }
       if (!e.classList.contains("dzf-hit")) { var af = getComputedStyle(e, "::after").content; if (af && af !== "none" && af !== "normal") return; }
       // 隣と重ならない幅に抑える（間の半分まで）
       for (var j = 0; j < R.length; j++) { if (j === i) continue; var o = R[j]; if (!o.width) continue;
@@ -163,14 +173,22 @@
       if (needY < 1 && needX < 1) return;
       if (getComputedStyle(e).position === "static") {
         var abs = Array.prototype.some.call(e.querySelectorAll("*"), function(c){ var p = getComputedStyle(c).position; return p === "absolute" || p === "fixed"; });
-        if (abs) return; e.classList.add("dzf-hitR");
+        if (abs) return; W.push([e, 2]);
       }
-      e.style.setProperty("--dzf-hy", Math.floor(needY) + "px"); e.style.setProperty("--dzf-hx", Math.floor(needX) + "px"); e.classList.add("dzf-hit");
+      W.push([e, 1, Math.floor(needY) + "px", Math.floor(needX) + "px"]);
+    });
+    W.forEach(function(w){ var e = w[0];
+      if (w[1] === 0) e.classList.remove("dzf-hit");
+      else if (w[1] === 2) e.classList.add("dzf-hitR");
+      else { if (e.style.getPropertyValue("--dzf-hy") !== w[2]) e.style.setProperty("--dzf-hy", w[2]); if (e.style.getPropertyValue("--dzf-hx") !== w[3]) e.style.setProperty("--dzf-hx", w[3]); if (!e.classList.contains("dzf-hit")) e.classList.add("dzf-hit"); }
     });
   }
   function hitSoon(){ if (!hitT) hitT = setTimeout(hitPass, 300); }
-  try { new MutationObserver(function(ms){ for (var k = 0; k < ms.length; k++) if (ms[k].addedNodes.length) { hitSoon(); return; } }).observe(document.body, { childList: true, subtree: true }); } catch (e) {}
-  document.addEventListener("click", hitSoon, true); window.addEventListener("resize", hitSoon); window.addEventListener("load", hitSoon); hitSoon();
+  // 測り直すのは、部品が増えたとき・押したとき・画面の幅が変わったときだけ。
+  // iPhone はスクロールで上下のバーが伸び縮みするたびに resize が来る（高さだけ変わる）ので、そこでは測らない。動きの仕掛け（ugoki.js）の透明な重ね札が増えたときも測らない（2026-11-13）
+  try { new MutationObserver(function(ms){ for (var k = 0; k < ms.length; k++) { var a = ms[k].addedNodes; for (var j = 0; j < a.length; j++) { var x = a[j]; if (x.nodeType === 1 && !(x.classList && x.classList.contains("ugSwCover"))) { hitSoon(); return; } } } }).observe(document.body, { childList: true, subtree: true }); } catch (e) {}
+  var hitW = window.innerWidth;
+  document.addEventListener("click", hitSoon, true); window.addEventListener("resize", function(){ if (window.innerWidth !== hitW) { hitW = window.innerWidth; hitSoon(); } }); window.addEventListener("load", hitSoon); hitSoon();
   // 本文の余白を打ち消して、帯を画面の端から端まで出す（ページごとに body の余白が違うため）
   var bs = getComputedStyle(document.body), px = function(k){ return (parseFloat(bs["padding" + k]) || 0) + (parseFloat(bs["margin" + k]) || 0); };
   bar.style.margin = "-" + px("Top") + "px -" + px("Right") + "px 4px -" + px("Left") + "px";
