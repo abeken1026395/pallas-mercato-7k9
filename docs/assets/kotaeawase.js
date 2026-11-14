@@ -23,7 +23,7 @@
     stampC={at:now,p:p};
     return p;
   }
-  function okN(x){ return typeof x==="number"&&isFinite(x)&&x>=0&&x<1e9; }
+  function okN(x){ return typeof x==="number"&&isFinite(x)&&x>=0&&x<1e18; }
   function obj(k){ try{ var v=JSON.parse(localStorage.getItem(k)||"{}"); return (v&&typeof v==="object"&&!Array.isArray(v))?v:{}; }catch(e){ return {}; } }
   /* 保存データ1レースぶんを、壊れた要素を捨てた形にそろえる */
   function entry(e){

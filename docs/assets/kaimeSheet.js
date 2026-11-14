@@ -62,26 +62,26 @@
     return { e: e, b: cleanB(e.b) };
   }
   function pvText(c) { return c.slice(0, 20).join("　") + (c.length > 20 ? "　ほか" + (c.length - 20) + "点" : ""); }
-  function okU(n) { return typeof n === "number" && isFinite(n) && n >= 100 && n <= 1e7 && n % 100 === 0; }
+  function okU(n) { return typeof n === "number" && isFinite(n) && n >= 100 && n <= 1e14 && n % 100 === 0; }
   function yen(n) { return Number(n).toLocaleString("ja-JP") + "円"; }
   // 点ごとの金額（2026-11-14 けん：割り振りボタン。押さなければ均等）。S.ku に手で直した組だけを持ち、ほかは1点の金額
   function amtOf(c) { return S.w && S.ku[c] != null ? S.ku[c] : S.u; }
   function total(cs) { var n = 0; cs.forEach(function (c) { n += amtOf(c); }); return n; }
   function valid(cs) { return okU(S.u) && cs.every(function (c) { return okU(amtOf(c)); }); }
   function betYen(x) { if (x.ku) return x.ku.reduce(function (a, b) { return a + b; }, 0); return x.u ? x.k.length * x.u : 0; }
-  function nText(c) { if (!valid(c)) return "金額は100円単位で入れてください"; return c.length ? c.length + "点・" + yen(total(c)) : "艇番を押して選ぶ"; }
+  function nText(c) { if (!valid(c)) return "金額は100円から100兆円まで、100円単位で入れてください"; return c.length ? c.length + "点・" + yen(total(c)) : "艇番を押して選ぶ"; }
   function wRows(cs) {
     if (!S.w) return "";
     if (!cs.length) return '<p class="kz-wn">艇番を押すと、組ごとに金額を入れられます。</p>';
     return cs.map(function (c) { var v = amtOf(c);
-      return '<label class="kz-wr"><span class="kz-wk">' + esc(c) + '</span><span class="kz-in"><input type="text" inputmode="numeric" autocomplete="off" maxlength="8" data-kzk="' + esc(c) + '" placeholder="' + (okU(S.u) ? S.u : "") + '" value="' + (isFinite(v) && v > 0 ? v : "") + '" aria-label="' + esc(c) + ' の金額"><span>円</span></span></label>'; }).join("");
+      return '<label class="kz-wr"><span class="kz-wk">' + esc(c) + '</span><span class="kz-in"><input type="text" inputmode="numeric" autocomplete="off" maxlength="15" data-kzk="' + esc(c) + '" placeholder="' + (okU(S.u) ? S.u : "") + '" value="' + (isFinite(v) && v > 0 ? v : "") + '" aria-label="' + esc(c) + ' の金額"><span>円</span></span></label>'; }).join("");
   }
   // 1点の金額（100円・200円・500円・1,000円か、ほかの金額）。最後に保存した金額を次も使う
   function amtHtml() {
     var cus = UNITS.indexOf(S.u) < 0;
     return '<div class="kz-amt"><span class="kz-ul" id="kzUl">1点の金額</span><div class="kz-us" role="group" aria-labelledby="kzUl">'
       + UNITS.map(function (n) { return '<button type="button" class="kz-u" data-kzu="' + n + '" aria-pressed="' + (n === S.u) + '">' + yen(n) + "</button>"; }).join("")
-      + '</div><label class="kz-uo" for="kzU">ほかの金額<span class="kz-in"><input id="kzU" type="text" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="100円単位" value="' + (cus ? S.u : "") + '"><span>円</span></span></label>'
+      + '</div><label class="kz-uo" for="kzU">ほかの金額<span class="kz-in"><input id="kzU" type="text" inputmode="numeric" autocomplete="off" maxlength="15" placeholder="100円単位" value="' + (cus ? S.u : "") + '"><span>円</span></span></label>'
       + '<button type="button" class="kz-wb" data-kzw="1" aria-pressed="' + S.w + '">点ごとに金額を割り振る</button><div class="kz-wl" id="kzW" data-ks="' + esc(combos().join(",")) + '">' + wRows(combos()) + "</div></div>";
   }
   function label(x) { return T[x.t][0] + (x.m === "b" ? "ボックス" : ""); }
@@ -148,7 +148,7 @@
     + ".kz-u{min-height:44px;padding:0 4px;font-size:14px;font-weight:700;background:#13233a;color:#cdd7e0;border:1px solid #2c3e55;border-radius:0;cursor:pointer;font-family:inherit;white-space:nowrap;font-variant-numeric:tabular-nums}"
     + ".kz-u[aria-pressed=true]{background:#eef3f8;color:#0b1726;border-color:#eef3f8}"
     + ".kz-uo{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0 0;font-size:13px;color:#cdd7e0}"
-    + ".kz-in{display:flex;align-items:center;gap:6px}.kz-in input{width:8.5em;min-height:44px;padding:0 8px;font-size:16px;color:#eef3f8;background:#0b1726;border:1px solid #5c6f86;border-radius:0;font-family:inherit;text-align:right}"
+    + ".kz-in{display:flex;align-items:center;gap:6px}.kz-in input{width:10em;min-height:44px;padding:0 8px;font-size:16px;color:#eef3f8;background:#0b1726;border:1px solid #5c6f86;border-radius:0;font-family:inherit;text-align:right}"
     + ".kz-in input::placeholder{color:#8a9bb0}"
     + ".kz-wb{display:flex;align-items:center;justify-content:center;width:100%;min-height:44px;margin:8px 0 0;font-size:14px;font-weight:700;color:#eef3f8;background:none;border:1px solid #5c6f86;border-radius:0;cursor:pointer;font-family:inherit}"
     + ".kz-wb[aria-pressed=true]{background:#eef3f8;color:#0b1726;border-color:#eef3f8}"
@@ -179,12 +179,12 @@
     DLG.addEventListener("input", function (ev) {
       var kk = ev.target.getAttribute && ev.target.getAttribute("data-kzk");
       if (kk) {
-        var w = ev.target.value.replace(/[^0-9]/g, "").slice(0, 8); if (w !== ev.target.value) ev.target.value = w;
+        var w = ev.target.value.replace(/[^0-9]/g, "").slice(0, 15); if (w !== ev.target.value) ev.target.value = w;
         if (w === "") delete S.ku[kk]; else S.ku[kk] = +w;
         sync(true); return;
       }
       if (ev.target.id !== "kzU") return;
-      var v = ev.target.value.replace(/[^0-9]/g, "").slice(0, 8); if (v !== ev.target.value) ev.target.value = v;
+      var v = ev.target.value.replace(/[^0-9]/g, "").slice(0, 15); if (v !== ev.target.value) ev.target.value = v;
       S.u = v === "" ? 100 : +v; sync();
     });
     DLG.addEventListener("click", function (ev) { if (ev.target === DLG) DLG.close(); });
