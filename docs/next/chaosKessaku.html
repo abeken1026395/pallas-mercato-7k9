@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>1マークの見立て 番外編｜カオス決着</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Dela+Gothic+One&display=swap" rel="stylesheet">
+<style>
+:root{--fg:#f2f2f0;--dim:#cdd7e0;--faint:#aebccb;--mute:#8a96a3;--line:rgba(232,236,239,.18);--gold:#dcbd78;--rule:rgba(212,176,106,.6);
+--l1:#f2f2f0;--l2:#1b1b1b;--l3:#e2382f;--l4:#2a6fd6;--l5:#f2c200;--l6:#1f9a55;
+--num:"Barlow Condensed","Hiragino Sans",-apple-system,sans-serif;--dg:"Dela Gothic One",-apple-system,"Hiragino Sans",sans-serif}
+*{box-sizing:border-box}
+html{background:#0d1c2f}
+body{margin:0;color:var(--fg);font-family:-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;-webkit-text-size-adjust:100%;letter-spacing:.02em}
+.n{font-family:var(--num);font-variant-numeric:tabular-nums}
+.wrap{max-width:640px;margin:0 auto;padding:0 16px 56px}
+.crumb{display:flex;align-items:center;min-height:48px;font-size:14px;color:var(--dim)}
+header .no{margin:0 0 6px;font-size:14px;color:var(--gold);font-weight:700}
+h1{font-family:var(--dg);font-weight:400;font-size:26px;line-height:1.4;margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+header .sub{margin:0;font-size:15px;line-height:1.85;color:var(--dim)}
+.rh{margin-top:20px;padding-bottom:8px;border-bottom:.5px solid var(--rule);display:grid;grid-template-columns:1fr auto;align-items:end;gap:2px 10px}
+.rh .t{font:400 22px/1.3 var(--dg);color:#fff}
+.rh .dl{text-align:right;font-size:12px;color:var(--faint);line-height:1.3}
+.rh .dl b{display:block;font:400 18px/1.2 var(--dg);color:#ff6b62}
+.rh .s{grid-column:1/-1;font-size:13px;color:var(--faint)}
+.hero{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:end;margin:14px 0 8px}
+.hero .big{font:700 64px/.95 var(--num);color:#fff}
+.hero .big small{font-size:26px;margin-left:2px}
+.hero .lab{font-size:14px;color:var(--dim);line-height:1.55;padding-bottom:4px}
+.hero .lab b{display:block;font-size:16px;color:#fff}
+.tag{display:inline-block;font-size:12px;font-weight:700;color:#0b1726;background:var(--gold);padding:1px 6px;margin-left:4px;vertical-align:2px}
+.fig{margin:10px -16px 0;background:#112640;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.fig svg{display:block;width:100%;height:auto}
+.ctl{display:flex;align-items:center;gap:12px;padding:0 16px 8px}
+.ctl button{min-width:88px;min-height:44px;background:#eef3f8;color:#0b1726;border:none;font:700 15px -apple-system,"Hiragino Sans",sans-serif;cursor:pointer}
+.ctl input{flex:1;min-height:44px;accent-color:#dcbd78}
+.ctl label{position:absolute;left:-9999px}
+h2{font:400 18px/1.4 var(--dg);margin:30px 0 10px;padding-bottom:6px;border-bottom:.5px solid var(--rule)}
+.ent{list-style:none;margin:0;padding:0}
+.ent li{display:grid;grid-template-columns:36px 1fr;gap:2px 12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.ent .w{grid-row:1/3;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font:700 22px var(--num)}
+.ent .nm{font-weight:700;font-size:16px}
+.ent .nm span{font-weight:400;font-size:13px;color:var(--faint);margin-left:6px}
+.ent .ds{font-size:14px;color:var(--dim);line-height:1.6}
+.ent li.hot .nm{color:var(--gold)}
+.C1{background:var(--l1);color:#111}.C2{background:var(--l2);color:#fff;outline:1px solid #8a96a3;outline-offset:-1px}.C3{background:var(--l3);color:#fff}.C4{background:var(--l4);color:#fff}.C5{background:var(--l5);color:#111}.C6{background:var(--l6);color:#fff}
+.bars{margin:0;padding:0;list-style:none}
+.bars li{display:grid;grid-template-columns:1fr 52px;gap:4px 10px;align-items:center;padding:8px 0;font-size:14px;color:var(--dim)}
+.bars .bg{grid-column:1/-1;height:10px;background:rgba(232,236,239,.08)}
+.bars .fg{height:100%;background:#8fb4d8;width:0;transition:width .9s ease}
+.bars li.top .fg{background:var(--gold)}
+.bars li.top{color:#fff;font-weight:700}
+.bars .p{text-align:right;font:700 22px var(--num);color:#fff}
+.note{font-size:13px;color:var(--faint);line-height:1.7;margin:8px 0 0}
+ol.steps{margin:0;padding:0 0 0 1.4em;font-size:15px;line-height:1.85;color:var(--dim)}
+ol.steps li{margin-bottom:6px}
+ol.steps b{color:#fff}
+.kaime{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;align-items:center;font-size:14px;color:var(--dim)}
+.kaime .k{font:700 26px var(--num);color:#fff;letter-spacing:.04em}
+.kaime .k.main{color:var(--gold)}
+.board{margin-top:30px;background:#06101c;border:1px solid var(--line);padding:16px;text-align:center}
+.board .l1{font:400 20px var(--dg);color:#f2c200}
+.board .l2{font:400 30px var(--dg);color:#ff3b30;margin-top:4px;letter-spacing:.1em}
+.board .l2.done{color:#7fe0a0}
+.board button{margin-top:14px;min-height:44px;padding:0 18px;background:none;border:1px solid var(--gold);color:var(--gold);font:700 15px -apple-system,"Hiragino Sans",sans-serif;cursor:pointer}
+.board .res{margin-top:12px;font-size:14px;color:var(--dim);line-height:1.7;text-align:left}
+.board .res[hidden]{display:none}
+footer{margin-top:34px;padding-top:12px;border-top:1px solid var(--line);font-size:12px;color:var(--mute);line-height:1.8}
+@media (prefers-reduced-motion:reduce){.bars .fg{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="crumb">データ攻め ／ 1マーク</div>
+<header>
+<p class="no">番外編</p>
+<h1>1マークの見立て</h1>
+<p class="sub">浮き輪あり、イルカあり。カオス開催中の1マークを、展示の前の材料（写真1枚）で見立てました。</p>
+</header>
+
+<div class="rh">
+<div class="t">桐生競艇場 11R</div>
+<div class="dl">審議<b>審議中</b></div>
+<div class="s">SG 第11レース「カオス決着戦」 ／ 1周目 第1ターンマーク</div>
+</div>
+
+<div class="hero">
+<div class="big n">41<small>%</small></div>
+<div class="lab"><b>5コース 湯川浩司のまくり差し</b>浮き輪で回転しながら1と4の間を割る<span class="tag">推定</span></div>
+</div>
+
+<div class="fig">
+<svg id="sv" viewBox="0 0 360 228" role="img" aria-label="1マークの見立ての図。5号艇の浮き輪が、外へ流れる4号艇のイルカと、減速した1号艇の間を割ってまくり差す"></svg>
+<div class="ctl">
+<button id="play" type="button">もう一度</button>
+<label for="sc">時間</label><input id="sc" type="range" min="0" max="1000" value="0">
+</div>
+</div>
+
+<h2>出走表</h2>
+<ul class="ent">
+<li><span class="w C1">1</span><div class="nm">峰竜太<span>通常艇</span></div><div class="ds">1マークの手前で浮き輪の水しぶきを浴びて減速。</div></li>
+<li><span class="w C2">2</span><div class="nm">毒島誠<span>通常艇 → 中継カメラ台</span></div><div class="ds">ピットアウトの直後に撮影係へ転向。</div></li>
+<li><span class="w C3">3</span><div class="nm">石野貴之<span>通常艇</span></div><div class="ds">ハンドルを放してポテチを食べている。</div></li>
+<li><span class="w C4">4</span><div class="nm">池田浩二<span>イルカ</span></div><div class="ds">機力は最上位。ただしイルカの気分次第。</div></li>
+<li class="hot"><span class="w C5">5</span><div class="nm">湯川浩司<span>浮き輪</span></div><div class="ds">大会ロゴ入りの浮き輪。浮力は抜群、向きは選べない。</div></li>
+<li><span class="w C6">6</span><div class="nm">桐生順平<span>通常艇</span></div><div class="ds">外から冷静に全体を見ている。</div></li>
+</ul>
+
+<h2>見立ての筋</h2>
+<ol class="steps">
+<li>4カドのイルカが1マークへ飛び出し、1号艇の内側に<b>大きな引き波</b>を作る。</li>
+<li>5コースの湯川さんはその引き波に乗り、<b>浮き輪ごと回転して1と4の間を割る</b>。</li>
+<li>体がゴール方向へ投げ出され、浮き輪より先に本人がゴールするので<b>審議</b>になる。</li>
+</ol>
+
+<h2>決まり手の見立て<span class="tag">推定</span></h2>
+<ul class="bars" id="bars"></ul>
+<p class="note">推定の元：パロディ画像1枚。分母なし。答え合わせはできません。</p>
+
+<h2>ネタの買い目（3連単）</h2>
+<div class="kaime">
+<span class="k main n">5-4-1</span><span>本線</span>
+<span class="k main n">5-4-6</span><span>本線</span>
+<span class="k n">5-1-4</span><span>押さえ</span>
+<span class="k n">4-5-1</span><span>審議を見越した保険</span>
+</div>
+
+<div class="board" aria-live="polite">
+<div class="l1">1着：浮き輪</div>
+<div class="l2" id="bd">審議中</div>
+<button id="judge" type="button">審議の結果を見る</button>
+<div class="res" id="res" hidden>
+浮き輪が「艇」に当たるかの判断は<b>不明</b>です。確かめる手段は、ボートレース規程に浮き輪の条文があるかを読むことだけ。この見立てでは、浮き輪を着順どおり、先に流れ着いた本人は数えない扱いにしています。
+</div>
+</div>
+
+<footer>
+パロディ画像をもとにしたネタの見立てです。実在の選手の実際のレース・成績とは関係ありません。<br>
+舟券の購入は20歳になってから。
+</footer>
+</div>
+
+<script>
+(function(){
+var NS="http://www.w3.org/2000/svg",sv=document.getElementById("sv");
+var D=120,C=39000,K=400,HY=-108,CX=232;
+function P(u,v){var z=v+D;return [CX+u*K/z,HY+C/z]}
+function sc(v){return Math.max(.55,D/(v+D))}
+function el(n,a,p){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);(p||sv).appendChild(e);return e}
+function cr(pts,n){var o=[];for(var i=0;i<pts.length-1;i++){var p0=pts[Math.max(0,i-1)],p1=pts[i],p2=pts[i+1],p3=pts[Math.min(pts.length-1,i+2)];
+for(var j=0;j<n;j++){var t=j/n,t2=t*t,t3=t2*t;o.push([0,1].map(function(k){return .5*((2*p1[k])+(-p0[k]+p2[k])*t+(2*p0[k]-5*p1[k]+4*p2[k]-p3[k])*t2+(-p0[k]+3*p1[k]-3*p2[k]+p3[k])*t3)}))}}
+o.push(pts[pts.length-1]);return o}
+var col={1:"#f2f2f0",2:"#1b1b1b",3:"#e2382f",4:"#2a6fd6",5:"#f2c200",6:"#1f9a55"};
+var B=[
+{n:1,pts:[[-30,0],[-34,55],[-40,92],[-50,114],[-66,116],[-78,100],[-84,74]],dur:1,ease:function(t){return t<.55?t*1.1:.605+(t-.55)*.45},tip:"しぶきで減速"},
+{n:2,pts:[[-18,0],[-18.5,9],[-19,16]],dur:.25,tip:"撮影中"},
+{n:3,pts:[[-6,0],[-8,40],[-11,60],[-12,66]],dur:.9,tip:"ポテチ中"},
+{n:4,pts:[[6,0],[0,50],[-14,95],[-32,130],[-62,138],[-94,124],[-112,95]],dur:.95,tip:"イルカ"},
+{n:5,pts:[[18,0],[16,45],[2,82],[-26,108],[-46,122],[-70,122],[-86,100],[-92,62]],dur:.85,tip:"まくり差し"},
+{n:6,pts:[[30,0],[28,55],[10,100],[-20,135],[-58,146],[-96,132],[-116,100]],dur:1.3,tip:"外を全速"}
+];
+// 背景
+el("rect",{x:0,y:0,width:360,height:228,fill:"#112640"});
+var a=P(-120,0),b=P(60,0);el("line",{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:"rgba(232,236,239,.35)","stroke-dasharray":"4 4"});
+var s0=P(48,0);el("text",{x:8,y:s0[1]-6,fill:"#8a96a3","font-size":10}).textContent="スタートライン";
+for(var v=20;v<=160;v+=35){var l=P(-130,v),r=P(60,v);el("line",{x1:l[0],y1:l[1],x2:r[0],y2:r[1],stroke:"rgba(232,236,239,.05)"})}
+var bu=P(-55,100);
+el("ellipse",{cx:bu[0],cy:bu[1]+2,rx:9,ry:3,fill:"rgba(0,0,0,.3)"});
+el("circle",{cx:bu[0],cy:bu[1]-3,r:6,fill:"#f07c2a",stroke:"#fff","stroke-width":1});
+el("text",{x:bu[0]+11,y:bu[1]+1,fill:"#dcbd78","font-size":11,"font-weight":800}).textContent="1M";
+var gT=el("g",{}),gW=el("g",{}),gB=el("g",{}),gL=el("g",{});
+B.forEach(function(o){
+o.w=cr(o.pts,14);o.s=o.w.map(function(p){return P(p[0],p[1])});
+var len=[0];for(var i=1;i<o.s.length;i++)len.push(len[i-1]+Math.hypot(o.s[i][0]-o.s[i-1][0],o.s[i][1]-o.s[i-1][1]));o.len=len;
+var d="M"+o.s.map(function(p){return p[0].toFixed(1)+","+p[1].toFixed(1)}).join("L");
+var sk=o.n===2?"#cdd7e0":col[o.n];
+el("path",{d:d,fill:"none",stroke:sk,"stroke-opacity":.18,"stroke-width":2},gT);
+o.tr=el("path",{d:d,fill:"none",stroke:sk,"stroke-opacity":o.n===5?1:.75,"stroke-width":o.n===5?3:2,"stroke-linecap":"round"},gT);
+o.tr.style.strokeDasharray=len[len.length-1];o.tr.style.strokeDashoffset=len[len.length-1];
+o.g=el("g",{},gB);
+if(o.n===4){ // イルカ
+ o.body=el("g",{},o.g);
+ el("path",{d:"M0,-13 C5,-8 5,6 2,11 L5,15 L-5,15 L-2,11 C-5,6 -5,-8 0,-13Z",fill:"#7d8a96",stroke:"#cdd7e0","stroke-width":.8},o.body);
+ el("path",{d:"M0,-2 L7,2 L0,4Z",fill:"#5d6a76"},o.body);
+ el("circle",{cx:0,cy:-1,r:3.6,fill:col[4],stroke:"#fff","stroke-width":.8},o.body);
+}else if(o.n===5){ // 浮き輪
+ o.body=el("g",{},o.g);
+ el("circle",{r:10,fill:"#f2c200",stroke:"#8a6d00","stroke-width":1},o.body);
+ el("circle",{r:4,fill:"#112640"},o.body);
+ o.spin=el("g",{},o.body);
+ el("rect",{x:-1.6,y:-10,width:3.2,height:6,fill:"#2a6fd6"},o.spin);
+ el("rect",{x:-1.6,y:4,width:3.2,height:6,fill:"#e2382f"},o.spin);
+}else{
+ o.body=el("g",{},o.g);
+ el("path",{d:"M0,-12 L5.5,2 L4.5,9 L-4.5,9 L-5.5,2Z",fill:col[o.n],stroke:o.n===1?"#8a96a3":"#cdd7e0","stroke-width":.9},o.body);
+}
+o.badge=el("g",{},gL);
+el("rect",{x:-7,y:-7,width:14,height:14,fill:col[o.n],stroke:o.n===2?"#cdd7e0":"none"},o.badge);
+var tx=el("text",{y:4.5,"text-anchor":"middle","font-size":12,"font-weight":700,"font-family":"Barlow Condensed,sans-serif",fill:(o.n===1||o.n===5)?"#111":"#fff"},o.badge);tx.textContent=o.n;
+o.lab=el("text",{"font-size":11,"font-weight":700,fill:o.n===5?"#dcbd78":"#cdd7e0","text-anchor":"middle",opacity:0},gL);o.lab.textContent=o.tip;
+if(o.n===2){o.cam=el("g",{opacity:0},gB);el("path",{d:"M-6,8 L0,-2 L6,8 M0,-2 L0,8",stroke:"#cdd7e0","stroke-width":1.4,fill:"none"},o.cam);el("rect",{x:-6,y:-9,width:12,height:7,fill:"#1b1b1b",stroke:"#cdd7e0"},o.cam);el("circle",{cx:6,cy:-5.5,r:2,fill:"#8a96a3"},o.cam);}
+});
+// 引き波（4の後ろ）としぶき（1の前）
+var waves=[0,1,2].map(function(i){return el("path",{fill:"none",stroke:"#fff","stroke-width":1,"stroke-opacity":0},gW)});
+var spl=[0,1,2,3].map(function(i){return el("circle",{r:1.6,fill:"#fff","fill-opacity":0},gW)});
+function at(o,p){var L=o.len,tot=L[L.length-1]*p,i=1;while(i<L.length-1&&L[i]<tot)i++;var f=(tot-L[i-1])/((L[i]-L[i-1])||1);
+var x=o.s[i-1][0]+(o.s[i][0]-o.s[i-1][0])*f,y=o.s[i-1][1]+(o.s[i][1]-o.s[i-1][1])*f;
+var wv=o.w[i-1][1]+(o.w[i][1]-o.w[i-1][1])*f;var ang=Math.atan2(o.s[i][0]-o.s[i-1][0],-(o.s[i][1]-o.s[i-1][1]))*180/Math.PI;return {x:x,y:y,v:wv,a:ang,d:tot}}
+function frame(t){
+B.forEach(function(o){
+ var p=Math.min(1,t/o.dur);if(o.ease)p=Math.min(1,o.ease(p));
+ var q=at(o,p),k=sc(q.v);
+ o.tr.style.strokeDashoffset=o.len[o.len.length-1]-q.d;
+ var rot=o.n===5?0:q.a;
+ o.g.setAttribute("transform","translate("+q.x.toFixed(1)+","+q.y.toFixed(1)+") scale("+k.toFixed(3)+")");
+ o.body.setAttribute("transform","rotate("+rot.toFixed(1)+")");
+ if(o.spin)o.spin.setAttribute("transform","rotate("+(t*900).toFixed(0)+")");
+ o.badge.setAttribute("transform","translate("+(q.x+12*k).toFixed(1)+","+(q.y-14*k).toFixed(1)+") scale("+Math.max(.7,k).toFixed(2)+")");
+ var done=t>=o.dur*.96||(o.n===6&&t>.95)||(o.n===1&&t>.95);
+ o.lab.setAttribute("opacity",done?1:0);
+ var ly=o.n===5?q.y+24:(o.n===4?q.y-20:q.y+20);
+ if(o.n===2)ly=q.y+28;if(o.n===3)ly=q.y+4;if(o.n===6)ly=q.y-12;if(o.n===1)ly=q.y+20;
+ o.lab.setAttribute("x",(o.n===6?q.x+8:o.n===2?q.x-10:o.n===3?q.x-10:q.x).toFixed(1));if(o.n===3)o.lab.setAttribute("text-anchor","end");o.lab.setAttribute("y",ly.toFixed(1));
+ if(o.cam){var on=t>o.dur;o.cam.setAttribute("opacity",on?1:0);o.cam.setAttribute("transform","translate("+(q.x-14)+","+(q.y+4)+")");o.g.setAttribute("opacity",on?.35:1)}
+ o.q=q;
+});
+var d4=B[3].q,d1=B[0].q;
+waves.forEach(function(w,i){var r=(6+i*7)*sc(d4.v),op=t>.25&&t<1.05?.45-i*.12:0;w.setAttribute("d","M"+(d4.x-r)+","+(d4.y+r*.5)+" Q"+d4.x+","+(d4.y+r*1.4)+" "+(d4.x+r)+","+(d4.y+r*.5));w.setAttribute("stroke-opacity",op)});
+spl.forEach(function(c,i){var on=t>.55&&t<1.2;c.setAttribute("cx",d1.x+(i-1.5)*5);c.setAttribute("cy",d1.y-8-((t*40+i*3)%8));c.setAttribute("fill-opacity",on?.85:0)});
+}
+var rm=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+var END=1.15,st=null,raf=null,scr=document.getElementById("sc");
+function loop(ts){if(st==null)st=ts;var t=Math.min(END,(ts-st)/6000);frame(t);scr.value=Math.round(t/END*1000);if(t<END)raf=requestAnimationFrame(loop);else raf=null}
+function play(){if(raf)cancelAnimationFrame(raf);st=null;raf=requestAnimationFrame(loop)}
+document.getElementById("play").addEventListener("click",play);
+scr.addEventListener("input",function(){if(raf){cancelAnimationFrame(raf);raf=null}frame(scr.value/1000*END)});
+if(rm){frame(END);scr.value=1000}else play();
+// 決まり手
+var K2=[["5のまくり差し（浮き輪の回転）",41],["4のイルカがそのまま逃げる",22],["審議で順位が入れ替わる",19],["1の逃げ",9],["2がカメラ越しに優勝",9]];
+var bl=document.getElementById("bars");
+bl.innerHTML=K2.map(function(x,i){return '<li class="'+(i?'':'top')+'"><span>'+x[0]+'</span><span class="p">'+x[1]+'%</span><div class="bg"><div class="fg" data-w="'+x[1]+'"></div></div></li>'}).join("");
+var mx=41;setTimeout(function(){[].forEach.call(bl.querySelectorAll(".fg"),function(f){f.style.width=(f.dataset.w/mx*100)+"%"})},rm?0:300);
+// 審議
+document.getElementById("judge").addEventListener("click",function(){var r=document.getElementById("res"),bd=document.getElementById("bd");r.hidden=false;bd.textContent="確定";bd.className="l2 done";this.hidden=true});
+})();
+</script>
+<script src="../assets/guard.js" defer></script>
+</body>
+</html>
