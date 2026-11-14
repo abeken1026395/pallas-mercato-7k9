@@ -497,6 +497,70 @@ def merge_with_existing(new_df, csv_path):
     return combined
 
 
+PREV_PATH = os.path.join(OUTPUT_DIR, "racers_prev.json")
+INDEX_PATH = os.path.join(OUTPUT_DIR, "raceIndex.json")
+
+
+def save_prev(csv_path):
+    """前日の出走表を racers_prev.json に残す（出走表の「前日」タブ用・2026-11-14 けん）。
+    racers_today.csv は当日＋翌日しか持たないため、日付が変わった最初の実行で、まだ残っている前日分を写す。
+    前日分がもう無いときは、既存の racers_prev.json が前日のものなら残し、それより古ければ消す。返り値は前日の日付（無ければ ""）。
+    racers_today.csv 自体と、それを読むほかのスクリプトには影響しない。"""
+    yday = (target_date() - datetime.timedelta(days=1)).strftime("%Y%m%d")
+    old = load_existing_csv(csv_path)
+    if old is not None and len(old) > 0:
+        rows = old[old["開催日"].astype(str) == yday]
+        if len(rows) > 0:
+            with open(PREV_PATH, "w", encoding="utf-8") as f:
+                json.dump({"hd": yday, "columns": [str(c) for c in rows.columns.tolist()],
+                           "data": rows.fillna("").values.tolist()}, f, ensure_ascii=False, separators=(",", ":"), default=str)
+            print("前日の出走表: {} ({}件)".format(yday, len(rows)))
+            return yday
+    try:
+        with open(PREV_PATH, encoding="utf-8") as f:
+            hd = str(json.load(f).get("hd", ""))
+    except Exception:
+        hd = ""
+    if hd == yday:
+        print("前日の出走表: {}（既存を保持）".format(yday))
+        return yday
+    if os.path.exists(PREV_PATH):
+        os.remove(PREV_PATH)
+        print("前日の出走表: 古い {} を削除".format(hd))
+    return ""
+
+
+def save_index(df, prev_hd):
+    """場・日付・レースの一覧 raceIndex.json（買い目の入力シートで場・日付・レースを選ぶため・2026-11-14 けん）。
+    {"days": {開催日: {場コード: {"n": 場名, "r": {R番号: 締切時刻}}}}}。前日（racers_prev.json）・当日・翌日。"""
+    days = {}
+
+    def add(hd, jcd, name, rno, dl):
+        rn = _race_num(rno)
+        if not (hd and jcd and 1 <= rn <= 12):
+            return
+        v = days.setdefault(str(hd), {}).setdefault(str(jcd).zfill(2), {"n": str(name or ""), "r": {}})
+        if str(rn) not in v["r"]:
+            v["r"][str(rn)] = str(dl or "")
+
+    if df is not None and len(df) > 0:
+        for hd, jcd, name, rno, dl in zip(df["開催日"], df["場コード"], df["場名"], df["レース"], df["締切時刻"]):
+            add(hd, jcd, name, rno, dl)
+    if prev_hd:
+        try:
+            with open(PREV_PATH, encoding="utf-8") as f:
+                p = json.load(f)
+            ci = {c: i for i, c in enumerate(p.get("columns", []))}
+            for r in p.get("data", []):
+                add(r[ci["開催日"]], r[ci["場コード"]], r[ci["場名"]], r[ci["レース"]], r[ci["締切時刻"]])
+        except Exception as e:
+            print("raceIndex：前日分を読めず", e)
+    with open(INDEX_PATH, "w", encoding="utf-8") as f:
+        json.dump({"updated": datetime.datetime.now(JST).strftime("%Y-%m-%d %H:%M"), "days": days},
+                  f, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
+    print("raceIndex: {}日".format(len(days)))
+
+
 def main():
     print("出走表スクレイパー v5 (開催カレンダー絞り込み＋場×レース平坦並列)")
     print("実行日時:", datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
@@ -534,6 +598,11 @@ def main():
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     csv_path = os.path.join(OUTPUT_DIR, "racers_today.csv")
+    try:
+        prev_hd = save_prev(csv_path)   # 前日分が CSV から消える前に写す
+    except Exception as e:
+        print("前日の出走表スキップ:", e)
+        prev_hd = ""
 
     if not all_records:
         print("\n出走表が取得できませんでした。既存CSVを保持します。")
@@ -546,6 +615,10 @@ def main():
 
     df.to_csv(csv_path, index=False, encoding="utf-8-sig")
     print("\nCSV保存: {}/racers_today.csv ({}件)".format(OUTPUT_DIR, len(df)))
+    try:
+        save_index(df, prev_hd)
+    except Exception as e:
+        print("raceIndex生成スキップ:", e)
 
     # 場メタJSON（jcd→節名・企画名・日目）を docs/data/venueMeta.json に出力（方式B）。
     # モーターページが実行順に非依存で参照するための軽量JSON。追記のみで、
@@ -610,7 +683,7 @@ def main():
 
     data_json = json.dumps(
         {"columns": cols, "data": data, "venues": dict(VENUES), "updated": updated,
-         "birthdays": birthdays, "kana": kana},
+         "birthdays": birthdays, "kana": kana, "prevHd": prev_hd},
         ensure_ascii=False, default=str,
     )
     with open(TEMPLATE_PATH, "r", encoding="utf-8") as f:

@@ -498,9 +498,12 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .kb-b[aria-pressed="true"]{background:var(--kc);color:var(--kt);border:2px solid #eef3f8}
 .kb-b:disabled{opacity:.3;cursor:default}
 .kb-ms{display:flex;gap:4px;margin:0 0 12px}
-.kb-pv{min-height:1.6em;font-size:13px;color:#c3ccd6;line-height:1.6;margin:8px 0 0;font-variant-numeric:tabular-nums;word-break:keep-all;overflow-wrap:anywhere}
-.kb-ft{display:flex;align-items:center;gap:12px;margin:12px 0 0}
-.kb-n{flex:1;font-size:14px;color:#c3ccd6;font-variant-numeric:tabular-nums}
+.kb-bx{display:inline-flex;align-items:center;gap:8px}
+.kb-bx::before{content:"";flex:none;width:14px;height:14px;border:2px solid currentColor;box-sizing:border-box}
+.kb-bx[aria-pressed="true"]::before{background:#0b1726;box-shadow:inset 0 0 0 2px #eef3f8}
+.kb-why{font-size:13px;line-height:1.6;color:#a3b4c6;margin:8px 0 0}
+.kb-barp{max-width:600px;margin:0 auto;padding:4px 12px 0;font-size:13px;line-height:1.5;color:#c3ccd6;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kb-barp[hidden]{display:none}
 .kb-save{min-height:44px;min-width:96px;padding:0 16px;font-size:16px;font-weight:700;background:#7fb4ff;color:#0b1726;border:0;border-radius:0;cursor:pointer;touch-action:manipulation}
 .kb-save:disabled{background:#2c3e55;color:#a3b4c6;cursor:default}
 .kb-tb{display:flex;align-items:center;justify-content:center;min-height:44px;margin:8px 0 0;font-size:14px;font-weight:700;color:#eef3f8;border:1px solid #2c3e55;text-decoration:none}
@@ -537,7 +540,7 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .kb-bari button,.kb-bari a{display:flex;align-items:center;justify-content:center;min-height:44px;font-size:14px;font-weight:700;color:#eef3f8;background:#13233a;border:1px solid #2c3e55;border-radius:0;text-decoration:none;cursor:pointer;touch-action:manipulation;font-variant-numeric:tabular-nums}
 .kb-bari .kb-bs{background:#7fb4ff;color:#0b1726;border-color:#7fb4ff}
 .kb-bari .kb-ok{animation:kbPop .32s cubic-bezier(.34,1.56,.64,1)}
-body.kb-has{padding-bottom:calc(118px + env(safe-area-inset-bottom))!important}
+body.kb-has{padding-bottom:calc(144px + env(safe-area-inset-bottom))!important}
 .kb-sh{position:fixed;left:0;right:0;top:auto;bottom:0;margin:0 auto;width:100%;max-width:600px;max-height:90vh;padding:0;background:#13233a;color:#eef3f8;border:0;border-top:1px solid #2c3e55;border-radius:0}
 .kb-sh[open]{display:flex;flex-direction:column;animation:kbUp .28s cubic-bezier(.2,.7,.2,1)}
 .kb-sh::backdrop{background:rgba(5,12,22,.72)}
@@ -674,19 +677,44 @@ function g(row,name){ var i=col[name]; return i===undefined ? "" : String(row[i]
 
 /* 場ごとに整理（場コード+開催日で一意化） */
 var venues = {};
-RAW.data.forEach(function(row){
+function addRow(row){
   var jcd=g(row,"場コード"), name=g(row,"場名"), hd=g(row,"開催日");
   var key=jcd+"_"+hd;
   if(!venues[key]) venues[key]={key:key, jcd:jcd, name:name, setsu:g(row,"節名"), day:g(row,"日目"), hd:hd, races:{}};
   var rno=parseInt(g(row,"レース"));
   if(!venues[key].races[rno]) venues[key].races[rno]={deadline:g(row,"締切時刻"), kikaku:g(row,"企画名"), boats:[]};
   venues[key].races[rno].boats.push(row);
-});
-Object.keys(venues).forEach(function(k){
-  Object.keys(venues[k].races).forEach(function(r){
-    venues[k].races[r].boats.sort(function(a,b){ return parseInt(g(a,"枠"))-parseInt(g(b,"枠")); });
+}
+function sortBoats(){
+  Object.keys(venues).forEach(function(k){
+    Object.keys(venues[k].races).forEach(function(r){
+      venues[k].races[r].boats.sort(function(a,b){ return parseInt(g(a,"枠"))-parseInt(g(b,"枠")); });
+    });
   });
-});
+}
+RAW.data.forEach(addRow);
+sortBoats();
+/* 前日の出走表（racers_prev.json・前日タブを押したときに読む・2026-11-14 けん）。
+   RAW.prevHd が前日（日本時間）のときだけタブを出す。読んだ行は今の出走表と同じ列の並びに直して足す（同じ場・日がすでにあれば足さない） */
+function ymdJST(off){ var n=new Date(Date.now()+9*3600*1000+(off||0)*86400000); return n.getUTCFullYear()+("0"+(n.getUTCMonth()+1)).slice(-2)+("0"+n.getUTCDate()).slice(-2); }
+var PREV_HD=(/^\d{8}$/.test(String(RAW.prevHd||""))&&String(RAW.prevHd)===ymdJST(-1))?String(RAW.prevHd):"";
+var PREV_ST=0; /* 0＝まだ・1＝読み込み中・2＝読めた・-1＝読めなかった */
+function loadPrev(cb){
+  if(!PREV_HD||PREV_ST===1||PREV_ST===2){ if(PREV_ST===2&&cb) cb(); return; }
+  PREV_ST=1;
+  fetch("racers_prev.json?_="+PREV_HD).then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(j){
+    if(!j||String(j.hd)!==PREV_HD||!Array.isArray(j.columns)||!Array.isArray(j.data)) throw 0;
+    var ci={}; j.columns.forEach(function(c,i){ ci[c]=i; });
+    var have={}; Object.keys(venues).forEach(function(k){ have[k]=1; });
+    j.data.forEach(function(r){
+      if(!Array.isArray(r)) return;
+      var row=RAW.columns.map(function(c){ var i=ci[c]; return i===undefined?"":(r[i]==null?"":String(r[i])); });
+      if(g(row,"開催日")!==PREV_HD||have[g(row,"場コード")+"_"+PREV_HD]) return;
+      addRow(row);
+    });
+    sortBoats(); PREV_ST=2;
+  }).catch(function(){ PREV_ST=-1; }).then(function(){ if(cb) cb(); });
+}
 
 /* ===== 外部データ結合 ===== */
 var arare=null, weather=null, arareHd="";
@@ -782,6 +810,8 @@ var VDATE="";  /* 場の一覧で選んでいる開催日。レースを開い�
 (function(){
   /* #v12r5d20261110 の形なら、その日のそのレースを開く（トップの「保存した買い目」から来たとき） */
   var m=/^#v(\d{2})(?:r(\d{1,2}))?(?:d(\d{8}))?$/.exec(location.hash||""); if(!m) return;
+  /* 前日のレースなら、前日の出走表を読んでから開く */
+  if(m[3]&&m[3]===PREV_HD&&PREV_ST!==2){ var me=arguments.callee; loadPrev(function(){ if(PREV_ST===2){ me(); render(); } }); return; }
   var ks=Object.keys(venues).filter(function(k){ return venues[k].jcd===m[1]; }).sort();
   if(!ks.length) return;
   var n=nowJST(), t=m[3]||(n.getUTCFullYear()+("0"+(n.getUTCMonth()+1)).slice(-2)+("0"+n.getUTCDate()).slice(-2));
@@ -963,7 +993,7 @@ function yomiBox(v,rno){
     h+='<div class="yomi-btns">'
       +'<span class="yomibtn'+(mine===0?' on':'')+'" data-y="0">①は残る</span>'
       +'<span class="yomibtn'+(mine===1?' on':'')+'" data-y="1">①は崩れる</span></div>'
-      +'<div class="note">締切前のみ記録できます（締切後は変更不可）。ここでは読みだけを残します（買い目は下の「買い目を保存」へ）。記録はこの端末にのみ保存されます。</div>';
+      +'<div class="note">締切前のみ記録できます（締切後は変更不可）。ここでは読みだけを残します（買い目は下の「買い目を記録」へ）。記録はこの端末にのみ保存されます。</div>';
   }else{
     h+='<div class="yomi-line">'+(mine===null?'記録なし（締切後のため記録できません）':'記録：'+(mine===1?'①は崩れる':'①は残る'))+'</div>';
     if(e&&(e.res===0||e.res===1)){
@@ -1121,7 +1151,7 @@ function findWind(jcd,hd,dl){
     var d=Math.abs(Date.parse(h.time+"+09:00")-tms);
     if(d<bd){bd=d;best=h;}
   });
-  return best;
+  return bd<=2*3600*1000?best:null;  /* 2時間より離れた予報は使わない（前日のレースに今日の風を出さない・2026-11-14） */
 }
 var WIND_ARROW={"北":"↓","北東":"↙","東":"←","南東":"↖","南":"↑","南西":"↗","西":"→","北西":"↘"};
 function windArrow(dir){ if(!dir) return ""; for(var k in WIND_ARROW){ if(dir.indexOf(k)>=0) return WIND_ARROW[k]; } return ""; }
@@ -1213,8 +1243,10 @@ function renderVenues(app,crumb,keys){
   keys.forEach(function(k){ var v=venues[k]; (byDate[v.hd]=byDate[v.hd]||[]).push(v); });
   var dates=Object.keys(byDate).sort();
   var todayJST=(function(){ var n=nowJST(); return n.getUTCFullYear()+("0"+(n.getUTCMonth()+1)).slice(-2)+("0"+n.getUTCDate()).slice(-2); })();
-  /* 開催日のタブ：今日より前の日は出さない（0時から朝の更新までに残る前日分）。全部が前日なら残す */
-  var fut=dates.filter(function(d){ return d>=todayJST; });
+  /* 開催日のタブ：今日より前の日は出さない（0時から朝の更新までに残る前日分）。全部が前日なら残す。
+     前日の出走表（racers_prev.json）があれば前日タブを出す（2026-11-14 けん） */
+  if(PREV_HD&&dates.indexOf(PREV_HD)<0) dates.unshift(PREV_HD);
+  var fut=dates.filter(function(d){ return d>=todayJST||d===PREV_HD; });
   if(fut.length) dates=fut;
   if(dates.indexOf(VDATE)<0) VDATE=dates.indexOf(todayJST)>=0?todayJST:(fut.length?dates[0]:dates[dates.length-1]);
   var useTabs=dates.length>1;
@@ -1229,6 +1261,11 @@ function renderVenues(app,crumb,keys){
     dates=[VDATE];
   }
   dates.forEach(function(hd){
+    if(hd===PREV_HD&&!byDate[hd]){
+      if(PREV_ST===0) loadPrev(render);
+      html+='<div class="empty">'+(PREV_ST===-1?'前日の出走表を読めませんでした。通信の良いところで開き直してください。':'前日の出走表を読み込んでいます…')+'</div>';
+      return;
+    }
     var list=byDate[hd].sort(function(a,b){ var pa=isPin(a.jcd)?0:1, pb=isPin(b.jcd)?0:1; if(pa!==pb) return pa-pb; return a.jcd<b.jcd?-1:1; });
     var mm=hd.slice(4,6),dd=hd.slice(6,8);
     var dow=["日","月","火","水","木","金","土"][new Date(parseInt(hd.slice(0,4)),parseInt(mm)-1,parseInt(dd)).getDay()];
@@ -1967,7 +2004,7 @@ function renderRace(app,crumb,v){
       +esc((windArrow(wd.dir)+" ")+wd.dir)+' '+esc(wd.wind)+'m｜'+esc(wd.wx)+'（'+esc(String(wd.time).replace("T"," ").slice(5))+' 時点）</div>';
   }
   /* 当日干満（潮汐場のみ・水面コンディションの事実。見どころと同じ思想） */
-  if(tide && tide['stadiums'] && tide['stadiums'][v.jcd]){
+  if(tide && tide['stadiums'] && tide['stadiums'][v.jcd] && v.hd!==PREV_HD){  /* 前日のレースには今日の潮を出さない */
     var ts=tide['stadiums'][v.jcd], tp=[];
     if(tide['潮回り']) tp.push(esc(tide['潮回り']));
     if(ts['干満差']!=null) tp.push('干満差 '+esc(ts['干満差'])+'m');
@@ -2074,6 +2111,7 @@ function kbEntry(e){
   var b=(Array.isArray(e.b)?e.b:[]).filter(function(x){ return x&&typeof x==="object"&&KB_T[x.t]&&Array.isArray(x.k); }).map(function(x){
     var o={t:x.t,k:x.k.filter(function(s){ return typeof s==="string"&&/^[1-6]([-=][1-6]){0,2}$/.test(s); }),ts:kbOkN(x.ts)?x.ts:0};
     if(x.m==="b"&&kbHasBox(x.t)){ o.m="b"; o.s=(Array.isArray(x.s)?x.s:[]).filter(function(n){ return n>=1&&n<=6&&n===Math.floor(n); }); }
+    if(x.l===1) o.l=1;
     return o;
   }).filter(function(x){ return x.k.length; });
   return {v:typeof e.v==="string"?e.v:"",j:typeof e.j==="string"?e.j:"",h:typeof e.h==="string"?e.h:"",r:kbOkN(e.r)?e.r:0,d:typeof e.d==="string"?e.d:"",b:b,a:kbOkN(e.a)?e.a:null,p:kbOkN(e.p)?e.p:null,u:kbOkN(e.u)&&e.u>0?e.u:null};
@@ -2111,37 +2149,29 @@ function kbCombos(t,s,m){
   return out;
 }
 function kbCur(){ return kbCombos(KB_SEL.t,KB_SEL.s,KB_SEL.m); }
-/* フォーメーションで、ほかの着に1艇だけ選ばれている艇は、その着では押せない（1-1-1 のような組を作らせない） */
-function kbOff(i,ln){
-  if(kbRows(KB_SEL.t,KB_SEL.m)<2||KB_SEL.s[i].indexOf(ln)>=0) return false;
-  for(var j=0;j<KB_SEL.s.length;j++) if(j!==i&&KB_SEL.s[j].length===1&&KB_SEL.s[j][0]===ln) return true;
-  return false;
-}
 function kbPvText(cmb){ return cmb.length?cmb.slice(0,20).join("　")+(cmb.length>20?"　ほか"+(cmb.length-20)+"点":""):""; }
 function kbBox(v,rno,rc,chR){
   var rid=rkey(v.jcd,v.hd,rno);
   if(KB_SEL.rid!==rid){ KB_SEL={rid:rid,t:KB_SEL.t,m:KB_SEL.m,s:[[],[],[]]}; KB_MSG=""; }
   KB_CUR={rid:rid,v:v,rno:rno,rc:rc,ch:!!chR,cl:isClosed(v.hd,rc.deadline)};
   if(chR) return '';
-  var cl=KB_CUR.cl, t=KB_SEL.t, m=KB_SEL.m, n=kbRows(t,m), cmb=cl?[]:kbCur(), i, ln;
-  var h='<section class="kb" id="kb" aria-labelledby="kbH"><h2 class="kb-h" id="kbH">買い目を保存</h2><p class="kb-note">この端末にだけ残ります。機種変更のときは「フォローの控え」で移せます。</p>';
-  if(cl) h+='<p class="kb-lock">締切を過ぎたので、このレースの買い目は保存できません。購入額・払戻・メモは記録できます。</p>';
-  else h+='<div class="kb-ts">'+KB_ORDER.map(function(k){ return '<button type="button" class="kb-t" data-kbt="'+k+'" aria-pressed="'+(k===t)+'">'+KB_T[k][0]+'</button>'; }).join("")+'</div>';
-  if(!cl&&kbHasBox(t)) h+='<div class="kb-ms">'+[["f","フォーメーション"],["b","ボックス"]].map(function(x){ return '<button type="button" class="kb-t" data-kbm2="'+x[0]+'" aria-pressed="'+(x[0]===m)+'">'+x[1]+'</button>'; }).join("")+'</div>';
-  for(i=0;i<(cl?0:n);i++){
+  /* 締切後も買い目を入れられる（2026-11-14 けん：入力忘れを後から入れる。印は付けない。締切後に入れた分だけ消せる） */
+  var cl=KB_CUR.cl, t=KB_SEL.t, m=KB_SEL.m, n=kbRows(t,m), i, ln;
+  var h='<section class="kb" id="kb" aria-labelledby="kbH"><h2 class="kb-h" id="kbH">買い目を記録</h2><p class="kb-note">この端末にだけ残ります。機種変更のときは「フォローの控え」で移せます。</p>';
+  h+='<div class="kb-ts">'+KB_ORDER.map(function(k){ return '<button type="button" class="kb-t" data-kbt="'+k+'" aria-pressed="'+(k===t)+'">'+KB_T[k][0]+'</button>'; }).join("")+'</div>';
+  /* 連単だけ「ボックスで買う」を1つ出す（押していないときは着ごとに選ぶ） */
+  if(kbHasBox(t)) h+='<div class="kb-ms"><button type="button" class="kb-t kb-bx" data-kbm2="1" aria-pressed="'+(m==="b")+'">ボックスで買う</button></div>';
+  for(i=0;i<n;i++){
     var pl=n>1?KB_POS[i]:'選ぶ艇';
     h+='<div class="kb-row" role="group" aria-label="'+pl+'"><span class="kb-pl">'+pl+'</span>';
     for(ln=1;ln<=6;ln++){
       var on=KB_SEL.s[i].indexOf(ln)>=0, c=LANE_COLOR[ln]||["#333","#fff"];
-      h+='<button type="button" class="kb-b" data-kbp="'+i+'" data-kbl="'+ln+'" aria-pressed="'+on+'"'+(kbOff(i,ln)?' disabled':'')+' aria-label="'+(n>1?pl+' ':'')+ln+'号艇" style="--kc:'+c[0]+';--kt:'+c[1]+'">'+ln+'</button>';
+      h+='<button type="button" class="kb-b" data-kbp="'+i+'" data-kbl="'+ln+'" aria-pressed="'+on+'"'+' aria-label="'+(n>1?pl+' ':'')+ln+'号艇" style="--kc:'+c[0]+';--kt:'+c[1]+'">'+ln+'</button>';
     }
     h+='</div>';
   }
-  if(!cl){
-    h+='<div class="kb-pv" id="kbPv">'+esc(kbPvText(cmb))+'</div>';
-    h+='<div class="kb-ft"><span class="kb-n" id="kbN" role="status">'+(cmb.length?cmb.length+'点':'艇番を押して選ぶ')+'</span><button type="button" class="kb-save" id="kbSave"'+(cmb.length?'':' disabled')+'>保存</button></div>';
-    h+='<a class="kb-tb" href="'+TELEBOAT_URL+'" target="_blank" rel="noopener" data-kbtb="1">テレボートで買う ↗</a>';
-  }
+  /* 選んだ組・点数・保存は、画面下の帯に1か所だけ出す（2026-11-14 けん：入力を分かりやすく） */
+  if(!cl) h+='<a class="kb-tb" href="'+TELEBOAT_URL+'" target="_blank" rel="noopener" data-kbtb="1">テレボートで買う ↗</a>';
   if(KB_MSG) h+='<p class="kb-msg" role="alert">'+esc(KB_MSG)+'</p>';
   var e=kbEntry(kbObj("dz_bets")[rid]), sk=kbSkipObj()[rid];
   if(!cl&&!(e&&e.b.length)){
@@ -2173,8 +2203,9 @@ function kbBox(v,rno,rc,chR){
   if(e&&e.b.length){
     h+='<ul class="kb-sv" aria-label="保存した買い目">'+e.b.map(function(x,i){
       var k=x.k;
-      return '<li'+(KB_JUST===rid+":"+i?' class="kb-pop"':'')+'><span class="kb-st">'+esc(kbLabel(x))+'</span><span class="kb-sk">'+esc(x.m==="b"&&x.s.length?x.s.join("・"):k.join("　"))+'</span><span class="kb-sn">'+k.length+'点</span>'+(cl?'<span></span>':'<button type="button" class="kb-del" data-kbd="'+i+'" aria-label="この買い目を消す">消す</button>')+'</li>';
+      return '<li'+(KB_JUST===rid+":"+i?' class="kb-pop"':'')+'><span class="kb-st">'+esc(kbLabel(x))+'</span><span class="kb-sk">'+esc(x.m==="b"&&x.s.length?x.s.join("・"):k.join("　"))+'</span><span class="kb-sn">'+k.length+'点</span>'+(cl&&!x.l?'<span></span>':'<button type="button" class="kb-del" data-kbd="'+i+'" aria-label="この買い目を消す">消す</button>')+'</li>';
     }).join("")+'</ul>';
+    if(cl&&e.b.some(function(x){ return !x.l; })) h+='<p class="kb-why">締切前に保存した買い目は、締切後は消せません。</p>';
   }
   var JJ=(e&&window.DZK)?DZK.judge(DZK.entry(e),KB_RACE[rid]||null):null;
   h+='<button type="button" class="kb-rec" data-kbm="1"><span>購入 '+(JJ&&JJ.a!=null?kbYen(JJ.a)+(JJ.autoA?(JJ.dflt?'（1点100円）':'（自動）'):''):'—')+'</span><span>払戻 '+(JJ&&JJ.p!=null?kbYen(JJ.p)+(JJ.autoP?'（自動）':''):'—')+'</span><span class="kb-recg">金額を入れる・直す ›</span></button>';
@@ -2185,14 +2216,10 @@ function kbBox(v,rno,rc,chR){
 /* 艇番を押したときは、その場の表示だけを書き換える（節ごと作り直すと画面がちらつくため） */
 function kbSync(){
   var s=document.getElementById("kb"); if(!s) return;
-  var cmb=kbCur();
   Array.prototype.forEach.call(s.querySelectorAll("[data-kbl]"),function(el){
     var i=parseInt(el.getAttribute("data-kbp"),10), ln=parseInt(el.getAttribute("data-kbl"),10);
-    el.setAttribute("aria-pressed",String(KB_SEL.s[i].indexOf(ln)>=0)); el.disabled=kbOff(i,ln);
+    el.setAttribute("aria-pressed",String(KB_SEL.s[i].indexOf(ln)>=0));
   });
-  var pv=document.getElementById("kbPv"); if(pv) pv.textContent=kbPvText(cmb);
-  var nn=document.getElementById("kbN"); if(nn) nn.textContent=cmb.length?cmb.length+"点":"艇番を押して選ぶ";
-  var sv=document.getElementById("kbSave"); if(sv) sv.disabled=!cmb.length;
   var mg=s.querySelector(".kb-msg"); if(mg){ mg.parentNode.removeChild(mg); KB_MSG=""; }
   kbBar();
 }
@@ -2204,7 +2231,7 @@ function kbBind(root){
     el.onclick=function(){ var t=el.getAttribute("data-kbt"); if(t===KB_SEL.t) return; KB_SEL.t=t; KB_SEL.s=[[],[],[]]; KB_MSG=""; kbRefresh(); };
   });
   Array.prototype.forEach.call(s.querySelectorAll("[data-kbm2]"),function(el){
-    el.onclick=function(){ var m=el.getAttribute("data-kbm2"); if(m===KB_SEL.m) return; KB_SEL.m=m; KB_SEL.s=[[],[],[]]; KB_MSG=""; kbRefresh(); };
+    el.onclick=function(){ KB_SEL.m=KB_SEL.m==="b"?"f":"b"; KB_SEL.s=[[],[],[]]; KB_MSG=""; kbRefresh(); };
   });
   Array.prototype.forEach.call(s.querySelectorAll("[data-kbl]"),function(el){
     el.onclick=function(){
@@ -2217,7 +2244,6 @@ function kbBind(root){
   Array.prototype.forEach.call(s.querySelectorAll("[data-kbd]"),function(el){
     el.onclick=function(){ kbDel(parseInt(el.getAttribute("data-kbd"),10)); };
   });
-  var sv=s.querySelector("#kbSave"); if(sv) sv.onclick=function(){ kbSave(); };
   var rc=s.querySelector("[data-kbm]"); if(rc) rc.onclick=function(){ kbOpen(); };
   var tb=s.querySelector("[data-kbtb]"); if(tb) tb.onclick=function(){ KB_BACK=true; };
   var sk=s.querySelector("[data-kbskip]"); if(sk) sk.onclick=function(){
@@ -2245,21 +2271,23 @@ function kbRefresh(){
 }
 function kbSave(){
   if(!KB_CUR||KB_CUR.ch) return false;
-  if(isClosed(KB_CUR.v.hd,KB_CUR.rc.deadline)){ KB_MSG="締切を過ぎたので保存できません。"; kbRefresh(); return false; }
   var cmb=kbCur(); if(!cmb.length) return false;
   var B=kbObj("dz_bets"), c=KB_CUR, e=kbEntry(B[c.rid]);
   if(!e) e={b:[],a:null,p:null};
   e.v=c.v.name; e.j=c.v.jcd; e.h=c.v.hd; e.r=c.rno; e.d=c.rc.deadline||"";
-  e.b.push(kbHasBox(KB_SEL.t)&&KB_SEL.m==="b"?{t:KB_SEL.t,m:"b",s:KB_SEL.s[0].slice().sort(function(a,b){return a-b;}),k:cmb,ts:Date.now()}:{t:KB_SEL.t,k:cmb,ts:Date.now()}); B[c.rid]=e;
+  var it=kbHasBox(KB_SEL.t)&&KB_SEL.m==="b"?{t:KB_SEL.t,m:"b",s:KB_SEL.s[0].slice().sort(function(a,b){return a-b;}),k:cmb,ts:Date.now()}:{t:KB_SEL.t,k:cmb,ts:Date.now()};
+  if(isClosed(c.v.hd,c.rc.deadline)) it.l=1; /* 締切後に入れた印（画面には出さない・この分だけ消せる） */
+  e.b.push(it); B[c.rid]=e;
   if(!kbPut("dz_bets",B)){ KB_MSG="保存できませんでした。端末の空き容量か、プライベートブラウズの設定を確かめてください。"; kbRefresh(); return false; }
   var SK=kbSkipObj(); if(SK[c.rid]){ delete SK[c.rid]; kbPut("dz_skip",SK); }
   KB_SEL.s=[[],[],[]]; KB_MSG=""; KB_JUST=c.rid+":"+(e.b.length-1);
   kbRefresh(); return true;
 }
 function kbDel(i){
-  /* 締切後は消せない（結果を見てから外れだけ消すと、記録が当てにならなくなる） */
-  if(!KB_CUR||isClosed(KB_CUR.v.hd,KB_CUR.rc.deadline)) return;
-  var B=kbObj("dz_bets"), e=kbEntry(B[KB_CUR.rid]); if(!e) return;
+  /* 締切前に保存した買い目は、締切後は消せない（結果を見てから外れだけ消すと、記録が当てにならなくなる）。締切後に入れた分は消せる */
+  if(!KB_CUR) return;
+  var B=kbObj("dz_bets"), e=kbEntry(B[KB_CUR.rid]); if(!e||!e.b[i]) return;
+  if(isClosed(KB_CUR.v.hd,KB_CUR.rc.deadline)&&!e.b[i].l) return;
   e.b.splice(i,1);
   if(!e.b.length&&e.a==null&&e.p==null) delete B[KB_CUR.rid]; else B[KB_CUR.rid]=e;
   kbPut("dz_bets",B); kbRefresh();
@@ -2268,11 +2296,10 @@ function kbDel(i){
 function kbBar(){
   if(!KB_BAR){
     KB_BAR=document.createElement("div"); KB_BAR.className="kb-bar"; KB_BAR.hidden=true;
-    KB_BAR.innerHTML='<div class="kb-bari"><button type="button" class="kb-bs" id="kbBarSave">保存</button><button type="button" id="kbBarMemo">メモ</button><a href="'+TELEBOAT_URL+'" target="_blank" rel="noopener" id="kbBarTb">テレボート ↗</a></div>';
+    KB_BAR.innerHTML='<div class="kb-barp" id="kbBarP" role="status" hidden></div><div class="kb-bari"><button type="button" class="kb-bs" id="kbBarSave">保存</button><button type="button" id="kbBarMemo">メモ</button><a href="'+TELEBOAT_URL+'" target="_blank" rel="noopener" id="kbBarTb">テレボート ↗</a></div>';
     document.body.appendChild(KB_BAR);
     document.getElementById("kbBarSave").onclick=function(){
       var b=this;
-      if(KB_CUR&&KB_CUR.cl){ kbOpen(); return; }
       if(kbCur().length&&kbSave()){
         b.textContent="保存しました"; b.classList.remove("kb-ok"); void b.offsetWidth; b.classList.add("kb-ok");
         setTimeout(function(){ b.classList.remove("kb-ok"); kbBar(); },800);
@@ -2289,8 +2316,10 @@ function kbBar(){
   }
   var on=view.page==="race"&&!!KB_CUR&&!KB_CUR.ch&&!!document.getElementById("kb");
   KB_BAR.hidden=!on; document.body.classList.toggle("kb-has",on);
-  var sb=document.getElementById("kbBarSave"), n=kbCur().length, cl=!!(KB_CUR&&KB_CUR.cl);
-  if(sb&&!sb.classList.contains("kb-ok")) sb.textContent=cl?"記録":(n?"保存 "+n+"点":"保存");
+  /* 選んだ組と点数を、下の帯の保存ボタンのすぐ上に出す（3連単でも下へ動かさずに保存できる） */
+  var sb=document.getElementById("kbBarSave"), cmb=on?kbCur():[], n=cmb.length, bp=document.getElementById("kbBarP");
+  if(bp){ bp.hidden=!on; bp.textContent=n?kbPvText(cmb):"艇番を押して選ぶ"; }
+  if(sb&&!sb.classList.contains("kb-ok")) sb.textContent=n?"保存 "+n+"点":"保存";
 }
 /* このレースの記録（購入額・払戻・メモ）。下から出るシート。入力中に描き直されないよう #app の外に置く。
    開いたときは入力欄にフォーカスしない（キーボードがいきなり出て画面が跳ねるため）。
