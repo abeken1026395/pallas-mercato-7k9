@@ -501,6 +501,14 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .kb-bx{display:inline-flex;align-items:center;gap:8px}
 .kb-bx::before{content:"";flex:none;width:14px;height:14px;border:2px solid currentColor;box-sizing:border-box}
 .kb-bx[aria-pressed="true"]::before{background:#0b1726;box-shadow:inset 0 0 0 2px #eef3f8}
+.kb-amt{margin:12px 0 0}.kb-ul{display:block;font-size:12px;color:#a3b4c6;margin:0 0 4px}
+.kb-us{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.kb-u{min-height:44px;padding:0 4px;font-size:14px;font-weight:700;background:#13233a;color:#a3b4c6;border:1px solid #2c3e55;border-radius:0;cursor:pointer;white-space:nowrap;font-variant-numeric:tabular-nums;touch-action:manipulation}
+.kb-u[aria-pressed="true"]{background:#eef3f8;color:#0b1726;border-color:#eef3f8}
+.kb-uo{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0 0;font-size:13px;color:#a3b4c6}
+.kb-uin{display:flex;align-items:center;gap:6px;color:#c3ccd6}.kb-uin input{width:8.5em;min-height:44px;padding:0 8px;font-size:16px;color:#eef3f8;background:#0b1726;border:1px solid #5c6f86;border-radius:0;text-align:right}
+.kb-uin input::placeholder{color:#8a9bb0}
+.kb-sn{text-align:right;line-height:1.4}
 .kb-why{font-size:13px;line-height:1.6;color:#a3b4c6;margin:8px 0 0}
 .kb-barp{max-width:600px;margin:0 auto;padding:4px 12px 0;font-size:13px;line-height:1.5;color:#c3ccd6;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .kb-barp[hidden]{display:none}
@@ -630,7 +638,7 @@ body.kb-has{padding-bottom:calc(144px + env(safe-area-inset-bottom))!important}
 
 <script src="../assets/haranLv.js"></script>
 <script src="../assets/oshiMotor.js?v=6e528453"></script>
-<script src="../assets/kotaeawase.js?v=4"></script>
+<script src="../assets/kotaeawase.js?v=5"></script>
 <script src="../assets/tsuchi.js?v=2" defer></script>
 <script>
 var RAW = __DATA_PLACEHOLDER__;
@@ -2093,6 +2101,7 @@ var KB_T={"3t":["3連単",3,1],"3f":["3連複",3,0],"2t":["2連単",2,1],"2f":["
 var KB_ORDER=["3t","3f","2t","2f","kk","tn","fk"];
 var KB_POS=["1着","2着","3着"];
 var TELEBOAT_URL="https://spweb.brtb.jp/";
+var KB_U=(function(){ try{ var n=+localStorage.getItem("dz_kaimeU"); return kbOkU(n)?n:100; }catch(e){ return 100; } })(), KB_US=[100,200,500,1000];
 var KB_SEL={rid:"",t:"3t",m:"f",s:[[],[],[]]}, KB_CUR=null, KB_JUST="", KB_MSG="", KB_BACK=false, KB_BAR=null, KB_DLG=null;
 var KB_RACE={}; /* 答え合わせ用の結果。rid -> 結果のレース（まだ無ければ未定義）。assets/kotaeawase.js の DZK.day で読む */
 function kbSkipObj(){ return kbObj("dz_skip"); }
@@ -2105,6 +2114,8 @@ function kbFetchResult(rid,hd){
   });
 }
 function kbObj(k){ var v=lsGet(k,{}); return (v&&typeof v==="object"&&!Array.isArray(v))?v:{}; }
+/* 1点の金額（100円単位）。買い目ごとに x.u として残す（2026-11-14 けん：入力の画面のまま金額も入れる） */
+function kbOkU(n){ return typeof n==="number"&&isFinite(n)&&n>=100&&n<=1e7&&n%100===0; }
 function kbOkN(x){ return typeof x==="number"&&isFinite(x)&&x>=0&&x<1e9; }
 function kbEntry(e){
   if(!e||typeof e!=="object"||Array.isArray(e)) return null;
@@ -2112,6 +2123,7 @@ function kbEntry(e){
     var o={t:x.t,k:x.k.filter(function(s){ return typeof s==="string"&&/^[1-6]([-=][1-6]){0,2}$/.test(s); }),ts:kbOkN(x.ts)?x.ts:0};
     if(x.m==="b"&&kbHasBox(x.t)){ o.m="b"; o.s=(Array.isArray(x.s)?x.s:[]).filter(function(n){ return n>=1&&n<=6&&n===Math.floor(n); }); }
     if(x.l===1) o.l=1;
+    if(kbOkU(x.u)) o.u=x.u;
     return o;
   }).filter(function(x){ return x.k.length; });
   return {v:typeof e.v==="string"?e.v:"",j:typeof e.j==="string"?e.j:"",h:typeof e.h==="string"?e.h:"",r:kbOkN(e.r)?e.r:0,d:typeof e.d==="string"?e.d:"",b:b,a:kbOkN(e.a)?e.a:null,p:kbOkN(e.p)?e.p:null,u:kbOkN(e.u)&&e.u>0?e.u:null};
@@ -2170,6 +2182,9 @@ function kbBox(v,rno,rc,chR){
     }
     h+='</div>';
   }
+  var cus=KB_US.indexOf(KB_U)<0;
+  h+='<div class="kb-amt"><span class="kb-ul" id="kbUl">1点の金額</span><div class="kb-us" role="group" aria-labelledby="kbUl">'+KB_US.map(function(u){ return '<button type="button" class="kb-u" data-kbu2="'+u+'" aria-pressed="'+(u===KB_U)+'">'+kbYen(u)+'</button>'; }).join("")+'</div>'
+    +'<label class="kb-uo" for="kbU2">ほかの金額<span class="kb-uin"><input id="kbU2" type="text" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="100円単位" value="'+(cus?KB_U:"")+'"><span>円</span></span></label></div>';
   /* 選んだ組・点数・保存は、画面下の帯に1か所だけ出す（2026-11-14 けん：入力を分かりやすく） */
   if(!cl) h+='<a class="kb-tb" href="'+TELEBOAT_URL+'" target="_blank" rel="noopener" data-kbtb="1">テレボートで買う ↗</a>';
   if(KB_MSG) h+='<p class="kb-msg" role="alert">'+esc(KB_MSG)+'</p>';
@@ -2186,7 +2201,7 @@ function kbBox(v,rno,rc,chR){
       if(J&&J.state==="hit"){
         var seen=kbObj("dz_hitSeen"), first=!seen[rid];
         h+='<div class="kb-res kb-hit'+(first?' kb-pop2':'')+'" role="status"><b>的中</b><span>'+J.hits.map(function(x){ return esc(KB_T[x.t][0]+" "+x.k)+" "+kbYen(x.pay); }).join("　")+'</span>'
-          +(J.p!=null?'<span class="kb-pay">払戻 <i data-kbcount="'+J.p+'">'+(first?'0円':kbYen(J.p))+'</i>'+(J.autoP?'（1点'+kbYen(J.u)+(J.dflt?'として計算・金額は「記録」で直せます':'で計算')+'）':'')+'</span>'+kbRate(J.a,J.p):'<span class="kb-pay">払戻がまだ入っていません。下の「金額を入れる・直す」を押して入れてください'+(J.even?'（全部同じ金額なら、1点'+kbYen(J.even)+'のボタンで自動にできます）':'')+'</span>')+'</div>';
+          +(J.p!=null?'<span class="kb-pay">払戻 <i data-kbcount="'+J.p+'">'+(first?'0円':kbYen(J.p))+'</i>'+(J.autoP?(J.u?'（1点'+kbYen(J.u):'（買い目ごとの金額')+(J.dflt?'として計算・金額は「記録」で直せます':'で計算')+'）':'')+'</span>'+kbRate(J.a,J.p):'<span class="kb-pay">払戻がまだ入っていません。下の「金額を入れる・直す」を押して入れてください'+(J.even?'（全部同じ金額なら、1点'+kbYen(J.even)+'のボタンで自動にできます）':'')+'</span>')+'</div>';
         if(first){ seen[rid]=Date.now(); kbPut("dz_hitSeen",seen); }
       }else if(J&&J.state==="miss"){
         h+='<div class="kb-res kb-miss" role="status">外れ'+(J.a!=null?'<span class="kb-rr">購入 '+kbYen(J.a)+'・回収率 0%</span>':'')+'</div>';
@@ -2203,7 +2218,7 @@ function kbBox(v,rno,rc,chR){
   if(e&&e.b.length){
     h+='<ul class="kb-sv" aria-label="保存した買い目">'+e.b.map(function(x,i){
       var k=x.k;
-      return '<li'+(KB_JUST===rid+":"+i?' class="kb-pop"':'')+'><span class="kb-st">'+esc(kbLabel(x))+'</span><span class="kb-sk">'+esc(x.m==="b"&&x.s.length?x.s.join("・"):k.join("　"))+'</span><span class="kb-sn">'+k.length+'点</span>'+(cl&&!x.l?'<span></span>':'<button type="button" class="kb-del" data-kbd="'+i+'" aria-label="この買い目を消す">消す</button>')+'</li>';
+      return '<li'+(KB_JUST===rid+":"+i?' class="kb-pop"':'')+'><span class="kb-st">'+esc(kbLabel(x))+'</span><span class="kb-sk">'+esc(x.m==="b"&&x.s.length?x.s.join("・"):k.join("　"))+'</span><span class="kb-sn">'+k.length+'点'+(x.u?'<br>'+kbYen(k.length*x.u):'')+'</span>'+(cl&&!x.l?'<span></span>':'<button type="button" class="kb-del" data-kbd="'+i+'" aria-label="この買い目を消す">消す</button>')+'</li>';
     }).join("")+'</ul>';
     if(cl&&e.b.some(function(x){ return !x.l; })) h+='<p class="kb-why">締切前に保存した買い目は、締切後は消せません。</p>';
   }
@@ -2220,6 +2235,7 @@ function kbSync(){
     var i=parseInt(el.getAttribute("data-kbp"),10), ln=parseInt(el.getAttribute("data-kbl"),10);
     el.setAttribute("aria-pressed",String(KB_SEL.s[i].indexOf(ln)>=0));
   });
+  Array.prototype.forEach.call(s.querySelectorAll("[data-kbu2]"),function(el){ el.setAttribute("aria-pressed",String(parseInt(el.getAttribute("data-kbu2"),10)===KB_U)); });
   var mg=s.querySelector(".kb-msg"); if(mg){ mg.parentNode.removeChild(mg); KB_MSG=""; }
   kbBar();
 }
@@ -2241,6 +2257,10 @@ function kbBind(root){
       kbSync();
     };
   });
+  Array.prototype.forEach.call(s.querySelectorAll("[data-kbu2]"),function(el){
+    el.onclick=function(){ KB_U=parseInt(el.getAttribute("data-kbu2"),10); var ui=document.getElementById("kbU2"); if(ui) ui.value=""; kbSync(); };
+  });
+  var u2=s.querySelector("#kbU2"); if(u2) u2.addEventListener("input",function(){ var v=this.value.replace(/[^0-9]/g,"").slice(0,8); if(v!==this.value) this.value=v; KB_U=v===""?100:parseInt(v,10); kbSync(); });
   Array.prototype.forEach.call(s.querySelectorAll("[data-kbd]"),function(el){
     el.onclick=function(){ kbDel(parseInt(el.getAttribute("data-kbd"),10)); };
   });
@@ -2277,7 +2297,11 @@ function kbSave(){
   e.v=c.v.name; e.j=c.v.jcd; e.h=c.v.hd; e.r=c.rno; e.d=c.rc.deadline||"";
   var it=kbHasBox(KB_SEL.t)&&KB_SEL.m==="b"?{t:KB_SEL.t,m:"b",s:KB_SEL.s[0].slice().sort(function(a,b){return a-b;}),k:cmb,ts:Date.now()}:{t:KB_SEL.t,k:cmb,ts:Date.now()};
   if(isClosed(c.v.hd,c.rc.deadline)) it.l=1; /* 締切後に入れた印（画面には出さない・この分だけ消せる） */
+  if(!kbOkU(KB_U)) return false;
+  it.u=KB_U;
+  if(e.a!=null) e.a+=cmb.length*KB_U; /* 合計の購入額を手で入れてあるレースは、この買い目の分を足す */
   e.b.push(it); B[c.rid]=e;
+  try{ localStorage.setItem("dz_kaimeU",String(KB_U)); }catch(x){}
   if(!kbPut("dz_bets",B)){ KB_MSG="保存できませんでした。端末の空き容量か、プライベートブラウズの設定を確かめてください。"; kbRefresh(); return false; }
   var SK=kbSkipObj(); if(SK[c.rid]){ delete SK[c.rid]; kbPut("dz_skip",SK); }
   KB_SEL.s=[[],[],[]]; KB_MSG=""; KB_JUST=c.rid+":"+(e.b.length-1);
@@ -2288,6 +2312,7 @@ function kbDel(i){
   if(!KB_CUR) return;
   var B=kbObj("dz_bets"), e=kbEntry(B[KB_CUR.rid]); if(!e||!e.b[i]) return;
   if(isClosed(KB_CUR.v.hd,KB_CUR.rc.deadline)&&!e.b[i].l) return;
+  if(e.b[i].u&&e.a!=null) e.a=Math.max(0,e.a-e.b[i].k.length*e.b[i].u);
   e.b.splice(i,1);
   if(!e.b.length&&e.a==null&&e.p==null) delete B[KB_CUR.rid]; else B[KB_CUR.rid]=e;
   kbPut("dz_bets",B); kbRefresh();
@@ -2318,7 +2343,7 @@ function kbBar(){
   KB_BAR.hidden=!on; document.body.classList.toggle("kb-has",on);
   /* 選んだ組と点数を、下の帯の保存ボタンのすぐ上に出す（3連単でも下へ動かさずに保存できる） */
   var sb=document.getElementById("kbBarSave"), cmb=on?kbCur():[], n=cmb.length, bp=document.getElementById("kbBarP");
-  if(bp){ bp.hidden=!on; bp.textContent=n?kbPvText(cmb):"艇番を押して選ぶ"; }
+  if(bp){ bp.hidden=!on; bp.textContent=!kbOkU(KB_U)?"金額は100円単位で入れてください":n?kbYen(n*KB_U)+"｜"+kbPvText(cmb):"艇番を押して選ぶ"; }
   if(sb&&!sb.classList.contains("kb-ok")) sb.textContent=n?"保存 "+n+"点":"保存";
 }
 /* このレースの記録（購入額・払戻・メモ）。下から出るシート。入力中に描き直されないよう #app の外に置く。
@@ -2424,6 +2449,7 @@ function kbRecord(){
   if(!e) e={b:[],a:null,p:null};
   e.v=c.v.name; e.j=c.v.jcd; e.h=c.v.hd; e.r=c.rno; e.d=c.rc.deadline||"";
   e.a=a; e.p=p; e.u=u;
+  if(even) e.b.forEach(function(x){ delete x.u; }); /* 「全部同じ金額」は、買い目ごとの金額より優先する */
   if(e.b.length||a!=null||p!=null) B[c.rid]=e; else delete B[c.rid];
   if(t) M[c.rid]={t:t,ts:Date.now()}; else delete M[c.rid];
   ok=kbPut("dz_bets",B)&&kbPut("dz_rmemo",M);

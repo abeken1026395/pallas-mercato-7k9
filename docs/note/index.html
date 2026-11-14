@@ -306,7 +306,7 @@ footer{margin-top:24px;font-size:13px;color:var(--dim);line-height:1.85}
 <footer>舟券の購入は20歳になってから。<br>ここに書いた内容は、この端末のブラウザにだけ保存されます（データ攻めのサーバーには届きません）。</footer>
 </div>
 
-<script src="../assets/kotaeawase.js?v=4"></script>
+<script src="../assets/kotaeawase.js?v=5"></script>
 <script>
 (function(){
 var V=["","桐生","戸田","江戸川","平和島","多摩川","浜名湖","蒲郡","常滑","津","三国","びわこ","住之江","尼崎","鳴門","丸亀","児島","宮島","徳山","下関","若松","芦屋","福岡","唐津","大村"];
@@ -528,11 +528,11 @@ function watchMore(){
 /* 金額の入力（2026-11-12 けん裁定）：1点の金額か、合計の購入額と払戻を入れる。何も入れなければ1点100円 */
 function edForm(rid){
   var e=DZK.entry(loadO("dz_bets")[rid]);if(!e)return "";
-  var v=function(n){return n!=null?String(n):""},c=e.a!=null||e.p!=null,u=e.u||100;
+  var v=function(n){return n!=null?String(n):""},c=e.a!=null||e.p!=null,u0=e.b.length&&e.b.every(function(x){return x.u===e.b[0].u})?e.b[0].u:null,u=e.u||u0||100;
   return '<div class="edf" data-mode="'+(c?"c":"e")+'">'
    +'<div class="seg" role="group" aria-label="買い方"><button type="button" data-em="e" aria-pressed="'+(!c)+'">全部同じ金額</button><button type="button" data-em="c" aria-pressed="'+c+'">点ごとに違う</button></div>'
    +'<div class="me"><div class="chips" role="group" aria-label="1点の金額">'+[100,200,500,1000].map(function(n){return '<button type="button" data-eu="'+n+'" aria-pressed="'+(u===n)+'">'+n.toLocaleString()+"円</button>"}).join("")+"</div>"
-   +'<label>ほかの金額<span><input inputmode="numeric" data-f="u" value="'+v(e.u)+'" placeholder="100">円</span></label>'
+   +'<label>ほかの金額<span><input inputmode="numeric" data-f="u" value="'+v(e.u||u0)+'" placeholder="100">円</span></label>'
    +'<p>購入額と払戻は、結果から自動で出します。</p></div>'
    +'<div class="mc"><label>合計の購入額<span><input inputmode="numeric" data-f="a" value="'+v(e.a)+'" placeholder="0">円</span></label>'
    +'<label>払戻<span><input inputmode="numeric" data-f="p" value="'+v(e.p)+'" placeholder="0">円</span></label>'
@@ -546,9 +546,10 @@ $("b-list").addEventListener("click",function(e){var b=e.target.closest("button"
   if(b.dataset.em){var f0=b.closest(".edf");f0.dataset.mode=b.dataset.em;f0.querySelectorAll("[data-em]").forEach(function(x){x.setAttribute("aria-pressed",x===b?"true":"false")});return}
   if(b.dataset.eu){var f1=b.closest(".edf");f1.querySelector('[data-f="u"]').value=b.dataset.eu;f1.querySelectorAll("[data-eu]").forEach(function(x){x.setAttribute("aria-pressed",x===b?"true":"false")});return}
   if(b.dataset.es||b.dataset.ev){var rid=b.dataset.es||b.dataset.ev,B=loadO("dz_bets"),en=DZK.entry(B[rid]);if(!en)return;
-    if(b.dataset.ev){var uu=edNum(b.dataset.u);if(uu){B[rid].u=uu;B[rid].a=null;B[rid].p=null}}
+    var clr=function(){if(Array.isArray(B[rid].b))B[rid].b.forEach(function(x){if(x&&typeof x==="object")delete x.u})};/* 全部同じ金額にしたら、買い目ごとの金額は消す */
+    if(b.dataset.ev){var uu=edNum(b.dataset.u);if(uu){B[rid].u=uu;B[rid].a=null;B[rid].p=null;clr()}}
     else{var bx2=b.closest("[data-edbox]"),g=function(k){return edNum(bx2.querySelector('[data-f="'+k+'"]').value)};
-      if(bx2.querySelector(".edf").dataset.mode==="e"){B[rid].u=g("u")||100;B[rid].a=null;B[rid].p=null}else{B[rid].u=null;B[rid].a=g("a");B[rid].p=g("p")}}
+      if(bx2.querySelector(".edf").dataset.mode==="e"){B[rid].u=g("u")||100;B[rid].a=null;B[rid].p=null;clr()}else{B[rid].u=null;B[rid].a=g("a");B[rid].p=g("p")}}
     saveO("dz_bets",B);drawBets();return}
   if(!b.dataset.bd)return;
   if(!b.dataset.armed){b.dataset.armed="1";b.textContent="もう一度押すと消えます";return}
@@ -704,7 +705,7 @@ else if(location.hash==="#bets"||(!location.hash&&!/[?&]toban=/.test(location.se
 })();
 </script>
 <script src="../assets/tsuchi.js?v=2"></script>
-<script src="../assets/kaimeSheet.js?v=1" defer></script>
+<script src="../assets/kaimeSheet.js?v=2" defer></script>
 <script>
 /* 締切10分前の通知（再訪設計 段階3・2026-11-13）。状態ごとに1行と1つのボタンだけ出す */
 (function(){
