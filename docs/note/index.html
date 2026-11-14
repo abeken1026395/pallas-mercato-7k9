@@ -203,6 +203,10 @@ footer{margin-top:24px;font-size:13px;color:var(--dim);line-height:1.85}
 <!-- ===== 保存した買い目（出走表で保存したもの） ===== -->
 <section id="v-bets" hidden>
   <div class="card">
+    <button class="kz-open" type="button" data-kzopen>買い目を記録（場・日付・レースを選ぶ）</button>
+    <p class="note">入れ忘れたレースも、前日の分まで入れられます。</p>
+  </div>
+  <div class="card">
     <h2>振り返り</h2>
     <div class="per" id="bper">
       <button type="button" data-p="m0" aria-pressed="true">今月</button>
@@ -461,6 +465,8 @@ function drawGraph(S){
    +'<circle cx="'+X(pts.length-1).toFixed(1)+'" cy="'+Y(c).toFixed(1)+'" r="3" fill="#ff7b7b"/></svg>'
    +'<div class="ax"><span>'+dd(S[0].hd)+"</span><span>点線は0円</span><span>"+dd(S[S.length-1].hd)+"</span></div>";
 }
+/* 買い目の入力シート（assets/kaimeSheet.js）で保存・削除したら描き直す（2026-11-14） */
+window.addEventListener("dzbets",function(){try{drawBets()}catch(e){}});
 function drawBets(){
   var xs=betRows().filter(function(x){return inBPer(x.hd)});
   needResults(xs);
@@ -698,6 +704,7 @@ else if(location.hash==="#bets"||(!location.hash&&!/[?&]toban=/.test(location.se
 })();
 </script>
 <script src="../assets/tsuchi.js?v=2"></script>
+<script src="../assets/kaimeSheet.js?v=1" defer></script>
 <script>
 /* 締切10分前の通知（再訪設計 段階3・2026-11-13）。状態ごとに1行と1つのボタンだけ出す */
 (function(){
