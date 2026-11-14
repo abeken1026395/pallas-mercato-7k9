@@ -32,6 +32,8 @@
       var o={t:x.t,k:x.k.filter(function(s){ return typeof s==="string"&&/^[1-6]([-=][1-6]){0,2}$/.test(s); })};
       if(x.m==="b"){ o.m="b"; o.s=(Array.isArray(x.s)?x.s:[]).filter(function(n){ return n>=1&&n<=6&&n===Math.floor(n); }); }
       if(okN(x.u)&&x.u>0) o.u=x.u; /* 買い目ごとの1点の金額（2026-11-14 けん：入力シートで金額も入れる） */
+      /* 組ごとに割り振った金額（k と同じ並び・2026-11-14 けん：割り振りボタン） */
+      if(Array.isArray(x.ku)&&x.ku.length===x.k.length&&o.k.length===x.k.length&&x.ku.every(function(n){ return okN(n)&&n>0; })) o.ku=x.ku.slice();
       return o;
     }).filter(function(x){ return x.k.length; });
     return {d:typeof e.d==="string"&&/^\d{1,2}:\d{2}$/.test(e.d)?e.d:"",b:b,a:okN(e.a)?e.a:null,p:okN(e.p)?e.p:null,u:okN(e.u)&&e.u>0?e.u:null};
@@ -139,17 +141,18 @@
   function judge(en,race){
     var r={state:"pending",hits:[],pay100:0,pts:points(en),a:en.a,p:en.p,autoA:false,autoP:false,san:null,dflt:false,even:null};
     /* 買い目ごとに1点の金額（x.u）があれば、それを先に使う。無い買い目はレースの1点の金額（en.u）を使う（2026-11-14） */
-    var per=en.b.some(function(x){ return x.u; }), allPer=en.b.length&&en.b.every(function(x){ return x.u; });
+    var per=en.b.some(function(x){ return x.u||x.ku; }), allPer=en.b.length&&en.b.every(function(x){ return x.u||x.ku; });
     /* 金額を何も入れていないレースは、1点100円で均等に買ったとして出す（2026-11-12 けん裁定） */
     var u=en.u;
     if(!u&&en.a==null&&en.p==null){ u=100; r.dflt=!allPer; }
     /* 購入額がちょうど 100円×点数 なら、ボタンを押さなくても均等として払戻を出す */
     if(!u&&en.a!=null&&en.p==null&&r.pts&&en.a===r.pts*100) u=100;
     function uOf(x){ return x.u||u||null; }
-    var full=en.b.every(function(x){ return uOf(x); }), us={};
-    en.b.forEach(function(x){ us[uOf(x)]=1; });
-    r.u=full&&Object.keys(us).length===1?uOf(en.b[0]||{}):(per?null:(u||null));
-    if(en.a==null&&full&&r.pts){ r.a=0; en.b.forEach(function(x){ r.a+=x.k.length*uOf(x); }); r.autoA=true; }
+    function kOf(x,i){ return x.ku?x.ku[i]:uOf(x); }
+    var full=en.b.every(function(x){ return x.ku||uOf(x); }), us={};
+    en.b.forEach(function(x){ if(x.ku) x.ku.forEach(function(n){ us[n]=1; }); else us[uOf(x)]=1; });
+    r.u=full&&Object.keys(us).length===1?+Object.keys(us)[0]:(per?null:(u||null));
+    if(en.a==null&&full&&r.pts){ r.a=0; en.b.forEach(function(x){ x.k.forEach(function(k,i){ r.a+=kOf(x,i); }); }); r.autoA=true; }
     /* 購入額だけが入っていて、点数で割って100円単位なら「均等に買った」ボタンの候補 */
     if(!u&&!per&&en.a!=null&&r.pts&&en.a>0&&en.a%r.pts===0&&(en.a/r.pts)%100===0) r.even=en.a/r.pts;
     if(!r.pts){ r.state="none"; return r; }  /* 金額やメモだけで、買い目が無いレース */
@@ -158,8 +161,8 @@
     r.san=s3;
     en.b.forEach(function(x){
       var arr=Array.isArray(P[T[x.t]])?P[T[x.t]]:[];
-      x.k.forEach(function(k){
-        arr.forEach(function(w){ if(w&&w["組番"]===k&&okN(w["配当"])){ r.hits.push({t:x.t,k:k,pay:w["配当"]}); r.pay100+=w["配当"]; payU+=w["配当"]*(uOf(x)||0)/100; } });
+      x.k.forEach(function(k,i){
+        arr.forEach(function(w){ if(w&&w["組番"]===k&&okN(w["配当"])){ r.hits.push({t:x.t,k:k,pay:w["配当"]}); r.pay100+=w["配当"]; payU+=w["配当"]*(kOf(x,i)||0)/100; } });
       });
     });
     r.state=r.hits.length?"hit":"miss";
