@@ -27,6 +27,7 @@ GUARD_FILE = "docs/assets/guard.js"
 
 # guard.js 参照が必須のページ（正本が別にある生成物も、生成物側で検査する）
 GUARD = [
+    "docs/next/chaosKessaku.html",  # 実験場：1マークの見立て番外編（パロディ画像のネタ・どこからもリンクしない・2026-11-15）
     "docs/next/kirokuKeikou.html",  # 実験場：自分の記録の段階3（予想の傾向・称号・月ごとのまとめ・共有画像・noteの入口）。guard.js を読み込む（2026-11-11）
     "docs/next/topL.html",  # 実験場：トップ案L（デザイン評議会の結論・下の固定タブ・ロゴの記号・2026-11-05）
     "docs/next/topM.html",  # 実験場：トップ案M（案Lの下に告知・フォロー中・場の朝刊・答え合わせ・読みものを組み直した本番化前の全体・2026-11-06）
