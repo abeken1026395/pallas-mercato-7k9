@@ -498,9 +498,12 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .kb-b[aria-pressed="true"]{background:var(--kc);color:var(--kt);border:2px solid #eef3f8}
 .kb-b:disabled{opacity:.3;cursor:default}
 .kb-ms{display:flex;gap:4px;margin:0 0 12px}
-.kb-pv{min-height:1.6em;font-size:13px;color:#c3ccd6;line-height:1.6;margin:8px 0 0;font-variant-numeric:tabular-nums;word-break:keep-all;overflow-wrap:anywhere}
-.kb-ft{display:flex;align-items:center;gap:12px;margin:12px 0 0}
-.kb-n{flex:1;font-size:14px;color:#c3ccd6;font-variant-numeric:tabular-nums}
+.kb-bx{display:inline-flex;align-items:center;gap:8px}
+.kb-bx::before{content:"";flex:none;width:14px;height:14px;border:2px solid currentColor;box-sizing:border-box}
+.kb-bx[aria-pressed="true"]::before{background:#0b1726;box-shadow:inset 0 0 0 2px #eef3f8}
+.kb-why{font-size:13px;line-height:1.6;color:#a3b4c6;margin:8px 0 0}
+.kb-barp{max-width:600px;margin:0 auto;padding:4px 12px 0;font-size:13px;line-height:1.5;color:#c3ccd6;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kb-barp[hidden]{display:none}
 .kb-save{min-height:44px;min-width:96px;padding:0 16px;font-size:16px;font-weight:700;background:#7fb4ff;color:#0b1726;border:0;border-radius:0;cursor:pointer;touch-action:manipulation}
 .kb-save:disabled{background:#2c3e55;color:#a3b4c6;cursor:default}
 .kb-tb{display:flex;align-items:center;justify-content:center;min-height:44px;margin:8px 0 0;font-size:14px;font-weight:700;color:#eef3f8;border:1px solid #2c3e55;text-decoration:none}
@@ -537,7 +540,7 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .kb-bari button,.kb-bari a{display:flex;align-items:center;justify-content:center;min-height:44px;font-size:14px;font-weight:700;color:#eef3f8;background:#13233a;border:1px solid #2c3e55;border-radius:0;text-decoration:none;cursor:pointer;touch-action:manipulation;font-variant-numeric:tabular-nums}
 .kb-bari .kb-bs{background:#7fb4ff;color:#0b1726;border-color:#7fb4ff}
 .kb-bari .kb-ok{animation:kbPop .32s cubic-bezier(.34,1.56,.64,1)}
-body.kb-has{padding-bottom:calc(118px + env(safe-area-inset-bottom))!important}
+body.kb-has{padding-bottom:calc(144px + env(safe-area-inset-bottom))!important}
 .kb-sh{position:fixed;left:0;right:0;top:auto;bottom:0;margin:0 auto;width:100%;max-width:600px;max-height:90vh;padding:0;background:#13233a;color:#eef3f8;border:0;border-top:1px solid #2c3e55;border-radius:0}
 .kb-sh[open]{display:flex;flex-direction:column;animation:kbUp .28s cubic-bezier(.2,.7,.2,1)}
 .kb-sh::backdrop{background:rgba(5,12,22,.72)}
@@ -990,7 +993,7 @@ function yomiBox(v,rno){
     h+='<div class="yomi-btns">'
       +'<span class="yomibtn'+(mine===0?' on':'')+'" data-y="0">①は残る</span>'
       +'<span class="yomibtn'+(mine===1?' on':'')+'" data-y="1">①は崩れる</span></div>'
-      +'<div class="note">締切前のみ記録できます（締切後は変更不可）。ここでは読みだけを残します（買い目は下の「買い目を保存」へ）。記録はこの端末にのみ保存されます。</div>';
+      +'<div class="note">締切前のみ記録できます（締切後は変更不可）。ここでは読みだけを残します（買い目は下の「買い目を記録」へ）。記録はこの端末にのみ保存されます。</div>';
   }else{
     h+='<div class="yomi-line">'+(mine===null?'記録なし（締切後のため記録できません）':'記録：'+(mine===1?'①は崩れる':'①は残る'))+'</div>';
     if(e&&(e.res===0||e.res===1)){
@@ -2146,12 +2149,6 @@ function kbCombos(t,s,m){
   return out;
 }
 function kbCur(){ return kbCombos(KB_SEL.t,KB_SEL.s,KB_SEL.m); }
-/* フォーメーションで、ほかの着に1艇だけ選ばれている艇は、その着では押せない（1-1-1 のような組を作らせない） */
-function kbOff(i,ln){
-  if(kbRows(KB_SEL.t,KB_SEL.m)<2||KB_SEL.s[i].indexOf(ln)>=0) return false;
-  for(var j=0;j<KB_SEL.s.length;j++) if(j!==i&&KB_SEL.s[j].length===1&&KB_SEL.s[j][0]===ln) return true;
-  return false;
-}
 function kbPvText(cmb){ return cmb.length?cmb.slice(0,20).join("　")+(cmb.length>20?"　ほか"+(cmb.length-20)+"点":""):""; }
 function kbBox(v,rno,rc,chR){
   var rid=rkey(v.jcd,v.hd,rno);
@@ -2159,21 +2156,21 @@ function kbBox(v,rno,rc,chR){
   KB_CUR={rid:rid,v:v,rno:rno,rc:rc,ch:!!chR,cl:isClosed(v.hd,rc.deadline)};
   if(chR) return '';
   /* 締切後も買い目を入れられる（2026-11-14 けん：入力忘れを後から入れる。印は付けない。締切後に入れた分だけ消せる） */
-  var cl=KB_CUR.cl, t=KB_SEL.t, m=KB_SEL.m, n=kbRows(t,m), cmb=kbCur(), i, ln;
-  var h='<section class="kb" id="kb" aria-labelledby="kbH"><h2 class="kb-h" id="kbH">買い目を保存</h2><p class="kb-note">この端末にだけ残ります。機種変更のときは「フォローの控え」で移せます。</p>';
+  var cl=KB_CUR.cl, t=KB_SEL.t, m=KB_SEL.m, n=kbRows(t,m), i, ln;
+  var h='<section class="kb" id="kb" aria-labelledby="kbH"><h2 class="kb-h" id="kbH">買い目を記録</h2><p class="kb-note">この端末にだけ残ります。機種変更のときは「フォローの控え」で移せます。</p>';
   h+='<div class="kb-ts">'+KB_ORDER.map(function(k){ return '<button type="button" class="kb-t" data-kbt="'+k+'" aria-pressed="'+(k===t)+'">'+KB_T[k][0]+'</button>'; }).join("")+'</div>';
-  if(kbHasBox(t)) h+='<div class="kb-ms">'+[["f","フォーメーション"],["b","ボックス"]].map(function(x){ return '<button type="button" class="kb-t" data-kbm2="'+x[0]+'" aria-pressed="'+(x[0]===m)+'">'+x[1]+'</button>'; }).join("")+'</div>';
+  /* 連単だけ「ボックスで買う」を1つ出す（押していないときは着ごとに選ぶ） */
+  if(kbHasBox(t)) h+='<div class="kb-ms"><button type="button" class="kb-t kb-bx" data-kbm2="1" aria-pressed="'+(m==="b")+'">ボックスで買う</button></div>';
   for(i=0;i<n;i++){
     var pl=n>1?KB_POS[i]:'選ぶ艇';
     h+='<div class="kb-row" role="group" aria-label="'+pl+'"><span class="kb-pl">'+pl+'</span>';
     for(ln=1;ln<=6;ln++){
       var on=KB_SEL.s[i].indexOf(ln)>=0, c=LANE_COLOR[ln]||["#333","#fff"];
-      h+='<button type="button" class="kb-b" data-kbp="'+i+'" data-kbl="'+ln+'" aria-pressed="'+on+'"'+(kbOff(i,ln)?' disabled':'')+' aria-label="'+(n>1?pl+' ':'')+ln+'号艇" style="--kc:'+c[0]+';--kt:'+c[1]+'">'+ln+'</button>';
+      h+='<button type="button" class="kb-b" data-kbp="'+i+'" data-kbl="'+ln+'" aria-pressed="'+on+'"'+' aria-label="'+(n>1?pl+' ':'')+ln+'号艇" style="--kc:'+c[0]+';--kt:'+c[1]+'">'+ln+'</button>';
     }
     h+='</div>';
   }
-  h+='<div class="kb-pv" id="kbPv">'+esc(kbPvText(cmb))+'</div>';
-  h+='<div class="kb-ft"><span class="kb-n" id="kbN" role="status">'+(cmb.length?cmb.length+'点':'艇番を押して選ぶ')+'</span><button type="button" class="kb-save" id="kbSave"'+(cmb.length?'':' disabled')+'>保存</button></div>';
+  /* 選んだ組・点数・保存は、画面下の帯に1か所だけ出す（2026-11-14 けん：入力を分かりやすく） */
   if(!cl) h+='<a class="kb-tb" href="'+TELEBOAT_URL+'" target="_blank" rel="noopener" data-kbtb="1">テレボートで買う ↗</a>';
   if(KB_MSG) h+='<p class="kb-msg" role="alert">'+esc(KB_MSG)+'</p>';
   var e=kbEntry(kbObj("dz_bets")[rid]), sk=kbSkipObj()[rid];
@@ -2208,6 +2205,7 @@ function kbBox(v,rno,rc,chR){
       var k=x.k;
       return '<li'+(KB_JUST===rid+":"+i?' class="kb-pop"':'')+'><span class="kb-st">'+esc(kbLabel(x))+'</span><span class="kb-sk">'+esc(x.m==="b"&&x.s.length?x.s.join("・"):k.join("　"))+'</span><span class="kb-sn">'+k.length+'点</span>'+(cl&&!x.l?'<span></span>':'<button type="button" class="kb-del" data-kbd="'+i+'" aria-label="この買い目を消す">消す</button>')+'</li>';
     }).join("")+'</ul>';
+    if(cl&&e.b.some(function(x){ return !x.l; })) h+='<p class="kb-why">締切前に保存した買い目は、締切後は消せません。</p>';
   }
   var JJ=(e&&window.DZK)?DZK.judge(DZK.entry(e),KB_RACE[rid]||null):null;
   h+='<button type="button" class="kb-rec" data-kbm="1"><span>購入 '+(JJ&&JJ.a!=null?kbYen(JJ.a)+(JJ.autoA?(JJ.dflt?'（1点100円）':'（自動）'):''):'—')+'</span><span>払戻 '+(JJ&&JJ.p!=null?kbYen(JJ.p)+(JJ.autoP?'（自動）':''):'—')+'</span><span class="kb-recg">金額を入れる・直す ›</span></button>';
@@ -2218,14 +2216,10 @@ function kbBox(v,rno,rc,chR){
 /* 艇番を押したときは、その場の表示だけを書き換える（節ごと作り直すと画面がちらつくため） */
 function kbSync(){
   var s=document.getElementById("kb"); if(!s) return;
-  var cmb=kbCur();
   Array.prototype.forEach.call(s.querySelectorAll("[data-kbl]"),function(el){
     var i=parseInt(el.getAttribute("data-kbp"),10), ln=parseInt(el.getAttribute("data-kbl"),10);
-    el.setAttribute("aria-pressed",String(KB_SEL.s[i].indexOf(ln)>=0)); el.disabled=kbOff(i,ln);
+    el.setAttribute("aria-pressed",String(KB_SEL.s[i].indexOf(ln)>=0));
   });
-  var pv=document.getElementById("kbPv"); if(pv) pv.textContent=kbPvText(cmb);
-  var nn=document.getElementById("kbN"); if(nn) nn.textContent=cmb.length?cmb.length+"点":"艇番を押して選ぶ";
-  var sv=document.getElementById("kbSave"); if(sv) sv.disabled=!cmb.length;
   var mg=s.querySelector(".kb-msg"); if(mg){ mg.parentNode.removeChild(mg); KB_MSG=""; }
   kbBar();
 }
@@ -2237,7 +2231,7 @@ function kbBind(root){
     el.onclick=function(){ var t=el.getAttribute("data-kbt"); if(t===KB_SEL.t) return; KB_SEL.t=t; KB_SEL.s=[[],[],[]]; KB_MSG=""; kbRefresh(); };
   });
   Array.prototype.forEach.call(s.querySelectorAll("[data-kbm2]"),function(el){
-    el.onclick=function(){ var m=el.getAttribute("data-kbm2"); if(m===KB_SEL.m) return; KB_SEL.m=m; KB_SEL.s=[[],[],[]]; KB_MSG=""; kbRefresh(); };
+    el.onclick=function(){ KB_SEL.m=KB_SEL.m==="b"?"f":"b"; KB_SEL.s=[[],[],[]]; KB_MSG=""; kbRefresh(); };
   });
   Array.prototype.forEach.call(s.querySelectorAll("[data-kbl]"),function(el){
     el.onclick=function(){
@@ -2250,7 +2244,6 @@ function kbBind(root){
   Array.prototype.forEach.call(s.querySelectorAll("[data-kbd]"),function(el){
     el.onclick=function(){ kbDel(parseInt(el.getAttribute("data-kbd"),10)); };
   });
-  var sv=s.querySelector("#kbSave"); if(sv) sv.onclick=function(){ kbSave(); };
   var rc=s.querySelector("[data-kbm]"); if(rc) rc.onclick=function(){ kbOpen(); };
   var tb=s.querySelector("[data-kbtb]"); if(tb) tb.onclick=function(){ KB_BACK=true; };
   var sk=s.querySelector("[data-kbskip]"); if(sk) sk.onclick=function(){
@@ -2303,11 +2296,10 @@ function kbDel(i){
 function kbBar(){
   if(!KB_BAR){
     KB_BAR=document.createElement("div"); KB_BAR.className="kb-bar"; KB_BAR.hidden=true;
-    KB_BAR.innerHTML='<div class="kb-bari"><button type="button" class="kb-bs" id="kbBarSave">保存</button><button type="button" id="kbBarMemo">メモ</button><a href="'+TELEBOAT_URL+'" target="_blank" rel="noopener" id="kbBarTb">テレボート ↗</a></div>';
+    KB_BAR.innerHTML='<div class="kb-barp" id="kbBarP" role="status" hidden></div><div class="kb-bari"><button type="button" class="kb-bs" id="kbBarSave">保存</button><button type="button" id="kbBarMemo">メモ</button><a href="'+TELEBOAT_URL+'" target="_blank" rel="noopener" id="kbBarTb">テレボート ↗</a></div>';
     document.body.appendChild(KB_BAR);
     document.getElementById("kbBarSave").onclick=function(){
       var b=this;
-      if(KB_CUR&&KB_CUR.cl){ kbOpen(); return; }
       if(kbCur().length&&kbSave()){
         b.textContent="保存しました"; b.classList.remove("kb-ok"); void b.offsetWidth; b.classList.add("kb-ok");
         setTimeout(function(){ b.classList.remove("kb-ok"); kbBar(); },800);
@@ -2324,8 +2316,10 @@ function kbBar(){
   }
   var on=view.page==="race"&&!!KB_CUR&&!KB_CUR.ch&&!!document.getElementById("kb");
   KB_BAR.hidden=!on; document.body.classList.toggle("kb-has",on);
-  var sb=document.getElementById("kbBarSave"), n=kbCur().length, cl=!!(KB_CUR&&KB_CUR.cl);
-  if(sb&&!sb.classList.contains("kb-ok")) sb.textContent=cl?"記録":(n?"保存 "+n+"点":"保存");
+  /* 選んだ組と点数を、下の帯の保存ボタンのすぐ上に出す（3連単でも下へ動かさずに保存できる） */
+  var sb=document.getElementById("kbBarSave"), cmb=on?kbCur():[], n=cmb.length, bp=document.getElementById("kbBarP");
+  if(bp){ bp.hidden=!on; bp.textContent=n?kbPvText(cmb):"艇番を押して選ぶ"; }
+  if(sb&&!sb.classList.contains("kb-ok")) sb.textContent=n?"保存 "+n+"点":"保存";
 }
 /* このレースの記録（購入額・払戻・メモ）。下から出るシート。入力中に描き直されないよう #app の外に置く。
    開いたときは入力欄にフォーカスしない（キーボードがいきなり出て画面が跳ねるため）。

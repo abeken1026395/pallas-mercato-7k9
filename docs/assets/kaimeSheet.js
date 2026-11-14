@@ -2,7 +2,7 @@
    出走表の「買い目を保存」と同じ形で、この端末の dz_bets に残す（{レースID:{v,j,h,r,d,b:[{t,k,ts,m?,s?,l?}],a,p,u}}）。
    締切後に入れた買い目には l:1 を付ける（画面には出さない・その分だけ消せる。締切前に保存した分は締切後は消せない）。
    場・日付・レースの一覧は ../racers/raceIndex.json（前日・当日・翌日）。
-   使い方：dzKaime.open({j:"12", h:"20261114", r:5})。指定が無ければ当日の最初の場・次に締切のレースから。保存すると window に "dzbets" を送る。 */
+   使い方：dzKaime.open({j:"12", h:"20261114", r:5})。場の指定が無ければ直近に締切ったレースから。保存すると window に "dzbets" を送る。 */
 (function () {
   if (window.dzKaime) return;
   var T = { "3t": ["3連単", 3, 1], "3f": ["3連複", 3, 0], "2t": ["2連単", 2, 1], "2f": ["2連複", 2, 0], "kk": ["拡連複", 2, 0], "tn": ["単勝", 1, 1], "fk": ["複勝", 1, 1] };
@@ -45,12 +45,6 @@
     }
     return out;
   }
-  // ほかの着に1艇だけ選ばれている艇は、その着では押せない（1-1-1 のような組を作らせない）
-  function off(i, ln) {
-    if (rows() < 2 || S.s[i].indexOf(ln) >= 0) return false;
-    for (var j = 0; j < S.s.length; j++) if (j !== i && S.s[j].length === 1 && S.s[j][0] === ln) return true;
-    return false;
-  }
   // 保存してある買い目を、出走表と同じ決まりで整える（形の違うものは捨てる）
   function cleanB(b) {
     return (Array.isArray(b) ? b : []).filter(function (x) { return x && typeof x === "object" && T[x.t] && Array.isArray(x.k); }).map(function (x) {
@@ -64,6 +58,7 @@
     if (!e || typeof e !== "object" || Array.isArray(e)) return null;
     return { e: e, b: cleanB(e.b) };
   }
+  function pvText(c) { return c.slice(0, 20).join("　") + (c.length > 20 ? "　ほか" + (c.length - 20) + "点" : ""); }
   function label(x) { return T[x.t][0] + (x.m === "b" ? "ボックス" : ""); }
 
   function loadIdx() {
@@ -91,6 +86,17 @@
     }
   }
 
+  // 場の指定なしで開いたとき（自分の記録から）は、直近に締切ったレースを選んでおく（入れ忘れを入れるため）
+  function pickRecent() {
+    var now = Date.now(), best = 0;
+    days().forEach(function (h) {
+      Object.keys(IDX.days[h] || {}).forEach(function (j) {
+        var r = (IDX.days[h][j] || {}).r || {};
+        Object.keys(r).forEach(function (n) { var d = dlMs(h, r[n]); if (d && d <= now && d > best) { best = d; S.h = h; S.j = j; S.r = +n; } });
+      });
+    });
+  }
+
   var CSS = ".kz{position:fixed;left:0;right:0;top:auto;bottom:0;margin:0 auto;width:100%;max-width:600px;max-height:92vh;padding:0;background:#13233a;color:#eef3f8;border:0;border-top:1px solid #2c3e55;border-radius:0;font-family:inherit}"
     + ".kz[open]{display:flex;flex-direction:column}.kz::backdrop{background:rgba(5,12,22,.72)}"
     + ".kz-h{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 8px 4px 16px;border-bottom:1px solid rgba(255,255,255,.09)}"
@@ -106,11 +112,14 @@
     + ".kz-t[aria-pressed=true]{background:#eef3f8;color:#0b1726;border-color:#eef3f8}"
     + ".kz-row{display:grid;grid-template-columns:48px repeat(6,1fr);gap:4px;align-items:center;margin:0 0 4px}"
     + ".kz-pl{font-size:12px;color:#cdd7e0;white-space:nowrap}"
+    + "@media (max-width:374px){.kz-sel{grid-template-columns:1fr 1fr}.kz-sel label:last-child{grid-column:1/-1}}"
     + "@media (max-width:374px){.kz-row{grid-template-columns:repeat(6,1fr)}.kz-pl{grid-column:1/-1}}"
     + ".kz-l{min-height:44px;font-size:16px;font-weight:700;background:#13233a;color:#cdd7e0;border:1px solid #2c3e55;border-radius:0;cursor:pointer;font-family:inherit}"
     + ".kz-l[aria-pressed=true]{background:var(--kc);color:var(--kt);border:2px solid #eef3f8}.kz-l:disabled{opacity:.3;cursor:default}"
-    + ".kz-pv{min-height:1.6em;font-size:13px;color:#cdd7e0;line-height:1.6;margin:8px 0 0;overflow-wrap:anywhere}"
-    + ".kz-ft{display:flex;align-items:center;gap:12px;margin:12px 0 0}.kz-n{flex:1;font-size:14px;color:#cdd7e0}"
+    + ".kz-bx{display:inline-flex;align-items:center;gap:8px}.kz-bx::before{content:\"\";flex:none;width:14px;height:14px;border:2px solid currentColor;box-sizing:border-box}.kz-bx[aria-pressed=true]::before{background:#0b1726;box-shadow:inset 0 0 0 2px #eef3f8}"
+    + ".kz-ft{position:sticky;bottom:-16px;z-index:1;margin:12px -16px 0;padding:8px 16px calc(12px + env(safe-area-inset-bottom));background:#13233a;border-top:1px solid #2c3e55}"
+    + ".kz-pv{font-size:13px;color:#cdd7e0;line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}.kz-pv:empty{display:none}"
+    + ".kz-fr{display:flex;align-items:center;gap:12px;margin:4px 0 0}.kz-n{flex:1;font-size:14px;color:#cdd7e0}"
     + ".kz-sv{min-height:44px;min-width:96px;padding:0 16px;font-size:16px;font-weight:700;background:#7fb4ff;color:#0b1726;border:0;border-radius:0;cursor:pointer;font-family:inherit}"
     + ".kz-sv:disabled{background:#2c3e55;color:#cdd7e0;cursor:default}"
     + ".kz-m{font-size:13px;color:#cdd7e0;margin:8px 0 0;line-height:1.6}"
@@ -148,20 +157,19 @@
     var cl = closed();
     h += '<p class="kz-dl">' + esc((v.n || "") + " " + S.r + "R｜締切 " + (dl() || "—")) + (cl ? "（締切済み）" : "") + "</p>";
     h += '<div class="kz-ts">' + ORDER.map(function (k) { return '<button type="button" class="kz-t" data-kzt="' + k + '" aria-pressed="' + (k === S.t) + '">' + T[k][0] + "</button>"; }).join("") + "</div>";
-    if (hasBox(S.t)) h += '<div class="kz-ts">' + [["f", "フォーメーション"], ["b", "ボックス"]].map(function (x) { return '<button type="button" class="kz-t" data-kzm="' + x[0] + '" aria-pressed="' + (x[0] === S.m) + '">' + x[1] + "</button>"; }).join("") + "</div>";
+    if (hasBox(S.t)) h += '<div class="kz-ts"><button type="button" class="kz-t kz-bx" data-kzm="1" aria-pressed="' + (S.m === "b") + '">ボックスで買う</button></div>';
     var n = rows(), i, ln;
     for (i = 0; i < n; i++) {
       var pl = n > 1 ? POS[i] : "選ぶ艇";
       h += '<div class="kz-row" role="group" aria-label="' + pl + '"><span class="kz-pl">' + pl + "</span>";
       for (ln = 1; ln <= 6; ln++) {
         var on = S.s[i].indexOf(ln) >= 0, c = LANE[ln];
-        h += '<button type="button" class="kz-l" data-kzp="' + i + '" data-kzl="' + ln + '" aria-pressed="' + on + '"' + (off(i, ln) ? " disabled" : "") + ' aria-label="' + (n > 1 ? pl + " " : "") + ln + '号艇" style="--kc:' + c[0] + ";--kt:" + c[1] + '">' + ln + "</button>";
+        h += '<button type="button" class="kz-l" data-kzp="' + i + '" data-kzl="' + ln + '" aria-pressed="' + on + '" aria-label="' + (n > 1 ? pl + " " : "") + ln + '号艇" style="--kc:' + c[0] + ";--kt:" + c[1] + '">' + ln + "</button>";
       }
       h += "</div>";
     }
     var cmb = combos();
-    h += '<div class="kz-pv" id="kzPv">' + esc(cmb.slice(0, 20).join("　") + (cmb.length > 20 ? "　ほか" + (cmb.length - 20) + "点" : "")) + "</div>";
-    h += '<div class="kz-ft"><span class="kz-n" id="kzN" role="status">' + (cmb.length ? cmb.length + "点" : "艇番を押して選ぶ") + '</span><button type="button" class="kz-sv" data-kz="save"' + (cmb.length ? "" : " disabled") + ">保存</button></div>";
+    h += '<div class="kz-ft"><div class="kz-pv" id="kzPv">' + esc(pvText(cmb)) + '</div><div class="kz-fr"><span class="kz-n" id="kzN" role="status">' + (cmb.length ? cmb.length + "点" : "艇番を押して選ぶ") + '</span><button type="button" class="kz-sv" data-kz="save"' + (cmb.length ? "" : " disabled") + ">保存</button></div></div>";
     if (S.msg) h += '<p class="kz-m" role="status">' + esc(S.msg) + "</p>";
     var en = entryOf(getO("dz_bets")[rid()]);
     if (en && en.b.length) {
@@ -170,6 +178,7 @@
         return '<li><span class="kz-st">' + esc(label(x)) + '</span><span class="kz-k">' + esc(x.m === "b" && Array.isArray(x.s) && x.s.length ? x.s.join("・") : x.k.join("　")) + '</span><span class="kz-c">' + x.k.length + "点</span>"
           + (can ? '<button type="button" class="kz-d" data-kzd="' + ix + '" aria-label="この買い目を消す">消す</button>' : "<span></span>") + "</li>";
       }).join("") + "</ul>";
+      if (cl && en.b.some(function (x) { return x.l !== 1; })) h += '<p class="kz-m">締切前に保存した買い目は、締切後は消せません。</p>';
     }
     h += '<a class="kz-go" href="/racers/#v' + esc(S.j) + "r" + S.r + "d" + esc(S.h) + '"><span>このレースの出走表を開く</span><span aria-hidden="true">›</span></a>';
     B.innerHTML = h;
@@ -178,10 +187,10 @@
     var B = document.getElementById("kzB"); if (!B) return;
     Array.prototype.forEach.call(B.querySelectorAll("[data-kzl]"), function (el) {
       var i = +el.getAttribute("data-kzp"), ln = +el.getAttribute("data-kzl");
-      el.setAttribute("aria-pressed", String(S.s[i].indexOf(ln) >= 0)); el.disabled = off(i, ln);
+      el.setAttribute("aria-pressed", String(S.s[i].indexOf(ln) >= 0));
     });
     var cmb = combos();
-    var pv = document.getElementById("kzPv"); if (pv) pv.textContent = cmb.slice(0, 20).join("　") + (cmb.length > 20 ? "　ほか" + (cmb.length - 20) + "点" : "");
+    var pv = document.getElementById("kzPv"); if (pv) pv.textContent = pvText(cmb);
     var nn = document.getElementById("kzN"); if (nn) nn.textContent = cmb.length ? cmb.length + "点" : "艇番を押して選ぶ";
     var sv = B.querySelector('[data-kz="save"]'); if (sv) sv.disabled = !cmb.length;
   }
@@ -213,8 +222,8 @@
     if (a === "x") { DLG.close(); return; }
     if (a === "save") { save(); return; }
     if (t.hasAttribute("data-kzt")) { var k = t.getAttribute("data-kzt"); if (k !== S.t) { S.t = k; S.s = [[], [], []]; S.msg = ""; draw(); } return; }
-    if (t.hasAttribute("data-kzm")) { var m = t.getAttribute("data-kzm"); if (m !== S.m) { S.m = m; S.s = [[], [], []]; S.msg = ""; draw(); } return; }
-    if (t.hasAttribute("data-kzl")) { if (t.disabled) return; var arr = S.s[+t.getAttribute("data-kzp")], ln = +t.getAttribute("data-kzl"), ix = arr.indexOf(ln); if (ix >= 0) arr.splice(ix, 1); else arr.push(ln); S.msg = ""; var m2 = DLG.querySelector(".kz-m[role=status]"); if (m2) m2.remove(); sync(); return; }
+    if (t.hasAttribute("data-kzm")) { S.m = S.m === "b" ? "f" : "b"; S.s = [[], [], []]; S.msg = ""; draw(); return; }
+    if (t.hasAttribute("data-kzl")) { var arr = S.s[+t.getAttribute("data-kzp")], ln = +t.getAttribute("data-kzl"), ix = arr.indexOf(ln); if (ix >= 0) arr.splice(ix, 1); else arr.push(ln); S.msg = ""; var m2 = DLG.querySelector(".kz-m[role=status]"); if (m2) m2.remove(); sync(); return; }
     if (t.hasAttribute("data-kzd")) { del(+t.getAttribute("data-kzd")); return; }
   }
   function onChange(ev) {
@@ -240,10 +249,11 @@
       if (/^\d{8}$/.test(o.h || "")) S.h = o.h;
       if (/^\d{2}$/.test(o.j || "")) S.j = o.j;
       S.r = +o.r >= 1 && +o.r <= 12 ? +o.r : 0;
+      var want = !/^\d{2}$/.test(o.j || "");
       S.s = [[], [], []]; S.msg = "";
       draw();
       try { DLG.showModal(); } catch (e) { DLG.setAttribute("open", ""); }
-      loadIdx().then(function () { S.msg = ""; draw(); }, function () { S.msg = "レースの一覧を読めませんでした。通信の良いところで開き直してください。"; draw(); });
+      loadIdx().then(function () { if (want) { pickRecent(); want = false; } S.msg = ""; draw(); }, function () { S.msg = "レースの一覧を読めませんでした。通信の良いところで開き直してください。"; draw(); });
     }
   };
 })();
