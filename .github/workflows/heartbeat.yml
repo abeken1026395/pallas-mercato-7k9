@@ -61,9 +61,14 @@ jobs:
           # 遅い場（若松・下関など）の出走表を、そろうまで待つWF。JST21〜23時帯のみ。
           # 起動時にそろっていれば何もせず終わる（冪等）。
           if [ "$H" -ge 21 ] && [ "$H" -le 23 ]; then dispatch waitLateVenues.yml || rc=1; fi
-          if [ "$RN" = 0 ]; then echo "no-op帯（JST ${H}時）＝内部起動なし"; fi
+          # 1マークの見立て（展示前版）の取りこぼし救済。JST6〜8時帯のみ（2026-11-15 けん承認）。
+          # 出走表の更新が6時前に終わると続けての起動は見立てを作らず、朝の定時起動も全部不発火の日がある（11-15 実例）。
+          # 今日の分が既にあれば何もせず終わる（冪等）。
+          IM=0
+          if [ "$H" -ge 6 ] && [ "$H" -le 8 ]; then IM=1; dispatch buildIchimarkMae.yml || rc=1; fi
+          if [ "$RN" = 0 ] && [ "$IM" = 0 ]; then echo "no-op帯（JST ${H}時）＝内部起動なし"; fi
           {
             echo "### heartbeat 判定（${NOW}）"
-            echo "- JST時=\`${H}\` → nightly=\`${RN}\`"
+            echo "- JST時=\`${H}\` → nightly=\`${RN}\` ／ ichimark=\`${IM}\`"
           } >> "$GITHUB_STEP_SUMMARY"
           exit $rc
