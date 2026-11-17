@@ -741,8 +741,17 @@ $("x-no").onclick=function(){$("x-confirm").hidden=true};
 $("x-yes").onclick=function(){money=[];save(KS,money);$("x-confirm").hidden=true;$("x-msg").textContent="支出の記録を消しました。";drawMoney()};
 
 drawMemos();
+/* 通知の欄まで下げる。上の「振り返り」は結果の読み込みで後から伸びるので、4秒の間は高さが変わるたびに合わせ直す。
+   その間に読者が自分で動かしたらやめる（2026-11-17 本番で、読み込み後に欄が下へずれたのを直す） */
+function goTsuchi(){
+  var tc=$("tsuchi");if(!tc)return;var stop=false;
+  function al(){if(!stop)tc.scrollIntoView({block:"start"})}
+  ["wheel","touchstart","keydown","mousedown"].forEach(function(e){addEventListener(e,function(){stop=true},{once:true,passive:true})});
+  requestAnimationFrame(al);addEventListener("load",function(){setTimeout(al,0)});
+  if(window.ResizeObserver){var ro=new ResizeObserver(function(){al()});ro.observe(document.body);setTimeout(function(){ro.disconnect();stop=true},4000)}
+}
 if(location.hash==="#money"){show("money");drawMoney()}
-else if(location.hash==="#tsuchi"){show("bets");drawBets();var tc=$("tsuchi");if(tc)requestAnimationFrame(function(){tc.scrollIntoView({block:"start"})})}/* 紹介文のリンク（2026-11-17）：通知の欄まで下げる */
+else if(location.hash==="#tsuchi"){show("bets");drawBets();goTsuchi()}/* 紹介文のリンク（2026-11-17）：通知の欄まで下げる */
 else if(location.hash==="#bets"||(!location.hash&&!/[?&]toban=/.test(location.search)&&betRows().length)){show("bets");drawBets()}
 })();
 </script>
