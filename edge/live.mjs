@@ -2,6 +2,8 @@
 // 置き場所：Pages Functions（functions/api/now.js・functions/api/push.js）から呼ぶ。保存先は D1（バインディング名 DZ_DB）。
 // 人数：接続元を日替わりの鍵（DZ_SALT）で変換した16桁を、直近5分に合図があった数だけ数える。生の接続元は残さない。5人未満は0と返す。
 // 通知：通知をオンにした人の購読情報と、出走表・見どころで選んだレースの番号・締切時刻・知らせる種類（10分前・結果）だけを受け取る。
+//       2026-11-17 けん：推し選手と推しモーターの出走も、選んだものだけ10分前に知らせる。そのために登録番号（p:4桁）と
+//       場コード_機番（m:12_34）も受け取る（fols）。どのレースに出るかは送り役が出走表の索引（/racers/entryIndex.json）で調べる。
 //       金額・メモ・収支は受け取らない（2026-11-13 けん「レースそのものに通知を付けよう」）。
 // D1 が無い・失敗したときは何もせず空の答えを返す（ページを止めない）。
 import { ipKey, jstDay } from "./junkai.mjs";
@@ -9,6 +11,8 @@ import { ipKey, jstDay } from "./junkai.mjs";
 export const WINDOW_MS = 5 * 60 * 1000;   // 直近5分
 export const SHOW_MIN = 5;                // 5人以上のときだけ出す
 export const MAX_RACES = 60;              // 1人が登録できるレースの上限
+export const MAX_FOLS = 40;               // 1人が知らせる推し・モーターの数の上限
+const FOL = /^(p:\d{4}|m:(0[1-9]|1\d|2[0-4])_[1-9]\d{0,2})$/;
 const RID = /^(0[1-9]|1\d|2[0-4])_(\d{8})_([1-9]|1[0-2])$/;
 const PUSH_HOSTS = [/^fcm\.googleapis\.com$/, /^android\.googleapis\.com$/, /^updates\.push\.services\.mozilla\.com$/, /^push\.services\.mozilla\.com$/, /^([a-z0-9-]+\.)*push\.apple\.com$/, /^([a-z0-9-]+\.)*notify\.windows\.com$/];
 
@@ -26,7 +30,20 @@ export const SCHEMA = [
   // 公式の締切予定時刻の写し（場_日付 → {R番号:"HH:MM"}）と、送り役の小さな覚え書き
   "CREATE TABLE IF NOT EXISTS offi (jh TEXT PRIMARY KEY, t INTEGER NOT NULL, j TEXT NOT NULL)",
   "CREATE TABLE IF NOT EXISTS kv (k TEXT PRIMARY KEY, v TEXT NOT NULL)",
+  // 2026-11-17 追加：推し・モーターの出走の通知。fols＝知らせる推し（p:登録番号）とモーター（m:場コード_機番）。
+  // races.o＝推し・モーターから送り役が足したレースの印（文面に入れる「推し ○○」など）。本人が選んだレースは o が空
+  "CREATE TABLE IF NOT EXISTS fols (sid TEXT NOT NULL, k TEXT NOT NULL, PRIMARY KEY (sid, k))",
+  "ALTER TABLE races ADD COLUMN o TEXT",
 ];
+
+// 推し・モーターの一覧の検査（形の違うもの・重複は捨てる・上限）
+export function cleanFols(list) {
+  if (list == null) return [];
+  if (!Array.isArray(list)) return null;
+  const out = new Set();
+  for (const x of list.slice(0, 200)) { if (typeof x === "string" && FOL.test(x)) out.add(x); }
+  return [...out].sort().slice(0, MAX_FOLS);
+}
 
 function hex(buf) { return Array.from(new Uint8Array(buf), b => b.toString(16).padStart(2, "0")).join(""); }
 async function sha(s) { return hex(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s))); }
@@ -115,6 +132,7 @@ export async function onPush(context, now = Date.now()) {
       await db.batch([
         db.prepare("DELETE FROM races WHERE sid = ?1").bind(id),
         db.prepare("DELETE FROM daily WHERE sid = ?1").bind(id),
+        db.prepare("DELETE FROM fols WHERE sid = ?1").bind(id),
         db.prepare("DELETE FROM subs WHERE id = ?1").bind(id),
       ]);
       return json({ ok: true });
@@ -123,22 +141,32 @@ export async function onPush(context, now = Date.now()) {
     const keys = sub.keys || {};
     if (typeof keys.p256dh !== "string" || typeof keys.auth !== "string" || !/^[A-Za-z0-9_-]{80,100}$/.test(keys.p256dh) || !/^[A-Za-z0-9_-]{16,32}$/.test(keys.auth)) return json({ ok: false }, 400);
     const races = cleanRaces(body.races, now);
-    if (!races) return json({ ok: false }, 400);
-    const h = (await sha(JSON.stringify(races) + "|" + keys.p256dh + "|" + keys.auth)).slice(0, 16);
+    const fols = cleanFols(body.f);
+    if (!races || !fols) return json({ ok: false }, 400);
+    const h = (await sha(JSON.stringify(races) + "|" + JSON.stringify(fols) + "|" + keys.p256dh + "|" + keys.auth)).slice(0, 16);
     const cur = await db.prepare("SELECT h FROM subs WHERE id = ?1").bind(id).first();
     if (cur && cur.h === h) {
       await db.prepare("UPDATE subs SET seen = ?2 WHERE id = ?1").bind(id, now).run();
-      return json({ ok: true, n: races.length, same: true });
+      return json({ ok: true, n: races.length, f: fols.length, same: true });
     }
     const st = [
       db.prepare("INSERT INTO subs (id, ep, p256dh, auth, h, created, seen) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?6) ON CONFLICT(id) DO UPDATE SET p256dh = excluded.p256dh, auth = excluded.auth, h = excluded.h, seen = excluded.seen").bind(id, ep, keys.p256dh, keys.auth, h, now),
-      // 送り済みの印は残したまま、今回の一覧に無いレースを消し、新しいレースを足す
-      db.prepare("DELETE FROM races WHERE sid = ?1 AND rid NOT IN (SELECT value FROM json_each(?2))").bind(id, JSON.stringify(races.map(r => r.rid))),
+      // 送り済みの印は残したまま、今回の一覧に無いレースを消し、新しいレースを足す。
+      // 推し・モーターから足したレース（o あり）は消さず、本人が外した「結果を知らせる」だけを外す
+      db.prepare("DELETE FROM races WHERE sid = ?1 AND o IS NULL AND rid NOT IN (SELECT value FROM json_each(?2))").bind(id, JSON.stringify(races.map(r => r.rid))),
+      db.prepare("UPDATE races SET k = 0 WHERE sid = ?1 AND o IS NOT NULL AND rid NOT IN (SELECT value FROM json_each(?2))").bind(id, JSON.stringify(races.map(r => r.rid))),
+      // 推し・モーターは毎回入れ替える。まだ送っていない推し・モーターのレースは消し、送り役が今の一覧で足し直す
+      db.prepare("DELETE FROM fols WHERE sid = ?1").bind(id),
+      db.prepare("DELETE FROM races WHERE sid = ?1 AND o IS NOT NULL AND sent = 0 AND k = 0").bind(id),
+      // 残ったのは本人が「結果を知らせる」も選んだレース。推し・モーターの印と10分前を外し、まだ推しなら送り役が付け直す
+      db.prepare("UPDATE races SET o = NULL, m = 0 WHERE sid = ?1 AND o IS NOT NULL AND sent = 0").bind(id),
     ];
-    // 締切は送り役が公式の時刻で直すので、2回目からは上書きしない（種類だけ直す）
-    for (const r of races) st.push(db.prepare("INSERT INTO races (sid, rid, dl, sent, m, k, sr) VALUES (?1, ?2, ?3, 0, ?4, ?5, 0) ON CONFLICT(sid, rid) DO UPDATE SET m = excluded.m, k = excluded.k").bind(id, r.rid, r.dl, r.m, r.k));
+    for (const k of fols) st.push(db.prepare("INSERT INTO fols (sid, k) VALUES (?1, ?2)").bind(id, k));
+    // 締切は送り役が公式の時刻で直すので、2回目からは上書きしない（種類だけ直す）。
+    // 推し・モーターから足して、まだ10分前を送っていないレースは、10分前を外さない
+    for (const r of races) st.push(db.prepare("INSERT INTO races (sid, rid, dl, sent, m, k, sr) VALUES (?1, ?2, ?3, 0, ?4, ?5, 0) ON CONFLICT(sid, rid) DO UPDATE SET m = CASE WHEN races.o IS NOT NULL AND races.sent = 0 THEN 1 ELSE excluded.m END, k = excluded.k").bind(id, r.rid, r.dl, r.m, r.k));
     await db.batch(st);
-    return json({ ok: true, n: races.length });
+    return json({ ok: true, n: races.length, f: fols.length });
   } catch (e) {
     return json({ ok: false, e: "db" }, 500);
   }

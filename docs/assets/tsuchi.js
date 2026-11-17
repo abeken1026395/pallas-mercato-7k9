@@ -2,7 +2,9 @@
    締切がずれたときは、送り役が公式の締切予定時刻で確かめて、新しい時刻の10分前に送る。自分で選んだレースは1日の上限なし（けん裁定）。
    オンにした人だけ、購読の情報と「選んだレースの番号・締切の時刻・知らせる種類」を /api/push に送る。金額・メモ・収支は送らない。
    iPhone はホーム画面に追加したアプリの中だけで使える（Apple の決まり）。
-   端末に残すもの：dz_tsuchiR（{レースID:{dl,m,k}}）・dz_push（{on:1}）・dz_pushSync（最後に送った中身の印と時刻）。
+   推し・モーター（2026-11-17 けん）：出走表で付けた推し選手（br_oshi）・推しモーター（dz_oshiMotor）のうち、本人が選んだものだけ、
+   出るレースの締切10分前に知らせる。選んだものは dz_tsuchiF（{"p:登録番号":1,"m:場コード_機番":1}）。登録番号と場コード_機番も送る。
+   端末に残すもの：dz_tsuchiR（{レースID:{dl,m,k}}）・dz_tsuchiF・dz_push（{on:1}）・dz_pushSync（最後に送った中身の印と時刻）。
    置き方：ページに <div class="dzt" data-rid="場_日付_R" data-t="締切の時:分"></div> を置けば、ここがボタンを入れる（後から描いた分も拾う）。
    自分の記録の「通知」の欄は dzTsuchi.state() / on() / off() / count() を使う。 */
 (function () {
@@ -10,7 +12,9 @@
   /* 通知の送り主の公開鍵（VAPID）。公開してよい値で、秘密の鍵は Cloudflare の送り役にだけある */
   var KEY = "BNThGrWSzzqv4y2XtgD8AeTKtz_MyncYZxzkMtpTLcSw4xt3TXd1oiJHFXws8RdNKfLQqKHLiaS5rQLXKCwFc9I"; // gitleaks:allow
   var RID = /^(0[1-9]|1\d|2[0-4])_(\d{8})_([1-9]|1[0-2])$/;
-  var RKEY = "dz_tsuchiR";
+  var RKEY = "dz_tsuchiR", FKEY = "dz_tsuchiF";
+  var JO = { "01": "桐生", "02": "戸田", "03": "江戸川", "04": "平和島", "05": "多摩川", "06": "浜名湖", "07": "蒲郡", "08": "常滑", "09": "津", "10": "三国", "11": "びわこ", "12": "住之江", "13": "尼崎", "14": "鳴門", "15": "丸亀", "16": "児島", "17": "宮島", "18": "徳山", "19": "下関", "20": "若松", "21": "芦屋", "22": "福岡", "23": "唐津", "24": "大村" };
+  var FOL = /^(p:\d{4}|m:(0[1-9]|1\d|2[0-4])_[1-9]\d{0,2})$/;
   function get(k) { try { var v = JSON.parse(localStorage.getItem(k) || "{}"); return v && typeof v === "object" && !Array.isArray(v) ? v : {}; } catch (e) { return {}; } }
   function put(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
   function del(k) { try { localStorage.removeItem(k); } catch (e) {} }
@@ -33,6 +37,25 @@
     out.sort(function (a, b) { return a.dl - b.dl || (a.rid < b.rid ? -1 : 1); });
     return out.slice(0, 60);
   }
+  // 付けている推し選手と推しモーター（出走表・モーターのページで付けたもの）。{k, label, on}
+  function follows() {
+    var F = get(FKEY), out = { p: [], m: [] }, seen = {};
+    var O; try { O = JSON.parse(localStorage.getItem("br_oshi") || "[]"); } catch (e) { O = []; }
+    (Array.isArray(O) ? O : []).forEach(function (o) {
+      var t = o && String(o.toban || ""), k = "p:" + t;
+      if (!/^\d{4}$/.test(t) || seen[k]) return; seen[k] = 1;
+      out.p.push({ k: k, label: String((o && o.name) || t).replace(/[\s\u3000]+/g, "").slice(0, 12) || t, on: !!F[k] });
+    });
+    var M; try { M = JSON.parse(localStorage.getItem("dz_oshiMotor") || "{}"); } catch (e) { M = {}; }
+    if (M && typeof M === "object" && !Array.isArray(M)) Object.keys(M).sort(function (a, b) { return (+M[b] || 0) - (+M[a] || 0); }).forEach(function (x) {
+      var k = "m:" + x, mm = /^(\d{2})_(\d{1,3})$/.exec(x);
+      if (!FOL.test(k) || !mm || seen[k]) return; seen[k] = 1;
+      out.m.push({ k: k, label: JO[mm[1]] + " " + (+mm[2]) + "号機", on: !!F[k] });
+    });
+    return out;
+  }
+  // 送るのは、いまも付けていて、知らせると選んだものだけ
+  function fols() { var f = follows(), o = []; f.p.concat(f.m).forEach(function (x) { if (x.on) o.push(x.k); }); return o.sort().slice(0, 40); }
   // 古くなった選択と壊れた値は端末からも消す（締切が2日より前・7日より先・形の違うもの）
   function prune() { var R = get(RKEY), now = Date.now(), ch = false; Object.keys(R).forEach(function (k) { var e = R[k], d = e && +e.dl; if (!RID.test(k) || !e || typeof e !== "object" || !(d > now - 2 * 86400000 && d < now + 7 * 86400000)) { delete R[k]; ch = true; } }); if (ch) put(RKEY, R); }
   function reg() { return navigator.serviceWorker.register("/sw.js").then(function () { return navigator.serviceWorker.ready; }); }
@@ -74,16 +97,30 @@
     // 選んだレースが変わったら送り直す。同じ中身なら6時間に1回だけ（購読がまだ生きているかの知らせを兼ねる）
     sync: function (force, sub) {
       if (!get("dz_push").on || !can() || Notification.permission !== "granted") return Promise.resolve(null);
-      var now = Date.now(), rs = races(now), sig = JSON.stringify(rs), S = get("dz_pushSync");
+      var now = Date.now(), rs = races(now), fs = fols(), sig = JSON.stringify(rs) + (fs.length ? "|" + fs.join(",") : ""), S = get("dz_pushSync");
       if (!force && S.s === sig && now - (+S.t || 0) < 6 * 3600000) return Promise.resolve(null);
       var p = sub ? Promise.resolve(sub) : navigator.serviceWorker.getRegistration("/").then(function (r) { return r ? r.pushManager.getSubscription() : null; });
       return p.then(function (s) {
         if (!s) { del("dz_push"); del("dz_pushSync"); return null; } // 別の端末から引き継いだ印だけが残っている
         var j = s.toJSON();
-        return post({ a: "sync", sub: { endpoint: j.endpoint, keys: j.keys }, races: rs }).then(function (r) { put("dz_pushSync", { s: sig, t: now }); return r; });
+        return post({ a: "sync", sub: { endpoint: j.endpoint, keys: j.keys }, races: rs, f: fs }).then(function (r) { put("dz_pushSync", { s: sig, t: now }); return r; });
       });
     },
     count: function () { return races(Date.now()).length; },
+    follows: follows,
+    // 推し・モーター1つの「出走を知らせる」を切り替える。通知がオフなら、選んでからオンにする
+    toggleF: function (k) {
+      if (!FOL.test(String(k))) return Promise.reject(new Error("bad"));
+      var F = get(FKEY), wasOn = T.state() === "on";
+      if (wasOn && F[k]) delete F[k]; else F[k] = 1;
+      Object.keys(F).forEach(function (x) { if (!FOL.test(x) || F[x] !== 1) delete F[x]; });
+      if (!put(FKEY, F)) return Promise.reject(new Error("save"));
+      var turnOn = !wasOn;
+      return (turnOn ? T.on() : T.sync(true)).catch(function (err) {
+        if (turnOn) { var F2 = get(FKEY); delete F2[k]; put(FKEY, F2); }
+        throw err;
+      });
+    },
     // 1レースの選択を切り替える。kind は "m"（10分前）か "k"（結果）
     toggle: function (rid, dl, kind) {
       var R = get(RKEY), e = R[rid] && typeof R[rid] === "object" ? R[rid] : { dl: dl, m: 0, k: 0 };

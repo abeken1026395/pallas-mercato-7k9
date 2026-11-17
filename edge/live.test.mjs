@@ -3,8 +3,8 @@
 import test from "node:test";
 import assert from "node:assert";
 import { DatabaseSync } from "node:sqlite";
-import { onNow, onPush, cleanRaces, okEndpoint, SCHEMA } from "./live.mjs";
-import { runOnce, msg10, msgRes, parseOfficial, findResult, toMs } from "./pushWorker.mjs";
+import { onNow, onPush, cleanRaces, cleanFols, okEndpoint, SCHEMA } from "./live.mjs";
+import { runOnce, msg10, msgRes, parseOfficial, findResult, toMs, followRaces } from "./pushWorker.mjs";
 
 function fakeD1() {
   const db = new DatabaseSync(":memory:");
@@ -77,7 +77,7 @@ test("通知：登録・同じ内容は書かない・種類だけ直す・解�
   const env = { DZ_DB: fakeD1() };
   const races = [{ rid: "12_20261113_5", dl: T0 + 20 * 60000, m: 1, k: 0 }];
   let r = await (await onPush({ request: req("/api/push", { a: "sync", sub: SUB, races }), env }, T0)).json();
-  assert.deepStrictEqual(r, { ok: true, n: 1 });
+  assert.deepStrictEqual(r, { ok: true, n: 1, f: 0 });
   r = await (await onPush({ request: req("/api/push", { a: "sync", sub: SUB, races }), env }, T0)).json();
   assert.strictEqual(r.same, true);
   env.DZ_DB.raw.prepare("UPDATE races SET dl = dl + 600000").run(); // 送り役が公式の時刻で直した
@@ -186,4 +186,73 @@ test("送り役：結果が入ったら送る・入らなければ3時間であ�
 test("送り役：文面", () => {
   assert.deepStrictEqual(msg10([{ rid: "24_20261113_12", dl: Date.UTC(2026, 10, 13, 11, 40) }], Date.UTC(2026, 10, 13, 11, 31)), { t: "締切9分前｜大村 12R", b: "20:40締切", u: "/racers/#v24r12d20261113", g: "dz-24_20261113_12" });
   assert.deepStrictEqual(msgRes([{ rid: "24_20261113_12", fin: "1-2-3", pay: null }, { rid: "24_20261113_11", fin: "2-1-3", pay: 900 }]), { t: "結果｜大村 12R", b: "1-2-3（ほか1レース）", u: "/racers/#v24r12d20261113", g: "dz-r-24_20261113_12" });
+});
+
+// ---- 推し・モーターの出走（2026-11-17） ----
+const ENT = (o) => JSON.stringify({ updated: "x", days: { "20261113": o } });
+const E1 = { "12_5": ["15:20", ["4320", "3100", "4500", "4600", "4700", "4800"], ["34", "1", "2", "3", "4", "5"], ["島村隆幸", "A", "B", "C", "D", "E"]],
+             "12_6": ["15:47", ["4100", "4320", "4500", "4600", "4700", "4800"], ["9", "8", "7", "6", "5", "4"], ["F", "島村隆幸", "B", "C", "D", "E"]],
+             "02_3": ["15:25", ["1111", "2222", "3333", "4444", "5555", "6666"], ["34", "11", "12", "13", "14", "15"], ["G", "H", "I", "J", "K", "L"]] };
+
+test("推し・モーター：一覧の検査", () => {
+  assert.deepStrictEqual(cleanFols(["p:4320", "p:4320", "m:12_34", "m:25_1", "m:12_0", "p:43", "<x>", 5, "m:12_1000"]), ["m:12_34", "p:4320"]);
+  assert.deepStrictEqual(cleanFols(undefined), []);
+  assert.strictEqual(cleanFols("x"), null);
+  assert.strictEqual(cleanFols(Array.from({ length: 80 }, (_, i) => "p:" + (1000 + i))).length, 40);
+});
+
+test("推し・モーター：締切40分前から足し、10分前に送る。文面に推し・モーター。同じレースは1回", async () => {
+  const env = { DZ_DB: fakeD1(), VAPID_PRIVATE: "{}", VAPID_SUB: "https://site.test/" };
+  const sent = [], urls = [];
+  const send = async (sub, payload) => { sent.push(JSON.parse(payload)); return 201; };
+  const f = async (u) => { urls.push(u); if (/entryIndex/.test(u)) return { ok: true, text: async () => ENT(E1) }; return { ok: false }; };
+  let r = await (await onPush({ request: req("/api/push", { a: "sync", sub: SUB, races: [], f: ["p:4320", "m:12_34", "m:02_34"] }), env }, T0 - 60000)).json();
+  assert.deepStrictEqual(r, { ok: true, n: 0, f: 3 });
+  r = await runOnce(env, T0 - 15 * 60000, send, f); // 14:45：15:20 と 15:25 は40分以内なので足す。15:47 はまだ
+  assert.strictEqual(r.ent, 1);
+  assert.match(urls[0], /^https:\/\/site\.test\/racers\/entryIndex\.json\?_=/);
+  const rows = env.DZ_DB.raw.prepare("SELECT rid, o, m, k FROM races ORDER BY rid").all().map(x => [x.rid, x.o, x.m, x.k]);
+  assert.deepStrictEqual(rows, [["02_20261113_3", "モーター 戸田34号機", 1, 0], ["12_20261113_5", "推し 島村隆幸", 1, 0]]);
+  r = await runOnce(env, T0 - 14 * 60000, send, f);
+  assert.strictEqual(r.ent, 0); // 10分おき
+  r = await runOnce(env, T0 + 10 * 60000, send, f); // 15:10
+  assert.strictEqual(r.sent, 1);
+  assert.deepStrictEqual(sent[0], { t: "締切10分前｜住之江 5R", b: "15:20締切・推し 島村隆幸", u: "/racers/#v12r5d20261113", g: "dz-12_20261113_5" });
+  await runOnce(env, T0 + 11 * 60000, send, f);
+  r = await runOnce(env, T0 + 15 * 60000, send, f);
+  assert.strictEqual(sent.length, 2);
+  assert.strictEqual(sent[1].b, "15:25締切・モーター 戸田34号機");
+  for (let m = 16; m <= 40; m++) await runOnce(env, T0 + m * 60000, send, f);
+  assert.strictEqual(sent.length, 3);
+  assert.strictEqual(sent[2].t, "締切10分前｜住之江 6R");
+  for (let m = 41; m <= 50; m++) await runOnce(env, T0 + m * 60000, send, f);
+  assert.strictEqual(sent.length, 3); // 同じレースは1回
+});
+
+test("推し・モーター：外したら送らない・本人が選んだレースは消さない・通知を止めたら消す", async () => {
+  const env = { DZ_DB: fakeD1(), VAPID_PRIVATE: "{}", VAPID_SUB: "https://site.test/" };
+  const sent = [];
+  const send = async (sub, payload) => { sent.push(JSON.parse(payload)); return 201; };
+  const f = async (u) => ({ ok: true, text: async () => ENT(E1) });
+  const mine = [{ rid: "12_20261113_5", dl: T0 + 20 * 60000, k: 1 }];
+  await onPush({ request: req("/api/push", { a: "sync", sub: SUB, races: mine, f: ["p:4320"] }), env }, T0 - 60000);
+  await runOnce(env, T0 - 20 * 60000, send, f);
+  let row = env.DZ_DB.raw.prepare("SELECT o, m, k FROM races WHERE rid = '12_20261113_5'").get();
+  assert.deepStrictEqual([row.o, row.m, row.k], ["推し 島村隆幸", 1, 1]);
+  // 推しを外す：本人が選んだ「結果」は残り、10分前と印は外れる
+  await onPush({ request: req("/api/push", { a: "sync", sub: SUB, races: mine, f: [] }), env }, T0 - 15 * 60000);
+  row = env.DZ_DB.raw.prepare("SELECT o, m, k FROM races WHERE rid = '12_20261113_5'").get();
+  assert.deepStrictEqual([row.o, row.m, row.k], [null, 0, 1]);
+  for (let m = -14; m <= 12; m++) await runOnce(env, T0 + m * 60000, send, f);
+  assert.strictEqual(sent.length, 0);
+  // 止めたら推しの一覧も消す
+  await onPush({ request: req("/api/push", { a: "off", sub: SUB }), env }, T0);
+  assert.strictEqual(env.DZ_DB.raw.prepare("SELECT COUNT(*) n FROM fols").get().n, 0);
+});
+
+test("推し・モーター：壊れた索引でも止まらない", () => {
+  const fols = [{ sid: "a", k: "p:4320" }];
+  assert.deepStrictEqual(followRaces(null, fols, T0), []);
+  assert.deepStrictEqual(followRaces({ days: { "x": {}, "20261113": { "<x>": ["15:20"], "12_5": "x", "12_6": ["25:99", [], [], []] } } }, fols, T0), []);
+  assert.deepStrictEqual(followRaces({ days: { "20261113": { "12_5": ["15:20", ["4320"], null, ["<b>島 村</b>"]] } } }, fols, T0).map(x => x.o), ["推し <b>島村</b>"]);
 });

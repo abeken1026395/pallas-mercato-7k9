@@ -6,6 +6,8 @@
 //   10分前：締切の10分前。締切は公式の締切予定時刻（場ごとの一覧ページ）で確かめ、ずれたら新しい時刻の10分前に送る。
 //           同じ分に重なったレースは1通にまとめる。締切を過ぎたら送らない。
 //   結果：サイトの結果データ（/results/data/YYYYMMDD.json）に着順が入ったら送る。締切から3時間入らなければあきらめる。
+//   推し・モーター（2026-11-17 けん）：本人が選んだ推し選手（p:登録番号）・推しモーター（m:場コード_機番）が出るレースを、
+//           出走表の索引（/racers/entryIndex.json・10分おきに読む）から締切40分前までに足し、上と同じ10分前の仕組みで送る。上限なし。
 // 届かなかった購読（404・410）は消す。
 import { sendPush } from "./webPush.mjs";
 import { jstDay } from "./junkai.mjs";
@@ -15,6 +17,8 @@ const OFFI_EVERY = 3 * 60 * 1000;      // 公式の締切を読み直す間隔�
 const OFFI_MAX = 4;                     // 1回に読む場の数の上限
 const RES_EVERY = 2 * 60 * 1000;        // 結果データを読み直す間隔（日ごと）
 const RES_GIVEUP = 3 * 3600 * 1000;
+const ENT_EVERY = 10 * 60 * 1000;       // 出走表の索引を読み直す間隔
+const ENT_AHEAD = 40 * 60 * 1000;       // 推し・モーターのレースを足すのは締切の40分前から
 const JO = { "01": "桐生", "02": "戸田", "03": "江戸川", "04": "平和島", "05": "多摩川", "06": "浜名湖", "07": "蒲郡", "08": "常滑", "09": "津", "10": "三国", "11": "びわこ", "12": "住之江", "13": "尼崎", "14": "鳴門", "15": "丸亀", "16": "児島", "17": "宮島", "18": "徳山", "19": "下関", "20": "若松", "21": "芦屋", "22": "福岡", "23": "唐津", "24": "大村" };
 
 export function hhmm(ms) { return new Date(ms + 9 * 3600000).toISOString().slice(11, 16); }
@@ -53,7 +57,35 @@ export function msg10(races, now) {
   const r = races[0], p = parts(r.rid);
   const min = Math.max(1, Math.round((r.dl - now) / 60000));
   const more = races.length > 1 ? "（ほか" + (races.length - 1) + "レース）" : "";
-  return { t: "締切" + min + "分前｜" + name(p.j) + " " + p.rn + "R", b: hhmm(r.dl) + "締切" + more, u: "/racers/#v" + p.j + "r" + p.rn + "d" + p.hd, g: "dz-" + r.rid };
+  return { t: "締切" + min + "分前｜" + name(p.j) + " " + p.rn + "R", b: hhmm(r.dl) + "締切" + (r.o ? "・" + r.o : "") + more, u: "/racers/#v" + p.j + "r" + p.rn + "d" + p.hd, g: "dz-" + r.rid };
+}
+
+// 出走表の索引 {"days":{日付:{"場_R":["HH:MM",[登録番号×6],[機番×6],[氏名×6]]}}} から、
+// 締切がいまから ahead までのレースで、推し・モーターに当たるものを {sid, rid, dl, o} で返す
+export function followRaces(idx, fols, now, ahead = ENT_AHEAD) {
+  const out = [];
+  if (!idx || !idx.days || !fols.length) return out;
+  const want = new Map();
+  for (const f of fols) { if (!want.has(f.k)) want.set(f.k, []); want.get(f.k).push(f.sid); }
+  for (const hd of Object.keys(idx.days)) {
+    if (!/^\d{8}$/.test(hd)) continue;
+    const day = idx.days[hd] || {};
+    for (const key of Object.keys(day)) {
+      const km = /^(0[1-9]|1\d|2[0-4])_([1-9]|1[0-2])$/.exec(key), v = day[key];
+      if (!km || !Array.isArray(v)) continue;
+      const dl = toMs(hd, v[0]);
+      if (!dl || dl <= now + LEAD_MS - 60000 || dl > now + ahead) continue;
+      const tb = Array.isArray(v[1]) ? v[1] : [], mo = Array.isArray(v[2]) ? v[2] : [], nm = Array.isArray(v[3]) ? v[3] : [];
+      const got = new Map();
+      for (let i = 0; i < 6; i++) {
+        const pk = "p:" + String(tb[i] || ""), mk = "m:" + km[1] + "_" + String(mo[i] || "");
+        for (const sid of want.get(pk) || []) if (!got.has(sid)) got.set(sid, "推し " + String(nm[i] || tb[i]).replace(/[\s\u3000]+/g, "").slice(0, 12));
+        for (const sid of want.get(mk) || []) if (!got.has(sid)) got.set(sid, "モーター " + name(km[1]) + String(mo[i]) + "号機");
+      }
+      for (const [sid, o] of got) out.push({ sid, rid: km[1] + "_" + hd + "_" + km[2], dl, o });
+    }
+  }
+  return out;
 }
 
 export function msgRes(items) {
@@ -69,7 +101,7 @@ async function deliver(db, sid, sub, payload, env, send, out) {
   try { code = await send(sub, JSON.stringify(payload), env.__jwk, env.VAPID_SUB); } catch (e) { code = -1; }
   if (code === 404 || code === 410) {
     out.gone++;
-    await db.batch([db.prepare("DELETE FROM races WHERE sid = ?1").bind(sid), db.prepare("DELETE FROM daily WHERE sid = ?1").bind(sid), db.prepare("DELETE FROM subs WHERE id = ?1").bind(sid)]);
+    await db.batch([db.prepare("DELETE FROM races WHERE sid = ?1").bind(sid), db.prepare("DELETE FROM daily WHERE sid = ?1").bind(sid), db.prepare("DELETE FROM fols WHERE sid = ?1").bind(sid), db.prepare("DELETE FROM subs WHERE id = ?1").bind(sid)]);
   } else if (code >= 200 && code < 300) out.sent++;
   else out.fail++;
 }
@@ -79,11 +111,35 @@ export async function runOnce(env, now = Date.now(), send = sendPush, fetchFn = 
   if (!db || !env.VAPID_PRIVATE || !env.VAPID_SUB) return { skip: true };
   env.__jwk = typeof env.VAPID_PRIVATE === "string" ? JSON.parse(env.VAPID_PRIVATE) : env.VAPID_PRIVATE;
   const site = new URL(env.VAPID_SUB).origin;
-  const out = { sent: 0, gone: 0, fail: 0, offi: 0, res: 0 };
+  const out = { sent: 0, gone: 0, fail: 0, offi: 0, res: 0, ent: 0, fol: 0 };
+
+  // ---- 推し・モーターのレースを足す ----
+  const fols = (await db.prepare("SELECT sid, k FROM fols").all()).results || [];
+  if (fols.length) {
+    let txt = await kvGet(db, "ent:j");
+    const last = Number(await kvGet(db, "ent:t") || 0);
+    if (!txt || now - last >= ENT_EVERY) {
+      await db.prepare("INSERT INTO kv (k, v) VALUES ('ent:t', ?1) ON CONFLICT(k) DO UPDATE SET v = excluded.v").bind(String(now)).run();
+      try {
+        const res = await fetchFn(site + "/racers/entryIndex.json?_=" + now, { cf: { cacheTtl: 0 } });
+        if (res.ok) {
+          const t = await res.text();
+          if (t.length < 500000) { txt = t; out.ent++; await db.prepare("INSERT INTO kv (k, v) VALUES ('ent:j', ?1) ON CONFLICT(k) DO UPDATE SET v = excluded.v").bind(t).run(); }
+        }
+      } catch (e) { /* 読めなければ前の写しのまま */ }
+    }
+    let idx = null;
+    try { idx = txt ? JSON.parse(txt) : null; } catch (e) { idx = null; }
+    const add = followRaces(idx, fols, now);
+    if (add.length) {
+      await db.batch(add.map(x => db.prepare("INSERT INTO races (sid, rid, dl, sent, m, k, sr, o) VALUES (?1, ?2, ?3, 0, 1, 0, 0, ?4) ON CONFLICT(sid, rid) DO UPDATE SET o = COALESCE(races.o, excluded.o), m = CASE WHEN races.sent = 0 THEN 1 ELSE races.m END").bind(x.sid, x.rid, x.dl, x.o)));
+      out.fol = add.length;
+    }
+  }
 
   // ---- 10分前 ----
   const rows = (await db.prepare(
-    "SELECT r.sid, r.rid, r.dl, s.ep, s.p256dh, s.auth FROM races r JOIN subs s ON s.id = r.sid WHERE r.m = 1 AND r.sent = 0 AND r.dl > ?1 AND r.dl <= ?2 ORDER BY r.sid, r.dl, r.rid"
+    "SELECT r.sid, r.rid, r.dl, r.o, s.ep, s.p256dh, s.auth FROM races r JOIN subs s ON s.id = r.sid WHERE r.m = 1 AND r.sent = 0 AND r.dl > ?1 AND r.dl <= ?2 ORDER BY r.sid, r.dl, r.rid"
   ).bind(now - 3600000, now + 45 * 60000).all()).results || [];
   // 公式の締切：締切40分前に入ったレースのある場だけ、3分おきに読む
   const want = new Map();
@@ -116,7 +172,7 @@ export async function runOnce(env, now = Date.now(), send = sendPush, fetchFn = 
     if (dl <= now + 30000) { missed.push(x); continue; }
     if (dl - now <= LEAD_MS + 30000) {
       if (!due.has(x.sid)) due.set(x.sid, { sub: { ep: x.ep, p256dh: x.p256dh, auth: x.auth }, races: [] });
-      due.get(x.sid).races.push({ rid: x.rid, dl });
+      due.get(x.sid).races.push({ rid: x.rid, dl, o: x.o || "" });
     }
   }
   const st = [];
@@ -162,6 +218,7 @@ export async function runOnce(env, now = Date.now(), send = sendPush, fetchFn = 
       db.prepare("DELETE FROM races WHERE dl < ?1").bind(now - 86400000),
       db.prepare("DELETE FROM daily WHERE day < ?1").bind(jstDay(now - 2 * 86400000)),
       db.prepare("DELETE FROM races WHERE sid IN (SELECT id FROM subs WHERE seen < ?1)").bind(now - 30 * 86400000),
+      db.prepare("DELETE FROM fols WHERE sid IN (SELECT id FROM subs WHERE seen < ?1)").bind(now - 30 * 86400000),
       db.prepare("DELETE FROM subs WHERE seen < ?1").bind(now - 30 * 86400000),
       db.prepare("DELETE FROM offi WHERE t < ?1").bind(now - 2 * 86400000),
       db.prepare("DELETE FROM kv WHERE k LIKE 'res:%' AND CAST(v AS INTEGER) < ?1").bind(now - 2 * 86400000),
