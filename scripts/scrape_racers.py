@@ -499,6 +499,7 @@ def merge_with_existing(new_df, csv_path):
 
 PREV_PATH = os.path.join(OUTPUT_DIR, "racers_prev.json")
 INDEX_PATH = os.path.join(OUTPUT_DIR, "raceIndex.json")
+ENTRY_PATH = os.path.join(OUTPUT_DIR, "entryIndex.json")
 
 
 def save_prev(csv_path):
@@ -528,6 +529,37 @@ def save_prev(csv_path):
         os.remove(PREV_PATH)
         print("前日の出走表: 古い {} を削除".format(hd))
     return ""
+
+
+def save_entry_index(df):
+    """推し・モーターの出走の通知のための索引 entryIndex.json（送り役 dz-push が10分おきに読む・2026-11-17 けん）。
+    {"days": {開催日: {"場コード_R番号": ["締切時刻", [登録番号×6], [機番×6], [氏名×6]]}}}。当日・翌日（出走表と同じ範囲）。
+    並びは枠の順。欠けた枠は空文字。"""
+    days = {}
+    if df is not None and len(df) > 0:
+        cols = ["開催日", "場コード", "レース", "締切時刻", "枠", "登録番号", "モーターNo", "氏名"]
+        if all(c in df.columns for c in cols):
+            for hd, jcd, rno, dl, waku, toban, mot, name in zip(*[df[c] for c in cols]):
+                rn = _race_num(rno)
+                try:
+                    w = int(str(waku).strip())
+                except Exception:
+                    continue
+                hd, jcd = str(hd).strip(), str(jcd).strip().zfill(2)
+                if not (re.fullmatch(r"\d{8}", hd) and re.fullmatch(r"\d{2}", jcd) and 1 <= rn <= 12 and 1 <= w <= 6):
+                    continue
+                v = days.setdefault(hd, {}).setdefault(jcd + "_" + str(rn), [str(dl or "").strip(), [""] * 6, [""] * 6, [""] * 6])
+                tb = str(toban).strip()
+                tb = tb[:-2] if tb.endswith(".0") else tb
+                mo = str(mot).strip()
+                mo = mo[:-2] if mo.endswith(".0") else mo
+                v[1][w - 1] = tb if re.fullmatch(r"\d{4}", tb) else ""
+                v[2][w - 1] = str(int(mo)) if re.fullmatch(r"\d{1,3}", mo) and int(mo) > 0 else ""
+                v[3][w - 1] = re.sub(r"[\s\u3000]+", "", str(name or ""))[:12] if str(name) != "nan" else ""
+    with open(ENTRY_PATH, "w", encoding="utf-8") as f:
+        json.dump({"updated": datetime.datetime.now(JST).strftime("%Y-%m-%d %H:%M"), "days": days},
+                  f, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
+    print("entryIndex: {}日 {}レース".format(len(days), sum(len(v) for v in days.values())))
 
 
 def save_index(df, prev_hd):
@@ -619,6 +651,10 @@ def main():
         save_index(df, prev_hd)
     except Exception as e:
         print("raceIndex生成スキップ:", e)
+    try:
+        save_entry_index(df)
+    except Exception as e:
+        print("entryIndex生成スキップ:", e)
 
     # 場メタJSON（jcd→節名・企画名・日目）を docs/data/venueMeta.json に出力（方式B）。
     # モーターページが実行順に非依存で参照するための軽量JSON。追記のみで、

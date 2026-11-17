@@ -57,6 +57,13 @@ textarea{min-height:96px;resize:vertical;line-height:1.7}
 .tsu-st{margin-top:8px;font-size:15px;line-height:1.7;color:var(--fg)}
 .tsu-st b{color:var(--gold);font-weight:700}
 .tsu-ol{margin:8px 0 0;padding-left:1.4em;font-size:14px;line-height:1.8;color:var(--sub)}
+.tsf{margin-top:16px}.tsf h3{font-size:14px;font-weight:700;color:var(--fg);margin:0}
+.tsf-r{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)}
+.tsf-k{font-size:12px;color:var(--sub);margin-right:8px}.tsf-n{font-size:15px;color:var(--fg);min-width:0;overflow-wrap:anywhere}
+.tsf p{font-size:13px;color:var(--sub);margin:4px 0 0;line-height:1.6}
+.tsf-b{flex:none;min-height:44px;padding:0 12px;border-radius:0;border:1px solid var(--line2);background:none;color:var(--fg);font:700 14px var(--font);cursor:pointer;white-space:nowrap}
+.tsf-b[aria-pressed=true]{background:#eef3f8;border-color:#eef3f8;color:#0b1726}
+.tsf-b:disabled{opacity:.6;cursor:default}
 .hits{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .hits button{min-height:40px;padding:0 12px;border-radius:0;border:1px solid var(--line2);background:none;color:var(--fg);font:14px var(--font);cursor:pointer}
 .picked{font-size:14px;margin-top:8px}
@@ -226,7 +233,8 @@ footer{margin-top:24px;font-size:13px;color:var(--dim);line-height:1.85}
     <p class="tsu-st" id="tsu-st"></p>
     <div id="tsu-do"></div>
     <p class="note" id="tsu-msg" role="status" aria-live="polite"></p>
-    <p class="note">出走表と見どころのレースで「10分前に知らせる」「結果を知らせる」を押したレースだけ知らせます。締切が遅れたときは、公式の締切予定時刻に合わせて10分前に知らせます。オンにすると、選んだレースの番号・締切の時刻・知らせる種類だけをデータ攻めに送ります。金額・メモ・収支は送りません。</p>
+    <div class="tsf" id="tsu-f" hidden></div>
+    <p class="note">出走表と見どころのレースで「10分前に知らせる」「結果を知らせる」を押したレースと、上で選んだ推し・モーターが出るレースだけ知らせます。締切が遅れたときは、公式の締切予定時刻に合わせて10分前に知らせます。オンにすると、選んだレースの番号・締切の時刻・知らせる種類と、選んだ推しの登録番号・モーターの場と機番だけをデータ攻めに送ります。金額・メモ・収支は送りません。</p>
   </div>
   <div class="card" id="keikou">
     <h2>予想の傾向 <small style="color:var(--sub);font-weight:400;font-size:12px">これまでの全記録</small></h2>
@@ -736,7 +744,7 @@ if(location.hash==="#money"){show("money");drawMoney()}
 else if(location.hash==="#bets"||(!location.hash&&!/[?&]toban=/.test(location.search)&&betRows().length)){show("bets");drawBets()}
 })();
 </script>
-<script src="../assets/tsuchi.js?v=2"></script>
+<script src="../assets/tsuchi.js?v=3"></script>
 <script src="../assets/kaimeSheet.js?v=3" defer></script>
 <script>
 /* 締切10分前の通知（再訪設計 段階3・2026-11-13）。状態ごとに1行と1つのボタンだけ出す */
@@ -745,12 +753,31 @@ else if(location.hash==="#bets"||(!location.hash&&!/[?&]toban=/.test(location.se
   function btn(label,sub,fn){var b=document.createElement("button");b.type="button";b.className="btn"+(sub?" sub small":"");b.textContent=label;b.addEventListener("click",function(){b.disabled=true;msg.textContent="";fn().then(draw,function(e){var k=e&&e.message;msg.textContent=k==="denied"?"この端末で通知が止められています。設定アプリの通知から、データ攻めを許可してください。":k==="dismiss"?"通知の許可が出ませんでした。もう一度押すと聞き直します。":"登録できませんでした。通信の良いところで、もう一度押してください。";draw();});});return b;}
   function draw(){
     var s=T.state(); box.textContent=""; st.textContent="";
-    if(s==="on"){var n=T.count();st.appendChild(document.createTextNode("オン。いま知らせる予定のレース "));var b=document.createElement("b");b.textContent=n+"レース";st.appendChild(b);box.appendChild(btn("通知を止める",true,T.off));}
+    if(s==="on"){var n=T.count(),nf=T.follows(),c=nf.p.concat(nf.m).filter(function(x){return x.on;}).length;st.appendChild(document.createTextNode("オン。いま知らせる予定のレース "));var b=document.createElement("b");b.textContent=n+"レース";st.appendChild(b);if(c){st.appendChild(document.createTextNode("・推しとモーター "));var b2=document.createElement("b");b2.textContent=c+"つ";st.appendChild(b2);}box.appendChild(btn("通知を止める",true,T.off));}
     else if(s==="off"){st.textContent="オフ";box.appendChild(btn("通知を受け取る",false,T.on));}
     else if(s==="home"){st.textContent="iPhone では、ホーム画面に追加したデータ攻めから使えます。";var ol=document.createElement("ol");ol.className="tsu-ol";["Safari の下の共有ボタンを押す","「ホーム画面に追加」を押す","追加したアイコンから開き、ここで「通知を受け取る」を押す"].forEach(function(t){var li=document.createElement("li");li.textContent=t;ol.appendChild(li);});box.appendChild(ol);}
     else if(s==="denied"){st.textContent="この端末で通知が止められています。設定アプリの通知から、データ攻めを許可してください。";}
     else{st.textContent="このブラウザは通知に対応していません。";}
   }
+  /* 推し・モーターの出走（2026-11-17 けん：選手ごと・モーターごとに選ぶ） */
+  var fb=g("tsu-f");
+  function drawF(){
+    if(!fb) return; var s=T.state(); fb.textContent="";
+    if(s!=="on"&&s!=="off"){fb.hidden=true;return;}
+    var F=T.follows(),all=F.p.map(function(x){x.t="推し";return x;}).concat(F.m.map(function(x){x.t="モーター";return x;}));
+    var h=document.createElement("h3");h.textContent="推し・モーターの出走";fb.appendChild(h);var hp=document.createElement("p");hp.textContent="選んだ推し・モーターが出るレースを、締切10分前に知らせます。";fb.appendChild(hp);
+    if(!all.length){var p=document.createElement("p");p.className="note";p.textContent="出走表で推し選手やモーターを付けると、ここで選べます。";fb.appendChild(p);fb.hidden=false;return;}
+    all.forEach(function(x){
+      var r=document.createElement("div");r.className="tsf-r";
+      var n=document.createElement("span");n.className="tsf-n";var k=document.createElement("span");k.className="tsf-k";k.textContent=x.t;n.appendChild(k);n.appendChild(document.createTextNode(x.label));r.appendChild(n);
+      var on=s==="on"&&x.on,b=document.createElement("button");b.type="button";b.className="tsf-b";b.setAttribute("aria-pressed",on?"true":"false");b.textContent=on?"知らせます ✓":"知らせる";
+      b.setAttribute("aria-label",x.t+" "+x.label+"が出るレースを締切10分前に知らせる");
+      b.addEventListener("click",function(){b.disabled=true;msg.textContent="";T.toggleF(x.k).then(function(){draw();drawF();},function(e){var kk=e&&e.message;msg.textContent=kk==="denied"?"この端末で通知が止められています。設定アプリの通知から、データ攻めを許可してください。":kk==="dismiss"?"通知の許可が出ませんでした。もう一度押すと聞き直します。":"登録できませんでした。通信の良いところで、もう一度押してください。";draw();drawF();});});
+      r.appendChild(b);fb.appendChild(r);
+    });
+    fb.hidden=false;
+  }
+  var draw0=draw;draw=function(){draw0();drawF();};
   draw();
 })();
 </script>
