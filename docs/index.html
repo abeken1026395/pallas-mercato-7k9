@@ -205,6 +205,27 @@ a[href]:active,button:not(:disabled):active,summary:active,[role=button]:active,
 .an span{font-size:14px;line-height:1.7;color:var(--dim)}
 a.an::after{content:"";}
 .an.upd span{display:block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* 今日の1本（当地の直近365日で今日の開催場を比べる・2026-11-18） */
+.ip[hidden]{display:none}
+.ip-box{background:var(--cell);border:1px solid var(--line)}
+.ip-t{margin:0;padding:12px 14px 0;font-size:16px;font-weight:800;line-height:1.5;color:var(--tx)}
+.ip-v{margin:4px 0 0;padding:0 14px 10px;font-size:14px;line-height:1.7;color:var(--dim)}
+.ip-v b{font-size:20px;font-weight:800;color:var(--tx)}
+.ip-v .zn{display:inline-block;white-space:nowrap;margin-left:.6em}
+.ip-d{border-top:1px solid var(--line)}
+.ip-d summary{min-height:44px;display:flex;align-items:center;padding:0 14px;font-size:14px;font-weight:700;color:var(--blue);cursor:pointer;list-style:none}
+.ip-d summary::-webkit-details-marker{display:none}
+.ip-d summary::after{content:"+";margin-left:auto;color:var(--dim);font-size:16px}
+.ip-d[open] summary::after{content:"\2212"}
+.ip-r{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 14px;border-top:1px solid var(--line);font-size:14px}
+.ip-r .n{flex:none;width:4.5em;font-weight:700;color:var(--tx)}
+.ip-r .g{flex:1;min-width:0;height:6px;background:rgba(255,255,255,.06)}
+.ip-r .g i{display:block;height:100%;background:var(--blue)}
+.ip-r .v{flex:none;min-width:9.5em;text-align:right;color:var(--dim);font-variant-numeric:tabular-nums}
+.ip-r .v b{color:var(--tx);font-weight:700}
+.ip-r.zen .n,.ip-r.zen .v b{color:var(--dim)}
+.ip-r.zen .g i{background:var(--mute)}
+.ip-f{margin:0;padding:8px 14px 12px;border-top:1px solid var(--line);font-size:12px;line-height:1.7;color:var(--mute)}
 /* フォロー中の今日 */
 .fol[hidden]{display:none}
 .fol-box{background:var(--cell);border:1px solid var(--line)}
@@ -456,6 +477,15 @@ window.dzFold=function(rows,key){
 <section class="fol" id="fol" hidden aria-label="フォロー中の今日">
   <h2 class="sh" style="margin-top:18px">フォロー中の今日<a href="./racers/">出走表へ</a></h2>
   <div class="fol-box" id="folRows"></div>
+</section>
+<section class="ip" id="ipS" hidden aria-labelledby="ipH">
+  <h2 class="sh" id="ipH" style="margin-top:18px">今日の1本<span>当地の直近1年で比べる</span></h2>
+  <div class="ip-box">
+    <p class="ip-t" id="ipT"></p>
+    <p class="ip-v" id="ipV"></p>
+    <details class="ip-d"><summary id="ipSum">今日の開催場をすべて見る</summary><div id="ipR"></div></details>
+    <p class="ip-f" id="ipF"></p>
+  </div>
 </section>
 
   <h2 class="sh" id="annH" style="margin-top:14px" hidden>お知らせ</h2>
@@ -940,6 +970,35 @@ function lineBoxes(){
     document.getElementById("updT").textContent=String(x.text||"");
     document.getElementById("updL").hidden=false;
     document.getElementById("annH").hidden=false; document.getElementById("annS").hidden=false;
+  }).catch(function(){});
+})();
+</script>
+<script>
+/* 今日の1本：docs/data/kyouIppon.json（scripts/buildKyouIppon.py が朝に作る）。偏りの判定ではなく、当地の直近365日の実績。読めない・中身が無いときは出さない */
+(function(){
+  function nf(x){return Number(x).toLocaleString("ja-JP");}
+  function dt(s){s=String(s||"");return s.length===8?s.slice(0,4)+"/"+(+s.slice(4,6))+"/"+(+s.slice(6)):"";}
+  function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;}
+  fetch("./data/kyouIppon.json?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():Promise.reject();}).then(function(d){
+    var o=d&&d["1本"],td=new Date(Date.now()+9*3600e3).toISOString().slice(0,10).replace(/-/g,"");
+    if(!o||String(d["開催日"])!==td||!Array.isArray(o["場"])||o["場"].length<2)return;
+    var rows=o["場"].filter(function(x){return x&&typeof x["率"]==="number"&&isFinite(x["率"])&&+x["分母"]>0;});
+    if(rows.length<2)return;
+    var top=rows[0],w=String(o["言葉"]||""),u=o["単位"]==="艇"?"艇":"レース",z=o["全国"]||{};
+    document.getElementById("ipT").textContent="今日の開催"+rows.length+"場で、"+w+"がいちばん"+(o["向き"]==="少ない"?"少ない":"多い")+"のは"+String(top["場名"]||"");
+    var v=document.getElementById("ipV");v.textContent="";
+    v.appendChild(el("b",null,top["率"].toFixed(1)+"%"));
+    v.appendChild(document.createTextNode("（"+nf(top["分子"])+"/"+nf(top["分母"])+u+"）"));
+    if(typeof z["率"]==="number")v.appendChild(el("span","zn","全国 "+z["率"].toFixed(1)+"%"));
+    var mx=Math.max.apply(null,rows.map(function(x){return x["率"];}).concat(typeof z["率"]==="number"?[z["率"]]:[]))||1;
+    var box=document.getElementById("ipR");box.textContent="";
+    function row(nm,x,cls){var r=el("div","ip-r"+(cls?" "+cls:""));r.appendChild(el("span","n",nm));var g=el("span","g");g.setAttribute("aria-hidden","true");var i=el("i");i.style.width=Math.max(0,Math.min(100,100*x["率"]/mx))+"%";g.appendChild(i);r.appendChild(g);var s=el("span","v");s.appendChild(el("b",null,x["率"].toFixed(1)+"%"));s.appendChild(document.createTextNode(" "+nf(x["分子"])+"/"+nf(x["分母"])));r.appendChild(s);box.appendChild(r);}
+    rows.forEach(function(x){row(String(x["場名"]||""),x);});
+    if(typeof z["率"]==="number"&&+z["分母"]>0)row("全国",z,"zen");
+    document.getElementById("ipSum").textContent="今日の開催"+rows.length+"場をすべて見る";
+    var p=o["期間"]||[];
+    document.getElementById("ipF").textContent="当地の直近"+nf(o["日数"]||0)+"日（"+dt(p[0])+"から"+dt(p[1])+"）の競走結果。割合の分母は"+u+"数。偏りの判定ではありません。";
+    document.getElementById("ipS").hidden=false;
   }).catch(function(){});
 })();
 </script>
