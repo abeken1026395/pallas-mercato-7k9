@@ -35,6 +35,10 @@ jobs:
       - name: build todayTop.json
         run: python scripts/buildTodayTop.py
 
+      - name: build kyouIppon.json
+        # トップの「今日の1本」。今日の開催場を results/ の直近365日で比べる。失敗してもトップの他の欄は止めない
+        run: python scripts/buildKyouIppon.py || echo "kyouIppon skipped"
+
       - name: commit
         env:
           BR: ${{ github.ref_name }}
@@ -42,6 +46,7 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add docs/data/todayTop.json 2>/dev/null || true
+          git add docs/data/kyouIppon.json 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "no change"; exit 0
           fi
