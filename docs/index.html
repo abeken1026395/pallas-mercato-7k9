@@ -108,6 +108,8 @@ header.bar{position:sticky;top:0;z-index:30;height:68px;background:var(--bar);bo
 .c{position:relative;display:flex;flex-direction:column;min-height:74px;padding:6px 5px 6px 8px;background:var(--cell);border:1px solid var(--line)}
 .c.live{box-shadow:inset 3px 0 0 var(--blue)}
 .c.done{opacity:.55}
+.c .ft.cx{align-self:flex-start;padding:0 6px;border:1px solid #8a94a3;color:var(--tx);font-weight:700;line-height:22px} /* 中止（chushiToday.json）。出走表と同じ、色を増やさない枠付き文字（2026-11-18） */
+.hc .w .cxw{font-size:14px;font-weight:700;color:var(--tx);border:1px solid #8a94a3;padding:0 6px;line-height:18px}
 .c .vn{position:relative;display:block;padding-right:14px;font-size:20px;font-weight:800;line-height:1.3;white-space:nowrap}
 .c .vn .ics{position:absolute;right:-2px;top:-3px;display:flex;flex-direction:column}
 .c .vn .ics .ic{width:13px;height:13px}
@@ -575,7 +577,7 @@ window.dzFold=function(rows,key){
   function nowHM(){var d=jst();return ("0"+d.getUTCHours()).slice(-2)+":"+("0"+d.getUTCMinutes()).slice(-2);}
   function ymd(){var d=jst();return d.getUTCFullYear()+("0"+(d.getUTCMonth()+1)).slice(-2)+("0"+d.getUTCDate()).slice(-2);}
   (function(){var d=jst();document.getElementById("capD").textContent=(d.getUTCMonth()+1)+"月"+d.getUTCDate()+"日（"+"日月火水木金土".charAt(d.getUTCDay())+"）";})();
-  var D=null, GS=null, HL=null, HL_ST="idle", mode="grid", showAll=false;
+  var D=null, GS=null, CHU=null, HL=null, HL_ST="idle", mode="grid", showAll=false;
   /* 1号艇のイン1着率と走数（highlights.json の艇の inWinRate・inN をそのまま。分母が無いものは出さない） */
   function inLine(j,r){
     var x=(D&&D["レース"]||[]).filter(function(t){return t["場コード"]===j&&parseInt(t["レース"])===r;})[0];
@@ -586,7 +588,11 @@ window.dzFold=function(rows,key){
   function render(){
     var d=D, by={}, n=0, hm=nowHM(), isToday=String(d["開催日"])===ymd();
     var gs=(GS&&GS.days&&GS.days[String(d["開催日"])])||{}, kaku=d["格"]||{}, lady=d["レディース"]||[];
-    (d["レース"]||[]).forEach(function(r){(by[r["場コード"]]=by[r["場コード"]]||[]).push(r);n++;});
+    /* 中止（公式の本日のレース一覧・chushiToday.json）。開催日が一致するときだけ使う。場コード→{から: 中止が始まるR}（2026-11-18 けん「中止の場合は中止としないといけない」） */
+    var CH=(CHU&&String(CHU["開催日"]||"")===String(d["開催日"])&&CHU["中止"]&&typeof CHU["中止"]==="object")?CHU["中止"]:{};
+    function chOf(j){var c=CH[j],f=c?parseInt(c["から"],10):NaN;return f>=1&&f<=12?f:0;}
+    function cx(j,r){var f=chOf(j);return !!f&&parseInt(r,10)>=f;}
+    (d["レース"]||[]).forEach(function(r){(by[r["場コード"]]=by[r["場コード"]]||[]).push(r);if(!cx(r["場コード"],r["レース"]))n++;});
     var held=0, live=0, all=[], hlc=[], offs=[];
     var gEl=document.getElementById("grid");
     if(gEl.classList.contains("wait")){
@@ -595,18 +601,20 @@ window.dzFold=function(rows,key){
     }
     gEl.innerHTML=V.map(function(v){
       var rs=by[v[0]]; if(!rs||!rs.length){ offs.push(v[1]); return ''; }
-      held++; rs.sort(function(a,b){return parseInt(a["レース"])-parseInt(b["レース"]);});
+      rs.sort(function(a,b){return parseInt(a["レース"])-parseInt(b["レース"]);});
+      var ok=rs.filter(function(r){return !cx(v[0],r["レース"]);}), chF=chOf(v[0]);
+      if(ok.length) held++;
       var first=rs[0]["締切時刻"]||"", last=rs[rs.length-1]["締切時刻"]||"";
-      var nx=null; if(isToday){for(var i=0;i<rs.length;i++){if((rs[i]["締切時刻"]||"")>hm){nx=rs[i];break;}}} else nx=rs[0];
+      var nx=null; if(isToday){for(var i=0;i<ok.length;i++){if((ok[i]["締切時刻"]||"")>hm){nx=ok[i];break;}}} else nx=ok[0]||null;
       if(nx) live++;
       var g=gs[v[0]]?grLabel(gs[v[0]]["区分"]):(kaku[v[0]]||"一般");
       var isLady=lady.indexOf(v[0])>=0||!!(gs[v[0]]&&gs[v[0]]["レディース"]);
       var ics=(last>="19:00"?IC.nt:"")+(first&&first<"09:30"?IC.mn:"");
-      rs.forEach(function(r){all.push({t:r["締切時刻"]||"",j:v[0],r:parseInt(r["レース"]),k:r["企画名"]||""});});
+      ok.forEach(function(r){all.push({t:r["締切時刻"]||"",j:v[0],r:parseInt(r["レース"]),k:r["企画名"]||""});});
       var fin=rs.filter(function(r){return /優勝戦/.test(r["企画名"]||"");})[0];
-      if(g!=="一般"||fin) hlc.push({j:v[0],g:g,dy:han(rs[0]["日目"]),fin:fin,last:rs[rs.length-1],lady:isLady});
-      var foot=nx?'<div class="ft num"><b>'+parseInt(nx["レース"])+'R</b>'+esc(nx["締切時刻"])+'</div>':'<div class="ft end">発売終了</div>';
-      return '<a class="c'+(nx&&isToday?' live':'')+(nx?'':' done')+'" href="./racers/#v'+v[0]+'">'
+      if((g!=="一般"&&ok.length)||fin) hlc.push({j:v[0],g:g,dy:han(rs[0]["日目"]),fin:fin,fc:!!fin&&cx(v[0],fin["レース"]),last:ok.length?ok[ok.length-1]:rs[rs.length-1],lady:isLady});
+      var foot=nx?'<div class="ft num"><b>'+parseInt(nx["レース"])+'R</b>'+esc(nx["締切時刻"])+'</div>':chF?'<div class="ft cx">'+(ok.length?chF+'R以降中止':'中止')+'</div>':'<div class="ft end">発売終了</div>';
+      return '<a class="c'+(nx&&isToday?' live':'')+(nx||chF?'':' done')+'" href="./racers/#v'+v[0]+'">'
         +'<span class="vn">'+v[1]+'<span class="ics">'+ics+'</span></span>'
         +'<span class="md"><span class="gr '+grCls(g)+'">'+esc(g)+'</span>'+(isLady?'<span class="gr lf">女子</span>':'')+'<span class="dy">'+esc(han(rs[0]["日目"]))+'</span></span>'+foot+'</a>';
     }).join("");
@@ -631,12 +639,12 @@ window.dzFold=function(rows,key){
     if(hlc.length){
       document.getElementById("hl").hidden=false;
       document.getElementById("hlR").innerHTML=hlc.map(function(h){
-        var r=h.fin||h.last, rn=parseInt(r["レース"]), done=isToday&&(r["締切時刻"]||"")<=hm;
+        var r=h.fin||h.last, rn=parseInt(r["レース"]), done=!h.fc&&isToday&&(r["締切時刻"]||"")<=hm;
         var nm=han((gs[h.j]&&gs[h.j]["節名"])||"");
         var dl=inLine(h.j,rn);
         return '<a class="hc'+(done?' end':'')+'" href="./racers/#v'+h.j+'"><span class="t"><span class="gr '+grCls(h.g)+'">'+esc(h.g)+'</span><span class="v">'+VN[h.j]+'</span>'+(h.lady?'<span class="gr lf">女子</span>':'')+'<span class="k" style="margin-left:auto">'+esc(h.dy)+'</span></span>'
           +(nm?'<span class="k">'+esc(nm)+'</span>':'')
-          +'<span class="w"><b class="num">'+rn+'R</b><span class="num">'+esc(r["締切時刻"])+' 締切</span>'+(h.fin?'<span class="fn">優勝戦</span>':(r["企画名"]?'<span class="fn">'+esc(han(r["企画名"]))+'</span>':''))+'</span>'
+          +'<span class="w"><b class="num">'+rn+'R</b>'+(h.fc?'<span class="cxw">中止</span>':'<span class="num">'+esc(r["締切時刻"])+' 締切</span>')+(h.fin?'<span class="fn">優勝戦</span>':(r["企画名"]?'<span class="fn">'+esc(han(r["企画名"]))+'</span>':''))+'</span>'
           +(dl?'<span class="d">'+dl+'</span>':'')+'</a>';
       }).join("");
       ensureHL();
@@ -667,8 +675,10 @@ window.dzFold=function(rows,key){
   /* 前の「#hikitsugi」で来たときは、フォローの控えのページへ（2026-11-08 独立ページに移した） */
   if(location.hash==="#hikitsugi") location.replace("./hikae/");
   var gsP=fetch("./data/gradeSchedule.json?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(j){GS=j;}).catch(function(){});
+  function chGet(){return fetch("./data/chushiToday.json?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(j){if(j&&typeof j==="object")CHU=j;}).catch(function(){});}
+  var chP=chGet();
   fetch("./data/todayTop.json?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():Promise.reject();})
-    .then(function(d){D=d;return gsP.then(function(){render();setInterval(render,60000);});})
+    .then(function(d){D=d;return Promise.all([gsP,chP]).then(function(){render();setInterval(render,60000);setInterval(function(){chGet().then(render);},300000);});})
     .catch(function(){var g=document.getElementById("grid");g.classList.remove("wait");g.style.minHeight="";document.getElementById("fail").hidden=false;});
 })();
 </script>
