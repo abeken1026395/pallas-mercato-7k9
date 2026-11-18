@@ -4,7 +4,7 @@ import test from "node:test";
 import assert from "node:assert";
 import { DatabaseSync } from "node:sqlite";
 import { onNow, onPush, cleanRaces, cleanFols, okEndpoint, SCHEMA } from "./live.mjs";
-import { runOnce, msg10, msgRes, parseOfficial, findResult, toMs, followRaces } from "./pushWorker.mjs";
+import { runOnce, msg10, msgRes, msgSum, parseOfficial, findResult, toMs, followRaces } from "./pushWorker.mjs";
 
 function fakeD1() {
   const db = new DatabaseSync(":memory:");
@@ -65,9 +65,9 @@ test("通知：送り先の検査", () => {
 test("通知：レースの検査（形・日付の一致・期間・種類・重複・上限）", () => {
   const dl = T0 + 30 * 60000;
   const ok = cleanRaces([{ rid: "12_20261113_5", dl, m: 1 }, { rid: "12_20261113_5", dl, m: 1 }, { rid: "25_20261113_5", dl, m: 1 }, { rid: "12_20261114_5", dl, m: 1 }, { rid: "12_20261113_13", dl, m: 1 }, { rid: "<x>", dl, m: 1 }, { rid: "12_20261113_7", dl }, null, "x"], T0);
-  assert.deepStrictEqual(ok, [{ rid: "12_20261113_5", dl, m: 1, k: 0 }]);
+  assert.deepStrictEqual(ok, [{ rid: "12_20261113_5", dl, m: 1, k: 0, s: 0 }]);
   // 締切を過ぎたレースは結果だけ受け付ける（3時間まで）
-  assert.deepStrictEqual(cleanRaces([{ rid: "12_20261113_6", dl: T0 - 120000, m: 1, k: 1 }, { rid: "12_20261113_8", dl: T0 - 120000, m: 1 }, { rid: "12_20261113_1", dl: T0 - 4 * 3600000, k: 1 }], T0), [{ rid: "12_20261113_6", dl: T0 - 120000, m: 0, k: 1 }]);
+  assert.deepStrictEqual(cleanRaces([{ rid: "12_20261113_6", dl: T0 - 120000, m: 1, k: 1 }, { rid: "12_20261113_8", dl: T0 - 120000, m: 1 }, { rid: "12_20261113_1", dl: T0 - 4 * 3600000, k: 1 }], T0), [{ rid: "12_20261113_6", dl: T0 - 120000, m: 0, k: 1, s: 0 }]);
   assert.strictEqual(cleanRaces("x", T0), null);
   const many = Array.from({ length: 150 }, (_, i) => ({ rid: "12_20261113_" + (i % 12 + 1), dl: dl + i, m: 1 }));
   assert.ok(cleanRaces(many, T0).length <= 12);
@@ -255,4 +255,62 @@ test("推し・モーター：壊れた索引でも止まらない", () => {
   assert.deepStrictEqual(followRaces(null, fols, T0), []);
   assert.deepStrictEqual(followRaces({ days: { "x": {}, "20261113": { "<x>": ["15:20"], "12_5": "x", "12_6": ["25:99", [], [], []] } } }, fols, T0), []);
   assert.deepStrictEqual(followRaces({ days: { "20261113": { "12_5": ["15:20", ["4320"], null, ["<b>島 村</b>"]] } } }, fols, T0).map(x => x.o), ["推し <b>島村</b>"]);
+});
+
+// ---- その日のまとめ（2026-11-19） ----
+test("まとめ：受け付け（今日と先の日だけ・締切から3時間を過ぎても今日なら残す・種類のないものは捨てる）", () => {
+  const now = Date.UTC(2026, 10, 13, 12, 0); // 21:00 JST
+  const a = cleanRaces([
+    { rid: "12_20261113_1", dl: Date.UTC(2026, 10, 13, 1, 0), s: 1 },        // 10:00 の買い目：残す
+    { rid: "12_20261113_2", dl: Date.UTC(2026, 10, 13, 1, 30), k: 1 },       // 3時間を過ぎた「結果」：捨てる
+    { rid: "12_20261112_9", dl: Date.UTC(2026, 10, 12, 7, 0), s: 1 },        // 前の日：捨てる
+    { rid: "12_20261113_3", dl: Date.UTC(2026, 10, 13, 2, 0), s: 1, k: 1 },  // まとめは残し、結果は外す
+  ], now);
+  assert.deepStrictEqual(a.map(x => [x.rid, x.m, x.k, x.s]), [["12_20261113_1", 0, 0, 1], ["12_20261113_3", 0, 0, 1]]);
+  assert.deepStrictEqual(msgSum("20261113", 5), { t: "今日の記録｜5レースの結果が出そろいました", b: "的中と払戻は、自分の記録で確かめられます", u: "/note/#bets", g: "dz-day-20261113" });
+});
+
+test("まとめ：21:40 から1通・結果がそろうまで待つ・外れの日も送る・1日1回・1レースずつの結果は送らない", async () => {
+  const env = { DZ_DB: fakeD1(), VAPID_PRIVATE: "{}", VAPID_SUB: "https://site.test/" };
+  const sent = [];
+  const send = async (sub, payload) => { sent.push(JSON.parse(payload)); return 201; };
+  const D1 = Date.UTC(2026, 10, 13, 2, 0), D2 = Date.UTC(2026, 10, 13, 12, 0); // 11:00 と 21:00 JST
+  let body = RES("12", 5, "3-1-4", 12340);
+  const f = async (u) => ({ ok: true, text: async () => body });
+  await onPush({ request: req("/api/push", { a: "sync", sub: SUB, races: [{ rid: "12_20261113_5", dl: D1, s: 1 }, { rid: "24_20261113_12", dl: D2, s: 1 }] }), env }, D1 - 3600000);
+  await runOnce(env, D1 + 15 * 60000, send, f);
+  assert.strictEqual(sent.length, 0); // まとめだけのレースは1レースずつ送らない
+  assert.strictEqual(env.DZ_DB.raw.prepare("SELECT sr FROM races WHERE rid = '12_20261113_5'").get().sr, 1);
+  // 21:40 になっても、21:00 のレースの結果が入るまでは送らない
+  await runOnce(env, Date.UTC(2026, 10, 13, 12, 40), send, f);
+  assert.strictEqual(sent.length, 0);
+  body = RES("12", 5, "3-1-4", 12340).replace('"場":[', '"場":[{"場コード":"24","レース":"12R","着順":"1-2-3","三連単配当":900},');
+  const t3 = Date.UTC(2026, 10, 13, 12, 44);
+  let r = await runOnce(env, t3, send, f);
+  assert.strictEqual(r.sum, 1);
+  assert.deepStrictEqual(sent[0], msgSum("20261113", 2));
+  r = await runOnce(env, t3 + 3 * 60000, send, f);
+  assert.strictEqual(sent.length, 1); // 1日1回
+});
+
+test("まとめ：21:40 より前は送らない・結果の入らないレースは締切から1時間で待たない・全部入らなければ送らない", async () => {
+  const env = { DZ_DB: fakeD1(), VAPID_PRIVATE: "{}", VAPID_SUB: "https://site.test/" };
+  const sent = [];
+  const send = async (sub, payload) => { sent.push(JSON.parse(payload)); return 201; };
+  const D1 = Date.UTC(2026, 10, 13, 2, 0), D2 = Date.UTC(2026, 10, 13, 11, 30); // 11:00 と 20:30 JST
+  let body = RES("12", 5, "3-1-4", 12340);
+  const f = async () => ({ ok: true, text: async () => body });
+  await onPush({ request: req("/api/push", { a: "sync", sub: SUB, races: [{ rid: "12_20261113_5", dl: D1, s: 1 }, { rid: "02_20261113_7", dl: D2, s: 1 }] }), env }, D1 - 3600000);
+  await runOnce(env, D1 + 15 * 60000, send, f);
+  await runOnce(env, Date.UTC(2026, 10, 13, 12, 30), send, f); // 21:30
+  assert.strictEqual(sent.length, 0);
+  const r = await runOnce(env, Date.UTC(2026, 10, 13, 12, 41), send, f); // 21:41・20:30 のレースは中止で結果なし
+  assert.strictEqual(r.sum, 1);
+  assert.deepStrictEqual(sent[0], msgSum("20261113", 1));
+  // 結果が1つも入らない人には送らない
+  const env2 = { DZ_DB: fakeD1(), VAPID_PRIVATE: "{}", VAPID_SUB: "https://site.test/" };
+  body = '{"開催日":"20261113","場":[]}';
+  await onPush({ request: req("/api/push", { a: "sync", sub: SUB, races: [{ rid: "02_20261113_7", dl: D2, s: 1 }] }), env: env2 }, D2 - 3600000);
+  await runOnce(env2, Date.UTC(2026, 10, 13, 12, 50), send, f);
+  assert.strictEqual(sent.length, 1);
 });

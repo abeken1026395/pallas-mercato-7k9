@@ -4,6 +4,8 @@
    iPhone はホーム画面に追加したアプリの中だけで使える（Apple の決まり）。
    推し・モーター（2026-11-17 けん）：出走表で付けた推し選手（br_oshi）・推しモーター（dz_oshiMotor）のうち、本人が選んだものだけ、
    出るレースの締切10分前に知らせる。選んだものは dz_tsuchiF（{"p:登録番号":1,"m:場コード_機番":1}）。登録番号と場コード_機番も送る。
+   その日のまとめ（2026-11-19 けん）：買い目を保存したレース（dz_bets）の番号と締切だけを送り、その日の結果が出そろったら夜に1通。
+   外れの日も送る。買い目・金額は送らない。止めるときは dz_tsuchiS（{off:1}）。
    端末に残すもの：dz_tsuchiR（{レースID:{dl,m,k}}）・dz_tsuchiF・dz_push（{on:1}）・dz_pushSync（最後に送った中身の印と時刻）。
    置き方：ページに <div class="dzt" data-rid="場_日付_R" data-t="締切の時:分"></div> を置けば、ここがボタンを入れる（後から描いた分も拾う）。
    自分の記録の「通知」の欄は dzTsuchi.state() / on() / off() / count() を使う。 */
@@ -12,7 +14,7 @@
   /* 通知の送り主の公開鍵（VAPID）。公開してよい値で、秘密の鍵は Cloudflare の送り役にだけある */
   var KEY = "BNThGrWSzzqv4y2XtgD8AeTKtz_MyncYZxzkMtpTLcSw4xt3TXd1oiJHFXws8RdNKfLQqKHLiaS5rQLXKCwFc9I"; // gitleaks:allow
   var RID = /^(0[1-9]|1\d|2[0-4])_(\d{8})_([1-9]|1[0-2])$/;
-  var RKEY = "dz_tsuchiR", FKEY = "dz_tsuchiF";
+  var RKEY = "dz_tsuchiR", FKEY = "dz_tsuchiF", SKEY = "dz_tsuchiS";
   var JO = { "01": "桐生", "02": "戸田", "03": "江戸川", "04": "平和島", "05": "多摩川", "06": "浜名湖", "07": "蒲郡", "08": "常滑", "09": "津", "10": "三国", "11": "びわこ", "12": "住之江", "13": "尼崎", "14": "鳴門", "15": "丸亀", "16": "児島", "17": "宮島", "18": "徳山", "19": "下関", "20": "若松", "21": "芦屋", "22": "福岡", "23": "唐津", "24": "大村" };
   var FOL = /^(p:\d{4}|m:(0[1-9]|1\d|2[0-4])_[1-9]\d{0,2})$/;
   function get(k) { try { var v = JSON.parse(localStorage.getItem(k) || "{}"); return v && typeof v === "object" && !Array.isArray(v) ? v : {}; } catch (e) { return {}; } }
@@ -23,8 +25,26 @@
   function standalone() { try { return navigator.standalone === true || matchMedia("(display-mode: standalone)").matches; } catch (e) { return false; } }
   function can() { return "serviceWorker" in navigator && "PushManager" in window && "Notification" in window && (location.protocol === "https:" || /^(localhost|127\.0\.0\.1)$/.test(location.hostname)); }
   // 選んだレースのうち、まだ知らせる意味のあるもの（10分前は締切前・結果は締切から3時間まで）
+  function jday(ms) { return new Date(ms + 9 * 3600000).toISOString().slice(0, 10).replace(/-/g, ""); }
+  function dlOfBet(rid, e) {
+    var m = RID.exec(rid), t = e && /^(\d{1,2}):(\d{2})$/.exec(String(e.d || ""));
+    if (!m || !t) return 0;
+    return Date.UTC(+m[2].slice(0, 4), +m[2].slice(4, 6) - 1, +m[2].slice(6, 8), +t[1] - 9, +t[2]);
+  }
+  // その日のまとめに数えるレース（買い目を保存した、今日と先の日のレース）。{rid: 締切}
+  function sumRaces(now) {
+    var out = {}; if (get(SKEY).off) return out;
+    var B = get("dz_bets"), today = jday(now);
+    Object.keys(B).forEach(function (rid) {
+      var e = B[rid], m = RID.exec(rid);
+      if (!m || !e || typeof e !== "object" || !Array.isArray(e.b) || !e.b.length || m[2] < today) return;
+      var dl = dlOfBet(rid, e);
+      if (dl && jday(dl) === m[2] && dl < now + 3 * 86400000) out[rid] = dl;
+    });
+    return out;
+  }
   function races(now) {
-    var R = get(RKEY), out = [];
+    var R = get(RKEY), S = sumRaces(now), all = {}, out = [];
     Object.keys(R).forEach(function (rid) {
       var e = R[rid], m = RID.exec(rid);
       if (!m || !e || typeof e !== "object") return;
@@ -32,8 +52,10 @@
       if (!isFinite(dl)) return;
       if (dl < now - 60000) mm = 0;
       if (dl < now - 3 * 3600000) kk = 0;
-      if ((mm || kk) && dl < now + 3 * 86400000) out.push({ rid: rid, dl: dl, m: mm, k: kk });
+      if ((mm || kk) && dl < now + 3 * 86400000) all[rid] = { rid: rid, dl: dl, m: mm, k: kk };
     });
+    Object.keys(S).forEach(function (rid) { if (all[rid]) all[rid].s = 1; else all[rid] = { rid: rid, dl: S[rid], m: 0, k: 0, s: 1 }; });
+    Object.keys(all).forEach(function (rid) { out.push(all[rid]); });
     out.sort(function (a, b) { return a.dl - b.dl || (a.rid < b.rid ? -1 : 1); });
     return out.slice(0, 60);
   }
@@ -106,7 +128,16 @@
         return post({ a: "sync", sub: { endpoint: j.endpoint, keys: j.keys }, races: rs, f: fs }).then(function (r) { put("dz_pushSync", { s: sig, t: now }); return r; });
       });
     },
-    count: function () { return races(Date.now()).length; },
+    // いま知らせる予定のレース（10分前・結果を選んだもの。まとめだけのレースは数えない）
+    count: function () { return races(Date.now()).filter(function (r) { return r.m || r.k; }).length; },
+    // その日のまとめ：受け取るか（既定は受け取る）と、今日数えるレースの数
+    sum: function () { return { on: !get(SKEY).off, n: Object.keys(sumRaces(Date.now())).filter(function (r) { return RID.exec(r)[2] === jday(Date.now()); }).length }; },
+    toggleS: function () {
+      var wasOn = T.state() === "on", off = !!get(SKEY).off;
+      if (wasOn && !off) put(SKEY, { off: 1 }); else del(SKEY);
+      var turnOn = !wasOn;
+      return (turnOn ? T.on() : T.sync(true)).catch(function (err) { if (turnOn && off) put(SKEY, { off: 1 }); throw err; });
+    },
     follows: follows,
     // 推し・モーター1つの「出走を知らせる」を切り替える。通知がオフなら、選んでからオンにする
     toggleF: function (k) {
@@ -200,7 +231,8 @@
   function boot() {
     prune(); T.paint();
     try { new MutationObserver(function (ms) { for (var i = 0; i < ms.length; i++) { var a = ms[i].addedNodes; for (var j = 0; j < a.length; j++) { var n = a[j]; if (n.nodeType === 1 && (n.classList.contains("dzt") || n.querySelector(".dzt"))) { T.paint(); return; } } } }).observe(document.body, { childList: true, subtree: true }); } catch (e) {}
-    setInterval(T.paint, 60000);
+    // 出走表で買い目を保存したら、1分以内に送り直す（中身が同じなら送らない）
+    setInterval(function () { T.paint(); T.sync(false).catch(function () {}); }, 60000);
     setTimeout(function () { T.sync(false).catch(function () {}); }, 1500);
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot); else boot();
