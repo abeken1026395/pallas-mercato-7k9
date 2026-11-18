@@ -30,6 +30,13 @@
 #   RESULTS_TICK_SEC   待ちのレースがあるときの間隔（既定180秒）
 #   RESULTS_BUDGET_MIN この分数を超えたら次の便に中継して終わる（既定335分）
 #   RELAY_FROM         中継元の run id（二重起動の判定から外す）
+#   CHUSHI_SEC         中止情報（公式の本日のレース一覧）を読み直す間隔（既定600秒）
+#
+# 中止情報（2026-11-18）:
+#   中止は updateChushi.yml（20分おきの定時）が docs/data/chushiToday.json に書いていたが、定時がほとんど飛ばされ
+#   （11/18 は 12:15 と 14:01 JST の2回だけ）、若松の全レース中止がトップ・出走表・見どころに出なかった。
+#   見張りが CHUSHI_SEC ごとに scripts/fetchChushi.py を呼び、中身が変わったときだけコミットして配信WFを起動する。
+#   updateChushi.yml は見張りの前（朝）と止まったときの予備として残す。
 #   GH_TOKEN / GITHUB_REPOSITORY / GITHUB_RUN_ID / BR   Actions が渡す
 import datetime
 import glob
@@ -59,6 +66,8 @@ LOOP_FROM = (8, 0)    # 見張りを始める時刻(JST)。これより前に起
 END_AT = (23, 40)     # 見張りを終える時刻(JST)
 IDLE_MAX_SEC = 1800   # 待ちのレースが無いときの最長の待ち
 V1_RECHECK_SEC = 600  # 全レースが入ったあと、v1 の版への置き換えを待つあいだの間隔（v1 の更新は約10分おき）
+CHUSHI_SEC = int(os.environ.get("CHUSHI_SEC", "600"))
+CHUSHI_PATH = os.path.join("docs", "data", "chushiToday.json")
 
 
 def now_jst():
@@ -189,6 +198,21 @@ def post_build():
             log("post build failed:", f, out[-200:])
 
 
+def chushi_check():
+    """中止情報を読み直す（scripts/fetchChushi.py）。ファイルが変わったら True。失敗しても止めない。"""
+    def body():
+        try:
+            with open(CHUSHI_PATH, "rb") as f:
+                return f.read()
+        except Exception:
+            return b""
+    before = body()
+    rc, out = run([sys.executable, "scripts/fetchChushi.py"])
+    lines = (out or "").strip().splitlines()
+    log("中止情報:", lines[-1] if lines else "rc=%s" % rc)
+    return body() != before
+
+
 def commit_push():
     """変わった分をコミットして push する。push できたら True。何も変わっていなければ None。
     手順は以前の updateResultsLive.yml の commit ステップと同じ（先にコミット → rebase -X theirs → push を6回まで）。"""
@@ -197,6 +221,7 @@ def commit_push():
     # 払戻は別の add にする（まとめると1つ欠けただけで results まで0件 stage になる）
     run("git add docs/payouts/*Payouts.csv 2>/dev/null || true", shell=True)
     run("git add docs/payouts/*ManRate.json 2>/dev/null || true", shell=True)
+    run("git add docs/data/chushiToday.json 2>/dev/null || true", shell=True)
     rc, _ = run(["git", "diff", "--staged", "--quiet"])
     if rc == 0:
         return None
@@ -299,10 +324,13 @@ def one_day(hd, st, cache):
     return True, obj, data
 
 
-def publish(wrote):
-    """書いた分（と、前に送れなかった分）を作り直してコミット・push し、配信を起動する。"""
+def publish(wrote, chushi=False):
+    """書いた分（と、前に送れなかった分）を作り直してコミット・push し、配信を起動する。
+    chushi=True（中止情報だけ変わった）ときは作り直さずにコミットする。"""
     if wrote:
         post_build()
+        ok = commit_push()
+    elif chushi:
         ok = commit_push()
     elif unpushed() and not DRY:
         ok = push_retry(os.environ.get("BR") or "main")
@@ -370,8 +398,13 @@ def main():
     st = {}
     seen = set()
     ticks = 0
+    ch_at = 0.0
     while True:
         ticks += 1
+        ch = False
+        if time.time() - ch_at >= CHUSHI_SEC:
+            ch_at = time.time()
+            ch = chushi_check()
         wrote, obj, data = one_day(today, st, cache)
         if obj is not None:
             table = race_table(data)
@@ -389,12 +422,14 @@ def main():
             log("tick %d: %d/%dレース（v1 に未着 %d）待ち%d v1取得%d回 %s" % (
                 ticks, len(done & set(table)), len(table), len(pend), overdue, st.get("fetches", 0),
                 "書いた" if wrote else "変わらず"))
-            publish(wrote)
+            publish(wrote, ch)
             if table and not (set(table) - done) and not pend:
                 log("全レースが取得元 v1 の版でそろった。終わる")
                 break
         else:
             wait = IDLE_MAX_SEC
+            publish(False, ch)
+        wait = max(1, min(wait, int(CHUSHI_SEC - (time.time() - ch_at)) + 1))
         if MAX_TICKS and ticks >= MAX_TICKS:
             log("確かめ用の回数に達した。終わる")
             break

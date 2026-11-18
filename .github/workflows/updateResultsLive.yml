@@ -63,6 +63,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      # 中止情報の取得（scripts/fetchChushi.py）に要る。見張りが10分おきに呼ぶ（2026-11-18）
+      - run: pip install requests beautifulsoup4
+
       - name: results loop (当日分・取得元 v1 と公式)
         env:
           HD: ${{ github.event.inputs.hd }}
