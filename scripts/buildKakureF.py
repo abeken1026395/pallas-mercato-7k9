@@ -17,11 +17,20 @@ buildKakureF.py
   - 答え合わせ（2026-11-17）: 第三者の推定表（ひまひまデータ3・10/31時点）と、
     隠れFと判定した162人は全員一致（休み前69・休み中93）。
 
-不成立レース:
+results/ に入らないレース（不成立・中止）:
   複数艇がFして3連単が不成立になったレースは results/ に入らない（2026-10-28 以降は 成立せず に名前だけ残る）。
-  前期の範囲で「場ごとのレース番号の抜け」と「成立せず の不成立」を拾い、そのレースだけ
-  公式の結果ページを読んで、着が F の登番を足す。読んだ結果は data/kakureFextra.json に残し、読み直さない。
-  1回に読むのは EXTRA_MAX 件まで。1件ごとに1.2秒あける。読めなかったレースは次の回に読み直す。
+  前期の範囲で次のレースを拾い、公式の結果ページで「何があったか」を確かめてから F を足す。
+    ・場ごとのレース番号の抜け（例 1〜7R と 9〜12R があり 8R が無い）
+    ・最後のレースが12Rより前で終わっている場の、その後ろのレース（後半の中止か、12Rの不成立か）
+    ・成立せず の「不成立」。成立せず の「中止」は読まずに中止として扱う
+  公式ページの読み分け（2026-11-18 けん「レース中止を誤読しない様にしたい」「不成立も」）:
+    ・着順の表がある → 着が F の登番を足す。3連単の欄が「不成立」なら 不成立、そうでなければ 成立
+      （転覆などで不成立になったレースは F が0件のまま。F の無い不成立を F 扱いしない）
+    ・着順の表が無く、題（title12_title）が「レース中止」 → 中止。F は0件
+    ・着順の表と「レース中止」が両方ある・どちらも無い → 決めない（保存せず、次の回に読み直す）
+    ・「表示条件を変更して」（データが無い）で、3日以上前のレース → データなし。F は0件
+  読んだ結果は data/kakureFextra.json に {"状態":…, "F":[…]} で残し、読み直さない。
+  1回に読むのは EXTRA_MAX 件まで。1件ごとに1.2秒あける。
 
 入力:  results/YYYYMMDD.json ／ data/kakureFextra.json ／ 公式 raceresult（抜けたレースだけ）
 出力:  docs/data/kakureF.json（出走表 template_racers.html が fetch する）
@@ -82,25 +91,48 @@ def load_extra():
         return {}
 
 
-def parse_f(page):
-    """公式 raceresult の着順表から、着が F の登番を返す。表が読めなければ None。"""
-    if page and "<th>着</th>" not in page and "レース中止" in page:
-        return []
-    if not page or "<th>着</th>" not in page:
+RE_CHUSHI = re.compile(r'class="title12_title[^"]*">\s*レース中止\s*<')
+RE_FUSEIRITSU = re.compile(r'<td rowspan="\d+">\s*3連単\s*</td>\s*<td>\s*不成立')
+
+
+def classify(page, hd=None, today=None):
+    """公式 raceresult のページを読み分ける。決められないときは None（保存しない）。
+    返り値 {"状態": "成立"|"不成立"|"中止"|"データなし", "F": [登番…]}"""
+    if not page:
         return None
-    out = []
-    rows = 0
-    for body in _section(page, "着").split("<tbody")[1:]:
-        tds = re.findall(r"<td[^>]*>(.*?)</td>", body, re.S)
-        if len(tds) < 3:
-            continue
-        tou = re.search(r'class="is-fs12">\s*(\d{4})\s*<', tds[2])
-        if not tou:
-            continue
-        rows += 1
-        if _text(tds[0])[:1] == "F":
-            out.append(tou.group(1))
-    return out if rows >= 2 else None
+    has_table = "<th>着</th>" in page
+    chushi = bool(RE_CHUSHI.search(page))
+    if has_table and chushi:
+        return None
+    if has_table:
+        fl, rows = [], 0
+        for body in _section(page, "着").split("<tbody")[1:]:
+            tds = re.findall(r"<td[^>]*>(.*?)</td>", body, re.S)
+            if len(tds) < 3:
+                continue
+            tou = re.search(r'class="is-fs12">\s*(\d{4})\s*<', tds[2])
+            if not tou:
+                continue
+            rows += 1
+            if _text(tds[0])[:1] == "F":
+                fl.append(tou.group(1))
+        if rows < 2:
+            return None
+        return {"状態": "不成立" if RE_FUSEIRITSU.search(page) else "成立", "F": fl}
+    if chushi:
+        return {"状態": "中止", "F": []}
+    if "表示条件を変更して" in page and hd and today and (today - d8(hd)).days >= 3:
+        return {"状態": "データなし", "F": []}
+    return None
+
+
+def extra_f(v):
+    """data/kakureFextra.json の1件から F の登番を返す（旧形式の配列も読む）。"""
+    if isinstance(v, list):
+        return [t for t in v if isinstance(t, str)]
+    if isinstance(v, dict) and isinstance(v.get("F"), list):
+        return [t for t in v["F"] if isinstance(t, str)]
+    return []
 
 
 def fetch(hd, jcd, rno):
@@ -123,6 +155,7 @@ def main():
     race_days = defaultdict(set)     # 登番 -> 出走日
     fs = defaultdict(list)           # 登番 -> [(日, 場)]
     holes = []                       # (日, 場, R) 前期で results/ に無いレース
+    chushi_known = set()             # 成立せず で中止と分かっているレース
     files = sorted(glob.glob(os.path.join(RESULTS_DIR, "[0-9]" * 8 + ".json")))
     last = None
     for f in files:
@@ -152,15 +185,20 @@ def main():
                     fs[t].append((hd, jcd))
         if not in_term:
             continue
+        known = {}
+        for x in j.get("成立せず") or []:
+            m = re.match(r"(\d+)", str(x.get("レース") or ""))
+            if m:
+                known[(str(x.get("場コード")), int(m.group(1)))] = str(x.get("理由") or "")
         for v, rs in by_v.items():
-            for k in range(1, max(rs) + 1):
+            for k in range(1, 13):          # 抜け と、12Rより前で終わった場の後ろ
                 if k not in rs:
                     holes.append((hd, v, k))
-        for x in j.get("成立せず") or []:
-            if x.get("理由") == "不成立":
-                m = re.match(r"(\d+)", str(x.get("レース") or ""))
-                if m:
-                    holes.append((hd, str(x.get("場コード")), int(m.group(1))))
+        for (v, k), why in known.items():
+            if why == "不成立":
+                holes.append((hd, v, k))
+            elif why == "中止":
+                chushi_known.add((hd, v, k))
     if last is None:
         print("no results in range; nothing written")
         return
@@ -170,18 +208,26 @@ def main():
     fetched = 0
     for hd, v, k in sorted(set(holes)):
         key = "%s-%s-%d" % (hd, v, k)
+        if (hd, v, k) in chushi_known and key not in extra:
+            extra[key] = {"状態": "中止", "F": []}
         if key not in extra and not NO_FETCH and fetched < EXTRA_MAX:
             if fetched:
                 time.sleep(1.2)
             fetched += 1
-            got = parse_f(fetch(hd, v, k))
+            got = classify(fetch(hd, v, k), hd, today)
             if got is not None:
                 extra[key] = got
-        for t in extra.get(key) or []:
+            else:
+                print("undecided", key)
+        for t in extra_f(extra.get(key)):
             if (hd, v) not in fs[t]:
                 fs[t].append((hd, v))
                 race_days[t].add(hd)
     left = sum(1 for h in set(holes) if "%s-%s-%d" % h not in extra)
+    states = defaultdict(int)
+    for h in set(holes):
+        x = extra.get("%s-%s-%d" % h)
+        states[x.get("状態") if isinstance(x, dict) else ("旧形式" if isinstance(x, list) else "未読")] += 1
 
     # 判定
     end = d8(last) + timedelta(days=1)    # 結果がある最後の日の翌日を「今日」とみなす
@@ -227,10 +273,10 @@ def main():
         f.write("\n")
     os.makedirs(os.path.dirname(EXTRA_PATH), exist_ok=True)
     with open(EXTRA_PATH, "w", encoding="utf-8") as f:
-        json.dump({k: extra[k] for k in sorted(extra)}, f, ensure_ascii=False, indent=0)
-        f.write("\n")
-    print("kakureF: term %s-%s last %s hidden %d holes %d fetched %d unread %d"
-          % (s8(t0), s8(t1), last, len(out), len(set(holes)), fetched, left))
+        f.write("{\n" + ",\n".join(json.dumps(k) + ":" + json.dumps(extra[k], ensure_ascii=False, separators=(",", ":"))
+                                     for k in sorted(extra)) + "\n}\n")
+    print("kakureF: term %s-%s last %s hidden %d holes %d fetched %d unread %d states %s"
+          % (s8(t0), s8(t1), last, len(out), len(set(holes)), fetched, left, dict(states)))
 
 
 if __name__ == "__main__":
