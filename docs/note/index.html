@@ -234,8 +234,9 @@ footer{margin-top:24px;font-size:13px;color:var(--dim);line-height:1.85}
     <p class="tsu-st" id="tsu-st"></p>
     <div id="tsu-do"></div>
     <p class="note" id="tsu-msg" role="status" aria-live="polite"></p>
+    <div class="tsf" id="tsu-s" hidden></div>
     <div class="tsf" id="tsu-f" hidden></div>
-    <p class="note">出走表と見どころのレースで「10分前に知らせる」「結果を知らせる」を押したレースと、上で選んだ推し・モーターが出るレースだけ知らせます。締切が遅れたときは、公式の締切予定時刻に合わせて10分前に知らせます。オンにすると、選んだレースの番号・締切の時刻・知らせる種類と、選んだ推しの登録番号・モーターの場と機番だけをデータ攻めに送ります。金額・メモ・収支は送りません。</p>
+    <p class="note">出走表と見どころのレースで「10分前に知らせる」「結果を知らせる」を押したレースと、上で選んだ推し・モーターが出るレースだけ知らせます。締切が遅れたときは、公式の締切予定時刻に合わせて10分前に知らせます。その日のまとめを受け取ると、買い目を保存したレースの結果が出そろったときに、夜に1通だけ知らせます。オンにすると、選んだレースと買い目を保存したレースの番号・締切の時刻・知らせる種類と、選んだ推しの登録番号・モーターの場と機番だけをデータ攻めに送ります。買い目・金額・メモ・収支は送りません。</p>
   </div>
   <div class="card" id="keikou">
     <h2>予想の傾向 <small style="color:var(--sub);font-weight:400;font-size:12px">これまでの全記録</small></h2>
@@ -755,7 +756,7 @@ else if(location.hash==="#tsuchi"){show("bets");drawBets();goTsuchi()}/* 紹介�
 else if(location.hash==="#bets"||(!location.hash&&!/[?&]toban=/.test(location.search)&&betRows().length)){show("bets");drawBets()}
 })();
 </script>
-<script src="../assets/tsuchi.js?v=3"></script>
+<script src="../assets/tsuchi.js?v=4"></script>
 <script src="../assets/kaimeSheet.js?v=3" defer></script>
 <script>
 /* 締切10分前の通知（再訪設計 段階3・2026-11-13）。状態ごとに1行と1つのボタンだけ出す */
@@ -793,7 +794,22 @@ else if(location.hash==="#bets"||(!location.hash&&!/[?&]toban=/.test(location.se
     });
     fb.hidden=false;
   }
-  var draw0=draw;draw=function(){draw0();drawF();};
+  /* その日のまとめ（2026-11-19 けん：その日の分を夜に1通・外れの日も送る） */
+  var sb=g("tsu-s");
+  function drawS(){
+    if(!sb||!T.sum) return; var s=T.state(); sb.textContent="";
+    if(s!=="on"&&s!=="off"){sb.hidden=true;return;}
+    var S=T.sum(),on=s==="on"&&S.on;
+    var h=document.createElement("h3");h.textContent="その日のまとめ";sb.appendChild(h);
+    var hp=document.createElement("p");hp.textContent="買い目を保存したレースの結果が出そろったら、夜（21時40分ごろ）に1通で知らせます。外れの日も知らせます。的中と払戻はこの画面で確かめられます。";sb.appendChild(hp);
+    var r=document.createElement("div");r.className="tsf-r";
+    var n=document.createElement("span");n.className="tsf-n";n.textContent="今日の対象 "+S.n+"レース";r.appendChild(n);
+    var b=document.createElement("button");b.type="button";b.className="tsf-b";b.setAttribute("aria-pressed",on?"true":"false");b.textContent=on?"受け取ります ✓":"受け取る";
+    b.setAttribute("aria-label","その日のまとめを受け取る");
+    b.addEventListener("click",function(){b.disabled=true;msg.textContent="";T.toggleS().then(function(){draw();},function(e){var kk=e&&e.message;msg.textContent=kk==="denied"?"この端末で通知が止められています。設定アプリの通知から、データ攻めを許可してください。":kk==="dismiss"?"通知の許可が出ませんでした。もう一度押すと聞き直します。":"登録できませんでした。通信の良いところで、もう一度押してください。";draw();});});
+    r.appendChild(b);sb.appendChild(r);sb.hidden=false;
+  }
+  var draw0=draw;draw=function(){draw0();drawS();drawF();};
   draw();
 })();
 </script>

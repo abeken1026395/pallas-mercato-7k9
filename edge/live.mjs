@@ -5,6 +5,8 @@
 //       2026-11-17 けん：推し選手と推しモーターの出走も、選んだものだけ10分前に知らせる。そのために登録番号（p:4桁）と
 //       場コード_機番（m:12_34）も受け取る（fols）。どのレースに出るかは送り役が出走表の索引（/racers/entryIndex.json）で調べる。
 //       金額・メモ・収支は受け取らない（2026-11-13 けん「レースそのものに通知を付けよう」）。
+//       2026-11-19 けん：その日のまとめ（s）。買い目を保存したレースの番号と締切だけを受け取り、夜に1通「結果が出そろった」と送る。
+//       買い目・金額は受け取らない。s のレースはその日のうちは締切から3時間を過ぎても受け付ける。
 // D1 が無い・失敗したときは何もせず空の答えを返す（ページを止めない）。
 import { ipKey, jstDay } from "./junkai.mjs";
 
@@ -34,6 +36,8 @@ export const SCHEMA = [
   // races.o＝推し・モーターから送り役が足したレースの印（文面に入れる「推し ○○」など）。本人が選んだレースは o が空
   "CREATE TABLE IF NOT EXISTS fols (sid TEXT NOT NULL, k TEXT NOT NULL, PRIMARY KEY (sid, k))",
   "ALTER TABLE races ADD COLUMN o TEXT",
+  // 2026-11-19 追加：s＝その日のまとめに数える（買い目を保存したレース）。sr は 1＝結果が入った・2＝入らずにあきらめた
+  "ALTER TABLE races ADD COLUMN s INTEGER NOT NULL DEFAULT 0",
 ];
 
 // 推し・モーターの一覧の検査（形の違うもの・重複は捨てる・上限）
@@ -90,8 +94,8 @@ export function okEndpoint(ep) {
   } catch (e) { return false; }
 }
 
-// レース番号（場_日付_R）・締切（ミリ秒）・知らせる種類（m＝10分前、k＝結果）。
-// 日付は締切の日本時間の日付と一致し、締切は今から3日以内。10分前は締切前だけ、結果は締切から3時間まで受け付ける
+// レース番号（場_日付_R）・締切（ミリ秒）・知らせる種類（m＝10分前、k＝結果、s＝その日のまとめ）。
+// 日付は締切の日本時間の日付と一致し、締切は今から3日以内。10分前は締切前だけ、結果は締切から3時間まで、まとめは今日と先の日だけ受け付ける
 export function cleanRaces(list, now = Date.now()) {
   if (!Array.isArray(list)) return null;
   const out = new Map();
@@ -100,12 +104,14 @@ export function cleanRaces(list, now = Date.now()) {
     const m = RID.exec(String(x.rid || ""));
     const dl = Number(x.dl);
     if (!m || !Number.isFinite(dl)) continue;
-    if (dl < now - 3 * 3600000 || dl > now + 3 * 86400000) continue;
+    if (dl > now + 3 * 86400000) continue;
     if (jstDay(dl).replace(/-/g, "") !== m[2]) continue;
+    const ss = (x.s === 1 || x.s === true) && jstDay(dl) >= jstDay(now) ? 1 : 0;
+    if (dl < now - 3 * 3600000 && !ss) continue;
     const mm = x.m === 1 || x.m === true ? (dl >= now - 60000 ? 1 : 0) : 0;
-    const kk = x.k === 1 || x.k === true ? 1 : 0;
-    if (!mm && !kk) continue;
-    out.set(x.rid, { rid: x.rid, dl: Math.floor(dl), m: mm, k: kk });
+    const kk = x.k === 1 || x.k === true ? (dl >= now - 3 * 3600000 ? 1 : 0) : 0;
+    if (!mm && !kk && !ss) continue;
+    out.set(x.rid, { rid: x.rid, dl: Math.floor(dl), m: mm, k: kk, s: ss });
   }
   return [...out.values()].sort((a, b) => a.dl - b.dl || (a.rid < b.rid ? -1 : 1)).slice(0, MAX_RACES);
 }
@@ -164,7 +170,7 @@ export async function onPush(context, now = Date.now()) {
     for (const k of fols) st.push(db.prepare("INSERT INTO fols (sid, k) VALUES (?1, ?2)").bind(id, k));
     // 締切は送り役が公式の時刻で直すので、2回目からは上書きしない（種類だけ直す）。
     // 推し・モーターから足して、まだ10分前を送っていないレースは、10分前を外さない
-    for (const r of races) st.push(db.prepare("INSERT INTO races (sid, rid, dl, sent, m, k, sr) VALUES (?1, ?2, ?3, 0, ?4, ?5, 0) ON CONFLICT(sid, rid) DO UPDATE SET m = CASE WHEN races.o IS NOT NULL AND races.sent = 0 THEN 1 ELSE excluded.m END, k = excluded.k").bind(id, r.rid, r.dl, r.m, r.k));
+    for (const r of races) st.push(db.prepare("INSERT INTO races (sid, rid, dl, sent, m, k, sr, s) VALUES (?1, ?2, ?3, 0, ?4, ?5, 0, ?6) ON CONFLICT(sid, rid) DO UPDATE SET m = CASE WHEN races.o IS NOT NULL AND races.sent = 0 THEN 1 ELSE excluded.m END, k = excluded.k, s = excluded.s").bind(id, r.rid, r.dl, r.m, r.k, r.s));
     await db.batch(st);
     return json({ ok: true, n: races.length, f: fols.length });
   } catch (e) {

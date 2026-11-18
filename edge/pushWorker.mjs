@@ -8,6 +8,8 @@
 //   結果：サイトの結果データ（/results/data/YYYYMMDD.json）に着順が入ったら送る。締切から3時間入らなければあきらめる。
 //   推し・モーター（2026-11-17 けん）：本人が選んだ推し選手（p:登録番号）・推しモーター（m:場コード_機番）が出るレースを、
 //           出走表の索引（/racers/entryIndex.json・10分おきに読む）から締切40分前までに足し、上と同じ10分前の仕組みで送る。上限なし。
+//   その日のまとめ（2026-11-19 けん）：買い目を保存したレース（s）の結果がその日の分すべて入ったら、日本時間21:40以降に1通だけ
+//           「今日の記録｜○レースの結果が出そろいました」と送る。外れの日も送る。的中・払戻は送り役は知らない（端末の中で出す）。
 // 届かなかった購読（404・410）は消す。
 import { sendPush } from "./webPush.mjs";
 import { jstDay } from "./junkai.mjs";
@@ -19,6 +21,8 @@ const RES_EVERY = 2 * 60 * 1000;        // 結果データを読み直す間隔�
 const RES_GIVEUP = 3 * 3600 * 1000;
 const ENT_EVERY = 10 * 60 * 1000;       // 出走表の索引を読み直す間隔
 const ENT_AHEAD = 40 * 60 * 1000;       // 推し・モーターのレースを足すのは締切の40分前から
+export const SUM_AT = 21 * 60 + 40;     // その日のまとめを送るのは日本時間のこの分（21:40）から
+const SUM_WAIT = 60 * 60 * 1000;        // まとめの前に、締切からこれ以上たって結果の入らないレースは待たない
 const JO = { "01": "桐生", "02": "戸田", "03": "江戸川", "04": "平和島", "05": "多摩川", "06": "浜名湖", "07": "蒲郡", "08": "常滑", "09": "津", "10": "三国", "11": "びわこ", "12": "住之江", "13": "尼崎", "14": "鳴門", "15": "丸亀", "16": "児島", "17": "宮島", "18": "徳山", "19": "下関", "20": "若松", "21": "芦屋", "22": "福岡", "23": "唐津", "24": "大村" };
 
 export function hhmm(ms) { return new Date(ms + 9 * 3600000).toISOString().slice(11, 16); }
@@ -92,6 +96,11 @@ export function msgRes(items) {
   const r = items[0], p = parts(r.rid);
   const more = items.length > 1 ? "（ほか" + (items.length - 1) + "レース）" : "";
   return { t: "結果｜" + name(p.j) + " " + p.rn + "R", b: r.fin + (r.pay != null ? "　3連単 " + r.pay.toLocaleString("ja-JP") + "円" : "") + more, u: "/racers/#v" + p.j + "r" + p.rn + "d" + p.hd, g: "dz-r-" + r.rid };
+}
+
+// その日のまとめ（hd＝YYYYMMDD・n＝結果が入ったレースの数）
+export function msgSum(hd, n) {
+  return { t: "今日の記録｜" + n + "レースの結果が出そろいました", b: "的中と払戻は、自分の記録で確かめられます", u: "/note/#bets", g: "dz-day-" + hd };
 }
 
 async function kvGet(db, k) { const r = await db.prepare("SELECT v FROM kv WHERE k = ?1").bind(k).first(); return r ? r.v : null; }
@@ -184,7 +193,7 @@ export async function runOnce(env, now = Date.now(), send = sendPush, fetchFn = 
 
   // ---- 結果 ----
   const rr = (await db.prepare(
-    "SELECT r.sid, r.rid, r.dl, s.ep, s.p256dh, s.auth FROM races r JOIN subs s ON s.id = r.sid WHERE r.k = 1 AND r.sr = 0 AND r.dl <= ?1 ORDER BY r.sid, r.dl, r.rid"
+    "SELECT r.sid, r.rid, r.dl, r.k, s.ep, s.p256dh, s.auth FROM races r JOIN subs s ON s.id = r.sid WHERE (r.k = 1 OR r.s = 1) AND r.sr = 0 AND r.dl <= ?1 ORDER BY r.sid, r.dl, r.rid"
   ).bind(now - 10 * 60000).all()).results || [];
   if (rr.length) {
     const days = [...new Set(rr.map(x => parts(x.rid).hd))];
@@ -203,13 +212,32 @@ export async function runOnce(env, now = Date.now(), send = sendPush, fetchFn = 
       const p = parts(x.rid), t = text.get(p.hd);
       const f = t ? findResult(t, p.j, p.rn) : null;
       if (f) {
-        if (!got.has(x.sid)) got.set(x.sid, { sub: { ep: x.ep, p256dh: x.p256dh, auth: x.auth }, items: [] });
-        got.get(x.sid).items.push({ rid: x.rid, fin: f.fin, pay: f.pay });
-        done.push(x);
-      } else if (now - x.dl > RES_GIVEUP) done.push(x);
+        // 1レースずつの「結果」は、本人が「結果を知らせる」を押したレースだけ（まとめだけのレースは印を付けるだけ）
+        if (x.k === 1) {
+          if (!got.has(x.sid)) got.set(x.sid, { sub: { ep: x.ep, p256dh: x.p256dh, auth: x.auth }, items: [] });
+          got.get(x.sid).items.push({ rid: x.rid, fin: f.fin, pay: f.pay });
+        }
+        done.push([x, 1]);
+      } else if (now - x.dl > RES_GIVEUP) done.push([x, 2]);
     }
-    if (done.length) await db.batch(done.map(x => db.prepare("UPDATE races SET sr = 1 WHERE sid = ?1 AND rid = ?2").bind(x.sid, x.rid)));
+    if (done.length) await db.batch(done.map(([x, v]) => db.prepare("UPDATE races SET sr = ?3 WHERE sid = ?1 AND rid = ?2").bind(x.sid, x.rid, v)));
     for (const [sid, g] of got) await deliver(db, sid, g.sub, msgRes(g.items), env, send, out);
+  }
+
+  // ---- その日のまとめ（21:40 から。その日の買い目のレースの結果がすべて入ったら1通・1日1回） ----
+  const jm = new Date(now + 9 * 3600000), mins = jm.getUTCHours() * 60 + jm.getUTCMinutes();
+  if (mins >= SUM_AT) {
+    const day = jstDay(now), hd = day.replace(/-/g, "");
+    const sm = (await db.prepare(
+      "SELECT r.sid, SUM(CASE WHEN r.sr = 1 THEN 1 ELSE 0 END) AS f, SUM(CASE WHEN r.sr = 0 AND r.dl > ?3 THEN 1 ELSE 0 END) AS w, s.ep, s.p256dh, s.auth FROM races r JOIN subs s ON s.id = r.sid " +
+      "WHERE r.s = 1 AND substr(r.rid, 4, 8) = ?1 AND NOT EXISTS (SELECT 1 FROM daily d WHERE d.sid = r.sid AND d.day = ?2) GROUP BY r.sid"
+    ).bind(hd, day, now - SUM_WAIT).all()).results || [];
+    const go = sm.filter(x => x.w === 0 && x.f > 0);
+    if (go.length) {
+      await db.batch(go.map(x => db.prepare("INSERT INTO daily (sid, day, n) VALUES (?1, ?2, 1) ON CONFLICT(sid, day) DO NOTHING").bind(x.sid, day)));
+      for (const x of go) await deliver(db, x.sid, { ep: x.ep, p256dh: x.p256dh, auth: x.auth }, msgSum(hd, x.f), env, send, out);
+      out.sum = go.length;
+    }
   }
 
   // ---- 片づけ：締切から1日たったレース、30日使われていない購読、古い公式の写し ----
