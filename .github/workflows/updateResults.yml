@@ -79,6 +79,13 @@ jobs:
       - name: build maezuke
         run: python scripts/buildMaezuke.py
 
+      # 隠れF（前期のFでF休みがまだと見られる選手・推定）。results/ 全走査で約2秒。
+      # 不成立で results/ に入らないレースだけ公式の結果ページを読み、data/kakureFextra.json に残す（読み直さない・1回40件まで）。
+      # 2026-11-18 けん「これ進めよう」（A案：出走表に札「隠れF」と根拠）。毎回全再計算で冪等。失敗してもジョブは落とさない。
+      - name: build kakureF
+        continue-on-error: true
+        run: python scripts/buildKakureF.py
+
       # 観戦記素材JSON（翌朝執筆の唯一の入力）。buildResults の後段で前日結果を取り込む。
       # optional設計: pointrank失敗・素材欠でもジョブは落とさない（always + continue-on-error）。
       # scoreRank は自己検知確定まで shadow mode（BKS_SCORERANK_WRITE 未設定＝書き込み保留）。
@@ -104,6 +111,8 @@ jobs:
           git add docs/data/racerStartOrder.json 2>/dev/null || true
           git add docs/data/courseLast10.json 2>/dev/null || true
           git add docs/data/maezuke.json 2>/dev/null || true
+          git add docs/data/kakureF.json 2>/dev/null || true
+          git add data/kakureFextra.json 2>/dev/null || true
           git add docs/data/kansenki/source/ 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "no changes"; exit 0

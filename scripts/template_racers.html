@@ -170,6 +170,10 @@ header .sub { font-size:13px; color:#8a94a3; margin-top:4px; }
 .pname { font-size:16px; font-weight:bold; color:#fff; display:inline-flex; align-items:center; min-height:44px; }
 .badge-local { font-size:13px; color:#e0e6ed; background:transparent; border-radius:999px; padding:0 8px; font-weight:bold; flex:none; border:1px solid #9fb0c3; }
 .badge-f { font-size:13px; color:#e0e6ed; background:transparent; border-radius:3px; padding:1px 5px; font-weight:800; flex:none; border:2px solid #e0e6ed; }
+/* 隠れF（前期のFでF休みがまだの選手・buildKakureF.py の推定）。点線＝数字から出した判定 */
+.badge-kf { font-size:13px; color:#e0e6ed; background:transparent; border-radius:3px; padding:1px 5px; font-weight:800; flex:none; border:2px dashed #e0e6ed; }
+.kf p { margin:0 0 6px; font-size:13px; line-height:1.6; color:#c3ccd6; }
+.kf .kf-src { color:#9fb0c3; }
 .badge-st { font-size:13px; color:#e0e6ed; background:transparent; border-radius:3px; padding:1px 5px; font-weight:bold; flex:none; border:1.5px dashed #c3ccd6; }
 .badge-mach { font-size:13px; color:#e0e6ed; background:transparent; border-radius:3px; padding:1px 5px; font-weight:bold; flex:none; border:1.5px dashed #c3ccd6; }
 .badge-bd { font-size:13px; color:#e6ecf3; background:#39424d; border-radius:4px; padding:1px 5px; font-weight:bold; flex:none; }
@@ -740,7 +744,8 @@ var NS=null;                 /* 1号艇逃げ時の2着コース分布（nigeSec
 var GRADE=null;              /* 開催グレード（gradeSchedule.json・公式の月間スケジュール由来） */
 var MZ=null, MZMETA=null;   /* 前づけ実績（maezuke.json・選手別・回数のみ。率は20走以上だけ出す） */
 var MAE_DAYS=[];             /* 1マークの見立てがある開催日（../ichimark/maeIndex.json）。ある日だけリンクを出す */
-var CL10=null, CL10_STATE="idle";  /* コース別直近10走。レース画面を開いたときだけ取得する */
+var CL10=null, CL10_STATE="idle";
+var KF=null;                 /* 隠れF（../data/kakureF.json・前期のFでF休みがまだと見られる選手・推定） */  /* コース別直近10走。レース画面を開いたときだけ取得する */
 
 function loadJSON(u){ return fetch(u).then(function(r){return r.json();}); }
 function loadText(u){ return fetch(u).then(function(r){return r.text();}); }
@@ -751,6 +756,7 @@ loadJSON("../players/profile.json").then(function(j){PROF=j||{};rerender();}).ca
 loadText("../players/racerKimarite.csv").then(function(t){ parseKimarite(t); rerender(); }).catch(function(){});
 loadJSON("../highlights/highlights.json").then(function(j){ parseHL(j); rerender(); }).catch(function(){});
 loadJSON("../data/tideToday.json").then(function(j){ tide=j||null; rerender(); }).catch(function(){});
+loadJSON("../data/kakureF.json").then(function(j){ KF=(j&&j["選手"]&&typeof j["選手"]==="object")?j:null; rerender(); }).catch(function(){});
 loadJSON("../data/maezuke.json").then(function(j){ if(j&&j["選手"]){MZ=j["選手"];MZMETA={期間:j["期間"]||[]};} rerender(); }).catch(function(){});
 loadJSON("../data/gradeSchedule.json").then(function(j){ GRADE=j||null; rerender(); }).catch(function(){});
 loadJSON("../ichimark/maeIndex.json").then(function(j){ MAE_DAYS=(j&&j.days)||[]; rerender(); }).catch(function(){});
@@ -2479,6 +2485,25 @@ function kbRecord(){
 }
 
 function numPct(s){ var x=parseFloat(s); return isNaN(x)?'-':x.toFixed(1); }
+var KF_V=["桐生","戸田","江戸川","平和島","多摩川","浜名湖","蒲郡","常滑","津","三国","びわこ","住之江","尼崎","鳴門","丸亀","児島","宮島","徳山","下関","若松","芦屋","福岡","唐津","大村"];
+/* 隠れFの選手なら [[F日8桁,場コード,休み済み0/1],…] を返す。形の合わない要素は捨てる */
+function kfOf(toban){
+  var p=KF&&KF["選手"]&&Object.prototype.hasOwnProperty.call(KF["選手"],toban)?KF["選手"][toban]:null;
+  var a=(p&&Array.isArray(p.F))?p.F:[];
+  var out=a.filter(function(x){ return Array.isArray(x)&&/^\d{8}$/.test(String(x[0]))&&/^\d{2}$/.test(String(x[1]))&&(x[2]===0||x[2]===1); });
+  return out.some(function(x){ return x[2]===0; })?out:null;
+}
+function kfMD(d){ d=String(d); return parseInt(d.slice(4,6),10)+"/"+parseInt(d.slice(6,8),10); }
+function kfBlock(toban,f){
+  var t=(KF["前期"]||[]), term=(/^\d{8}$/.test(String(t[0]))&&/^\d{8}$/.test(String(t[1])))?"（"+kfMD(t[0])+"〜"+kfMD(t[1])+"）":"";
+  var fs=f.map(function(x){ return esc(kfMD(x[0])+" "+(KF_V[parseInt(x[1],10)-1]||""))+(x[2]===1?"（休み済み）":"（休みまだ）"); }).join("・");
+  var at=/^\d{4}-\d{2}-\d{2}$/.test(String(KF["集計日"]))?String(KF["集計日"]).replace(/^\d{4}-0?(\d+)-0?(\d+)$/,"$1/$2"):"";
+  return '<details class="tj kf" data-dk="kf-'+esc(toban)+'"><summary>隠れFの根拠</summary>'
+    +'<p>前期'+term+'のF：'+fs+'</p>'
+    +'<p>Fのあと、30日以上レースに出ていない期間がまだありません。出走表のF数は今期の分だけなので、このFは数に入っていません。</p>'
+    +'<p class="kf-src">データ攻めの集計による推定です。30日以上の欠場をF休みとみなすため、けがなどの欠場も休み済みに数えます。出典：公式のレース結果'+(at?'（'+esc(at)+' 集計）':'')+'</p>'
+    +'</details>';
+}
 function boatCard(row,v,hl,minST,maxST,maxMotor){
   var lane=parseInt(g(row,"枠"));
   var lc=LANE_COLOR[lane]||["#333","#fff"];
@@ -2499,11 +2524,13 @@ function boatCard(row,v,hl,minST,maxST,maxMotor){
 
   var nick=pf.nickname||pf.tagline||"";
   var bdMark=(BIRTHDAYS[g(row,"開催日")]||{})[toban];
+  var kf=toban?kfOf(toban):null, kfN=kf?kf.filter(function(x){ return x[2]===0; }).length:0;
   var badges=''
     +(fastest?'<span class="badge-st">最速ST</span>':'')
     +(bestMotor?'<span class="badge-mach">機力上位</span>':'')
     +(local?'<span class="badge-local">地元</span>':'')
     +(fn>0?'<span class="badge-f">F'+fn+'</span>':'')
+    +(kf?'<span class="badge-kf">隠れF'+(kfN>1?kfN:'')+'</span>':'')
     +(bdMark?'<span class="badge-bd">誕</span>':'');
 
   /* タグ */
@@ -2512,7 +2539,7 @@ function boatCard(row,v,hl,minST,maxST,maxMotor){
   if(localAdv||hot) tags.push('<span class="tag tag-local">当地得意</span>');
   if(machEval==="high") tags.push('<span class="tag tag-mach-high">機力◎</span>');
   else if(machEval==="low") tags.push('<span class="tag tag-mach-low">機力△</span>');
-  var tagsHtml=(badges||tags.length)?'<div class="badges">'+badges+tags.join("")+'</div>':'';
+  var tagsHtml=((badges||tags.length)?'<div class="badges">'+badges+tags.join("")+'</div>':'')+(kf?kfBlock(toban,kf):'');
 
   var nameHtml=toban
     ?'<a class="pname" href="../players/?toban='+esc(toban)+'" style="color:inherit;text-decoration:none;">'+esc(name)+'<span class="badge-detail">詳細</span></a>'
