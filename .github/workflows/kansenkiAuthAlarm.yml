@@ -1,0 +1,42 @@
+name: 観戦記 認証切れ通知
+
+# PC の scripts/authPrecheck.ps1 が、claude の認証切れを見つけたときに gh workflow run で起動する。
+# GitHub の bot（github-actions）が Issue を立てるので、本人のスマホに通知が届く
+# （ローカルの gh で立てると本人の操作になり通知されない）。
+# 冪等：ラベル kansenki-auth の Open Issue があれば起票しない。手動起動（workflow_dispatch）のみ。
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: "失敗の理由（事前チェックの why）"
+        required: false
+        default: ""
+
+permissions:
+  issues: write
+
+concurrency:
+  group: kansenki-auth-alarm
+  cancel-in-progress: false
+
+jobs:
+  alarm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: open issue (idempotent)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          REASON: ${{ github.event.inputs.reason }}
+        run: |
+          gh label create kansenki-auth --color B60205 --description "観戦記の認証切れ" 2>/dev/null || true
+          EXIST=$(gh issue list --label kansenki-auth --state open --json number --jq 'length' 2>/dev/null || echo 0)
+          if [ "${EXIST:-0}" != "0" ]; then
+            echo "既にOpen Issueあり → 起票しない"; exit 0
+          fi
+          gh issue create \
+            --title "観戦記の認証が切れています（事前チェック失敗）" \
+            --label kansenki-auth \
+            --body "$(printf '観戦記の認証が切れています。PCで claude setup-token をやり直してください。\n\n事前チェック（scripts/authPrecheck.ps1）で claude -p が失敗しました（%s）。夕方便（18:40〜）の執筆が落ちる前に直してください。\n（自動起票。直ったら Issue を閉じてください。）' "${REASON:-理由不明}")"
+          echo "起票しました"
