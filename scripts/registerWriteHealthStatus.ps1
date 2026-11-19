@@ -5,15 +5,27 @@
 # ログオン種別は registerWriteKansenkiLocal.ps1 と同じ理由で Interactive / Limited。
 # git push は Git Credential Manager の資格情報（ユーザーDPAPI保護）を使うため、
 # "ユーザーがログオンしていなくても実行" にすると push が失敗しうる。
+#
+# 本体は C:\Users\USER\healthStatus\ にコピーしてから登録する（2026-11-19）。
+# 作業フォルダが別ブランチにあっても、ブランチに触らない新しい本体が動くようにするため。
+# 本体を更新したら、このスクリプトをもう一度実行する。
 
 $ErrorActionPreference = 'Stop'
 
 $TaskName = 'boatrace-writeHealthStatus'
-$Script   = 'C:\Users\USER\boatrace\scripts\writeHealthStatusLocal.ps1'
+$Home2    = 'C:\Users\USER\healthStatus'
+$Src      = Join-Path $PSScriptRoot 'writeHealthStatusLocal.ps1'
+$Script   = Join-Path $Home2 'writeHealthStatusLocal.ps1'
 $PwshExe  = "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe"
 
-$action = New-ScheduledTaskAction -Execute $PwshExe `
-    -Argument ('-NoProfile -NonInteractive -ExecutionPolicy Bypass -File "{0}"' -f $Script)
+if (-not (Test-Path $Src)) { throw "writeHealthStatusLocal.ps1 が見つからない: $Src" }
+if (-not (Test-Path $Home2)) { New-Item -ItemType Directory -Path $Home2 -Force | Out-Null }
+Copy-Item -Path $Src -Destination $Script -Force
+
+# 窓を出さない（2026-10-24 から PC のタスクは conhost --headless で起動している。claude/registerHeadless.md）
+$ConhostExe = "$env:SystemRoot\System32\conhost.exe"
+$action = New-ScheduledTaskAction -Execute $ConhostExe `
+    -Argument ('--headless "{0}" -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "{1}"' -f $PwshExe, $Script)
 
 $triggers = @(
     (New-ScheduledTaskTrigger -Daily -At '08:00'),
