@@ -1,7 +1,7 @@
 ﻿# authPrecheck.ps1
 # 観戦記の執筆に使う claude の認証が生きているかを毎日確かめる（夕方便 18:40 の前）。
-# 通ったら何も知らせず exit 0。落ちたら GitHub Issue（ラベル kansenki-auth・同じ日の Open があれば起票しない）で
-# 知らせて exit 1。結果は scripts\logs\authPrecheck_YYYYMMDD.log に1行。
+# 通ったら何も知らせず exit 0。落ちたら通知用WF kansenkiAuthAlarm.yml を起動（bot が Issue を立てる＝本人に通知が届く。
+# ラベル kansenki-auth の Open があれば起票しない）して exit 1。結果は scripts\logs\authPrecheck_YYYYMMDD.log に1行。
 # トークンは読むだけ。値は表示・記録しない。
 # 試験用: 環境変数 AUTHPRECHECK_DRYRUN=1 なら Issue を起票せず、文面を標準出力に出す（「試験」付きの文面）。
 #         プロセス環境に CLAUDE_CODE_OAUTH_TOKEN が既にあればユーザー環境変数で上書きしない（無効値での失敗試験用）。
@@ -54,13 +54,8 @@ if ($DryRun) {
 
 try {
     Push-Location $Repo
-    & gh label create kansenki-auth --color B60205 --description '観戦記の認証切れ' 2>&1 | Out-Null
-    $exist = & gh issue list --label kansenki-auth --state open --json number --jq 'length' 2>$null
-    if ($exist -and $exist -ne '0') { Log '既にOpenのIssueあり → 起票しない' }
-    else {
-        & gh issue create --title $title --label kansenki-auth --body $body 2>&1 | Out-Null
-        if ($LASTEXITCODE -eq 0) { Log 'Issue を起票した' } else { Log 'Issue 起票に失敗（ログのみ）' }
-    }
+    & gh workflow run kansenkiAuthAlarm.yml -f ("reason=" + $why) 2>&1 | Out-Null
+    if ($LASTEXITCODE -eq 0) { Log '通知用WF（kansenkiAuthAlarm）を起動した' } else { Log '通知用WFの起動に失敗（ログのみ）' }
 } catch { Log ("通知失敗: {0}" -f $_.Exception.Message) }
 finally { Pop-Location }
 exit 1
