@@ -22,8 +22,10 @@ if (-not (Test-Path $Src)) { throw "writeHealthStatusLocal.ps1 が見つから�
 if (-not (Test-Path $Home2)) { New-Item -ItemType Directory -Path $Home2 -Force | Out-Null }
 Copy-Item -Path $Src -Destination $Script -Force
 
-$action = New-ScheduledTaskAction -Execute $PwshExe `
-    -Argument ('-NoProfile -NonInteractive -ExecutionPolicy Bypass -File "{0}"' -f $Script)
+# 窓を出さない（2026-10-24 から PC のタスクは conhost --headless で起動している。claude/registerHeadless.md）
+$ConhostExe = "$env:SystemRoot\System32\conhost.exe"
+$action = New-ScheduledTaskAction -Execute $ConhostExe `
+    -Argument ('--headless "{0}" -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "{1}"' -f $PwshExe, $Script)
 
 $triggers = @(
     (New-ScheduledTaskTrigger -Daily -At '08:00'),
