@@ -26,8 +26,14 @@ from datetime import datetime, timedelta, timezone
 
 JST = timezone(timedelta(hours=9))
 REPO = "abeken1026395/pallas-mercato-7k9"
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT = os.environ.get("HEALTH_ROOT") or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "health", "status.json")
+# HEALTH_OUT があれば作業フォルダの外へ書き、前回分は origin/main から読む
+# （writeHealthStatusLocal.ps1 が作業フォルダのブランチに触らずに push するため）。
+# HEALTH_ROOT は、origin/main から一時フォルダへ取り出したこのファイルを動かすときのリポジトリの場所。
+OUT_ENV = os.environ.get("HEALTH_OUT")
+if OUT_ENV:
+    OUT = OUT_ENV
 
 # 監視するデータの最終更新（表示名 -> リポジトリ内パス）
 WATCH = {
@@ -556,8 +562,11 @@ def local_tasks(prev):
 
 def main():
     try:
-        with open(OUT, encoding="utf-8") as f:
-            prev = json.load(f)   # ローカルタスクの「最終成功」を引き継ぐため、上書き前に読む
+        if OUT_ENV:
+            prev = json.loads(git("show", "origin/main:health/status.json"))
+        else:
+            with open(OUT, encoding="utf-8") as f:
+                prev = json.load(f)   # ローカルタスクの「最終成功」を引き継ぐため、上書き前に読む
     except (OSError, ValueError):
         prev = None
     git("fetch", "origin", "main")
@@ -583,7 +592,7 @@ def main():
         "デプロイ": deploys(),
     }
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
-    with open(OUT, "w", encoding="utf-8") as f:
+    with open(OUT, "w", encoding="utf-8", newline="\n" if OUT_ENV else None) as f:
         json.dump(doc, f, ensure_ascii=False, indent=1)
         f.write("\n")
     print("wrote " + OUT)
