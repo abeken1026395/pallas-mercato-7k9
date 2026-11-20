@@ -2,13 +2,14 @@
 # -*- coding: utf-8 -*-
 """
 buildKyouIppon.py
-トップの「今日の1本」の材料を作る（選手版・2026-11-19 けん「A」）。
+トップの「今日の1本」の材料を作る（選手版・当地の上乗せ・2026-11-20 けん「A」）。
 
-今日の出走選手のうち、当地の直近365日で「2コースから6コースで1着になった割合」が高い選手を1人出す。
+今日の出走選手のうち、直近365日の「2コースから6コースで1着になった割合」が、ほかの場より当地で
+確かに高い選手を1人出す（強い選手が強いだけ、の言い換えにしないため、本人のほかの場の割合と比べる）。
 1コースの1着は外す（1コースで勝つのは当たり前で、枠の運が強く出るため）。
-当地で2コースから6コースを20走以上した選手だけを比べる。
-走った回数の少ない選手ほど率がたまたま高く出やすいので、率そのものではなく
-ウィルソンの下限（95%）で並べる（少ない回数の率を割り引く）。
+当地で2コースから6コースを20走以上、ほかの場で50走以上した選手だけを比べる。
+当地の率はウィルソンの下限（95%）に割り引いてから、ほかの場の率を引いた差で並べ、差が0.5ポイント未満なら出さない。
+直近3日に1番目で出した選手は外す（同じ節で毎日同じ人が出るのを防ぐ）。
 偏りや予想の判定ではなく、分母つきの事実として出す。
 
 入力（すべて公開済み）:
@@ -33,6 +34,9 @@ RES = "results"
 OUT = "docs/data/kyouIppon.json"
 DAYS = 365
 MIN_N = 20      # 当地の2コースから6コースの出走がこれ未満の選手は比べない
+MIN_O = 50      # ほかの場の2コースから6コースの出走がこれ未満の選手は比べない
+GAP = 3         # 1番目に出した選手を、この日数は1番目に出さない
+MIN_LIFT = 0.005  # 割り引いた当地の率が、ほかの場の率をこれ以上（0.5ポイント）上回るときだけ出す
 TOP = 5         # 深い層に並べる人数
 Z = 1.96
 JO = {"01": "桐生", "02": "戸田", "03": "江戸川", "04": "平和島", "05": "多摩川", "06": "浜名湖", "07": "蒲郡", "08": "常滑",
@@ -48,6 +52,12 @@ def load(path):
         return None
 
 
+def day_minus(day, n):
+    import datetime
+    d = datetime.date(int(day[:4]), int(day[4:6]), int(day[6:8])) - datetime.timedelta(days=n)
+    return d.strftime("%Y%m%d")
+
+
 def wilson(k, n):
     if n <= 0:
         return 0.0
@@ -60,6 +70,7 @@ def wilson(k, n):
 
 def tally(files):
     S = {}
+    N = {}
     for f in files:
         d = load(f) or {}
         for r in d.get("結果") or []:
@@ -75,7 +86,10 @@ def tally(files):
                 if b.get("コース") in (2, 3, 4, 5, 6):
                     s[2] += 1
                     s[3] += 1 if w else 0
-    return S
+                    a = N.setdefault(t, [0, 0])
+                    a[0] += 1
+                    a[1] += 1 if w else 0
+    return S, N
 
 
 def main():
@@ -83,15 +97,18 @@ def main():
     day = str(tt.get("開催日") or "")
     ent = load(ENT) or {}
     races = ((ent.get("days") or {}).get(day)) if day else None
-    out = {"開催日": day, "1本": None}
-    if day and isinstance(races, dict) and races:
+    out = {"開催日": day, "1本": None, "履歴": []}
+    if len(day) == 8 and day.isdigit() and isinstance(races, dict) and races:
         names = dict(JO)
         for r in tt.get("レース") or []:
             c = str(r.get("場コード") or "")
             if c and r.get("場名"):
                 names[c] = r["場名"]
         files = sorted(f for f in glob.glob(os.path.join(RES, "2*.json")) if os.path.basename(f)[:8] < day)[-DAYS:]
-        S = tally(files) if files else {}
+        S, N = tally(files) if files else ({}, {})
+        prev = load(OUT) or {}
+        hist = [h for h in (prev.get("履歴") or []) if isinstance(h, list) and len(h) == 2 and str(h[0]) < day][-10:]
+        recent = {h[1] for h in hist if str(h[0]) >= day_minus(day, GAP)}
         cand = {}
         for key, v in races.items():
             if not isinstance(v, list) or len(v) < 4:
@@ -106,23 +123,34 @@ def main():
                 except (TypeError, ValueError):
                     continue
                 s = S.get((jj, t))
-                if not s or s[2] < MIN_N:
+                a = N.get(t)
+                if not s or s[2] < MIN_N or not a:
+                    continue
+                on, ok = a[0] - s[2], a[1] - s[3]
+                if on < MIN_O:
+                    continue
+                lift = wilson(s[3], s[2]) - ok / on
+                if lift < MIN_LIFT:
                     continue
                 nm = str(nms[i] if isinstance(nms, list) and i < len(nms) else "").replace("　", "").replace(" ", "")[:12]
                 row = {"登番": t, "氏名": nm, "場コード": jj, "場名": names.get(jj, jj), "分子": s[3], "分母": s[2],
                        "率": round(100.0 * s[3] / s[2], 1), "全体分子": s[1], "全体分母": s[0],
-                       "R": int(rn), "締切": str(tms or ""), "_w": wilson(s[3], s[2])}
+                       "他場分子": ok, "他場分母": on, "他場率": round(100.0 * ok / on, 1),
+                       "R": int(rn), "締切": str(tms or ""), "_w": lift}
                 old = cand.get((jj, t))
                 if not old or row["締切"] < old["締切"]:
                     cand[(jj, t)] = row  # 同じ日に2回乗るなら早いレースを出す
         rows = sorted(cand.values(), key=lambda x: (-x["_w"], -x["分子"], x["登番"]))
-        if len(rows) >= 2:
+        rows = [x for x in rows if x["登番"] not in recent] + [x for x in rows if x["登番"] in recent]
+        if rows and rows[0]["登番"] not in recent:
             for x in rows:
                 x.pop("_w", None)
             frm, to = os.path.basename(files[0])[:8], os.path.basename(files[-1])[:8]
             ak = sum(s[3] for s in S.values()); an = sum(s[2] for s in S.values())
             base = {"分子": ak, "分母": an, "率": round(100.0 * ak / an, 1) if an else None}
-            out["1本"] = {"種類": "senshu", "期間": [frm, to], "日数": len(files), "比べた人数": len(rows), "全選手": base, "選手": rows[:TOP]}
+            out["1本"] = {"種類": "senshu2", "期間": [frm, to], "日数": len(files), "比べた人数": len(rows), "全選手": base, "選手": rows[:TOP]}
+            hist = [h for h in hist if str(h[0]) != day] + [[day, rows[0]["登番"]]]
+        out["履歴"] = hist[-10:]
 
     body = json.dumps(out, ensure_ascii=False, separators=(",", ":"))
     try:
@@ -136,7 +164,7 @@ def main():
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:
         f.write(body)
     one = out["1本"]
-    print(f"書き出し: {OUT} {len(body.encode('utf-8'))}バイト 開催日={day} 比べた人数={one and one['比べた人数']}")
+    print(f"書き出し: {OUT} {len(body.encode('utf-8'))}バイト 開催日={day} 比べた人数={one and one['比べた人数']} 1番目={one and one['選手'][0]['登番']}")
     return 0
 
 

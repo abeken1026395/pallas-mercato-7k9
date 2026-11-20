@@ -215,6 +215,7 @@ a.an::after{content:"";}
 .ip-v b{font-size:20px;font-weight:800;color:var(--tx)}
 .ip-v .zn{display:inline-block;white-space:nowrap;margin-left:.6em}
 .ip-d{border-top:1px solid var(--line)}
+.ip-d[hidden]{display:none}
 .ip-d summary{min-height:44px;display:flex;align-items:center;padding:0 14px;font-size:14px;font-weight:700;color:var(--blue);cursor:pointer;list-style:none}
 .ip-d summary::-webkit-details-marker{display:none}
 .ip-d summary::after{content:"+";margin-left:auto;color:var(--dim);font-size:16px}
@@ -494,7 +495,7 @@ window.dzFold=function(rows,key){
   <div class="fol-box" id="folRows"></div>
 </section>
 <section class="ip" id="ipS" hidden aria-labelledby="ipH">
-  <h2 class="sh" id="ipH" style="margin-top:18px">今日の1本<span>今日の出走選手を当地の1年で</span></h2>
+  <h2 class="sh" id="ipH" style="margin-top:18px">今日の1本<span>当地が得意な選手</span></h2>
   <div class="ip-box">
     <p class="ip-t" id="ipT"></p>
     <p class="ip-v" id="ipV"></p>
@@ -1005,41 +1006,45 @@ function lineBoxes(){
 })();
 </script>
 <script>
-/* 今日の1本（選手版・2026-11-19 けん「A」）：docs/data/kyouIppon.json（scripts/buildKyouIppon.py が作る）。
-   今日の出走選手を、当地の直近365日の2コースから6コースの1着の割合で並べる（20走以上・回数の少ない率は割り引いて並べる）。予想ではなく分母つきの事実。読めない・中身が無いときは出さない */
+/* 今日の1本（選手版・当地の上乗せ・2026-11-20 けん「A」）：docs/data/kyouIppon.json（scripts/buildKyouIppon.py が作る）。
+   今日の出走選手で、2コースから6コースの1着の割合が、本人のほかの場より当地で確かに高い選手（割り引いた当地の率がほかの場を0.5ポイント以上上回る）。
+   予想ではなく分母つきの事実。読めない・中身が無いときは出さない */
 (function(){
   function nf(x){return Number(x).toLocaleString("ja-JP");}
   function dt(s){s=String(s||"");return s.length===8?s.slice(0,4)+"/"+(+s.slice(4,6))+"/"+(+s.slice(6)):"";}
   function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;}
-  function ok(x){return x&&typeof x["率"]==="number"&&isFinite(x["率"])&&+x["分母"]>0&&/^(0[1-9]|1\d|2[0-4])$/.test(String(x["場コード"]))&&+x["R"]>=1&&+x["R"]<=12;}
+  function num(v){return typeof v==="number"&&isFinite(v);}
+  function ok(x){return x&&num(x["率"])&&num(x["他場率"])&&+x["分母"]>0&&+x["他場分母"]>0&&/^(0[1-9]|1\d|2[0-4])$/.test(String(x["場コード"]))&&+x["R"]>=1&&+x["R"]<=12;}
   fetch("./data/kyouIppon.json?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():Promise.reject();}).then(function(d){
     var o=d&&d["1本"],td=new Date(Date.now()+9*3600e3).toISOString().slice(0,10).replace(/-/g,"");
-    if(!o||o["種類"]!=="senshu"||String(d["開催日"])!==td||!Array.isArray(o["選手"]))return;
+    if(!o||o["種類"]!=="senshu2"||String(d["開催日"])!==td||!Array.isArray(o["選手"]))return;
     var rows=o["選手"].filter(ok);
     if(!rows.length)return;
-    var top=rows[0],z=o["全選手"]||{};
+    var top=rows[0];
     function href(x){return "./racers/#v"+x["場コード"]+"r"+(+x["R"])+"d"+td;}
-    function who(x){return String(x["氏名"]||"")+"（"+String(x["場名"]||"")+"）";}
     var T=document.getElementById("ipT");T.textContent="";
-    T.appendChild(document.createTextNode("今日の出走で、当地の2コースから6コースでよく勝っているのは "));
-    T.appendChild(el("span","ip-nm",who(top)));
+    T.appendChild(document.createTextNode("今日の出走で、ほかの場より当地でよく勝っているのは "));
+    T.appendChild(el("span","ip-nm",String(top["氏名"]||"")+"（"+String(top["場名"]||"")+"）"));
     var v=document.getElementById("ipV");v.textContent="";
+    v.appendChild(document.createTextNode("当地 "));
     v.appendChild(el("b",null,top["率"].toFixed(1)+"%"));
     v.appendChild(document.createTextNode("（1着 "+nf(top["分子"])+"/"+nf(top["分母"])+"走）"));
-    if(typeof z["率"]==="number")v.appendChild(el("span","zn","全選手 "+z["率"].toFixed(1)+"%"));
+    v.appendChild(el("span","zn","ほかの場 "+top["他場率"].toFixed(1)+"%（"+nf(top["他場分子"])+"/"+nf(top["他場分母"])+"走）"));
     var g=el("a","ip-go");g.href=href(top);g.textContent="今日は "+(+top["R"])+"R・"+String(top["締切"]||"")+"締切の出走表へ";
     v.appendChild(document.createElement("br"));v.appendChild(g);
     var box=document.getElementById("ipR");box.textContent="";
-    rows.slice(0,5).forEach(function(x){
+    var more=rows.slice(1,5);
+    more.forEach(function(x){
       var r=el("a","ip-r");r.href=href(x);
       r.appendChild(el("span","n",String(x["氏名"]||"")));
       r.appendChild(el("span","j",String(x["場名"]||"")+" "+(+x["R"])+"R"));
-      var s=el("span","v");s.appendChild(el("b",null,x["率"].toFixed(1)+"%"));s.appendChild(document.createTextNode(" "+nf(x["分子"])+"/"+nf(x["分母"])));r.appendChild(s);
+      var s=el("span","v");s.appendChild(el("b",null,x["率"].toFixed(1)+"%"));s.appendChild(document.createTextNode(" ほか "+x["他場率"].toFixed(1)+"%"));r.appendChild(s);
       box.appendChild(r);
     });
-    document.getElementById("ipSum").textContent="ほかの選手も見る（上位"+Math.min(5,rows.length)+"人）";
+    var det=document.querySelector("#ipS .ip-d");if(det)det.hidden=!more.length;
+    document.getElementById("ipSum").textContent="ほかの選手も見る（"+more.length+"人）";
     var p=o["期間"]||[];
-    document.getElementById("ipF").textContent="当地の直近"+nf(o["日数"]||0)+"日（"+dt(p[0])+"から"+dt(p[1])+"）の競走結果。1コースの1着は数えていません。当地で2コースから6コースを20走以上した"+nf(o["比べた人数"]||rows.length)+"人を、走った回数の少ない率を割り引いて並べています。予想ではありません。";
+    document.getElementById("ipF").textContent="直近"+nf(o["日数"]||0)+"日（"+dt(p[0])+"から"+dt(p[1])+"）の競走結果で、2コースから6コースの1着の割合を、当地とほかの場で比べています。1コースの1着は数えていません。当地20走以上・ほかの場50走以上で、走った回数の少ない率は割り引いて比べています。3日以内に1番目で出た選手は外します。予想ではありません。";
     document.getElementById("ipS").hidden=false;
   }).catch(function(){});
 })();
