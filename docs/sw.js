@@ -66,10 +66,14 @@ self.addEventListener("push", function (e) {
 
 self.addEventListener("notificationclick", function (e) {
   e.notification.close();
-  var u = new URL((e.notification.data && e.notification.data.u) || "/", self.location.origin).href;
+  // 測るもの（2026-11-20）：通知の種類をアドレスに ?dzo= で付け、開いたページで1回だけ数える（tsuchi.js）
+  var g = String(e.notification.tag || ""), kz = /^dz-day-/.test(g) ? "oSum" : /^dz-r-/.test(g) ? "oRes" : /^dz-\d/.test(g) ? "o10" : "";
+  var url = new URL((e.notification.data && e.notification.data.u) || "/", self.location.origin);
+  if (kz) url.searchParams.set("dzo", kz);
+  var u = url.href, base = url.origin + url.pathname;
   e.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(function (cs) {
     for (var i = 0; i < cs.length; i++) {
-      if (cs[i].url.split("#")[0] === u.split("#")[0] && "focus" in cs[i]) { if ("navigate" in cs[i]) cs[i].navigate(u); return cs[i].focus(); }
+      if (cs[i].url.split("#")[0].split("?")[0] === base && "focus" in cs[i]) { if ("navigate" in cs[i]) cs[i].navigate(u); return cs[i].focus(); }
     }
     return self.clients.openWindow ? self.clients.openWindow(u) : null;
   }));

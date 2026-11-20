@@ -85,6 +85,52 @@
     return fetch("/api/push", { method: "POST", headers: { "content-type": "text/plain" }, body: JSON.stringify(body), cache: "no-store", credentials: "omit" })
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok || !j.ok) throw new Error("push " + r.status); return j; }); });
   }
+  /* 測るもの（再訪設計 5章・2026-11-20 けん）：種類の名前だけを /api/kazu に送り、日付と種類ごとの回数だけを数える。
+     端末を特定できる情報・買い目・金額は送らない。失敗しても何もしない */
+  var KZ = { save: 1, o10: 1, oRes: 1, oSum: 1, off: 1, note: 1 };
+  function kazu(k) {
+    if (!KZ[k] || !/^https?:$/.test(location.protocol)) return;
+    var body = JSON.stringify({ k: k });
+    try {
+      if (navigator.sendBeacon && navigator.sendBeacon("/api/kazu", new Blob([body], { type: "text/plain" }))) return;
+    } catch (e) {}
+    try { fetch("/api/kazu", { method: "POST", body: body, keepalive: true, credentials: "same-origin" }).catch(function () {}); } catch (e) {}
+  }
+  function betCount(raw) {
+    try { var B = JSON.parse(raw || "{}"), n = 0; if (!B || typeof B !== "object") return 0; Object.keys(B).forEach(function (k) { var e = B[k]; if (e && Array.isArray(e.b)) n += e.b.length; }); return n; } catch (e) { return -1; }
+  }
+  // 買い目の保存：dz_bets の買い目の数が増えた書き込みを1回と数える（出走表と自分の記録のどちらの保存も拾う）
+  try {
+    var SP = Storage.prototype, orig = SP.setItem;
+    if (!SP.__dzKazu) {
+      SP.__dzKazu = 1;
+      SP.setItem = function (key, val) {
+        var before = -1;
+        if (this === window.localStorage && key === "dz_bets") { try { before = Math.max(0, betCount(this.getItem("dz_bets"))); } catch (e) { before = 0; } }
+        var r = orig.apply(this, arguments);
+        if (before >= 0) { var after = betCount(String(val)); if (after > before) kazu("save"); }
+        return r;
+      };
+    }
+  } catch (e) {}
+  // 通知から開いたとき（送り役の通知を押すと ?dzo=種類 が付く）：1回数えて、アドレスから外す
+  try {
+    var qm = /[?&]dzo=(o10|oRes|oSum)(?:&|$)/.exec(location.search);
+    if (qm) {
+      kazu(qm[1]);
+      var q = location.search.replace(/([?&])dzo=[^&]*(&|$)/, function (m, a, b) { return b ? a : ""; }).replace(/[?&]$/, "");
+      history.replaceState(history.state, "", location.pathname + q + location.hash);
+    }
+  } catch (e) {}
+  // note へのリンクを押したとき
+  try {
+    document.addEventListener("click", function (ev) {
+      var a = ev.target && ev.target.closest ? ev.target.closest("a[href]") : null;
+      if (!a) return;
+      try { if (/(^|\.)note\.com$/.test(new URL(a.href, location.href).hostname)) kazu("note"); } catch (e) {}
+    }, true);
+  } catch (e) {}
+
   var T = {
     // no（このブラウザでは使えない）／home（iPhone でホーム画面に追加が要る）／denied（通知を断っている）／off／on
     state: function () {
@@ -106,6 +152,7 @@
       });
     },
     off: function () {
+      if (get("dz_push").on) kazu("off");
       del("dz_push"); del("dz_pushSync");
       if (!can()) return Promise.resolve();
       return navigator.serviceWorker.getRegistration("/").then(function (r) {
