@@ -72,9 +72,9 @@ function draw(R){
 }
 
 /* 称号カード（1080×1350）。名乗りと同じ作り：黒の札・白い左の帯・赤い名前に白い縁・下の赤い斜めの帯
-   T={title,tags:[],big,bigUnit,desc,cmp,rows:[[項目,あなた,あなたの分母,結果,結果の分母]],range}
+   T={title,tags:[],big,bigUnit,desc,cmp,rows:[[項目,あなた,あなたの分母,結果,結果の分母]],range,rule,basis}
+   rule（基準の1文）と basis（判定に使ったレース）は note/index.html の ruleOf・basisOf が作る（2026-11-21）
    大きく出した数字は表に入れない（同じ数字を2回出さない） */
-const SH_RULE={"本命派":"1着に選んだ艇の平均人気が2.0番人気以内","穴党":"1着に選んだ艇の平均人気が3.5番人気以上","中穴派":"1着に選んだ艇の平均人気が2.0番人気より外、3.5番人気より内","イン信者":"1着に1号艇を選んだ割合が70%以上","場読み":"1つの場が半分以上（10レース以上）"};
 function drawShogo(T){
   const pal=scPal(true),INK=pal.INK,SUB=pal.SUB,LN=pal.LN;
   const cv=document.createElement("canvas");cv.width=1080;cv.height=1350;const c=cv.getContext("2d");
@@ -98,17 +98,19 @@ function drawShogo(T){
   scFitTxt0(c,T.desc,40,sy+30,28,INK,1000);
   if(T.cmp)scFitTxt0(c,T.cmp,40,sy+76,26,SUB,1000);
   y=sy+140;scLine(c,40,y,1040,y,LN);
-  scTxt(c,"あなた",700,y+20,22,SUB,"ra");scTxt(c,"同じレースの結果",1040,y+20,22,SUB,"ra");y+=60;
+  if(T.rows.length){scTxt(c,"あなた",700,y+20,22,SUB,"ra");scTxt(c,"同じレースの結果",1040,y+20,22,SUB,"ra");y+=60;}else y+=20;
   T.rows.forEach(r=>{scTxt(c,r[0],40,y+18,30,INK);
     scKg(c,r[1],700,y,64,INK,{anchor:"ra"});scTxt(c,r[2],700,y+76,20,SUB,"ra");
     scKg(c,r[3],1040,y,64,SUB,{anchor:"ra"});scTxt(c,r[4],1040,y+76,20,SUB,"ra");
     y+=120;scLine(c,40,y-10,1040,y-10,"rgba(255,255,255,.094)");});
-  y+=10;scFitTxt0(c,"「"+T.title+"」は、"+SH_RULE[T.title]+"の人に付く称号です。",40,y,24,SUB,1000);
-  scTxt(c,"着順のある買い目（単勝・2連単・3連単）を残したレースで判定。人気は締切前の単勝オッズの順位。",40,y+38,20,SUB);
+  y+=10;if(T.rule)y=scWrap(c,"「"+T.title+"」は、"+T.rule+"の人に付く称号です。",40,y,24,SUB,1000,36);
+  if(T.basis)scWrap(c,T.basis,40,y+4,20,SUB,1000,30);
   scTxt(c,"本人がこの端末に残した記録から作成。",40,1262,22,SUB);
   scTxt(c,"データ攻め",1040,1296,26,INK,"ra");
   return cv;
 }
+/* 幅 max で折り返して書く。返すのは次の行の y */
+function scWrap(c,s,x,y,px,fill,max,lh){let line="";for(const ch of s){if(line&&scTw(c,line+ch,px)>max){scTxt(c,line,x,y,px,fill);y+=lh;line=ch;}else line+=ch;}if(line){scTxt(c,line,x,y,px,fill);y+=lh;}return y;}
 function scFitTxt0(c,s,x,y,px,fill,max){let z=px;while(z>14&&scTw(c,s,z)>max)z-=1;scTxt(c,s,x,y,z,fill);}
 let KP=null;
 function loadK(url){ if(!KP) KP=fetch(url).then(r=>{if(!r.ok)throw 0;return r.json();}).then(k=>{K=k;return k;}).catch(e=>{KP=null;throw e;}); return KP; }

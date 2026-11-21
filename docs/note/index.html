@@ -575,14 +575,18 @@ $("b-list").addEventListener("click",function(e){var b=e.target.closest("button"
 var ORD={tn:1,"2t":1,"3t":1}, ALLD={}, NKDAY={};
 function firsts(en){var f={};en.b.forEach(function(b){if(ORD[b.t])b.k.forEach(function(k){f[k.charAt(0)]=1})});return Object.keys(f)}
 function stats(rows){
-  var S={n:0,nOrd:0,s1:0,nRank:0,rk:0,nF:0,w1:0,nWR:0,wr:0,ven:{},hit:0,judged:0,buy:0,pay:0,nA:0,vA:{},last:""};
+  var S={n:0,nOrd:0,s1:0,nRank:0,rk:0,nF:0,w1:0,nWR:0,wr:0,ven:{},venAll:{},pts:[],tpt:{},ptAll:0,nD:0,night:0,nSk:0,skG:0,nHA:0,hx:0,hit:0,judged:0,buy:0,pay:0,nA:0,vA:{},last:""};
   rows.forEach(function(x){
+    if(x.skip){var sj=window.DZK&&DZK.skipJudge?DZK.skipJudge(RES[x.k]||null):null;if(sj&&(sj.state==="good"||sj.state==="plain")){S.nSk++;if(sj.state==="good")S.skG++}}
     if(!x.en.b.length)return;
-    S.n++;
+    S.n++;S.venAll[x.j]=(S.venAll[x.j]||0)+1;
+    var npt=0;x.en.b.forEach(function(b){npt+=b.k.length;S.tpt[b.t]=(S.tpt[b.t]||0)+b.k.length});S.pts.push(npt);S.ptAll+=npt;
+    if(/^\d{1,2}:\d{2}$/.test(x.d||"")){S.nD++;if(+x.d.split(":")[0]>=17)S.night++}
     var j=window.DZK?DZK.judge(x.en,RES[x.k]||null):{state:"pending",a:x.en.a,p:x.en.p};
     if(j.state==="hit"||j.state==="miss"){S.judged++;if(j.state==="hit")S.hit++}
     var pp=j.p!=null?j.p:(j.state==="miss"?0:null);
-    if(j.a!=null&&pp!=null&&j.state!=="pending"){S.nA++;S.buy+=j.a;S.pay+=pp;var v=S.vA[x.j]||(S.vA[x.j]={n:0,b:0,p:0});v.n++;v.b+=j.a;v.p+=pp}
+    if(j.a!=null&&pp!=null&&j.state!=="pending"){S.nA++;S.buy+=j.a;S.pay+=pp;var v=S.vA[x.j]||(S.vA[x.j]={n:0,b:0,p:0});v.n++;v.b+=j.a;v.p+=pp;
+      if(j.state==="hit"&&j.a>0){S.nHA++;S.hx+=pp/j.a}}
     var fs=firsts(x.en);if(!fs.length)return;
     S.nOrd++;S.ven[x.j]=(S.ven[x.j]||0)+1;
     S.s1+=fs.filter(function(d){return d==="1"}).length/fs.length;
@@ -592,43 +596,80 @@ function stats(rows){
     if(w){S.nF++;if(w===1)S.w1++;if(o&&+o.charAt(w-1)>0){S.nWR++;S.wr+=+o.charAt(w-1)}}
   });
   S.share1=S.nOrd?S.s1/S.nOrd:null;S.rank=S.nRank?S.rk/S.nRank:null;S.wRank=S.nWR?S.wr/S.nWR:null;
-  var tv="",tc=0;Object.keys(S.ven).forEach(function(k){if(S.ven[k]>tc){tc=S.ven[k];tv=k}});S.topV=tv;S.topC=tc;
+  var tv="",tc=0;Object.keys(S.venAll).forEach(function(k){if(S.venAll[k]>tc){tc=S.venAll[k];tv=k}});S.topV=tv;S.topC=tc;
   S.roi=S.buy?Math.round(S.pay/S.buy*100):null;
-  /* 称号：本命派・中穴派・穴党は人気の分かる20レースから（中穴派は 2026-11-12 けん裁定A：平均人気が2.0と3.5の間）、イン信者・場読みは着順のある20レースから */
+  var ps=S.pts.slice().sort(function(a,b){return a-b});S.ptMed=ps.length?ps[Math.floor((ps.length-1)/2)]:null;
+  S.hitRate=S.judged?S.hit/S.judged:null;S.hitX=S.nHA?S.hx/S.nHA:null;
+  /* 称号（2026-11-21 けん「全部推奨」で作り直し。数字は TH）。
+     人気：同じレースで実際に1着になった艇の平均人気との差（6艇の人気は1号艇に偏るため固定値をやめた）。
+     イン信者が付くときは、人気の称号（本命派・中穴派・穴党）を付けない（1号艇の平均人気は1.32で、人気の差は1号艇を選んだ割合でほぼ決まるため）。
+     ○○通い：記録したレースの半分以上が1つの場。点数：1レースの点数の中央値。結果の札は50レースから。
+     札の並びは 通い→点数→結果→見送り→券種→時間帯（画面に出す札は TAGMAX まで） */
   var T=[];
-  if(S.nRank>=20){if(S.rank<=2.0)T.push("本命派");else if(S.rank>=3.5)T.push("穴党");else T.push("中穴派")}
-  if(S.nOrd>=20&&S.share1>=0.7)T.push("イン信者");
-  if(S.nOrd>=20&&tc>=10&&tc/S.nOrd>=0.5)T.push("場読み");
+  if(S.nRank>=TH.n&&S.nWR>=TH.n){var dl=S.rank-S.wRank;if(dl<=-TH.hon)T.push("本命派");else if(dl>=TH.ana)T.push("穴党");else T.push("中穴派")}
+  if(S.nOrd>=TH.n&&S.share1>=TH.in1){T=T.filter(function(t){return !isNinki(t)});T.unshift("イン信者")}
+  if(S.n>=TH.n&&tc>=TH.venN&&tc/S.n>=TH.venR)T.push((V[+tv]||"")+"通い");
+  if(S.n>=TH.n&&S.ptMed!=null){if(S.ptMed<=TH.shibo)T.push("絞り派");else if(S.ptMed>=TH.hiro)T.push("手広く派")}
+  if(S.judged>=TH.res){if(S.hitRate>=TH.kotsu)T.push("コツコツ型");else if(S.hitRate<=TH.ige&&S.nHA>=3&&S.hitX>=TH.igeX)T.push("一撃型")}
+  if(S.nSk>=TH.n&&S.skG/S.nSk>=TH.manshu+TH.mi)T.push("見送り上手");
+  var tt="",tn=0;Object.keys(S.tpt).forEach(function(k){if(S.tpt[k]>tn){tn=S.tpt[k];tt=k}});S.topT=tt;S.topTn=tn;
+  if(S.n>=TH.n&&S.ptAll&&tn/S.ptAll>=TH.ken&&KENSHU[tt])T.push(KENSHU[tt]);
+  if(S.nD>=TH.n){if(S.night/S.nD>=TH.jikan)T.push("ナイター派");else if((S.nD-S.night)/S.nD>=TH.jikan)T.push("デイ派")}
   S.titles=T;
   return S;
 }
+var TH={n:20,hon:0.3,ana:1.0,in1:0.7,venN:10,venR:0.5,shibo:4,hiro:15,res:50,kotsu:0.4,ige:0.15,igeX:10,ken:0.8,jikan:0.7,manshu:0.163,mi:0.1};
+/* 券種の称号（2026-11-21 けん「AA」）：記録した点数の80%以上が1つの券種。万舟率 16.3% は 2026/1/1 から 11/21 の全49,896レースで3連単が1万円以上だった割合（results・実測） */
+var KENSHU={"3t":"3連単一本","3f":"3連複派","2t":"2連単派","2f":"2連複派","kk":"拡連複派","tn":"単勝派","fk":"複勝派"};
+var TAGMAX=3;
+function isNinki(t){return t==="本命派"||t==="穴党"||t==="中穴派"}
+function isKayoi(t){return /通い$/.test(t)}
+/* 称号の基準の1文（画面と称号カードで同じ文を使う） */
+function ruleOf(t){
+  if(t==="本命派")return "1着に選んだ艇の平均人気が、同じレースで実際に1着になった艇の平均より"+TH.hon+"以上内側";
+  if(t==="穴党")return "1着に選んだ艇の平均人気が、同じレースで実際に1着になった艇の平均より"+TH.ana.toFixed(1)+"以上外側";
+  if(t==="中穴派")return "1着に選んだ艇の平均人気が、同じレースで実際に1着になった艇の平均と比べて、内側"+TH.hon+"から外側"+TH.ana.toFixed(1)+"の間";
+  if(t==="イン信者")return "1着に1号艇を選んだ割合が"+Math.round(TH.in1*100)+"%以上";
+  if(isKayoi(t))return "記録したレースの半分以上（"+TH.venN+"レース以上）が1つの場";
+  if(t==="絞り派")return "1レースの点数の中央値が"+TH.shibo+"点以下";
+  if(t==="手広く派")return "1レースの点数の中央値が"+TH.hiro+"点以上";
+  if(/一本$/.test(t)||(/派$/.test(t)&&/連|勝/.test(t)))return "記録した買い目の点数の"+Math.round(TH.ken*100)+"%以上が1つの券種";
+  if(t==="ナイター派")return "締切が17時以降のレースが、記録したレースの"+Math.round(TH.jikan*100)+"%以上";
+  if(t==="デイ派")return "締切が17時より前のレースが、記録したレースの"+Math.round(TH.jikan*100)+"%以上";
+  if(t==="見送り上手")return "見送った"+TH.n+"レース以上で、3連単が1万円以上になった割合が、全レースの平均（"+(TH.manshu*100).toFixed(1)+"%）より"+Math.round(TH.mi*100)+"ポイント以上高い";
+  if(t==="コツコツ型")return "結果の出た"+TH.res+"レース以上で、的中率が"+Math.round(TH.kotsu*100)+"%以上";
+  if(t==="一撃型")return "結果の出た"+TH.res+"レース以上で、的中率が"+Math.round(TH.ige*100)+"%以下、当たったレースの払戻が平均で購入額の"+TH.igeX+"倍以上";
+  return "";
+}
+/* 判定に使ったレースの説明（称号カードの下の行） */
+function basisOf(t){
+  if(isNinki(t)||t==="イン信者")return "着順のある買い目（単勝・2連単・3連単）を残したレースで判定。人気は締切前の単勝オッズの順位。";
+  if(t==="コツコツ型"||t==="一撃型")return "結果の出たレースで判定。払戻は金額の分かるレースだけ。";
+  if(t==="見送り上手")return "見送りを記録したレースのうち、結果の出たレースで判定。";
+  return "買い目を記録したレースで判定（券種を問わない）。";
+}
 function pct(x){return Math.round(x*100)+"%"}
 /* 直近20レースのふり返り（2026-11-14 けん：20レースたまってマイナスのとき、軽いアドバイス。本人の記録の気づき1行＋決まった一言）。
-   結果と金額のそろったレースを新しい順に20まで。払戻が購入を下回るときだけ出す。気づきは、5レース以上の組どうしで回収率が30ポイント以上ちがうものから、差のいちばん大きい1つ */
+   2026-11-21 けん「全部推奨」：組どうしの回収率の差で比べるのをやめた（5レースずつでは1回の的中で決まり、点数や場に差が無くても負け越した人の8割に出る＝試算）。
+   気づきは算数で出す：トリガミが的中の半分以上ならその件数、的中があれば「元を取るのに要る1回あたりの払戻」と実際の平均、的中が無ければ1レースの平均購入額。「回収率」の語は使わない */
 var ADV_N=20;
 function advice(all){
   var rs=[];
   all.forEach(function(x){if(rs.length>=ADV_N||!x.en.b.length)return;
     var j=window.DZK?DZK.judge(x.en,RES[x.k]||null):null;if(!j||(j.state!=="hit"&&j.state!=="miss"))return;
     var pp=j.p!=null?j.p:(j.state==="miss"?0:null);if(j.a==null||!(j.a>0)||pp==null)return;
-    var tp={};x.en.b.forEach(function(b){tp[b.t]=(tp[b.t]||0)+b.k.length});var mt="",mc=-1;Object.keys(tp).forEach(function(t){if(tp[t]>mc){mc=tp[t];mt=t}});
-    rs.push({a:j.a,p:pp,pts:j.pts,t:mt,j:x.j})});
+    rs.push({a:j.a,p:pp,hit:j.state==="hit"})});
   if(rs.length<ADV_N)return "";
-  var A=0,P=0;rs.forEach(function(r){A+=r.a;P+=r.p});if(P>=A)return "";
-  var roi=function(g){var a=0,p=0;g.forEach(function(r){a+=r.a;p+=r.p});return a?Math.round(p/a*100):0};
-  var best=null;
-  function cmp(name,lab,gs){var ks=Object.keys(gs).filter(function(k){return gs[k].length>=5});if(ks.length<2)return;
-    var v=ks.map(function(k){return {k:k,n:gs[k].length,r:roi(gs[k])}}).sort(function(a,b){return b.r-a.r});var hi=v[0],lo=v[v.length-1];
-    if(hi.r-lo.r>=30&&(!best||hi.r-lo.r>best.d))best={d:hi.r-lo.r,txt:name+"："+lab(hi.k)+"は回収率"+hi.r+"%（"+hi.n+"レース）、"+lab(lo.k)+"は"+lo.r+"%（"+lo.n+"レース）"}}
-  var ps=rs.map(function(r){return r.pts}).sort(function(a,b){return a-b}),md=ps[Math.floor(ps.length/2)];
-  if(md>1){var g={};rs.forEach(function(r){var k=r.pts>=md?"hi":"lo";(g[k]=g[k]||[]).push(r)});cmp("点数",function(k){return k==="hi"?md+"点以上のレース":md+"点未満のレース"},g)}
-  var gt={};rs.forEach(function(r){(gt[r.t]=gt[r.t]||[]).push(r)});cmp("券種",function(k){return (DZK.T[k]||k)+"が中心のレース"},gt);
-  var gv={};rs.forEach(function(r){(gv[r.j]=gv[r.j]||[]).push(r)});cmp("場",function(k){return V[+k]||k},gv);
+  var A=0,P=0,h=0,tg=0;rs.forEach(function(r){A+=r.a;P+=r.p;if(r.hit){h++;if(r.p<r.a)tg++}});if(P>=A)return "";
+  var y=function(n){return Math.round(n).toLocaleString()+"円"},txt;
+  if(tg>0&&tg*2>=h)txt="的中"+h+"回のうち"+tg+"回はトリガミ（払戻が購入額より少ない）でした";
+  else if(h>0)txt="元を取るには、的中1回あたり平均"+y(Math.ceil(A/h))+"の払戻が要るところ（購入"+y(A)+"÷的中"+h+"回）、実際は平均"+y(P/h)+"でした";
+  else txt=ADV_N+"レースで的中はありませんでした。1レースの購入は平均"+y(A/ADV_N)+"です";
   return '<div class="adv"><h3>直近'+ADV_N+'レースのふり返り</h3>'
-    +'<p>購入 '+A.toLocaleString()+'円・払戻 '+P.toLocaleString()+'円（回収率 '+Math.round(P/A*100)+'%）。</p>'
-    +(best?'<p>'+esc(best.txt)+'。</p>':'')
+    +'<p>購入 '+y(A)+'・払戻 '+y(P)+'。</p>'
+    +'<p>'+esc(txt)+'。</p>'
     +'<p>1レースの点数と、1日の予算を見直してみる時期かもしれません。</p>'
-    +'<p class="note">結果と金額のそろったレースだけで数えています。20レースは結果のぶれが大きく、傾向は決めつけられません。</p></div>';
+    +'<p class="note">結果と金額のそろった直近'+ADV_N+'レースだけで数えています。'+ADV_N+'レースは結果のぶれが大きく、傾向は決めつけられません。</p></div>';
 }
 function drawKeikou(){
   var all=betRows();ALLD={};
@@ -638,22 +679,25 @@ function drawKeikou(){
   if(window.DZK&&DZK.ninki){var ds={};all.forEach(function(x){if(x.hd<td&&!NKDAY[x.hd]&&firsts(x.en).length){var e=DZK.kkGet(x.k);if(!(e&&e.o))ds[x.hd]=1}});
     Object.keys(ds).sort().reduce(function(p,hd){NKDAY[hd]=1;return p.then(function(){return DZK.ninki(hd)}).then(function(ch){if(ch)ALLD.ch=1})},Promise.resolve()).then(function(){if(ALLD.ch){ALLD.ch=0;drawKeikou()}});}
   var S=stats(all);KS={S:S,rows:all};
-  if(!S.nOrd){$("kk-body").innerHTML='<div class="empty">単勝・2連単・3連単の買い目を保存すると、1着に選んだ艇の傾向がここに出ます。</div>'+advice(all)}
+  if(!S.nOrd&&!S.titles.length){$("kk-body").innerHTML='<div class="empty">単勝・2連単・3連単の買い目を保存すると、1着に選んだ艇の傾向がここに出ます。</div>'+advice(all)}
   else{
-    var tg=[],main=S.titles[0]||"";
-    S.titles.slice(1).forEach(function(t){tg.push(t==="場読み"?"場読み："+esc(V[+S.topV]||"")+" "+S.topC+"/"+S.nOrd:esc(t))});
-    if(main==="場読み"){main="場読み";}
-    $("kk-body").innerHTML=(main?'<div class="shogo"><b>'+esc(main)+"</b><span>"+(main==="本命派"||main==="穴党"||main==="中穴派"?"下の表の「1着の平均人気」で判定（2.0以内は本命派、3.5以上は穴党、その間は中穴派）":main==="イン信者"?"下の表の「1着に1号艇」で判定（70%以上）":esc(V[+S.topV]||"")+" "+S.topC+"/"+S.nOrd+"レース")+"</span></div>"
-        :'<p class="note" style="margin-top:4px">'+(S.nOrd<20?"称号は着順のある買い目が20レースになると出ます（今 "+S.nOrd+" レース）。":"どの称号の基準にも届いていません。")+"</p>")
-      +(tg.length?'<div class="tags">'+tg.map(function(t){return "<span>"+t+"</span>"}).join("")+"</div>":"")
-      +'<table class="kk"><caption>着順のある買い目（単勝・2連単・3連単）を残したレースだけ</caption>'
+    var main=S.titles[0]||"";
+    /* 表に出る数字（1着に1号艇・1着の平均人気）は札に書かない。表に無い数字だけ札に添える */
+    var tagOf=function(t){return KENSHU[S.topT]===t?t+" "+Math.round(S.topTn/S.ptAll*100)+"%":t==="ナイター派"?t+" "+S.night+"/"+S.nD:t==="デイ派"?t+" "+(S.nD-S.night)+"/"+S.nD:t==="見送り上手"?t+" 万舟"+S.skG+"/"+S.nSk:isKayoi(t)?t+" "+S.topC+"/"+S.n:(t==="絞り派"||t==="手広く派")?t+" 中央値"+S.ptMed+"点":(t==="コツコツ型"||t==="一撃型")?t+" 的中"+S.hit+"/"+S.judged:t};
+    var lineOf=function(t){return isNinki(t)?"下の表の「1着の平均人気」を、同じレースで実際に1着になった艇と比べて判定（"+TH.hon+"以上内側で本命派、"+TH.ana.toFixed(1)+"以上外側で穴党）"
+      :t==="イン信者"?"下の表の「1着に1号艇」で判定（"+Math.round(TH.in1*100)+"%以上）":isKayoi(t)?"記録した"+S.n+"レースのうち"+S.topC+"レース"
+      :(t==="絞り派"||t==="手広く派")?"1レースの点数の中央値 "+S.ptMed+"点（"+S.n+"レース）":KENSHU[S.topT]===t?"記録した"+S.ptAll+"点のうち"+S.topTn+"点":t==="ナイター派"?"締切17時以降 "+S.night+"/"+S.nD+"レース":t==="デイ派"?"締切17時より前 "+(S.nD-S.night)+"/"+S.nD+"レース":t==="見送り上手"?"見送った"+S.nSk+"レースのうち、3連単1万円以上 "+S.skG+"レース（全レースの平均 "+(TH.manshu*100).toFixed(1)+"%）":"的中 "+S.hit+"/"+S.judged+"レース"};
+    $("kk-body").innerHTML=(main?'<div class="shogo"><b>'+esc(main)+"</b><span>"+esc(lineOf(main))+"</span></div>"
+        :'<p class="note" style="margin-top:4px">'+(S.nOrd<TH.n&&S.n<TH.n?"称号は買い目が"+TH.n+"レースになると出ます（今 "+S.n+" レース）。":"どの称号の基準にも届いていません。")+"</p>")
+      +(S.titles.length>1?'<div class="tags">'+S.titles.slice(1,1+TAGMAX).map(function(t){return "<span>"+esc(tagOf(t))+"</span>"}).join("")+"</div>":"")
+      +(S.nOrd?'<table class="kk"><caption>着順のある買い目（単勝・2連単・3連単）を残したレースだけ</caption>'
       +'<thead><tr><th scope="col">項目</th><th scope="col">あなた</th><th scope="col">同じレースの結果</th></tr></thead><tbody>'
       +'<tr><th scope="row">1着に1号艇</th><td>'+pct(S.share1)+"<small>"+S.nOrd+"レース</small></td><td>"+(S.nF?pct(S.w1/S.nF)+"<small>"+S.w1+"/"+S.nF+"</small>":"—")+"</td></tr>"
       +'<tr><th scope="row">1着の平均人気</th><td>'+(S.rank!=null?S.rank.toFixed(1)+"<small>"+S.nRank+"レース</small>":"—")+"</td><td>"+(S.wRank!=null?S.wRank.toFixed(1)+"<small>"+S.nWR+"レース</small>":"—")+"</td></tr>"
       +"</tbody></table>"
-      +'<p class="note">1着に1号艇は、1着に選んだ艇のうち1号艇の割合をレースごとに出して平均したものです。平均人気は、締切前の単勝オッズで何番人気だったかの平均です。人気は'+(S.last?(+S.last.slice(4,6))+"/"+(+S.last.slice(6,8))+"分まで入っています（翌日の昼過ぎに更新）":"翌日の昼過ぎに入ります")+"。</p>"+(S.titles.length?'<button class="btn" type="button" id="sh-open">称号カードを作る</button>':"");
+      +'<p class="note">1着に1号艇は、1着に選んだ艇のうち1号艇の割合をレースごとに出して平均したものです。平均人気は、締切前の単勝オッズで何番人気だったかの平均です。人気は'+(S.last?(+S.last.slice(4,6))+"/"+(+S.last.slice(6,8))+"分まで入っています（翌日の昼過ぎに更新）":"翌日の昼過ぎに入ります")+"。</p>":'<p class="note">単勝・2連単・3連単の買い目を保存すると、1着に選んだ艇の傾向も出ます。</p>')+(S.titles.length?'<button class="btn" type="button" id="sh-open">称号カードを作る</button>':"");
   }
-  if(S.nOrd)$("kk-body").insertAdjacentHTML("beforeend",advice(all));
+  if(S.nOrd||S.titles.length)$("kk-body").insertAdjacentHTML("beforeend",advice(all));
   /* 月ごと：保存した買い目のある月を新しい順に */
   var ms={};all.forEach(function(x){if(x.en.b.length){var m=x.hd.slice(0,6);ms[m]=(ms[m]||0)+1}});
   var cur=td.slice(0,6);
@@ -673,10 +717,18 @@ function repStats(m){
 var KS=null;
 /* 称号カード（v5 9章・裁定14・15）。称号が無い人にはボタンを出さない。大きく出した数字は表に入れない */
 function shogoData(){
-  var S=KS.S,t=S.titles[0],ds=KS.rows.filter(function(x){return firsts(x.en).length}).map(function(x){return x.hd}).sort();
+  var S=KS.S,t=S.titles[0],ds=KS.rows.filter(function(x){return (isNinki(t)||t==="イン信者")?firsts(x.en).length:t==="見送り上手"?x.skip:x.en.b.length}).map(function(x){return x.hd}).sort();if(!ds.length)return null;
   var f=function(d){return (+d.slice(4,6))+"月"+(+d.slice(6,8))+"日"},a=ds[0],b=ds[ds.length-1];
-  var T={title:t,tags:S.titles.slice(1),range:(+a.slice(0,4))+"年"+f(a)+"から"+(a.slice(0,4)!==b.slice(0,4)?(+b.slice(0,4))+"年":"")+f(b),cmp:""};
+  var T={title:t,tags:S.titles.slice(1,1+TAGMAX),range:(+a.slice(0,4))+"年"+f(a)+"から"+(a.slice(0,4)!==b.slice(0,4)?(+b.slice(0,4))+"年":"")+f(b),cmp:"",rule:ruleOf(t),basis:basisOf(t)};
   var r1=["1着に1号艇",pct(S.share1),S.nOrd+"レース",S.nF?pct(S.w1/S.nF):"—",S.nF?S.w1+"/"+S.nF:""];
+  var r2=["1着の平均人気",S.rank!=null?S.rank.toFixed(1):"—",S.nRank+"レース",S.wRank!=null?S.wRank.toFixed(1):"—",S.nWR+"レース"];
+  if(t==="絞り派"||t==="手広く派"){T.big=String(S.ptMed);T.bigUnit="点";T.desc="1レースの点数の中央値（記録した"+S.n+"レース）";T.rows=S.nOrd?[r1]:[];return T}
+  if(t==="コツコツ型"||t==="一撃型"){T.big=String(Math.round(S.hitRate*100));T.bigUnit="%";T.desc="的中率（結果の出た"+S.judged+"レースのうち"+S.hit+"レース）";
+    if(S.nHA)T.cmp="当たったレースの払戻は、平均で購入額の"+S.hitX.toFixed(1)+"倍（金額の分かる"+S.nHA+"レース）";T.rows=S.nOrd?[r1]:[];return T}
+  if(KENSHU[S.topT]===t){T.big=String(Math.round(S.topTn/S.ptAll*100));T.bigUnit="%";T.desc="記録した"+S.ptAll+"点のうち"+S.topTn+"点が"+(BT[S.topT]||"");T.rows=S.nOrd?[r1]:[];return T}
+  if(t==="ナイター派"||t==="デイ派"){var nn=t==="ナイター派"?S.night:S.nD-S.night;T.big=String(Math.round(nn/S.nD*100));T.bigUnit="%";T.desc="締切の時刻が分かる"+S.nD+"レースのうち"+nn+"レースが"+(t==="ナイター派"?"17時以降":"17時より前");T.rows=S.nOrd?[r1]:[];return T}
+  if(t==="見送り上手"){T.big=String(Math.round(S.skG/S.nSk*100));T.bigUnit="%";T.desc="見送った"+S.nSk+"レースのうち、3連単が1万円以上になった割合";T.cmp="全レースの平均は"+(TH.manshu*100).toFixed(1)+"%（2026年1月1日から11月21日の49,896レース）";T.rows=S.nOrd?[r1]:[];return T}
+  if(isKayoi(t)){T.big=String(Math.round(S.topC/S.n*100));T.bigUnit="%";T.desc="記録した"+S.n+"レースのうち"+S.topC+"レースが"+(V[+S.topV]||"");T.rows=S.nOrd?[r1]:[];return T}
   if(t==="本命派"||t==="穴党"||t==="中穴派"){T.big=S.rank.toFixed(1);T.bigUnit="番人気";T.desc="1着に選んだ艇の単勝人気の平均（人気の分かる"+S.nRank+"レース）";
     if(S.wRank!=null)T.cmp="同じレースで実際に1着になった艇は、平均"+S.wRank.toFixed(1)+"番人気（"+S.nWR+"レース）";T.rows=[r1];}
   else if(t==="イン信者"){T.big=String(Math.round(S.share1*100));T.bigUnit="%";T.desc="1着に1号艇を選んだ割合（着順のある"+S.nOrd+"レース）";
@@ -687,7 +739,7 @@ function shogoData(){
 }
 function openShogo(){
   if(!KS||!KS.S.titles.length)return;
-  var d=$("rep"),T=shogoData(),m="sh";REPM=m;REPBLOB=null;
+  var T=shogoData();if(!T)return;var d=$("rep"),m="sh";REPM=m;REPBLOB=null;
   $("rep-h").textContent="称号カード";$("rep-msg").textContent="画像を作っています。";$("rep-img").innerHTML="";
   if(d.showModal)d.showModal();else d.setAttribute("open","");
   loadTsuki().then(function(){return dzTsuki.shogo(T,KGURL)}).then(function(b){
@@ -697,8 +749,8 @@ function openShogo(){
   }).catch(function(){if(REPM===m)$("rep-msg").textContent="画像を作れませんでした。通信のよいところで、もう一度開いてください。"});
 }
 $("kk-body").addEventListener("click",function(e){if(e.target.closest("#sh-open"))openShogo()});
-var KGURL="../players/card/kgOutline.json",REPURL=null,REPBLOB=null,REPM="";
-function loadTsuki(){return new Promise(function(ok,ng){if(window.dzTsuki)return ok();var sc=document.createElement("script");sc.src="../assets/tsukiReport.js?v=2";sc.onload=function(){window.dzTsuki?ok():ng()};sc.onerror=ng;document.head.appendChild(sc)})}
+var KGURL="../players/card/kgOutline.json?v=2",REPURL=null,REPBLOB=null,REPM="";
+function loadTsuki(){return new Promise(function(ok,ng){if(window.dzTsuki)return ok();var sc=document.createElement("script");sc.src="../assets/tsukiReport.js?v=3";sc.onload=function(){window.dzTsuki?ok():ng()};sc.onerror=ng;document.head.appendChild(sc)})}
 function openRep(m){
   var d=$("rep"),R=repStats(m);REPM=m;REPBLOB=null;
   $("rep-h").textContent=(+m.slice(0,4))+"年"+R.m+"月のまとめ";
