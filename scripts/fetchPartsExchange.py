@@ -259,10 +259,15 @@ def verify_hd_jcd(final_url, html, want_jcd, want_hd, want_rno):
         final_url)
 
 
+# 取得したURLごとの状態コード（表が読めなかったときの診断用）
+LAST_STATUS = {}
+
+
 def fetch(url):
     """requestsでGETし、リダイレクト後の最終URLとHTML本文を返す。失敗時は(None, None)。"""
     try:
         r = requests.get(url, headers={"User-Agent": UA}, timeout=TIMEOUT, allow_redirects=True)
+        LAST_STATUS[url] = r.status_code
         return r.url, r.text
     except Exception as e:
         print("  [warn] fetch失敗:", url, e)
@@ -420,6 +425,7 @@ def main():
     added = 0
     fetched_races = 0
     mismatch_races = []
+    empty_samples = []  # 表が読めなかったレースの先頭3件（最終URL・状態コード・題名・本文の先頭）
     skipped_empty_tenji = 0
     skipped_empty_weight = 0
     pending = list(races)
@@ -445,6 +451,11 @@ def main():
 
         rows = parse_beforeinfo(html)
         if not rows:
+            if len(empty_samples) < 3:
+                m = re.search(r"<title[^>]*>(.*?)</title>", html, re.S | re.I)
+                empty_samples.append((jcd, rno, final_url, LAST_STATUS.get(url),
+                                      (m.group(1).strip() if m else ""),
+                                      re.sub(r"\s+", " ", html)[:200]))
             continue
         fetched_races += 1
         vname = JCD_NAME.get(jcd, "")
@@ -488,6 +499,20 @@ def main():
             hist["records"].append(rec)
             seen.add(key)
             added += 1
+
+    status_count = {}
+    for code in LAST_STATUS.values():
+        status_count[code] = status_count.get(code, 0) + 1
+    print("状態コードの内訳: {}".format(status_count))
+    for jcd, rno, furl, code, title, head in empty_samples:
+        print("  表が読めない: jcd={} rno={} 状態={} 最終URL={}".format(jcd, rno, code, furl))
+        print("    題名={!r}".format(title))
+        print("    先頭200字={!r}".format(head))
+    if races and fetched_races == 0:
+        # 公式から返事はあるのに1レースも表が読めない＝取得経路の異常。
+        # 「成功」で終わると気づけない（2026-11-18 から3日間これで欠測した）ので、保存せずに失敗で止める。
+        print("::error::対象{}レースのうち表が読めたレースが0。保存せず失敗で終了（既存を変更しない）".format(len(races)))
+        sys.exit(1)
 
     filled, left = fill_motor_numbers(hist["records"])
     print("モーターNo を番組表で埋めた行: {} / 番組表にも無く空のままの行: {}".format(filled, left))
