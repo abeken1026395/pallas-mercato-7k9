@@ -87,3 +87,86 @@ test("小さな部品：IPv6は/64・JSTの日付・ページかデータか", (
   assert.equal(pathKind("/racers/racers_today.csv"), "data");
   assert.equal(pathKind("/data/tenjiStats.json"), "data");
 });
+
+// 自動ブロック（edge/ban.mjs）。D1 は手元の作り物で代える
+function fakeD1({ broken = false } = {}) {
+  const hits = [], bans = new Map();
+  const st = sql => ({
+    bind: (...a) => ({
+      first: async () => {
+        if (broken) throw new Error("d1 down");
+        if (sql.startsWith("SELECT k FROM junkaiBan")) { for (const k of [a[0], a[1]]) { const b = bans.get(k); if (b && b.until > a[2]) return { k }; } return null; }
+        if (sql.startsWith("SELECT COUNT")) return { n: hits.filter(h => h.k === a[0] && h.t > a[1]).length };
+        return null;
+      },
+      run: async () => {
+        if (broken) throw new Error("d1 down");
+        if (sql.startsWith("INSERT INTO junkaiHit")) hits.push({ k: a[0], t: a[1] });
+        else if (sql.startsWith("INSERT OR REPLACE INTO junkaiBan")) bans.set(a[0], { kind: a[1], until: a[2], ua: a[3], asn: a[4] });
+        else if (sql.startsWith("DELETE FROM junkaiHit")) for (let i = hits.length - 1; i >= 0; i--) if (hits[i].t < a[0]) hits.splice(i, 1);
+        return {};
+      },
+    }),
+  });
+  return { hits, bans, prepare: st };
+}
+
+async function getB(path, env, { ua = "Mozilla/5.0 (compatible; somebot/1.0)", ip = "198.51.100.9", cookie, asn = 8075 } = {}) {
+  let touched = false;
+  const headers = { "user-agent": ua, "accept-language": "ja-JP,ja;q=0.9", "cf-connecting-ip": ip };
+  if (cookie) headers.cookie = cookie;
+  const request = new Request("https://example.pages.dev" + path, { headers });
+  Object.defineProperty(request, "cf", { value: { asn } });
+  const res = await onRequest({ request, env, next: async () => { touched = true; return new Response(REAL, { status: 200 }); } });
+  return { status: res.status, text: await res.text(), touched };
+}
+
+const PAGES = ["/", "/glossary/", "/kensho/players/", "/results/", "/stadium/"];
+
+test("自動ブロック：Cookie を持ち帰らずに続けて開くと、しきい値で403。翌日も名乗りと回線で403", async () => {
+  const db = fakeD1();
+  const env = { DZ_SALT: "s", DZ_DB: db, DZ_BAN: "5,300,30" };
+  for (let i = 0; i < 4; i++) assert.equal((await getB(PAGES[i % 5], env)).status, 200);
+  const r = await getB("/stadium/", env);
+  assert.equal(r.status, 403); assert.equal(r.touched, false); assert.ok(!r.text.includes(REAL));
+  assert.equal((await getB("/data/weather.json", env)).status, 403);           // 同じ接続元はデータも拒否
+  assert.equal((await getB("/", env, { ip: "198.51.100.77" })).status, 403);  // 接続元を変えても名乗りと回線で拒否
+  assert.equal((await getB("/", env, { asn: 2516, ip: "198.51.100.78" })).status, 200);             // 別の回線なら同じ名乗りでも通る（接続元も別）
+  assert.equal([...db.bans.values()].filter(b => b.kind === "fp").length, 1);
+});
+
+test("自動ブロック：Cookie を持ち帰る人は、速く開いても止めない", async () => {
+  const db = fakeD1();
+  const env = { DZ_SALT: "s", DZ_DB: db, DZ_BAN: "5,300,30" };
+  for (let i = 0; i < 20; i++) {
+    const r = await getB(PAGES[i % 5], env, { ua: BROWSER, cookie: "dzv=0123456789abcdef", asn: 2516 });
+    assert.equal(r.status, 200); assert.equal(r.text, REAL);
+  }
+  assert.equal(db.bans.size, 0);
+});
+
+test("自動ブロック：配信WFの確認アクセスは名乗りと回線の組み合わせでは止めない", async () => {
+  const db = fakeD1();
+  const env = { DZ_SALT: "s", DZ_DB: db, DZ_BAN: "3,300,30" };
+  const ua = "Mozilla/5.0 (Windows NT 10.0) Chrome/130.0";
+  for (let i = 0; i < 3; i++) await getB(PAGES[i], env, { ua });
+  assert.equal([...db.bans.values()].filter(b => b.kind === "fp").length, 0);
+  assert.equal((await getB("/", env, { ua, ip: "198.51.100.200" })).status, 200);
+});
+
+test("自動ブロック：設定が無い・D1 が壊れているときは本物を返す（止めない）", async () => {
+  for (const env of [{ DZ_SALT: "s", DZ_DB: fakeD1() }, { DZ_SALT: "s", DZ_DB: fakeD1({ broken: true }), DZ_BAN: "2,300,30" }, { DZ_SALT: "s", DZ_BAN: "2,300,30" }]) {
+    for (let i = 0; i < 6; i++) {
+      const r = await getB(PAGES[i % 5], env);
+      assert.equal(r.status, 200); assert.equal(r.text, REAL);
+    }
+  }
+});
+
+test("自動ブロック：拒否は記録に block と残る", async () => {
+  const db = fakeD1(); const points = [];
+  const env = { DZ_SALT: "s", DZ_DB: db, DZ_BAN: "2,300,30", DZ_LOG: { writeDataPoint: p => points.push(p) } };
+  await getB("/", env); await getB("/glossary/", env);
+  assert.equal(points.at(-1).blobs[8], "block");
+  assert.equal(points[0].blobs[8], "real");
+});

@@ -5,6 +5,7 @@
 // （ファイル名 _middleware.js は Cloudflare Pages の決まりなので変えない）
 import { isAiAgent, isAiNetwork, lacksJapanese, noticeKind, noticeResponse, isScraper, blockResponse } from "../edge/aiNotice.mjs";
 import { visitorCookie, recordVisit, withCookie } from "../edge/junkai.mjs";
+import { checkBan } from "../edge/ban.mjs";
 
 export async function onRequest(context) {
   const { request } = context;
@@ -17,7 +18,9 @@ export async function onRequest(context) {
   let trapped = false;
   let res = null;
   if (isScraper(ua)) {
-    res = blockResponse(); trapped = true;
+    res = blockResponse(); trapped = "block";
+  } else if (await checkBan(context, vc)) {
+    res = blockResponse(); trapped = "block";
   } else if (request.method === "GET" || request.method === "HEAD") {
     if (isAiAgent(ua) || isAiNetwork(asn) || lacksJapanese(lang)) {
       const pathname = new URL(request.url).pathname;
