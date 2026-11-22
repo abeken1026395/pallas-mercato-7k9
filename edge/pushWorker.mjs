@@ -130,7 +130,7 @@ export async function runOnce(env, now = Date.now(), send = sendPush, fetchFn = 
     if (!txt || now - last >= ENT_EVERY) {
       await db.prepare("INSERT INTO kv (k, v) VALUES ('ent:t', ?1) ON CONFLICT(k) DO UPDATE SET v = excluded.v").bind(String(now)).run();
       try {
-        const res = await fetchFn(site + "/racers/entryIndex.json?_=" + now, { cf: { cacheTtl: 0 } });
+        const res = await fetchFn(site + "/racers/entryIndex.json?_=" + now, { cf: { cacheTtl: 0 }, headers: env.DZ_GATE_KEY ? { "x-dz-key": env.DZ_GATE_KEY } : {} });  // 人間確認の関門を秘密の合図で通る（2026-11-23）
         if (res.ok) {
           const t = await res.text();
           if (t.length < 500000) { txt = t; out.ent++; await db.prepare("INSERT INTO kv (k, v) VALUES ('ent:j', ?1) ON CONFLICT(k) DO UPDATE SET v = excluded.v").bind(t).run(); }

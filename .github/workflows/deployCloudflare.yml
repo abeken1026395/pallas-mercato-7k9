@@ -119,7 +119,7 @@ jobs:
 
       - name: 罠のテスト
         if: steps.changed.outputs.skip == 'false'
-        run: node --test edge/aiNotice.test.mjs edge/junkai.test.mjs
+        run: node --test edge/aiNotice.test.mjs edge/junkai.test.mjs edge/gate.test.mjs
 
       - name: Pages プロジェクトが無ければ作る（2回目以降は何もしない）
         if: steps.changed.outputs.skip == 'false'
@@ -235,5 +235,10 @@ jobs:
           echo "リポジトリの手がかりOK: トップ・guard.js とも0件"
           K=$(curl -s -A "Mozilla/5.0 (Windows NT 10.0) Chrome/130.0" -H "Accept-Language: ja-JP,ja;q=0.9" "https://$PROJECT.pages.dev/kiyaku/")
           echo "$K" | grep -q "第14条" || { echo "::error::利用規約のページが出ていない"; exit 1; }
-          echo "$T" | grep -q 'href="/kiyaku/"' || { echo "::error::トップに利用規約へのリンクが無い"; exit 1; }
+          grep -q 'href="/kiyaku/"' /tmp/site/index.html || { echo "::error::トップに利用規約へのリンクが無い"; exit 1; }
           echo "利用規約OK: ページあり・トップにリンクあり"
+          GT=$(curl -s -A "Mozilla/5.0 (Windows NT 10.0) Chrome/130.0" -H "Accept-Language: ja-JP,ja;q=0.9" "https://$PROJECT.pages.dev/glossary/")
+          echo "$GT" | grep -q "cf-turnstile" || { echo "::error::合図も印も無いのに人間確認の関門が出ていない"; exit 1; }
+          GD=$(curl -s -o /dev/null -w "%{http_code}" -A "Mozilla/5.0 (Windows NT 10.0) Chrome/130.0" -H "Accept-Language: ja-JP,ja;q=0.9" "https://$PROJECT.pages.dev/data/weather.json")
+          [ "$GD" = "403" ] || { echo "::error::合図も印も無いのにデータが返っている（$GD）"; exit 1; }
+          echo "人間確認の関門OK: ページは確認画面・データは403"

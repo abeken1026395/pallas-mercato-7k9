@@ -6,6 +6,7 @@
 import { isAiAgent, isAiNetwork, lacksJapanese, noticeKind, noticeResponse, isScraper, blockResponse } from "../edge/aiNotice.mjs";
 import { visitorCookie, recordVisit, withCookie } from "../edge/junkai.mjs";
 import { checkBan } from "../edge/ban.mjs";
+import { gate } from "../edge/gate.mjs";
 
 export async function onRequest(context) {
   const { request } = context;
@@ -28,6 +29,11 @@ export async function onRequest(context) {
       // 本物を読み込む前に返す（本物には一切触れない・処理も軽い）
       if (kind) { res = noticeResponse(kind, pathname); trapped = true; }
     }
+  }
+  // 人間確認の関門（2026-11-23）：上のどれにも当たらなかった相手のうち、合格の印が無い相手を止める
+  if (!res) {
+    const g = await gate(context);
+    if (g) { res = g; trapped = "gate"; }
   }
   await recordVisit(context, vc, trapped);
   if (!res) res = await context.next();
