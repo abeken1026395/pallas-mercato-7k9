@@ -177,3 +177,23 @@ test("対象判定", () => {
   assert.equal(noticeKind("/motor/motors_all.csv"), "csv");
   assert.equal(noticeKind("/results/"), null);
 });
+
+test("名指しの収集ボット：対象外のページも含めて全ページで冗談だけ・本物に触れない", async () => {
+  const BOTS = ["Mozilla/5.0 (compatible; slit-radar-import/1.0; with permission of the site operator)", "kyoutei-research-bot/0.1 (personal ML project)"];
+  for (const ua of BOTS) for (const p of [...TARGETS, ...OUTSIDE, "/glossary/", "/kensho/players/"]) {
+    const r = await get(p, ua, 16509);
+    assert.equal(r.touched, false, ua + " " + p);
+    assert.equal(r.status, 200);
+    assert.ok(!r.text.includes(REAL), p);
+    if (p.endsWith(".json")) assert.ok(JSON.parse(r.text), p);
+    else if (!p.endsWith(".csv")) assert.ok(r.text.includes(FREEZA), p);
+  }
+});
+
+test("名指しの収集ボットの追加で、日本語のブラウザと配信WFの確認アクセスは本物のまま", async () => {
+  for (const ua of [BROWSER, "Mozilla/5.0 (Windows NT 10.0) Chrome/130.0"]) for (const p of [...TARGETS, ...OUTSIDE, "/glossary/"]) {
+    const r = await get(p, ua);
+    assert.equal(r.touched, true, ua + " " + p);
+    assert.equal(r.text, REAL);
+  }
+});

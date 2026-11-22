@@ -3,7 +3,7 @@
 // あわせて、連続巡回の上限を決めるための記録だけを取る（2026-11-09 けん裁定：まず記録のみ・数える単位は接続元とCookie）。
 // 記録は返す中身を一切変えない。記録の失敗でページを止めない。
 // （ファイル名 _middleware.js は Cloudflare Pages の決まりなので変えない）
-import { isAiAgent, isAiNetwork, lacksJapanese, noticeKind, noticeResponse } from "../edge/aiNotice.mjs";
+import { isAiAgent, isAiNetwork, lacksJapanese, noticeKind, noticeResponse, isScraper, anyKind } from "../edge/aiNotice.mjs";
 import { visitorCookie, recordVisit, withCookie } from "../edge/junkai.mjs";
 
 export async function onRequest(context) {
@@ -17,7 +17,10 @@ export async function onRequest(context) {
   let trapped = false;
   let res = null;
   if (request.method === "GET" || request.method === "HEAD") {
-    if (isAiAgent(ua) || isAiNetwork(asn) || lacksJapanese(lang)) {
+    if (isScraper(ua)) {
+      const pathname = new URL(request.url).pathname;
+      res = noticeResponse(anyKind(pathname), pathname); trapped = true;
+    } else if (isAiAgent(ua) || isAiNetwork(asn) || lacksJapanese(lang)) {
       const pathname = new URL(request.url).pathname;
       const kind = noticeKind(pathname);
       // 本物を読み込む前に返す（本物には一切触れない・処理も軽い）
