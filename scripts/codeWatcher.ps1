@@ -9,11 +9,17 @@
 #   3. claude -p で「latest.md を読んで実行」を渡す。kick.txt の2行目以降（けん承認の一文）を指示に足す
 #   4. 終わったら done.txt を置く。Code が report.md を置かずに終わったときは、見張りが「停止」の report.md を置く
 #
+# 並列実行（2026-09-30 けん指示）: 作業フォルダに parallel.txt があるものは、リポジトリに触れない調べもの専用として、
+#   他の作業の実行中でも別プロセス（-Job <フォルダ名>）で並列に起動する。作業ディレクトリはそのフォルダで、リポジトリは使わない。
+#   parallel.txt が無い作業は従来どおり1件ずつ（リポジトリの取り合いを防ぐ）。
+#
 # 起動の合図は kick.txt だけ。統括は latest.md と付属物を置き終えてから、最後に kick.txt を置く。
 # kick.txt の承認文は、けんが claude.ai のチャットで承認したときだけ統括が書く（見張りは中身を判断しない）。
 #
 # ログは C:\Users\USER\boatrace\scripts\logs\codeWatcher_YYYYMMDD.log（.gitignore 済み）。
 # 文字コード: このファイルは UTF-8 BOM 付きで保存すること（BOM無しだと PS5.1 が cp932 と誤解釈する）。
+
+param([string]$Job = '')
 
 $ErrorActionPreference = 'Stop'
 
@@ -25,8 +31,6 @@ $PyDir   = Split-Path $Py
 $LogDir  = Join-Path $Repo 'scripts\logs'
 $LogFile = Join-Path $LogDir ("codeWatcher_{0}.log" -f (Get-Date -Format 'yyyyMMdd'))
 $Lock    = Join-Path $LogDir '.codeWatcher.lock'
-$Cool    = Join-Path $LogDir '.codeWatcher.cooldown'   # 利用上限に当たったら、この時刻までは起動しない
-$CoolMinutes = 30
 $SyncWaitMinutes = 30
 
 if (-not (Test-Path $LogDir)) { New-Item -ItemType Directory -Path $LogDir -Force | Out-Null }
@@ -41,19 +45,15 @@ function Write-Utf8NoBom($path, $text) {
 }
 
 # --- 多重起動の防止 ---------------------------------------------------------
+$IsParallelJob = ($Job -ne '')
+if ($IsParallelJob) { $Lock = Join-Path $LogDir ('.codeWatcher.' + $Job + '.lock') }
+$LockBusy = $false
 if (Test-Path $Lock) {
     $old = Get-Content $Lock -ErrorAction SilentlyContinue
-    if ($old -and (Get-Process -Id $old -ErrorAction SilentlyContinue)) { exit 0 }
-    Remove-Item $Lock -Force -ErrorAction SilentlyContinue
+    if ($old -and (Get-Process -Id $old -ErrorAction SilentlyContinue)) { $LockBusy = $true }
+    else { Remove-Item $Lock -Force -ErrorAction SilentlyContinue }
 }
-
-# --- 利用上限の待機中なら何もしない -------------------------------------------
-if (Test-Path $Cool) {
-    $until = [datetime]::MinValue
-    [void][datetime]::TryParse((Get-Content $Cool -Raw).Trim(), [ref]$until)
-    if ((Get-Date) -lt $until) { exit 0 }
-    Remove-Item $Cool -Force -ErrorAction SilentlyContinue
-}
+if ($IsParallelJob -and $LockBusy) { exit 0 }
 
 if (-not (Test-Path $Shikyu)) { Log "codeShikyu が見えない（Drive 未起動か未同期）: $Shikyu"; exit 0 }
 
@@ -64,6 +64,23 @@ $cands = @(Get-ChildItem -Path $Shikyu -Directory | Where-Object {
     -not (Test-Path (Join-Path $_.FullName 'report.md')) -and
     -not (Test-Path (Join-Path $_.FullName 'done.txt'))
 } | Sort-Object { (Get-Item (Join-Path $_.FullName 'kick.txt')).LastWriteTime })
+
+if ($IsParallelJob) {
+    $cands = @($cands | Where-Object { $_.Name -eq $Job })
+} else {
+    foreach ($c in $cands) {
+        if (Test-Path (Join-Path $c.FullName 'parallel.txt')) {
+            $jl = Join-Path $LogDir ('.codeWatcher.' + $c.Name + '.lock')
+            $jold = if (Test-Path $jl) { Get-Content $jl -ErrorAction SilentlyContinue } else { $null }
+            if ($jold -and (Get-Process -Id $jold -ErrorAction SilentlyContinue)) { continue }
+            $host_ = (Get-Process -Id $PID).Path
+            Start-Process -FilePath $host_ -ArgumentList @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-WindowStyle', 'Hidden', '-File', $PSCommandPath, '-Job', $c.Name) -WindowStyle Hidden
+            Log ("[{0}] parallel.txt あり。並列で起動した" -f $c.Name)
+        }
+    }
+    $cands = @($cands | Where-Object { -not (Test-Path (Join-Path $_.FullName 'parallel.txt')) })
+    if ($LockBusy) { exit 0 }
+}
 
 if ($cands.Count -eq 0) { exit 0 }
 
@@ -93,7 +110,7 @@ if ($want -ne $have) {
 # --- 実行 -------------------------------------------------------------------
 Set-Content -Path $Lock -Value $PID -Encoding ascii
 try {
-    Set-Location $Repo
+    if ($IsParallelJob) { Set-Location $dir } else { Set-Location $Repo }
     $env:PYTHONIOENCODING = 'utf-8'
     [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding $false
     $env:PATH = $PyDir + ';' + $env:PATH
@@ -103,35 +120,38 @@ try {
     if ($approval) { $prompt += " $approval" }
     $prompt += "`n`nこれは見張りタスク codeWatcher からの無人実行で、チャットの相手はいない。質問して待たず、latest.md の停止条件に当たったら停止として report.md を置いて終える。報告は latest.md の指示どおり同じフォルダの report.md に置く。"
 
+    if ($IsParallelJob) { $prompt += "`n`nこれは並列実行の作業。リポジトリと git には触れない（作業ディレクトリはこのフォルダ）。" }
+
     $out = Join-Path $LogDir ("codeWatcher_{0}.json" -f $name)
     Log ("[{0}] 実行開始 sha256={1} 承認文={2}" -f $name, $have, ($(if ($approval) { 'あり' } else { 'なし' })))
 
     $prev = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+    # 調べもの専用の並列ジョブだけ WebSearch/WebFetch を許可し、フォルダの model.txt でモデルを選べる（2026-09-30 けん承認）
+    $webTools = ''
+    $modelArgs = @('--model', 'sonnet')
+    $mf0 = Join-Path $dir 'model.txt'
+    if (Test-Path $mf0) { $m0 = (Get-Content $mf0 -TotalCount 1).Trim(); if ($m0 -match '^[A-Za-z0-9._-]+$') { $modelArgs = @('--model', $m0) } }
+    if ($IsParallelJob) {
+        $webTools = ',WebSearch,WebFetch'
+        $mf = Join-Path $dir 'model.txt'
+        if (Test-Path $mf) { $m = (Get-Content $mf -TotalCount 1).Trim(); if ($m -match '^[A-Za-z0-9._-]+$') { $modelArgs = @('--model', $m) } }
+    }
+    Log ("[{0}] ツール追加={1} モデル={2}" -f $name, $webTools, ($modelArgs -join ' '))
     & $Claude -p $prompt `
+        @modelArgs `
         --add-dir $dir `
-        --allowedTools "Read,Write,Edit,Glob,Grep,Bash(git:*),Bash(python:*),Bash(python3:*),Bash(py:*),Bash(gh:*),Bash(curl:*),Bash(ls:*),Bash(cat:*),Bash(head:*),Bash(tail:*),Bash(wc:*),Bash(grep:*),Bash(diff:*),Bash(sha256sum:*),Bash(cp:*),Bash(mkdir:*),Bash(node:*),Bash(npm:*),Bash(date:*),Bash(sleep:*)" `
-        --disallowedTools "Bash(git push --force:*),Bash(git push -f:*),Bash(git clean:*),Bash(git rebase:*),Bash(git reset --hard:*),Bash(git add -A:*),Bash(git add .:*),Bash(git checkout --:*),Bash(git restore:*),Bash(git stash:*)" `
+        --add-dir 'C:\Users\USER\senshuComment' `
+        --allowedTools "Read,Write,Edit,Glob,Grep,Bash(git:*),Bash(python:*),Bash(python3:*),Bash(py:*),Bash(gh:*),Bash(curl:*),Bash(ls:*),Bash(cat:*),Bash(head:*),Bash(tail:*),Bash(wc:*),Bash(grep:*),Bash(diff:*),Bash(sha256sum:*),Bash(cp:*),Bash(mkdir:*),Bash(node:*),Bash(npm:*),Bash(date:*),Bash(sleep:*),PowerShell(git:*),PowerShell(python:*),PowerShell(python3:*),PowerShell(py:*),PowerShell(gh:*),PowerShell(curl:*),PowerShell(ls:*),PowerShell(cat:*),PowerShell(head:*),PowerShell(tail:*),PowerShell(wc:*),PowerShell(grep:*),PowerShell(diff:*),PowerShell(sha256sum:*),PowerShell(cp:*),PowerShell(mkdir:*),PowerShell(node:*),PowerShell(npm:*),PowerShell(date:*),PowerShell(sleep:*),PowerShell(cd:*),PowerShell(Set-Location:*),PowerShell(Get-FileHash:*),PowerShell(Get-Content:*),PowerShell(Select-String:*),PowerShell(Test-Path:*),PowerShell(Get-ChildItem:*)$webTools" `
+        --disallowedTools "Bash(git push --force:*),Bash(git push -f:*),Bash(git clean:*),Bash(git rebase:*),Bash(git reset --hard:*),Bash(git add -A:*),Bash(git add .:*),Bash(git checkout --:*),Bash(git restore:*),Bash(git stash:*),PowerShell(git push --force:*),PowerShell(git push -f:*),PowerShell(git clean:*),PowerShell(git rebase:*),PowerShell(git reset --hard:*),PowerShell(git add -A:*),PowerShell(git add .:*),PowerShell(git checkout --:*),PowerShell(git restore:*),PowerShell(git stash:*),PowerShell(Remove-Item:*),PowerShell(Start-Process:*)" `
         --permission-mode acceptEdits `
         --max-turns 300 `
         --output-format json 2>&1 | Out-File -FilePath $out -Encoding utf8
     $rc = $LASTEXITCODE
     $ErrorActionPreference = $prev
 
-    $sid = ''; $apiErr = $null; $turns = $null
-    try {
-        $j = Get-Content $out -Raw -Encoding utf8 | ConvertFrom-Json
-        $sid = $j.session_id; $apiErr = $j.api_error_status; $turns = $j.num_turns
-    } catch {}
+    $sid = ''
+    try { $sid = (Get-Content $out -Raw -Encoding utf8 | ConvertFrom-Json).session_id } catch {}
     Log ("[{0}] 終了 rc={1} session={2}" -f $name, $rc, $sid)
-
-    # 利用上限（429）・過負荷（529）で1手も進まずに落ちたときは、終わった扱いにしない。
-    # report.md と done.txt を置かず、待機時間を置いて次の回にやり直す（2026-09-27 初回に 429 で停止扱いになった）
-    if (($apiErr -eq 429 -or $apiErr -eq 529) -and -not (Test-Path $report)) {
-        $until = (Get-Date).AddMinutes($CoolMinutes)
-        Set-Content -Path $Cool -Value ($until.ToString('yyyy-MM-dd HH:mm:ss')) -Encoding ascii
-        Log ("[{0}] API {1} で未着手のまま終了。{2} まで待ってやり直す（turns={3}）" -f $name, $apiErr, $until.ToString('HH:mm'), $turns)
-        return
-    }
 
     if (-not (Test-Path $report)) {
         Write-Utf8NoBom $report ("停止 / 見張り: Code が report.md を置かずに終了（rc={0}・ログ scripts\logs\codeWatcher_{1}.json）" -f $rc, $name)
