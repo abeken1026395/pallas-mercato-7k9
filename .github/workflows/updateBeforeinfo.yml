@@ -12,6 +12,9 @@ on:
     - cron: '7 21 * * *'   # JST 翌 6:07
     - cron: '7 1 * * *'    # JST 10:07
     - cron: '7 5 * * *'    # JST 14:07
+  push:
+    branches: [main]
+    paths: ['data/partsDaily/**']
   workflow_dispatch:
     inputs:
       hd:
@@ -36,10 +39,10 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install requests beautifulsoup4 pandas lxml
-      - name: fetch beforeinfo (部品交換・チルト・プロペラ変更・体重・展示タイム)
-        env:
-          HD_OVERRIDE: ${{ github.event.inputs.hd }}
-        run: python scripts/fetchPartsExchange.py
+      - name: merge data/partsDaily (PC が取得した部品交換を motorParts.json に取り込む)
+        # 2026-11-18 から公式が GitHub Actions からの直前情報ページを 403 で拒否している。
+        # 取得は PC の定時タスク（fetchPartsDaily.py）が行い、ここでは公式にアクセスしない（2026-11-22 けん裁定）。
+        run: python scripts/mergePartsDaily.py
       - name: build motorKarte.json (モーターページ用の軽量派生JSON)
         # motorParts.json は全列21MBで、そのままブラウザに読ませると iPhone が固まる。
         # 描画に使う8列だけを機ごとに索引した派生ファイルを毎回作り直す（motorParts.json は読むだけ）。
