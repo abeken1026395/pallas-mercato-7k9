@@ -1,15 +1,16 @@
-name: 1マークの見立て（週1の見直し）
+name: 1マークの見立て（月1の見直し）
 
-# けん裁定 2026-11-03「2A」：週1回、作り方の候補を直近28日で試し、関門をすべて通ったときだけ自動で切り替える。
+# けん裁定 2026-11-03「2A」：作り方の候補を直近28日で試し、関門をすべて通ったときだけ自動で切り替える。
+# 2026-11-21 けん裁定：週1回から月1回に減らす（週1の2回とも全候補が関門1で不採用・展示を足しても誤差 0.0021 しか下がらず）。
 # 中身は scripts/ichimark/tuneWeekly.py（関門の数字も同ファイル）。書くのは次の2つだけ。
 #   scripts/ichimark/maeConfig.json（切り替えたときだけ。次の朝の見立てから効く。出した見立ては書き換えない）
 #   health/ichimarkTune.md（毎回1回分を追記。採用・不採用とも）
-# 定時起動は遅れることがあるので月曜に2回置く。同じ日にもう記録があれば何もしない。JST 11:00から11:40 は動かさない。
-#   '23 17 * * 0' → 月曜 JST 02:23 ／ '23 5 * * 1' → 月曜 JST 14:23
+# 定時起動は遅れることがあるので2回置く。同じ月にもう記録があれば何もしない。JST 11:00から11:40 は動かさない。
+#   '23 17 1 * *' → 毎月2日 JST 02:23 ／ '23 5 3 * *' → 毎月3日 JST 14:23（予備）
 on:
   schedule:
-    - cron: '23 17 * * 0'
-    - cron: '23 5 * * 1'
+    - cron: '23 17 1 * *'
+    - cron: '23 5 3 * *'
   workflow_dispatch: {}
 
 permissions:
@@ -29,13 +30,13 @@ jobs:
       - name: 動かすかどうか
         id: chk
         run: |
-          D=$(python3 -c "from datetime import datetime,timezone,timedelta;print(datetime.now(timezone(timedelta(hours=9))).strftime('%Y-%m-%d'))")
+          D=$(python3 -c "from datetime import datetime,timezone,timedelta;print(datetime.now(timezone(timedelta(hours=9))).strftime('%Y-%m'))")
           HM=$(python3 -c "from datetime import datetime,timezone,timedelta;print(datetime.now(timezone(timedelta(hours=9))).strftime('%H%M'))")
           if [ "$HM" -ge 1100 ] && [ "$HM" -le 1140 ]; then
             echo "skip=1" >> "$GITHUB_OUTPUT"; echo "競合帯なので動かさない: JST $HM"; exit 0
           fi
           if [ -f health/ichimarkTune.md ] && grep -q "^## $D" health/ichimarkTune.md; then
-            echo "skip=1" >> "$GITHUB_OUTPUT"; echo "今日はもう見直し済み: $D"; exit 0
+            echo "skip=1" >> "$GITHUB_OUTPUT"; echo "今月はもう見直し済み: $D"; exit 0
           fi
 
       - uses: actions/setup-python@v5
@@ -62,7 +63,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "no changes"; exit 0
           fi
-          git commit -m "1マークの見立て：週1の見直し $(python3 -c "import json;print(json.load(open('scripts/ichimark/maeConfig.json'))['id'])")"
+          git commit -m "1マークの見立て：月1の見直し $(python3 -c "import json;print(json.load(open('scripts/ichimark/maeConfig.json'))['id'])")"
           for i in 1 2 3 4 5 6; do
             git fetch origin "$BR" || true
             if git rebase "origin/$BR"; then

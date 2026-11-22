@@ -53,7 +53,8 @@ header .sub{margin:0;font-size:15px;line-height:1.85;color:var(--dim)}
 .hero .big small{font-size:26px;margin-left:2px}
 .hero .lab{font-size:14px;color:var(--dim);line-height:1.55;padding-bottom:4px}
 .hero .lab b{display:block;font-size:15px;color:#fff}
-.hero .lab .df{font:700 20px var(--num);color:var(--gold);margin-left:2px}.hero .lab .df.dn{color:#8fb4d8}.hero .lab a.jump{display:inline-block;font-size:12px;color:var(--gold);margin-top:6px}.hero .lab .tone.dn{color:#8fb4d8}.hero .lab .tone small{display:block;font-size:11px;color:var(--faint);font-weight:400}.hero .lab .tone{display:block;font-size:13px;color:var(--gold);font-weight:700;margin-top:2px}.hero .lab .ten{display:block;font-size:12px;color:var(--faint)}
+.hero .lab .df{font:700 20px var(--num);color:var(--gold);margin-left:2px}.hero .lab .df.dn{color:#8fb4d8}.hero .lab adetails.f23{margin:4px 0 0}details.f23>summary{min-height:44px;font:400 14px -apple-system,"Hiragino Sans",sans-serif;color:var(--faint)}
+.jump{display:inline-flex;align-items:center;min-height:44px;min-width:44px;font-size:12px;color:var(--gold);margin-top:2px}.hero .lab .tone.dn{color:#8fb4d8}.hero .lab .tone small{display:block;font-size:11px;color:var(--faint);font-weight:400}.hero .lab .tone{display:block;font-size:13px;color:var(--gold);font-weight:700;margin-top:2px}.hero .lab .ten{display:block;font-size:12px;color:var(--faint)}
 .cap{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:18px 0 6px}
 .cap h2{margin:0;font:400 17px var(--dg);color:#fff;white-space:nowrap}.cap>span{white-space:nowrap}
 .cap span{font-size:13px;color:var(--faint);display:inline-flex;align-items:center;gap:6px}
@@ -201,14 +202,18 @@ function init(){
   fetch("kotaeawase.json").then(function(r){return r.ok?r.json():Promise.reject()}).then(jissen).catch(function(){});
 }
 /* 実戦の答え合わせ（けん裁定 2026-11-03「1A」）：朝に出した見立て（書き換えない）と、その日の結果の照合。kotaeawase.py が毎日作る */
+function semeTxt(m){var ok=m&&[m.n,m.line,m.lineBase,m.course,m.courseBase].every(function(x){return typeof x==='number'&&isFinite(x)});return ok?'逃げなかった <span class="n">'+m.n.toLocaleString()+'</span>レースで、見立ての1位の攻め筋が決まったのは <span class="n">'+(m.line*100).toFixed(0)+'</span>%（毎回「2コースの差し」と答えた場合は '+(m.lineBase*100).toFixed(0)+'%）。勝つコースの1位が当たったのは <span class="n">'+(m.course*100).toFixed(0)+'</span>%（毎回「2コース」なら '+(m.courseBase*100).toFixed(0)+'%）。':''}
+function semeFill(){var t=semeTxt(KA&&KA.seme);if(!t)return;document.querySelectorAll('.semeJ').forEach(function(e){e.innerHTML='これまでの答え合わせ：'+t})}
+var KA=null;
 function jissen(k){
-  var el=$("jissen");if(!el||!k||!k.total)return;
+  var el=$("jissen");if(!el||!k||!k.total)return;KA=k;semeFill();
   function md(d){return (+d.slice(4,6))+"/"+(+d.slice(6,8))}
   var t=k.total,ds=(k.days||[]).slice(-14).reverse(),cf=Object.keys(k.byCfg||{});
   el.innerHTML='<div class="jis"><b>実戦の答え合わせ</b>（朝に出した見立てを、その日の結果と照らした成績です。出した見立ては、あとから書き換えていません）<br>'
    +md(k.from)+'から'+md(k.to)+'の '+t.n.toLocaleString()+'レースで、逃げたかどうかに対する誤差（小さいほど実際に近い）は、この見立てが <b>'+t.brier.toFixed(3)+'</b>、場の逃げの平均だけだと <b>'+t.brierVenue.toFixed(3)+'</b>。実際の逃げは '+(t.nige*100).toFixed(1)+'%、見立ての平均は '+(t.pred*100).toFixed(1)+'%でした。'
+   +(k.seme?'<br>'+semeTxt(k.seme):'')
    +'<table><tr><th>日</th><th>レース数</th><th>見立ての誤差</th><th>場の平均の誤差</th></tr>'+ds.map(function(x){return '<tr><td>'+md(x.date)+'</td><td class="n">'+x.n+'</td><td class="n">'+x.brier.toFixed(3)+'</td><td class="n">'+x.brierVenue.toFixed(3)+'</td></tr>'}).join('')+'</table>'
-   +'<div class="tnote">見立ての作り方は毎週1回見直し、直近4週のレースで今より実際に近く、どの格でも悪くならないときだけ切り替えます。この日の見立ては作り方 '+esc(D.cfg||'v1')+'。'
+   +'<div class="tnote">見立ての作り方は毎月1回見直し、直近4週のレースで今より実際に近く、どの格でも悪くならないときだけ切り替えます。この日の見立ては作り方 '+esc(D.cfg||'v1')+'。'
    +(cf.length>1?'作り方ごとの誤差：'+cf.map(function(c){var x=k.byCfg[c];return esc(c)+' '+x.brier.toFixed(3)+'（'+x.n.toLocaleString()+'レース）'}).join('、')+'。':'')+'</div></div>';
 }
 function how(){
@@ -303,8 +308,8 @@ function race(r){
   var c1=r.c1||{};
   if(rs.length||c1.all){html+='<div class="why"><div class="wh">場の平均からの動き（ポイント。＋は逃げに有利）</div>'+rs.map(function(x){var up=(x.ip!=null?x.ip:x.pt)>=0;return '<div class="wr'+(x.o?' o':'')+'"><span class="pt '+(up?"up":"dn")+'">'+(x.pt==null?'':(function(v){return v==null?(up?"+":"−")+Math.abs(x.pt).toFixed(0):(v>=0?"+":"−")+Math.abs(v)})(x.ip))+'</span>'+(function(s){s=dirLab(s,x.pt);var i=s.indexOf('：');return i<0?'<span class="h">'+esc(s)+'</span>':'<span class="h">'+esc(s.slice(0,i))+'<small>'+esc(s.slice(i+1))+'</small></span>'})(shortLab(x.label))+'</div>'}).join("")
     +(typeof adj!=='undefined'&&adj&&adj.ip?'<div class="adj">このほか、集計した期間の違いによる調整 <span class="n">'+(adj.ip>0?'+':'−')+Math.abs(adj.ip)+'</span>ポイント（見出しの「場の平均」と、見立ての計算に使った過去のレースは集計した期間が違うため）</div>':'')
-    +(c1.all&&c1.all.n?'<div class="c1"><div class="c1h">'+(b1?esc(b1.name)+'の':'')+'1コースの1着率（直近1年）</div><div class="c1g"><span>全国</span><span><b class="n'+(c1.all.n<10?' few':'')+'">'+(c1.all.w/c1.all.n*100).toFixed(0)+'</b>%<small>'+c1.all.w+'/'+c1.all.n+'走'+(c1.all.n<10?'・参考':'')+'</small></span>'
-      +'<span>'+esc(r.venue)+'</span><span>'+(c1.local&&c1.local.n?'<b class="n'+(c1.local.n<10?' few':'')+'">'+(c1.local.w/c1.local.n*100).toFixed(0)+'</b>%<small>'+c1.local.w+'/'+c1.local.n+'走'+(c1.local.n<10?'・参考':'')+'</small>':'<small>直近1年の1コースなし</small>')+'</span></div>'
+    +(c1.all&&c1.all.n?'<div class="c1"><div class="c1h">'+(b1?esc(b1.name)+'の':'')+'1コースの1着率（直近1年）</div><div class="c1g"><span>全国</span><span><b class="n'+(c1.all.n<20?' few':'')+'">'+(c1.all.w/c1.all.n*100).toFixed(0)+'</b>%<small>'+c1.all.w+'/'+c1.all.n+'走'+(c1.all.n<20?'・参考':'')+'</small></span>'
+      +'<span>'+esc(r.venue)+'</span><span>'+(c1.local&&c1.local.n?'<b class="n'+(c1.local.n<20?' few':'')+'">'+(c1.local.w/c1.local.n*100).toFixed(0)+'</b>%<small>'+c1.local.w+'/'+c1.local.n+'走'+(c1.local.n<20?'・参考':'')+'</small>':'<small>直近1年の1コースなし</small>')+'</span></div>'
       +'</div>':'')
     +(true?'<details class="wd"><summary>要素の中身</summary><div>2〜6コースの艇の「力」が＋なのは、その艇がそのコースの平均より1コースを脅かしにくいという意味です。</div>'+rs.filter(function(x){return shortLab(x.label)!==fixLab(x.label)}).map(function(x){return '<div>'+esc(fixLab(x.label))+'</div>'}).join('')
       +(c1.natRate!=null?'<div class="wn">見出しの%は「1コースが逃げで勝つ」率で、1着率（抜き・恵まれを含む）とは別です。全国の1コースの1着率は <span class="n">'+(c1.natRate*100).toFixed(0)+'</span>%（<span class="n">'+(c1.natN||0).toLocaleString()+'</span>走・直近1年）。</div>':'')+'</details>':'')
@@ -330,10 +335,10 @@ function race(r){
   var othK=keys.filter(function(k){return k!=="1逃げ"&&k!=="1その他"&&!/^6/.test(k)&&shown.indexOf(k)<0}),oth=othK.reduce(function(s,k){return s+pj[k]},0);
   var rows=shown.map(function(k){var s=split(k),b=boatAt(bs,s.c);return {k:k,lab:chip(b?b.waku:s.c)+' '+s.c+'コースから'+esc(s.t),v:pj[k]}});
   var rest2=[{lab:'1コース 抜き・恵まれ',v:p1o},{lab:'6コース（すべて）',v:six},{lab:'そのほか<small>'+othK.slice(0,2).map(function(k){var s=split(k);return '<span class="nb">'+s.c+'コース'+(s.t||'')+' '+pct(pj[k])+'%</span>'}).join('・')+'</small>',v:oth}];
-  rest2[2].gray=1;var mx=Math.max.apply(null,rows.concat(rest2.slice(0,2)).map(function(x){return x.v}))||1;
+  rest2[2].gray=1;rest2[2].nobar=1;var mx=Math.max.apply(null,rows.concat(rest2.slice(0,2)).map(function(x){return x.v}))||1;
   var notN=Math.max(1e-9,1-pn),cp=function(v){return v/notN};
-  var line=function(x,o){var c=cp(x.v);return '<span class="k'+(o?' oth':'')+'">'+x.lab+'</span>'+(x.nobar?'<span></span>':'<span class="t"><i class="'+(x.k&&x.k===a1&&on?"top":x.gray?"gr":"")+'" style="width:'+Math.min(100,c/.5*100).toFixed(1)+'%"></i></span>')+'<span class="v'+(o?' oth':'')+'">'+Math.round(c*100)+'<small>%</small></span>'};
-  html+='<div class="cap"><h2>逃げなかったら</h2><span>逃げなかったときの内訳</span></div><div class="sub2">1コースが逃げない見立ては <span class="n">'+pct(1-pn)+'</span>%。その中で、どの決まり方が多いか（合計100%）</div><div class="cmb">'+rows.map(function(x){return line(x)}).join("")+'<span class="sep"></span>'+rest2.map(function(x){return line(x,1)}).join("")+'</div>';
+  var line=function(x,o){var c=cp(x.v);return '<span class="k'+(o?' oth':'')+'">'+x.lab+'</span>'+(x.nobar?'<span></span>':'<span class="t"><i class="'+(x.k&&x.k===a1&&on?"top":x.gray?"gr":"")+'" style="width:'+Math.min(100,c/.5*100).toFixed(1)+'%"></i></span>')+'<span class="v'+(o?' oth':'')+'">'+pct(x.v)+'<small>%</small></span>'};
+  html+='<div class="cap"><h2>逃げなかったら</h2><span>逃げなかったときの内訳</span></div><div class="sub2">1コースが逃げない見立ては <span class="n">'+pct(1-pn)+'</span>%。その内訳です。%は図と同じく、このレース全体の中の割合（足すと '+pct(1-pn)+'%）</div><div class="semeJ sub2"></div><div class="cmb">'+rows.map(function(x){return line(x)}).join("")+'<span class="sep"></span>'+rest2.map(function(x){return line(x,1)}).join("")+'</div>';
   // 2着・3着の連動（場別。少なければ全国）：上位3つを、艇番の四角と割合を縦に積んで1〜3位の順に
   [pn>=.4?'1逃げ':null,on?a1:null].filter(Boolean).forEach(function(a1){var S=D.second||{},vs=(S[r.jcd]||{})[a1],al=(S.all||{})[a1],use=null,lab="";
     function tot(o){return o?Object.keys(o).reduce(function(s,c){return s+o[c]},0):0}
@@ -341,14 +346,14 @@ function race(r){
     if(use){var s1=split(a1),cells=function(o){var t=tot(o);return Object.keys(o).map(function(c){return [c,o[c]/t]}).sort(function(a,b){return b[1]-a[1]}).slice(0,3)};
       var c2=cells(use["2"]),c3=use["3"]?cells(use["3"]):[],best=Math.max.apply(null,c2.concat(c3).map(function(x){return x[1]}));
       var row=function(name,cs){return '<span class="rk">'+name+'</span>'+cs.map(function(x){var bb=boatAt(bs,+x[0]);return '<span class="cell'+(x[1]===best?' best':'')+'">'+chip(bb?bb.waku:+x[0])+'<b>'+(x[1]*100).toFixed(0)+'<small>%</small></b></span>'}).join("")};
-      html+='<div class="cap"><h2>'+(a1==='1逃げ'?'1コースが逃げたら':s1.c+'コースの'+esc(s1.t)+'が決まったら')+'</h2></div><div class="sub2">'+lab+'の過去<span class="n">'+tot(use["2"]).toLocaleString()+'</span>レースの実績で、今回の選手やスタートは入っていません。四角は、このレースでそのコースに入った艇の番号</div>'
+      html+='<details class="f23"><summary>'+(a1==='1逃げ'?'1コースが逃げたら':s1.c+'コースの'+esc(s1.t)+'なら')+'：2着・3着（'+lab+'の過去）</summary><div class="sub2">'+lab+'の過去<span class="n">'+tot(use["2"]).toLocaleString()+'</span>レースの実績で、今回の選手やスタートは入っていません。四角は、このレースでそのコースに入った艇の番号</div>'
         +'<div class="fol"><span></span><span class="hd top">いちばん多い</span><span class="hd">2番目</span><span class="hd">3番目</span>'+row('2着',c2)+(c3.length?row('3着',c3):'')+'</div>'
-        +(irr?'<div class="tnote">前づけや展示のFがあり、隊形がふだんと違うので参考程度です。</div>':'');}});
+        +(irr?'<div class="tnote">前づけや展示のFがあり、隊形がふだんと違うので参考程度です。</div>':'')+'</details>';}});
   // 出走表（列幅固定・選手名の下に2行目）
   html+='<div class="cap" id="tbl"><h2>出走表</h2><span></span></div><table><colgroup><col class="c0"><col><col class="c2"><col class="c3"><col class="c4"><col class="c5"></colgroup><tr><th>枠</th><th>選手</th><th>全国</th><th>当地</th><th>今節</th><th>機</th></tr>'
     +bs.map(function(b){return '<tr><td>'+chip(b.waku)+'</td><td class="nm">'+esc(b.name||"")+'<small><span class="nb">'+esc(b.cls||"")+'</span>'+(b.fcount?'・<span class="nb fm">F'+b.fcount+'</span>':'')+(b.avgSt!=null?'・<span class="nb">平均ST'+b.avgSt.toFixed(2).replace(/^0/,'')+'</span>':'')+'</small></td><td class="n">'+(b.nat2!=null?b.nat2.toFixed(0):'—')+'</td><td class="n">'+(b.loc2!=null?b.loc2.toFixed(0):'—')+'</td><td class="n">'+(b.setsuN?b.setsuWin+'/'+b.setsuN:'—')+'</td><td class="n">'+(b.motor!=null?b.motor.toFixed(0):'—')+"</td></tr>"}).join("")
-    +'</table><div class="tnote">全国・当地＝2連率（%、出走表）。今節＝同じ場の直前6日の1着数/走数（前日まで）。機＝モーター2連率（%）。平均ST＝本番の平均スタートタイミング（出走表）。F1・F2＝フライングを持っている本数。</div>';
-  $("main").innerHTML=html;paintMk();
+    +'</table><div class="tnote">全国・当地＝2連率（%、出走表の今期の値。出走数は出走表に無いため出していません）。今節＝同じ場の直前6日の1着数/走数（前日まで）。機＝モーター2連率（%）。平均ST＝本番の平均スタートタイミング（出走表）。F1・F2＝フライングを持っている本数。</div>';
+  $("main").innerHTML=html;paintMk();semeFill();
 }
 /* スリット：行＝進入コース（上が1）、旗＝艇番。横＝スタート展示ST（.40〜0）。展示Fの艇がいるときだけ、線の右に帯 */
 function slit(bs,dn){
@@ -508,7 +513,7 @@ function course(bs,pn,a1,a2,pj,att){
       +(t2?'<text x="'+f1(bx+19)+'" y="'+f1(y+18)+'" font-size="10.5" font-weight="700" fill="#9fb0c2" stroke="#0b2639" stroke-width="3" paint-order="stroke">'+esc(t2)+'</text>':'')}
   tags.forEach(function(it){s+=tag(it,it.r.t+' '+pc(it.r.p)+'%',0,extra&&extra.c===it.c?extra.t+' '+pc(extra.p)+'%':'')});
   var rest=Math.max(0,1-pn-cands.reduce(function(a,k){return a+pj[k]},0));
-  s+='<text x="'+(W-10)+'" y="'+(H-10)+'" text-anchor="end" font-size="12" font-weight="700" fill="#b6c3d0">そのほか '+pc(rest)+'%</text>';
+  s+='<text x="'+(W-10)+'" y="'+(H-10)+'" text-anchor="end" font-size="12" font-weight="700" fill="#b6c3d0">図にない決まり方 '+pc(rest)+'%</text>';
   // AI対策：図は文字を持たない画像（canvas）として出す。組み立てた SVG は画面に置かず、画像に焼いてから描く
   MK={svg:s+'</svg>',w:W,h:H};
   return '<canvas id="mkc" class="mkc" role="img" aria-label="1マークの図" style="aspect-ratio:'+W+'/'+H+'"></canvas>';
