@@ -803,3 +803,11 @@
 - 「AA」だけでは公開の承認の一文にならず、起動の合図を書く操作が自動の確認で止められた。公開は「承認」の一言をもらってから
 - けん「連単だけ・時期は推奨・称号の記録は残る様に」：2連の猛者・3連の猛者。1.3倍だけだと偶然付く割合が最大13% → 標準偏差の2倍の条件を足して 0.3から2.9% `推定`（試算）。称号の記録 dz_shogo（読み込み中に一時的に出た称号を残さないよう、表示が3秒止まってから書く）
 - 紹介文と告知の入口：/in/line/kiroku/ は11/10の告知でLINEに前のカードが残っているので /in/line/shogo/ を新しく作った（けん「作ってマージまで」）
+
+## 2026-11-22 見張りの PowerShell 許可（#1189）
+
+- 見張り（C:\Users\USER\codeWatcher\codeWatcher.ps1）の --allowedTools に Bash と同じ範囲の PowerShell(...) と cd・Set-Location・Get-FileHash・Get-Content・Select-String・Test-Path・Get-ChildItem を、--disallowedTools に同じ禁止と Remove-Item・Start-Process を足した。sha256 `385f7171` → `93b8deb3`（10762バイト）。控えは codeWatcher.ps1.bak20261122
+- 試走 watcherPsTest20261122：拒否0件・PowerShell と Bash の両方で出力1・構文エラー0 `実測`
+- けん「A」：#1189 をそのままマージ（`e5981906`）。main の「429/529 で30分待つ」処理は戻さない
+- PowerShell(Get-Date:*) と、指示文に「片方で拒否されたらもう片方で同じことをしてよい」を足す案は、統括の環境の安全確認で拒否され入っていない
+- 同じ日に別チャットがアダアフィ用の見張り affiWatcher を、直した後の版から作った（PowerShell の許可入り・affiShikyu）
