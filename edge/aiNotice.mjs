@@ -27,6 +27,22 @@ export function isAiAgent(ua) {
   return AI_UA_TOKENS.some(t => u.includes(t.toLowerCase()));
 }
 
+// 名指しの収集ボット：全ページでアクセスを拒否する（冗談の出走表はAIの取得役だけに返す）。
+export const SCRAPER_UA_TOKENS = ["slit-radar", "kyoutei-research-bot"];
+
+export function isScraper(ua) {
+  if (!ua) return false;
+  const u = ua.toLowerCase();
+  return SCRAPER_UA_TOKENS.some(t => u.includes(t));
+}
+
+export function blockResponse() {
+  return new Response("Forbidden", {
+    status: 403,
+    headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "private, no-store", "x-robots-tag": "noindex" },
+  });
+}
+
 // 名乗りが普通のブラウザでも、回線（AS番号）で分かる取得役。家庭・携帯の回線は入れない。
 // AS11798 Ace Data Centers：X に付いている Grok のページ取得（open_page）の回線
 //   （2026-10-25 実測：Grok に httpbin.org/headers と ipinfo.io/json を開かせた。名乗りは Windows の Chrome/152 と同じ）
