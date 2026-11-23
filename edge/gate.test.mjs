@@ -178,10 +178,11 @@ test("拒否した相手だけ接続元を記録する（普通の来訪者は�
     first: async () => null, all: async () => ({ results: [] }) }), first: async () => null }) });
   const env = { ...ENV, DZ_DB: logDb(false) };
   const r = await get("/glossary/", { env, ua: "Mozilla/5.0 (compatible; slit-radar-import/1.0)" });
-  assert.equal(r.status, 403); assert.equal(r.touched, false);
-  assert.equal(rows.length, 1); assert.equal(rows[0][1], "203.0.113.5"); assert.equal(rows[0][7], "ua");
+  assert.equal(r.status, 200); assert.equal(r.touched, false);
+  assert.equal(rows.length, 1); assert.equal(rows[0][1], "203.0.113.5"); assert.ok(rows[0][7].startsWith("decoy:"));
+  const code = rows[0][7].split(":")[2]; assert.ok(r.text.includes(code)); assert.ok(r.text.includes(rows[0][7].split(":")[1]));
   await get("/glossary/", { env });
   assert.equal(rows.length, 1);
   const r2 = await get("/glossary/", { env: { ...ENV, DZ_DB: logDb(true) }, ua: "Mozilla/5.0 (compatible; slit-radar-import/1.0)" });
-  assert.equal(r2.status, 403);
+  assert.equal(r2.status, 200); assert.equal(r2.touched, false);
 });

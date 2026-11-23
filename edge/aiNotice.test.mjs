@@ -178,15 +178,19 @@ test("対象判定", () => {
   assert.equal(noticeKind("/results/"), null);
 });
 
-test("名指しの収集ボット：全ページでアクセス拒否（403）・本物に触れない・冗談も返さない", async () => {
+test("名指しの収集ボット：全ページで架空の中身・本物に触れない・冗談も返さない・訪問ごとに印が違う", async () => {
   const BOTS = ["Mozilla/5.0 (compatible; slit-radar-import/1.0; with permission of the site operator)", "kyoutei-research-bot/0.1 (personal ML project)"];
+  const seen = new Set();
   for (const ua of BOTS) for (const p of [...TARGETS, ...OUTSIDE, "/glossary/", "/kensho/players/"]) {
     const r = await get(p, ua, 16509);
     assert.equal(r.touched, false, ua + " " + p);
-    assert.equal(r.status, 403, p);
+    assert.ok(r.status === 200 || r.status === 404, p);
     assert.ok(!r.text.includes(REAL), p);
     assert.ok(!r.text.includes(FREEZA), p);
+    const m = r.text.match(/M[A-Z2-9]{7}/);
+    if (r.status === 200) { assert.ok(m, p); assert.ok(!seen.has(m[0]), p); seen.add(m[0]); }
   }
+  assert.ok(seen.size > 10);
 });
 
 test("名指しの収集ボットの追加で、日本語のブラウザと配信WFの確認アクセスは本物のまま", async () => {
