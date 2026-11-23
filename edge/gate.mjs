@@ -26,19 +26,55 @@ async function hmac(key, msg) {
   return Array.from(new Uint8Array(sig), b => b.toString(16).padStart(2, "0")).join("");
 }
 
-export async function makePass(signKey, now = Date.now()) {
-  const exp = Math.floor(now / 1000) + GATE_DAYS * 86400;
-  return exp + "." + (await hmac(signKey, "dzg|" + exp));
+// 印は、通ったときの名乗りと回線にひもづける（2026-11-23 けん「1だけ」）。別の機械・回線に写しても使えない
+export async function bindOf(ua, asn) {
+  return (await hmac("bind", "b|" + (ua || "") + "|" + String(asn || 0))).slice(0, 8);
 }
 
-export async function validPass(signKey, value, now = Date.now()) {
-  const m = /^(\d{10})\.([0-9a-f]{64})$/.exec(value || "");
-  if (!m) return false;
-  if (Number(m[1]) <= Math.floor(now / 1000)) return false;
-  const want = await hmac(signKey, "dzg|" + m[1]);
+export async function makePass(signKey, now = Date.now(), bind = "00000000") {
+  const exp = Math.floor(now / 1000) + GATE_DAYS * 86400;
+  return exp + "." + bind + "." + (await hmac(signKey, "dzg|" + exp + "|" + bind));
+}
+
+// 戻り値：印の番号（署名の先頭16桁）か ""（無効）
+export async function validPass(signKey, value, now = Date.now(), bind = "00000000") {
+  const m = /^(\d{10})\.([0-9a-f]{8})\.([0-9a-f]{64})$/.exec(value || "");
+  if (!m) return "";
+  if (Number(m[1]) <= Math.floor(now / 1000)) return "";
+  if (m[2] !== bind) return "";
+  const want = await hmac(signKey, "dzg|" + m[1] + "|" + m[2]);
   let d = 0;
-  for (let i = 0; i < 64; i++) d |= want.charCodeAt(i) ^ m[2].charCodeAt(i);
-  return d === 0;
+  for (let i = 0; i < 64; i++) d |= want.charCodeAt(i) ^ m[3].charCodeAt(i);
+  return d === 0 ? m[3].slice(0, 16) : "";
+}
+
+// 印ごとの量の上限：DZ_GATE_CAP（「ページ数,秒数」）は Pages の秘密の値にだけ置く。超えた印は無効にして関門からやり直させる
+// 記録先は D1 の表 gateUse・gateBan。読めない・書けないときは止めない
+export function capConfig(env) {
+  const m = /^(\d+),(\d+)$/.exec(String((env && env.DZ_GATE_CAP) || "").trim());
+  if (!m) return null;
+  const pages = Number(m[1]), sec = Number(m[2]);
+  return pages >= 10 && sec >= 10 ? { pages, sec } : null;
+}
+
+// 戻り値：true＝この印は無効（取り消し済み、または今回で上限を超えた）
+export async function passOverCap(env, id, isPage, exp, now = Date.now()) {
+  try {
+    const cfg = capConfig(env);
+    if (!cfg || !env.DZ_DB || !id) return false;
+    const db = env.DZ_DB;
+    const t = Math.floor(now / 1000);
+    if (await db.prepare("SELECT p FROM gateBan WHERE p = ?1 AND until > ?2 LIMIT 1").bind(id, t).first()) return true;
+    if (!isPage) return false;
+    await db.prepare("INSERT INTO gateUse (p, t) VALUES (?1, ?2)").bind(id, t).run();
+    const row = await db.prepare("SELECT COUNT(*) AS n FROM gateUse WHERE p = ?1 AND t > ?2").bind(id, t - cfg.sec).first();
+    if (Math.random() < 0.01) await db.prepare("DELETE FROM gateUse WHERE t < ?1").bind(t - 2 * cfg.sec).run();
+    if (!row || Number(row.n) <= cfg.pages) return false;
+    await db.prepare("INSERT OR REPLACE INTO gateBan (p, until) VALUES (?1, ?2)").bind(id, exp).run();
+    return true;
+  } catch (e) {
+    return false;
+  }
 }
 
 function readCookie(request, name) {
@@ -136,14 +172,19 @@ export async function gate(context, fetchFn = fetch, now = Date.now()) {
       const t = String(form.get("t") || "");
       const ok = t && await siteverify(env.DZ_TS_SECRET, t, request.headers.get("cf-connecting-ip") || "", fetchFn);
       if (!ok) return new Response("NG", { status: 403, headers: H });
-      const pass = await makePass(env.DZ_GATE_SIGN, now);
+      const bind = await bindOf(request.headers.get("user-agent") || "", request.cf && request.cf.asn);
+      const pass = await makePass(env.DZ_GATE_SIGN, now, bind);
       return new Response("OK", { status: 200, headers: { ...H, "set-cookie": `${GATE_COOKIE}=${pass}; Path=/; Max-Age=${GATE_DAYS * 86400}; SameSite=Lax; Secure; HttpOnly` } });
     }
     if (isOpenPath(url.pathname)) return null;
     if (await gateOff(env)) return null;
     if (keyOk(request, env)) return null;
-    if (await validPass(env.DZ_GATE_SIGN, readCookie(request, GATE_COOKIE), now)) return null;
-    if (pathKind(url.pathname) === "page" && (request.method === "GET" || request.method === "HEAD")) {
+    const raw = readCookie(request, GATE_COOKIE);
+    const bind = await bindOf(request.headers.get("user-agent") || "", request.cf && request.cf.asn);
+    const id = await validPass(env.DZ_GATE_SIGN, raw, now, bind);
+    const isPage = pathKind(url.pathname) === "page";
+    if (id && !(await passOverCap(env, id, isPage, Number(raw.slice(0, 10)), now))) return null;
+    if (isPage && (request.method === "GET" || request.method === "HEAD")) {
       return new Response(gatePage(env.DZ_TS_SITEKEY), { status: 403, headers: { ...H, "content-type": "text/html; charset=utf-8" } });
     }
     return new Response("Forbidden", { status: 403, headers: { ...H, "content-type": "text/plain; charset=utf-8" } });
