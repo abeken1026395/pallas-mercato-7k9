@@ -60,6 +60,7 @@ GUARD = [
     "docs/kensho/tenji/index.html",
     "docs/kensho/buhin/index.html",
     "docs/kensho/sg/index.html",  # 検証12（2026-11-09 実験場から本番へ）
+    "docs/next/kensho13Maezuke.html",  # 実験場：検証13（展示でインを取られた1号艇）（2026-11-23）
     "docs/next/kenshoSg/index.html",  # 実験場：検証12（SGの1号艇）。guard.js を読み込む（2026-10-30）
     "docs/motor-maintenance/index.html",
     "docs/next/courseLast10Preview.html",
