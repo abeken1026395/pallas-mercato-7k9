@@ -7,6 +7,7 @@ import { isAiAgent, isAiNetwork, lacksJapanese, noticeKind, noticeResponse, isSc
 import { visitorCookie, recordVisit, withCookie } from "../edge/junkai.mjs";
 import { checkBan } from "../edge/ban.mjs";
 import { gate, geoBlock } from "../edge/gate.mjs";
+import { logBlock } from "../edge/blockLog.mjs";
 
 export async function onRequest(context) {
   const { request } = context;
@@ -19,9 +20,9 @@ export async function onRequest(context) {
   let trapped = false;
   let res = null;
   if (isScraper(ua)) {
-    res = blockResponse(); trapped = "block";
+    res = blockResponse(); trapped = "block"; await logBlock(context, "ua");
   } else if (await checkBan(context, vc)) {
-    res = blockResponse(); trapped = "block";
+    res = blockResponse(); trapped = "block"; await logBlock(context, "ban");
   } else if (request.method === "GET" || request.method === "HEAD") {
     if (isAiAgent(ua) || isAiNetwork(asn) || lacksJapanese(lang)) {
       const pathname = new URL(request.url).pathname;
