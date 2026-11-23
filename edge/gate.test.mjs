@@ -186,3 +186,18 @@ test("拒否した相手だけ接続元を記録する（普通の来訪者は�
   const r2 = await get("/glossary/", { env: { ...ENV, DZ_DB: logDb(true) }, ua: "Mozilla/5.0 (compatible; slit-radar-import/1.0)" });
   assert.equal(r2.status, 200); assert.equal(r2.touched, false);
 });
+
+test("偽物の迷路と上限：設定があれば偽の住所を含め、1日の上限を超えたら403。記録が読めなければ403", async () => {
+  const BOT = "Mozilla/5.0 (compatible; slit-radar-import/1.0)";
+  const mk = (count, broken) => ({ prepare: sql => ({ bind: () => ({
+    run: async () => ({}), all: async () => ({ results: [] }),
+    first: async () => { if (sql.includes("FROM blockLog")) { if (broken) throw new Error("x"); return { c: count }; } return null; } }), first: async () => null }) });
+  const r = await get("/glossary/", { env: { ...ENV, DZ_DB: mk(5), DZ_DECOY: "100,0" }, ua: BOT });
+  assert.equal(r.status, 200); assert.equal(r.touched, false); assert.ok((r.text.match(/href="\//g) || []).length >= 5);
+  const j = await get("/racers/raceIndex.json", { env: { ...ENV, DZ_DB: mk(5), DZ_DECOY: "100,0" }, ua: BOT });
+  assert.ok(JSON.parse(j.text).related.length === 5);
+  assert.equal((await get("/glossary/", { env: { ...ENV, DZ_DB: mk(100), DZ_DECOY: "100,0" }, ua: BOT })).status, 403);
+  assert.equal((await get("/glossary/", { env: { ...ENV, DZ_DB: mk(0, true), DZ_DECOY: "100,0" }, ua: BOT })).status, 403);
+  const plain = await get("/glossary/", { env: { ...ENV, DZ_DB: mk(5) }, ua: BOT });
+  assert.equal(plain.status, 200); assert.ok(!plain.text.includes("href="));
+});
