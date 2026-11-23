@@ -1,0 +1,946 @@
+<!-- データ攻め by 阿部 https://abeken1026395.github.io/pallas-mercato-7k9/ -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="UTF-8">
+<meta name="author" content="阿部（データ攻め）">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>実験場：1レースごとの回収率｜データ攻め</title>
+<link rel="canonical" href="https://abeken1026395.github.io/pallas-mercato-7k9/note/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="自分の記録｜データ攻め">
+<meta property="og:description" content="保存した買い目、選手のメモ、舟券の支出を、この端末の中だけに記録するノート。">
+<meta property="og:url" content="https://abeken1026395.github.io/pallas-mercato-7k9/note/">
+<!-- kata6:head -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&amp;family=Dela+Gothic+One&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/kata/kata.css?v=c853c8e7">
+<link rel="stylesheet" href="../assets/ugoki.css?v=a0c08edf">
+<!-- /kata6:head -->
+<style>
+/* 自分の記録：この端末の中だけに保存するメモと支出の記録。サーバーには送らない
+   本番の新しい型（assets/kata/kata.css・第6版）にそろえる：平らな紺・角は四角・暗い箱は罫線に・金の差し色・数字は Barlow Condensed */
+:root{--fg:#f2f2f0;--sub:#cdd7e0;--dim:#aebccb;--line:rgba(232,236,239,.18);--line2:rgba(232,236,239,.32);--gold:#dcbd78;--goldBg:#c8a45e;--rule:rgba(212,176,106,.6);--plus:#9be39b;--minus:#ff9c8f;
+  --font:-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;--num:"Barlow Condensed","Hiragino Sans",-apple-system,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:#0d1c2f}
+body{color:var(--fg);font-family:var(--font);font-size:15px;line-height:1.85;letter-spacing:.02em;-webkit-text-size-adjust:100%}
+.wrap{max-width:640px;margin:0 auto;padding-inline:16px;padding-block:0 64px}
+a{color:var(--fg);text-decoration-color:var(--gold);text-underline-offset:4px}
+.nav a{display:inline-flex;align-items:center;min-height:48px;font-size:14px;color:var(--sub);text-decoration:none}
+header{padding:10px 0 4px}
+h1{font-family:"Dela Gothic One",var(--font);font-weight:400;font-size:26px;line-height:1.4;color:#f2f2f0;padding-bottom:10px;border-bottom:1px solid var(--rule);margin-bottom:12px}
+.lead{color:var(--sub);font-size:14px}
+.tabs{display:flex;position:sticky;top:0;background:#132b46;z-index:5;margin-top:14px;border-bottom:1px solid var(--line)}
+.tab{flex:1;min-height:48px;border:none;border-bottom:2px solid transparent;background:none;color:var(--dim);font:700 15px var(--font);cursor:pointer}
+.tab[aria-selected="true"]{color:#fff;border-bottom-color:var(--gold)}
+.card{padding:14px 0;border-bottom:1px solid var(--line)}
+h2{font-size:16px;font-weight:800;margin-bottom:6px;color:#fff}
+label{display:block;font-size:13px;color:var(--sub);margin:10px 0 4px}
+input,select,textarea{width:100%;min-height:46px;background:#132b46;color:var(--fg);border:1px solid var(--line2);border-radius:0;padding:8px 10px;font:16px var(--font)}
+input,select,textarea{min-width:0;max-width:100%}
+input,textarea{-webkit-appearance:none;appearance:none}
+/* iPhone の日付欄は既定で横幅と高さを持ち、隣の欄に重なる。ほかの欄と同じ箱にそろえる */
+input[type=date]{display:block;height:46px;line-height:28px;text-align:left}
+input[type=date]::-webkit-date-and-time-value{text-align:left;margin:0}
+input[type=date]::-webkit-calendar-picker-indicator{margin:0}
+input[type=search]::-webkit-search-decoration{-webkit-appearance:none}
+.fileIn{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold)}
+textarea{min-height:96px;resize:vertical;line-height:1.7}
+.row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+.row3{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,.8fr);gap:8px}
+.row>div,.row3>div{min-width:0}
+.btn{min-height:46px;padding:0 18px;border-radius:0;border:1px solid #eef3f8;background:#eef3f8;color:#0b1726;font:700 15px var(--font);cursor:pointer;margin-top:12px}
+.btn.sub{background:none;border-color:var(--line2);color:var(--sub);font-weight:600}
+.btn.small{min-height:44px;padding:0 12px;font-size:13px;margin-top:0}
+.tsu-st{margin-top:8px;font-size:15px;line-height:1.7;color:var(--fg)}
+.tsu-st b{color:var(--gold);font-weight:700}
+.tsu-ol{margin:8px 0 0;padding-left:1.4em;font-size:14px;line-height:1.8;color:var(--sub)}
+#tsuchi{scroll-margin-top:72px}
+.tsf{margin-top:16px}.tsf h3{font-size:14px;font-weight:700;color:var(--fg);margin:0}
+.tsf-r{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)}
+.tsf-k{font-size:12px;color:var(--sub);margin-right:8px}.tsf-n{font-size:15px;color:var(--fg);min-width:0;overflow-wrap:anywhere}
+.tsf p{font-size:13px;color:var(--sub);margin:4px 0 0;line-height:1.6}
+.tsf-b{flex:none;min-height:44px;padding:0 12px;border-radius:0;border:1px solid var(--line2);background:none;color:var(--fg);font:700 14px var(--font);cursor:pointer;white-space:nowrap}
+.tsf-b[aria-pressed=true]{background:#eef3f8;border-color:#eef3f8;color:#0b1726}
+.tsf-b:disabled{opacity:.6;cursor:default}
+.hits{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.hits button{min-height:40px;padding:0 12px;border-radius:0;border:1px solid var(--line2);background:none;color:var(--fg);font:14px var(--font);cursor:pointer}
+.picked{font-size:14px;margin-top:8px}
+.picked small{color:var(--dim)}
+.memo{border-top:1px solid var(--line);padding:12px 0}
+.memo:first-child{border-top:none}
+.memo .h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.memo .h b{font-size:16px}
+.memo .h small{color:var(--dim);font-size:12px}
+.memo .t{white-space:pre-wrap;word-break:break-word;margin-top:4px;font-size:15px}
+.memo .ops{display:flex;gap:6px;margin-top:8px}
+.bet{border-top:1px solid var(--line);padding:12px 0}
+.bet:first-child{border-top:none}
+.bet .h{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.bet .h a{display:inline-flex;align-items:center;min-height:44px;font-size:16px;font-weight:700;text-decoration:none}
+.bet .h small{color:var(--dim);font-size:12px;white-space:nowrap}
+.bet ul{list-style:none;margin:6px 0 0}
+.bet li{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:baseline;padding:2px 0;font-size:14px;line-height:1.6}
+.bet li b{font-size:12px;color:#0b1726;background:#eef3f8;padding:1px 6px;white-space:nowrap}
+.bet li span{font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.bet li i{font-style:normal;font-size:12px;color:var(--dim);white-space:nowrap}
+.bet .m{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:6px;font-size:14px;color:var(--sub);font-variant-numeric:tabular-nums}
+.ring{display:flex;align-items:center;gap:12px}
+.ring svg{flex:none}
+.rr{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;padding-top:8px;border-top:1px solid #2c3e55}
+.rr .k{font-size:12px;color:var(--sub);margin-bottom:2px}
+.ring.s{gap:8px}
+.ring.s .v{font:700 18px var(--num);color:var(--fg);white-space:nowrap}
+.band .ring.s .v small{display:inline;font-size:12px;color:var(--sub);margin-left:1px}
+.gtip{margin-top:6px;min-height:44px;font-size:13px;line-height:1.6;color:var(--sub);font-variant-numeric:tabular-nums}
+.gtip b{color:var(--fg)}
+#bgraph svg:focus:not(:focus-visible){outline:none}
+.ring .v small.n{display:block;font-size:12px;font-weight:400;color:var(--dim);margin-top:2px}
+.more{padding:12px 0;text-align:center}
+.bc{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;font:700 15px var(--num);line-height:1;border:1px solid transparent}
+.bc1{background:#eef1f4;color:#0b1726}.bc2{background:#0a0d12;color:#fff;border-color:#5c6f86}.bc3{background:#c22d33;color:#fff}.bc4{background:#2457b3;color:#fff}.bc5{background:#e3c23c;color:#0b1726}.bc6{background:#23773f;color:#fff}
+.bk{margin-top:8px}
+.bk .bh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13px;color:var(--sub)}
+.bk .bh b{font-size:12px;color:#0b1726;background:#eef3f8;padding:1px 6px;margin-right:6px}
+.bk .bh i{font-style:normal;white-space:nowrap}
+.fg{display:grid;grid-template-columns:3em 1fr;gap:6px 8px;align-items:center;margin-top:6px}
+.fg>span{font-size:13px;color:var(--sub)}
+.fg>div{display:flex;flex-wrap:wrap;gap:4px}
+.bk .cm{margin-top:6px;font-size:14px;line-height:1.6;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.amt{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 12px;margin-top:10px;padding-top:8px;border-top:1px solid var(--line);font-size:13px;color:var(--sub);font-variant-numeric:tabular-nums}
+.amt b{font:700 18px var(--num);color:var(--fg)}
+.band{margin-top:8px;padding:10px 12px;background:#18304d;font-variant-numeric:tabular-nums}
+.band .r{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:32px}
+.band .fin{display:flex;align-items:center;gap:4px;font-size:13px;color:var(--sub)}
+.band .fin em{font-style:normal;color:var(--dim)}
+.band .st{font-size:13px;font-weight:700;color:var(--sub);white-space:nowrap}
+.band .st.hit{color:#7fb4ff}
+.band .r>span:not(.st){font-size:13px;color:var(--sub)}
+.band .r b{font:700 22px var(--num);color:var(--fg);white-space:nowrap}
+/* 払戻が1万円以上の的中は赤（2026-11-12 けん裁定：テレボートの見せ方に合わせる。赤の決まりの例外はこの1か所だけ） */
+.band .r b.man{color:#ff7b7b}
+.band small{display:block;text-align:right;font-size:12px;line-height:1.6;color:var(--dim);overflow-wrap:anywhere}
+.bet .res{margin-top:6px;font-size:14px;line-height:1.6;color:var(--sub);font-variant-numeric:tabular-nums}
+.bet .res.hit{color:var(--fg)}
+.bet .res.hit b{color:#7fb4ff}
+.bet .t{white-space:pre-wrap;word-break:break-word;margin-top:6px;font-size:14px;color:var(--fg);border-left:2px solid var(--line2);padding-left:8px}
+.empty{color:var(--dim);font-size:13px;padding:6px 0}
+.sum{display:grid;grid-template-columns:repeat(2,1fr);margin-top:10px;border-top:1px solid var(--line)}
+.sum>div{padding:10px 0;border-bottom:1px solid var(--line)}
+.sum>div:nth-child(odd){padding-right:12px}
+.sum>div:nth-child(even){padding-left:12px;border-left:1px solid var(--line)}
+.sum .k{font-size:13px;color:var(--sub)}
+.sum .v small.tg{display:block;font:400 12px var(--font);color:var(--dim);margin-top:2px}
+/* 収支の推移（2026-11-12 けん裁定19）：線は1色。色は赤（2026-11-12 けん「グラフ赤」） */
+.gr:empty{display:none}
+.gr{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.gr .gh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13px;color:var(--sub)}
+.gr .gh b{font:700 20px var(--num);color:var(--fg);font-variant-numeric:tabular-nums}
+.gr svg{display:block;width:100%;height:auto;margin-top:6px}
+.gr .ax{display:flex;justify-content:space-between;font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
+.band .st.tori{color:var(--sub)}
+.sum .v{font:700 32px/1.1 var(--num);font-variant-numeric:tabular-nums}
+.sum .v small{font:400 13px var(--font);color:var(--dim);margin-left:3px}
+.plus{color:var(--plus)} .minus{color:var(--minus)}
+.per{display:flex;border:1px solid var(--line2);margin-top:4px}
+.per button{flex:1;min-height:44px;border:none;border-right:1px solid var(--line2);background:none;color:var(--sub);font:600 14px var(--font);cursor:pointer}
+.per button:last-child{border-right:none}
+.per button[aria-pressed="true"]{color:#111;background:var(--goldBg)}
+table.log{width:100%;border-collapse:collapse;font-size:14px;margin-top:10px}
+table.log th,table.log td{padding:8px 4px;border-bottom:1px solid var(--line);text-align:right}
+table.log td{font:600 18px var(--num);font-variant-numeric:tabular-nums}
+table.log td:first-child{font:15px var(--font)}
+table.log th{color:var(--sub);font-weight:600;font-size:12px}
+table.log td:first-child,table.log th:first-child{text-align:left}
+table.log td.x{width:44px;text-align:center}
+table.log td.x button{min-width:40px;min-height:40px;border:none;background:none;color:var(--dim);font-size:16px;cursor:pointer}
+.note{font-size:13px;color:var(--dim);margin-top:8px}
+.danger{border-color:#8a4a44 !important;color:#ffb3aa !important}
+.confirm{margin-top:8px;font-size:14px;color:var(--sub)}
+.confirm .btn{margin-right:6px}
+/* 予想の傾向・月ごとのまとめ・note の入口（再訪設計書 段階3） */
+.adv{margin-top:16px;padding:12px 16px;background:rgba(255,255,255,.04);border-left:3px solid var(--sub)}
+.adv h3{font-size:15px;font-weight:700;margin:0 0 4px;color:#fff}
+.adv p{font-size:14px;line-height:1.7;margin:4px 0 0;color:var(--tx);font-variant-numeric:tabular-nums}
+.adv .note{font-size:12px;color:var(--dim)}
+.shogo{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 12px;margin-top:8px}
+.shogo b{font:400 24px/1.4 "Dela Gothic One",var(--font);color:#fff}
+.shogo span{font-size:14px;color:var(--sub);font-variant-numeric:tabular-nums}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tags span{font-size:13px;line-height:1.6;padding:2px 8px;border:1px solid var(--line2);color:var(--fg);font-variant-numeric:tabular-nums}
+.shlog{margin-top:16px;padding-top:12px;border-top:1px solid var(--line)}
+.shlog h3{font-size:14px;font-weight:700;margin:0;color:var(--fg)}
+.shlog ul{list-style:none;margin:4px 0 0}
+.shlog li{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:2px 12px;padding:6px 0;border-bottom:1px solid var(--line);font-size:14px;line-height:1.6}
+.shlog li b{font-weight:700;color:var(--fg)}
+.shlog li span{font-size:13px;color:var(--sub);font-variant-numeric:tabular-nums}
+table.kk{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
+table.kk caption{text-align:left;font-size:13px;color:var(--sub);padding-bottom:4px;line-height:1.6}
+table.kk th,table.kk td{padding:8px 4px;border-bottom:1px solid var(--line);line-height:1.4;vertical-align:baseline}
+table.kk thead th{font-size:12px;color:var(--sub);font-weight:600;text-align:right}
+table.kk thead th:first-child,table.kk tbody th{text-align:left}
+table.kk tbody th{font-weight:400;color:var(--fg);white-space:nowrap}
+.nw{white-space:nowrap}
+table.kk td{text-align:right;font:600 18px var(--num);font-variant-numeric:tabular-nums;white-space:nowrap}
+table.kk td small{display:block;font:400 12px var(--font);color:var(--dim)}
+.toRow{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:56px;padding:10px 0;border:0;border-top:1px solid var(--line);background:none;color:var(--fg);font:15px/1.6 var(--font);text-align:left;text-decoration:none;cursor:pointer}
+.toRow:first-child{border-top:0}
+.toRow small{display:block;font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
+.toRow i{font-style:normal;color:var(--gold);font-size:14px;white-space:nowrap}
+#sh-open{margin-top:12px}
+dialog.rep{width:min(100% - 24px,560px);max-height:calc(100% - 24px);margin:auto;padding:16px;background:#132b46;color:var(--fg);border:1px solid var(--line2)}
+dialog.rep::backdrop{background:rgba(5,12,22,.7)}
+dialog.rep h2{display:flex;justify-content:space-between;align-items:center;gap:8px}
+dialog.rep .x{min-width:44px;min-height:44px;border:0;background:none;color:var(--sub);font-size:20px;cursor:pointer}
+dialog.rep img{display:block;width:100%;height:auto;margin-top:8px;border:1px solid var(--line)}
+.kn{font-size:13px;line-height:1.6;color:var(--dim);margin-top:4px}
+.ed:empty{display:none}
+.bet .ops{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.edf{margin-top:8px;padding:12px;border:1px solid var(--line2)}
+.edf p{font-size:13px;line-height:1.7;color:var(--sub);margin-top:8px}
+.edf .seg{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line2)}
+.edf .seg button,.edf .chips button{min-height:48px;font:700 15px var(--font);color:var(--fg);background:none;border:0;cursor:pointer}
+.edf .chips{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:12px}
+.edf .chips button{border:1px solid var(--line2);font-variant-numeric:tabular-nums;font-size:14px;padding:0;white-space:nowrap}
+.edf button[aria-pressed="true"]{background:#eef3f8;color:#0b1726;border-color:#eef3f8}
+.edf[data-mode="e"] .mc,.edf[data-mode="c"] .me{display:none}
+.edf label{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px;font-size:14px;color:var(--fg)}
+.edf label span{display:flex;align-items:center;gap:4px;color:var(--sub)}
+.edf input{width:8em;min-height:44px;padding:0 8px;font:600 16px var(--num);text-align:right;background:#0b1726;color:var(--fg);border:1px solid var(--line2)}
+footer{margin-top:24px;font-size:13px;color:var(--dim);line-height:1.85}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="nav"><a href="../">データ攻め</a></div>
+<header>
+  <h1 class="kataTitle">自分の記録</h1>
+  <p class="lead">保存した買い目と、選手のメモ、舟券の支出の記録。書いた内容はこの端末のブラウザの中だけに残り、データ攻めには送られません（通知をオンにしたときだけ、選んだレースの番号と締切の時刻、知らせると選んだ推しの登録番号とモーターの場・機番を送ります）。</p>
+</header>
+
+<div class="tabs" role="tablist">
+  <button class="tab" role="tab" id="t-bets" aria-selected="false">買い目</button>
+  <button class="tab" role="tab" id="t-memo" aria-selected="true">選手メモ</button>
+  <button class="tab" role="tab" id="t-money" aria-selected="false">支出の記録</button>
+</div>
+
+<!-- ===== 保存した買い目（出走表で保存したもの） ===== -->
+<section id="v-bets" hidden>
+  <div class="card">
+    <button class="kz-open" type="button" data-kzopen>買い目を記録（場・日付・レースを選ぶ）</button>
+    <p class="note">入れ忘れたレースも、前日の分まで入れられます。</p>
+  </div>
+  <div class="card">
+    <h2>振り返り</h2>
+    <div class="per" id="bper">
+      <button type="button" data-p="m0" aria-pressed="true">今月</button>
+      <button type="button" data-p="m1" aria-pressed="false">先月</button>
+      <button type="button" data-p="all" aria-pressed="false">すべて</button>
+    </div>
+    <div class="sum" id="bsum"></div>
+    <div class="gr" id="bgraph"></div>
+    <p class="note" id="bnote"></p>
+  </div>
+  <div class="card" id="tsuchi">
+    <h2>レースの通知</h2>
+    <p class="tsu-st" id="tsu-st"></p>
+    <div id="tsu-do"></div>
+    <p class="note" id="tsu-msg" role="status" aria-live="polite"></p>
+    <div class="tsf" id="tsu-s" hidden></div>
+    <div class="tsf" id="tsu-f" hidden></div>
+    <p class="note">出走表と見どころのレースで「10分前に知らせる」「結果を知らせる」を押したレースと、上で選んだ推し・モーターが出るレースだけ知らせます。締切が遅れたときは、公式の締切予定時刻に合わせて10分前に知らせます。その日のまとめを受け取ると、買い目を保存したレースの結果が出そろったときに、夜に1通だけ知らせます。オンにすると、選んだレースと買い目を保存したレースの番号・締切の時刻・知らせる種類と、選んだ推しの登録番号・モーターの場と機番だけをデータ攻めに送ります。買い目・金額・メモ・収支は送りません。</p>
+  </div>
+  <div class="card" id="keikou">
+    <h2>予想の傾向 <small style="color:var(--sub);font-weight:400;font-size:12px">これまでの全記録</small></h2>
+    <div id="kk-body"></div>
+  </div>
+  <div class="card">
+    <h2>月ごとのまとめ</h2>
+    <div id="mo-list"></div>
+  </div>
+  <div class="card">
+    <h2>レースごと <small id="b-count" style="color:var(--sub);font-weight:400;font-size:12px"></small></h2>
+    <div id="b-list"></div>
+  </div>
+  <div class="card"><a class="toRow" href="https://note.com/abeken2000" target="_blank" rel="noopener"><span>阿部の買い目は note で公開しています<small>1レース780円・note.com に移ります</small></span><i>開く</i></a></div>
+</section>
+<dialog class="rep" id="rep" aria-labelledby="rep-h">
+  <h2><span id="rep-h">まとめ</span><button class="x" type="button" id="rep-x" aria-label="閉じる">×</button></h2>
+  <div id="rep-img"></div>
+  <button class="btn" type="button" id="rep-share">画像を共有・保存</button>
+  <p class="note" id="rep-msg" role="status"></p>
+</dialog>
+
+<!-- ===== 選手メモ ===== -->
+<section id="v-memo">
+  <div class="card">
+    <h2>メモを書く</h2>
+    <label for="m-q">選手（名前か登番。空でもよい）</label>
+    <input id="m-q" type="search" autocomplete="off" placeholder="例：毒島 / 4238">
+    <div class="hits" id="m-hits"></div>
+    <div class="picked" id="m-picked"></div>
+    <label for="m-text">メモ</label>
+    <textarea id="m-text" placeholder="例：住之江の1コースは2周目まで粘る。展示で伸びていたら買い"></textarea>
+    <button class="btn" type="button" id="m-save">保存する</button>
+    <button class="btn sub" type="button" id="m-cancel" hidden>書き直しをやめる</button>
+  </div>
+  <div class="card">
+    <h2>メモの一覧 <small id="m-count" style="color:var(--sub);font-weight:400;font-size:12px"></small></h2>
+    <input id="m-filter" type="search" placeholder="メモと選手名から探す">
+    <div id="m-list" style="margin-top:6px"></div>
+  </div>
+</section>
+
+<!-- ===== 支出の記録 ===== -->
+<section id="v-money" hidden>
+  <div class="card">
+    <h2>記録する</h2>
+    <div class="row3">
+      <div><label for="e-date">日付</label><input id="e-date" type="date"></div>
+      <div><label for="e-jo">場</label><select id="e-jo"></select></div>
+      <div><label for="e-r">レース</label><select id="e-r"></select></div>
+    </div>
+    <div class="row">
+      <div><label for="e-buy">購入額（円）</label><input id="e-buy" type="number" inputmode="numeric" min="0" step="100" placeholder="0"></div>
+      <div><label for="e-pay">払戻額（円）</label><input id="e-pay" type="number" inputmode="numeric" min="0" step="10" placeholder="0"></div>
+    </div>
+    <button class="btn" type="button" id="e-save">記録する</button>
+    <div class="note" id="e-msg"></div>
+  </div>
+  <div class="card">
+    <h2>振り返り</h2>
+    <div class="per" id="per">
+      <button type="button" data-p="m0" aria-pressed="true">今月</button>
+      <button type="button" data-p="m1" aria-pressed="false">先月</button>
+      <button type="button" data-p="all" aria-pressed="false">すべて</button>
+    </div>
+    <div class="sum" id="sum"></div>
+    <table class="log" id="log"></table>
+  </div>
+  <div class="card">
+    <h2>データの管理</h2>
+    <p class="note" style="margin-top:0">ブラウザの履歴やサイトのデータを消すと、ここに書いたものも消えます。機種変更のときは書き出したファイルを読み込んでください。</p>
+    <button class="btn sub" type="button" id="x-out">書き出す（ファイル）</button>
+    <label class="btn sub" style="display:inline-flex;align-items:center;width:auto;margin:10px 0 0" for="x-in">読み込む</label>
+    <input id="x-in" class="fileIn" type="file" accept="application/json,.json">
+    <div><button class="btn sub danger" type="button" id="x-del">支出の記録をすべて消す</button></div>
+    <div class="confirm" id="x-confirm" hidden>支出の記録をすべて消します。元に戻せません。<br><button class="btn small danger" type="button" id="x-yes">消す</button><button class="btn small sub" type="button" id="x-no">やめる</button></div>
+    <div class="note" id="x-msg"></div>
+  </div>
+</section>
+
+<footer>舟券の購入は20歳になってから。<br>ここに書いた内容は、この端末のブラウザにだけ保存されます（データ攻めのサーバーには届きません）。</footer>
+</div>
+
+<script src="../assets/kotaeawase.js?v=6"></script>
+<script>
+(function(){
+var V=["","桐生","戸田","江戸川","平和島","多摩川","浜名湖","蒲郡","常滑","津","三国","びわこ","住之江","尼崎","鳴門","丸亀","児島","宮島","徳山","下関","若松","芦屋","福岡","唐津","大村"];
+var KM="dz_note_memo", KS="dz_note_money";
+function $(id){return document.getElementById(id)}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function load(k){try{var v=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(v)?v:[]}catch(e){return []}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}
+function today(){var n=new Date(Date.now()+9*3600e3);return n.toISOString().slice(0,10)}
+function md(d){return +d.slice(5,7)+"/"+(+d.slice(8,10))}
+function yen(n){return n.toLocaleString()+"円"}
+var memos=load(KM), money=load(KS), IDX=null, pick=null, editId=null;
+
+/* ---------- タブ ---------- */
+function show(v){["bets","memo","money"].forEach(function(k){$("t-"+k).setAttribute("aria-selected",k===v);$("v-"+k).hidden=k!==v});try{history.replaceState(null,"","#"+v)}catch(e){}}
+$("t-bets").onclick=function(){show("bets");drawBets()};
+$("t-memo").onclick=function(){show("memo")};
+$("t-money").onclick=function(){show("money");drawMoney()};
+
+/* ---------- 選手メモ ---------- */
+fetch("../players/card/index.json").then(function(r){return r.ok?r.json():null}).then(function(j){IDX=j;fromQuery()}).catch(function(){fromQuery()});
+function norm(s){return String(s||"").replace(/[\s　]/g,"")}
+function setPick(no){pick=no?{no:String(no),name:(IDX&&IDX[no])||""}:null;$("m-picked").innerHTML=pick?"選手："+esc(pick.name||"")+" <small>"+esc(pick.no)+'</small> <button class="btn small sub" type="button" id="m-unpick">外す</button>':"";
+  if(pick)$("m-unpick").onclick=function(){setPick(null)};$("m-hits").innerHTML="";$("m-q").value=""}
+$("m-q").addEventListener("input",function(){
+  var q=norm(this.value);if(!q||!IDX){$("m-hits").innerHTML="";return}
+  var hit=Object.keys(IDX).filter(function(no){return no.indexOf(q)===0||norm(IDX[no]).indexOf(q)>=0}).slice(0,8);
+  $("m-hits").innerHTML=hit.map(function(no){return '<button type="button" data-no="'+no+'">'+esc(IDX[no])+" "+no+"</button>"}).join("")||'<span class="empty">見つかりません</span>';
+});
+$("m-hits").addEventListener("click",function(e){var b=e.target.closest("button");if(b)setPick(b.dataset.no)});
+$("m-save").onclick=function(){
+  var t=$("m-text").value.trim();if(!t){$("m-text").focus();return}
+  var now=new Date().toISOString();
+  if(editId){memos.forEach(function(m){if(m.id===editId){m.text=t;m.no=pick?pick.no:"";m.name=pick?pick.name:"";m.upd=now}})}
+  else memos.unshift({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),no:pick?pick.no:"",name:pick?pick.name:"",text:t,at:now,upd:now});
+  save(KM,memos);editId=null;$("m-text").value="";$("m-cancel").hidden=true;$("m-save").textContent="保存する";setPick(null);drawMemos();
+};
+$("m-cancel").onclick=function(){editId=null;$("m-text").value="";this.hidden=true;$("m-save").textContent="保存する";setPick(null)};
+$("m-filter").addEventListener("input",drawMemos);
+function drawMemos(){
+  var q=norm($("m-filter").value).toLowerCase();
+  var xs=memos.slice().sort(function(a,b){return (b.upd||b.at).localeCompare(a.upd||a.at)}).filter(function(m){return !q||norm(m.text+m.name+m.no).toLowerCase().indexOf(q)>=0});
+  $("m-count").textContent=memos.length?memos.length+"件":"";
+  $("m-list").innerHTML=xs.length?xs.map(function(m){var d=(m.upd||m.at).slice(0,10);
+    return '<div class="memo"><div class="h">'+(m.no?'<b><a href="../players/card.html?toban='+esc(m.no)+'">'+esc(m.name||m.no)+"</a></b><small>"+esc(m.no)+"</small>":"<b>メモ</b>")+"<small>"+esc(d.replace(/-/g,"/"))+'</small></div><div class="t">'+esc(m.text)+'</div><div class="ops"><button class="btn small sub" type="button" data-e="'+m.id+'">書き直す</button><button class="btn small sub" type="button" data-d="'+m.id+'">消す</button></div></div>'}).join("")
+    :'<div class="empty">'+(memos.length?"当てはまるメモはありません。":"まだメモはありません。")+"</div>";
+}
+$("m-list").addEventListener("click",function(e){
+  var b=e.target.closest("button");if(!b)return;
+  if(b.dataset.d){if(b.dataset.armed){memos=memos.filter(function(m){return m.id!==b.dataset.d});save(KM,memos);drawMemos()}else{b.dataset.armed="1";b.textContent="もう一度押すと消えます"}}
+  if(b.dataset.e){var m=memos.filter(function(x){return x.id===b.dataset.e})[0];if(!m)return;editId=m.id;$("m-text").value=m.text;setPick(m.no||null);$("m-cancel").hidden=false;$("m-save").textContent="書き直しを保存";$("m-text").scrollIntoView({block:"center"})}
+});
+/* 選手カードなどから ?toban= で来たら、その選手を選んだ状態で開く */
+function fromQuery(){var p=new URLSearchParams(location.search),no=p.get("toban");if(no&&/^\d{4}$/.test(no)){show("memo");setPick(no);$("m-filter").value=IDX&&IDX[no]?IDX[no]:no;drawMemos();$("m-text").focus()}}
+
+/* ---------- 支出の記録 ---------- */
+$("e-date").value=today();
+$("e-jo").innerHTML='<option value="">—</option>'+V.slice(1).map(function(n,i){return '<option value="'+("0"+(i+1)).slice(-2)+'">'+n+"</option>"}).join("");
+$("e-r").innerHTML='<option value="">—</option>'+[1,2,3,4,5,6,7,8,9,10,11,12].map(function(r){return '<option value="'+r+'">'+r+"R</option>"}).join("");
+$("e-save").onclick=function(){
+  var d=$("e-date").value,b=Math.max(0,Math.round(+$("e-buy").value||0)),p=Math.max(0,Math.round(+$("e-pay").value||0));
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(d)){$("e-msg").textContent="日付を入れてください。";return}
+  if(!b&&!p){$("e-msg").textContent="購入額か払戻額を入れてください。";return}
+  money.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),d:d,jo:$("e-jo").value,r:$("e-r").value,buy:b,pay:p});
+  save(KS,money);$("e-buy").value="";$("e-pay").value="";$("e-msg").textContent=md(d)+"の分を記録しました。";drawMoney();
+};
+var PER="m0";
+$("per").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;PER=b.dataset.p;[].forEach.call($("per").children,function(x){x.setAttribute("aria-pressed",x===b)});drawMoney()});
+function inPer(d){if(PER==="all")return true;var t=today(),y=+t.slice(0,4),m=+t.slice(5,7);if(PER==="m1"){m-=1;if(!m){m=12;y-=1}}return d.slice(0,7)===y+"-"+("0"+m).slice(-2)}
+function drawMoney(){
+  var xs=money.filter(function(x){return inPer(x.d)}).sort(function(a,b){return b.d.localeCompare(a.d)||(+b.r||0)-(+a.r||0)});
+  var buy=0,pay=0;xs.forEach(function(x){buy+=x.buy;pay+=x.pay});
+  var diff=pay-buy;
+  $("sum").innerHTML='<div><div class="k">購入</div><div class="v">'+buy.toLocaleString()+"<small>円</small></div></div>"
+    +'<div><div class="k">払戻</div><div class="v">'+pay.toLocaleString()+"<small>円</small></div></div>"
+    +'<div><div class="k">差額（払戻−購入）</div><div class="v '+(diff>0?"plus":diff<0?"minus":"")+'">'+(diff>0?"+":"")+diff.toLocaleString()+"<small>円</small></div></div>"
+    +'<div><div class="k">記録した件数</div><div class="v">'+xs.length+"<small>件</small></div></div>";
+  $("log").innerHTML=xs.length?"<tr><th>日付・場</th><th>購入</th><th>払戻</th><th></th></tr>"+xs.map(function(x){return "<tr><td>"+md(x.d)+" "+esc(V[+x.jo]||"")+(x.r?" "+x.r+"R":"")+"</td><td>"+x.buy.toLocaleString()+"</td><td>"+x.pay.toLocaleString()+'</td><td class="x"><button type="button" aria-label="この行を消す" data-x="'+x.id+'">×</button></td></tr>'}).join("")
+    :'<tr><td class="empty">この期間の記録はありません。</td></tr>';
+}
+$("log").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;if(b.dataset.armed){money=money.filter(function(x){return x.id!==b.dataset.x});save(KS,money);drawMoney()}else{b.dataset.armed="1";b.textContent="消す"}});
+
+/* ---------- 保存した買い目・見送り（出走表の dz_bets／dz_rmemo／dz_skip。どれもレースIDキーのオブジェクト）
+   答え合わせは ../assets/kotaeawase.js（DZK）。結果データは表示している日の分だけ読み、届いたら描き直す ---------- */
+var BT={"3t":"3連単","3f":"3連複","2t":"2連単","2f":"2連複","kk":"拡連複","tn":"単勝","fk":"複勝"};
+function loadO(k){try{var v=JSON.parse(localStorage.getItem(k)||"{}");return v&&typeof v==="object"&&!Array.isArray(v)?v:{}}catch(e){return {}}}
+function saveO(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}
+var BPER="m0", RES={}, RESDAY={};
+$("bper").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;BPER=b.dataset.p;BSHOW=20;[].forEach.call($("bper").children,function(x){x.setAttribute("aria-pressed",x===b)});drawBets()});
+function inBPer(hd){if(BPER==="all")return true;var t=today(),y=+t.slice(0,4),m=+t.slice(5,7);if(BPER==="m1"){m-=1;if(!m){m=12;y-=1}}return hd.slice(0,6)===String(y)+("0"+m).slice(-2)}
+function betRows(){
+  var B=loadO("dz_bets"),M=loadO("dz_rmemo"),S=loadO("dz_skip"),ks={};
+  Object.keys(B).concat(Object.keys(M),Object.keys(S)).forEach(function(k){if(/^\d{2}_\d{8}_\d{1,2}$/.test(k))ks[k]=1});
+  return Object.keys(ks).map(function(k){
+    var p=k.split("_"),m=M[k]&&typeof M[k]==="object"?M[k]:{};
+    /* 引き継ぎなどで壊れた値が入っていても、ページを止めずに捨てる（DZK.entry） */
+    var en=(window.DZK&&DZK.entry(B[k]))||{d:"",b:[],a:null,p:null,u:null};
+    var sk=S[k]&&typeof S[k]==="object"?S[k]:null;
+    var d=en.d||(sk&&typeof sk.d==="string"&&/^\d{1,2}:\d{2}$/.test(sk.d)?sk.d:"");
+    return {k:k,j:p[0],hd:p[1],r:+p[2],d:d,en:en,skip:!!sk&&!en.b.length,t:typeof m.t==="string"?m.t:""}})
+    .filter(function(x){return x.en.b.length||x.skip||x.t||x.en.a!=null||x.en.p!=null})
+    .sort(function(x,y){return y.hd.localeCompare(x.hd)||(y.d||"").localeCompare(x.d||"")||y.r-x.r});
+}
+/* 表示している日の結果を読み、届いたら描き直す。
+   昨日と今日の分で結果待ちのレースがあるあいだは、画面が見えているかぎり読み直す（DZK.live・2026-11-12）。
+   読むのは更新の印（約100バイト）だけで、結果データは印が変わった日だけ読む */
+var LIVE_ON=false;
+function liveNote(){var xs=betRows().filter(function(x){return inBPer(x.hd)});return needResults(xs)}
+function needResults(xs){
+  if(!window.DZK)return false;
+  var y=new Date(Date.now()+9*3600e3-864e5).toISOString().slice(0,10).replace(/-/g,""),wait=false;
+  var days={};xs.forEach(function(x){if(!(x.en.b.length||x.skip))return;var rec=x.hd>=y&&!RES[x.k];if(rec)wait=true;if(!RESDAY[x.hd]||rec)days[x.hd]=1});
+  if(wait&&!LIVE_ON&&DZK.live){LIVE_ON=true;DZK.live(function(){var w=liveNote();if(!w)LIVE_ON=false;return w})}
+  var old=new Date(Date.now()+9*3600e3-35*864e5).toISOString().slice(0,10).replace(/-/g,"");
+  Object.keys(days).forEach(function(hd){RESDAY[hd]=1;if(hd<old&&DZK.kkRace){xs.forEach(function(x){if(x.hd===hd&&!RES[x.k]){var r=DZK.kkRace(x.k);if(r)RES[x.k]=r}});return}DZK.day(hd).then(function(m){var ch=false;Object.keys(m).forEach(function(k){if(!RES[k]){RES[k]=m[k];ch=true}});if(ch)drawBets()})});
+  return wait;
+}
+/* 回収率リング：100%で一周。100%を超えても輪は一周のまま、数字は実際の値（izonSekkei 段階2） */
+function ring1(pct){
+  var r=17,c=2*Math.PI*r,f=Math.max(0,Math.min(pct,100))/100;
+  return '<div class="ring s"><svg viewBox="0 0 44 44" width="44" height="44" aria-hidden="true"><circle cx="22" cy="22" r="'+r+'" fill="none" stroke="#2c3e55" stroke-width="5"/>'
+    +(f>0?'<circle cx="22" cy="22" r="'+r+'" fill="none" stroke="#7fb4ff" stroke-width="5" stroke-dasharray="'+(c*f).toFixed(2)+' '+c.toFixed(2)+'" transform="rotate(-90 22 22)"/>':"")+'</svg>'
+    +'<div class="v">'+pct.toLocaleString()+'<small>%</small></div></div>';
+}
+function ring(pct,n){
+  var r=22,c=2*Math.PI*r,f=Math.max(0,Math.min(pct,100))/100;
+  return '<div class="ring"><svg viewBox="0 0 56 56" width="56" height="56" role="img" aria-label="回収率 '+pct+'%（'+n+'レース）"><circle cx="28" cy="28" r="'+r+'" fill="none" stroke="#2c3e55" stroke-width="6"/>'
+    +'<circle cx="28" cy="28" r="'+r+'" fill="none" stroke="#7fb4ff" stroke-width="6" stroke-dasharray="'+(c*f).toFixed(2)+' '+c.toFixed(2)+'" transform="rotate(-90 28 28)"/></svg>'
+    +'<div class="v">'+pct+'<small>%</small><small class="n">'+n+'レース</small></div></div>';
+}
+/* 買い目カード（2026-11-12 けん裁定：フォーメーションを着ごとの艇色で、結果を艇色の帯で、点数・1点の金額・購入額を1行に） */
+function chips(a){return a.map(function(n){return '<span class="bc bc'+n+'">'+n+"</span>"}).join("")}
+var ORDT={"3t":3,"2t":2,"tn":1};
+function betBlock(b){
+  var L=ORDT[b.t],name=esc((BT[b.t]||b.t)),body="",kind="";
+  if(b.m==="b"&&b.s&&b.s.length){kind="ボックス";body='<div class="fg"><span>選んだ艇</span><div>'+chips(b.s)+"</div></div>"}
+  else if(L){
+    var P=[];for(var i=0;i<L;i++)P.push({});
+    var ok=b.k.every(function(k){var q=k.split("-");if(q.length!==L)return false;q.forEach(function(n,i){P[i][n]=1});return q.every(function(n){return /^[1-6]$/.test(n)})});
+    var S=P.map(function(o){return Object.keys(o).sort()}),cnt=0;
+    if(ok){(function rec(i,used){if(i===L){cnt++;return}S[i].forEach(function(n){if(!used[n]){used[n]=1;rec(i+1,used);delete used[n]}})})(0,{})}
+    if(ok&&cnt===b.k.length){kind=L>1&&b.k.length>1?"フォーメーション":"";body='<div class="fg">'+S.map(function(a,i){return "<span>"+(L>1?(i+1)+"着":"1着")+"</span><div>"+chips(a.map(Number))+"</div>"}).join("")+"</div>"}
+  }
+  if(!body)body='<div class="cm">'+b.k.map(function(k){return '<span class="nw">'+esc(k)+"</span>"}).join("　")+"</div>";
+  return '<div class="bk"><div class="bh"><span><b>'+name+"</b>"+kind+"</span><i>"+b.k.length+"点</i></div>"+body+"</div>";
+}
+function finOf(rid){var r=RES[rid],f=[];if(r)f=[r["1着"],r["2着"],r["3着"]];if(!(f[0]>=1)){var e=window.DZK&&DZK.kkGet?DZK.kkGet(rid):null;if(e&&Array.isArray(e.f))f=e.f}return f.filter(function(n){return n>=1&&n<=6})}
+/* 収支の推移：購入額と払戻が分かるレースを締切の順に足していく（回収率と同じレースだけ） */
+function drawGraph(S){
+  var g=$("bgraph");
+  if(S.length<2){g.innerHTML="";return}
+  S.sort(function(a,b){return (a.hd+a.d)<(b.hd+b.d)?-1:1});
+  var c=0,pts=S.map(function(o){c+=o.v;return c}),mn=Math.min(0,Math.min.apply(null,pts)),mx=Math.max(0,Math.max.apply(null,pts)),W=320,H=120,P=6;
+  if(mx===mn)mx=mn+1;
+  var X=function(i){return P+(W-2*P)*i/(pts.length-1)},Y=function(v){return P+(H-2*P)*(mx-v)/(mx-mn)};
+  var d=pts.map(function(v,i){return (i?"L":"M")+X(i).toFixed(1)+" "+Y(v).toFixed(1)}).join("");
+  var fmt=function(v){return (v>0?"+":v<0?"−":"")+Math.abs(v).toLocaleString()+"円"},dd=function(h){return (+h.slice(4,6))+"/"+(+h.slice(6,8))};
+  g.innerHTML='<div class="gh"><span>収支の推移（'+S.length+'レース）</span><b>'+fmt(c)+"</b></div>"
+   +'<svg viewBox="0 0 '+W+" "+H+'" role="img" aria-label="累計の収支 '+fmt(c)+"、最高 "+fmt(Math.max.apply(null,pts))+"、最低 "+fmt(Math.min.apply(null,pts))+'">'
+   +'<line x1="'+P+'" x2="'+(W-P)+'" y1="'+Y(0).toFixed(1)+'" y2="'+Y(0).toFixed(1)+'" stroke="#5c6f86" stroke-width="1" stroke-dasharray="3 3"/>'
+   +'<path d="'+d+'" fill="none" stroke="#ff7b7b" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'
+   +'<circle cx="'+X(pts.length-1).toFixed(1)+'" cy="'+Y(c).toFixed(1)+'" r="3" fill="#ff7b7b"/></svg>'
+   +'<div class="ax"><span>'+dd(S[0].hd)+"</span><span>点線は0円</span><span>"+dd(S[S.length-1].hd)+"</span></div>"
+   +'<div class="gtip" id="gtip" aria-live="polite">グラフを押すと、そのレースの回収率が出ます</div>';
+  GS=S;var sv=g.querySelector("svg");sv.setAttribute("tabindex","0");sv.style.cursor="pointer";
+  var show=function(i){
+    i=Math.max(0,Math.min(GS.length-1,i));var e=GS[i],m=sv.querySelector(".gm");
+    if(!m){m=document.createElementNS("http://www.w3.org/2000/svg","circle");m.setAttribute("class","gm");m.setAttribute("r","5");m.setAttribute("fill","none");m.setAttribute("stroke","#fff");m.setAttribute("stroke-width","2");sv.appendChild(m)}
+    m.setAttribute("cx",X(i).toFixed(1));m.setAttribute("cy",Y(pts[i]).toFixed(1));sv.dataset.i=i;GSEL=e.k;
+    var cu=CUM[e.k];
+    $("gtip").innerHTML='<b>'+dd(e.hd)+" "+esc(V[+e.j]||e.j)+" "+esc(String(e.r))+"R</b>　このレース "+(e.a>0?Math.round(e.p/e.a*100).toLocaleString()+"%":"—")+"　ここまで "+(cu&&cu.cb>0?Math.round(cu.cp/cu.cb*100).toLocaleString()+"%":"—")+"　収支 "+fmt(pts[i]);
+  };
+  sv.addEventListener("click",function(ev){var b=sv.getBoundingClientRect();if(!b.width)return;show(Math.round(((ev.clientX-b.left)/b.width*W-P)/(W-2*P)*(GS.length-1)))});
+  sv.addEventListener("keydown",function(ev){var i=sv.dataset.i!=null?+sv.dataset.i:GS.length-1;if(ev.key==="ArrowLeft"){show(i-1);ev.preventDefault()}else if(ev.key==="ArrowRight"){show(i+1);ev.preventDefault()}});
+  /* 結果が届いて描き直しても、押したレースは選んだまま */
+  if(GSEL){for(var q=0;q<GS.length;q++)if(GS[q].k===GSEL){show(q);break}}
+}
+/* 買い目の入力シート（assets/kaimeSheet.js）で保存・削除したら描き直す（2026-11-14） */
+window.addEventListener("dzbets",function(){try{drawBets()}catch(e){}});
+function drawBets(){
+  var xs=betRows().filter(function(x){return inBPer(x.hd)});
+  needResults(xs);
+  var buy=0,pay=0,nA=0,nHit=0,nMiss=0,nGood=0,nBets=0,nTori=0,SER=[];
+  var J=xs.map(function(x){
+    nBets+=x.en.b.length;
+    if(x.skip){var s=window.DZK?DZK.skipJudge(RES[x.k]||null):{state:"pending"};if(s.state==="good")nGood++;return {skip:s}}
+    var j=window.DZK?DZK.judge(x.en,RES[x.k]||null):{state:"pending",a:x.en.a,p:x.en.p,hits:[]};
+    if(j.state==="hit")nHit++;else if(j.state==="miss")nMiss++;
+    /* 回収率に入れるのは、購入額と払戻が両方分かるレースだけ。結果待ち・払戻の分からない的中は入れない（外れは払戻0円として入れる） */
+    var pp=j.p!=null?j.p:(j.state==="miss"?0:null);
+    if(j.a!=null&&pp!=null&&j.state!=="pending"){nA++;buy+=j.a;pay+=pp;SER.push({k:x.k,hd:x.hd,d:x.d||"",j:x.j,r:x.r,a:j.a,p:pp,v:pp-j.a});if(j.state==="hit"&&pp<j.a)nTori++}
+    return {j:j};
+  });
+  $("bsum").innerHTML='<div><div class="k">保存したレース</div><div class="v">'+xs.length+"<small>レース</small></div></div>"
+    +'<div><div class="k">回収率（払戻÷購入）</div>'+(buy?ring(Math.round(pay/buy*100),nA):'<div class="v">—</div>')+"</div>"
+    +'<div><div class="k">的中／外れ</div><div class="v">'+nHit+"<small>／</small>"+nMiss+(nTori?'<small class="tg">的中のうちトリガミ '+nTori+"</small>":"")+"</div></div>"
+    +'<div><div class="k">見送り成功</div><div class="v">'+nGood+"<small>回</small></div></div>";
+  $("bnote").textContent=xs.length?"金額を入れていないレースは、1点100円で買ったとして計算します。回収率は、購入額と払戻が分かる "+nA+" レースで計算しています（結果待ちと、払戻の分からない的中は入れません。購入 "+buy.toLocaleString()+" 円・払戻 "+pay.toLocaleString()+" 円）。見送り成功は、見送ったレースの3連単が "+(window.DZK?DZK.ARE:10000).toLocaleString()+" 円以上だった回数です。":"";
+  /* 実験場（2026-11-23 けん A+B）：レースごとに「ここまでの回収率」。締切の順に足す。数えるのは上のリングと同じレースだけ */
+  CUM={};(function(){var o=SER.slice().sort(function(a,b){return (a.hd+a.d)<(b.hd+b.d)?-1:1}),cb=0,cp=0;o.forEach(function(e,i){cb+=e.a;cp+=e.p;e.cb=cb;e.cp=cp;e.n=i+1;CUM[e.k]=e})})();
+  drawGraph(SER);
+  $("b-count").textContent=xs.length?xs.length+"レース・買い目"+nBets+"件":"";
+  /* 一覧は20レースずつ出し、下の目印が見えたら20ずつ足す（無限スクロール・再訪設計書 段階2）。振り返りの数字は全件で数える */
+  BXS=xs; BJ=J;
+  $("b-list").innerHTML=xs.length?xs.slice(0,BSHOW).map(function(x,i){
+    var dd=+x.hd.slice(4,6)+"/"+(+x.hd.slice(6,8)),R=J[i],st="";
+    if(R.skip) st=R.skip.state==="good"?'<div class="res hit"><b>見送り成功</b> 3連単 '+R.skip.san.toLocaleString()+'円</div>':R.skip.state==="plain"?'<div class="res">見送り（3連単 '+R.skip.san.toLocaleString()+'円）</div>':'<div class="res">見送り・結果待ち</div>';
+    else if(x.en.b.length) st=R.j.state==="hit"?'<div class="res hit"><b>的中</b> '+R.j.hits.map(function(h){return esc(BT[h.t]+" "+h.k)+" "+h.pay.toLocaleString()+"円"}).join("　")+"</div>":R.j.state==="miss"?'<div class="res">外れ</div>':'<div class="res">結果待ち</div>';
+    var j=R.j;
+    return '<div class="bet"><div class="h"><a href="../racers/#v'+esc(x.j)+"r"+x.r+"d"+esc(x.hd)+'">'+dd+" "+esc(V[+x.j]||x.j)+" "+x.r+"R</a><small>"+(x.d?"締切 "+esc(x.d):"")+"</small></div>"
+      +(x.en.b.length?x.en.b.map(betBlock).join(""):"")
+      +(x.en.b.length&&j?(function(){
+        var pp=j.p!=null?j.p:(j.state==="miss"?0:null),fin=finOf(x.k);
+        var amt='<div class="amt"><span>全'+j.pts+"点"+(j.autoA&&j.u?"　各"+j.u.toLocaleString()+"円"+(j.dflt?"（未入力のため）":""):"")+"</span><span>購入 <b>"+(j.a!=null?j.a.toLocaleString()+"円":"—")+"</b></span></div>";
+        var stl=j.state==="hit"?(pp!=null&&j.a>0&&pp<j.a?'<span class="st tori">的中（トリガミ）</span>':'<span class="st hit">的中</span>'):j.state==="miss"?'<span class="st">外れ</span>':'<span class="st">結果待ち</span>';
+        var row2=j.state==="pending"?(j.u?'<small>結果が出たら払戻が入ります</small>':"")
+          :'<div class="r"><span>払戻</span><b'+(j.state==="hit"&&pp>=10000?' class="man"':"")+'>'+(pp!=null?pp.toLocaleString()+"円":"未入力")+"</b></div>"
+            +(j.state==="hit"?"<small>配当（100円あたり）</small>"+j.hits.map(function(h){return '<small class="nw">'+esc(BT[h.t]+" "+h.k)+" "+h.pay.toLocaleString()+"円</small>"}).join(""):"")
+            ;
+        var cu=CUM[x.k],rr=(j.a>0&&pp!=null&&cu&&cu.cb>0)?'<div class="rr"><div><div class="k">このレース</div>'+ring1(Math.round(pp/j.a*100))+'</div><div><div class="k">ここまで（'+cu.n+'レース）</div>'+ring1(Math.round(cu.cp/cu.cb*100))+"</div></div>":"";
+        return amt+'<div class="band"><div class="r"><div class="fin">結果'+(fin.length?" "+fin.map(function(n){return chips([n])}).join("<em>›</em>"):" —")+"</div>"+stl+"</div>"+row2+rr+"</div>"
+          +(j.p==null&&j.state==="hit"?'<div class="kn">払戻は下の「金額を入れる・直す」から入れられます。</div>':"");
+      })():st)
+      +(x.t?'<div class="t">'+esc(x.t)+"</div>":"")
+      +(x.en.b.length?'<div class="ed" data-edbox="'+esc(x.k)+'"></div>':"")
+      +'<div class="memo ops" style="border:0;padding:0">'+(x.en.b.length?'<button class="btn small sub" type="button" data-ed="'+esc(x.k)+'">金額を入れる・直す</button>':"")
+      +(j&&j.even&&j.p==null?'<button class="btn small sub" type="button" data-ev="'+esc(x.k)+'" data-u="'+j.even+'">1点'+j.even.toLocaleString()+'円ずつなら、払戻を自動にする</button>':"")
+      +'<button class="btn small sub" type="button" data-bd="'+esc(x.k)+'">このレースを消す</button></div></div>';
+  }).join("")+(xs.length>BSHOW?'<div class="more" id="b-more"><button class="btn small sub" type="button" id="b-moreb">続きを表示（残り '+(xs.length-BSHOW)+' レース）</button></div>':""):'<div class="empty">'+(BPER==="all"?"まだ保存した買い目はありません。出走表のレース画面で、艇番を押して「保存」を押すとここに並びます。":"この期間に保存した買い目はありません。")+"</div>";
+  watchMore();
+  drawKeikou();
+}
+var CUM={},GS=[],GSEL=null,BSHOW=20, BXS=[], BJ=[], BIO=null;
+function moreBets(){ BSHOW+=20; drawBets(); }
+/* 目印（続きのボタン）が画面に入ったら自動で足す。IntersectionObserver が無い環境ではボタンを押して足す */
+function watchMore(){
+  var m=$("b-more"); if(BIO){BIO.disconnect();BIO=null} if(!m)return;
+  $("b-moreb").onclick=moreBets;
+  if("IntersectionObserver" in window){BIO=new IntersectionObserver(function(es){if(es.some(function(e){return e.isIntersecting})){BIO.disconnect();BIO=null;moreBets()}},{rootMargin:"200px 0px"});BIO.observe(m)}
+}
+/* 金額の入力（2026-11-12 けん裁定）：1点の金額か、合計の購入額と払戻を入れる。何も入れなければ1点100円 */
+function edForm(rid){
+  var e=DZK.entry(loadO("dz_bets")[rid]);if(!e)return "";
+  var v=function(n){return n!=null?String(n):""},c=e.a!=null||e.p!=null,u0=e.b.length&&e.b.every(function(x){return !x.ku&&x.u===e.b[0].u})?e.b[0].u:null,u=e.u||u0||100;
+  return '<div class="edf" data-mode="'+(c?"c":"e")+'">'
+   +'<div class="seg" role="group" aria-label="買い方"><button type="button" data-em="e" aria-pressed="'+(!c)+'">全部同じ金額</button><button type="button" data-em="c" aria-pressed="'+c+'">点ごとに違う</button></div>'
+   +'<div class="me"><div class="chips" role="group" aria-label="1点の金額">'+[100,200,500,1000].map(function(n){return '<button type="button" data-eu="'+n+'" aria-pressed="'+(u===n)+'">'+n.toLocaleString()+"円</button>"}).join("")+"</div>"
+   +'<label>ほかの金額<span><input inputmode="numeric" data-f="u" value="'+v(e.u||u0)+'" placeholder="100">円</span></label>'
+   +'<p>購入額と払戻は、結果から自動で出します。</p></div>'
+   +'<div class="mc"><label>合計の購入額<span><input inputmode="numeric" data-f="a" value="'+v(e.a)+'" placeholder="0">円</span></label>'
+   +'<label>払戻<span><input inputmode="numeric" data-f="p" value="'+v(e.p)+'" placeholder="0">円</span></label>'
+   +'<p>払戻は、的中した組の配当（100円あたり）に買った口数を掛けた金額です。</p></div>'
+   +'<div class="ops"><button class="btn small" type="button" data-es="'+esc(rid)+'">保存</button><button class="btn small sub" type="button" data-ex="1">やめる</button></div></div>';
+}
+function edNum(s){s=String(s||"").replace(/[^0-9]/g,"").slice(0,15);if(s==="")return null;var n=parseInt(s,10);return isFinite(n)&&n>=0?n:null}
+$("b-list").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;
+  if(b.dataset.ed){var bx=b.closest(".bet").querySelector("[data-edbox]");if(bx){bx.innerHTML=bx.innerHTML?"":edForm(b.dataset.ed);var f=bx.querySelector("input");if(f)f.focus()}return}
+  if(b.dataset.ex){b.closest("[data-edbox]").innerHTML="";return}
+  if(b.dataset.em){var f0=b.closest(".edf");f0.dataset.mode=b.dataset.em;f0.querySelectorAll("[data-em]").forEach(function(x){x.setAttribute("aria-pressed",x===b?"true":"false")});return}
+  if(b.dataset.eu){var f1=b.closest(".edf");f1.querySelector('[data-f="u"]').value=b.dataset.eu;f1.querySelectorAll("[data-eu]").forEach(function(x){x.setAttribute("aria-pressed",x===b?"true":"false")});return}
+  if(b.dataset.es||b.dataset.ev){var rid=b.dataset.es||b.dataset.ev,B=loadO("dz_bets"),en=DZK.entry(B[rid]);if(!en)return;
+    var clr=function(){if(Array.isArray(B[rid].b))B[rid].b.forEach(function(x){if(x&&typeof x==="object"){delete x.u;delete x.ku}})};/* 全部同じ金額にしたら、買い目ごとの金額は消す */
+    if(b.dataset.ev){var uu=edNum(b.dataset.u);if(uu){B[rid].u=uu;B[rid].a=null;B[rid].p=null;clr()}}
+    else{var bx2=b.closest("[data-edbox]"),g=function(k){return edNum(bx2.querySelector('[data-f="'+k+'"]').value)};
+      if(bx2.querySelector(".edf").dataset.mode==="e"){B[rid].u=g("u")||100;B[rid].a=null;B[rid].p=null;clr()}else{B[rid].u=null;B[rid].a=g("a");B[rid].p=g("p")}}
+    saveO("dz_bets",B);drawBets();return}
+  if(!b.dataset.bd)return;
+  if(!b.dataset.armed){b.dataset.armed="1";b.textContent="もう一度押すと消えます";return}
+  var B=loadO("dz_bets"),M=loadO("dz_rmemo"),S=loadO("dz_skip");delete B[b.dataset.bd];delete M[b.dataset.bd];delete S[b.dataset.bd];saveO("dz_bets",B);saveO("dz_rmemo",M);saveO("dz_skip",S);drawBets()});
+
+/* ---------- 予想の傾向・称号・月ごとのまとめ（再訪設計書 段階3・v5 9章の裁定） ----------
+   着順のある券種（単勝・2連単・3連単）だけで数える。1着に複数の艇を選んだレースは、そのレースの中で平均してから全レースで平均する（1レース＝1票）。
+   人気は締切前の単勝オッズの順位（DZK.ninki が dz_kekka に写す）。称号は20レースから、しきい値は v5 9章の8 */
+var ORD={tn:1,"2t":1,"3t":1}, ALLD={}, NKDAY={};
+function firsts(en){var f={};en.b.forEach(function(b){if(ORD[b.t])b.k.forEach(function(k){f[k.charAt(0)]=1})});return Object.keys(f)}
+function stats(rows){
+  var S={n:0,nOrd:0,s1:0,nRank:0,rk:0,nF:0,w1:0,nWR:0,wr:0,ven:{},venAll:{},pts:[],tpt:{},ptAll:0,mo:{"2t":{n:0,e:0,va:0,h:0},"3t":{n:0,e:0,va:0,h:0}},nD:0,night:0,nSk:0,skG:0,nHA:0,hx:0,hit:0,judged:0,buy:0,pay:0,nA:0,vA:{},last:""};
+  rows.forEach(function(x){
+    if(x.skip){var sj=window.DZK&&DZK.skipJudge?DZK.skipJudge(RES[x.k]||null):null;if(sj&&(sj.state==="good"||sj.state==="plain")){S.nSk++;if(sj.state==="good")S.skG++}}
+    if(!x.en.b.length)return;
+    S.n++;S.venAll[x.j]=(S.venAll[x.j]||0)+1;
+    var npt=0;x.en.b.forEach(function(b){npt+=b.k.length;S.tpt[b.t]=(S.tpt[b.t]||0)+b.k.length});S.pts.push(npt);S.ptAll+=npt;
+    if(/^\d{1,2}:\d{2}$/.test(x.d||"")){S.nD++;if(+x.d.split(":")[0]>=17)S.night++}
+    if(DEME)moAdd(S,x);
+    var j=window.DZK?DZK.judge(x.en,RES[x.k]||null):{state:"pending",a:x.en.a,p:x.en.p};
+    if(j.state==="hit"||j.state==="miss"){S.judged++;if(j.state==="hit")S.hit++}
+    var pp=j.p!=null?j.p:(j.state==="miss"?0:null);
+    if(j.a!=null&&pp!=null&&j.state!=="pending"){S.nA++;S.buy+=j.a;S.pay+=pp;var v=S.vA[x.j]||(S.vA[x.j]={n:0,b:0,p:0});v.n++;v.b+=j.a;v.p+=pp;
+      if(j.state==="hit"&&j.a>0){S.nHA++;S.hx+=pp/j.a}}
+    var fs=firsts(x.en);if(!fs.length)return;
+    S.nOrd++;S.ven[x.j]=(S.ven[x.j]||0)+1;
+    S.s1+=fs.filter(function(d){return d==="1"}).length/fs.length;
+    var e=window.DZK&&DZK.kkGet?DZK.kkGet(x.k):null,o=e&&typeof e.o==="string"&&/^[0-6]{6}$/.test(e.o)?e.o:"";
+    if(o){var rs=fs.map(function(d){return +o.charAt(+d-1)}).filter(function(r){return r>0});if(rs.length){S.nRank++;S.rk+=rs.reduce(function(a,b){return a+b},0)/rs.length;if(x.hd>S.last)S.last=x.hd}}
+    var r=RES[x.k],w=r&&r["1着"]>=1&&r["1着"]<=6?r["1着"]:(e&&Array.isArray(e.f)&&e.f[0]>=1&&e.f[0]<=6?e.f[0]:0);
+    if(w){S.nF++;if(w===1)S.w1++;if(o&&+o.charAt(w-1)>0){S.nWR++;S.wr+=+o.charAt(w-1)}}
+  });
+  S.share1=S.nOrd?S.s1/S.nOrd:null;S.rank=S.nRank?S.rk/S.nRank:null;S.wRank=S.nWR?S.wr/S.nWR:null;
+  var tv="",tc=0;Object.keys(S.venAll).forEach(function(k){if(S.venAll[k]>tc){tc=S.venAll[k];tv=k}});S.topV=tv;S.topC=tc;
+  S.roi=S.buy?Math.round(S.pay/S.buy*100):null;
+  var ps=S.pts.slice().sort(function(a,b){return a-b});S.ptMed=ps.length?ps[Math.floor((ps.length-1)/2)]:null;
+  S.hitRate=S.judged?S.hit/S.judged:null;S.hitX=S.nHA?S.hx/S.nHA:null;
+  /* 称号（2026-11-21 けん「全部推奨」で作り直し。数字は TH）。
+     人気：同じレースで実際に1着になった艇の平均人気との差（6艇の人気は1号艇に偏るため固定値をやめた）。
+     イン信者が付くときは、人気の称号（本命派・中穴派・穴党）を付けない（1号艇の平均人気は1.32で、人気の差は1号艇を選んだ割合でほぼ決まるため）。
+     ○○通い：記録したレースの半分以上が1つの場。点数：1レースの点数の中央値。結果の札は50レースから。
+     札の並びは 通い→点数→結果→見送り→券種→時間帯（画面に出す札は TAGMAX まで） */
+  var T=[];
+  if(S.nRank>=TH.n&&S.nWR>=TH.n){var dl=S.rank-S.wRank;if(dl<=-TH.hon)T.push("本命派");else if(dl>=TH.ana)T.push("穴党");else T.push("中穴派")}
+  if(S.nOrd>=TH.n&&S.share1>=TH.in1){T=T.filter(function(t){return !isNinki(t)});T.unshift("イン信者")}
+  if(S.n>=TH.n&&tc>=TH.venN&&tc/S.n>=TH.venR)T.push((V[+tv]||"")+"通い");
+  if(S.n>=TH.n&&S.ptMed!=null){if(S.ptMed<=TH.shibo)T.push("絞り派");else if(S.ptMed>=TH.hiro)T.push("手広く派")}
+  if(S.judged>=TH.res){if(S.hitRate>=TH.kotsu)T.push("コツコツ型");else if(S.hitRate<=TH.ige&&S.nHA>=3&&S.hitX>=TH.igeX)T.push("一撃型")}
+  ["2t","3t"].forEach(function(t){var m=S.mo[t];if(m.n>=TH.res&&m.e>=TH.moE&&m.h>=TH.moX*m.e&&m.h>=m.e+2*Math.sqrt(m.va))T.push(MOSA[t])});
+  if(S.nSk>=TH.n&&S.skG/S.nSk>=TH.manshu+TH.mi)T.push("見送り上手");
+  var tt="",tn=0;Object.keys(S.tpt).forEach(function(k){if(S.tpt[k]>tn){tn=S.tpt[k];tt=k}});S.topT=tt;S.topTn=tn;
+  if(S.n>=TH.n&&S.ptAll&&tn/S.ptAll>=TH.ken&&KENSHU[tt])T.push(KENSHU[tt]);
+  if(S.nD>=TH.n){if(S.night/S.nD>=TH.jikan)T.push("ナイター派");else if((S.nD-S.night)/S.nD>=TH.jikan)T.push("デイ派")}
+  S.titles=T;
+  return S;
+}
+var TH={n:20,hon:0.3,ana:1.0,in1:0.7,venN:10,venR:0.5,shibo:4,hiro:15,res:50,kotsu:0.4,ige:0.15,igeX:10,ken:0.8,jikan:0.7,manshu:0.163,mi:0.1};
+/* 券種の称号（2026-11-21 けん「AA」）：記録した点数の80%以上が1つの券種。万舟率 16.3% は 2026/1/1 から 11/21 の全49,896レースで3連単が1万円以上だった割合（results・実測） */
+var KENSHU={"3t":"3連単一本","3f":"3連複派","2t":"2連単派","2f":"2連複派","kk":"拡連複派","tn":"単勝派","fk":"複勝派"};
+var TAGMAX=3;
+/* 猛者の称号（2026-11-21 けん「連単だけ」）：2連単・3連単それぞれ、結果の出た50レース以上で、的中が見込みの1.3倍以上、かつ見込みより標準偏差の2倍以上多い。
+   見込み＝そのレースで買った組が、その場で直近1年に出た割合の合計（docs/note/demeRitsu.json・scripts/buildDemeRitsu.py。全国の割合で縮める：2連単 200レース分・3連単 500レース分）。
+   腕が無くても付く割合は 0.3 から 2.9%（推定：人気上位20組から毎回ランダムに選ぶ試算） */
+var MOSA={"2t":"2連の猛者","3t":"3連の猛者"},DEME=null,DEMEP=null;
+TH.moE=10;TH.moX=1.3;
+function demeLoad(){if(DEMEP)return DEMEP;DEMEP=fetch("../note/demeRitsu.json?v=1").then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){
+    if(!d||!Array.isArray(d.n)||d.n.length!==24)throw 0;var P=[1,2,3,4,5,6],C2=[],C3=[];
+    P.forEach(function(a){P.forEach(function(b){if(b!==a){C2.push(a+"-"+b);P.forEach(function(c){if(c!==a&&c!==b)C3.push(a+"-"+b+"-"+c)})}})});
+    var mk=function(T,C,K){var N=0,nat=C.map(function(){return 0});d.n.forEach(function(n,v){N+=n;C.forEach(function(c,i){nat[i]+=(T[v]&&+T[v][i])||0})});
+      var o={};d.n.forEach(function(n,v){var m={};C.forEach(function(c,i){m[c]=(((T[v]&&+T[v][i])||0)+K*nat[i]/N)/((+n||0)+K)});o[("0"+(v+1)).slice(-2)]=m});return o};
+    DEME={"2t":mk(d.t2,C2,200),"3t":mk(d.t3,C3,500),from:String(d.from||""),to:String(d.to||"")};return DEME}).catch(function(){DEMEP=null;return null});return DEMEP}
+function moAdd(S,x){var f=finOf(x.k);if(f.length<3)return;var ks={"2t":{},"3t":{}};
+  x.en.b.forEach(function(b){if(ks[b.t])b.k.forEach(function(k){ks[b.t][k]=1})});
+  ["2t","3t"].forEach(function(t){var cs=Object.keys(ks[t]),tb=DEME[t][x.j];if(!cs.length||!tb)return;
+    var q=0;cs.forEach(function(c){q+=tb[c]||0});if(!(q>0)||q>=1)return;var m=S.mo[t];m.n++;m.e+=q;m.va+=q*(1-q);
+    if(ks[t][t==="2t"?f[0]+"-"+f[1]:f[0]+"-"+f[1]+"-"+f[2]])m.h++})}
+/* 称号の記録（2026-11-21 けん「称号の記録は残る様に」）：dz_shogo={称号:{f:初めて付いた日,l:最後に付いていた日}}（/hikae/ の対象）。
+   結果や人気の読み込み中に一時的に出た称号を残さないよう、描き直しが3秒止まってから書く */
+var SHLOGT=0;
+function shogoLog(T){clearTimeout(SHLOGT);SHLOGT=setTimeout(function(){var L=loadO("dz_shogo"),td=today().replace(/-/g,""),ch=0;
+  T.forEach(function(t){if(!ruleOf(t))return;var e=L[t];if(!e||typeof e!=="object"||!/^\d{8}$/.test(e.f)){L[t]={f:td,l:td};ch=1}else if(e.l!==td){e.l=td;ch=1}});
+  if(ch){saveO("dz_shogo",L);var b=$("sh-log");if(b)b.outerHTML=shogoLogHtml(T)}},3000)}
+function shogoLogHtml(T){var L=loadO("dz_shogo"),ks=Object.keys(L).filter(function(t){var e=L[t];return ruleOf(t)&&e&&typeof e==="object"&&/^\d{8}$/.test(e.f)&&/^\d{8}$/.test(e.l)});
+  if(!ks.length)return '<div id="sh-log"></div>';
+  ks.sort(function(a,b){return L[a].f<L[b].f?-1:L[a].f>L[b].f?1:0});var ty=today().slice(0,4),md=function(d){return (d.slice(0,4)!==ty?(+d.slice(0,4))+"年":"")+(+d.slice(4,6))+"月"+(+d.slice(6,8))+"日"};
+  return '<div id="sh-log" class="shlog"><h3>これまでに付いた称号</h3><ul>'+ks.map(function(t){var e=L[t],now=T.indexOf(t)>=0;
+    return "<li><b>"+esc(t)+"</b><span>"+md(e.f)+"から"+(now?"（いまも）":md(e.l)+"まで")+"</span></li>"}).join("")+"</ul></div>"}
+function isNinki(t){return t==="本命派"||t==="穴党"||t==="中穴派"}
+function isKayoi(t){return /通い$/.test(t)}
+/* 称号の基準の1文（画面と称号カードで同じ文を使う） */
+function ruleOf(t){
+  if(t==="本命派")return "1着に選んだ艇の平均人気が、同じレースで実際に1着になった艇の平均より"+TH.hon+"以上内側";
+  if(t==="穴党")return "1着に選んだ艇の平均人気が、同じレースで実際に1着になった艇の平均より"+TH.ana.toFixed(1)+"以上外側";
+  if(t==="中穴派")return "1着に選んだ艇の平均人気が、同じレースで実際に1着になった艇の平均と比べて、内側"+TH.hon+"から外側"+TH.ana.toFixed(1)+"の間";
+  if(t==="イン信者")return "1着に1号艇を選んだ割合が"+Math.round(TH.in1*100)+"%以上";
+  if(isKayoi(t))return "記録したレースの半分以上（"+TH.venN+"レース以上）が1つの場";
+  if(t==="絞り派")return "1レースの点数の中央値が"+TH.shibo+"点以下";
+  if(t==="手広く派")return "1レースの点数の中央値が"+TH.hiro+"点以上";
+  if(/一本$/.test(t)||(/派$/.test(t)&&/連|勝/.test(t)))return "記録した買い目の点数の"+Math.round(TH.ken*100)+"%以上が1つの券種";
+  if(t==="ナイター派")return "締切が17時以降のレースが、記録したレースの"+Math.round(TH.jikan*100)+"%以上";
+  if(t==="デイ派")return "締切が17時より前のレースが、記録したレースの"+Math.round(TH.jikan*100)+"%以上";
+  if(t==="2連の猛者"||t==="3連の猛者")return (t==="2連の猛者"?"2連単":"3連単")+"を記録した結果の出た"+TH.res+"レース以上で、的中が見込みの"+TH.moX+"倍以上（腕が無くても数%の人に付きます）";
+  if(t==="見送り上手")return "見送った"+TH.n+"レース以上で、3連単が1万円以上になった割合が、全レースの平均（"+(TH.manshu*100).toFixed(1)+"%）より"+Math.round(TH.mi*100)+"ポイント以上高い";
+  if(t==="コツコツ型")return "結果の出た"+TH.res+"レース以上で、的中率が"+Math.round(TH.kotsu*100)+"%以上";
+  if(t==="一撃型")return "結果の出た"+TH.res+"レース以上で、的中率が"+Math.round(TH.ige*100)+"%以下、当たったレースの払戻が平均で購入額の"+TH.igeX+"倍以上";
+  return "";
+}
+/* 判定に使ったレースの説明（称号カードの下の行） */
+function basisOf(t){
+  if(isNinki(t)||t==="イン信者")return "着順のある買い目（単勝・2連単・3連単）を残したレースで判定。人気は締切前の単勝オッズの順位。";
+  if(t==="コツコツ型"||t==="一撃型")return "結果の出たレースで判定。払戻は金額の分かるレースだけ。";
+  if(t==="見送り上手")return "見送りを記録したレースのうち、結果の出たレースで判定。";
+  if(t==="2連の猛者"||t==="3連の猛者")return "見込みは、買った組がその場で直近1年に出た割合の合計"+(DEME&&DEME.from?"（"+DEME.from.slice(0,4)+"年"+(+DEME.from.slice(4,6))+"月"+(+DEME.from.slice(6,8))+"日から"+DEME.to.slice(0,4)+"年"+(+DEME.to.slice(4,6))+"月"+(+DEME.to.slice(6,8))+"日）":"")+"。";
+  return "買い目を記録したレースで判定（券種を問わない）。";
+}
+function pct(x){return Math.round(x*100)+"%"}
+/* 直近20レースのふり返り（2026-11-14 けん：20レースたまってマイナスのとき、軽いアドバイス。本人の記録の気づき1行＋決まった一言）。
+   2026-11-21 けん「全部推奨」：組どうしの回収率の差で比べるのをやめた（5レースずつでは1回の的中で決まり、点数や場に差が無くても負け越した人の8割に出る＝試算）。
+   気づきは算数で出す：トリガミが的中の半分以上ならその件数、的中があれば「元を取るのに要る1回あたりの払戻」と実際の平均、的中が無ければ1レースの平均購入額。「回収率」の語は使わない */
+var ADV_N=20;
+function advice(all){
+  var rs=[];
+  all.forEach(function(x){if(rs.length>=ADV_N||!x.en.b.length)return;
+    var j=window.DZK?DZK.judge(x.en,RES[x.k]||null):null;if(!j||(j.state!=="hit"&&j.state!=="miss"))return;
+    var pp=j.p!=null?j.p:(j.state==="miss"?0:null);if(j.a==null||!(j.a>0)||pp==null)return;
+    rs.push({a:j.a,p:pp,hit:j.state==="hit"})});
+  if(rs.length<ADV_N)return "";
+  var A=0,P=0,h=0,tg=0;rs.forEach(function(r){A+=r.a;P+=r.p;if(r.hit){h++;if(r.p<r.a)tg++}});if(P>=A)return "";
+  var y=function(n){return Math.round(n).toLocaleString()+"円"},txt;
+  if(tg>0&&tg*2>=h)txt="的中"+h+"回のうち"+tg+"回はトリガミ（払戻が購入額より少ない）でした";
+  else if(h>0)txt="元を取るには、的中1回あたり平均"+y(Math.ceil(A/h))+"の払戻が要るところ（購入"+y(A)+"÷的中"+h+"回）、実際は平均"+y(P/h)+"でした";
+  else txt=ADV_N+"レースで的中はありませんでした。1レースの購入は平均"+y(A/ADV_N)+"です";
+  return '<div class="adv"><h3>直近'+ADV_N+'レースのふり返り</h3>'
+    +'<p>購入 '+y(A)+'・払戻 '+y(P)+'。</p>'
+    +'<p>'+esc(txt)+'。</p>'
+    +'<p>1レースの点数と、1日の予算を見直してみる時期かもしれません。</p>'
+    +'<p class="note">結果と金額のそろった直近'+ADV_N+'レースだけで数えています。'+ADV_N+'レースは結果のぶれが大きく、傾向は決めつけられません。</p></div>';
+}
+function drawKeikou(){
+  var all=betRows();ALLD={};
+  needResults(all);
+  /* 人気は翌日の昼過ぎに入る。今日の分は読まない。1日1回まで */
+  var td=today().replace(/-/g,"");
+  if(window.DZK&&DZK.ninki){var ds={};all.forEach(function(x){if(x.hd<td&&!NKDAY[x.hd]&&firsts(x.en).length){var e=DZK.kkGet(x.k);if(!(e&&e.o))ds[x.hd]=1}});
+    Object.keys(ds).sort().reduce(function(p,hd){NKDAY[hd]=1;return p.then(function(){return DZK.ninki(hd)}).then(function(ch){if(ch)ALLD.ch=1})},Promise.resolve()).then(function(){if(ALLD.ch){ALLD.ch=0;drawKeikou()}});}
+  if(!DEME&&all.filter(function(x){return x.en.b.some(function(b){return MOSA[b.t]})}).length>=TH.res)demeLoad().then(function(d){if(d)drawKeikou()});
+  var S=stats(all);KS={S:S,rows:all};
+  if(!S.nOrd&&!S.titles.length){$("kk-body").innerHTML='<div class="empty">単勝・2連単・3連単の買い目を保存すると、1着に選んだ艇の傾向がここに出ます。</div>'+advice(all)}
+  else{
+    var main=S.titles[0]||"";
+    /* 表に出る数字（1着に1号艇・1着の平均人気）は札に書かない。表に無い数字だけ札に添える */
+    var moOf=function(t){return S.mo[t==="2連の猛者"?"2t":"3t"]};
+    var tagOf=function(t){return /猛者$/.test(t)?t+" "+(moOf(t).h/moOf(t).e).toFixed(1)+"倍":KENSHU[S.topT]===t?t+" "+Math.round(S.topTn/S.ptAll*100)+"%":t==="ナイター派"?t+" "+S.night+"/"+S.nD:t==="デイ派"?t+" "+(S.nD-S.night)+"/"+S.nD:t==="見送り上手"?t+" 万舟"+S.skG+"/"+S.nSk:isKayoi(t)?t+" "+S.topC+"/"+S.n:(t==="絞り派"||t==="手広く派")?t+" 中央値"+S.ptMed+"点":(t==="コツコツ型"||t==="一撃型")?t+" 的中"+S.hit+"/"+S.judged:t};
+    var lineOf=function(t){return isNinki(t)?"下の表の「1着の平均人気」を、同じレースで実際に1着になった艇と比べて判定（"+TH.hon+"以上内側で本命派、"+TH.ana.toFixed(1)+"以上外側で穴党）"
+      :t==="イン信者"?"下の表の「1着に1号艇」で判定（"+Math.round(TH.in1*100)+"%以上）":isKayoi(t)?"記録した"+S.n+"レースのうち"+S.topC+"レース"
+      :(t==="絞り派"||t==="手広く派")?"1レースの点数の中央値 "+S.ptMed+"点（"+S.n+"レース）":/猛者$/.test(t)?(t==="2連の猛者"?"2連単":"3連単")+"の的中 "+moOf(t).h+"回（見込み "+moOf(t).e.toFixed(1)+"回・"+moOf(t).n+"レース）":KENSHU[S.topT]===t?"記録した"+S.ptAll+"点のうち"+S.topTn+"点":t==="ナイター派"?"締切17時以降 "+S.night+"/"+S.nD+"レース":t==="デイ派"?"締切17時より前 "+(S.nD-S.night)+"/"+S.nD+"レース":t==="見送り上手"?"見送った"+S.nSk+"レースのうち、3連単1万円以上 "+S.skG+"レース（全レースの平均 "+(TH.manshu*100).toFixed(1)+"%）":"的中 "+S.hit+"/"+S.judged+"レース"};
+    $("kk-body").innerHTML=(main?'<div class="shogo"><b>'+esc(main)+"</b><span>"+esc(lineOf(main))+"</span></div>"
+        :'<p class="note" style="margin-top:4px">'+(S.nOrd<TH.n&&S.n<TH.n?"称号は買い目が"+TH.n+"レースになると出ます（今 "+S.n+" レース）。":"どの称号の基準にも届いていません。")+"</p>")
+      +(S.titles.length>1?'<div class="tags">'+S.titles.slice(1,1+TAGMAX).map(function(t){return "<span>"+esc(tagOf(t))+"</span>"}).join("")+"</div>":"")
+      +(S.nOrd?'<table class="kk"><caption>着順のある買い目（単勝・2連単・3連単）を残したレースだけ</caption>'
+      +'<thead><tr><th scope="col">項目</th><th scope="col">あなた</th><th scope="col">同じレースの結果</th></tr></thead><tbody>'
+      +'<tr><th scope="row">1着に1号艇</th><td>'+pct(S.share1)+"<small>"+S.nOrd+"レース</small></td><td>"+(S.nF?pct(S.w1/S.nF)+"<small>"+S.w1+"/"+S.nF+"</small>":"—")+"</td></tr>"
+      +'<tr><th scope="row">1着の平均人気</th><td>'+(S.rank!=null?S.rank.toFixed(1)+"<small>"+S.nRank+"レース</small>":"—")+"</td><td>"+(S.wRank!=null?S.wRank.toFixed(1)+"<small>"+S.nWR+"レース</small>":"—")+"</td></tr>"
+      +"</tbody></table>"
+      +'<p class="note">1着に1号艇は、1着に選んだ艇のうち1号艇の割合をレースごとに出して平均したものです。平均人気は、締切前の単勝オッズで何番人気だったかの平均です。人気は'+(S.last?(+S.last.slice(4,6))+"/"+(+S.last.slice(6,8))+"分まで入っています（翌日の昼過ぎに更新）":"翌日の昼過ぎに入ります")+"。</p>":'<p class="note">単勝・2連単・3連単の買い目を保存すると、1着に選んだ艇の傾向も出ます。</p>')+(S.titles.length?'<button class="btn" type="button" id="sh-open">称号カードを作る</button>':"")+shogoLogHtml(S.titles);
+  }
+  shogoLog(S.titles);
+  if(S.nOrd||S.titles.length)$("kk-body").insertAdjacentHTML("beforeend",advice(all));
+  /* 月ごと：保存した買い目のある月を新しい順に */
+  var ms={};all.forEach(function(x){if(x.en.b.length){var m=x.hd.slice(0,6);ms[m]=(ms[m]||0)+1}});
+  var cur=td.slice(0,6);
+  $("mo-list").innerHTML=Object.keys(ms).length?Object.keys(ms).sort().reverse().map(function(m){
+    return '<button class="toRow" type="button" data-mo="'+m+'"><span>'+(+m.slice(0,4))+"年"+(+m.slice(4,6))+"月のまとめ"+(m===cur?"（途中）":"")+"<small>"+ms[m]+"レース・共有用の画像</small></span><i>開く</i></button>"}).join("")
+    :'<div class="empty">買い目を保存した月ができると、ここに並びます。</div>';
+}
+function repStats(m){
+  var all=betRows(),rows=all.filter(function(x){return x.hd.slice(0,6)===m}),S=stats(rows),A=stats(all);
+  var vs=Object.keys(S.vA).filter(function(k){return S.vA[k].n>=5&&S.vA[k].b>0}).map(function(k){var v=S.vA[k];return {name:V[+k]||k,n:v.n,roi:Math.round(v.p/v.b*100)}}).sort(function(a,b){return b.roi-a.roi});
+  var out=[];if(vs.length){out.push(Object.assign({label:vs.length>1&&vs[vs.length-1].roi!==vs[0].roi?"回収率がいちばん高い場":"5レース以上の場"},vs[0]));if(vs.length>1&&vs[vs.length-1].roi!==vs[0].roi)out.push(Object.assign({label:"回収率がいちばん低い場"},vs[vs.length-1]))}
+  var y=+m.slice(0,4),mo=+m.slice(4,6),last=new Date(Date.UTC(y,mo,0)).getUTCDate(),td=today().replace(/-/g,""),now=td.slice(0,6)===m;
+  if(now)last=+td.slice(6,8);
+  var t=S.titles.filter(function(x){return x==="本命派"||x==="穴党"||x==="中穴派"})[0]||S.titles[0]||"";
+  return {m:mo,range:y+"年"+mo+"月1日から"+last+"日"+(now?"（途中）":""),title:t,rank:S.rank,nOrd:S.nOrd,nRank:S.nRank,n:S.n,hit:S.hit,judged:S.judged,roi:S.roi,nA:S.nA,roiAll:A.roi,nAAll:A.nA,venues:out};
+}
+var KS=null;
+/* 称号カード（v5 9章・裁定14・15）。称号が無い人にはボタンを出さない。大きく出した数字は表に入れない */
+function shogoData(){
+  var S=KS.S,t=S.titles[0],ds=KS.rows.filter(function(x){return (isNinki(t)||t==="イン信者")?firsts(x.en).length:t==="見送り上手"?x.skip:x.en.b.length}).map(function(x){return x.hd}).sort();if(!ds.length)return null;
+  var f=function(d){return (+d.slice(4,6))+"月"+(+d.slice(6,8))+"日"},a=ds[0],b=ds[ds.length-1];
+  var T={title:t,tags:S.titles.slice(1,1+TAGMAX),range:(+a.slice(0,4))+"年"+f(a)+"から"+(a.slice(0,4)!==b.slice(0,4)?(+b.slice(0,4))+"年":"")+f(b),cmp:"",rule:ruleOf(t),basis:basisOf(t)};
+  var r1=["1着に1号艇",pct(S.share1),S.nOrd+"レース",S.nF?pct(S.w1/S.nF):"—",S.nF?S.w1+"/"+S.nF:""];
+  var r2=["1着の平均人気",S.rank!=null?S.rank.toFixed(1):"—",S.nRank+"レース",S.wRank!=null?S.wRank.toFixed(1):"—",S.nWR+"レース"];
+  if(t==="絞り派"||t==="手広く派"){T.big=String(S.ptMed);T.bigUnit="点";T.desc="1レースの点数の中央値（記録した"+S.n+"レース）";T.rows=S.nOrd?[r1]:[];return T}
+  if(t==="コツコツ型"||t==="一撃型"){T.big=String(Math.round(S.hitRate*100));T.bigUnit="%";T.desc="的中率（結果の出た"+S.judged+"レースのうち"+S.hit+"レース）";
+    if(S.nHA)T.cmp="当たったレースの払戻は、平均で購入額の"+S.hitX.toFixed(1)+"倍（金額の分かる"+S.nHA+"レース）";T.rows=S.nOrd?[r1]:[];return T}
+  if(/猛者$/.test(t)){var m=S.mo[t==="2連の猛者"?"2t":"3t"];T.big=(m.h/m.e).toFixed(1);T.bigUnit="倍";T.desc=(t==="2連の猛者"?"2連単":"3連単")+"の的中が見込みの何倍か（的中"+m.h+"回・見込み"+m.e.toFixed(1)+"回・"+m.n+"レース）";T.cmp="収支とは別の数字です。トリガミでも的中に数えます";T.rows=S.nOrd?[r1]:[];return T}
+  if(KENSHU[S.topT]===t){T.big=String(Math.round(S.topTn/S.ptAll*100));T.bigUnit="%";T.desc="記録した"+S.ptAll+"点のうち"+S.topTn+"点が"+(BT[S.topT]||"");T.rows=S.nOrd?[r1]:[];return T}
+  if(t==="ナイター派"||t==="デイ派"){var nn=t==="ナイター派"?S.night:S.nD-S.night;T.big=String(Math.round(nn/S.nD*100));T.bigUnit="%";T.desc="締切の時刻が分かる"+S.nD+"レースのうち"+nn+"レースが"+(t==="ナイター派"?"17時以降":"17時より前");T.rows=S.nOrd?[r1]:[];return T}
+  if(t==="見送り上手"){T.big=String(Math.round(S.skG/S.nSk*100));T.bigUnit="%";T.desc="見送った"+S.nSk+"レースのうち、3連単が1万円以上になった割合";T.cmp="全レースの平均は"+(TH.manshu*100).toFixed(1)+"%（2026年1月1日から11月21日の49,896レース）";T.rows=S.nOrd?[r1]:[];return T}
+  if(isKayoi(t)){T.big=String(Math.round(S.topC/S.n*100));T.bigUnit="%";T.desc="記録した"+S.n+"レースのうち"+S.topC+"レースが"+(V[+S.topV]||"");T.rows=S.nOrd?[r1]:[];return T}
+  if(t==="本命派"||t==="穴党"||t==="中穴派"){T.big=S.rank.toFixed(1);T.bigUnit="番人気";T.desc="1着に選んだ艇の単勝人気の平均（人気の分かる"+S.nRank+"レース）";
+    if(S.wRank!=null)T.cmp="同じレースで実際に1着になった艇は、平均"+S.wRank.toFixed(1)+"番人気（"+S.nWR+"レース）";T.rows=[r1];}
+  else if(t==="イン信者"){T.big=String(Math.round(S.share1*100));T.bigUnit="%";T.desc="1着に1号艇を選んだ割合（着順のある"+S.nOrd+"レース）";
+    if(S.nF)T.cmp="同じレースで実際に1号艇が1着になったのは "+pct(S.w1/S.nF)+"（"+S.w1+"/"+S.nF+"）";
+    T.rows=[["1着の平均人気",S.rank!=null?S.rank.toFixed(1):"—",S.nRank+"レース",S.wRank!=null?S.wRank.toFixed(1):"—",S.nWR+"レース"]];}
+  else{T.big=V[+S.topV]||"";T.bigUnit="";T.desc="着順のある"+S.nOrd+"レースのうち "+S.topC+" レース（"+pct(S.topC/S.nOrd)+"）";T.rows=[r1];}
+  return T;
+}
+function openShogo(){
+  if(!KS||!KS.S.titles.length)return;
+  var T=shogoData();if(!T)return;var d=$("rep"),m="sh";REPM=m;REPBLOB=null;
+  $("rep-h").textContent="称号カード";$("rep-msg").textContent="画像を作っています。";$("rep-img").innerHTML="";
+  if(d.showModal)d.showModal();else d.setAttribute("open","");
+  loadTsuki().then(function(){return dzTsuki.shogo(T,KGURL)}).then(function(b){
+    if(REPM!==m)return;REPBLOB=b;if(REPURL)URL.revokeObjectURL(REPURL);REPURL=URL.createObjectURL(b);
+    var im=document.createElement("img");im.src=REPURL;im.alt="称号 "+T.title+"："+T.desc.replace(/（.*/,"")+" "+T.big+T.bigUnit;
+    $("rep-img").appendChild(im);$("rep-msg").textContent="";
+  }).catch(function(){if(REPM===m)$("rep-msg").textContent="画像を作れませんでした。通信のよいところで、もう一度開いてください。"});
+}
+$("kk-body").addEventListener("click",function(e){if(e.target.closest("#sh-open"))openShogo()});
+var KGURL="../players/card/kgOutline.json?v=2",REPURL=null,REPBLOB=null,REPM="";
+function loadTsuki(){return new Promise(function(ok,ng){if(window.dzTsuki)return ok();var sc=document.createElement("script");sc.src="../assets/tsukiReport.js?v=3";sc.onload=function(){window.dzTsuki?ok():ng()};sc.onerror=ng;document.head.appendChild(sc)})}
+function openRep(m){
+  var d=$("rep"),R=repStats(m);REPM=m;REPBLOB=null;
+  $("rep-h").textContent=(+m.slice(0,4))+"年"+R.m+"月のまとめ";
+  $("rep-msg").textContent="画像を作っています。";$("rep-img").innerHTML="";
+  if(d.showModal)d.showModal();else d.setAttribute("open","");
+  loadTsuki().then(function(){return dzTsuki.make(R,KGURL)}).then(function(b){
+    if(REPM!==m)return;REPBLOB=b;if(REPURL)URL.revokeObjectURL(REPURL);REPURL=URL.createObjectURL(b);
+    var im=document.createElement("img");im.src=REPURL;im.alt=R.m+"月のまとめ：記録したレース"+R.n+"、的中"+R.hit+"（"+R.judged+"レース中）、回収率"+(R.roi!=null?R.roi+"%":"不明")+(R.title?"、称号 "+R.title:"");
+    $("rep-img").appendChild(im);$("rep-msg").textContent="";
+  }).catch(function(){if(REPM===m)$("rep-msg").textContent="画像を作れませんでした。通信のよいところで、もう一度開いてください。"});
+}
+function closeRep(){var d=$("rep");REPM="";if(d.close)d.close();else d.removeAttribute("open")}
+$("mo-list").addEventListener("click",function(e){var b=e.target.closest("button");if(b&&/^\d{6}$/.test(b.dataset.mo||""))openRep(b.dataset.mo)});
+$("rep-x").onclick=closeRep;
+$("rep").addEventListener("click",function(e){if(e.target===this)closeRep()});
+$("rep-share").onclick=function(){
+  var msg=$("rep-msg");if(!REPBLOB){msg.textContent="画像を作っています。少し待ってからもう一度押してください。";return}
+  var file=new File([REPBLOB],(REPM==="sh"?"shogo":"matome"+REPM)+".png",{type:"image/png"});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){msg.textContent="";navigator.share({files:[file]}).catch(function(err){if(err&&err.name!=="AbortError")msg.textContent="共有メニューを開けませんでした。上の画像を長押しして保存してください。"});return}
+  if(/iPhone|iPad|Android/.test(navigator.userAgent)){msg.textContent="この画面では共有メニューを開けません。上の画像を長押しして保存してください。";return}
+  var a=document.createElement("a");a.href=REPURL;a.download=file.name;document.body.appendChild(a);a.click();a.remove();msg.textContent="画像を保存しました。";
+};
+
+/* ---------- データの管理 ---------- */
+$("x-out").onclick=function(){
+  var blob=new Blob([JSON.stringify({kind:"dzKansenNote",v:1,at:new Date().toISOString(),memo:memos,money:money},null,1)],{type:"application/json"});
+  var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="kansenNote"+today().replace(/-/g,"")+".json";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},4000);
+  $("x-msg").textContent="メモ"+memos.length+"件・支出"+money.length+"件を書き出しました。";
+};
+$("x-in").addEventListener("change",function(){
+  var f=this.files&&this.files[0];if(!f)return;var rd=new FileReader();
+  rd.onload=function(){try{var j=JSON.parse(rd.result);if(j.kind!=="dzKansenNote")throw 0;
+    var have={};memos.forEach(function(m){have[m.id]=1});var nm=(j.memo||[]).filter(function(m){return m&&m.id&&!have[m.id]});memos=memos.concat(nm);
+    var hv={};money.forEach(function(x){hv[x.id]=1});var nx=(j.money||[]).filter(function(x){return x&&x.id&&!hv[x.id]});money=money.concat(nx);
+    save(KM,memos);save(KS,money);drawMemos();drawMoney();$("x-msg").textContent="メモ"+nm.length+"件・支出"+nx.length+"件を足しました（同じものは足していません）。";
+  }catch(e){$("x-msg").textContent="自分の記録のファイルではないようです。"}};
+  rd.readAsText(f);this.value="";
+});
+$("x-del").onclick=function(){$("x-confirm").hidden=false};
+$("x-no").onclick=function(){$("x-confirm").hidden=true};
+$("x-yes").onclick=function(){money=[];save(KS,money);$("x-confirm").hidden=true;$("x-msg").textContent="支出の記録を消しました。";drawMoney()};
+
+drawMemos();
+/* 通知の欄まで下げる。上の「振り返り」は結果の読み込みで後から伸びるので、4秒の間は高さが変わるたびに合わせ直す。
+   その間に読者が自分で動かしたらやめる（2026-11-17 本番で、読み込み後に欄が下へずれたのを直す） */
+function goTsuchi(){
+  var tc=$("tsuchi");if(!tc)return;var stop=false;
+  function al(){if(!stop)tc.scrollIntoView({block:"start"})}
+  ["wheel","touchstart","keydown","mousedown"].forEach(function(e){addEventListener(e,function(){stop=true},{once:true,passive:true})});
+  requestAnimationFrame(al);addEventListener("load",function(){setTimeout(al,0)});
+  if(window.ResizeObserver){var ro=new ResizeObserver(function(){al()});ro.observe(document.body);setTimeout(function(){ro.disconnect();stop=true},4000)}
+}
+if(location.hash==="#money"){show("money");drawMoney()}
+else if(location.hash==="#tsuchi"){show("bets");drawBets();goTsuchi()}/* 紹介文のリンク（2026-11-17）：通知の欄まで下げる */
+else if(location.hash==="#bets"||(!location.hash&&!/[?&]toban=/.test(location.search)&&betRows().length)){show("bets");drawBets()}
+})();
+</script>
+<script src="../assets/tsuchi.js?v=5"></script>
+<script src="../assets/kaimeSheet.js?v=3" defer></script>
+<script>
+/* 締切10分前の通知（再訪設計 段階3・2026-11-13）。状態ごとに1行と1つのボタンだけ出す */
+(function(){
+  var g=function(i){return document.getElementById(i);},st=g("tsu-st"),box=g("tsu-do"),msg=g("tsu-msg"),T=window.dzTsuchi; if(!st||!T) return;
+  function btn(label,sub,fn){var b=document.createElement("button");b.type="button";b.className="btn"+(sub?" sub small":"");b.textContent=label;b.addEventListener("click",function(){b.disabled=true;msg.textContent="";fn().then(draw,function(e){var k=e&&e.message;msg.textContent=k==="denied"?"この端末で通知が止められています。設定アプリの通知から、データ攻めを許可してください。":k==="dismiss"?"通知の許可が出ませんでした。もう一度押すと聞き直します。":"登録できませんでした。通信の良いところで、もう一度押してください。";draw();});});return b;}
+  function draw(){
+    var s=T.state(); box.textContent=""; st.textContent="";
+    if(s==="on"){var n=T.count(),nf=T.follows(),c=nf.p.concat(nf.m).filter(function(x){return x.on;}).length;st.appendChild(document.createTextNode("オン。いま知らせる予定のレース "));var b=document.createElement("b");b.textContent=n+"レース";st.appendChild(b);if(c){st.appendChild(document.createTextNode("・推しとモーター "));var b2=document.createElement("b");b2.textContent=c+"つ";st.appendChild(b2);}box.appendChild(btn("通知を止める",true,T.off));}
+    else if(s==="off"){st.textContent="オフ";box.appendChild(btn("通知を受け取る",false,T.on));}
+    else if(s==="home"){st.textContent="iPhone では、ホーム画面に追加したデータ攻めから使えます。";var ol=document.createElement("ol");ol.className="tsu-ol";["Safari の下の共有ボタンを押す","「ホーム画面に追加」を押す","追加したアイコンから開き、ここで「通知を受け取る」を押す"].forEach(function(t){var li=document.createElement("li");li.textContent=t;ol.appendChild(li);});box.appendChild(ol);}
+    else if(s==="denied"){st.textContent="この端末で通知が止められています。設定アプリの通知から、データ攻めを許可してください。";}
+    else{st.textContent="このブラウザは通知に対応していません。";}
+  }
+  /* 推し・モーターの出走（2026-11-17 けん：選手ごと・モーターごとに選ぶ） */
+  var fb=g("tsu-f");
+  function drawF(){
+    if(!fb) return; var s=T.state(); fb.textContent="";
+    if(s!=="on"&&s!=="off"){
+      /* 通知が使えない端末でも欄は出し、使えるようにする方法を1行で添える（2026-11-17 けん「なんもないで」） */
+      var h0=document.createElement("h3");h0.textContent="推し・モーターの出走";fb.appendChild(h0);
+      var p0=document.createElement("p");p0.textContent=s==="home"?"ホーム画面に追加したデータ攻めから開くと、推し・モーターごとに「出るレースの締切10分前に知らせる」を選べます。":s==="denied"?"通知を許可すると、推し・モーターごとに「出るレースの締切10分前に知らせる」を選べます。":"通知に対応したブラウザで開くと、推し・モーターごとに「出るレースの締切10分前に知らせる」を選べます。";fb.appendChild(p0);
+      fb.hidden=false;return;
+    }
+    var F=T.follows(),all=F.p.map(function(x){x.t="推し";return x;}).concat(F.m.map(function(x){x.t="モーター";return x;}));
+    var h=document.createElement("h3");h.textContent="推し・モーターの出走";fb.appendChild(h);var hp=document.createElement("p");hp.textContent="選んだ推し・モーターが出るレースを、締切10分前に知らせます。";fb.appendChild(hp);
+    if(!all.length){var p=document.createElement("p");p.className="note";p.textContent="出走表で推し選手やモーターを付けると、ここで選べます。";fb.appendChild(p);fb.hidden=false;return;}
+    all.forEach(function(x){
+      var r=document.createElement("div");r.className="tsf-r";
+      var n=document.createElement("span");n.className="tsf-n";var k=document.createElement("span");k.className="tsf-k";k.textContent=x.t;n.appendChild(k);n.appendChild(document.createTextNode(x.label));r.appendChild(n);
+      var on=s==="on"&&x.on,b=document.createElement("button");b.type="button";b.className="tsf-b";b.setAttribute("aria-pressed",on?"true":"false");b.textContent=on?"知らせます ✓":"知らせる";
+      b.setAttribute("aria-label",x.t+" "+x.label+"が出るレースを締切10分前に知らせる");
+      b.addEventListener("click",function(){b.disabled=true;msg.textContent="";T.toggleF(x.k).then(function(){draw();drawF();},function(e){var kk=e&&e.message;msg.textContent=kk==="denied"?"この端末で通知が止められています。設定アプリの通知から、データ攻めを許可してください。":kk==="dismiss"?"通知の許可が出ませんでした。もう一度押すと聞き直します。":"登録できませんでした。通信の良いところで、もう一度押してください。";draw();drawF();});});
+      r.appendChild(b);fb.appendChild(r);
+    });
+    fb.hidden=false;
+  }
+  /* その日のまとめ（2026-11-19 けん：その日の分を夜に1通・外れの日も送る） */
+  var sb=g("tsu-s");
+  function drawS(){
+    if(!sb||!T.sum) return; var s=T.state(); sb.textContent="";
+    if(s!=="on"&&s!=="off"){sb.hidden=true;return;}
+    var S=T.sum(),on=s==="on"&&S.on;
+    var h=document.createElement("h3");h.textContent="その日のまとめ";sb.appendChild(h);
+    var hp=document.createElement("p");hp.textContent="買い目を保存したレースの結果が出そろったら、夜（21時40分ごろ）に1通で知らせます。外れの日も知らせます。的中と払戻はこの画面で確かめられます。";sb.appendChild(hp);
+    var r=document.createElement("div");r.className="tsf-r";
+    var n=document.createElement("span");n.className="tsf-n";n.textContent="今日の対象 "+S.n+"レース";r.appendChild(n);
+    var b=document.createElement("button");b.type="button";b.className="tsf-b";b.setAttribute("aria-pressed",on?"true":"false");b.textContent=on?"受け取ります ✓":"受け取る";
+    b.setAttribute("aria-label","その日のまとめを受け取る");
+    b.addEventListener("click",function(){b.disabled=true;msg.textContent="";T.toggleS().then(function(){draw();},function(e){var kk=e&&e.message;msg.textContent=kk==="denied"?"この端末で通知が止められています。設定アプリの通知から、データ攻めを許可してください。":kk==="dismiss"?"通知の許可が出ませんでした。もう一度押すと聞き直します。":"登録できませんでした。通信の良いところで、もう一度押してください。";draw();});});
+    r.appendChild(b);sb.appendChild(r);sb.hidden=false;
+  }
+  var draw0=draw;draw=function(){draw0();drawS();drawF();};
+  draw();
+})();
+</script>
+<script src="../assets/guard.js" defer></script>
+<!-- kata6:body -->
+<script src="../assets/kata/kata.js?v=ecd47e51"></script>
+<script src="../assets/ugoki.js?v=e40e8a0a"></script>
+<!-- /kata6:body -->
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "173925d64f4a495bac679b00505ea517"}'></script><!-- End Cloudflare Web Analytics --><script src=/assets/raihou.js defer></script>
+</body>
+</html>
