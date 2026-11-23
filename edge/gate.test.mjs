@@ -170,3 +170,18 @@ test("印ごとの量の上限：超えたらその印は無効（ページも�
   for (let i = 0; i < 15; i++) assert.equal((await get("/glossary/", { cookie: ck, env: env2 })).text, REAL);
   for (let i = 0; i < 15; i++) assert.equal((await get("/glossary/", { cookie: ck, env: { ...ENV, DZ_DB: capDb() } })).text, REAL);
 });
+
+test("拒否した相手だけ接続元を記録する（普通の来訪者は記録しない・記録が壊れていても拒否は続く）", async () => {
+  const rows = [];
+  const logDb = (broken) => ({ prepare: sql => ({ bind: (...a) => ({
+    run: async () => { if (broken) throw new Error("x"); if (sql.startsWith("INSERT INTO blockLog")) rows.push(a); return {}; },
+    first: async () => null, all: async () => ({ results: [] }) }), first: async () => null }) });
+  const env = { ...ENV, DZ_DB: logDb(false) };
+  const r = await get("/glossary/", { env, ua: "Mozilla/5.0 (compatible; slit-radar-import/1.0)" });
+  assert.equal(r.status, 403); assert.equal(r.touched, false);
+  assert.equal(rows.length, 1); assert.equal(rows[0][1], "203.0.113.5"); assert.equal(rows[0][7], "ua");
+  await get("/glossary/", { env });
+  assert.equal(rows.length, 1);
+  const r2 = await get("/glossary/", { env: { ...ENV, DZ_DB: logDb(true) }, ua: "Mozilla/5.0 (compatible; slit-radar-import/1.0)" });
+  assert.equal(r2.status, 403);
+});
