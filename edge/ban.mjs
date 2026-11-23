@@ -5,9 +5,8 @@
 // しきい値は Pages の秘密の環境変数 DZ_BAN（「ページ数,秒数,日数」）にだけ置く。無ければ自動ブロックは動かない。
 // 記録先は D1（バインディング DZ_DB）の表 junkaiHit・junkaiBan。読めない・書けないときは何もしない（本物を返す）。
 import { hashIp, pathKind } from "./junkai.mjs";
+import { trapCfg } from "./trapCfg.mjs";
 
-// 配信WFの確認アクセスの名乗り。名乗りと回線の組み合わせでは止めない（接続元の拒否はほかと同じ）
-export const CHECK_UA = "Mozilla/5.0 (Windows NT 10.0) Chrome/130.0";
 
 export const SQL = {
   isBanned: "SELECT k FROM junkaiBan WHERE k IN (?1, ?2) AND until > ?3 LIMIT 1",
@@ -61,7 +60,8 @@ export async function checkBan(context, vc, now = Date.now()) {
     if (Math.random() < 0.02) await db.prepare(SQL.sweep).bind(nowSec - 2 * cfg.sec).run();
     if (!row || Number(row.n) < cfg.pages) return false;
     await db.prepare(SQL.addBan).bind(ip, "ip", jstDayEnd(nowSec), ua, asn, nowSec).run();
-    if (ua !== CHECK_UA && cfg.days > 0) {
+    const chk = trapCfg(context.env).chk;
+    if (!(chk && ua === chk) && cfg.days > 0) {
       await db.prepare(SQL.addBan).bind(fp, "fp", nowSec + cfg.days * 86400, ua, asn, nowSec).run();
     }
     return true;

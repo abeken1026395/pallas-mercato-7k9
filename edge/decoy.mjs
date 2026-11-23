@@ -12,8 +12,11 @@ function num(lo, hi) {
   return lo + (b[0] % (hi - lo + 1));
 }
 
-export function decoyMark() {
-  return { word: pick(KANA, 4) + "旋回", code: "M" + pick(ALNUM, 7) };
+export function decoyMark(cfg) {
+  const kana = (cfg && cfg.kana) ? cfg.kana.split("") : KANA;
+  const tail = (cfg && cfg.tail) || [""];
+  const b = new Uint8Array(1); crypto.getRandomValues(b);
+  return { word: pick(kana, 4) + tail[b[0] % tail.length], code: ((cfg && cfg.pre) || "") + pick(ALNUM, 8) };
 }
 
 // 量と待ち時間は非公開の設定 DZ_DECOY="1日の上限,待ち秒" で決める。設定が無ければ迷路も足止めも無し
