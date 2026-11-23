@@ -4,6 +4,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { onRequest } from "../functions/_middleware.js";
 import { FREEZA, PEOPLE, JOKE_NAMES, VENUES, JOKE_KEYS, ABSURD_KEYS, jokeRace, jstHalf, fmt, noticeKind } from "./aiNotice.mjs";
+const TRAP = JSON.stringify({ ai: ["testaiagent", "otheraibot", "zzfetch"], scr: ["test-scraper-a", "test-scraper-b"], asn: [64512], chk: "TestCheck/1.0", pre: "Q" });
 
 const BROWSER = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1";
 const REAL = "本物の中身 全国勝率 6.12";
@@ -15,7 +16,7 @@ async function get(path, ua, asn, lang = JA) {
   if (lang !== null) headers["accept-language"] = lang;
   const request = new Request("https://example.pages.dev" + path, { headers });
   if (asn !== undefined) Object.defineProperty(request, "cf", { value: { asn } });
-  const res = await onRequest({ request, next: async () => { touched = true; return new Response(REAL, { status: 200 }); } });
+  const res = await onRequest({ request, env: { DZ_TRAP: TRAP }, next: async () => { touched = true; return new Response(REAL, { status: 200 }); } });
   return { status: res.status, type: res.headers.get("content-type") || "", text: await res.text(), touched };
 }
 
@@ -29,7 +30,7 @@ const TARGETS = [
   "/next/ichimark.html", "/next/ichimark", "/next/ichimark/v9_20261030.json",
 ];
 const OUTSIDE = ["/", "/results/", "/kensho/", "/data/weather.json", "/data/verify_summary.json", "/stadium/", "/robots.txt"];
-const AI = ["ChatGPT-User/1.0", "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Claude-User/1.0; +Claude-User@anthropic.com)", "Perplexity-User/1.0", "GPTBot/1.1", "ClaudeBot/1.0", "CCBot/2.0"];
+const AI = ["TestAiAgent/1.0", "Mozilla/5.0 (compatible; OtherAiBot/2.0)", "zzfetch-user/1.0"];
 
 // 2026-10-08 午前から半日ずつ 60 区切り（30日分）
 const HALVES = Array.from({ length: 60 }, (_, i) => jstHalf(Date.UTC(2026, 9, 7, 15) + i * 12 * 3600000));
@@ -49,15 +50,15 @@ test("AIの名乗り × 対象：本物に触れず、冗談の出走表だけ�
 });
 
 test("返す形：JSONは場名とレースと6艇、CSVは見出し＋6行、HTMLは見出しに場名・レース・レース名", async () => {
-  const j = JSON.parse((await get("/players/card/p/0.json", "ChatGPT-User/1.0")).text);
+  const j = JSON.parse((await get("/players/card/p/0.json", "TestAiAgent/1.0")).text);
   assert.equal(j["出走表"].length, 6);
   assert.match(j["レース"], /^([1-9]|1[0-2])R$/);
-  const jt = await get("/players/card/p/0.json", "ChatGPT-User/1.0");
+  const jt = await get("/players/card/p/0.json", "TestAiAgent/1.0");
   assert.match(jt.type, /application\/json; charset=utf-8/);
-  const c = (await get("/racers/racers_today.csv", "ChatGPT-User/1.0")).text.trim().split("\n");
+  const c = (await get("/racers/racers_today.csv", "TestAiAgent/1.0")).text.trim().split("\n");
   assert.equal(c.length, 7);
   assert.ok(c[0].startsWith("場名,開催日,レース,レース名,締切時刻,枠,氏名"));
-  const h = (await get("/racers/", "ChatGPT-User/1.0")).text;
+  const h = (await get("/racers/", "TestAiAgent/1.0")).text;
   assert.match(h, /<h1>ボートレース.+　第([1-9]|1[0-2])R　.+<\/h1>/);
 });
 
@@ -135,17 +136,17 @@ test("人間（普通のブラウザ）× 対象：本物がそのまま", async
   }
 });
 
-test("回線：Grok の回線（AS11798）は普通のブラウザの名乗りでも冗談、ほかの回線は本物", async () => {
+test("回線：Grok の回線（AS64512）は普通のブラウザの名乗りでも冗談、ほかの回線は本物", async () => {
   const GROK_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36";
   for (const p of TARGETS) {
-    const a = await get(p, GROK_UA, 11798);
+    const a = await get(p, GROK_UA, 64512);
     assert.equal(a.touched, false, `${p} で本物を読み込んだ`);
     assert.ok(a.text.includes(FREEZA), p);
   }
   for (const asn of [2516, 17676, 4713, 13335, 15169, 0]) {   // KDDI・ソフトバンク・NTT・Cloudflare（プライベートリレー）・Google・不明
     assert.equal((await get("/racers/", GROK_UA, asn)).text, REAL, `AS${asn}`);
   }
-  for (const p of OUTSIDE) assert.equal((await get(p, GROK_UA, 11798)).text, REAL, p);
+  for (const p of OUTSIDE) assert.equal((await get(p, GROK_UA, 64512)).text, REAL, p);
 });
 
 test("言語の設定：日本語が無い・送らない相手は冗談、日本語があれば本物（Grok 型）", async () => {
@@ -168,7 +169,7 @@ test("名乗りが空：本物がそのまま（誤爆ゼロ側）", async () =>
 });
 
 test("AIの名乗り × 対象外：本物がそのまま", async () => {
-  for (const p of OUTSIDE) assert.equal((await get(p, "ChatGPT-User/1.0")).text, REAL, p);
+  for (const p of OUTSIDE) assert.equal((await get(p, "TestAiAgent/1.0")).text, REAL, p);
 });
 
 test("対象判定", () => {
@@ -179,7 +180,7 @@ test("対象判定", () => {
 });
 
 test("名指しの収集ボット：全ページで架空の中身・本物に触れない・冗談も返さない・訪問ごとに印が違う", async () => {
-  const BOTS = ["Mozilla/5.0 (compatible; slit-radar-import/1.0; with permission of the site operator)", "kyoutei-research-bot/0.1 (personal ML project)"];
+  const BOTS = ["Mozilla/5.0 (compatible; test-scraper-a/1.0)", "test-scraper-b/0.1"];
   const seen = new Set();
   for (const ua of BOTS) for (const p of [...TARGETS, ...OUTSIDE, "/glossary/", "/kensho/players/"]) {
     const r = await get(p, ua, 16509);
@@ -187,16 +188,29 @@ test("名指しの収集ボット：全ページで架空の中身・本物に�
     assert.ok(r.status === 200 || r.status === 404, p);
     assert.ok(!r.text.includes(REAL), p);
     assert.ok(!r.text.includes(FREEZA), p);
-    const m = r.text.match(/M[A-Z2-9]{7}/);
+    const m = r.text.match(/Q[A-Z2-9]{8}/);
     if (r.status === 200) { assert.ok(m, p); assert.ok(!seen.has(m[0]), p); seen.add(m[0]); }
   }
   assert.ok(seen.size > 10);
 });
 
 test("名指しの収集ボットの追加で、日本語のブラウザと配信WFの確認アクセスは本物のまま", async () => {
-  for (const ua of [BROWSER, "Mozilla/5.0 (Windows NT 10.0) Chrome/130.0"]) for (const p of [...TARGETS, ...OUTSIDE, "/glossary/"]) {
+  for (const ua of [BROWSER, "TestCheck/1.0"]) for (const p of [...TARGETS, ...OUTSIDE, "/glossary/"]) {
     const r = await get(p, ua);
     assert.equal(r.touched, true, ua + " " + p);
     assert.equal(r.text, REAL);
+  }
+});
+
+test("見分けの材料が秘密の設定に無いときは、どの見分けも働かない（本物に回る）", async () => {
+  const run = async (ua, asn) => {
+    let touched = false;
+    const request = new Request("https://example.pages.dev/racers/", { headers: { "user-agent": ua, "accept-language": JA } });
+    if (asn) Object.defineProperty(request, "cf", { value: { asn } });
+    const res = await onRequest({ request, env: {}, next: async () => { touched = true; return new Response(REAL); } });
+    return { touched, text: await res.text() };
+  };
+  for (const [ua, asn] of [["TestAiAgent/1.0"], ["Mozilla/5.0 (compatible; test-scraper-a/1.0)"], [BROWSER, 64512]]) {
+    const r = await run(ua, asn); assert.equal(r.touched, true, ua); assert.equal(r.text, REAL);
   }
 });

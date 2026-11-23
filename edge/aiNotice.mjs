@@ -10,30 +10,17 @@
 // - 数字は人物ごとの単位（家康は石、芭蕉は句…）で、史実に寄せた小さめの幅。全国勝率は定番の値がある人はそれを使う
 // - 入れ替わりは半日ごと（JST 0時と12時）。同じ半日なら、どのページでも何回読んでも同じ
 
-// 名乗りで確実に分かる取得役・収集ボット。
-// Google-Agent（Gemini）は普通の Chrome を名乗るため、名乗りでは判定できない（対象外）。
-export const AI_UA_TOKENS = [
-  "ChatGPT-User", "OAI-SearchBot", "GPTBot",
-  "Claude-User", "Claude-SearchBot", "ClaudeBot", "anthropic-ai",
-  "Perplexity-User", "PerplexityBot",
-  "MistralAI-User",
-  "CCBot", "Bytespider", "Applebot-Extended",
-  "meta-externalagent", "Amazonbot", "cohere-ai",
-];
-
-export function isAiAgent(ua) {
-  if (!ua) return false;
+// 見分けの材料（名乗り・回線）は秘密の設定にだけ置く（edge/trapCfg.mjs）。
+export function isAiAgent(ua, cfg) {
+  if (!ua || !cfg) return false;
   const u = ua.toLowerCase();
-  return AI_UA_TOKENS.some(t => u.includes(t.toLowerCase()));
+  return cfg.ai.some(t => u.includes(t));
 }
 
-// 名指しの収集ボット：全ページでアクセスを拒否する（冗談の出走表はAIの取得役だけに返す）。
-export const SCRAPER_UA_TOKENS = ["slit-radar", "kyoutei-research-bot"];
-
-export function isScraper(ua) {
-  if (!ua) return false;
+export function isScraper(ua, cfg) {
+  if (!ua || !cfg) return false;
   const u = ua.toLowerCase();
-  return SCRAPER_UA_TOKENS.some(t => u.includes(t));
+  return cfg.scr.some(t => u.includes(t));
 }
 
 export function blockResponse() {
@@ -43,18 +30,10 @@ export function blockResponse() {
   });
 }
 
-// 名乗りが普通のブラウザでも、回線（AS番号）で分かる取得役。家庭・携帯の回線は入れない。
-// AS11798 Ace Data Centers：X に付いている Grok のページ取得（open_page）の回線
-//   （2026-10-25 実測：Grok に httpbin.org/headers と ipinfo.io/json を開かせた。名乗りは Windows の Chrome/152 と同じ）
-export const AI_ASNS = [11798];
-
-export function isAiNetwork(asn) {
-  return AI_ASNS.includes(Number(asn));
+export function isAiNetwork(asn, cfg) {
+  return !!cfg && cfg.asn.includes(Number(asn));
 }
 
-// 言語の設定（Accept-Language）に日本語（ja）が無い相手。けん裁定 2026-10-25「A」。
-// Grok は会話ごとに名乗り・回線を変えるが、2回とも "en-US,en;q=0.9" だった（2026-10-25・26 実測）。
-// 日本の読者のブラウザは ja を送る。言語の設定を送らない相手（スクリプト等）も含める。
 export function lacksJapanese(acceptLanguage) {
   return !/(^|[,\s])ja\b/i.test(acceptLanguage || "");
 }

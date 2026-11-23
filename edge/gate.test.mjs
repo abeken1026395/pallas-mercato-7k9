@@ -4,6 +4,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { onRequest } from "../functions/_middleware.js";
 import { makePass, validPass, isOpenPath, bindOf, GATE_COOKIE } from "./gate.mjs";
+const TRAP = JSON.stringify({ ai: ["testaiagent", "otheraibot", "zzfetch"], scr: ["test-scraper-a", "test-scraper-b"], asn: [64512], chk: "TestCheck/1.0", pre: "Q" });
 
 const BROWSER = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1";
 const REAL = "本物の中身 全国勝率 6.12";
@@ -18,7 +19,7 @@ async function get(path, { env = ENV, ua = BROWSER, cookie, key, method = "GET",
   if (body) { init.body = body; headers["content-type"] = "application/x-www-form-urlencoded"; }
   const request = new Request("https://example.pages.dev" + path, init);
   if (country || asn) Object.defineProperty(request, "cf", { value: { country, asn } });
-  const res = await onRequest({ request, env, next: async () => { touched = true; return new Response(REAL, { status: 200 }); } });
+  const res = await onRequest({ request, env: { DZ_TRAP: TRAP, ...(env || {}) }, next: async () => { touched = true; return new Response(REAL, { status: 200 }); } });
   return { status: res.status, text: await res.text(), touched, setCookie: res.headers.get("set-cookie") || "" };
 }
 
@@ -75,7 +76,7 @@ test("鍵が1つでも無いときは関門を開けたまま（読者を締め�
 });
 
 test("AIの取得役は、対象ページでは今までどおり冗談（関門より先）", async () => {
-  const r = await get("/racers/racers_today.csv", { ua: "ChatGPT-User/1.0" });
+  const r = await get("/racers/racers_today.csv", { ua: "TestAiAgent/1.0" });
   assert.equal(r.touched, false); assert.ok(r.text.includes("フリーザ"));
 });
 
@@ -115,7 +116,7 @@ test("海外：日本以外はページもデータも403（印があっても�
 test("海外：関門の外・秘密の合図・AIの取得役への冗談・非常口", async () => {
   for (const p of ["/in/line/shogo/", "/kiyaku/", "/api/now", "/assets/guard.js"]) assert.equal((await get(p, { country: "US" })).text, REAL, p);
   assert.equal((await get("/racers/entryIndex.json", { country: "US", key: "gatekey" })).text, REAL);
-  const ai = await get("/racers/racers_today.csv", { country: "US", ua: "ChatGPT-User/1.0" });
+  const ai = await get("/racers/racers_today.csv", { country: "US", ua: "TestAiAgent/1.0" });
   assert.ok(ai.text.includes("フリーザ"));
   const db = { prepare: sql => ({ first: async () => (sql.includes("'geo:off'") ? { v: "1" } : null) }) };
   const r = await get("/glossary/", { country: "US", env: { ...ENV, DZ_DB: db } });
@@ -177,18 +178,18 @@ test("拒否した相手だけ接続元を記録する（普通の来訪者は�
     run: async () => { if (broken) throw new Error("x"); if (sql.startsWith("INSERT INTO blockLog")) rows.push(a); return {}; },
     first: async () => null, all: async () => ({ results: [] }) }), first: async () => null }) });
   const env = { ...ENV, DZ_DB: logDb(false) };
-  const r = await get("/glossary/", { env, ua: "Mozilla/5.0 (compatible; slit-radar-import/1.0)" });
+  const r = await get("/glossary/", { env, ua: "Mozilla/5.0 (compatible; test-scraper-a/1.0)" });
   assert.equal(r.status, 200); assert.equal(r.touched, false);
   assert.equal(rows.length, 1); assert.equal(rows[0][1], "203.0.113.5"); assert.ok(rows[0][7].startsWith("decoy:"));
   const code = rows[0][7].split(":")[2]; assert.ok(r.text.includes(code)); assert.ok(r.text.includes(rows[0][7].split(":")[1]));
   await get("/glossary/", { env });
   assert.equal(rows.length, 1);
-  const r2 = await get("/glossary/", { env: { ...ENV, DZ_DB: logDb(true) }, ua: "Mozilla/5.0 (compatible; slit-radar-import/1.0)" });
+  const r2 = await get("/glossary/", { env: { ...ENV, DZ_DB: logDb(true) }, ua: "Mozilla/5.0 (compatible; test-scraper-a/1.0)" });
   assert.equal(r2.status, 200); assert.equal(r2.touched, false);
 });
 
 test("偽物の迷路と上限：設定があれば偽の住所を含め、1日の上限を超えたら403。記録が読めなければ403", async () => {
-  const BOT = "Mozilla/5.0 (compatible; slit-radar-import/1.0)";
+  const BOT = "Mozilla/5.0 (compatible; test-scraper-a/1.0)";
   const mk = (count, broken) => ({ prepare: sql => ({ bind: () => ({
     run: async () => ({}), all: async () => ({ results: [] }),
     first: async () => { if (sql.includes("FROM blockLog")) { if (broken) throw new Error("x"); return { c: count }; } return null; } }), first: async () => null }) });

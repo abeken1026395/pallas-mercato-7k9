@@ -5,6 +5,7 @@ import assert from "node:assert/strict";
 import { onRequest } from "../functions/_middleware.js";
 import { FREEZA } from "./aiNotice.mjs";
 import { visitorCookie, ipKey, jstDay, pathKind, recordVisit } from "./junkai.mjs";
+const TRAP = JSON.stringify({ ai: ["testaiagent", "otheraibot", "zzfetch"], scr: ["test-scraper-a", "test-scraper-b"], asn: [64512], chk: "TestCheck/1.0", pre: "Q" });
 
 const BROWSER = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1";
 const REAL = "本物の中身 全国勝率 6.12";
@@ -19,7 +20,7 @@ async function get(path, { ua = BROWSER, lang = "ja-JP,ja;q=0.9", cookie, env, i
   const headers = { "user-agent": ua, "accept-language": lang, "cf-connecting-ip": ip };
   if (cookie) headers.cookie = cookie;
   const request = new Request("https://example.pages.dev" + path, { headers });
-  const res = await onRequest({ request, env, next: async () => { touched = true; return new Response(REAL, { status: 200 }); } });
+  const res = await onRequest({ request, env: { DZ_TRAP: TRAP, ...(env || {}) }, next: async () => { touched = true; return new Response(REAL, { status: 200 }); } });
   return { status: res.status, text: await res.text(), touched, setCookie: res.headers.get("set-cookie") || "" };
 }
 
@@ -27,7 +28,7 @@ test("記録あり：人間には本物、AIには冗談（罠は変わらない
   const { env, points } = logEnv();
   const h = await get("/racers/", { env });
   assert.equal(h.text, REAL); assert.equal(h.touched, true);
-  const a = await get("/racers/", { env, ua: "ChatGPT-User/1.0" });
+  const a = await get("/racers/", { env, ua: "TestAiAgent/1.0" });
   assert.equal(a.touched, false); assert.ok(a.text.includes(FREEZA));
   const t = await get("/", { env });
   assert.equal(t.text, REAL);
@@ -39,7 +40,7 @@ test("記録あり：人間には本物、AIには冗談（罠は変わらない
 test("記録なし（バインディングが無い）でも、返す中身は同じで止まらない", async () => {
   const h = await get("/racers/");
   assert.equal(h.text, REAL);
-  const a = await get("/racers/", { ua: "ClaudeBot/1.0" });
+  const a = await get("/racers/", { ua: "OtherAiBot/2.0" });
   assert.ok(a.text.includes(FREEZA));
   const bad = { DZ_SALT: "x", DZ_LOG: { writeDataPoint: () => { throw new Error("boom"); } } };
   const b = await get("/kensho/", { env: bad });
@@ -117,7 +118,7 @@ async function getB(path, env, { ua = "Mozilla/5.0 (compatible; somebot/1.0)", i
   if (cookie) headers.cookie = cookie;
   const request = new Request("https://example.pages.dev" + path, { headers });
   Object.defineProperty(request, "cf", { value: { asn } });
-  const res = await onRequest({ request, env, next: async () => { touched = true; return new Response(REAL, { status: 200 }); } });
+  const res = await onRequest({ request, env: { DZ_TRAP: TRAP, ...(env || {}) }, next: async () => { touched = true; return new Response(REAL, { status: 200 }); } });
   return { status: res.status, text: await res.text(), touched };
 }
 
@@ -148,7 +149,7 @@ test("自動ブロック：Cookie を持ち帰る人は、速く開いても止�
 test("自動ブロック：配信WFの確認アクセスは名乗りと回線の組み合わせでは止めない", async () => {
   const db = fakeD1();
   const env = { DZ_SALT: "s", DZ_DB: db, DZ_BAN: "3,300,30" };
-  const ua = "Mozilla/5.0 (Windows NT 10.0) Chrome/130.0";
+  const ua = "TestCheck/1.0";
   for (let i = 0; i < 3; i++) await getB(PAGES[i], env, { ua });
   assert.equal([...db.bans.values()].filter(b => b.kind === "fp").length, 0);
   assert.equal((await getB("/", env, { ua, ip: "198.51.100.200" })).status, 200);

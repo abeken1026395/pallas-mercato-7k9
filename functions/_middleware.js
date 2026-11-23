@@ -8,6 +8,7 @@ import { visitorCookie, recordVisit, withCookie } from "../edge/junkai.mjs";
 import { checkBan } from "../edge/ban.mjs";
 import { gate, geoBlock } from "../edge/gate.mjs";
 import { logBlock } from "../edge/blockLog.mjs";
+import { trapCfg } from "../edge/trapCfg.mjs";
 import { decoyMark, decoyResponse, decoyConfig, decoyOverCap, wait } from "../edge/decoy.mjs";
 
 export async function onRequest(context) {
@@ -18,14 +19,15 @@ export async function onRequest(context) {
   const asn = (request.cf && request.cf.asn) || 0;   // 回線の持ち主の番号（Cloudflare が付ける）
   const lang = request.headers.get("accept-language") || "";
   const vc = visitorCookie(request);
+  const cfg = trapCfg(context.env);
   let trapped = false;
   let res = null;
-  if (isScraper(ua)) {
+  if (isScraper(ua, cfg)) {
     const dc = decoyConfig(context.env);
     if (await decoyOverCap(context.env, dc.cap)) {
       res = blockResponse(); trapped = "block"; await logBlock(context, "ua");
     } else {
-      const mark = decoyMark();
+      const mark = decoyMark(cfg);
       await wait(dc.wait);
       res = decoyResponse(new URL(request.url).pathname, mark, dc.cap > 0); trapped = "decoy";
       await logBlock(context, "decoy:" + mark.word + ":" + mark.code);
@@ -33,7 +35,7 @@ export async function onRequest(context) {
   } else if (await checkBan(context, vc)) {
     res = blockResponse(); trapped = "block"; await logBlock(context, "ban");
   } else if (request.method === "GET" || request.method === "HEAD") {
-    if (isAiAgent(ua) || isAiNetwork(asn) || lacksJapanese(lang)) {
+    if (isAiAgent(ua, cfg) || isAiNetwork(asn, cfg) || lacksJapanese(lang)) {
       const pathname = new URL(request.url).pathname;
       const kind = noticeKind(pathname);
       // 本物を読み込む前に返す（本物には一切触れない・処理も軽い）
