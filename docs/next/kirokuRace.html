@@ -453,16 +453,22 @@ function needResults(xs){
   return wait;
 }
 /* 回収率リング：100%で一周。100%を超えても輪は一周のまま、数字は実際の値（izonSekkei 段階2） */
+/* 実験場（2026-11-23 けん）：100%を超えた分は、2周目を金色で重ねる。200%以上は金色で一周 */
+function over(pct,o,r,w){
+  if(!(pct>100))return "";
+  var c=2*Math.PI*r,f=Math.min(pct-100,100)/100;
+  return '<circle cx="'+o+'" cy="'+o+'" r="'+r+'" fill="none" stroke="#dcbd78" stroke-width="'+w+'" stroke-dasharray="'+(c*f).toFixed(2)+' '+c.toFixed(2)+'" transform="rotate(-90 '+o+' '+o+')"/>';
+}
 function ring1(pct){
   var r=17,c=2*Math.PI*r,f=Math.max(0,Math.min(pct,100))/100;
   return '<div class="ring s"><svg viewBox="0 0 44 44" width="44" height="44" aria-hidden="true"><circle cx="22" cy="22" r="'+r+'" fill="none" stroke="#2c3e55" stroke-width="5"/>'
-    +(f>0?'<circle cx="22" cy="22" r="'+r+'" fill="none" stroke="#7fb4ff" stroke-width="5" stroke-dasharray="'+(c*f).toFixed(2)+' '+c.toFixed(2)+'" transform="rotate(-90 22 22)"/>':"")+'</svg>'
+    +(f>0?'<circle cx="22" cy="22" r="'+r+'" fill="none" stroke="#7fb4ff" stroke-width="5" stroke-dasharray="'+(c*f).toFixed(2)+' '+c.toFixed(2)+'" transform="rotate(-90 22 22)"/>':"")+over(pct,22,r,5)+'</svg>'
     +'<div class="v">'+pct.toLocaleString()+'<small>%</small></div></div>';
 }
 function ring(pct,n){
   var r=22,c=2*Math.PI*r,f=Math.max(0,Math.min(pct,100))/100;
   return '<div class="ring"><svg viewBox="0 0 56 56" width="56" height="56" role="img" aria-label="回収率 '+pct+'%（'+n+'レース）"><circle cx="28" cy="28" r="'+r+'" fill="none" stroke="#2c3e55" stroke-width="6"/>'
-    +'<circle cx="28" cy="28" r="'+r+'" fill="none" stroke="#7fb4ff" stroke-width="6" stroke-dasharray="'+(c*f).toFixed(2)+' '+c.toFixed(2)+'" transform="rotate(-90 28 28)"/></svg>'
+    +'<circle cx="28" cy="28" r="'+r+'" fill="none" stroke="#7fb4ff" stroke-width="6" stroke-dasharray="'+(c*f).toFixed(2)+' '+c.toFixed(2)+'" transform="rotate(-90 28 28)"/>'+over(pct,28,r,6)+'</svg>'
     +'<div class="v">'+pct+'<small>%</small><small class="n">'+n+'レース</small></div></div>';
 }
 /* 買い目カード（2026-11-12 けん裁定：フォーメーションを着ごとの艇色で、結果を艇色の帯で、点数・1点の金額・購入額を1行に） */
