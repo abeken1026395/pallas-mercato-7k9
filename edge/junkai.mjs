@@ -36,7 +36,8 @@ export function pathKind(pathname) {
   return (last === "" || !last.includes(".") || last.endsWith(".html")) ? "page" : "data";
 }
 
-async function hashIp(ip, salt, day) {
+export async function hashIp(ip, salt, dayOrNow) {
+  const day = typeof dayOrNow === "number" ? jstDay(dayOrNow) : dayOrNow;
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(salt + "|" + day + "|" + ipKey(ip)));
   return hex(new Uint8Array(buf)).slice(0, 16);
 }
@@ -61,7 +62,7 @@ export async function recordVisit(context, vc, trapped, now = Date.now()) {
         (request.headers.get("user-agent") || "").slice(0, 120), // 6 名乗り
         String(cf.asn || 0),                                  // 7 回線の持ち主の番号
         String(cf.colo || ""),                                // 8 受けた拠点
-        trapped ? "trap" : "real",                            // 9 罠を返したか
+        typeof trapped === "string" ? trapped : (trapped ? "trap" : "real"), // 9 罠を返したか（拒否は block）
       ],
       doubles: [1],
     });
