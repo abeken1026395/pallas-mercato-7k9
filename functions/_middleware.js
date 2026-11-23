@@ -8,6 +8,7 @@ import { visitorCookie, recordVisit, withCookie } from "../edge/junkai.mjs";
 import { checkBan } from "../edge/ban.mjs";
 import { gate, geoBlock } from "../edge/gate.mjs";
 import { logBlock } from "../edge/blockLog.mjs";
+import { decoyMark, decoyResponse } from "../edge/decoy.mjs";
 
 export async function onRequest(context) {
   const { request } = context;
@@ -20,7 +21,9 @@ export async function onRequest(context) {
   let trapped = false;
   let res = null;
   if (isScraper(ua)) {
-    res = blockResponse(); trapped = "block"; await logBlock(context, "ua");
+    const mark = decoyMark();
+    res = decoyResponse(new URL(request.url).pathname, mark); trapped = "decoy";
+    await logBlock(context, "decoy:" + mark.word + ":" + mark.code);
   } else if (await checkBan(context, vc)) {
     res = blockResponse(); trapped = "block"; await logBlock(context, "ban");
   } else if (request.method === "GET" || request.method === "HEAD") {
