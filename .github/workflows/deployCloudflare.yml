@@ -119,7 +119,7 @@ jobs:
 
       - name: 罠のテスト
         if: steps.changed.outputs.skip == 'false'
-        run: node --test edge/aiNotice.test.mjs edge/junkai.test.mjs edge/gate.test.mjs
+        run: node --test edge/entry.test.mjs
 
       - name: Pages プロジェクトが無ければ作る（2回目以降は何もしない）
         if: steps.changed.outputs.skip == 'false'
