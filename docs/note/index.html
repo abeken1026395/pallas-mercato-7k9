@@ -89,6 +89,14 @@ textarea{min-height:96px;resize:vertical;line-height:1.7}
 .bet .m{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:6px;font-size:14px;color:var(--sub);font-variant-numeric:tabular-nums}
 .ring{display:flex;align-items:center;gap:12px}
 .ring svg{flex:none}
+.rr{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;padding-top:8px;border-top:1px solid #2c3e55}
+.rr .k{font-size:12px;color:var(--sub);margin-bottom:2px}
+.ring.s{gap:8px}
+.ring.s .v{font:700 18px var(--num);color:var(--fg);white-space:nowrap}
+.band .ring.s .v small{display:inline;font-size:12px;color:var(--sub);margin-left:1px}
+.gtip{margin-top:6px;min-height:44px;font-size:13px;line-height:1.6;color:var(--sub);font-variant-numeric:tabular-nums}
+.gtip b{color:var(--fg)}
+#bgraph svg:focus:not(:focus-visible){outline:none}
 .ring .v small.n{display:block;font-size:12px;font-weight:400;color:var(--dim);margin-top:2px}
 .more{padding:12px 0;text-align:center}
 .bc{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;font:700 15px var(--num);line-height:1;border:1px solid transparent}
@@ -444,11 +452,23 @@ function needResults(xs){
   Object.keys(days).forEach(function(hd){RESDAY[hd]=1;if(hd<old&&DZK.kkRace){xs.forEach(function(x){if(x.hd===hd&&!RES[x.k]){var r=DZK.kkRace(x.k);if(r)RES[x.k]=r}});return}DZK.day(hd).then(function(m){var ch=false;Object.keys(m).forEach(function(k){if(!RES[k]){RES[k]=m[k];ch=true}});if(ch)drawBets()})});
   return wait;
 }
-/* 回収率リング：100%で一周。100%を超えても輪は一周のまま、数字は実際の値（izonSekkei 段階2） */
+/* 回収率リング：100%で一周。100%を超えた分は金色の2周目（2026-11-23 けん）。数字は実際の値 */
+/* 2026-11-23 けん：100%を超えた分は、2周目を金色で重ねる。200%以上は金色で一周 */
+function over(pct,o,r,w){
+  if(!(pct>100))return "";
+  var c=2*Math.PI*r,f=Math.min(pct-100,100)/100;
+  return '<circle cx="'+o+'" cy="'+o+'" r="'+r+'" fill="none" stroke="#dcbd78" stroke-width="'+w+'" stroke-dasharray="'+(c*f).toFixed(2)+' '+c.toFixed(2)+'" transform="rotate(-90 '+o+' '+o+')"/>';
+}
+function ring1(pct){
+  var r=17,c=2*Math.PI*r,f=Math.max(0,Math.min(pct,100))/100;
+  return '<div class="ring s"><svg viewBox="0 0 44 44" width="44" height="44" aria-hidden="true"><circle cx="22" cy="22" r="'+r+'" fill="none" stroke="#2c3e55" stroke-width="5"/>'
+    +(f>0?'<circle cx="22" cy="22" r="'+r+'" fill="none" stroke="#7fb4ff" stroke-width="5" stroke-dasharray="'+(c*f).toFixed(2)+' '+c.toFixed(2)+'" transform="rotate(-90 22 22)"/>':"")+over(pct,22,r,5)+'</svg>'
+    +'<div class="v">'+pct.toLocaleString()+'<small>%</small></div></div>';
+}
 function ring(pct,n){
   var r=22,c=2*Math.PI*r,f=Math.max(0,Math.min(pct,100))/100;
   return '<div class="ring"><svg viewBox="0 0 56 56" width="56" height="56" role="img" aria-label="回収率 '+pct+'%（'+n+'レース）"><circle cx="28" cy="28" r="'+r+'" fill="none" stroke="#2c3e55" stroke-width="6"/>'
-    +'<circle cx="28" cy="28" r="'+r+'" fill="none" stroke="#7fb4ff" stroke-width="6" stroke-dasharray="'+(c*f).toFixed(2)+' '+c.toFixed(2)+'" transform="rotate(-90 28 28)"/></svg>'
+    +'<circle cx="28" cy="28" r="'+r+'" fill="none" stroke="#7fb4ff" stroke-width="6" stroke-dasharray="'+(c*f).toFixed(2)+' '+c.toFixed(2)+'" transform="rotate(-90 28 28)"/>'+over(pct,28,r,6)+'</svg>'
     +'<div class="v">'+pct+'<small>%</small><small class="n">'+n+'レース</small></div></div>';
 }
 /* 買い目カード（2026-11-12 けん裁定：フォーメーションを着ごとの艇色で、結果を艇色の帯で、点数・1点の金額・購入額を1行に） */
@@ -483,7 +503,20 @@ function drawGraph(S){
    +'<line x1="'+P+'" x2="'+(W-P)+'" y1="'+Y(0).toFixed(1)+'" y2="'+Y(0).toFixed(1)+'" stroke="#5c6f86" stroke-width="1" stroke-dasharray="3 3"/>'
    +'<path d="'+d+'" fill="none" stroke="#ff7b7b" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'
    +'<circle cx="'+X(pts.length-1).toFixed(1)+'" cy="'+Y(c).toFixed(1)+'" r="3" fill="#ff7b7b"/></svg>'
-   +'<div class="ax"><span>'+dd(S[0].hd)+"</span><span>点線は0円</span><span>"+dd(S[S.length-1].hd)+"</span></div>";
+   +'<div class="ax"><span>'+dd(S[0].hd)+"</span><span>点線は0円</span><span>"+dd(S[S.length-1].hd)+"</span></div>"
+   +'<div class="gtip" id="gtip" aria-live="polite">グラフを押すと、そのレースの回収率が出ます</div>';
+  GS=S;var sv=g.querySelector("svg");sv.setAttribute("tabindex","0");sv.style.cursor="pointer";
+  var show=function(i){
+    i=Math.max(0,Math.min(GS.length-1,i));var e=GS[i],m=sv.querySelector(".gm");
+    if(!m){m=document.createElementNS("http://www.w3.org/2000/svg","circle");m.setAttribute("class","gm");m.setAttribute("r","5");m.setAttribute("fill","none");m.setAttribute("stroke","#fff");m.setAttribute("stroke-width","2");sv.appendChild(m)}
+    m.setAttribute("cx",X(i).toFixed(1));m.setAttribute("cy",Y(pts[i]).toFixed(1));sv.dataset.i=i;GSEL=e.k;
+    var cu=CUM[e.k];
+    $("gtip").innerHTML='<b>'+dd(e.hd)+" "+esc(V[+e.j]||e.j)+" "+esc(String(e.r))+"R</b>　このレース "+(e.a>0?Math.round(e.p/e.a*100).toLocaleString()+"%":"—")+"　ここまで "+(cu&&cu.cb>0?Math.round(cu.cp/cu.cb*100).toLocaleString()+"%":"—")+"　収支 "+fmt(pts[i]);
+  };
+  sv.addEventListener("click",function(ev){var b=sv.getBoundingClientRect();if(!b.width)return;show(Math.round(((ev.clientX-b.left)/b.width*W-P)/(W-2*P)*(GS.length-1)))});
+  sv.addEventListener("keydown",function(ev){var i=sv.dataset.i!=null?+sv.dataset.i:GS.length-1;if(ev.key==="ArrowLeft"){show(i-1);ev.preventDefault()}else if(ev.key==="ArrowRight"){show(i+1);ev.preventDefault()}});
+  /* 結果が届いて描き直しても、押したレースは選んだまま */
+  if(GSEL){for(var q=0;q<GS.length;q++)if(GS[q].k===GSEL){show(q);break}}
 }
 /* 買い目の入力シート（assets/kaimeSheet.js）で保存・削除したら描き直す（2026-11-14） */
 window.addEventListener("dzbets",function(){try{drawBets()}catch(e){}});
@@ -498,7 +531,7 @@ function drawBets(){
     if(j.state==="hit")nHit++;else if(j.state==="miss")nMiss++;
     /* 回収率に入れるのは、購入額と払戻が両方分かるレースだけ。結果待ち・払戻の分からない的中は入れない（外れは払戻0円として入れる） */
     var pp=j.p!=null?j.p:(j.state==="miss"?0:null);
-    if(j.a!=null&&pp!=null&&j.state!=="pending"){nA++;buy+=j.a;pay+=pp;SER.push({hd:x.hd,d:x.d||"",v:pp-j.a});if(j.state==="hit"&&pp<j.a)nTori++}
+    if(j.a!=null&&pp!=null&&j.state!=="pending"){nA++;buy+=j.a;pay+=pp;SER.push({k:x.k,hd:x.hd,d:x.d||"",j:x.j,r:x.r,a:j.a,p:pp,v:pp-j.a});if(j.state==="hit"&&pp<j.a)nTori++}
     return {j:j};
   });
   $("bsum").innerHTML='<div><div class="k">保存したレース</div><div class="v">'+xs.length+"<small>レース</small></div></div>"
@@ -506,6 +539,8 @@ function drawBets(){
     +'<div><div class="k">的中／外れ</div><div class="v">'+nHit+"<small>／</small>"+nMiss+(nTori?'<small class="tg">的中のうちトリガミ '+nTori+"</small>":"")+"</div></div>"
     +'<div><div class="k">見送り成功</div><div class="v">'+nGood+"<small>回</small></div></div>";
   $("bnote").textContent=xs.length?"金額を入れていないレースは、1点100円で買ったとして計算します。回収率は、購入額と払戻が分かる "+nA+" レースで計算しています（結果待ちと、払戻の分からない的中は入れません。購入 "+buy.toLocaleString()+" 円・払戻 "+pay.toLocaleString()+" 円）。見送り成功は、見送ったレースの3連単が "+(window.DZK?DZK.ARE:10000).toLocaleString()+" 円以上だった回数です。":"";
+  /* 2026-11-23 けん（A+B）：レースごとに「ここまでの回収率」。締切の順に足す。数えるのは上のリングと同じレースだけ */
+  CUM={};(function(){var o=SER.slice().sort(function(a,b){return (a.hd+a.d)<(b.hd+b.d)?-1:1}),cb=0,cp=0;o.forEach(function(e,i){cb+=e.a;cp+=e.p;e.cb=cb;e.cp=cp;e.n=i+1;CUM[e.k]=e})})();
   drawGraph(SER);
   $("b-count").textContent=xs.length?xs.length+"レース・買い目"+nBets+"件":"";
   /* 一覧は20レースずつ出し、下の目印が見えたら20ずつ足す（無限スクロール・再訪設計書 段階2）。振り返りの数字は全件で数える */
@@ -524,8 +559,9 @@ function drawBets(){
         var row2=j.state==="pending"?(j.u?'<small>結果が出たら払戻が入ります</small>':"")
           :'<div class="r"><span>払戻</span><b'+(j.state==="hit"&&pp>=10000?' class="man"':"")+'>'+(pp!=null?pp.toLocaleString()+"円":"未入力")+"</b></div>"
             +(j.state==="hit"?"<small>配当（100円あたり）</small>"+j.hits.map(function(h){return '<small class="nw">'+esc(BT[h.t]+" "+h.k)+" "+h.pay.toLocaleString()+"円</small>"}).join(""):"")
-            +(j.a>0&&pp!=null?"<small>回収率 "+Math.round(pp/j.a*100)+"%</small>":"");
-        return amt+'<div class="band"><div class="r"><div class="fin">結果'+(fin.length?" "+fin.map(function(n){return chips([n])}).join("<em>›</em>"):" —")+"</div>"+stl+"</div>"+row2+"</div>"
+            ;
+        var cu=CUM[x.k],rr=(j.a>0&&pp!=null&&cu&&cu.cb>0)?'<div class="rr"><div><div class="k">このレース</div>'+ring1(Math.round(pp/j.a*100))+'</div><div><div class="k">ここまで（'+cu.n+'レース）</div>'+ring1(Math.round(cu.cp/cu.cb*100))+"</div></div>":"";
+        return amt+'<div class="band"><div class="r"><div class="fin">結果'+(fin.length?" "+fin.map(function(n){return chips([n])}).join("<em>›</em>"):" —")+"</div>"+stl+"</div>"+row2+rr+"</div>"
           +(j.p==null&&j.state==="hit"?'<div class="kn">払戻は下の「金額を入れる・直す」から入れられます。</div>':"");
       })():st)
       +(x.t?'<div class="t">'+esc(x.t)+"</div>":"")
@@ -537,7 +573,7 @@ function drawBets(){
   watchMore();
   drawKeikou();
 }
-var BSHOW=20, BXS=[], BJ=[], BIO=null;
+var CUM={},GS=[],GSEL=null,BSHOW=20, BXS=[], BJ=[], BIO=null;
 function moreBets(){ BSHOW+=20; drawBets(); }
 /* 目印（続きのボタン）が画面に入ったら自動で足す。IntersectionObserver が無い環境ではボタンを押して足す */
 function watchMore(){
