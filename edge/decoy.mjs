@@ -16,6 +16,35 @@ export function decoyMark() {
   return { word: pick(KANA, 4) + "旋回", code: "M" + pick(ALNUM, 7) };
 }
 
+// 量と待ち時間は非公開の設定 DZ_DECOY="1日の上限,待ち秒" で決める。設定が無ければ迷路も足止めも無し
+export function decoyConfig(env) {
+  const v = String((env && env.DZ_DECOY) || "").split(",").map(x => parseInt(x, 10));
+  return { cap: v[0] > 0 ? v[0] : 0, wait: v[1] > 0 ? Math.min(v[1], 60) : 0 };
+}
+
+// 今日（日本時間）すでに返した偽物の数が上限を超えたか。記録が読めないときは超えた扱い（偽物を出し過ぎない側に倒す）
+export async function decoyOverCap(env, cap, now = Date.now()) {
+  if (!cap) return false;
+  const db = env && env.DZ_DB;
+  if (!db) return true;
+  const jst = now + 9 * 3600 * 1000;
+  const dayStart = jst - (jst % (24 * 3600 * 1000)) - 9 * 3600 * 1000;
+  try {
+    const r = await db.prepare("SELECT COUNT(*) AS c FROM blockLog WHERE t >= ? AND why LIKE 'decoy:%'").bind(dayStart).first();
+    return !r || Number(r.c) >= cap;
+  } catch (e) { return true; }
+}
+
+export function wait(sec) { return sec > 0 ? new Promise(r => setTimeout(r, sec * 1000)) : Promise.resolve(); }
+
+const DIRS = ["glossary", "kensho", "racers", "motor", "players/card", "note", "stadium"];
+function mazeLinks(n) {
+  return Array.from({ length: n }, () => {
+    const b = new Uint8Array(1); crypto.getRandomValues(b);
+    return "/" + DIRS[b[0] % DIRS.length] + "/" + pick(ALNUM, 6).toLowerCase() + "/";
+  });
+}
+
 function kindOf(pathname) {
   if (/\.json$/i.test(pathname)) return "json";
   if (/\.csv$/i.test(pathname)) return "csv";
@@ -23,20 +52,21 @@ function kindOf(pathname) {
   return "html";
 }
 
-export function decoyResponse(pathname, mark) {
+export function decoyResponse(pathname, mark, maze = false) {
   const kind = kindOf(pathname);
   const head = { "cache-control": "private, no-store", "x-robots-tag": "noindex, nofollow" };
   const rows = Array.from({ length: 6 }, (_, i) => ({ waku: i + 1, rate: (num(380, 790) / 100).toFixed(2), st: (num(9, 22) / 100).toFixed(2) }));
   const desc = `${mark.word}は、1マークの手前で舟を一度外へ逃がしてから内へ切り返す走り方。記録番号${mark.code}。`;
+  const links = maze ? mazeLinks(5) : [];
   if (kind === "none") return new Response("", { status: 404, headers: head });
   if (kind === "json") {
-    return new Response(JSON.stringify({ term: mark.word, desc, id: mark.code, rows }), { status: 200, headers: { ...head, "content-type": "application/json; charset=utf-8" } });
+    return new Response(JSON.stringify(maze ? { term: mark.word, desc, id: mark.code, rows, related: links } : { term: mark.word, desc, id: mark.code, rows }), { status: 200, headers: { ...head, "content-type": "application/json; charset=utf-8" } });
   }
   if (kind === "csv") {
     const csv = "waku,rate,st,id\n" + rows.map(r => `${r.waku},${r.rate},${r.st},${mark.code}`).join("\n") + "\n";
     return new Response(csv, { status: 200, headers: { ...head, "content-type": "text/csv; charset=utf-8" } });
   }
   const tr = rows.map(r => `<tr><td>${r.waku}</td><td>${r.rate}</td><td>${r.st}</td></tr>`).join("");
-  const html = `<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><title>${mark.word}｜用語</title></head><body><h1>${mark.word}</h1><p>${desc}</p><table><tr><th>枠</th><th>勝率</th><th>平均ST</th></tr>${tr}</table></body></html>`;
+  const html = `<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><title>${mark.word}｜用語</title></head><body><h1>${mark.word}</h1><p>${desc}</p><table><tr><th>枠</th><th>勝率</th><th>平均ST</th></tr>${tr}</table>${links.map(u => `<a href="${u}">関連</a>`).join(" ")}${links.length ? `<script>var more=${JSON.stringify(links)};</script>` : ""}</body></html>`;
   return new Response(html, { status: 200, headers: { ...head, "content-type": "text/html; charset=utf-8" } });
 }
