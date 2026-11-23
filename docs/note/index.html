@@ -347,6 +347,16 @@ function today(){var n=new Date(Date.now()+9*3600e3);return n.toISOString().slic
 function md(d){return +d.slice(5,7)+"/"+(+d.slice(8,10))}
 function yen(n){return n.toLocaleString()+"円"}
 var memos=load(KM), money=load(KS), IDX=null, pick=null, editId=null;
+/* 支出が "null" などの名前に保存されていた不具合（2026-11-23 直した）の戻し。id で重ね、戻した件数は支出の画面で1回だけ出す */
+(function(){var got=0,hv={};money.forEach(function(x){if(x&&x.id)hv[x.id]=1});
+  ["null","[object Object]"].forEach(function(k){var v;try{v=JSON.parse(localStorage.getItem(k))}catch(e){return}
+    if(!Array.isArray(v)||!v.length)return;
+    if(!v.every(function(x){return x&&typeof x==="object"&&typeof x.id==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(x.d)&&isFinite(x.buy)&&isFinite(x.pay)}))return;
+    v.forEach(function(x){if(hv[x.id])return;hv[x.id]=1;money.push({id:x.id,d:x.d,jo:/^\d{2}$/.test(x.jo)?x.jo:"",r:/^\d{1,2}$/.test(x.r)?x.r:"",buy:Math.max(0,Math.round(+x.buy)),pay:Math.max(0,Math.round(+x.pay))});got++});
+    if(save(KS,money))try{localStorage.removeItem(k)}catch(e){}
+  });
+  if(got)try{localStorage.setItem("dz_note_moneyBack",String(got))}catch(e){}
+})();
 
 /* ---------- タブ ---------- */
 function show(v){["bets","memo","money"].forEach(function(k){$("t-"+k).setAttribute("aria-selected",k===v);$("v-"+k).hidden=k!==v});try{history.replaceState(null,"","#"+v)}catch(e){}}
@@ -405,6 +415,8 @@ var PER="m0";
 $("per").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;PER=b.dataset.p;[].forEach.call($("per").children,function(x){x.setAttribute("aria-pressed",x===b)});drawMoney()});
 function inPer(d){if(PER==="all")return true;var t=today(),y=+t.slice(0,4),m=+t.slice(5,7);if(PER==="m1"){m-=1;if(!m){m=12;y-=1}}return d.slice(0,7)===y+"-"+("0"+m).slice(-2)}
 function drawMoney(){
+  if(!$("v-money").hidden){var nb=null;try{nb=localStorage.getItem("dz_note_moneyBack");if(nb)localStorage.removeItem("dz_note_moneyBack")}catch(e){}
+    if(/^\d+$/.test(nb||""))$("e-msg").textContent="保存できていなかった支出の記録を"+nb+"件戻しました。"}
   var xs=money.filter(function(x){return inPer(x.d)}).sort(function(a,b){return b.d.localeCompare(a.d)||(+b.r||0)-(+a.r||0)});
   var buy=0,pay=0;xs.forEach(function(x){buy+=x.buy;pay+=x.pay});
   var diff=pay-buy;
@@ -752,7 +764,7 @@ function drawKeikou(){
   if(window.DZK&&DZK.ninki){var ds={};all.forEach(function(x){if(x.hd<td&&!NKDAY[x.hd]&&firsts(x.en).length){var e=DZK.kkGet(x.k);if(!(e&&e.o))ds[x.hd]=1}});
     Object.keys(ds).sort().reduce(function(p,hd){NKDAY[hd]=1;return p.then(function(){return DZK.ninki(hd)}).then(function(ch){if(ch)ALLD.ch=1})},Promise.resolve()).then(function(){if(ALLD.ch){ALLD.ch=0;drawKeikou()}});}
   if(!DEME&&all.filter(function(x){return x.en.b.some(function(b){return MOSA[b.t]})}).length>=TH.res)demeLoad().then(function(d){if(d)drawKeikou()});
-  var S=stats(all);KS={S:S,rows:all};
+  var S=stats(all);KK={S:S,rows:all};
   if(!S.nOrd&&!S.titles.length){$("kk-body").innerHTML='<div class="empty">単勝・2連単・3連単の買い目を保存すると、1着に選んだ艇の傾向がここに出ます。</div>'+advice(all)}
   else{
     var main=S.titles[0]||"";
@@ -790,10 +802,10 @@ function repStats(m){
   var t=S.titles.filter(function(x){return x==="本命派"||x==="穴党"||x==="中穴派"})[0]||S.titles[0]||"";
   return {m:mo,range:y+"年"+mo+"月1日から"+last+"日"+(now?"（途中）":""),title:t,rank:S.rank,nOrd:S.nOrd,nRank:S.nRank,n:S.n,hit:S.hit,judged:S.judged,roi:S.roi,nA:S.nA,roiAll:A.roi,nAAll:A.nA,venues:out};
 }
-var KS=null;
+var KK=null;
 /* 称号カード（v5 9章・裁定14・15）。称号が無い人にはボタンを出さない。大きく出した数字は表に入れない */
 function shogoData(){
-  var S=KS.S,t=S.titles[0],ds=KS.rows.filter(function(x){return (isNinki(t)||t==="イン信者")?firsts(x.en).length:t==="見送り上手"?x.skip:x.en.b.length}).map(function(x){return x.hd}).sort();if(!ds.length)return null;
+  var S=KK.S,t=S.titles[0],ds=KK.rows.filter(function(x){return (isNinki(t)||t==="イン信者")?firsts(x.en).length:t==="見送り上手"?x.skip:x.en.b.length}).map(function(x){return x.hd}).sort();if(!ds.length)return null;
   var f=function(d){return (+d.slice(4,6))+"月"+(+d.slice(6,8))+"日"},a=ds[0],b=ds[ds.length-1];
   var T={title:t,tags:S.titles.slice(1,1+TAGMAX),range:(+a.slice(0,4))+"年"+f(a)+"から"+(a.slice(0,4)!==b.slice(0,4)?(+b.slice(0,4))+"年":"")+f(b),cmp:"",rule:ruleOf(t),basis:basisOf(t)};
   var r1=["1着に1号艇",pct(S.share1),S.nOrd+"レース",S.nF?pct(S.w1/S.nF):"—",S.nF?S.w1+"/"+S.nF:""];
@@ -815,7 +827,7 @@ function shogoData(){
   return T;
 }
 function openShogo(){
-  if(!KS||!KS.S.titles.length)return;
+  if(!KK||!KK.S.titles.length)return;
   var T=shogoData();if(!T)return;var d=$("rep"),m="sh";REPM=m;REPBLOB=null;
   $("rep-h").textContent="称号カード";$("rep-msg").textContent="画像を作っています。";$("rep-img").innerHTML="";
   if(d.showModal)d.showModal();else d.setAttribute("open","");
