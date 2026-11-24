@@ -40,7 +40,11 @@ p{font-size:14px;line-height:1.6;color:#c9d4e0;margin:0 0 20px}
       return;
     }
     if (inLine) return;
-    if (/iPhone|iPad|iPod|Android/i.test(ua)) {
+    if (/Android/i.test(ua)) {
+      /* Android は youtube:// を知らない（11/24 けん：アクセスできませんと出た）。intent で YouTube アプリへ。アプリが無ければブラウザの YouTube へ */
+      location.replace("intent://www.youtube.com/watch?v=" + V + "#Intent;scheme=https;package=com.google.android.youtube;S.browser_fallback_url=" + encodeURIComponent("https://www.youtube.com/watch?v=" + V) + ";end");
+      setTimeout(function () { if (!document.hidden) location.replace("https://www.youtube.com/watch?v=" + V); }, 1500);
+    } else if (/iPhone|iPad|iPod/i.test(ua)) {
       location.href = "youtube://www.youtube.com/watch?v=" + V;
       /* アプリが無い・断られたときだけ、1.2秒後にブラウザの YouTube へ。アプリへ移れたら（ページが隠れたら）何もしない */
       setTimeout(function () { if (!document.hidden) location.replace("https://www.youtube.com/watch?v=" + V); }, 1200);
