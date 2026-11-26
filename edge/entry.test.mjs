@@ -46,3 +46,25 @@ test("部品が無い・例外・500 のときは本物。/api/ は部品を通�
   assert.equal((await run("/api/now", { fetch: async () => { called = true; return new Response("no", { status: 403 }); } })).text, REAL);
   assert.equal(called, false);
 });
+
+test("部品が HTML を渡したら、HTML のページの末尾にだけ足す。HTML 以外・200 以外・壊れた値では足さず、本物はそのまま", async () => {
+  const mk = (tail) => ({ fetch: async () => new Response(null, { status: 204, headers: { "x-dz-pass": "1", "x-dz-tail": tail } }) });
+  const go = async (guard, type, status = 200) => {
+    const request = new Request("https://example.pages.dev/racers/", { headers: { "user-agent": "x" } });
+    const res = await onRequest({ request, env: { DZ_GUARD: guard }, next: async () => new Response(status === 200 ? "<html><body><p>" + REAL + "</p></body></html>" : null, { status, headers: { "content-type": type } }) });
+    return { status: res.status, text: await res.text() };
+  };
+  const orig = globalThis.HTMLRewriter;
+  globalThis.HTMLRewriter = class { on(sel, h) { this.h = h; return this; } transform(res) { const h = this.h; return new Response(res.text().then(t => { let add = ""; h.element({ append(x) { add += x; } }); return t.replace("</body>", add + "</body>"); }).then(t => new Blob([t]).stream()).then(s => s), res); } };
+  try {
+    globalThis.HTMLRewriter = class { on(sel, h) { this.h = h; return this; } transform(res) { let add = ""; this.h.element({ append(x) { add += x; } }); const ts = new TransformStream(); (async () => { const t = await res.text(); const w = ts.writable.getWriter(); await w.write(new TextEncoder().encode(t.replace("</body>", add + "</body>"))); await w.close(); })(); return new Response(ts.readable, res); } };
+    const a = await go(mk(encodeURIComponent("<i>x</i>")), "text/html; charset=utf-8");
+    assert.ok(a.text.includes(REAL) && a.text.includes("<i>x</i></body>"));
+    assert.ok(!(await go(mk(encodeURIComponent("<i>x</i>")), "application/json")).text.includes("<i>x</i>"));
+    assert.equal((await go(mk(encodeURIComponent("<i>x</i>")), "text/html", 304)).status, 304);
+    const bad = await go(mk("%E0%A4%A"), "text/html");
+    assert.ok(bad.text.includes(REAL) && !bad.text.includes("%E0"));
+    globalThis.HTMLRewriter = undefined;
+    assert.ok((await go(mk(encodeURIComponent("<i>x</i>")), "text/html")).text.includes(REAL));
+  } finally { globalThis.HTMLRewriter = orig; }
+});
