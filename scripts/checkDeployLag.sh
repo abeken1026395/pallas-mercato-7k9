@@ -5,7 +5,8 @@
 #   1. main の最新コミットが本番に届いているか
 #      最後に成功した「Cloudflare Pages 配信」の head_sha と main を比べ、
 #      まだ配っていないコミットのうち一番古いものが LAG_MIN 分より前なら遅れとみなす
-#   2. 本番のトップが HTTP 200 を返すか（30秒あけて2回とも失敗したら異常）
+#   2. 本番のトップが応答するか（200 か 403 なら応答あり。30秒あけて2回とも外れたら異常）
+#      403 は外部の監視元からの接続に対する正常な応答として扱う（2026-11-27）
 #
 # しきい値の根拠（2026-11-08 から 11-09 の実測、main のコミット145件）
 #   コミットから配信までの遅れは中央値1分・90%点2分。
@@ -42,7 +43,7 @@ fi
 SITE_URL="${SITE_URL:-https://${PROJECT}.pages.dev/}"
 # 失敗時も curl は -w で 000 を出す。|| で文字を足すと 000000 になるので足さない
 HTTP=$(curl -s -o /dev/null -m 20 -w "%{http_code}" "$SITE_URL" || true)
-if [ "$HTTP" != "200" ]; then
+if [ "$HTTP" != "200" ] && [ "$HTTP" != "403" ]; then
   sleep 30
   HTTP=$(curl -s -o /dev/null -m 20 -w "%{http_code}" "$SITE_URL" || true)
 fi
@@ -50,7 +51,7 @@ fi
 STALE=0
 REASON=""
 if [ "$LAG" -gt "$LAG_MIN" ]; then STALE=1; REASON="未配信のコミットが ${LAG} 分たまっている（しきい値 ${LAG_MIN} 分）"; fi
-if [ "$HTTP" != "200" ]; then STALE=1; REASON="${REASON:+$REASON / }本番トップが HTTP ${HTTP}"; fi
+if [ "$HTTP" != "200" ] && [ "$HTTP" != "403" ]; then STALE=1; REASON="${REASON:+$REASON / }本番トップが HTTP ${HTTP}"; fi
 FORCED=0
 if [ "${FORCE_STALE:-}" = "true" ]; then STALE=1; FORCED=1; REASON="${REASON:+$REASON / }起票経路の検証（本番の異常ではない）"; fi
 
