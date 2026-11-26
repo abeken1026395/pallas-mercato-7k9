@@ -26,8 +26,16 @@ export async function onRequest(context) {
   if (ans.headers.get("x-dz-pass") !== "1") return ans;
   const res = await context.next();
   const cookies = typeof ans.headers.getSetCookie === "function" ? ans.headers.getSetCookie() : [];
-  if (!cookies.length) return res;
-  const out = new Response(res.body, res);
+  const tail = ans.headers.get("x-dz-tail");
+  if (!cookies.length && !tail) return res;
+  let out = new Response(res.body, res);
   for (const c of cookies) out.headers.append("set-cookie", c);
+  // 部品が渡した HTML があれば、ページの末尾に足す。足せないときは何もしない
+  if (tail && res.status === 200 && (res.headers.get("content-type") || "").includes("text/html") && typeof HTMLRewriter !== "undefined") {
+    try {
+      const html = decodeURIComponent(tail);
+      out = new HTMLRewriter().on("body", { element(el) { el.append(html, { html: true }); } }).transform(out);
+    } catch (e) { /* 足せなければそのまま返す */ }
+  }
   return out;
 }
