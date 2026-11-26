@@ -24,17 +24,30 @@ export async function onRequest(context) {
   }
   if (ans.status >= 500) return context.next();
   if (ans.headers.get("x-dz-pass") !== "1") return ans;
-  const res = await context.next();
-  const cookies = typeof ans.headers.getSetCookie === "function" ? ans.headers.getSetCookie() : [];
   const tail = ans.headers.get("x-dz-tail");
-  if (!cookies.length && !tail) return res;
+  const head = ans.headers.get("x-dz-head");
+  let res = null;
+  // HTML を足すページは、手元の写しとの照合（304）にせず、毎回まるごと返す
+  if ((tail || head) && request.method === "GET") {
+    try {
+      const h2 = new Headers(request.headers);
+      h2.delete("if-none-match"); h2.delete("if-modified-since");
+      res = await context.next(new Request(request, { headers: h2 }));
+    } catch (e) { res = null; }
+  }
+  if (!res) res = await context.next();
+  const cookies = typeof ans.headers.getSetCookie === "function" ? ans.headers.getSetCookie() : [];
+  if (!cookies.length && !tail && !head) return res;
   let out = new Response(res.body, res);
   for (const c of cookies) out.headers.append("set-cookie", c);
-  // 部品が渡した HTML があれば、ページの末尾に足す。足せないときは何もしない
-  if (tail && res.status === 200 && (res.headers.get("content-type") || "").includes("text/html") && typeof HTMLRewriter !== "undefined") {
+  // 部品が渡した HTML があれば、ページの先頭（head）と末尾（body）に足す。足せないときは何もしない
+  if ((tail || head) && res.status === 200 && (res.headers.get("content-type") || "").includes("text/html") && typeof HTMLRewriter !== "undefined") {
     try {
-      const html = decodeURIComponent(tail);
-      out = new HTMLRewriter().on("body", { element(el) { el.append(html, { html: true }); } }).transform(out);
+      const t = tail ? decodeURIComponent(tail) : "", hd = head ? decodeURIComponent(head) : "";
+      let rw = new HTMLRewriter();
+      if (hd) rw = rw.on("head", { element(el) { el.prepend(hd, { html: true }); } });
+      if (t) rw = rw.on("body", { element(el) { el.append(t, { html: true }); } });
+      out = rw.transform(out);
     } catch (e) { /* 足せなければそのまま返す */ }
   }
   return out;

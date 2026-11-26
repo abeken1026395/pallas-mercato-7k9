@@ -68,3 +68,23 @@ test("部品が HTML を渡したら、HTML のページの末尾にだけ足す
     assert.ok((await go(mk(encodeURIComponent("<i>x</i>")), "text/html")).text.includes(REAL));
   } finally { globalThis.HTMLRewriter = orig; }
 });
+
+test("部品が先頭用の HTML を渡したら head の先頭に足し、そのときは照合の見出しを外して本物を取りに行く", async () => {
+  const orig = globalThis.HTMLRewriter;
+  globalThis.HTMLRewriter = class { constructor() { this.hs = {}; } on(sel, h) { this.hs[sel] = h; return this; } transform(res) { const hs = this.hs; const ts = new TransformStream(); (async () => { let t = await res.text(); if (hs.head) { let a = ""; hs.head.element({ prepend(x) { a += x; } }); t = t.replace("<head>", "<head>" + a); } if (hs.body) { let a = ""; hs.body.element({ append(x) { a += x; } }); t = t.replace("</body>", a + "</body>"); } const w = ts.writable.getWriter(); await w.write(new TextEncoder().encode(t)); await w.close(); })(); return new Response(ts.readable, res); } };
+  try {
+    let seen = null;
+    const guard = { fetch: async () => new Response(null, { status: 204, headers: { "x-dz-pass": "1", "x-dz-head": encodeURIComponent("<b>h</b>"), "x-dz-tail": encodeURIComponent("<i>x</i>") } }) };
+    const request = new Request("https://example.pages.dev/racers/", { headers: { "user-agent": "x", "if-none-match": "\"abc\"", "if-modified-since": "Thu, 26 Nov 2026 00:00:00 GMT" } });
+    const res = await onRequest({ request, env: { DZ_GUARD: guard }, next: async (r) => { seen = r || request; return new Response("<html><head><title>t</title></head><body><p>" + REAL + "</p></body></html>", { status: 200, headers: { "content-type": "text/html" } }); } });
+    const text = await res.text();
+    assert.ok(text.includes("<head><b>h</b><title>") && text.includes("<i>x</i></body>") && text.includes(REAL));
+    assert.equal(seen.headers.get("if-none-match"), null);
+    assert.equal(seen.headers.get("if-modified-since"), null);
+    assert.equal(seen.headers.get("user-agent"), "x");
+    let seen2 = "unset";
+    const plain = { fetch: async () => new Response(null, { status: 204, headers: { "x-dz-pass": "1" } }) };
+    await onRequest({ request, env: { DZ_GUARD: plain }, next: async (r) => { seen2 = r; return new Response(null, { status: 304 }); } });
+    assert.equal(seen2, undefined);
+  } finally { globalThis.HTMLRewriter = orig; }
+});
