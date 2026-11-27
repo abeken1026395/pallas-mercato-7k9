@@ -1,64 +1,64 @@
 {
- "生成時刻": "2026-11-27 08:00",
+ "生成時刻": "2026-11-27 14:00",
  "生成元": "PCローカル（タスクスケジューラ）",
  "注記": "事実のみ。判定はしない。生成時刻が古い場合は監視自体が止まっている。",
  "最終コミット": {
-  "時刻": "2026-11-27 08:00",
+  "時刻": "2026-11-27 13:59",
   "経過分": 0,
-  "sha": "18df82a72"
+  "sha": "3d7ec2f00"
  },
  "データ更新": {
   "liveWeather": {
-   "時刻": "2026-11-27 01:01",
-   "経過分": 418,
-   "sha": "540f4c255",
+   "時刻": "2026-11-27 13:53",
+   "経過分": 6,
+   "sha": "ece225386",
    "件名": "update liveWeather.json (+history)"
   },
   "weather": {
    "時刻": "2026-11-27 01:46",
-   "経過分": 374,
+   "経過分": 734,
    "sha": "f7d1b9691",
    "件名": "update weather.json"
   },
   "tideToday": {
-   "時刻": "2026-11-27 02:28",
-   "経過分": 332,
-   "sha": "4f1e1cb46",
+   "時刻": "2026-11-27 13:38",
+   "経過分": 21,
+   "sha": "3b34f96f0",
    "件名": "update tideToday.json"
   },
   "arare": {
-   "時刻": "2026-11-27 07:37",
-   "経過分": 23,
-   "sha": "55e7effc4",
+   "時刻": "2026-11-27 09:03",
+   "経過分": 296,
+   "sha": "a62b5994a",
    "件名": "update arare.json"
   },
   "racers": {
-   "時刻": "2026-11-27 03:25",
-   "経過分": 275,
-   "sha": "3a87fa8ed",
-   "件名": "auto: nightly pipeline (switch=0 next=0)"
+   "時刻": "2026-11-27 09:03",
+   "経過分": 296,
+   "sha": "5b8da6543",
+   "件名": "出走表データ自動更新 2026-11-27 00:03"
   },
   "highlights": {
-   "時刻": "2026-11-27 07:37",
-   "経過分": 22,
-   "sha": "7acdbda7b",
+   "時刻": "2026-11-27 09:03",
+   "経過分": 296,
+   "sha": "ac3148c12",
    "件名": "auto: update highlights.json + predictions"
   },
   "motorParts": {
    "時刻": "2026-11-27 07:38",
-   "経過分": 21,
+   "経過分": 381,
    "sha": "7bf1c03dc",
    "件名": "beforeinfo部品交換収集 2026-11-26 22:38"
   },
   "results": {
-   "時刻": "2026-11-27 01:46",
-   "経過分": 373,
-   "sha": "13461935d",
+   "時刻": "2026-11-27 13:59",
+   "経過分": 0,
+   "sha": "3d7ec2f00",
    "件名": "auto: results live update"
   },
   "preview": {
    "時刻": "2026-11-27 03:24",
-   "経過分": 275,
+   "経過分": 636,
    "sha": "cb90189b8",
    "件名": "auto: preview update"
   }
@@ -87,8 +87,8 @@
    "最終行": "[2026-11-27 06:07:31] === 完了: 291023940 を push（docs/data/motorUsage.json）==="
   },
   "dailyPartsBackfill": {
-   "更新": "2026-11-26 18:30",
-   "最終行": "[2026-11-26 18:30:32] 補填なし（空欄0 または該当K無し）。コミットせず正常終了"
+   "更新": "2026-11-27 09:00",
+   "最終行": "[2026-11-27 09:00:13] 補填なし（空欄0 または該当K無し）。コミットせず正常終了"
   },
   "dailyRacerSchedule": {
    "更新": "2026-11-27 03:11",
@@ -146,11 +146,11 @@
    },
    "dailyPartsBackfill": {
     "予定": "09:00 / 18:30",
-    "直近の予定": "2026-11-26 18:30",
-    "最終起動": "2026-11-26 18:30",
+    "直近の予定": "2026-11-27 09:00",
+    "最終起動": "2026-11-27 09:00",
     "最終終了コード": 0,
     "最終終了コード16進": "0x00000000",
-    "最終成功": "2026-11-26 18:30",
+    "最終成功": "2026-11-27 09:00",
     "タスク状態": "Ready",
     "状態": "成功"
    },
@@ -179,208 +179,208 @@
  "Actions失敗": {
   "取得": true,
   "理由": null,
-  "失敗": 137,
+  "失敗": 90,
   "打切": false,
   "一覧": [
    {
-    "時刻": "11-26 08:03",
+    "時刻": "11-26 14:02",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45718294547"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45759004337"
    },
    {
-    "時刻": "11-26 08:06",
+    "時刻": "11-26 14:07",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45718772830"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45759564057"
    },
    {
-    "時刻": "11-26 08:07",
+    "時刻": "11-26 14:10",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45718865569"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45759798643"
    },
    {
-    "時刻": "11-26 08:13",
+    "時刻": "11-26 14:16",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45719686714"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45760533387"
    },
    {
-    "時刻": "11-26 08:14",
+    "時刻": "11-26 14:16",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45719762370"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45760465599"
    },
    {
-    "時刻": "11-26 08:19",
+    "時刻": "11-26 14:19",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45720515491"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45760814318"
    },
    {
-    "時刻": "11-26 08:20",
+    "時刻": "11-26 14:27",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45720633750"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45761753608"
    },
    {
-    "時刻": "11-26 08:20",
+    "時刻": "11-26 14:27",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45720597595"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45761683051"
    },
    {
-    "時刻": "11-26 08:23",
+    "時刻": "11-26 14:28",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45721037704"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45761874219"
    },
    {
-    "時刻": "11-26 08:23",
+    "時刻": "11-26 14:29",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45720966267"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45761923304"
    },
    {
-    "時刻": "11-26 08:27",
+    "時刻": "11-26 14:35",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45721476569"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45762652893"
    },
    {
-    "時刻": "11-26 08:39",
+    "時刻": "11-26 14:36",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45723042829"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45762717412"
    },
    {
-    "時刻": "11-26 08:40",
+    "時刻": "11-26 14:53",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45723128702"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45764489709"
    },
    {
-    "時刻": "11-26 08:49",
+    "時刻": "11-26 14:56",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45724308368"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45764776067"
    },
    {
-    "時刻": "11-26 08:50",
+    "時刻": "11-26 15:17",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45724371648"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45767153897"
    },
    {
-    "時刻": "11-26 08:51",
+    "時刻": "11-26 16:32",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45724513595"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45776021710"
    },
    {
-    "時刻": "11-26 08:51",
+    "時刻": "11-26 16:59",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45724492844"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45779490875"
    },
    {
-    "時刻": "11-26 08:53",
+    "時刻": "11-26 16:59",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45724696451"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45779453532"
    },
    {
-    "時刻": "11-26 09:42",
+    "時刻": "11-26 17:12",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45730666917"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45781270637"
    },
    {
-    "時刻": "11-26 10:49",
+    "時刻": "11-26 17:41",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45738338775"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45785236573"
    },
    {
-    "時刻": "11-26 10:55",
+    "時刻": "11-26 17:43",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45738944553"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45785639852"
    },
    {
-    "時刻": "11-26 10:56",
+    "時刻": "11-26 17:43",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45739075119"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45785635671"
    },
    {
-    "時刻": "11-26 10:57",
+    "時刻": "11-26 17:43",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45739214859"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45785539016"
    },
    {
-    "時刻": "11-26 10:59",
+    "時刻": "11-26 18:11",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45739400426"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45789694218"
    },
    {
-    "時刻": "11-26 11:01",
+    "時刻": "11-26 18:11",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45739572697"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45789667570"
    },
    {
-    "時刻": "11-26 11:02",
+    "時刻": "11-26 18:13",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45739718313"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45789900014"
    },
    {
-    "時刻": "11-26 11:50",
+    "時刻": "11-26 18:27",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45745019389"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45792145743"
    },
    {
-    "時刻": "11-26 11:58",
+    "時刻": "11-26 18:40",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45745906250"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45794225506"
    },
    {
-    "時刻": "11-26 11:59",
-    "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45745953812"
+    "時刻": "11-26 18:42",
+    "名前": "観戦記 網羅性チェック（執筆完了ゲート）",
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45794534013"
    },
    {
-    "時刻": "11-26 12:05",
+    "時刻": "11-26 18:44",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45746640664"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45794816793"
    },
    {
-    "時刻": "11-26 12:29",
+    "時刻": "11-26 18:44",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45749287136"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45794745161"
    },
    {
-    "時刻": "11-26 12:30",
-    "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45749368653"
+    "時刻": "11-26 19:08",
+    "名前": "観戦記 網羅性チェック（執筆完了ゲート）",
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45798557655"
    },
    {
-    "時刻": "11-26 12:42",
+    "時刻": "11-26 19:09",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45750648213"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45798672772"
    },
    {
-    "時刻": "11-26 12:42",
+    "時刻": "11-26 19:10",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45750588376"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45798765909"
    },
    {
-    "時刻": "11-26 12:44",
-    "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45750782293"
+    "時刻": "11-26 19:45",
+    "名前": "観戦記 網羅性チェック（執筆完了ゲート）",
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45804276597"
    },
    {
-    "時刻": "11-26 12:48",
+    "時刻": "11-26 19:46",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45751221838"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45804469637"
    },
    {
-    "時刻": "11-26 12:50",
+    "時刻": "11-26 19:47",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45751453764"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45804544345"
    },
    {
-    "時刻": "11-26 12:52",
+    "時刻": "11-26 19:49",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45751678182"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45804931022"
    },
    {
-    "時刻": "11-26 12:58",
-    "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45752278676"
+    "時刻": "11-26 20:00",
+    "名前": "観戦記 網羅性チェック（執筆完了ゲート）",
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45806561843"
    },
    {
-    "時刻": "11-26 13:07",
+    "時刻": "11-26 20:01",
     "名前": "配信遅れ 警報",
-    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45753241163"
+    "url": "https://github.com/abeken1026395/pallas-mercato-7k9/actions/runs/45806791785"
    }
   ]
  },
