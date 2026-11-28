@@ -215,6 +215,16 @@ def boat_feats(ev, keys, t, d, v, w, pb):
     return out
 
 
+def setsu_sts(ev, keys, t, d, v):
+    """今節（同じ場の直前6日・d より前）の本番ST を古い順に。F は負の値のまま。無ければ None。スリット図の点に使う"""
+    if t not in ev:
+        return None
+    kt = keys[t]; L = ev[t]
+    s = [round(x[5], 2) for x in L[bisect.bisect_left(kt, ymd(d, 6)):bisect.bisect_left(kt, d)]
+         if x[1] == v and x[5] is not None]
+    return s or None
+
+
 def race_vec(ev, keys, d, v, rn, prog, toban):
     """toban: {枠: 登番}。prog: 出走表の1レース。"""
     pbs = {b["racer_boat_number"]: b for b in (prog or {}).get("boats", [])}
@@ -514,7 +524,7 @@ def main():
                           "fcount": int(b.get("racer_flying_count") or 0), "avgSt": fmt(b.get("racer_average_start_timing"), 2),
                           "nat2": fmt(b.get("racer_national_top_2_percent"), 1), "loc2": fmt(b.get("racer_local_top_2_percent"), 1),
                           "setsuN": fmt(b_(w, "setsuN")), "setsuWin": fmt(b_(w, "setsuWin") * b_(w, "setsuN")) if b_(w, "setsuN") == b_(w, "setsuN") else None,
-                          "setsuCh": fmt(b_(w, "setsuCh"), 2),
+                          "setsuCh": fmt(b_(w, "setsuCh"), 2), "setsuSts": setsu_sts(ev, keys, toban[w], hd, v),
                           "mz": [fmt(b_(w, "mzIn") * mzn), fmt(mzn)] if mzn == mzn and mzn else None})
             boats[-1] = {k_: v_ for k_, v_ in boats[-1].items() if v_ is not None}
         out.append({"jcd": jc, "rno": rn, "venue": VENUE[v], "pj": {NAMES[k]: round(float(P[k]), 3) for k in range(K)},
