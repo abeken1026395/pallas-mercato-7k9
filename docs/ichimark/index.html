@@ -179,6 +179,8 @@ details[open]>summary::after{content:"\2212"}
 (function(){
 var LC=["","#f2f2f0","#1b1b1b","#e2382f","#2a6fd6","#f2c200","#1f9a55"],LT=["","#111","#fff","#fff","#fff","#111","#fff"];
 var D=null,J=null,R=null,MK=null;
+var SL=null;
+function paintSl(){var cv=document.getElementById("slc");if(!cv||!SL)return;var dpr=Math.min(3,window.devicePixelRatio||1),m=SL;cv.width=Math.round(m.w*dpr);cv.height=Math.round(m.h*dpr);var img=new Image();img.onload=function(){var ctx=cv.getContext("2d");ctx.drawImage(img,0,0,cv.width,cv.height)};img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(m.svg);SL=null}
 function paintMk(){var cv=document.getElementById("mkc");if(!cv||!MK)return;var dpr=Math.min(3,window.devicePixelRatio||1),m=MK;cv.width=Math.round(m.w*dpr);cv.height=Math.round(m.h*dpr);var img=new Image();img.onload=function(){var ctx=cv.getContext("2d");ctx.drawImage(img,0,0,cv.width,cv.height)};img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(m.svg);MK=null}
 function $(id){return document.getElementById(id)}
 function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
@@ -321,6 +323,7 @@ function race(r){
       +'本番も凹めば、外の'+(dn.course+1)+'コースから見て内の壁がない形。この見立てでは'+(dn.course+1)+'コースのまくり・まくり差しが合わせて <span class="n">'+pct(mk)+'</span>%'
       +(gs?'。'+dn.course+'コースのスタートが逃げの見立てに与えた分は <span class="n">'+(gs.pt>=0?'+':'−')+Math.abs(gs.pt).toFixed(1)+'</span>ポイント'+(Math.abs(gs.pt)<1?'で、ほとんど効いていません':''):'')+'。</div>'}
   html+=''
+    +slitMae(bs)
     +'<div class="cap"><h2>1マーク</h2><span>'+windIcon(w)+(w?esc(w.t)+(w.ms?'<span class="n wv">'+w.ms+'</span>m':''):'')+(r.wave!=null?'・波<span class="n wv">'+r.wave+'</span>cm':'')+'</span></div>'
     +'<div class="legend"><span>%は、このレース全体での見立て。色の付いた艇が逃げと攻め筋、細い線はその攻めが決まったときの行き先。四角は艇番</span></div>'
     +'<div class="panel">'+course(bs,pn,a1,a2,pj,att)+'</div>';
@@ -353,7 +356,7 @@ function race(r){
   html+='<div class="cap" id="tbl"><h2>出走表</h2><span></span></div><table><colgroup><col class="c0"><col><col class="c2"><col class="c3"><col class="c4"><col class="c5"></colgroup><tr><th>枠</th><th>選手</th><th>全国</th><th>当地</th><th>今節</th><th>機</th></tr>'
     +bs.map(function(b){return '<tr><td>'+chip(b.waku)+'</td><td class="nm">'+esc(b.name||"")+'<small><span class="nb">'+esc(b.cls||"")+'</span>'+(b.fcount?'・<span class="nb fm">F'+b.fcount+'</span>':'')+(b.avgSt!=null?'・<span class="nb">平均ST'+b.avgSt.toFixed(2).replace(/^0/,'')+'</span>':'')+'</small></td><td class="n">'+(b.nat2!=null?b.nat2.toFixed(0):'—')+'</td><td class="n">'+(b.loc2!=null?b.loc2.toFixed(0):'—')+'</td><td class="n">'+(b.setsuN?b.setsuWin+'/'+b.setsuN:'—')+'</td><td class="n">'+(b.motor!=null?b.motor.toFixed(0):'—')+"</td></tr>"}).join("")
     +'</table><div class="tnote">全国・当地＝2連率（%、出走表の今期の値。出走数は出走表に無いため出していません）。今節＝同じ場の直前6日の1着数/走数（前日まで）。機＝モーター2連率（%）。平均ST＝本番の平均スタートタイミング（出走表）。F1・F2＝フライングを持っている本数。</div>';
-  $("main").innerHTML=html;paintMk();semeFill();
+  $("main").innerHTML=html;paintSl();paintMk();semeFill();
 }
 /* スリット：行＝進入コース（上が1）、旗＝艇番。横＝スタート展示ST（.40〜0）。展示Fの艇がいるときだけ、線の右に帯 */
 function slit(bs,dn){
@@ -373,6 +376,36 @@ function slit(bs,dn){
     if(dn&&dn===b)s+='<path d="M'+(x+6)+' '+(y-5)+' L'+(x+16)+' '+(y-5)+' L'+(x+11)+' '+(y+3)+' Z" fill="#dcbd78"/><text x="'+(x+19)+'" y="'+(y+4.5)+'" font-size="12" font-weight="800" fill="#dcbd78">凹み</text>';
   });
   return s+'</svg>';
+}
+/* スリット（展示前）：行＝コース（枠なりと仮定・上が1）。艇＝出走表の平均STの位置、点＝今節の本番ST（同じ場の直前6日・buildMae の setsuSts）。
+   横は時間（.40〜0、目盛り0.05秒）。平均STとモーターは下の出走表にあるので、図には数字を書かない（同じ数字を2回出さない）。
+   形は風や波で変えない（強い風では全艇がほぼ同じだけ遅れ、場によって向きが逆になるため。2026-11-28 実測）。AI対策で canvas に焼く */
+function slitMae(bs){
+  function num(v){return typeof v==='number'&&isFinite(v)}
+  if(!bs.some(function(b){return num(b.avgSt)}))return "";
+  var W=340,RH=34,T=22,H=T+RH*6+8,SX=W-30,L=34,K=(SX-L-40)/.40;
+  function X(v){return SX-Math.max(0,Math.min(.40,v))*K}
+  var s='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" font-family="-apple-system,Hiragino Sans,Hiragino Kaku Gothic ProN,Noto Sans JP,Noto Sans CJK JP,Meiryo,sans-serif">'
+    +'<rect width="'+W+'" height="'+H+'" fill="#08121c"/>';
+  [0,.05,.1,.15,.2,.25,.3,.35,.4].forEach(function(v){var x=X(v);
+    s+='<line x1="'+x.toFixed(1)+'" y1="'+(T-4)+'" x2="'+x.toFixed(1)+'" y2="'+(H-6)+'" stroke="'+(v?'rgba(232,236,239,'+(Math.round(v*100)%10?'.05':'.10')+')':'#dcbd78')+'" stroke-width="'+(v?1:1.6)+'"/>';
+    if(Math.round(v*100)%10===0)s+='<text x="'+x.toFixed(1)+'" y="'+(T-8)+'" text-anchor="middle" font-size="11" fill="'+(v?'#8a96a3':'#dcbd78')+'">'+(v?'.'+Math.round(v*100):'0')+'</text>'});
+  bs.forEach(function(b){var c=b.course,w=b.waku,y=T+(c-1)*RH+RH/2-4;
+    s+='<line x1="0" y1="'+(T+c*RH)+'" x2="'+W+'" y2="'+(T+c*RH)+'" stroke="rgba(232,236,239,.05)"/>'
+      +'<text x="12" y="'+(y+5)+'" text-anchor="middle" font-size="14" font-weight="700" fill="#cdd7e0">'+c+'</text>';
+    if(num(b.avgSt)){var x=X(b.avgSt);
+      s+='<path d="M'+(x-70).toFixed(1)+' '+(y-3)+' L'+(x-30).toFixed(1)+' '+(y-6)+' L'+(x-30).toFixed(1)+' '+(y+6)+' L'+(x-70).toFixed(1)+' '+(y+3)+' Z" fill="rgba(232,240,246,.16)"/>'
+        +'<path d="M'+x.toFixed(1)+' '+y+' L'+(x-9).toFixed(1)+' '+(y-7)+' L'+(x-30).toFixed(1)+' '+(y-7)+' L'+(x-30).toFixed(1)+' '+(y+7)+' L'+(x-9).toFixed(1)+' '+(y+7)+' Z" fill="'+LC[w]+'"'+(w===2?' stroke="#8a96a3"':'')+'/>'
+        +'<text x="'+(x-17).toFixed(1)+'" y="'+(y+4.5)+'" text-anchor="middle" font-size="12" font-weight="700" fill="'+LT[w]+'">'+w+'</text>'}
+    else s+='<text x="'+(L+4)+'" y="'+(y+4)+'" font-size="11" fill="#8a96a3">平均STなし</text>';
+    (Array.isArray(b.setsuSts)?b.setsuSts.filter(num).slice(-8):[]).forEach(function(v){var f=v<0,x=f?SX+12:X(v);
+      s+=f?'<text x="'+x+'" y="'+(y+18)+'" text-anchor="middle" font-size="10" font-weight="700" fill="#f0a9a0">F</text>'
+          :'<circle cx="'+x.toFixed(1)+'" cy="'+(y+13)+'" r="2.6" fill="'+LC[w]+'" stroke="'+(w===2?'#8a96a3':'rgba(255,255,255,.45)')+'" stroke-width=".7"/>'});
+  });
+  SL={svg:s+'</svg>',w:W,h:H};
+  return '<div class="cap"><h2>スリット</h2><span>ふだんの並び</span></div>'
+    +'<canvas id="slc" class="mkc" role="img" aria-label="スリットのふだんの並び" style="aspect-ratio:'+W+'/'+H+'"></canvas>'
+    +'<div class="tnote">艇＝出走表の平均STの位置、下の点＝今節の本番ST（同じ場の直前6日・Fは右端に「F」）。横は時間で、細い線は0.05秒ごと。進入は枠なりと仮定しています。予想ではなく、ふだんの数字の並びです。</div>';
 }
 /* 1マーク：ブイを中心に寄せた描き方。スタートの瞬間の隊形（横一線＋ST差。展示Fの艇は本番の平均STの位置に輪郭だけで）と、決まり手の型で描いた航跡。
    航跡はブイの外を回り、ブイとの間をあける。攻め筋が絞れないときは、候補の上位3つを細い灰の線で重ねる */
